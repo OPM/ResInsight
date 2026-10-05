@@ -20,6 +20,8 @@
 
 #include "QStringList"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +44,33 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
             m_formations.push_back( std::pair<RigWellPathFormation, FormationLevel>( formation, level ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellPathFormations::formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const
+{
+    for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
+    {
+        double top  = formation.first.mdTop;
+        double base = formation.first.mdBase;
+        if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            top  = formation.first.tvdTop;
+            base = formation.first.tvdBase;
+        }
+
+        if ( std::min( top, base ) <= depthValue && depthValue <= std::max( top, base ) )
+        {
+            return formation.first.formationName;
+        }
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +287,67 @@ void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel     
     {
         evaluateFormations( m_formations, level, names, depths, depthType );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns formation names paired with their depth range (top, base), suitable for region/color
+/// shading (unlike depthAndFormationNamesUpToLevel(), which returns a flat list of individually
+/// labeled Top/Base pick points for simple line annotations). Entries are sorted by top depth.
+/// TRUE_VERTICAL_DEPTH_RKB is treated the same as TRUE_VERTICAL_DEPTH; callers are responsible for
+/// adding any RKB offset to the returned ranges.
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<QString>, std::vector<std::pair<double, double>>>
+    RigWellPathFormations::namesAndRangesUpToLevel( FormationLevel level, bool includeFluids, RiaDefines::DepthType depthType ) const
+{
+    std::vector<QString>                   names;
+    std::vector<std::pair<double, double>> ranges;
+
+    if ( level == FormationLevel::NONE ) return { names, ranges };
+
+    if ( depthType != RiaDefines::DepthType::MEASURED_DEPTH && depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
+         depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        return { names, ranges };
+    }
+
+    bool useMd = ( depthType == RiaDefines::DepthType::MEASURED_DEPTH );
+
+    std::vector<std::tuple<double, double, QString>> entries;
+
+    auto appendEntry = [&entries, useMd]( const RigWellPathFormation& formation )
+    {
+        double top  = useMd ? formation.mdTop : formation.tvdTop;
+        double base = useMd ? formation.mdBase : formation.tvdBase;
+        entries.emplace_back( top, base, formation.formationName );
+    };
+
+    if ( includeFluids )
+    {
+        for ( const RigWellPathFormation& fluid : m_fluids )
+        {
+            appendEntry( fluid );
+        }
+    }
+
+    for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
+    {
+        if ( level != FormationLevel::ALL && formation.second > level ) continue;
+
+        appendEntry( formation.first );
+    }
+
+    std::sort( entries.begin(),
+               entries.end(),
+               []( const std::tuple<double, double, QString>& a, const std::tuple<double, double, QString>& b )
+               { return std::get<0>( a ) < std::get<0>( b ); } );
+
+    for ( const std::tuple<double, double, QString>& entry : entries )
+    {
+        ranges.push_back( { std::get<0>( entry ), std::get<1>( entry ) } );
+        names.push_back( std::get<2>( entry ) );
+    }
+
+    return { names, ranges };
 }
 
 //--------------------------------------------------------------------------------------------------

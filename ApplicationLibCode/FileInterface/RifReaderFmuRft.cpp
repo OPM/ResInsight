@@ -30,7 +30,13 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include <algorithm>
 #include <limits>
+
+namespace
+{
+const QString ESTIMATED_FORMATION_NAME_SUFFIX = " (Estimate)";
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -130,6 +136,189 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
     }
 
     return formationLabels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName, const QDateTime& timeStep )
+{
+    if ( m_observations.empty() )
+    {
+        importData();
+    }
+
+    std::set<QString> formations;
+    for ( const auto& observation : m_observations )
+    {
+        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
+        if ( !observation.location.formation.isEmpty() )
+            formations.insert( observation.location.formation + ESTIMATED_FORMATION_NAME_SUFFIX );
+    }
+
+    return formations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifReaderFmuRft::stripEstimatedFormationNameSuffix( const QString& formationName )
+{
+    if ( formationName.endsWith( ESTIMATED_FORMATION_NAME_SUFFIX ) )
+    {
+        return formationName.chopped( ESTIMATED_FORMATION_NAME_SUFFIX.length() );
+    }
+
+    return formationName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns all observations for the given well/time step, sorted by MD (RKB) ascending.
+//--------------------------------------------------------------------------------------------------
+std::vector<const RifReaderFmuRft::Observation*> RifReaderFmuRft::sortedObservationsForWellDate( const QString&   wellName,
+                                                                                                 const QDateTime& timeStep )
+{
+    if ( m_observations.empty() )
+    {
+        importData();
+    }
+
+    std::vector<const Observation*> observationsForWellDate;
+    for ( const auto& observation : m_observations )
+    {
+        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
+        observationsForWellDate.push_back( &observation );
+    }
+
+    std::sort( observationsForWellDate.begin(),
+               observationsForWellDate.end(),
+               []( const Observation* a, const Observation* b ) { return a->location.mdrkb < b->location.mdrkb; } );
+
+    return observationsForWellDate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// FMU RFT observation files typically contain a single observation point per formation per
+/// well/time step (one measured pressure point per zone), so the min/max MD among points tagged
+/// with the formation is usually degenerate (minMd == maxMd). To produce a usable depth filter,
+/// the formation's depth interval is instead extended halfway towards its neighboring observation
+/// points (sorted by MD) for the same well/time step, giving contiguous, non-overlapping intervals
+/// along the well. The outermost formation(s) extend to the first/last observation point MD.
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RifReaderFmuRft::formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName )
+{
+    std::vector<const Observation*> observationsForWellDate = sortedObservationsForWellDate( wellName, timeStep );
+    if ( observationsForWellDate.empty() ) return std::nullopt;
+
+    const QString baseFormationName = stripEstimatedFormationNameSuffix( formationName );
+
+    std::vector<size_t> indicesForFormation;
+    for ( size_t i = 0; i < observationsForWellDate.size(); i++ )
+    {
+        if ( observationsForWellDate[i]->location.formation == baseFormationName ) indicesForFormation.push_back( i );
+    }
+
+    if ( indicesForFormation.empty() ) return std::nullopt;
+
+    const size_t firstIdx = indicesForFormation.front();
+    const size_t lastIdx  = indicesForFormation.back();
+
+    const double firstMd = observationsForWellDate[firstIdx]->location.mdrkb;
+    const double lastMd  = observationsForWellDate[lastIdx]->location.mdrkb;
+
+    double minMd = ( firstIdx == 0 ) ? firstMd : 0.5 * ( observationsForWellDate[firstIdx - 1]->location.mdrkb + firstMd );
+    double maxMd =
+        ( lastIdx == observationsForWellDate.size() - 1 ) ? lastMd : 0.5 * ( lastMd + observationsForWellDate[lastIdx + 1]->location.mdrkb );
+
+    // Fall back to a small fixed padding if the formation is the only observation point for this
+    // well/time step, so the resulting range is not degenerate (minMd == maxMd).
+    if ( minMd == maxMd )
+    {
+        const double padding = 1.0;
+        minMd -= padding;
+        maxMd += padding;
+    }
+
+    return std::make_pair( minMd, maxMd );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Linearly interpolates TVD (MSL) at a given MD (RKB) using the well/time step's observed
+/// MD/TVD point pairs, sorted by MD. Clamps to the first/last observation point when the
+/// requested MD falls outside the observed range.
+//--------------------------------------------------------------------------------------------------
+double RifReaderFmuRft::interpolateTvdFromMd( const std::vector<const Observation*>& sortedObservations, double md )
+{
+    if ( md <= sortedObservations.front()->location.mdrkb ) return sortedObservations.front()->location.tvdmsl;
+    if ( md >= sortedObservations.back()->location.mdrkb ) return sortedObservations.back()->location.tvdmsl;
+
+    for ( size_t i = 0; i + 1 < sortedObservations.size(); ++i )
+    {
+        const double md0 = sortedObservations[i]->location.mdrkb;
+        const double md1 = sortedObservations[i + 1]->location.mdrkb;
+        if ( md >= md0 && md <= md1 )
+        {
+            if ( md1 == md0 ) return sortedObservations[i]->location.tvdmsl;
+
+            const double t = ( md - md0 ) / ( md1 - md0 );
+            return sortedObservations[i]->location.tvdmsl +
+                   t * ( sortedObservations[i + 1]->location.tvdmsl - sortedObservations[i]->location.tvdmsl );
+        }
+    }
+
+    return sortedObservations.back()->location.tvdmsl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RifReaderFmuRft::convertMdRangeToTvd( const QString& wellName, const QDateTime& timeStep, double mdMin, double mdMax )
+{
+    // A single observation point still gives a valid (degenerate) TVD value: interpolateTvdFromMd()
+    // clamps to that single point for any requested MD, so both ends of the returned range collapse
+    // to the same TVD, consistent with the MD padding fallback used for single-point formations.
+    std::vector<const Observation*> observationsForWellDate = sortedObservationsForWellDate( wellName, timeStep );
+    if ( observationsForWellDate.empty() ) return std::nullopt;
+
+    double tvdMin = interpolateTvdFromMd( observationsForWellDate, mdMin );
+    double tvdMax = interpolateTvdFromMd( observationsForWellDate, mdMax );
+    if ( tvdMin > tvdMax ) std::swap( tvdMin, tvdMax );
+
+    return std::make_pair( tvdMin, tvdMax );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Computes the mean observed pressure and mean observed pressure error for the given well/time
+/// step, optionally restricted to observation points within [mdMin, mdMax] (MD RKB).
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RifReaderFmuRft::observedPressureAndError( const QString& wellName, const QDateTime& timeStep, bool useDepthRange, double mdMin, double mdMax )
+{
+    std::vector<const Observation*> observationsForWellDate = sortedObservationsForWellDate( wellName, timeStep );
+    if ( observationsForWellDate.empty() ) return std::nullopt;
+
+    double minMd = mdMin;
+    double maxMd = mdMax;
+    if ( minMd > maxMd ) std::swap( minMd, maxMd );
+
+    double sumPressure      = 0.0;
+    double sumPressureError = 0.0;
+    int    count            = 0;
+
+    for ( const auto* observation : observationsForWellDate )
+    {
+        if ( useDepthRange && ( observation->location.mdrkb < minMd || observation->location.mdrkb > maxMd ) ) continue;
+
+        sumPressure += observation->pressure;
+        sumPressureError += observation->pressureError;
+        ++count;
+    }
+
+    if ( count == 0 ) return std::nullopt;
+
+    return std::make_pair( sumPressure / count, sumPressureError / count );
 }
 
 //--------------------------------------------------------------------------------------------------

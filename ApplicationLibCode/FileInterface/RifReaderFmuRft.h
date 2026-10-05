@@ -20,7 +20,9 @@
 #include "RifEclipseRftAddress.h"
 #include "RifReaderRftInterface.h"
 
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QDateTime>
@@ -67,6 +69,37 @@ public:
 
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
 
+    // Returns the formation (zone) names observed for the given well/time step, each tagged with an
+    // " (Estimate)" postfix: unlike formation tops from a grid case or imported well picks, these are
+    // derived from the MD span of RFT observation points tagged with that zone name (see
+    // formationDepthRange()), not exact geological picks. The postfix is part of the returned name so
+    // it is added only once, as early as possible, and then flows unchanged through every caller
+    // (formation filter UI, track formation annotation labels, etc.). formationDepthRange() accepts
+    // the name with or without the postfix.
+    std::set<QString> formationNames( const QString& wellName, const QDateTime& timeStep );
+
+    // Returns the measured depth (MDRKB) interval covering the given formation's observation point(s),
+    // for the given well and time step. The interval extends halfway towards neighboring observation
+    // points (sorted by MD) so that formations with a single observation point still get a usable,
+    // non-degenerate depth range. Returns std::nullopt if no matching points exist.
+    std::optional<std::pair<double, double>>
+        formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName );
+
+    // Interpolates the TVD (MSL) range corresponding to the given MD (RKB) range, using the
+    // well/time step's own observed MD<->TVD relationship. Used to filter simulated RFT depth
+    // samples that are only available as TVD (e.g. when no grid case is available to derive MD
+    // from well-path intersections), so an MD-based depth/formation filter still applies
+    // consistently. A single observation point yields a degenerate (but valid) range, both ends
+    // equal to that point's TVD. Returns std::nullopt only if there are no observation points at all.
+    std::optional<std::pair<double, double>>
+        convertMdRangeToTvd( const QString& wellName, const QDateTime& timeStep, double mdMin, double mdMax );
+
+    // Computes the mean observed pressure and mean observed pressure error for the given well/time
+    // step, optionally restricted to observation points within [mdMin, mdMax] (MD RKB). Returns
+    // std::nullopt if no matching observation points exist.
+    std::optional<std::pair<double, double>>
+        observedPressureAndError( const QString& wellName, const QDateTime& timeStep, bool useDepthRange, double mdMin, double mdMax );
+
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
@@ -86,6 +119,15 @@ private:
     static std::vector<Location> importLocations( const QString& fileName );
     static std::vector<Observation>
         importObservations( const QString& fileName, const std::vector<Location>& locations, const WellDate& wellDate );
+
+    std::vector<const Observation*> sortedObservationsForWellDate( const QString& wellName, const QDateTime& timeStep );
+
+    static double interpolateTvdFromMd( const std::vector<const Observation*>& sortedObservations, double md );
+
+    // Strips the " (Estimate)" postfix added by formationNames(), if present, so formationDepthRange()
+    // can match a raw observation's formation name regardless of whether the caller passes the name
+    // as originally returned by formationNames() or a stripped/custom variant of it.
+    static QString stripEstimatedFormationNameSuffix( const QString& formationName );
 
 private:
     QString                  m_filePath;

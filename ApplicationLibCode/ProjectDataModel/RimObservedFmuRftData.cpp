@@ -117,6 +117,61 @@ std::vector<QString> RimObservedFmuRftData::labels( const RifEclipseRftAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimObservedFmuRftData::formationNames( const QString& wellPathName, const QDateTime& timeStep )
+{
+    if ( m_fmuRftReader )
+    {
+        std::set<QString> formations = m_fmuRftReader->formationNames( wellPathName, timeStep );
+        return std::vector<QString>( formations.begin(), formations.end() );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RimObservedFmuRftData::formationDepthRange( const QString& wellPathName, const QDateTime& timeStep, const QString& formationName )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->formationDepthRange( wellPathName, timeStep, formationName );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RimObservedFmuRftData::convertMdRangeToTvd( const QString& wellPathName, const QDateTime& timeStep, double mdMin, double mdMax )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->convertMdRangeToTvd( wellPathName, timeStep, mdMin, mdMax );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimObservedFmuRftData::observedPressureAndError( const QString&   wellPathName,
+                                                                                          const QDateTime& timeStep,
+                                                                                          bool             useDepthRange,
+                                                                                          double           mdMin,
+                                                                                          double           mdMax )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->observedPressureAndError( wellPathName, timeStep, useDepthRange, mdMin, mdMax );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::initAfterRead()
 {
     if ( m_directoryPath().path().isEmpty() )

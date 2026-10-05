@@ -27,6 +27,8 @@
 #include "cafPdmProxyValueField.h"
 
 #include <memory>
+#include <optional>
+#include <utility>
 
 class RimObservedFmuRftData : public RimNamedObject
 {
@@ -42,6 +44,21 @@ public:
     bool                 hasWell( const QString& wellPathName ) const;
     std::vector<QString> wells() const;
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
+
+    std::vector<QString> formationNames( const QString& wellPathName, const QDateTime& timeStep );
+
+    std::optional<std::pair<double, double>>
+        formationDepthRange( const QString& wellPathName, const QDateTime& timeStep, const QString& formationName );
+
+    // Interpolates the TVD (MSL) range corresponding to the given MD (RKB) range, using the
+    // well/time step's own observed MD<->TVD relationship. See RifReaderFmuRft::convertMdRangeToTvd.
+    std::optional<std::pair<double, double>>
+        convertMdRangeToTvd( const QString& wellPathName, const QDateTime& timeStep, double mdMin, double mdMax );
+
+    // Computes the mean observed pressure and mean observed pressure error for the given well/time
+    // step, optionally restricted to the given MD (RKB) range.
+    std::optional<std::pair<double, double>>
+        observedPressureAndError( const QString& wellPathName, const QDateTime& timeStep, bool useDepthRange, double mdMin, double mdMax );
 
 protected:
     void initAfterRead() override;
