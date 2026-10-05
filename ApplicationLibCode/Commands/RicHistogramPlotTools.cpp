@@ -95,8 +95,11 @@ void RicHistogramPlotTools::createHistogramCurve( RimHistogramPlot* plot, RimHis
 {
     if ( !plot || !dataSource ) return;
 
+    // RiaGuiApplication::instance() asserts internally if called when there is no running GUI
+    // application, so check isRunning() first instead of relying on a null check of instance().
+    if ( !RiaGuiApplication::isRunning() ) return;
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    if ( !app ) return;
 
     RimProject* project = app->project();
     if ( !project ) return;
@@ -212,8 +215,11 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
 {
     if ( !plot || !curve ) return;
 
+    // RiaGuiApplication::instance() asserts internally if called when there is no running GUI
+    // application, so check isRunning() first instead of relying on a null check of instance().
+    if ( !RiaGuiApplication::isRunning() ) return;
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    if ( !app ) return;
 
     RimProject* project = app->project();
     if ( project == nullptr ) return;

@@ -770,20 +770,24 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
     RimEclipseCase*      eclipseCase          = m_stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
     std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
+    auto formationNameForValue = [&formationNamesVector]( double value ) -> QString
+    {
+        if ( !RiaCurveDataTools::isValidValue( value, false ) ) return "_";
+
+        // Reject values outside the range of int before casting to avoid undefined behavior.
+        if ( value < static_cast<double>( std::numeric_limits<int>::min() ) || value > static_cast<double>( std::numeric_limits<int>::max() ) )
+            return "_";
+
+        int idx = static_cast<int>( value );
+        if ( idx >= 0 && idx < static_cast<int>( formationNamesVector.size() ) ) return formationNamesVector[idx];
+
+        return "_";
+    };
+
     std::vector<QString> formationNames;
     for ( auto value : values )
     {
-        if ( !RiaCurveDataTools::isValidValue( value, false ) )
-        {
-            formationNames.push_back( "_" );
-            continue;
-        }
-
-        int idx = static_cast<int>( value );
-        if ( idx >= 0 && idx < static_cast<int>( formationNamesVector.size() ) )
-            formationNames.push_back( formationNamesVector[idx] );
-        else
-            formationNames.push_back( "_" );
+        formationNames.push_back( formationNameForValue( value ) );
     }
 
     return std::make_pair( values, formationNames );
