@@ -331,6 +331,12 @@ private:
     // not have an associated RimWellPath object (e.g. a simulation well only known from RFT data).
     cvf::ref<RigWellPathFormations> m_observedRftFormations;
 
+    // Formation names and depth ranges (case native depth unit, MD/TVD matching plot->depthType())
+    // for the "Case" formation source, cached by updateFormationNamesOnPlot() so formationNameAtDepth()
+    // can resolve a name when the user clicks in the CASE-derived formation annotation band.
+    std::vector<QString>                   m_caseFormationNames;
+    std::vector<std::pair<double, double>> m_caseFormationRanges;
+
     // OBSOLETE: Property value axis fields (migrated to RimWellLogPropertyAxisSettings)
     caf::PdmField<bool>                         m_isPropertyAxisEnabled_OBSOLETE;
     caf::PdmField<double>                       m_visiblePropertyValueRangeMin_OBSOLETE;

@@ -345,26 +345,26 @@ cvf::ref<RigWellPathFormations> RimWellRftPlot::createFormationsFromObservedRftD
     for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
     {
         std::vector<QString> formationNames = observedData->formationNames( m_wellPathNameOrSimWellName, timeStep );
-        if ( formationNames.empty() ) continue;
 
         std::vector<RigWellPathFormation> formations;
         for ( const QString& formationName : formationNames )
         {
             auto mdRange = observedData->formationDepthRange( m_wellPathNameOrSimWellName, timeStep, formationName );
-            if ( !mdRange ) continue;
-
-            RigWellPathFormation formation;
-            formation.mdTop         = mdRange->first;
-            formation.mdBase        = mdRange->second;
-            formation.formationName = formationName;
-
-            if ( auto tvdRange = observedData->convertMdRangeToTvd( m_wellPathNameOrSimWellName, timeStep, mdRange->first, mdRange->second ) )
+            if ( mdRange )
             {
-                formation.tvdTop  = tvdRange->first;
-                formation.tvdBase = tvdRange->second;
-            }
+                RigWellPathFormation formation;
+                formation.mdTop         = mdRange->first;
+                formation.mdBase        = mdRange->second;
+                formation.formationName = formationName;
 
-            formations.push_back( formation );
+                if ( auto tvdRange = observedData->convertMdRangeToTvd( m_wellPathNameOrSimWellName, timeStep, mdRange->first, mdRange->second ) )
+                {
+                    formation.tvdTop  = tvdRange->first;
+                    formation.tvdBase = tvdRange->second;
+                }
+
+                formations.push_back( formation );
+            }
         }
 
         if ( !formations.empty() )

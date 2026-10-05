@@ -272,13 +272,17 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     // used by the correlation/cross plots.
     for ( RimPlot* plot : m_wellRftPlot->plots() )
     {
-        auto* track = dynamic_cast<RimWellLogTrack*>( plot );
-        if ( !track ) continue;
-
-        auto* trackWidget = dynamic_cast<RiuWellLogTrack*>( track->viewer() );
-        if ( !trackWidget ) continue;
-
-        connect( trackWidget, &RiuWellLogTrack::formationClicked, this, &RimRftCorrelationReportPlot::onRftFormationClicked, Qt::UniqueConnection );
+        if ( auto* track = dynamic_cast<RimWellLogTrack*>( plot ) )
+        {
+            if ( auto* trackWidget = dynamic_cast<RiuWellLogTrack*>( track->viewer() ) )
+            {
+                connect( trackWidget,
+                         &RiuWellLogTrack::formationClicked,
+                         this,
+                         &RimRftCorrelationReportPlot::onRftFormationClicked,
+                         Qt::UniqueConnection );
+            }
+        }
     }
 
     // Restore saved dock state or apply hard-coded default layout

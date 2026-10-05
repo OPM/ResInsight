@@ -302,8 +302,6 @@ std::pair<std::vector<QString>, std::vector<std::pair<double, double>>>
     std::vector<QString>                   names;
     std::vector<std::pair<double, double>> ranges;
 
-    if ( level == FormationLevel::NONE ) return { names, ranges };
-
     if ( depthType != RiaDefines::DepthType::MEASURED_DEPTH && depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
          depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
     {
@@ -329,11 +327,14 @@ std::pair<std::vector<QString>, std::vector<std::pair<double, double>>>
         }
     }
 
+    if ( level == FormationLevel::NONE ) return { names, ranges };
+
     for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
     {
-        if ( level != FormationLevel::ALL && formation.second > level ) continue;
-
-        appendEntry( formation.first );
+        if ( level == FormationLevel::ALL || formation.second <= level )
+        {
+            appendEntry( formation.first );
+        }
     }
 
     std::sort( entries.begin(),

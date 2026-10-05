@@ -1347,6 +1347,22 @@ QString RimWellLogTrack::formationNameAtDepth( double depthValue, RiaDefines::De
         return m_observedRftFormations->formationNameAtDepth( depthValue, depthType );
     }
 
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::CASE )
+    {
+        for ( size_t i = 0; i < m_caseFormationRanges.size() && i < m_caseFormationNames.size(); i++ )
+        {
+            double top    = m_caseFormationRanges[i].first;
+            double base   = m_caseFormationRanges[i].second;
+            double rngMin = std::min( top, base );
+            double rngMax = std::max( top, base );
+            if ( depthValue >= rngMin && depthValue <= rngMax )
+            {
+                return m_caseFormationNames[i];
+            }
+        }
+        return {};
+    }
+
     if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ) return {};
 
     RimWellPath* wellPath = m_formationSettings->wellPathForSourceWellPath();
@@ -2674,6 +2690,12 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     bool isRftObservedSource = m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA;
 
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::CASE )
+    {
+        m_caseFormationNames.clear();
+        m_caseFormationRanges.clear();
+    }
+
     if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER || isRftObservedSource )
     {
         // "Observed RFT Data" formations are owned directly by the track (no RimWellPath required, as
@@ -2859,6 +2881,11 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
             std::vector<QString> formationNamesToPlot;
             RimWellLogTrack::findRegionNamesToPlot( curveData, formationNamesVector, plot->depthType(), &formationNamesToPlot, &yValues );
+
+            // Cache names/ranges (case native depth unit) so formationNameAtDepth() can resolve a
+            // formation name when the user clicks in the CASE-derived formation annotation band.
+            m_caseFormationNames  = formationNamesToPlot;
+            m_caseFormationRanges = yValues;
 
             std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );

@@ -291,14 +291,22 @@ void RimParameterRftCrossPlot::applyFormationFilter()
     for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
     {
         auto range = observedData->formationDepthRange( m_wellName(), m_selectedTimeStep(), m_formationFilter() );
-        if ( !range ) continue;
-
-        minMd = std::min( minMd, range->first );
-        maxMd = std::max( maxMd, range->second );
-        found = true;
+        if ( range )
+        {
+            minMd = std::min( minMd, range->first );
+            maxMd = std::max( maxMd, range->second );
+            found = true;
+        }
     }
 
-    if ( !found ) return;
+    if ( !found )
+    {
+        // The selected formation has no matching observed FMU RFT interval (e.g. it came from a
+        // CASE/well-pick band). Reject the selection rather than keeping a stale depth range that
+        // no longer matches the displayed formation name.
+        m_formationFilter = QString();
+        return;
+    }
 
     m_depthRangeMin = minMd;
     m_depthRangeMax = maxMd;

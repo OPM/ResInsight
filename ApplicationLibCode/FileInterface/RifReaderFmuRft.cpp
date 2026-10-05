@@ -151,9 +151,11 @@ std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName, cons
     std::set<QString> formations;
     for ( const auto& observation : m_observations )
     {
-        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
-        if ( !observation.location.formation.isEmpty() )
+        if ( observation.wellDate.wellName == wellName && observation.wellDate.dateTime == timeStep &&
+             !observation.location.formation.isEmpty() )
+        {
             formations.insert( observation.location.formation + ESTIMATED_FORMATION_NAME_SUFFIX );
+        }
     }
 
     return formations;
@@ -186,8 +188,10 @@ std::vector<const RifReaderFmuRft::Observation*> RifReaderFmuRft::sortedObservat
     std::vector<const Observation*> observationsForWellDate;
     for ( const auto& observation : m_observations )
     {
-        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
-        observationsForWellDate.push_back( &observation );
+        if ( observation.wellDate.wellName == wellName && observation.wellDate.dateTime == timeStep )
+        {
+            observationsForWellDate.push_back( &observation );
+        }
     }
 
     std::sort( observationsForWellDate.begin(),
@@ -309,11 +313,12 @@ std::optional<std::pair<double, double>>
 
     for ( const auto* observation : observationsForWellDate )
     {
-        if ( useDepthRange && ( observation->location.mdrkb < minMd || observation->location.mdrkb > maxMd ) ) continue;
-
-        sumPressure += observation->pressure;
-        sumPressureError += observation->pressureError;
-        ++count;
+        if ( !useDepthRange || ( observation->location.mdrkb >= minMd && observation->location.mdrkb <= maxMd ) )
+        {
+            sumPressure += observation->pressure;
+            sumPressureError += observation->pressureError;
+            ++count;
+        }
     }
 
     if ( count == 0 ) return std::nullopt;

@@ -331,9 +331,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogFormationSettings::calculateValueOptions
         for ( size_t i = 0; i < FormationSourceEnum::size(); i++ )
         {
             auto value = FormationSourceEnum::fromIndex( i );
-            if ( value == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA && !isInRft ) continue;
-
-            options.push_back( caf::PdmOptionItemInfo( FormationSourceEnum::uiText( value ), value ) );
+            if ( value != RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA || isInRft )
+            {
+                options.push_back( caf::PdmOptionItemInfo( FormationSourceEnum::uiText( value ), value ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
