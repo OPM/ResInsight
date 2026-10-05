@@ -25,6 +25,9 @@
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QJsonObject resolveRef( const QString& ref, const QJsonObject& rootSchema )
 {
     const QString prefix = "#/$defs/";
@@ -71,6 +74,9 @@ QJsonObject underlyingSchema( QJsonObject schema, const QJsonObject& rootSchema 
     return schema;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool isOpaque( const QJsonObject& schema, const QJsonObject& rootSchema )
 {
     return underlyingSchema( schema, rootSchema ).value( "x-taskmaestro-opaque" ).toBool( false );
@@ -88,6 +94,9 @@ QString objectPythonType( const QJsonObject& typeSchema, const QJsonObject& root
     return underlyingSchema( valueSchema, rootSchema ).value( "x-taskmaestro-python-type" ).toString();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString jsonType( const QJsonObject& typeSchema )
 {
     const QString type = typeSchema.value( "type" ).toString();
@@ -113,6 +122,9 @@ bool isVec3Schema( const QJsonObject& typeSchema )
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QJsonObject configFieldSchema( const QString&     fieldName,
                                const QJsonObject& inputSchema,
                                const QStringList& requiredFields,
@@ -154,6 +166,9 @@ QJsonObject configFieldSchema( const QString&     fieldName,
     return entry;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void appendEdge( QJsonArray& edges, const QJsonObject& ref, const QString& to, const QString& input )
 {
     const QString from = ref.value( "task" ).toString();
@@ -166,6 +181,9 @@ void appendEdge( QJsonArray& edges, const QJsonObject& ref, const QString& to, c
     edges.append( edge );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void appendDependencyEdges( QJsonArray& edges, const QString& taskName, const QJsonValue& dependsOn )
 {
     const QJsonObject deps = dependsOn.toObject();
@@ -201,6 +219,9 @@ void appendDependencyEdges( QJsonArray& edges, const QString& taskName, const QJ
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QJsonObject taskFromDescribe( const QJsonObject& task )
 {
     const QJsonObject inputSchema  = task.value( "input_schema" ).toObject();

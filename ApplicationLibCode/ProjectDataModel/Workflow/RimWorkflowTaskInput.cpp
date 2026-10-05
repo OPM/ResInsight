@@ -40,6 +40,9 @@ CAF_PDM_SOURCE_INIT( RimWorkflowTaskInput, "WorkflowTaskInput" );
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
 {
     const QString resinsightType = schema.value( "resinsight_type" ).toString();
@@ -61,6 +64,9 @@ RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
 }
 } // namespace
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowTaskInput::RimWorkflowTaskInput()
 {
     CAF_PDM_InitObject( "Task", ":/Bullet.png" );
@@ -70,17 +76,26 @@ RimWorkflowTaskInput::RimWorkflowTaskInput()
     m_taskName.uiCapability()->setUiReadOnly( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowTaskInput::taskName() const
 {
     return m_taskName();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::setTaskName( const QString& name )
 {
     m_taskName = name;
     setUiName( name );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::buildFromSchema( const QJsonArray& configFields )
 {
     deleteAllItems();
@@ -93,6 +108,9 @@ void RimWorkflowTaskInput::buildFromSchema( const QJsonArray& configFields )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     for ( RimWorkflowFieldBinding* b : items() )
@@ -102,11 +120,17 @@ void RimWorkflowTaskInput::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.skipRemainingFields( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowTaskInput::toTaskYamlBlock() const
 {
     QString out = m_taskName() + ":\n";

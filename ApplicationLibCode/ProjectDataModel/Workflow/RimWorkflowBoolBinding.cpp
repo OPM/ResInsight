@@ -22,11 +22,17 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowBoolBinding, "WorkflowBoolBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowBoolBinding::RimWorkflowBoolBinding()
 {
     CAF_PDM_InitField( &m_value, "Value", false, "Value" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowBoolBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
@@ -36,6 +42,9 @@ void RimWorkflowBoolBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowBoolBinding::toYamlValue() const
 {
     if ( !hasValue() ) return "null";

@@ -29,6 +29,9 @@
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWorkflowFieldBinding, "WorkflowFieldBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowFieldBinding::RimWorkflowFieldBinding()
 {
     CAF_PDM_InitObject( "Field", ":/Bullet.png" );
@@ -46,27 +49,42 @@ RimWorkflowFieldBinding::RimWorkflowFieldBinding()
     m_hasValue.uiCapability()->setUiHidden( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFieldBinding::fieldName() const
 {
     return m_fieldName();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFieldBinding::setFieldName( const QString& name )
 {
     m_fieldName = name;
     setUiName( name );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFieldBinding::setDescription( const QString& description )
 {
     m_description = description;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFieldBinding::setRequired( bool required )
 {
     m_required = required;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFieldBinding::displayValue() const
 {
     if ( !hasValue() ) return "(not set)";
@@ -80,6 +98,9 @@ QString RimWorkflowFieldBinding::displayValue() const
     return text.isEmpty() ? "(not set)" : text;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFieldBinding::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == valueField() )
@@ -89,17 +110,26 @@ void RimWorkflowFieldBinding::fieldChangedByUi( const caf::PdmFieldHandle* chang
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWorkflowFieldBinding::hasValue() const
 {
     return m_hasValue();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFieldBinding::yamlQuotedScalar( const QString& value )
 {
     const QByteArray encoded = QJsonDocument( QJsonArray{ value } ).toJson( QJsonDocument::Compact );
     return QString::fromUtf8( encoded.mid( 1, encoded.size() - 2 ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFieldBinding::applySchema( const QJsonObject& fieldSchema )
 {
     setFieldName( fieldSchema.value( "name" ).toString() );

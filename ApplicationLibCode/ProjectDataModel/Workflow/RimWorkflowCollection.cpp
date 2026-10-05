@@ -25,6 +25,9 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowCollection, "WorkflowCollection" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowCollection::RimWorkflowCollection()
 {
     CAF_PDM_InitObject( "Workflows", ":/Folder.png" );
@@ -35,11 +38,17 @@ RimWorkflowCollection::RimWorkflowCollection()
 
 RimWorkflowCollection::~RimWorkflowCollection() = default;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowCollection::discoveryDirectory()
 {
     return QDir::homePath() + "/.taskmaestro/workflows";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowCollection::rescanWorkflows()
 {
     deleteAllItems();

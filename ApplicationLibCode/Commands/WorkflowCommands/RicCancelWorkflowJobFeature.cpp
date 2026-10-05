@@ -26,6 +26,9 @@
 
 CAF_CMD_SOURCE_INIT( RicCancelWorkflowJobFeature, "RicCancelWorkflowJobFeature" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCancelWorkflowJobFeature::onActionTriggered( bool isChecked )
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
@@ -33,12 +36,18 @@ void RicCancelWorkflowJobFeature::onActionTriggered( bool isChecked )
     jobs.front()->cancelJob();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCancelWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Cancel Job" );
     actionToSetup->setIcon( QIcon( ":/stop.svg" ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicCancelWorkflowJobFeature::isCommandEnabled() const
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();

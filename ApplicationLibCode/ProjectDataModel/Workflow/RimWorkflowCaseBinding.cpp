@@ -23,22 +23,34 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowCaseBinding, "WorkflowCaseBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowCaseBinding::RimWorkflowCaseBinding()
 {
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowCaseBinding::displayValue() const
 {
     return m_case() ? m_case()->caseUserDescription() : "(not selected)";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowCaseBinding::toYamlValue() const
 {
     if ( m_case() == nullptr ) return "null";
     return QString( "{__resinsight_ref__: EclipseCase, case_id: %1}" ).arg( m_case()->caseId() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWorkflowCaseBinding::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
