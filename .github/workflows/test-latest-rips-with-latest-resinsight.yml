@@ -9,79 +9,30 @@ jobs:
   test-latest-rips:
     runs-on: ubuntu-26.04
     permissions:
-      actions: read
       contents: read
     steps:
-      - name: Find latest successful dev-branch build
-        id: latest-run
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-              owner,
-              repo,
-              workflow_id: "ResInsightWithCache.yml",
-              branch: "dev",
-              status: "completed",
-              per_page: 100,
-            });
-
-            const successfulRun = runs.find((run) => run.conclusion === "success");
-            if (!successfulRun) {
-              core.setFailed("Could not find a successful dev-branch run for ResInsightWithCache.yml");
-              return;
-            }
-
-            core.info(`Using run id ${successfulRun.id} from ${successfulRun.created_at}`);
-            core.setOutput("run_id", successfulRun.id.toString());
-
-      - name: Find ResInsight Linux artifact
-        id: artifact
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const runId = Number("${{ steps.latest-run.outputs.run_id }}");
-            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
-              owner,
-              repo,
-              run_id: runId,
-              per_page: 100,
-            });
-
-            const artifact = artifacts.find((candidate) => candidate.name === "ResInsight-Ubuntu 24.04 gcc");
-            if (!artifact) {
-              core.setFailed("Could not find artifact 'ResInsight-Ubuntu 24.04 gcc' on selected run");
-              return;
-            }
-
-            core.info(`Using artifact id ${artifact.id}: ${artifact.name}`);
-            core.setOutput("download_url", artifact.archive_download_url);
-
-      - name: Download and unpack ResInsight artifact
-        env:
-          ARTIFACT_URL: ${{ steps.artifact.outputs.download_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download and unpack ResInsight
         run: |
-          curl -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -o resinsight-artifact.zip \
-            "${ARTIFACT_URL}"
+          curl -fL \
+            -o resinsight.zip \
+            "https://github.com/CeetronSolutions/resinsight-builds/releases/download/dev-latest/ResInsight-Ubuntu.zip"
 
-          unzip -q resinsight-artifact.zip -d resinsight-install
+          unzip -q resinsight.zip -d resinsight-install
 
       - name: Find ResInsight executable
         id: executable
         run: |
           executable="$(find resinsight-install -type f -name ResInsight | head -n 1)"
           if [ -z "${executable}" ]; then
-            echo "Could not find ResInsight executable in downloaded artifact"
+            echo "Could not find ResInsight executable in downloaded archive"
             exit 1
           fi
 
-          chmod +x "${executable}"
+          if [ ! -x "${executable}" ]; then
+            echo "ResInsight executable in downloaded archive is not executable"
+            exit 1
+          fi
+
           echo "path=${executable}" >> "${GITHUB_OUTPUT}"
           echo "Found executable: ${executable}"
 
