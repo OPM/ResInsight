@@ -24,6 +24,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 #include "cvfColor3.h"
 
 class RiuCvfOverlayItemWidget;
@@ -40,6 +41,14 @@ class RimWellRftEnsembleCurveSet : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Emitted whenever this curve set's appearance settles on by-ensemble-parameter coloring
+    // (whether changed by the user in the UI or programmatically via
+    // updateEnsembleParameterIfColoringActive()), carrying the active parameter name. Used by the
+    // owning RimWellRftPlot to let composite plots (e.g. RimRftCorrelationReportPlot) keep their own
+    // parameter selection UI in sync.
+    caf::Signal<QString> colorByEnsembleParameterChanged;
+
+public:
     RimWellRftEnsembleCurveSet();
     ~RimWellRftEnsembleCurveSet() override;
 
@@ -51,6 +60,9 @@ public:
     cvf::Color3f curveColor( RimSummaryEnsemble* ensemble, const RimSummaryCase* summaryCase ) const;
 
     RimRegularLegendConfig* legendConfig();
+    RimCurveSetAppearance*  appearance() const;
+
+    bool updateEnsembleParameterIfColoringActive( const QString& parameterName );
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;

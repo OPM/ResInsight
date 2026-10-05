@@ -38,6 +38,7 @@ CAF_PDM_SOURCE_INIT( RimWellRftEnsembleCurveSet, "WellRftEnsembleCurveSet" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
+    : colorByEnsembleParameterChanged( this )
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
@@ -125,6 +126,11 @@ void RimWellRftEnsembleCurveSet::updatePlot( const SignalEmitter* emitter )
 
     // Required to update the color legend object, as this object is only present in the Project Tree when ensemble parameter is used
     updateConnectedEditors();
+
+    if ( m_appearance->colorMode() == RimCurveSetAppearance::ColorMode::BY_ENSEMBLE_PARAM )
+    {
+        colorByEnsembleParameterChanged.send( m_appearance->ensembleParameter() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +161,31 @@ void RimWellRftEnsembleCurveSet::initAfterRead()
 RimRegularLegendConfig* RimWellRftEnsembleCurveSet::legendConfig()
 {
     return m_appearance->legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCurveSetAppearance* RimWellRftEnsembleCurveSet::appearance() const
+{
+    return m_appearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Updates the ensemble parameter used for coloring, but only if this curve set is already colored
+/// by ensemble parameter. Never switches the curve set from single-color (or any other) mode into
+/// by-ensemble-parameter coloring. Returns true if the parameter was changed.
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftEnsembleCurveSet::updateEnsembleParameterIfColoringActive( const QString& parameterName )
+{
+    if ( !m_appearance ) return false;
+    if ( m_appearance->colorMode() != RimCurveSetAppearance::ColorMode::BY_ENSEMBLE_PARAM ) return false;
+    if ( m_appearance->ensembleParameter() == parameterName ) return false;
+
+    m_appearance->setEnsembleParameter( parameterName );
+    updatePlot( nullptr );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

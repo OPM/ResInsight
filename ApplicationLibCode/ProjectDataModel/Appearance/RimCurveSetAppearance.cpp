@@ -153,6 +153,22 @@ void RimCurveSetAppearance::setEnsembleParameter( const QString& ensembleParamet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCurveSetAppearance::ColorModeEnum RimCurveSetAppearance::colorMode() const
+{
+    return m_colorMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCurveSetAppearance::ensembleParameter() const
+{
+    return m_ensembleParameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimCurveSetAppearance::legendConfig() const
 {
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR ||

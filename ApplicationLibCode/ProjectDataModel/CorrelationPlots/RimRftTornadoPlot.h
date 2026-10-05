@@ -60,6 +60,7 @@ public:
     void setEclipseCase( RimEclipseResultCase* eclipseCase );
     void setUseDepthRange( bool useDepthRange );
     void setDepthRange( double minMd, double maxMd );
+    void setFormationFilterName( const QString& formationName );
     void setSelectedParameter( const QString& paramName );
 
     RiuQwtPlotWidget* viewer();
@@ -100,6 +101,7 @@ private:
     caf::PdmField<bool>                     m_useDepthRange;
     caf::PdmField<double>                   m_depthRangeMin;
     caf::PdmField<double>                   m_depthRangeMax;
+    QString m_formationFilterName; // Not a field: set via setFormationFilterName(), used for title text only
 
     // Tornado settings
     caf::PdmField<bool>         m_showAbsoluteValues;
