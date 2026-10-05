@@ -22,11 +22,17 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowVec3Binding, "WorkflowVec3Binding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowVec3Binding::RimWorkflowVec3Binding()
 {
     CAF_PDM_InitField( &m_value, "Value", cvf::Vec3d::ZERO, "Value" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowVec3Binding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
@@ -41,6 +47,9 @@ void RimWorkflowVec3Binding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowVec3Binding::toYamlValue() const
 {
     if ( !hasValue() ) return "null";

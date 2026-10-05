@@ -30,6 +30,9 @@ namespace
 constexpr char PROGRESS_PREFIX[] = "@@RI_WORKFLOW_EVENT@@";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuWorkflowJobRunner::RiuWorkflowJobRunner( const QString& label, QObject* parent )
     : QObject( parent )
     , m_label( label )
@@ -40,6 +43,9 @@ RiuWorkflowJobRunner::RiuWorkflowJobRunner( const QString& label, QObject* paren
     connect( &m_process, &QProcess::errorOccurred, this, &RiuWorkflowJobRunner::onProcessError );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::start( const QString& program, const QStringList& arguments, const QProcessEnvironment& env )
 {
     RiaLogging::info( QString( "Running %1" ).arg( m_label ).toStdString() );
@@ -48,6 +54,9 @@ void RiuWorkflowJobRunner::start( const QString& program, const QStringList& arg
     m_process.start( program, arguments );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::cancel()
 {
     if ( m_process.state() == QProcess::NotRunning ) return;
@@ -56,23 +65,35 @@ void RiuWorkflowJobRunner::cancel()
     if ( !m_process.waitForFinished( 2000 ) ) m_process.kill();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuWorkflowJobRunner::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::onReadyReadStdout()
 {
     m_stdoutBuf.append( m_process.readAllStandardOutput() );
     drainLines( m_stdoutBuf, RILogLevel::RI_LL_INFO );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::onReadyReadStderr()
 {
     m_stderrBuf.append( m_process.readAllStandardError() );
     drainLines( m_stderrBuf, RILogLevel::RI_LL_WARNING );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::onProcessFinished( int exitCode, QProcess::ExitStatus status )
 {
     m_stdoutBuf.append( m_process.readAllStandardOutput() );
@@ -108,6 +129,9 @@ void RiuWorkflowJobRunner::onProcessFinished( int exitCode, QProcess::ExitStatus
     deleteLater();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::onProcessError( QProcess::ProcessError error )
 {
     if ( error != QProcess::FailedToStart || m_finishedEmitted ) return;
@@ -117,6 +141,9 @@ void RiuWorkflowJobRunner::onProcessError( QProcess::ProcessError error )
     deleteLater();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowJobRunner::drainLines( QByteArray& buffer, RILogLevel level )
 {
     int nl;

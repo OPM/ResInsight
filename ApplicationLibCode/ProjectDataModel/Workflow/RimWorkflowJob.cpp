@@ -41,6 +41,9 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowJob, "WorkflowJob" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowJob::RimWorkflowJob()
 {
     CAF_PDM_InitObject( "Job", ":/Bullet.png" );
@@ -50,22 +53,34 @@ RimWorkflowJob::RimWorkflowJob()
     CAF_PDM_InitFieldNoDefault( &m_taskInputs, "TaskInputs", "" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowJob::~RimWorkflowJob()
 {
     cancelJob();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::setJobName( const QString& name )
 {
     m_name = name;
     setUiName( name );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::initAfterRead()
 {
     setUiName( m_name() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
@@ -82,11 +97,17 @@ void RimWorkflowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.skipRemainingFields( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimWorkflowTaskInput*> RimWorkflowJob::taskInputs() const
 {
     std::vector<RimWorkflowTaskInput*> result;
@@ -98,6 +119,9 @@ std::vector<RimWorkflowTaskInput*> RimWorkflowJob::taskInputs() const
     return result;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs )
 {
     m_taskInputs.deleteChildren();
@@ -107,6 +131,9 @@ void RimWorkflowJob::setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_name )
@@ -116,32 +143,50 @@ void RimWorkflowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicRunWorkflowJobFeature";
     menuBuilder << "RicCancelWorkflowJobFeature";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWorkflowJob::isRunning() const
 {
     return m_runner && m_runner->isRunning();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QString> RimWorkflowJob::taskStates() const
 {
     return m_taskStates;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QString> RimWorkflowJob::taskErrors() const
 {
     return m_taskErrors;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowJob::runStatus() const
 {
     return m_runStatus;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error )
 {
     if ( runId != m_runId || ( state != "running" && state != "completed" && state != "failed" ) ) return;
@@ -164,6 +209,9 @@ void RimWorkflowJob::updateTaskState( const QString& runId, const QString& taskN
     if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::finishRun( const QString& runId, bool succeeded, bool cancelled )
 {
     if ( runId != m_runId ) return;
@@ -185,11 +233,17 @@ void RimWorkflowJob::finishRun( const QString& runId, bool succeeded, bool cance
     if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::cancelJob()
 {
     if ( m_runner ) m_runner->cancel();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowJob::writeInputYaml( const QString& path ) const
 {
     QString body;
@@ -205,6 +259,9 @@ QString RimWorkflowJob::writeInputYaml( const QString& path ) const
     return path;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::runJob()
 {
     if ( isRunning() )

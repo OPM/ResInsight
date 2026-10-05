@@ -26,6 +26,9 @@
 
 CAF_CMD_SOURCE_INIT( RicRunWorkflowJobFeature, "RicRunWorkflowJobFeature" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRunWorkflowJobFeature::onActionTriggered( bool isChecked )
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
@@ -33,12 +36,18 @@ void RicRunWorkflowJobFeature::onActionTriggered( bool isChecked )
     jobs.front()->runJob();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRunWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Run" );
     actionToSetup->setIcon( QIcon( ":/Play.svg" ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicRunWorkflowJobFeature::isCommandEnabled() const
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();

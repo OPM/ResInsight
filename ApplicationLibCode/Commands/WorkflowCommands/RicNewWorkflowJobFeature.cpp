@@ -30,6 +30,9 @@
 
 CAF_CMD_SOURCE_INIT( RicNewWorkflowJobFeature, "RicNewWorkflowJobFeature" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewWorkflowJobFeature::onActionTriggered( bool isChecked )
 {
     auto workflows = caf::selectedObjectsByType<RimWorkflow*>();
@@ -53,12 +56,18 @@ void RicNewWorkflowJobFeature::onActionTriggered( bool isChecked )
     workflow->uiCapability()->updateAllRequiredEditors();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Job" );
     actionToSetup->setIcon( QIcon( ":/caf/duplicate.svg" ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicNewWorkflowJobFeature::isCommandEnabled() const
 {
     return caf::selectedObjectsByType<RimWorkflow*>().size() == 1;

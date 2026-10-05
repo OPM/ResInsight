@@ -24,6 +24,9 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowFilePathBinding, "WorkflowFilePathBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowFilePathBinding::RimWorkflowFilePathBinding()
     : m_selectDirectory( false )
 {
@@ -31,6 +34,9 @@ RimWorkflowFilePathBinding::RimWorkflowFilePathBinding()
     m_value.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFilePathBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
@@ -44,6 +50,9 @@ void RimWorkflowFilePathBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFilePathBinding::displayValue() const
 {
     if ( !hasValue() ) return "(not set)";
@@ -52,11 +61,17 @@ QString RimWorkflowFilePathBinding::displayValue() const
     return path.isEmpty() ? "(not set)" : path;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFilePathBinding::toYamlValue() const
 {
     return hasValue() ? yamlQuotedScalar( m_value().path() ) : "null";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFilePathBinding::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_value )

@@ -1628,6 +1628,9 @@ void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* bindi
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
 {
     if ( !m_workflowGraphView || m_displayedWorkflowJob.p() != job ) return;
@@ -1639,6 +1642,9 @@ void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
     m_workflowGraphView->setRunStatus( job->runStatus() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job )
 {
     if ( !m_workflowGraphDock )
@@ -1669,6 +1675,9 @@ void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* jo
     m_workflowGraphDock->setAsCurrentTab();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotNewObjectPropertyView()
 {
     ads::CDockWidget* dockWidget =

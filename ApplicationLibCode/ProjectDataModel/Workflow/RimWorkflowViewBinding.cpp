@@ -25,22 +25,34 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowViewBinding, "WorkflowViewBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowViewBinding::RimWorkflowViewBinding()
 {
     CAF_PDM_InitFieldNoDefault( &m_view, "View", "View" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowViewBinding::displayValue() const
 {
     return m_view() ? m_view()->name() : "(not selected)";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowViewBinding::toYamlValue() const
 {
     if ( m_view() == nullptr ) return "null";
     return QString( "{__resinsight_ref__: View, view_id: %1}" ).arg( m_view()->id() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWorkflowViewBinding::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;

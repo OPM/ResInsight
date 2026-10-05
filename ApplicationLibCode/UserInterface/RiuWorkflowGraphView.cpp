@@ -48,6 +48,9 @@ constexpr qreal columnStep  = 650.0;
 constexpr qreal configGap   = 110.0;
 constexpr qreal rowGap      = 55.0;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList fieldPorts( const QJsonArray& fields )
 {
     QStringList keys;
@@ -60,12 +63,18 @@ QStringList fieldPorts( const QJsonArray& fields )
     return keys;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString inputPortKey( const QJsonObject& edge )
 {
     const QString field = edge.value( "input" ).toString();
     return field.isEmpty() ? "model" : "field:" + field;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString outputPortKey( const QJsonObject& edge )
 {
     const QString field = edge.value( "output" ).toString();
@@ -118,6 +127,9 @@ private:
     QGraphicsPolygonItem* m_arrow;
 };
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 GraphNode::GraphNode( const QString& name, QStringList inputs, QStringList outputs, bool isConfig )
     : m_name( name )
     , m_isConfig( isConfig )
@@ -155,11 +167,17 @@ GraphNode::GraphNode( const QString& name, QStringList inputs, QStringList outpu
     addPorts( outputs, true );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 qreal GraphNode::height() const
 {
     return rect().height();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphNode::addPorts( const QStringList& keys, bool output )
 {
     auto& ports = output ? m_outputs : m_inputs;
@@ -188,6 +206,9 @@ void GraphNode::addPorts( const QStringList& keys, bool output )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QPointF GraphNode::portPosition( const QString& key, bool output ) const
 {
     const auto& ports = output ? m_outputs : m_inputs;
@@ -195,21 +216,33 @@ QPointF GraphNode::portPosition( const QString& key, bool output ) const
     return port ? port->mapToScene( port->rect().center() ) : scenePos();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphNode::addEdge( GraphEdge* edge )
 {
     m_edges.push_back( edge );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString GraphNode::name() const
 {
     return m_name;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool GraphNode::isConfig() const
 {
     return m_isConfig;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphNode::setTaskState( const QString& state, const QString& error )
 {
     if ( m_isConfig ) return;
@@ -243,6 +276,9 @@ void GraphNode::setTaskState( const QString& state, const QString& error )
     setToolTip( error.isEmpty() ? m_name : m_name + "\n" + error );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
 {
     if ( !m_isConfig ) return;
@@ -266,6 +302,9 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
     text->setToolTip( fieldName + ": " + value );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QVariant GraphNode::itemChange( GraphicsItemChange change, const QVariant& value )
 {
     if ( change == ItemPositionHasChanged )
@@ -277,6 +316,9 @@ QVariant GraphNode::itemChange( GraphicsItemChange change, const QVariant& value
     return QGraphicsRectItem::itemChange( change, value );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 GraphEdge::GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey, bool isConfig )
     : m_from( from )
     , m_to( to )
@@ -295,6 +337,9 @@ GraphEdge::GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString
     updatePath();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphEdge::updatePath()
 {
     const QPointF start = m_from->portPosition( m_outputKey, true );
@@ -307,6 +352,9 @@ void GraphEdge::updatePath()
 }
 } // namespace
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuWorkflowGraphView::RiuWorkflowGraphView( QWidget* parent )
     : QGraphicsView( parent )
     , m_scene( new QGraphicsScene( this ) )
@@ -317,6 +365,9 @@ RiuWorkflowGraphView::RiuWorkflowGraphView( QWidget* parent )
     setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& error )
 {
     m_runStatusLabel = nullptr;
@@ -467,6 +518,9 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value )
 {
     for ( QGraphicsItem* item : m_scene->items() )
@@ -480,6 +534,9 @@ void RiuWorkflowGraphView::setTaskInputValue( const QString& taskName, const QSt
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::resetTaskStates()
 {
     for ( QGraphicsItem* item : m_scene->items() )
@@ -488,6 +545,9 @@ void RiuWorkflowGraphView::resetTaskStates()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::setTaskState( const QString& taskName, const QString& state, const QString& error )
 {
     for ( QGraphicsItem* item : m_scene->items() )
@@ -501,6 +561,9 @@ void RiuWorkflowGraphView::setTaskState( const QString& taskName, const QString&
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::setRunStatus( const QString& status )
 {
     if ( !m_runStatusLabel ) return;
@@ -508,18 +571,27 @@ void RiuWorkflowGraphView::setRunStatus( const QString& status )
     m_runStatusLabel->setToolTip( status );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::resizeEvent( QResizeEvent* event )
 {
     QGraphicsView::resizeEvent( event );
     if ( m_fitOnResize && !m_scene->sceneRect().isEmpty() ) fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::mousePressEvent( QMouseEvent* event )
 {
     if ( event->button() == Qt::LeftButton ) m_fitOnResize = false;
     QGraphicsView::mousePressEvent( event );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::wheelEvent( QWheelEvent* event )
 {
     if ( event->modifiers() & Qt::ControlModifier )

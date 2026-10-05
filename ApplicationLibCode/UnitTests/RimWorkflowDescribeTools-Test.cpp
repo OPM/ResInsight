@@ -10,8 +10,10 @@
 
 namespace
 {
-// Output of `taskmaestro workflow describe workflow.yaml --input input.yaml --json` for a
-// synthetic workflow: start -> greet_a, greet_b -> merge (collect), merge <- start.count
+//--------------------------------------------------------------------------------------------------
+/// Output of `taskmaestro workflow describe workflow.yaml --input input.yaml --json` for a
+/// synthetic workflow: start -> greet_a, greet_b -> merge (collect), merge <- start.count
+//--------------------------------------------------------------------------------------------------
 QJsonObject describeFixture()
 {
     QFile file( QString( "%1/RimWorkflowDescribeTools/describe.json" ).arg( TEST_DATA_DIR ) );
@@ -19,6 +21,9 @@ QJsonObject describeFixture()
     return QJsonDocument::fromJson( file.readAll() ).object();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QJsonObject taskByName( const QJsonObject& graph, const QString& name )
 {
     for ( const QJsonValue& task : graph.value( "tasks" ).toArray() )
@@ -28,6 +33,9 @@ QJsonObject taskByName( const QJsonObject& graph, const QString& name )
     return {};
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QJsonObject fieldByName( const QJsonObject& task, const QString& name )
 {
     for ( const QJsonValue& field : task.value( "config_fields" ).toArray() )

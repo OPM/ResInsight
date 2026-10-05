@@ -22,11 +22,17 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowFloatBinding, "WorkflowFloatBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowFloatBinding::RimWorkflowFloatBinding()
 {
     CAF_PDM_InitField( &m_value, "Value", 0.0, "Value" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowFloatBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
@@ -36,6 +42,9 @@ void RimWorkflowFloatBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowFloatBinding::toYamlValue() const
 {
     return hasValue() ? QString::number( m_value(), 'g', 17 ) : "null";

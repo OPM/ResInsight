@@ -22,11 +22,17 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflowDateBinding, "WorkflowDateBinding" );
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWorkflowDateBinding::RimWorkflowDateBinding()
 {
     CAF_PDM_InitField( &m_value, "Value", QDate::currentDate(), "Value" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowDateBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
@@ -37,6 +43,9 @@ void RimWorkflowDateBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWorkflowDateBinding::toYamlValue() const
 {
     return hasValue() ? yamlQuotedScalar( m_value().toString( Qt::ISODate ) ) : "null";
