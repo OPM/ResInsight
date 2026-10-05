@@ -34,6 +34,7 @@ class RimSurfaceInViewCollection;
 class RimSeismicSectionCollection;
 class RimPolygonInViewCollection;
 class RimContourMapInViewCollection;
+class RimWellPathInViewCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -60,6 +61,7 @@ public:
     RimWellMeasurementInViewCollection*         measurementCollection() const;
     RimSeismicSectionCollection*                seismicSectionCollection() const;
     RimPolygonInViewCollection*                 polygonInViewCollection() const override;
+    RimWellPathInViewCollection*                wellPathInViewCollection() const override;
     virtual RimContourMapInViewCollection*      contourMapInViewCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
@@ -125,6 +127,7 @@ protected:
     caf::PdmChildField<RimSeismicSectionCollection*>        m_seismicSectionCollection;
     caf::PdmChildField<RimPolygonInViewCollection*>         m_polygonInViewCollection;
     caf::PdmChildField<RimContourMapInViewCollection*>      m_contourMapInViewCollection;
+    caf::PdmChildField<RimWellPathInViewCollection*>        m_wellPathInViewCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
