@@ -137,6 +137,23 @@ void RimViewWindow::removeWindowFromDock()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Removes the window from its dock and permanently discards the window controller, so
+/// isMainDockedWindow() becomes false for good. Unlike removeWindowFromDock(), which is used for
+/// ordinary close/hide operations and must leave the controller intact (so toggling the window
+/// visible again can recreate the dock widget), this is intended for plots that are being embedded
+/// as a sub-plot elsewhere (e.g. in a report) and should never be docked as a standalone window again.
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::detachWindowFromDockPermanently()
+{
+    if ( m_windowController != nullptr )
+    {
+        m_windowController->removeWindowFromDock();
+        delete m_windowController();
+        m_windowController = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimViewWindow::windowTitle()

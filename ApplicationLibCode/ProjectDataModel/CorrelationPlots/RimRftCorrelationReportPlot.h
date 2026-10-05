@@ -28,6 +28,7 @@
 
 class RimParameterRftCrossPlot;
 class RimRftTornadoPlot;
+class RimSummaryEnsemble;
 class RimWellRftPlot;
 
 namespace ads
@@ -70,6 +71,7 @@ private:
     void    cleanupBeforeClose();
 
     void     setupBeforeSave() override;
+    void     initAfterRead() override;
     void     doRenderWindowContent( QPaintDevice* paintDevice ) override;
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
@@ -84,6 +86,8 @@ private:
     void syncCrossPlotSelectionToRftPlot();
     void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
+    void onRftFormationClicked( const QString& formationName );
+    void onEnsembleParameterColoringChangedInRftPlot( RimSummaryEnsemble* ensemble, const QString& paramName );
 
 private:
     caf::PdmProxyValueField<QString> m_name;

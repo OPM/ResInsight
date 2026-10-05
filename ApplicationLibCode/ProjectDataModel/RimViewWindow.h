@@ -58,6 +58,7 @@ public:
     void updateDockWindowVisibility();
 
     void removeWindowFromDock();
+    void detachWindowFromDockPermanently();
 
     void dockAs3DViewWindow();
     void dockAsPlotWindow();

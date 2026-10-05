@@ -20,12 +20,15 @@
 
 #include "RimParameterRftCrossPlot.h"
 #include "RimRftTornadoPlot.h"
+#include "RimSummaryEnsemble.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuWellLogTrack.h"
 
 #include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
@@ -120,8 +123,10 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_showPlotLegends = false;
 
     m_wellRftPlot = new RimWellRftPlot;
-    m_wellRftPlot->removeWindowFromDock();
+    m_wellRftPlot->detachWindowFromDockPermanently();
     m_wellRftPlot->setShowWindow( true );
+    m_wellRftPlot->setEnsembleParameterColoringChangedCallback( [this]( RimSummaryEnsemble* ensemble, const QString& paramName )
+                                                                { onEnsembleParameterColoringChangedInRftPlot( ensemble, paramName ); } );
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
 
@@ -263,6 +268,19 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     m_correlationDockWidget = makeDockWidget( "Tornado Plot", m_tornadoPlot(), m_tornadoPlot->viewer() );
     m_crossPlotDockWidget   = makeDockWidget( "Cross Plot", m_parameterRftCrossPlot(), m_parameterRftCrossPlot->viewer() );
 
+    // Clicking a formation annotation band in the RFT plot's track selects it as the depth filter
+    // used by the correlation/cross plots.
+    for ( RimPlot* plot : m_wellRftPlot->plots() )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( plot );
+        if ( !track ) continue;
+
+        auto* trackWidget = dynamic_cast<RiuWellLogTrack*>( track->viewer() );
+        if ( !trackWidget ) continue;
+
+        connect( trackWidget, &RiuWellLogTrack::formationClicked, this, &RimRftCorrelationReportPlot::onRftFormationClicked, Qt::UniqueConnection );
+    }
+
     // Restore saved dock state or apply hard-coded default layout
     QByteArray stateToRestore;
     if ( !m_dockState().isEmpty() )
@@ -336,6 +354,29 @@ void RimRftCorrelationReportPlot::setupBeforeSave()
     if ( m_dockManager )
     {
         m_dockState = QString::fromLatin1( m_dockManager->saveState( 1 ).toBase64() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The child plots are reconstructed by the PDM factory during project-file deserialization, bypassing
+/// the non-serialized setup done in this class's constructor (dock detachment, tornado and ensemble-
+/// coloring callback wiring). Re-apply that setup here so the embedded RimWellRftPlot does not reappear
+/// as a stand-alone dock window and the tornado/cross-plot/RFT-plot parameter sync keeps working after
+/// a project reload.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::initAfterRead()
+{
+    if ( m_wellRftPlot() )
+    {
+        m_wellRftPlot->detachWindowFromDockPermanently();
+        m_wellRftPlot->setShowWindow( true );
+        m_wellRftPlot->setEnsembleParameterColoringChangedCallback( [this]( RimSummaryEnsemble* ensemble, const QString& paramName )
+                                                                    { onEnsembleParameterColoringChangedInRftPlot( ensemble, paramName ); } );
+    }
+
+    if ( m_tornadoPlot() )
+    {
+        m_tornadoPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
     }
 }
 
@@ -491,6 +532,49 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
     }
+
+    // Only update the ensemble parameter used for coloring if the curve set is already colored by
+    // ensemble parameter. Never switch it from single-color (or any other) mode into by-ensemble-
+    // parameter coloring just because a parameter was selected in the tornado/cross plot.
+    if ( m_wellRftPlot() && m_parameterRftCrossPlot() && m_parameterRftCrossPlot->ensemble() )
+    {
+        if ( auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() ) )
+        {
+            if ( curveSet->updateEnsembleParameterIfColoringActive( paramName ) )
+            {
+                m_wellRftPlot->loadDataAndUpdate();
+            }
+        }
+    }
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reverse sync: invoked when the user changes an embedded ensemble curve set's coloring to (or
+/// within) by-ensemble-parameter mode directly in the RFT plot panel. Mirrors that selection onto the
+/// tornado plot and cross plot so all three views of the report stay consistent. Note that
+/// onTornadoParameterSelected() (selecting a parameter in the tornado/cross plot) never switches the
+/// RFT plot's curve set into by-ensemble-parameter coloring; it only updates the active parameter when
+/// that coloring mode is already in use.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onEnsembleParameterColoringChangedInRftPlot( RimSummaryEnsemble* ensemble, const QString& paramName )
+{
+    if ( !ensemble ) return;
+
+    if ( m_parameterRftCrossPlot() && m_parameterRftCrossPlot->ensemble() == ensemble &&
+         m_parameterRftCrossPlot->ensembleParameter() != paramName )
+    {
+        m_parameterRftCrossPlot->setEnsembleParameter( paramName );
+        m_parameterRftCrossPlot->loadDataAndUpdate();
+    }
+
+    if ( m_tornadoPlot() )
+    {
+        m_tornadoPlot->setSelectedParameter( paramName );
+        m_tornadoPlot->loadDataAndUpdate();
+    }
+
     updateConnectedEditors();
 }
 
@@ -508,6 +592,22 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
+    m_tornadoPlot->setFormationFilterName( m_parameterRftCrossPlot->selectedFormationName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Invoked when the user clicks a formation annotation band in the RFT plot's track. Applies the
+/// clicked formation as the depth range filter used by the correlation/cross plots, without
+/// affecting the RFT plot itself.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onRftFormationClicked( const QString& formationName )
+{
+    if ( !m_parameterRftCrossPlot() ) return;
+
+    m_parameterRftCrossPlot->setFormationFilter( formationName );
+
+    loadDataAndUpdate();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
