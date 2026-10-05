@@ -19,6 +19,7 @@
 #include "RimParameterRftCrossPlot.h"
 
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseRftAddress.h"
@@ -33,12 +34,14 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellPath.h"
+#include "RimWellPlotTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
@@ -56,6 +59,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoneitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_text.h"
 
@@ -66,6 +70,19 @@
 #include <numeric>
 
 CAF_PDM_SOURCE_INIT( RimParameterRftCrossPlot, "ParameterRftCrossPlot" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimParameterRftCrossPlot::SampleMode>::setUp()
+{
+    addItem( RimParameterRftCrossPlot::SampleMode::ALL_SAMPLES, "ALL_SAMPLES", "All" );
+    addItem( RimParameterRftCrossPlot::SampleMode::MEAN_PER_REALIZATION, "MEAN_PER_REALIZATION", "Mean per Realization" );
+    setDefault( RimParameterRftCrossPlot::SampleMode::MEAN_PER_REALIZATION );
+}
+} // namespace caf
+
+const QString RimParameterRftCrossPlot::CUSTOM_RANGE_FILTER_VALUE = "__CUSTOM_RANGE__";
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,8 +100,11 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
+    CAF_PDM_InitField( &m_formationFilter, "FormationFilter", QString(), "Depth Range Filter" );
+    m_formationFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_sampleMode, "SampleMode", "Samples" );
 
     CAF_PDM_InitField( &m_useAutoPlotTitle, "UseAutoPlotTitle", true, "Auto Title" );
     CAF_PDM_InitField( &m_description, "Description", QString( "RFT Cross Plot" ), "Title" );
@@ -142,9 +162,26 @@ void RimParameterRftCrossPlot::setDepthRange( double minMd, double maxMd )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setFormationFilter( const QString& formationName )
+{
+    m_formationFilter = formationName;
+    applyFormationFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::setEnsembleParameter( const QString& paramName )
 {
     m_ensembleParameter = paramName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setSampleMode( SampleMode sampleMode )
+{
+    m_sampleMode = sampleMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,9 +251,179 @@ double RimParameterRftCrossPlot::depthRangeMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimParameterRftCrossPlot::formationFilter() const
+{
+    return m_formationFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the formation name if the depth range filter is currently set to an actual formation
+/// (as opposed to "None" or "Custom Range"), otherwise an empty string.
+//--------------------------------------------------------------------------------------------------
+QString RimParameterRftCrossPlot::selectedFormationName() const
+{
+    if ( m_formationFilter().isEmpty() || m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE ) return QString();
+
+    return m_formationFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimParameterRftCrossPlot::SampleMode RimParameterRftCrossPlot::sampleMode() const
+{
+    return m_sampleMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Looks up the MD depth range spanned by the selected formation across all observed FMU RFT data
+/// sets for the current well/time step, and applies it as the depth range filter. Falls back to
+/// leaving the depth range untouched if the formation is empty or no matching observed data exists.
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::applyFormationFilter()
+{
+    if ( m_formationFilter().isEmpty() || m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE ) return;
+
+    double minMd = std::numeric_limits<double>::max();
+    double maxMd = -std::numeric_limits<double>::max();
+    bool   found = false;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+    {
+        auto range = observedData->formationDepthRange( m_wellName(), m_selectedTimeStep(), m_formationFilter() );
+        if ( !range ) continue;
+
+        minMd = std::min( minMd, range->first );
+        maxMd = std::max( maxMd, range->second );
+        found = true;
+    }
+
+    if ( !found ) return;
+
+    m_depthRangeMin = minMd;
+    m_depthRangeMax = maxMd;
+    m_useDepthRange = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 {
     return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                                                                          const QString&        wellName,
+                                                                                          const QDateTime&      timeStep,
+                                                                                          RimEclipseResultCase* eclipseCase,
+                                                                                          bool                  useDepthRange,
+                                                                                          double                depthRangeMin,
+                                                                                          double                depthRangeMax )
+{
+    if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
+
+    RigEclipseWellLogExtractor* extractor = nullptr;
+    if ( eclipseCase )
+    {
+        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( wellName );
+        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
+        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
+    }
+
+    // Simulated RFT readers (e.g. RifReaderOpmRft) do not expose an MD channel, and MD can only be
+    // derived from well-path/grid intersections when an Eclipse case is available (see extractor
+    // above). Without one, rftCurveDepthValues() falls back to TVD. Since the depth range filter is
+    // always specified in MD, precompute the equivalent TVD range (from the well/time step's own
+    // observed MD<->TVD relationship) so the filter still applies correctly to TVD-only data.
+    std::optional<std::pair<double, double>> tvdFilterRange;
+    if ( useDepthRange )
+    {
+        for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+        {
+            tvdFilterRange = observedData->convertMdRangeToTvd( wellName, timeStep, depthRangeMin, depthRangeMax );
+            if ( tvdFilterRange ) break;
+        }
+    }
+
+    const auto& allCases = ensemble->allSummaryCases();
+
+    std::vector<std::vector<double>> samplesPerCase;
+    samplesPerCase.reserve( allCases.size() );
+
+    for ( RimSummaryCase* summaryCase : allCases )
+    {
+        if ( !summaryCase )
+        {
+            samplesPerCase.emplace_back();
+            continue;
+        }
+
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if ( !reader )
+        {
+            samplesPerCase.emplace_back();
+            continue;
+        }
+
+        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        std::vector<double> pressures;
+        reader->values( pressureAddress, &pressures );
+        if ( pressures.empty() )
+        {
+            samplesPerCase.emplace_back();
+            continue;
+        }
+
+        // Use the same depth values the RFT curves use for their depth axis, so the filter
+        // operates on values consistent with what the user sees in the RFT plot.
+        RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH;
+        std::vector<double>   depths    = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor, &depthType );
+
+        // The MD-specified filter range only applies directly to MD depths; when the reader could
+        // only supply TVD, use the TVD-converted range instead (if one could be computed).
+        double rangeMin = depthRangeMin;
+        double rangeMax = depthRangeMax;
+        if ( useDepthRange && depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
+        {
+            if ( !tvdFilterRange )
+            {
+                // No MD<->TVD conversion available (e.g. a one-point observed dataset, or a custom
+                // range without observed data): the MD filter range cannot be translated to TVD, so
+                // exclude this case rather than comparing it against the still-in-MD rangeMin/rangeMax.
+                samplesPerCase.emplace_back();
+                continue;
+            }
+
+            rangeMin = tvdFilterRange->first;
+            rangeMax = tvdFilterRange->second;
+        }
+
+        std::vector<double> samplesInRange;
+        if ( useDepthRange )
+        {
+            if ( depths.size() != pressures.size() )
+            {
+                // Depth filter requested but no aligned depth data is available for this case;
+                // exclude rather than silently return an unfiltered result.
+                samplesPerCase.emplace_back();
+                continue;
+            }
+            for ( size_t i = 0; i < depths.size(); ++i )
+                if ( depths[i] >= rangeMin && depths[i] <= rangeMax ) samplesInRange.push_back( pressures[i] );
+        }
+        else
+        {
+            samplesInRange = pressures;
+        }
+
+        samplesPerCase.push_back( samplesInRange );
+    }
+
+    return samplesPerCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,71 +437,17 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
                                                                           double                depthRangeMin,
                                                                           double                depthRangeMax )
 {
-    if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
-
-    RigEclipseWellLogExtractor* extractor = nullptr;
-    if ( eclipseCase )
-    {
-        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( wellName );
-        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
-        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
-    }
-
-    const auto& allCases = ensemble->allSummaryCases();
+    const std::vector<std::vector<double>> samplesPerCase =
+        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, useDepthRange, depthRangeMin, depthRangeMax );
 
     std::vector<double> pressurePerCase;
-    pressurePerCase.reserve( allCases.size() );
-
-    for ( RimSummaryCase* summaryCase : allCases )
+    pressurePerCase.reserve( samplesPerCase.size() );
+    for ( const auto& samples : samplesPerCase )
     {
-        if ( !summaryCase )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( !reader )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-        std::vector<double> pressures;
-        reader->values( pressureAddress, &pressures );
-        if ( pressures.empty() )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        // Use the same depth values the RFT curves use for their depth axis, so the filter
-        // operates on values consistent with what the user sees in the RFT plot.
-        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor );
-
-        std::vector<double> samplesInRange;
-        if ( useDepthRange )
-        {
-            if ( depths.size() != pressures.size() )
-            {
-                // Depth filter requested but no aligned depth data is available for this case;
-                // exclude rather than silently return an unfiltered mean.
-                pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-                continue;
-            }
-            for ( size_t i = 0; i < depths.size(); ++i )
-                if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
-        }
-        else
-        {
-            samplesInRange = pressures;
-        }
-
-        if ( samplesInRange.empty() )
+        if ( samples.empty() )
             pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
         else
-            pressurePerCase.push_back( std::accumulate( samplesInRange.begin(), samplesInRange.end(), 0.0 ) / samplesInRange.size() );
+            pressurePerCase.push_back( std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size() );
     }
 
     return pressurePerCase;
@@ -315,28 +468,56 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
 
     const auto& allCases = m_ensemble->allSummaryCases();
 
-    const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
-                                                                            m_wellName(),
-                                                                            m_selectedTimeStep(),
-                                                                            m_eclipseCase(),
-                                                                            m_useDepthRange(),
-                                                                            m_depthRangeMin(),
-                                                                            m_depthRangeMax() );
-
-    if ( pressurePerCase.size() != allCases.size() ) return {};
-
     std::vector<CaseData> result;
-    result.reserve( allCases.size() );
 
-    for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+    if ( m_sampleMode() == SampleMode::ALL_SAMPLES )
     {
-        RimSummaryCase* summaryCase = allCases[caseIdx];
-        if ( !summaryCase ) continue;
-        if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
-        if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+        // One point per RFT sample within the depth range, instead of a single per-case mean.
+        const std::vector<std::vector<double>> samplesPerCase = computePressureSamplesPerCase( m_ensemble(),
+                                                                                               m_wellName(),
+                                                                                               m_selectedTimeStep(),
+                                                                                               m_eclipseCase(),
+                                                                                               m_useDepthRange(),
+                                                                                               m_depthRangeMin(),
+                                                                                               m_depthRangeMax() );
+        if ( samplesPerCase.size() != allCases.size() ) return {};
 
-        result.push_back(
-            { .parameterValue = parameter.values[caseIdx].toDouble(), .pressureValue = pressurePerCase[caseIdx], .summaryCase = summaryCase } );
+        for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+        {
+            RimSummaryCase* summaryCase = allCases[caseIdx];
+            if ( !summaryCase ) continue;
+            if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+
+            const double paramValue = parameter.values[caseIdx].toDouble();
+            for ( double pressureValue : samplesPerCase[caseIdx] )
+                result.push_back( { .parameterValue = paramValue, .pressureValue = pressureValue, .summaryCase = summaryCase } );
+        }
+    }
+    else
+    {
+        const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
+                                                                                m_wellName(),
+                                                                                m_selectedTimeStep(),
+                                                                                m_eclipseCase(),
+                                                                                m_useDepthRange(),
+                                                                                m_depthRangeMin(),
+                                                                                m_depthRangeMax() );
+
+        if ( pressurePerCase.size() != allCases.size() ) return {};
+
+        result.reserve( allCases.size() );
+
+        for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+        {
+            RimSummaryCase* summaryCase = allCases[caseIdx];
+            if ( !summaryCase ) continue;
+            if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
+            if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+
+            result.push_back( { .parameterValue = parameter.values[caseIdx].toDouble(),
+                                .pressureValue  = pressurePerCase[caseIdx],
+                                .summaryCase    = summaryCase } );
+        }
     }
 
     return result;
@@ -360,8 +541,12 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString depthLabel = m_useDepthRange() ? QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                                 : QString( "Mean Pressure" );
+    const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "Pressure" ) : QString( "Mean Pressure" );
+    const QString formationName = selectedFormationName();
+    const QString depthLabel    = !formationName.isEmpty() ? QString( "%1 [%2]" ).arg( pressureLabel ).arg( formationName )
+                                  : m_useDepthRange()
+                                      ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+                                      : pressureLabel;
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -387,8 +572,9 @@ void RimParameterRftCrossPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
 {
-    QString asciiData;
-    asciiData += "Realization\tParameter\tMean Pressure\n";
+    QString       asciiData;
+    const QString pressureHeader = m_sampleMode() == SampleMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+    asciiData += QString( "Realization\tParameter\t%1\n" ).arg( pressureHeader );
     for ( const auto& [paramValue, pressureValue, summaryCase] : createCaseData() )
     {
         asciiData += QString( "%1\t%2\t%3\n" ).arg( summaryCase->displayCaseName() ).arg( paramValue ).arg( pressureValue );
@@ -538,14 +724,16 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     dataGroup->add( &m_eclipseCase );
 
     auto* depthGroup = uiOrdering.addNewGroup( "Depth Range" );
-    depthGroup->add( &m_useDepthRange );
+    depthGroup->add( &m_formationFilter );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
-    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() );
-    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() );
+    const bool customRangeSelected = m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE;
+    m_depthRangeMin.uiCapability()->setUiReadOnly( !customRangeSelected );
+    m_depthRangeMax.uiCapability()->setUiReadOnly( !customRangeSelected );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
+    crossPlotGroup->add( &m_sampleMode );
 
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
@@ -581,6 +769,35 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
             }
         }
         m_selectedTimeStep = timeSteps.empty() ? QDateTime() : *timeSteps.begin();
+
+        // The formation list depends on well/time step; clear the stale selection rather than risk
+        // silently filtering by a formation name that no longer applies.
+        m_formationFilter = QString();
+        m_useDepthRange   = false;
+    }
+    else if ( changedField == &m_selectedTimeStep )
+    {
+        // The formation list and its depth range are specific to a given time step.
+        m_formationFilter = QString();
+        m_useDepthRange   = false;
+    }
+    else if ( changedField == &m_formationFilter )
+    {
+        if ( m_formationFilter().isEmpty() )
+        {
+            // "None": no depth filtering.
+            m_useDepthRange = false;
+        }
+        else if ( m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE )
+        {
+            // "Custom Range": keep the existing min/max values, now editable by the user.
+            m_useDepthRange = true;
+        }
+        else
+        {
+            // A formation name: compute and apply its depth range.
+            applyFormationFilter();
+        }
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
@@ -635,6 +852,26 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
         }
         for ( const QDateTime& dt : timeSteps )
             options.push_back( caf::PdmOptionItemInfo( dt.toString( "yyyy-MM-dd" ), dt ) );
+    }
+    else if ( fieldNeedingOptions == &m_formationFilter )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", QString() ) );
+        options.push_back( caf::PdmOptionItemInfo( "Custom Range", CUSTOM_RANGE_FILTER_VALUE ) );
+
+        std::set<QString> formationNames;
+        if ( !m_wellName().isEmpty() && m_selectedTimeStep().isValid() )
+        {
+            for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+            {
+                for ( const QString& name : observedData->formationNames( m_wellName(), m_selectedTimeStep() ) )
+                    formationNames.insert( name );
+            }
+        }
+        // RimObservedFmuRftData::formationNames() already returns each name tagged with the
+        // " (Estimate)" postfix (see RifReaderFmuRft::formationNames()), so option label and value
+        // can both use it directly; formationDepthRange() accepts the tagged name as-is.
+        for ( const QString& name : formationNames )
+            options.push_back( caf::PdmOptionItemInfo( name, name ) );
     }
     else if ( fieldNeedingOptions == &m_eclipseCase )
     {
@@ -708,6 +945,8 @@ void RimParameterRftCrossPlot::createPoints()
 {
     detachAllCurves();
 
+    addObservedPressureMarkers();
+
     caf::ColorTable colorTable = RiaColorTables::categoryPaletteColors();
 
     auto caseData = createCaseData();
@@ -723,11 +962,26 @@ void RimParameterRftCrossPlot::createPoints()
         }
     }
 
-    int idx = 0;
-    for ( const auto& [paramValue, pressureValue, summaryCase] : caseData )
+    // createCaseData() groups all entries belonging to the same case consecutively (one entry per
+    // case normally, or one entry per in-range RFT sample when sampleMode() is ALL_SAMPLES). Group
+    // them into a single curve per case so each case gets one consistent color/legend entry even
+    // when it contributes multiple points.
+    int    idx = 0;
+    size_t i   = 0;
+    while ( i < caseData.size() )
     {
+        RimSummaryCase*     summaryCase = caseData[i].summaryCase;
+        std::vector<double> xValues;
+        std::vector<double> yValues;
+        while ( i < caseData.size() && caseData[i].summaryCase == summaryCase )
+        {
+            xValues.push_back( caseData[i].parameterValue );
+            yValues.push_back( caseData[i].pressureValue );
+            ++i;
+        }
+
         auto* plotCurve = new RiuQwtPlotCurve;
-        plotCurve->setSamplesValues( { paramValue }, { pressureValue } );
+        plotCurve->setSamplesValues( xValues, yValues );
         plotCurve->setStyle( QwtPlotCurve::NoCurve );
 
         const bool isSelected = selectedSummaryCases.contains( summaryCase );
@@ -742,6 +996,96 @@ void RimParameterRftCrossPlot::createPoints()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the mean observed RFT pressure as a solid horizontal reference line, and the observed
+/// pressure error band (pressure +/- mean error) as dashed horizontal reference lines, across the
+/// full width of the plot. Averages across all observed FMU RFT data sources available for the
+/// current well, honoring the active depth range filter (if any).
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::addObservedPressureMarkers()
+{
+    if ( !m_plotWidget ) return;
+
+    auto observed = observedPressureAndErrorForCurrentSelection();
+    if ( !observed ) return;
+
+    const double observedPressure      = observed->first;
+    const double observedPressureError = observed->second;
+
+    auto addHorizontalLine = [this]( double yValue, Qt::PenStyle penStyle, const QString& label )
+    {
+        auto* marker = new QwtPlotMarker();
+        marker->setLineStyle( QwtPlotMarker::HLine );
+        marker->setYValue( yValue );
+        QPen pen( Qt::black );
+        pen.setStyle( penStyle );
+        pen.setWidth( 1 );
+        marker->setLinePen( pen );
+
+        if ( !label.isEmpty() )
+        {
+            QwtText text( label );
+            text.setColor( Qt::black );
+            marker->setLabel( text );
+            marker->setLabelAlignment( Qt::AlignTop | Qt::AlignLeft );
+        }
+
+        // Markers are not included in automatic axis scaling, but updateValueRanges() extends
+        // m_yValueRange to include the observed pressure/error values, so the explicit axis range
+        // set in updateAxes() always keeps these lines visible.
+        marker->setZ( 1000.0 );
+        marker->attach( m_plotWidget->qwtPlot() );
+    };
+
+    addHorizontalLine( observedPressure, Qt::SolidLine, "Observed Pressure" );
+    if ( observedPressureError > 0.0 )
+    {
+        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine, "" );
+        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine, "" );
+
+        // Transparent light pink background spanning the +/- error band around the observed pressure.
+        QColor shadingColor( 255, 192, 203 ); // light pink
+        shadingColor.setAlpha( 60 );
+
+        auto* shading = new QwtPlotZoneItem();
+        shading->setOrientation( Qt::Horizontal );
+        shading->setInterval( observedPressure - observedPressureError, observedPressure + observedPressureError );
+        shading->setPen( shadingColor, 0.0, Qt::NoPen );
+        shading->setBrush( QBrush( shadingColor ) );
+        shading->setZ( 999.0 );
+        shading->attach( m_plotWidget->qwtPlot() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the mean observed RFT pressure and mean observed pressure error for the current well,
+/// time step and depth range filter, averaged across all observed FMU RFT data sources available
+/// for the well. Returns std::nullopt if no observed data is available for the current selection.
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimParameterRftCrossPlot::observedPressureAndErrorForCurrentSelection() const
+{
+    if ( m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return std::nullopt;
+
+    double sumPressure      = 0.0;
+    double sumPressureError = 0.0;
+    int    count            = 0;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+    {
+        auto observed =
+            observedData->observedPressureAndError( m_wellName(), m_selectedTimeStep(), m_useDepthRange(), m_depthRangeMin(), m_depthRangeMax() );
+        if ( !observed ) continue;
+
+        sumPressure += observed->first;
+        sumPressureError += observed->second;
+        ++count;
+    }
+
+    if ( count == 0 ) return std::nullopt;
+
+    return std::make_pair( sumPressure / count, sumPressureError / count );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::updatePlotTitle()
@@ -750,17 +1094,27 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle && m_ensemble() )
     {
-        if ( m_useDepthRange() )
+        const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "RFT Pressure (All Samples)" )
+                                                                                : QString( "Mean RFT Pressure" );
+        const QString formationName = selectedFormationName();
+
+        if ( !formationName.isEmpty() )
         {
-            m_description = QString( "%1 vs RFT Pressure [%2 - %3 m], %4" )
+            m_description =
+                QString( "%1 vs %2 [%3], %4" ).arg( m_ensembleParameter() ).arg( pressureLabel ).arg( formationName ).arg( m_ensemble->name() );
+        }
+        else if ( m_useDepthRange() )
+        {
+            m_description = QString( "%1 vs %2 [%3 - %4 m], %5" )
                                 .arg( m_ensembleParameter() )
+                                .arg( pressureLabel )
                                 .arg( m_depthRangeMin() )
                                 .arg( m_depthRangeMax() )
                                 .arg( m_ensemble->name() );
         }
         else
         {
-            m_description = QString( "%1 vs RFT Pressure, %2" ).arg( m_ensembleParameter() ).arg( m_ensemble->name() );
+            m_description = QString( "%1 vs %2, %3" ).arg( m_ensembleParameter() ).arg( pressureLabel ).arg( m_ensemble->name() );
         }
     }
 
@@ -787,7 +1141,26 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
-    if ( xMin == std::numeric_limits<double>::infinity() )
+    // Ensure the observed pressure/error reference lines added by addObservedPressureMarkers() are
+    // always within the Y axis range, even when they fall outside the ensemble pressure values.
+    if ( auto observed = observedPressureAndErrorForCurrentSelection() )
+    {
+        const double observedPressure      = observed->first;
+        const double observedPressureError = observed->second;
+
+        yMin = std::min( yMin, observedPressure - observedPressureError );
+        yMax = std::max( yMax, observedPressure + observedPressureError );
+
+        if ( xMin == std::numeric_limits<double>::infinity() )
+        {
+            // No ensemble case data at all; still show the X axis as-is and size the Y axis around
+            // the observed pressure only.
+            m_xValueRange = std::nullopt;
+            m_yValueRange = std::make_pair( yMin, yMax );
+            return;
+        }
+    }
+    else if ( xMin == std::numeric_limits<double>::infinity() )
     {
         m_xValueRange = std::nullopt;
         m_yValueRange = std::nullopt;

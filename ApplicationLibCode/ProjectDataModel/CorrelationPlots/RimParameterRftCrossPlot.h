@@ -20,6 +20,7 @@
 #include "Appearance/RimFontSizeField.h"
 #include "RimPlot.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -46,10 +47,16 @@ class RimParameterRftCrossPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SampleMode
+    {
+        ALL_SAMPLES,
+        MEAN_PER_REALIZATION
+    };
+
     struct CaseData
     {
         double          parameterValue;
-        double          pressureValue; // mean pressure in depth range
+        double          pressureValue; // mean pressure in depth range, or a single RFT sample when sampleMode() is ALL_SAMPLES
         RimSummaryCase* summaryCase;
     };
 
@@ -62,6 +69,8 @@ public:
     void setTimeStep( const QDateTime& timeStep );
     void setDepthRange( double minMd, double maxMd );
     void setEnsembleParameter( const QString& paramName );
+    void setFormationFilter( const QString& formationName );
+    void setSampleMode( SampleMode sampleMode );
 
     QString               ensembleParameter() const;
     QString               wellName() const;
@@ -71,6 +80,9 @@ public:
     bool                  useDepthRange() const;
     double                depthRangeMin() const;
     double                depthRangeMax() const;
+    QString               formationFilter() const;
+    QString               selectedFormationName() const;
+    SampleMode            sampleMode() const;
 
     RiuQwtPlotWidget* viewer();
 
@@ -85,6 +97,16 @@ public:
                                                            bool                  useDepthRange,
                                                            double                depthRangeMin,
                                                            double                depthRangeMax );
+
+    // Computes all RFT pressure samples (filtered by depth range, if enabled) per ensemble case.
+    // Indices match ensemble->allSummaryCases(); a case with no matching data gets an empty vector.
+    static std::vector<std::vector<double>> computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                                                           const QString&        wellName,
+                                                                           const QDateTime&      timeStep,
+                                                                           RimEclipseResultCase* eclipseCase,
+                                                                           bool                  useDepthRange,
+                                                                           double                depthRangeMin,
+                                                                           double                depthRangeMax );
 
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
@@ -111,11 +133,19 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void            createPoints();
-    void            updatePlotTitle();
-    void            updateValueRanges();
-    void            cleanupBeforeClose();
-    RimSummaryCase* findClosestCase( const QPoint& canvasPos );
+    void                                     createPoints();
+    void                                     addObservedPressureMarkers();
+    std::optional<std::pair<double, double>> observedPressureAndErrorForCurrentSelection() const;
+    void                                     updatePlotTitle();
+    void                                     updateValueRanges();
+    void                                     cleanupBeforeClose();
+    RimSummaryCase*                          findClosestCase( const QPoint& canvasPos );
+    void                                     applyFormationFilter();
+
+private:
+    // Sentinel value for the Depth Range Filter combo box, representing a manually entered depth
+    // range (as opposed to "None"/empty for no filter, or a formation name for a computed range).
+    static const QString CUSTOM_RANGE_FILTER_VALUE;
 
 private:
     caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
@@ -125,7 +155,9 @@ private:
     caf::PdmField<bool>                     m_useDepthRange;
     caf::PdmField<double>                   m_depthRangeMin;
     caf::PdmField<double>                   m_depthRangeMax;
+    caf::PdmField<QString>                  m_formationFilter;
     caf::PdmField<QString>                  m_ensembleParameter;
+    caf::PdmField<caf::AppEnum<SampleMode>> m_sampleMode;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
