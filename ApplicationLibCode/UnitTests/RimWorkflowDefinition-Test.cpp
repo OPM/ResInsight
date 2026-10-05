@@ -166,7 +166,7 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
     // Icons of ResInsight objects, found through `ObjectModel[Class]` and rips bases
     const QJsonObject exportIcons = exportTask.value( "input_icons" ).toObject();
     EXPECT_EQ( ":/AppLogo48x48.png", exportIcons.value( "resinsight" ).toString() );
-    EXPECT_FALSE( exportTask.value( "output_icons" ).toObject().contains( "export_file" ) );
+    EXPECT_EQ( ":/codicons/symbol-string.svg", exportTask.value( "output_icons" ).toObject().value( "export_file" ).toString() );
     EXPECT_EQ( ":/Case48x48.png", taskByName( graph, "select_eclipse_case" ).value( "output_icons" ).toObject().value( "" ).toString() );
     EXPECT_EQ( ":/Well.svg", taskByName( graph, "select_well_path_1" ).value( "output_icons" ).toObject().value( "" ).toString() );
     EXPECT_EQ( ":/Case48x48.png",
@@ -181,6 +181,21 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
                                                                                                                  "ObjectModel["
                                                                                                                  "View]" } } } } } },
                                                            {} ) );
+
+    // Plain values get an icon for their kind; models without a ResInsight object get none
+    auto valueIcon = []( const QJsonObject& schema ) { return RimWorkflowPortCompatibility::iconResource( schema, {} ); };
+    EXPECT_EQ( ":/codicons/symbol-string.svg", valueIcon( { { "type", "string" } } ) );
+    EXPECT_EQ( ":/codicons/symbol-numeric.svg", valueIcon( { { "type", "integer" } } ) );
+    EXPECT_EQ( ":/codicons/symbol-numeric.svg", valueIcon( { { "type", "number" } } ) );
+    EXPECT_EQ( ":/codicons/calendar.svg", valueIcon( { { "type", "string" }, { "format", "date" } } ) );
+    EXPECT_EQ( ":/codicons/file.svg", valueIcon( { { "type", "string" }, { "format", "path" } } ) );
+    EXPECT_EQ( ":/codicons/folder.svg", valueIcon( { { "type", "string" }, { "format", "directory-path" } } ) );
+    EXPECT_EQ( ":/codicons/symbol-numeric.svg",
+               valueIcon( { { "anyOf", QJsonArray{ QJsonObject{ { "type", "number" } }, QJsonObject{ { "type", "null" } } } } } ) );
+    EXPECT_EQ( ":/codicons/symbol-string.svg", valueIcon( { { "type", "array" }, { "items", QJsonObject{ { "type", "string" } } } } ) );
+    EXPECT_EQ( ":/codicons/check.svg", valueIcon( { { "type", "boolean" } } ) );
+    EXPECT_TRUE(
+        valueIcon( { { "type", "object" }, { "properties", QJsonObject{ { "a", QJsonObject{ { "type", "string" } } } } } } ).isEmpty() );
 
     // The connect task's opaque `value` is not a port of its own
     const QJsonObject connect = taskByName( graph, "connect_to_resinsight" );
