@@ -106,7 +106,7 @@ bool isVec3Schema( const QJsonObject& typeSchema )
     const QJsonObject properties = typeSchema.value( "properties" ).toObject();
     if ( properties.size() != 3 ) return false;
 
-    for ( const QString& component : { "x", "y", "z" } )
+    for ( const QString& component : QStringList{ "x", "y", "z" } )
     {
         if ( properties.value( component ).toObject().value( "type" ).toString() != "number" ) return false;
     }
