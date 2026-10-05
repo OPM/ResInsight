@@ -23,7 +23,6 @@
 #include <QFontMetrics>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsPathItem>
-#include <QGraphicsPixmapItem>
 #include <QGraphicsPolygonItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
@@ -38,11 +37,15 @@
 #include <QPainterPathStroker>
 #include <QPen>
 #include <QResizeEvent>
+#include <QStyleOptionGraphicsItem>
+#include <QTextDocument>
 #include <QToolTip>
 #include <QWheelEvent>
+#include <QtMath>
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 namespace
@@ -103,6 +106,22 @@ QStringList fieldPorts( const QJsonArray& fields )
 namespace RiuWorkflowGraphViewItems
 {
 class GraphEdge;
+
+//==================================================================================================
+/// An icon drawn at the resolution it is shown at, so it stays sharp when the view is zoomed
+//==================================================================================================
+class IconItem : public QGraphicsItem
+{
+public:
+    IconItem( const QIcon& icon, qreal size, QGraphicsItem* parent );
+
+    QRectF boundingRect() const override;
+    void   paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget ) override;
+
+private:
+    QIcon m_icon;
+    qreal m_size;
+};
 
 //==================================================================================================
 /// How a port is drawn. Hollow: optional and not used. Missing: required and not provided.
@@ -197,6 +216,7 @@ private:
     QMap<QString, PortItem*>          m_inputs;
     QMap<QString, PortItem*>          m_outputs;
     QMap<QString, QGraphicsTextItem*> m_configValues;
+    QMap<QString, qreal>              m_configValueRight; // Where the value must end to stay clear of the type
     std::vector<GraphEdge*>           m_edges;
     QGraphicsTextItem*                m_title      = nullptr;
     QGraphicsTextItem*                m_stateLabel = nullptr;
@@ -246,6 +266,39 @@ private:
     QGraphicsPolygonItem* m_arrow;
     QGraphicsTextItem*    m_label = nullptr;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+IconItem::IconItem( const QIcon& icon, qreal size, QGraphicsItem* parent )
+    : QGraphicsItem( parent )
+    , m_icon( icon )
+    , m_size( size )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRectF IconItem::boundingRect() const
+{
+    return QRectF( 0, 0, m_size, m_size );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Renders the icon at the device pixel size of the item. SVG icons are rendered at that size,
+/// bitmaps are scaled from the largest available size.
+//--------------------------------------------------------------------------------------------------
+void IconItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* /*option*/, QWidget* /*widget*/ )
+{
+    const qreal zoom      = QStyleOptionGraphicsItem::levelOfDetailFromTransform( painter->worldTransform() );
+    const qreal pixelSize = m_size * zoom * ( painter->device() ? painter->device()->devicePixelRatioF() : 1.0 );
+    const int   extent    = std::max( 1, qCeil( pixelSize ) );
+
+    const QPixmap pixmap = m_icon.pixmap( QSize( extent, extent ), 1.0 );
+    painter->setRenderHint( QPainter::SmoothPixmapTransform );
+    painter->drawPixmap( boundingRect(), pixmap, QRectF( pixmap.rect() ) );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -423,9 +476,15 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
         const QString toolTip   = info.toolTip.isEmpty() ? info.label : info.toolTip;
         const qreal   textWidth = m_isConfig ? m_width - 24 : m_width / 2 - 18;
         const bool    showType  = !info.typeName.isEmpty();
-        auto          addText   = [&]( const QString& content, const QFont& font, const QColor& color, qreal top, qreal indent = 0.0 )
+        auto          addText   = [&]( const QString& content,
+                            const QFont&   font,
+                            const QColor&  color,
+                            qreal          top,
+                            qreal          indent   = 0.0,
+                            qreal          maxWidth = std::numeric_limits<qreal>::max() )
         {
-            auto* text = new QGraphicsTextItem( QFontMetrics( font ).elidedText( content, Qt::ElideRight, textWidth - indent ), this );
+            const qreal width = std::min( textWidth, maxWidth ) - indent;
+            auto*       text  = new QGraphicsTextItem( QFontMetrics( font ).elidedText( content, Qt::ElideRight, width ), this );
             text->setFont( font );
             text->setToolTip( toolTip );
             text->setDefaultTextColor( color );
@@ -447,19 +506,23 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
             typeFont.setItalic( true );
             const QIcon icon( info.iconResource );
             const bool  showIcon = !info.iconResource.isEmpty() && !icon.isNull();
-            auto*       typeText = addText( info.typeName, typeFont, QColor( 110, 120, 135 ), y - 3, showIcon ? iconSize + 2 : 0.0 );
+            // Config boxes show the value on the same line, so the type gets at most half of it
+            const qreal maxTypeWidth = m_isConfig ? textWidth / 2 : std::numeric_limits<qreal>::max();
+            auto* typeText = addText( info.typeName, typeFont, QColor( 110, 120, 135 ), y - 3, showIcon ? iconSize + 2 : 0.0, maxTypeWidth );
+            qreal typeLeft = typeText->mapRectToParent( typeText->boundingRect() ).left();
 
             // The icon of the ResInsight object goes in front of the type
             if ( showIcon )
             {
                 const QRectF textRect = typeText->mapRectToParent( typeText->boundingRect() );
                 const qreal  iconX    = output ? textRect.left() - iconSize - 1 : 10 + 3;
-                auto*        pixmap   = new QGraphicsPixmapItem( icon.pixmap( iconSize, iconSize ), this );
-                pixmap->setPos( iconX, textRect.center().y() - iconSize / 2.0 );
-                pixmap->setTransformationMode( Qt::SmoothTransformation );
-                pixmap->setToolTip( toolTip );
-                pixmap->setAcceptedMouseButtons( Qt::NoButton );
+                auto*        iconItem = new IconItem( icon, iconSize, this );
+                iconItem->setPos( iconX, textRect.center().y() - iconSize / 2.0 );
+                iconItem->setToolTip( toolTip );
+                iconItem->setAcceptedMouseButtons( Qt::NoButton );
+                typeLeft = iconX;
             }
+            if ( m_isConfig && output ) m_configValueRight.insert( fieldForKey( info.key ), typeLeft );
         }
     }
 }
@@ -704,7 +767,11 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
         m_configValues.insert( fieldName, text );
     }
 
-    text->setPlainText( QFontMetrics( text->font() ).elidedText( value, Qt::ElideRight, m_width - 24 ) );
+    // The text item adds a margin on both sides of the text
+    const qreal margin    = 2 * text->document()->documentMargin();
+    const qreal right     = m_configValueRight.value( fieldName, m_width - 14 ) - 6;
+    const qreal available = std::max( 0.0, right - text->pos().x() - margin );
+    text->setPlainText( QFontMetrics( text->font() ).elidedText( value, Qt::ElideRight, static_cast<int>( available ) ) );
     text->setToolTip( fieldName + ": " + value );
 }
 

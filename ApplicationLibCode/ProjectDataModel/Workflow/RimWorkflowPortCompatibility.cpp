@@ -138,6 +138,85 @@ std::expected<void, QString>
     }
     return {};
 }
+//--------------------------------------------------------------------------------------------------
+/// Icon of the ResInsight object a schema holds, or an empty string. The rips class is found in the
+/// Python class bases: directly for opaque rips objects, or as `ObjectModel[Class]` for wrappers.
+/// The icons are the ones the matching ResInsight project classes use.
+//--------------------------------------------------------------------------------------------------
+QString objectIconResource( const QJsonObject& schema, const QJsonObject& rootSchema )
+{
+    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
+    for ( const char* unionKey : { "anyOf", "oneOf" } )
+    {
+        for ( const QJsonValue& option : resolved.value( unionKey ).toArray() )
+        {
+            const QString icon = objectIconResource( option.toObject(), rootSchema );
+            if ( !icon.isEmpty() ) return icon;
+        }
+    }
+    if ( resolved.value( "type" ).toString() == "array" ) return objectIconResource( resolved.value( "items" ).toObject(), rootSchema );
+    if ( resolved.value( "type" ).toString() == "object" && resolved.value( "additionalProperties" ).isObject() &&
+         !resolved.contains( "properties" ) )
+        return objectIconResource( resolved.value( "additionalProperties" ).toObject(), rootSchema );
+
+    static const QMap<QString, QString> icons = { { "Instance", ":/AppLogo48x48.png" },
+                                                  { "Case", ":/Case48x48.png" },
+                                                  { "Reservoir", ":/Case48x48.png" },
+                                                  { "EclipseCase", ":/Case48x48.png" },
+                                                  { "View", ":/3DView16x16.png" },
+                                                  { "EclipseView", ":/3DView16x16.png" },
+                                                  { "WellPath", ":/Well.svg" },
+                                                  { "Surface", ":/ReservoirSurface16x16.png" } };
+
+    QJsonArray bases = resolved.value( "x-ri-python-bases" ).toArray();
+    if ( bases.isEmpty() && resolved.contains( "x-ri-python-type" ) ) bases.append( resolved.value( "x-ri-python-type" ) );
+
+    static const QRegularExpression objectModel( R"(ObjectModel\[(\w+)\]$)" );
+    for ( const QJsonValue& value : bases )
+    {
+        const QString base = value.toString();
+        QString       className;
+        if ( const auto match = objectModel.match( base ); match.hasMatch() )
+            className = match.captured( 1 );
+        else if ( base.startsWith( "rips." ) )
+            className = base.section( '.', -1 );
+        if ( icons.contains( className ) ) return icons.value( className );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Icon of a plain value (string, number, bool, date, path), or an empty string. The icons are Codicons,
+/// see Resources/codicons/README.md.
+//--------------------------------------------------------------------------------------------------
+QString valueIconResource( const QJsonObject& schema, const QJsonObject& rootSchema )
+{
+    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
+    for ( const char* unionKey : { "anyOf", "oneOf" } )
+    {
+        for ( const QJsonValue& option : resolved.value( unionKey ).toArray() )
+        {
+            const QString icon = valueIconResource( option.toObject(), rootSchema );
+            if ( !icon.isEmpty() ) return icon;
+        }
+    }
+
+    const QString type = resolved.value( "type" ).toString();
+    if ( type == "array" ) return valueIconResource( resolved.value( "items" ).toObject(), rootSchema );
+    if ( type == "object" && resolved.value( "additionalProperties" ).isObject() && !resolved.contains( "properties" ) )
+        return valueIconResource( resolved.value( "additionalProperties" ).toObject(), rootSchema );
+
+    if ( type == "boolean" ) return ":/codicons/check.svg";
+    if ( type == "integer" || type == "number" ) return ":/codicons/symbol-numeric.svg";
+    if ( type != "string" ) return {};
+
+    const QString format = resolved.value( "format" ).toString();
+    if ( format == "date" || format == "date-time" ) return ":/codicons/calendar.svg";
+    if ( format == "directory-path" ) return ":/codicons/folder.svg";
+    if ( format == "path" || format == "file-path" ) return ":/codicons/file.svg";
+    return ":/codicons/symbol-string.svg";
+}
+
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -354,54 +433,16 @@ QString RimWorkflowPortCompatibility::typeName( const QJsonObject& schema, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Icon of the ResInsight object a schema holds, or an empty string. The rips class is found in the
-/// Python class bases: directly for opaque rips objects, or as `ObjectModel[Class]` for wrappers.
-/// The icons are the ones the matching ResInsight project classes use.
+/// Icon of a port: the ResInsight object it holds, otherwise the kind of value
 //--------------------------------------------------------------------------------------------------
 QString RimWorkflowPortCompatibility::iconResource( const QJsonObject& schema, const QJsonObject& rootSchema )
 {
-    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
-    for ( const char* unionKey : { "anyOf", "oneOf" } )
-    {
-        for ( const QJsonValue& option : resolved.value( unionKey ).toArray() )
-        {
-            const QString icon = iconResource( option.toObject(), rootSchema );
-            if ( !icon.isEmpty() ) return icon;
-        }
-    }
-    if ( resolved.value( "type" ).toString() == "array" ) return iconResource( resolved.value( "items" ).toObject(), rootSchema );
-    if ( resolved.value( "type" ).toString() == "object" && resolved.value( "additionalProperties" ).isObject() &&
-         !resolved.contains( "properties" ) )
-        return iconResource( resolved.value( "additionalProperties" ).toObject(), rootSchema );
-
-    static const QMap<QString, QString> icons = { { "Instance", ":/AppLogo48x48.png" },
-                                                  { "Case", ":/Case48x48.png" },
-                                                  { "Reservoir", ":/Case48x48.png" },
-                                                  { "EclipseCase", ":/Case48x48.png" },
-                                                  { "View", ":/3DView16x16.png" },
-                                                  { "EclipseView", ":/3DView16x16.png" },
-                                                  { "WellPath", ":/Well.svg" },
-                                                  { "Surface", ":/ReservoirSurface16x16.png" } };
-
-    QJsonArray bases = resolved.value( "x-ri-python-bases" ).toArray();
-    if ( bases.isEmpty() && resolved.contains( "x-ri-python-type" ) ) bases.append( resolved.value( "x-ri-python-type" ) );
-
-    static const QRegularExpression objectModel( R"(ObjectModel\[(\w+)\]$)" );
-    for ( const QJsonValue& value : bases )
-    {
-        const QString base = value.toString();
-        QString       className;
-        if ( const auto match = objectModel.match( base ); match.hasMatch() )
-            className = match.captured( 1 );
-        else if ( base.startsWith( "rips." ) )
-            className = base.section( '.', -1 );
-        if ( icons.contains( className ) ) return icons.value( className );
-    }
-    return {};
+    const QString objectIcon = objectIconResource( schema, rootSchema );
+    return objectIcon.isEmpty() ? valueIconResource( schema, rootSchema ) : objectIcon;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Port name -> icon resource, for the ports that hold a ResInsight object
+/// Port name -> icon resource, for the ports that have an icon
 //--------------------------------------------------------------------------------------------------
 QJsonObject RimWorkflowPortCompatibility::portIcons( const std::vector<RimWorkflowPort>& ports )
 {
