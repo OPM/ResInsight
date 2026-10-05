@@ -26,6 +26,9 @@
 #include "RimBatchQueueLocal.h"
 #include "RimBatchQueueSlurm.h"
 
+#include <QDateTime>
+#include <QFile>
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimBatchQueue, "BatchQueue" );
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +54,7 @@ RimBatchQueue* RimBatchQueue::createBatchQueue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command, QStringList stdIn, RimProcessMonitor* monitor )
+std::pair<std::unique_ptr<RimProcess>, QString> RimBatchQueue::runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor )
 {
     QStringList cmdList;
     if ( RiaPreferencesOpm::current()->useWsl() )
@@ -62,33 +65,40 @@ std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command, QSt
 
     cmdList.append( command );
 
-    RimProcess proc( true, monitor );
+    auto proc = std::make_unique<RimProcess>( true, monitor );
 
     QString cmd = cmdList.takeFirst();
-    proc.setCommand( cmd );
-    if ( !cmdList.isEmpty() ) proc.addParameters( cmdList );
+    proc->setCommand( cmd );
+    if ( !cmdList.isEmpty() ) proc->addParameters( cmdList );
 
-    if ( proc.start() )
+    if ( proc->start() )
     {
-        proc.writeToStdIn( stdIn );
-
-        return { true, { QString( "" ) } };
+        return { std::move( proc ), QString() };
     }
 
-    return { false, { QString( "Failed to run command." ) } };
+    return { nullptr, QString( "Failed to run command." ) };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimBatchQueue::buildLaunchScript()
+std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
 {
+    // write launch script to a unique file name in the working directory
+    QString filename = workDir + "/launch_" + QString::number( QDateTime::currentMSecsSinceEpoch() ) + ".sh";
+
+    QFile file( filename );
+    if ( !file.open( QIODevice::WriteOnly ) )
+    {
+        return { false, QString( "Failed to create launch script file %1." ).arg( filename ) };
+    }
+
     // build launch script
-    QStringList stdIn;
+    QTextStream out( &file );
 
     if ( m_process != nullptr )
     {
-        stdIn << "#!/bin/sh\n";
+        out << "#!/bin/sh\n";
 
         QString cmdLine = m_process->command();
 
@@ -96,10 +106,12 @@ QStringList RimBatchQueue::buildLaunchScript()
         {
             cmdLine += " " + p;
         }
-        stdIn << cmdLine << "\n\n";
+        out << cmdLine << "\n\n";
     }
 
-    return stdIn;
+    file.close();
+
+    return { true, filename };
 }
 
 //--------------------------------------------------------------------------------------------------

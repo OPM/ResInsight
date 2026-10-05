@@ -68,15 +68,14 @@ double RimSingleJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSingleJob::stop()
+void RimSingleJob::stop()
 {
-    if ( m_process != nullptr )
+    if ( m_queue != nullptr )
     {
-        RimProcessQueue::stopProcess( m_process->ID() );
-        RiaLogging::info( std::format( "Job \"{}\" stopped by user.", name() ) );
-        return true;
+        m_queue->stopProcess();
+        RiaLogging::info( std::format( "Stop job \"{}\" requested by user.", name() ) );
     }
-    return false;
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +121,7 @@ bool RimSingleJob::execute()
     setDeletable( false );
     setState( JobState::Queued );
 
-    m_process = std::make_shared<RimProcess>( true /*log output*/, new RimJobMonitor( this ) );
+    m_process = std::make_shared<RimProcess>( true /*log output*/, std::make_shared<RimJobMonitor>( this ) );
 
     // on windows, should run using wsl?
     m_process->setUseWsl( shouldUseWsl() );

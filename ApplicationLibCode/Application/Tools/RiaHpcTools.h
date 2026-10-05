@@ -39,4 +39,6 @@ void stopSlurmJob( QString jobId );
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );
 
+QString decodeSlurmJobId( QStringList stdOut );
+
 } // namespace RiaHpcTools

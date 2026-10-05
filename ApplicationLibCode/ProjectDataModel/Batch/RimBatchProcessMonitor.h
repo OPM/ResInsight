@@ -1,0 +1,41 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimProcessMonitor.h"
+
+#include "cafPdmPointer.h"
+
+class RimBatchQueue;
+
+class RimBatchProcessMonitor : public RimProcessMonitor
+{
+    Q_OBJECT
+
+public:
+    RimBatchProcessMonitor( RimBatchQueue* batchQueue );
+    ~RimBatchProcessMonitor() override;
+
+protected:
+    void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
+    void started() override;
+
+private:
+    caf::PdmPointer<RimBatchQueue> m_batchQueue;
+};

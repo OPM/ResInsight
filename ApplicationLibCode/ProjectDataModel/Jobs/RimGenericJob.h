@@ -51,7 +51,7 @@ public:
     ~RimGenericJob() override;
 
     virtual bool              execute()                                                         = 0;
-    virtual bool              stop()                                                            = 0;
+    virtual void              stop()                                                            = 0;
     virtual double            percentageDone() const                                            = 0;
     virtual const QStringList jobLog() const                                                    = 0;
     virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;

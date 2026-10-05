@@ -44,7 +44,7 @@ public:
     ~RimSingleJob() override;
 
     bool              execute() override;
-    bool              stop() override;
+    void              stop() override;
     double            percentageDone() const override;
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override = 0;

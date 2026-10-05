@@ -133,15 +133,15 @@ void RimEnsembleJob::initAfterCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::stop()
+void RimEnsembleJob::stop()
 {
-    if ( !isRunning() ) return false;
-
-    for ( auto& subJob : m_subJobs() )
+    if ( isRunning() )
     {
-        subJob->stop();
+        for ( auto& subJob : m_subJobs() )
+        {
+            subJob->stop();
+        }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
