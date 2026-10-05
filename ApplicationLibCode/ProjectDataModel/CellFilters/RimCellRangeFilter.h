@@ -23,7 +23,12 @@
 #include "QuickAccess/RimFieldQuickAccessInterface.h"
 #include "RimCellFilter.h"
 
+#include "RigBoundingBoxIjk.h"
+
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafVecIjk.h"
+
+#include <optional>
 
 class RigGridBase;
 class RigMainGrid;
@@ -73,6 +78,13 @@ protected:
 private:
     void computeAndSetValidValues();
     bool isMainGridRadial() const;
+
+    // Cell counts of the grid the filter IJK refers to: the original grid for nested hybrid grids,
+    // otherwise the selected grid. Returns nullopt if no valid grid is available.
+    std::optional<cvf::Vec3st> filterCellCounts() const;
+
+    // Active cell IJK bounding box (0-based) in the filter IJK space, available for the main grid only
+    std::optional<RigBoundingBoxIjk<caf::VecIjk0>> activeCellIjkBoundingBox() const;
 
     caf::PdmField<QString> m_labelI;
     caf::PdmField<QString> m_labelJ;

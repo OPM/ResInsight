@@ -22,10 +22,12 @@
 
 #include "RiaApplication.h"
 #include "RigActiveCellInfo.h"
+#include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -135,17 +137,15 @@ void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_gridIndex )
     {
-        const cvf::StructGridInterface* grid = selectedGrid();
-
-        if ( grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0 )
+        if ( auto counts = filterCellCounts() )
         {
-            cellCountI  = static_cast<int>( grid->cellCountI() );
+            cellCountI  = static_cast<int>( counts->i() );
             startIndexI = 1;
 
-            cellCountJ  = static_cast<int>( grid->cellCountJ() );
+            cellCountJ  = static_cast<int>( counts->j() );
             startIndexJ = 1;
 
-            cellCountK  = static_cast<int>( grid->cellCountK() );
+            cellCountK  = static_cast<int>( counts->k() );
             startIndexK = 1;
         }
 
@@ -165,19 +165,84 @@ void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::computeAndSetValidValues()
 {
+    if ( auto counts = filterCellCounts() )
+    {
+        cellCountI  = std::clamp( cellCountI.v(), 1, static_cast<int>( counts->i() ) );
+        startIndexI = std::clamp( startIndexI.v(), 1, static_cast<int>( counts->i() ) );
+
+        cellCountJ  = std::clamp( cellCountJ.v(), 1, static_cast<int>( counts->j() ) );
+        startIndexJ = std::clamp( startIndexJ.v(), 1, static_cast<int>( counts->j() ) );
+
+        cellCountK  = std::clamp( cellCountK.v(), 1, static_cast<int>( counts->k() ) );
+        startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( counts->k() ) );
+    }
+    updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<cvf::Vec3st> RimCellRangeFilter::filterCellCounts() const
+{
+    if ( usesNestedHybridOriginalIjk() )
+    {
+        auto eclCase = dynamic_cast<RimEclipseCase*>( sourceCase() );
+        if ( eclCase && eclCase->mainGrid() && eclCase->mainGrid()->nestedHybridLayout() )
+        {
+            return eclCase->mainGrid()->nestedHybridLayout()->originalCellCounts();
+        }
+        return std::nullopt;
+    }
+
     const cvf::StructGridInterface* grid = selectedGrid();
     if ( grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0 )
     {
-        cellCountI  = std::clamp( cellCountI.v(), 1, static_cast<int>( grid->cellCountI() ) );
-        startIndexI = std::clamp( startIndexI.v(), 1, static_cast<int>( grid->cellCountI() ) );
-
-        cellCountJ  = std::clamp( cellCountJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
-        startIndexJ = std::clamp( startIndexJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
-
-        cellCountK  = std::clamp( cellCountK.v(), 1, static_cast<int>( grid->cellCountK() ) );
-        startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
+        return cvf::Vec3st( grid->cellCountI(), grid->cellCountJ(), grid->cellCountK() );
     }
-    updateIconState();
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RigBoundingBoxIjk<caf::VecIjk0>> RimCellRangeFilter::activeCellIjkBoundingBox() const
+{
+    auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
+    auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
+    if ( !actCellInfo ) return std::nullopt;
+
+    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_srcCase );
+    if ( !mainGrid || selectedGrid() != mainGrid ) return std::nullopt;
+
+    if ( !usesNestedHybridOriginalIjk() ) return actCellInfo->ijkBoundingBox();
+
+    // Nested hybrid grid: bounding box of the original IJK of all active cells (including LGR cells)
+    auto rigMainGrid = dynamic_cast<const RigMainGrid*>( mainGrid );
+    if ( !rigMainGrid ) return std::nullopt;
+
+    caf::VecIjk0 min      = caf::VecIjk0::UNDEFINED;
+    caf::VecIjk0 max      = caf::VecIjk0::ZERO;
+    bool         hasCells = false;
+    for ( ReservoirCellIndex reservoirCellIndex : actCellInfo->activeReservoirCellIndices() )
+    {
+        size_t localCellIndex = 0;
+        auto   grid           = rigMainGrid->gridAndGridLocalIdxFromGlobalCellIdx( reservoirCellIndex.value(), &localCellIndex );
+        auto   ijk            = rigMainGrid->nestedHybridOriginalIjk( grid, localCellIndex );
+        if ( ijk )
+        {
+            for ( int axis = 0; axis < 3; axis++ )
+            {
+                min[axis] = std::min( min[axis], ( *ijk )[axis] );
+                max[axis] = std::max( max[axis], ( *ijk )[axis] );
+            }
+            hasCells = true;
+        }
+    }
+
+    if ( !hasCells ) return std::nullopt;
+
+    return RigBoundingBoxIjk<caf::VecIjk0>( min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,22 +289,14 @@ std::map<QString, std::vector<caf::PdmFieldHandle*>> RimCellRangeFilter::quickAc
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice )
 {
-    const cvf::StructGridInterface* grid = selectedGrid();
+    auto counts = filterCellCounts();
+    if ( !counts ) return;
 
-    if ( !grid ) return;
-
-    auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
-    auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
-
-    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_srcCase );
-
-    if ( grid == mainGrid && actCellInfo )
+    if ( auto bbox = activeCellIjkBoundingBox() )
     {
-        const auto& bbox = actCellInfo->ijkBoundingBox();
-
         // Adjust to Eclipse indexing
-        auto min = bbox.min().toOneBased();
-        auto max = bbox.max().toOneBased();
+        auto min = bbox->min().toOneBased();
+        auto max = bbox->max().toOneBased();
 
         startIndexI = static_cast<int>( min.x() );
         startIndexJ = static_cast<int>( min.y() );
@@ -253,9 +310,9 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
         startIndexI = 1;
         startIndexJ = 1;
         startIndexK = 1;
-        cellCountI  = static_cast<int>( grid->cellCountI() );
-        cellCountJ  = static_cast<int>( grid->cellCountJ() );
-        cellCountK  = static_cast<int>( grid->cellCountK() );
+        cellCountI  = static_cast<int>( counts->x() );
+        cellCountJ  = static_cast<int>( counts->y() );
+        cellCountK  = static_cast<int>( counts->z() );
     }
 
     switch ( sliceDirection )
@@ -288,24 +345,23 @@ void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field
         return;
     }
 
-    const cvf::StructGridInterface* grid = selectedGrid();
-
-    if ( !grid ) return;
+    auto counts = filterCellCounts();
+    if ( !counts ) return;
 
     if ( field == &startIndexI || field == &cellCountI )
     {
         myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( grid->cellCountI() );
+        myAttr->m_maximum = static_cast<int>( counts->x() );
     }
     else if ( field == &startIndexJ || field == &cellCountJ )
     {
         myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( grid->cellCountJ() );
+        myAttr->m_maximum = static_cast<int>( counts->y() );
     }
     else if ( field == &startIndexK || field == &cellCountK )
     {
         myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( grid->cellCountK() );
+        myAttr->m_maximum = static_cast<int>( counts->z() );
     }
 }
 
@@ -316,22 +372,13 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
-    const cvf::StructGridInterface* grid = selectedGrid();
-
-    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_srcCase );
-
-    auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
-    auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
-
     bool isRadialGrid = isMainGridRadial();
 
-    if ( grid == mainGrid && actCellInfo )
+    if ( auto bbox = activeCellIjkBoundingBox() )
     {
-        const auto& bbox = actCellInfo->ijkBoundingBox();
-
         // Adjust to Eclipse indexing
-        auto min = bbox.min().toOneBased();
-        auto max = bbox.max().toOneBased();
+        auto min = bbox->min().toOneBased();
+        auto max = bbox->max().toOneBased();
 
         QString label;
 
@@ -409,7 +456,7 @@ void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFil
 {
     CAF_ASSERT( cellRangeFilter );
 
-    if ( gridIndex != m_gridIndex ) return;
+    if ( gridIndex != this->gridIndex() ) return;
 
     if ( filterMode() == RimCellFilter::INCLUDE )
     {

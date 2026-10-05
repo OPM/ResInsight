@@ -86,7 +86,7 @@ void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeF
 {
     CAF_ASSERT( cellRangeFilter );
 
-    if ( gridIndex != m_gridIndex ) return;
+    if ( gridIndex != this->gridIndex() ) return;
 
     if ( filterMode() == RimCellFilter::INCLUDE )
     {

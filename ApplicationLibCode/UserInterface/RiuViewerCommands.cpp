@@ -385,20 +385,39 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     size_t i, j, k;
                     ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k );
 
+                    size_t sliceGridIdx = m_currentGridIdx;
+
+                    // Nested hybrid grid: slices always refer to the original grid IJK on the main grid
+                    if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+                         eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
+                    {
+                        const RigEclipseCaseData* caseData = eclipseView->eclipseCase()->eclipseCaseData();
+                        if ( const RigMainGrid* mainGrid = caseData->mainGrid(); mainGrid && mainGrid->nestedHybridLayout() )
+                        {
+                            if ( auto originalIjk = mainGrid->nestedHybridOriginalIjk( caseData->grid( m_currentGridIdx ), m_currentCellIndex ) )
+                            {
+                                i = originalIjk->i();
+                                j = originalIjk->j();
+                                k = originalIjk->k();
+                            }
+                            sliceGridIdx = 0;
+                        }
+                    }
+
                     QVariantList iSliceList;
                     iSliceList.push_back( 0 );
                     iSliceList.push_back( std::max( static_cast<int>( i + 1 ), 1 ) );
-                    iSliceList.push_back( static_cast<int>( m_currentGridIdx ) );
+                    iSliceList.push_back( static_cast<int>( sliceGridIdx ) );
 
                     QVariantList jSliceList;
                     jSliceList.push_back( 1 );
                     jSliceList.push_back( std::max( static_cast<int>( j + 1 ), 1 ) );
-                    jSliceList.push_back( static_cast<int>( m_currentGridIdx ) );
+                    jSliceList.push_back( static_cast<int>( sliceGridIdx ) );
 
                     QVariantList kSliceList;
                     kSliceList.push_back( 2 );
                     kSliceList.push_back( std::max( static_cast<int>( k + 1 ), 1 ) );
-                    kSliceList.push_back( static_cast<int>( m_currentGridIdx ) );
+                    kSliceList.push_back( static_cast<int>( sliceGridIdx ) );
 
                     menuBuilder.subMenuStart( "Range Filter", QIcon( ":/CellFilter_Range.png" ) );
 

@@ -29,6 +29,7 @@
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigNestedHybridGridLayout.h"
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
@@ -93,6 +94,8 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         coarseNz = std::max( coarseNz, input.oldK[f] );
     }
     const size_t kFactor = ( coarseNz > 0 && nz % (size_t)coarseNz == 0 ) ? nz / (size_t)coarseNz : 1;
+
+    const RigNestedHybridGridLayout layout( cvf::Vec3st( (size_t)coarseNx, (size_t)coarseNy, (size_t)coarseNz ), kFactor );
 
     // Group all refined cells (REFINE > 1) by level, and record each refined cell's parent COARSE
     // cell natural index (for the volume-weighted QC aggregate).
@@ -206,11 +209,12 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
                 for ( size_t lj = 0; lj < dims.y(); lj++ )
                     for ( size_t li = 0; li < dims.x(); li++ )
                     {
-                        size_t local       = naturalIndex( li, lj, lk, dims.x(), dims.y() );
-                        size_t oi          = (size_t)c0[0] + li / factor[0];
-                        size_t oj          = (size_t)c0[1] + lj / factor[1];
-                        size_t ok          = (size_t)c0[2] + lk / factor[2];
-                        boxToParent[local] = naturalIndex( oi - 1, oj - 1, ( ok - 1 ) * kFactor, nx, ny );
+                        size_t       local = naturalIndex( li, lj, lk, dims.x(), dims.y() );
+                        size_t       oi    = (size_t)c0[0] + li / factor[0];
+                        size_t       oj    = (size_t)c0[1] + lj / factor[1];
+                        size_t       ok    = (size_t)c0[2] + lk / factor[2];
+                        caf::VecIjk0 host  = layout.flatIjkFromOriginalIjk( caf::VecIjk0( oi - 1, oj - 1, ok - 1 ) );
+                        boxToParent[local] = naturalIndex( host.x(), host.y(), host.z(), nx, ny );
                     }
 
             std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
@@ -242,6 +246,7 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
 
     grid->setNestedHybridLgrSourceCells( sourceCells );
     grid->setNestedHybridCoarseParents( coarseParents );
+    grid->setNestedHybridLayout( layout );
 
     updateActiveCellInfo( caseData, sourceCells );
     extendFullLengthResults( caseData, origCellCount, sourceCells );

@@ -38,6 +38,8 @@
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
+#include "RimCellFilterTools.h"
+#include "RimCellRangeFilter.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDir>
@@ -782,4 +784,159 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
         if ( ++verified >= 20 ) break;
     }
     EXPECT_GE( verified, 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The reconstruction records the original (coarse) grid layout: 15x24x12 coarse cells, with each
+/// coarse K layer spanning 8 flat K layers (96 / 12).
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, NestedHybridLayout )
+{
+    const auto& layout = grid()->nestedHybridLayout();
+    ASSERT_TRUE( layout.has_value() );
+
+    EXPECT_EQ( layout->originalCellCounts(), cvf::Vec3st( 15, 24, 12 ) );
+    EXPECT_EQ( layout->kFactor(), 8u );
+
+    auto host = layout->flatIjkFromOriginalIjk( caf::VecIjk0( 3, 4, 5 ) );
+    EXPECT_EQ( host, caf::VecIjk0( 3, 4, 40 ) );
+
+    auto original = layout->originalIjkFromFlatIjk( caf::VecIjk0( 3, 4, 47 ) );
+    ASSERT_TRUE( original.has_value() );
+    EXPECT_EQ( *original, caf::VecIjk0( 3, 4, 5 ) );
+
+    // Flat columns outside the original I/J extent hold refined cells or padding
+    EXPECT_FALSE( layout->originalIjkFromFlatIjk( caf::VecIjk0( 15, 0, 0 ) ).has_value() );
+    EXPECT_FALSE( layout->originalIjkFromFlatIjk( caf::VecIjk0( 0, 24, 0 ) ).has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The original IJK computed on demand (layout + parent cell chain) must agree with the OLDIJK
+/// sidecar: for every reconstructed LGR cell, for every unrefined coarse cell, and the scattered
+/// flat refined cells must have no original IJK.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, OriginalIjkFollowsOldIjk )
+{
+    RigMainGrid* mainGrid = grid();
+
+    auto oldIjk0 = []( size_t flat )
+    { return caf::VecIjk0( (size_t)( s_input.oldI[flat] - 1 ), (size_t)( s_input.oldJ[flat] - 1 ), (size_t)( s_input.oldK[flat] - 1 ) ); };
+
+    // LGR cells: original IJK equals OLDIJK of the flat cell they were built from
+    size_t lgrChecked = 0, lgrMismatch = 0;
+    for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+    {
+        size_t localIdx = 0;
+        auto   lgr      = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( lgrGlobal, &localIdx );
+        ASSERT_FALSE( lgr->isMainGrid() );
+
+        auto original = mainGrid->nestedHybridOriginalIjk( lgr, localIdx );
+        if ( !original || *original != oldIjk0( flat ) ) lgrMismatch++;
+        lgrChecked++;
+    }
+    EXPECT_GT( lgrChecked, 0u );
+    EXPECT_EQ( lgrMismatch, 0u );
+
+    // Main grid cells
+    const size_t nx = mainGrid->cellCountI();
+    const size_t ny = mainGrid->cellCountJ();
+
+    size_t coarseChecked = 0, coarseMismatch = 0, refinedWithIjk = 0;
+    for ( size_t f = 0; f < mainGrid->cellCount(); f++ )
+    {
+        auto original = mainGrid->nestedHybridOriginalIjk( mainGrid, f );
+
+        if ( s_input.refine[f] > 1 )
+        {
+            // Scattered refined cells (now represented by LGR cells) have no original IJK
+            if ( original ) refinedWithIjk++;
+            continue;
+        }
+
+        if ( s_input.oldI[f] < 1 ) continue;
+
+        const caf::VecIjk0 flatIjk( f % nx, ( f / nx ) % ny, f / ( nx * ny ) );
+        const caf::VecIjk0 expected = oldIjk0( f );
+        if ( flatIjk != grid()->nestedHybridLayout()->flatIjkFromOriginalIjk( expected ) ) continue; // padding
+
+        if ( !original || *original != expected ) coarseMismatch++;
+        coarseChecked++;
+    }
+    EXPECT_GT( coarseChecked, 0u );
+    EXPECT_EQ( coarseMismatch, 0u );
+    EXPECT_EQ( refinedWithIjk, 0u );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// IJK range filters on a nested hybrid grid refer to the original grid IJK. A slice selects every
+/// cell mapped to the original slice - unrefined cells and the cells of all refinement levels.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, RangeFilterUsesOriginalIjk )
+{
+    RigMainGrid* mainGrid = grid();
+    s_resultCase->setReservoirData( s_reservoir.p() );
+
+    RimCellRangeFilter rangeFilter;
+    rangeFilter.setCase( s_resultCase.get() );
+    EXPECT_TRUE( rangeFilter.usesNestedHybridOriginalIjk() );
+
+    // A filter targeting an LGR is redirected to the original grid
+    rangeFilter.setGridIndex( 2 );
+    EXPECT_EQ( rangeFilter.gridIndex(), 0 );
+
+    // Original IJK level of every reconstructed LGR cell (via its source flat cell)
+    std::map<size_t, int> lgrLevel; // LGR global cell index -> refinement level
+    for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+        lgrLevel[lgrGlobal] = s_input.refine[flat];
+
+    struct Slice
+    {
+        int axis;
+        int index; // 1-based original index
+    };
+
+    for ( const Slice& slice : { Slice{ 0, 10 }, Slice{ 1, 12 }, Slice{ 2, 5 } } )
+    {
+        rangeFilter.startIndexI = 1;
+        rangeFilter.startIndexJ = 1;
+        rangeFilter.startIndexK = 1;
+        rangeFilter.cellCountI  = 15;
+        rangeFilter.cellCountJ  = 24;
+        rangeFilter.cellCountK  = 12;
+        if ( slice.axis == 0 ) std::tie( rangeFilter.startIndexI.v(), rangeFilter.cellCountI.v() ) = std::make_pair( slice.index, 1 );
+        if ( slice.axis == 1 ) std::tie( rangeFilter.startIndexJ.v(), rangeFilter.cellCountJ.v() ) = std::make_pair( slice.index, 1 );
+        if ( slice.axis == 2 ) std::tie( rangeFilter.startIndexK.v(), rangeFilter.cellCountK.v() ) = std::make_pair( slice.index, 1 );
+
+        auto visibility = RimCellFilterTools::computeReservoirCellVisibility( &rangeFilter, s_resultCase.get(), 0 );
+        ASSERT_TRUE( visibility.notNull() );
+        ASSERT_EQ( visibility->size(), mainGrid->totalCellCount() );
+
+        // Every LGR cell is visible exactly when its OLDIJK lies in the slice
+        size_t           mismatch = 0;
+        std::set<int>    visibleLevels;
+        const std::array oldIjk = { &s_input.oldI, &s_input.oldJ, &s_input.oldK };
+        for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+        {
+            const bool expected = ( *oldIjk[slice.axis] )[flat] == slice.index;
+            const bool visible  = visibility->val( lgrGlobal ) != 0;
+            if ( expected != visible ) mismatch++;
+            if ( visible ) visibleLevels.insert( lgrLevel[lgrGlobal] );
+        }
+        EXPECT_EQ( mismatch, 0u ) << "axis " << slice.axis;
+
+        // Main grid cells: only cells within the original columns, mapping to the slice, are visible
+        size_t mainVisible = 0, mainWrong = 0;
+        for ( size_t f = 0; f < mainGrid->cellCount(); f++ )
+        {
+            if ( !visibility->val( f ) ) continue;
+            mainVisible++;
+            auto original = mainGrid->nestedHybridOriginalIjk( mainGrid, f );
+            if ( !original || ( *original )[slice.axis] != (size_t)( slice.index - 1 ) ) mainWrong++;
+        }
+        EXPECT_GT( mainVisible, 0u ) << "axis " << slice.axis;
+        EXPECT_EQ( mainWrong, 0u ) << "axis " << slice.axis;
+
+        // The slices are chosen to cross more than one refinement level
+        EXPECT_GE( visibleLevels.size(), 2u ) << "axis " << slice.axis;
+    }
 }

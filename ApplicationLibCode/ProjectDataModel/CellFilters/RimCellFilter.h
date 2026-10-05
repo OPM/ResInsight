@@ -87,6 +87,10 @@ public:
     void setGridIndex( int gridIndex );
     int  gridIndex() const;
 
+    // Nested hybrid grid: IJK range filters refer exclusively to the original (coarse) grid IJK, and
+    // are evaluated on all grids by mapping every cell to its original IJK.
+    bool usesNestedHybridOriginalIjk() const;
+
     void updateIconState();
     void updateActiveState( bool isControlled );
 
@@ -116,6 +120,7 @@ protected:
     RimEclipseCase* eclipseCase() const;
 
     const cvf::StructGridInterface* selectedGrid() const;
+    RimCase*                        sourceCase() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
