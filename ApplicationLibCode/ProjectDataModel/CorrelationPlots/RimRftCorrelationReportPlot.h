@@ -17,9 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RimPlotWindow.h"
 #include "RimReportPlotGroup.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
@@ -80,11 +83,13 @@ private:
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void     doUpdateLayout() override {}
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void updateDockTitleBarsVisibility();
     void syncCrossPlotSelectionToRftPlot();
     void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
+    void applyDepthTypeToSubPlots();
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -92,6 +97,8 @@ private:
     caf::PdmChildField<RimWellRftPlot*>           m_wellRftPlot;
     caf::PdmChildField<RimParameterRftCrossPlot*> m_parameterRftCrossPlot;
     caf::PdmChildField<RimRftTornadoPlot*>        m_tornadoPlot;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
 
     caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;

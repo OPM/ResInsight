@@ -32,6 +32,7 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
@@ -108,6 +109,8 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     CAF_PDM_InitFieldNoDefault( &m_parameterRftCrossPlot, "ParameterRftCrossPlot", "Cross Plot" );
     CAF_PDM_InitFieldNoDefault( &m_tornadoPlot, "TornadoPlot", "Tornado Plot" );
 
+    CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ), "Depth Unit" );
+
     CAF_PDM_InitField( &m_showDockTitleBars, "ShowDockTitleBars", false, "Show Title Bars" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showDockTitleBars );
 
@@ -127,6 +130,8 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
 
     m_tornadoPlot = new RimRftTornadoPlot;
     m_tornadoPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
+
+    applyDepthTypeToSubPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,6 +191,8 @@ RimParameterRftCrossPlot* RimRftCorrelationReportPlot::crossPlot() const
 void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* source )
 {
     if ( !source ) return;
+
+    applyDepthTypeToSubPlots();
 
     m_wellRftPlot->setSimWellOrWellPathName( source->simWellOrWellPathName() );
 
@@ -349,6 +356,8 @@ void RimRftCorrelationReportPlot::initAfterRead()
         m_wellRftPlot->detachFromDockPermanently();
         m_wellRftPlot->setShowWindow( true );
     }
+
+    applyDepthTypeToSubPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,6 +413,8 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_depthType );
+
     // Delegate cross-plot settings (ensemble, well, depth range, parameter) to the cross plot
     m_parameterRftCrossPlot->uiOrdering( uiConfigName, uiOrdering );
 
@@ -434,6 +445,10 @@ void RimRftCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
     {
         updateDockTitleBarsVisibility();
         return;
+    }
+    if ( changedField == &m_depthType )
+    {
+        applyDepthTypeToSubPlots();
     }
     loadDataAndUpdate();
 }
@@ -520,6 +535,36 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Pushes the selected depth unit (MD/TVD) down to the sub plots that present a depth axis.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::applyDepthTypeToSubPlots()
+{
+    if ( !m_wellRftPlot() ) return;
+
+    m_wellRftPlot->setAvailableDepthTypes( { RiaDefines::DepthType::MEASURED_DEPTH, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH } );
+    m_wellRftPlot->setDepthType( m_depthType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimRftCorrelationReportPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_depthType )
+    {
+        using DepthAppEnum = caf::AppEnum<RiaDefines::DepthType>;
+        for ( auto depthType : { RiaDefines::DepthType::MEASURED_DEPTH, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH } )
+        {
+            options.push_back( caf::PdmOptionItemInfo( DepthAppEnum::uiText( depthType ), depthType ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
