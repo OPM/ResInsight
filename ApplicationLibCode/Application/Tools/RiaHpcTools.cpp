@@ -185,4 +185,26 @@ QString decodeSlurmJobId( QStringList stdOut )
     return "";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList listSlurmJobs()
+{
+    QStringList arguments;
+    arguments << "--format";
+    arguments << "\"%i %j %M %T %P %B\"";
+    arguments << "--me";
+    arguments << "--noheader";
+
+    return runUtilityCommand( "squeue", arguments );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList listLsfJobs()
+{
+    return {};
+}
+
 } // namespace RiaHpcTools

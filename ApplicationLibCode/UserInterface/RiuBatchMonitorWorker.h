@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026     Equinor ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,27 @@
 
 #pragma once
 
-#include "RiaHpcDefines.h"
-
-#include <QString>
+#include <QObject>
 #include <QStringList>
 
-#include <map>
+class QWidget;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-namespace RiaHpcTools
+class RiuBatchMonitorWorker : public QObject
 {
-QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
+    Q_OBJECT
 
-void stopLsfJob( QString jobId );
-void stopSlurmJob( QString jobId );
+public:
+    explicit RiuBatchMonitorWorker( QObject* parent = nullptr );
 
-QStringList listSlurmJobs();
-QStringList listLsfJobs();
+    void stopMonitoring();
 
-// helpers
-QStringList decodeSlurmQueues( QStringList stdOut );
-QStringList decodeLsfQueues( QStringList stdOut );
+public slots:
+    void gatherInformation();
 
-QString decodeSlurmJobId( QStringList stdOut );
+signals:
+    void informationGathered( const QStringList& jobInfo );
+    void finished();
 
-} // namespace RiaHpcTools
+private:
+    bool m_keepRunning;
+};

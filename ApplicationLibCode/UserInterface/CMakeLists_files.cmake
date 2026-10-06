@@ -50,6 +50,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuBatchQueueMonitor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuBatchMonitorWorker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuCellAndNncPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp

@@ -49,6 +49,7 @@ class RimWorkflowFieldBinding;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
+class RiuBatchQueueMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuDepthQwtPlot;
@@ -183,6 +184,7 @@ private:
 
     RiuResultInfoPanel*       m_resultInfoPanel;
     RiuProcessMonitor*        m_processMonitor;
+    RiuBatchQueueMonitor*     m_batchMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
     RiuResultQwtPlot*                 m_resultQwtPlot;

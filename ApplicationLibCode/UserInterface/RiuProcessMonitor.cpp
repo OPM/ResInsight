@@ -25,7 +25,6 @@
 
 #include "cafUiProcess.h"
 
-#include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
