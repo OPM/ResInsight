@@ -395,7 +395,11 @@ std::string RifOpmCommonEclipseSummary::keywordForAddress( const RifEclipseSumma
         return it->second;
     }
 
-    // For ensembles, the address may not be in the map, so we try to convert it to a text address
+    // For ensembles, the address may not be in the map (createAndSetAddresses() is only called for the realization with the most
+    // keywords, for performance reasons), so we try to reconstruct the keyword text instead. This requires
+    // RifEclipseSummaryAddress::toEclipseTextAddress() to produce text matching the keyword format used by opm-common's
+    // ESmry/ExtESmry readers (e.g. "R1-R2" with no spaces for region-to-region addresses), see
+    // https://github.com/OPM/ResInsight/issues/14853
     return address.toEclipseTextAddress();
 }
 

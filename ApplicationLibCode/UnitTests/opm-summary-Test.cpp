@@ -105,6 +105,62 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// For ensembles, RimSummaryEnsemble::ensembleSummaryAddresses() only builds the address-to-keyword
+/// map (by calling createAndSetAddresses()) for the realization with the most keywords, for
+/// performance reasons. For all other realizations, RifOpmCommonEclipseSummary::values() has to
+/// reconstruct the keyword text for a given address without having built that map.
+///
+/// This must work for region-to-region addresses (e.g. RGFT:1-2) using the standard (non-ESMRY)
+/// opm-common reader, matching the "R1-R2" (no spaces) keyword format used by opm-common. Using
+/// RifEclipseSummaryAddress::toEclipseTextAddress() directly is not correct here, as it formats
+/// region-to-region addresses with spaces ("R1 - R2") for UI display purposes.
+///
+/// See https://github.com/OPM/ResInsight/issues/14853
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadRegionToRegionValuesWithoutPrebuiltAddressMap )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+
+    // Reader with addresses built, used to obtain a valid region-to-region address and reference values.
+    RifOpmCommonEclipseSummary readerWithAddresses;
+    readerWithAddresses.useEnhancedSummaryFiles( false );
+    readerWithAddresses.createEnhancedSummaryFiles( false );
+    ASSERT_TRUE( readerWithAddresses.open( filePath, false, nullptr ) );
+    readerWithAddresses.createAddressesIfRequired();
+
+    RifEclipseSummaryAddress regionToRegionAddress;
+    for ( const auto& adr : readerWithAddresses.allResultAddresses() )
+    {
+        if ( adr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
+        {
+            regionToRegionAddress = adr;
+            break;
+        }
+    }
+    ASSERT_TRUE( regionToRegionAddress.isValid() );
+
+    auto [referenceOk, referenceValues] = readerWithAddresses.values( regionToRegionAddress );
+    ASSERT_TRUE( referenceOk );
+    ASSERT_FALSE( referenceValues.empty() );
+
+    // Reader for the same file, but createAndSetAddresses()/createAddressesIfRequired() is deliberately never
+    // called. This mirrors the state of a realization in an ensemble that was not selected to provide the
+    // ensemble's address list.
+    RifOpmCommonEclipseSummary readerWithoutAddresses;
+    readerWithoutAddresses.useEnhancedSummaryFiles( false );
+    readerWithoutAddresses.createEnhancedSummaryFiles( false );
+    ASSERT_TRUE( readerWithoutAddresses.open( filePath, false, nullptr ) );
+
+    auto [ok, values] = readerWithoutAddresses.values( regionToRegionAddress );
+    EXPECT_TRUE( ok );
+    ASSERT_EQ( referenceValues.size(), values.size() );
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        EXPECT_DOUBLE_EQ( referenceValues[i], values[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
