@@ -21,24 +21,18 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
-#include "RifEclipseRftAddress.h"
 #include "RifReaderRftInterface.h"
 
 #include "RigEnsembleParameter.h"
 #include "RigStatisticsTools.h"
 
-#include "RiaExtractionTools.h"
-
-#include "Well/RigEclipseWellLogExtractor.h"
-
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
-#include "RimWellLogRftCurve.h"
-#include "RimWellPath.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
@@ -65,17 +59,6 @@
 #include <limits>
 #include <map>
 #include <numeric>
-
-namespace
-{
-//--------------------------------------------------------------------------------------------------
-/// Short abbreviation used in axis titles and plot titles for the active depth type.
-//--------------------------------------------------------------------------------------------------
-QString depthTypeAbbreviation( RiaDefines::DepthType depthType )
-{
-    return depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? "TVD" : "MD";
-}
-} // namespace
 
 namespace caf
 {
@@ -264,114 +247,6 @@ RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
-                                                                                          const QString&        wellName,
-                                                                                          const QDateTime&      timeStep,
-                                                                                          RimEclipseResultCase* eclipseCase,
-                                                                                          bool                  useDepthRange,
-                                                                                          double                depthRangeMin,
-                                                                                          double                depthRangeMax,
-                                                                                          RiaDefines::DepthType depthType )
-{
-    if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
-
-    RigEclipseWellLogExtractor* extractor = nullptr;
-    if ( eclipseCase )
-    {
-        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( wellName );
-        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
-        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
-    }
-
-    const auto& allCases = ensemble->allSummaryCases();
-
-    std::vector<std::vector<double>> samplesPerCase;
-    samplesPerCase.reserve( allCases.size() );
-
-    for ( RimSummaryCase* summaryCase : allCases )
-    {
-        if ( !summaryCase )
-        {
-            samplesPerCase.push_back( {} );
-            continue;
-        }
-
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( !reader )
-        {
-            samplesPerCase.push_back( {} );
-            continue;
-        }
-
-        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-        std::vector<double> pressures;
-        reader->values( pressureAddress, &pressures );
-        if ( pressures.empty() )
-        {
-            samplesPerCase.push_back( {} );
-            continue;
-        }
-
-        // Use the same depth values the RFT curves use for their depth axis, so the filter
-        // operates on values consistent with what the user sees in the RFT plot.
-        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor, depthType );
-
-        std::vector<double> samplesInRange;
-        if ( useDepthRange )
-        {
-            if ( depths.size() != pressures.size() )
-            {
-                // Depth filter requested but no aligned depth data is available for this case;
-                // exclude rather than silently return an unfiltered set of samples.
-                samplesPerCase.push_back( {} );
-                continue;
-            }
-            for ( size_t i = 0; i < depths.size(); ++i )
-                if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
-        }
-        else
-        {
-            samplesInRange = pressures;
-        }
-
-        samplesPerCase.push_back( samplesInRange );
-    }
-
-    return samplesPerCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                                          const QString&        wellName,
-                                                                          const QDateTime&      timeStep,
-                                                                          RimEclipseResultCase* eclipseCase,
-                                                                          bool                  useDepthRange,
-                                                                          double                depthRangeMin,
-                                                                          double                depthRangeMax,
-                                                                          RiaDefines::DepthType depthType )
-{
-    const std::vector<std::vector<double>> samplesPerCase =
-        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, useDepthRange, depthRangeMin, depthRangeMax, depthType );
-
-    std::vector<double> pressurePerCase;
-    pressurePerCase.reserve( samplesPerCase.size() );
-
-    for ( const std::vector<double>& samples : samplesPerCase )
-    {
-        if ( samples.empty() )
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-        else
-            pressurePerCase.push_back( std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size() );
-    }
-
-    return pressurePerCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::createCaseData() const
 {
     if ( !m_ensemble() ) return {};
@@ -389,14 +264,14 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
 
     if ( m_samplingMode() == SamplingMode::ALL_SAMPLES )
     {
-        const std::vector<std::vector<double>> samplesPerCase = computePressureSamplesPerCase( m_ensemble(),
-                                                                                               m_wellName(),
-                                                                                               m_selectedTimeStep(),
-                                                                                               m_eclipseCase(),
-                                                                                               m_useDepthRange(),
-                                                                                               m_depthRangeMin(),
-                                                                                               m_depthRangeMax(),
-                                                                                               m_depthType() );
+        const std::vector<std::vector<double>> samplesPerCase = RimRftCrossPlotTools::computePressureSamplesPerCase( m_ensemble(),
+                                                                                                                     m_wellName(),
+                                                                                                                     m_selectedTimeStep(),
+                                                                                                                     m_eclipseCase(),
+                                                                                                                     m_useDepthRange(),
+                                                                                                                     m_depthRangeMin(),
+                                                                                                                     m_depthRangeMax(),
+                                                                                                                     m_depthType() );
 
         if ( samplesPerCase.size() != allCases.size() ) return {};
 
@@ -413,14 +288,14 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
     }
     else
     {
-        const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
-                                                                                m_wellName(),
-                                                                                m_selectedTimeStep(),
-                                                                                m_eclipseCase(),
-                                                                                m_useDepthRange(),
-                                                                                m_depthRangeMin(),
-                                                                                m_depthRangeMax(),
-                                                                                m_depthType() );
+        const std::vector<double> pressurePerCase = RimRftCrossPlotTools::computeMeanPressurePerCase( m_ensemble(),
+                                                                                                      m_wellName(),
+                                                                                                      m_selectedTimeStep(),
+                                                                                                      m_eclipseCase(),
+                                                                                                      m_useDepthRange(),
+                                                                                                      m_depthRangeMin(),
+                                                                                                      m_depthRangeMax(),
+                                                                                                      m_depthType() );
 
         if ( pressurePerCase.size() != allCases.size() ) return {};
 
@@ -461,7 +336,7 @@ void RimParameterRftCrossPlot::updateAxes()
     const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
     const QString depthLabel    = m_useDepthRange() ? QString( "%1 [%2 %3 - %4]" )
                                                        .arg( pressureLabel )
-                                                       .arg( depthTypeAbbreviation( m_depthType() ) )
+                                                       .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
                                                        .arg( m_depthRangeMin() )
                                                        .arg( m_depthRangeMax() )
                                                     : pressureLabel;
@@ -641,7 +516,8 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     dataGroup->add( &m_selectedTimeStep );
     dataGroup->add( &m_eclipseCase );
 
-    auto* depthGroup = uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( depthTypeAbbreviation( m_depthType() ) ) );
+    auto* depthGroup =
+        uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
     depthGroup->add( &m_useDepthRange );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
@@ -761,14 +637,14 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
             std::vector<double> pressurePerCase;
             if ( canComputeCorrelation )
             {
-                pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
-                                                              m_wellName(),
-                                                              m_selectedTimeStep(),
-                                                              m_eclipseCase(),
-                                                              m_useDepthRange(),
-                                                              m_depthRangeMin(),
-                                                              m_depthRangeMax(),
-                                                              m_depthType() );
+                pressurePerCase = RimRftCrossPlotTools::computeMeanPressurePerCase( m_ensemble(),
+                                                                                    m_wellName(),
+                                                                                    m_selectedTimeStep(),
+                                                                                    m_eclipseCase(),
+                                                                                    m_useDepthRange(),
+                                                                                    m_depthRangeMin(),
+                                                                                    m_depthRangeMax(),
+                                                                                    m_depthType() );
             }
 
             // Compute correlation for each numeric parameter, then sort by abs value descending
@@ -878,7 +754,7 @@ void RimParameterRftCrossPlot::updatePlotTitle()
         {
             m_description = QString( "%1 vs RFT Pressure [%2 %3 - %4 m], %5" )
                                 .arg( m_ensembleParameter() )
-                                .arg( depthTypeAbbreviation( m_depthType() ) )
+                                .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
                                 .arg( m_depthRangeMin() )
                                 .arg( m_depthRangeMax() )
                                 .arg( m_ensemble->name() );

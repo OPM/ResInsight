@@ -1,0 +1,185 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+#include "RimRftCrossPlotTools.h"
+
+#include "RifEclipseRftAddress.h"
+#include "RifReaderRftInterface.h"
+
+#include "RiaExtractionTools.h"
+
+#include "Well/RigEclipseWellLogExtractor.h"
+
+#include "RimEclipseResultCase.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
+#include "RimWellPath.h"
+
+#include <limits>
+#include <numeric>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimRftCrossPlotTools::depthTypeAbbreviation( RiaDefines::DepthType depthType )
+{
+    return depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? "TVD" : "MD";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftCrossPlotTools::rftCurveDepthValues( RifReaderRftInterface*      reader,
+                                                               const QString&              wellName,
+                                                               const QDateTime&            timeStep,
+                                                               RigEclipseWellLogExtractor* extractor,
+                                                               RiaDefines::DepthType       depthType )
+{
+    if ( !reader ) return {};
+
+    if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
+    {
+        auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+        std::vector<double> tvdDepths;
+        reader->values( tvdAddress, &tvdDepths );
+        return tvdDepths;
+    }
+
+    auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+    std::vector<double> depths;
+    reader->values( mdAddress, &depths );
+    if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+    return depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthRange( const std::vector<double>& depths,
+                                                                       const std::vector<double>& pressures,
+                                                                       bool                       useDepthRange,
+                                                                       double                     depthRangeMin,
+                                                                       double                     depthRangeMax )
+{
+    if ( !useDepthRange ) return pressures;
+
+    // Depth filter requested but no aligned depth data is available; exclude rather than
+    // silently return an unfiltered set of samples.
+    if ( depths.size() != pressures.size() ) return {};
+
+    std::vector<double> samplesInRange;
+    for ( size_t i = 0; i < depths.size(); ++i )
+        if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
+
+    return samplesInRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRftCrossPlotTools::computeMean( const std::vector<double>& samples )
+{
+    if ( samples.empty() ) return std::numeric_limits<double>::infinity();
+
+    return std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimRftCrossPlotTools::computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                                                                      const QString&        wellName,
+                                                                                      const QDateTime&      timeStep,
+                                                                                      RimEclipseResultCase* eclipseCase,
+                                                                                      bool                  useDepthRange,
+                                                                                      double                depthRangeMin,
+                                                                                      double                depthRangeMax,
+                                                                                      RiaDefines::DepthType depthType )
+{
+    if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
+
+    RigEclipseWellLogExtractor* extractor = nullptr;
+    if ( eclipseCase )
+    {
+        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( wellName );
+        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
+        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
+    }
+
+    const auto& allCases = ensemble->allSummaryCases();
+
+    std::vector<std::vector<double>> samplesPerCase;
+    samplesPerCase.reserve( allCases.size() );
+
+    for ( RimSummaryCase* summaryCase : allCases )
+    {
+        if ( !summaryCase )
+        {
+            samplesPerCase.push_back( {} );
+            continue;
+        }
+
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if ( !reader )
+        {
+            samplesPerCase.push_back( {} );
+            continue;
+        }
+
+        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        std::vector<double> pressures;
+        reader->values( pressureAddress, &pressures );
+        if ( pressures.empty() )
+        {
+            samplesPerCase.push_back( {} );
+            continue;
+        }
+
+        // Use the same depth values the RFT curves use for their depth axis, so the filter
+        // operates on values consistent with what the user sees in the RFT plot.
+        std::vector<double> depths = rftCurveDepthValues( reader, wellName, timeStep, extractor, depthType );
+
+        samplesPerCase.push_back( filterPressuresByDepthRange( depths, pressures, useDepthRange, depthRangeMin, depthRangeMax ) );
+    }
+
+    return samplesPerCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftCrossPlotTools::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
+                                                                      const QString&        wellName,
+                                                                      const QDateTime&      timeStep,
+                                                                      RimEclipseResultCase* eclipseCase,
+                                                                      bool                  useDepthRange,
+                                                                      double                depthRangeMin,
+                                                                      double                depthRangeMax,
+                                                                      RiaDefines::DepthType depthType )
+{
+    const std::vector<std::vector<double>> samplesPerCase =
+        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, useDepthRange, depthRangeMin, depthRangeMax, depthType );
+
+    std::vector<double> pressurePerCase;
+    pressurePerCase.reserve( samplesPerCase.size() );
+
+    for ( const std::vector<double>& samples : samplesPerCase )
+        pressurePerCase.push_back( computeMean( samples ) );
+
+    return pressurePerCase;
+}

@@ -26,7 +26,7 @@
 
 #include "RimCorrelationBarChartTools.h"
 #include "RimEclipseResultCase.h"
-#include "RimParameterRftCrossPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 
@@ -45,17 +45,6 @@
 #include <limits>
 #include <map>
 #include <numeric>
-
-namespace
-{
-//--------------------------------------------------------------------------------------------------
-/// Short abbreviation used in the plot title for the active depth type.
-//--------------------------------------------------------------------------------------------------
-QString depthTypeAbbreviation( RiaDefines::DepthType depthType )
-{
-    return depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? "TVD" : "MD";
-}
-} // namespace
 
 CAF_PDM_SOURCE_INIT( RimRftTornadoPlot, "RftTornadoPlot" );
 
@@ -383,14 +372,14 @@ std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBa
     const auto& allCases = m_ensemble->allSummaryCases();
 
     // Build pressure vector per case (indices match allCases order)
-    const std::vector<double> pressurePerCase = RimParameterRftCrossPlot::computeMeanPressurePerCase( m_ensemble(),
-                                                                                                      m_wellName(),
-                                                                                                      m_selectedTimeStep(),
-                                                                                                      m_eclipseCase(),
-                                                                                                      m_useDepthRange(),
-                                                                                                      m_depthRangeMin(),
-                                                                                                      m_depthRangeMax(),
-                                                                                                      m_depthType() );
+    const std::vector<double> pressurePerCase = RimRftCrossPlotTools::computeMeanPressurePerCase( m_ensemble(),
+                                                                                                  m_wellName(),
+                                                                                                  m_selectedTimeStep(),
+                                                                                                  m_eclipseCase(),
+                                                                                                  m_useDepthRange(),
+                                                                                                  m_depthRangeMin(),
+                                                                                                  m_depthRangeMax(),
+                                                                                                  m_depthType() );
 
     // For each numeric parameter, compute Pearson correlation against pressurePerCase
     for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( allCases ) )
@@ -432,11 +421,12 @@ void RimRftTornadoPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle() && m_ensemble() )
     {
-        const QString rangeStr =
-            m_useDepthRange()
-                ? QString( " [%1 %2 - %3 m]" ).arg( depthTypeAbbreviation( m_depthType() ) ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                : QString();
-        m_description = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
+        const QString rangeStr = m_useDepthRange() ? QString( " [%1 %2 - %3 m]" )
+                                                         .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
+                                                         .arg( m_depthRangeMin() )
+                                                         .arg( m_depthRangeMax() )
+                                                   : QString();
+        m_description          = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
     }
 
     m_plotWidget->setPlotTitle( m_description() );
