@@ -67,7 +67,7 @@ CMake files (`CMakeLists.txt`, `*.cmake`) are formatted with `cmake-format` from
 
 1. **Minimal Changes**: Make the smallest possible changes to achieve the goal
 2. **Preserve Formatting**: Do not reformat unrelated code
-3. **Comments**: Match the style of existing comments in the file, keep them concise and as short as possible while still being clear
+3. **Comments**: Match the style of existing comments in the file; keep all comments short and concise — a brief phrase or single sentence is preferred over a multi-sentence explanation
 4. **Libraries**: Use existing libraries whenever possible; only add new libraries or update versions if absolutely necessary
 
 ### Code Quality
@@ -299,5 +299,6 @@ unwinding, so catch inside the loop body. Touch Qt widgets only from the thread 
 When creating commits:
 - Use issue number at the start of the title: `#12773 Python: Add API for creating valve templates`
 - Follow git conventions for commit messages
+- Keep commit messages short and concise: a one-line title plus only as much body as needed to explain the "why"
 - Always run python formatting/check on changed files before commits
 - When you change a CMake file and `cmakelang` is available, run `cmake-format` on it before committing (see [CMake Formatting](#cmake-formatting))

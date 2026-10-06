@@ -74,11 +74,13 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 ### Commit Conventions
 - When creating a git commit for a feature request use the issue number at the start of the title, e.g "#12773 Python: Add API for creating valve templates"
 - When creating a commit use git conventions
+- Keep the commit message short and concise: a one-line title, and only as much body text as needed to explain the "why" — avoid long, exhaustive explanations
 - Always run python formatting/check on changed files before commits
 - When you change a CMake file and `cmakelang` is available, run `cmake-format -c cmake/cmake-format.py -i <file>` before committing (see `docs/agents/coding-style.md`)
 
 ### PR Conventions
 - Do not include a test plan in the PR description
+- Keep the PR description short and concise: a few short sections (e.g. Problem / Fix / Testing) with 1-3 sentences each, not an exhaustive report
 
 ## Making PDM Objects Scriptable for Python GRPC Interface
 
