@@ -20,7 +20,9 @@
 #include "RimPlot.h"
 
 #include "Appearance/RimFontSizeField.h"
+#include "RiaDefines.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 #include "cvfColor3.h"
@@ -60,6 +62,7 @@ public:
     void setEclipseCase( RimEclipseResultCase* eclipseCase );
     void setUseDepthRange( bool useDepthRange );
     void setDepthRange( double minMd, double maxMd );
+    void setDepthType( RiaDefines::DepthType depthType );
     void setSelectedParameter( const QString& paramName );
 
     RiuQwtPlotWidget* viewer();
@@ -93,13 +96,14 @@ private:
 
 private:
     // Data source inputs
-    caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<QDateTime>                m_selectedTimeStep;
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-    caf::PdmField<bool>                     m_useDepthRange;
-    caf::PdmField<double>                   m_depthRangeMin;
-    caf::PdmField<double>                   m_depthRangeMax;
+    caf::PdmPtrField<RimSummaryEnsemble*>              m_ensemble;
+    caf::PdmField<QString>                             m_wellName;
+    caf::PdmField<QDateTime>                           m_selectedTimeStep;
+    caf::PdmPtrField<RimEclipseResultCase*>            m_eclipseCase;
+    caf::PdmField<bool>                                m_useDepthRange;
+    caf::PdmField<double>                              m_depthRangeMin;
+    caf::PdmField<double>                              m_depthRangeMax;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
 
     // Tornado settings
     caf::PdmField<bool>         m_showAbsoluteValues;

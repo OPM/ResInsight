@@ -535,17 +535,23 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
+    m_tornadoPlot->setDepthType( m_parameterRftCrossPlot->depthType() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Pushes the selected depth unit (MD/TVD) down to the sub plots that present a depth axis.
+/// Pushes the selected depth unit (MD/TVD) down to the sub plots that present a depth axis or
+/// filter samples by depth.
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::applyDepthTypeToSubPlots()
 {
-    if ( !m_wellRftPlot() ) return;
+    if ( m_wellRftPlot() )
+    {
+        m_wellRftPlot->setAvailableDepthTypes( { RiaDefines::DepthType::MEASURED_DEPTH, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH } );
+        m_wellRftPlot->setDepthType( m_depthType() );
+    }
 
-    m_wellRftPlot->setAvailableDepthTypes( { RiaDefines::DepthType::MEASURED_DEPTH, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH } );
-    m_wellRftPlot->setDepthType( m_depthType() );
+    if ( m_parameterRftCrossPlot() ) m_parameterRftCrossPlot->setDepthType( m_depthType() );
+    if ( m_tornadoPlot() ) m_tornadoPlot->setDepthType( m_depthType() );
 }
 
 //--------------------------------------------------------------------------------------------------
