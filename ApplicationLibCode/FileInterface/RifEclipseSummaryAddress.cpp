@@ -1410,7 +1410,10 @@ std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText( const st
 //--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 {
-    return std::to_string( regionNumber() ) + " - " + std::to_string( regionNumber2() );
+    // No spaces around the dash: this must match the keyword format used by opm-common's ESmry/ExtESmry readers
+    // ("R1-R2"), as toEclipseTextAddress() (which relies on this formatting) is used to reconstruct keyword text for
+    // file lookups. See https://github.com/OPM/ResInsight/issues/14853
+    return std::to_string( regionNumber() ) + "-" + std::to_string( regionNumber2() );
 }
 
 //--------------------------------------------------------------------------------------------------
