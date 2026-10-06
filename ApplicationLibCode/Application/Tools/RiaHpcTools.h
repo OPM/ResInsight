@@ -35,6 +35,9 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
 void stopLsfJob( QString jobId );
 void stopSlurmJob( QString jobId );
 
+QStringList listSlurmJobs();
+QStringList listLsfJobs();
+
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );

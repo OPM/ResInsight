@@ -98,6 +98,14 @@ QString RiuDockWidgetTools::mainWindowProcessMonitorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowBatchQueueMonitorName()
+{
+    return "dockBatchQueueMonitor_mainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::mainWindowResultPlotName()
 {
     return "dockResultPlot_mainWindow";
