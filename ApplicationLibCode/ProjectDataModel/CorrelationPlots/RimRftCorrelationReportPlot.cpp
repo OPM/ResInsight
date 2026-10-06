@@ -120,7 +120,7 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_showPlotLegends = false;
 
     m_wellRftPlot = new RimWellRftPlot;
-    m_wellRftPlot->removeWindowFromDock();
+    m_wellRftPlot->detachFromDockPermanently();
     m_wellRftPlot->setShowWindow( true );
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
@@ -336,6 +336,18 @@ void RimRftCorrelationReportPlot::setupBeforeSave()
     if ( m_dockManager )
     {
         m_dockState = QString::fromLatin1( m_dockManager->saveState( 1 ).toBase64() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Re-apply dock detachment after project load, since the PDM factory bypasses the constructor.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::initAfterRead()
+{
+    if ( m_wellRftPlot() )
+    {
+        m_wellRftPlot->detachFromDockPermanently();
+        m_wellRftPlot->setShowWindow( true );
     }
 }
 

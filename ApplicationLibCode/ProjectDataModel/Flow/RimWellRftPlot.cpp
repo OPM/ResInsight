@@ -31,6 +31,7 @@
 #include "RigEclipseCaseData.h"
 
 #include "RimDataSourceForRftPlt.h"
+#include "RimDockWindowController.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -147,7 +148,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    dockAsPlotWindow();
+    // Not docked by default: can be embedded elsewhere. Standalone creators call dockAsPlotWindow().
     m_isOnLoad = true;
 }
 
@@ -159,6 +160,19 @@ RimWellRftPlot::~RimWellRftPlot()
     removeWindowFromDock();
 
     deleteViewWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::detachFromDockPermanently()
+{
+    if ( m_windowController != nullptr )
+    {
+        m_windowController->removeWindowFromDock();
+        delete m_windowController();
+        m_windowController = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
