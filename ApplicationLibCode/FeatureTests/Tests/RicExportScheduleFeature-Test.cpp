@@ -117,6 +117,57 @@ TEST_F( RicExportScheduleFeatureTest, ExportWritesScheduleForTimelineEvents )
     EXPECT_TRUE( content.contains( "--DAY" ) );
 }
 
+TEST_F( RicExportScheduleFeatureTest, ExportKeepsKeywordPriorityOrderRegardlessOfInsertionOrder )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+    ASSERT_TRUE( model.eclipseCase != nullptr );
+
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    ASSERT_TRUE( oilField != nullptr && oilField->wellPathCollection() != nullptr );
+    RimWellEventTimeline* timeline = oilField->wellPathCollection()->eventTimeline();
+    ASSERT_TRUE( timeline != nullptr );
+
+    // Added out of priority order on purpose: the exporter must still emit them sorted by the
+    // keyword priority order, with the group keywords (GCONPROD, GCONINJE, GEFAC) placed between
+    // WRFTPLT and TUNING.
+    const QDateTime date( QDate( 2024, 1, 1 ), QTime( 0, 0, 0 ) );
+    timeline->addKeywordEvent( date, "RPTRST" )->addIntItem( "BASIC", 2 );
+    timeline->addKeywordEvent( date, "TUNING" );
+    timeline->addKeywordEvent( date, "GEFAC" )->addStringItem( "GROUP", "FIELD" );
+    timeline->addKeywordEvent( date, "GCONINJE" )->addStringItem( "GROUP", "FIELD" );
+    timeline->addKeywordEvent( date, "GCONPROD" )->addStringItem( "GROUP", "FIELD" );
+
+    caf::SelectionManager::instance()->setSelectedItem( timeline );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "schedule_order.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, *model.eclipseCase, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    const int gconprodPos = content.indexOf( "GCONPROD" );
+    const int gconinjePos = content.indexOf( "GCONINJE" );
+    const int gefacPos    = content.indexOf( "GEFAC" );
+    const int tuningPos   = content.indexOf( "TUNING" );
+    const int rptrstPos   = content.indexOf( "RPTRST" );
+
+    ASSERT_NE( gconprodPos, -1 );
+    ASSERT_NE( gconinjePos, -1 );
+    ASSERT_NE( gefacPos, -1 );
+    ASSERT_NE( tuningPos, -1 );
+    ASSERT_NE( rptrstPos, -1 );
+
+    EXPECT_LT( gconprodPos, gconinjePos );
+    EXPECT_LT( gconinjePos, gefacPos );
+    EXPECT_LT( gefacPos, tuningPos );
+    EXPECT_LT( tuningPos, rptrstPos );
+}
+
 TEST_F( RicExportScheduleFeatureTest, ExportOfEmptyTimelineFails )
 {
     FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
