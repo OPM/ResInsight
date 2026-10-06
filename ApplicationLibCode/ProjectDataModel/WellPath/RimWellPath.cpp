@@ -987,11 +987,11 @@ void RimWellPath::detachWellLog( RimWellLog* wellLog )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPathFormations )
+void RimWellPath::setFormationsGeometry( const RigWellPathFormations& wellPathFormations )
 {
     m_wellPathFormations        = wellPathFormations;
-    m_wellPathFormationFilePath = wellPathFormations->filePath();
-    m_formationKeyInFile        = wellPathFormations->keyInFile();
+    m_wellPathFormationFilePath = wellPathFormations.filePath();
+    m_formationKeyInFile        = wellPathFormations.keyInFile();
 
     updateConnectedEditors();
 }
@@ -1051,7 +1051,7 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasFormations() const
 {
-    return !m_wellPathFormations.isNull();
+    return m_wellPathFormations.has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1059,7 +1059,7 @@ bool RimWellPath::hasFormations() const
 //--------------------------------------------------------------------------------------------------
 const RigWellPathFormations* RimWellPath::formationsGeometry() const
 {
-    return m_wellPathFormations.p();
+    return m_wellPathFormations ? &m_wellPathFormations.value() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

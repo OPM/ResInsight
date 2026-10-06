@@ -24,8 +24,6 @@
 #include <utility>
 #include <vector>
 
-#include "cvfObject.h"
-
 #include <QString>
 
 //==================================================================================================
@@ -34,7 +32,7 @@
 class RifWellPathFormationReader
 {
 public:
-    static std::map<QString, cvf::ref<RigWellPathFormations>> readWellFormationsToGeometry( const QString& filePath );
+    static std::map<QString, RigWellPathFormations> readWellFormationsToGeometry( const QString& filePath );
 
 private:
     static void readFile( const QString&        filePath,

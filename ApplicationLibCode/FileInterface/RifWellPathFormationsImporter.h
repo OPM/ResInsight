@@ -20,12 +20,11 @@
 
 #include "Well/RigWellPathFormations.h"
 
-#include "cvfObject.h"
-
 #include <QDateTime>
 #include <QString>
 
 #include <map>
+#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -35,15 +34,15 @@
 class RifWellPathFormationsImporter
 {
 public:
-    cvf::ref<RigWellPathFormations> readWellPathFormations( const QString& formationFilePath, const QString& wellName );
-    cvf::ref<RigWellPathFormations> reloadWellPathFormations( const QString& formationFilePath, const QString& wellName );
+    std::optional<RigWellPathFormations> readWellPathFormations( const QString& formationFilePath, const QString& wellName );
+    std::optional<RigWellPathFormations> reloadWellPathFormations( const QString& formationFilePath, const QString& wellName );
 
-    std::map<QString, cvf::ref<RigWellPathFormations>> readWellPathFormationsFromPath( const QString& filePath );
+    std::map<QString, RigWellPathFormations> readWellPathFormationsFromPath( const QString& filePath );
 
     void reloadAllWellPathFormations();
 
 private:
     void readAllWellPathFormations( const QString& filePath );
 
-    std::map<QString /*filename*/, std::map<QString /*wellName*/, cvf::ref<RigWellPathFormations>>> m_fileNameToWellPathFormationMap;
+    std::map<QString /*filename*/, std::map<QString /*wellName*/, RigWellPathFormations>> m_fileNameToWellPathFormationMap;
 };

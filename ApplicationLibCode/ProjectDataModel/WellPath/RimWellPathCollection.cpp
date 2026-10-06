@@ -533,8 +533,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     for ( const QString& filePath : filePaths )
     {
-        std::map<QString, cvf::ref<RigWellPathFormations>> newFormations =
-            m_wellPathFormationsImporter->readWellPathFormationsFromPath( filePath );
+        std::map<QString, RigWellPathFormations> newFormations = m_wellPathFormationsImporter->readWellPathFormationsFromPath( filePath );
 
         for ( const auto& newFormation : newFormations )
         {
@@ -550,7 +549,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
             }
             wellPath->setFormationsGeometry( newFormation.second );
 
-            QString wellFormationsCount = QString( "%1" ).arg( newFormation.second->formationNamesCount() );
+            QString wellFormationsCount = QString( "%1" ).arg( newFormation.second.formationNamesCount() );
 
             m_mostRecentlyUpdatedWellPath = wellPath;
 

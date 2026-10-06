@@ -22,7 +22,6 @@
 #include "RiaWellLogTrackDefines.h"
 
 #include "cvfMath.h"
-#include "cvfObject.h"
 
 #include <map>
 #include <utility>
@@ -42,7 +41,7 @@ struct RigWellPathFormation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RigWellPathFormations : public cvf::Object
+class RigWellPathFormations
 {
 public:
     using FormationLevel = RiaDefines::WellLogTrackFormationLevel;
