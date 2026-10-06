@@ -2577,18 +2577,12 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             return;
         }
 
-        std::vector<double> yValues;
-
         const RigWellPathFormations* formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
         if ( !formations ) return;
 
-        std::vector<QString> formationNamesToPlot;
-        auto                 formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
-        formations->depthAndFormationNamesUpToLevel( formationLevel,
-                                                     &formationNamesToPlot,
-                                                     &yValues,
-                                                     m_formationSettings->showFormationFluids(),
-                                                     plot->depthType() );
+        auto formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
+        auto [formationNamesToPlot, yValues] =
+            formations->depthAndFormationNamesUpToLevel( formationLevel, m_formationSettings->showFormationFluids(), plot->depthType() );
 
         if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
         {

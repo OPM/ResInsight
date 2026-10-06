@@ -122,6 +122,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffWriter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools-Test.cpp

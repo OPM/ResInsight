@@ -18,17 +18,221 @@
 
 #include "RigWellPathFormations.h"
 
-#include "QStringList"
+#include <QStringList>
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <map>
+#include <optional>
+
+namespace
+{
+using FormationLevel = RiaDefines::WellLogTrackFormationLevel;
+using NamesAndDepths = std::pair<std::vector<QString>, std::vector<double>>;
+
+// Picks closer than this are considered to be at the same depth
+struct DepthComp
+{
+    bool operator()( double depth1, double depth2 ) const
+    {
+        if ( std::abs( depth1 - depth2 ) < 0.1 ) return false;
+        return depth1 < depth2;
+    }
+};
+
+enum class PickPosition
+{
+    TOP,
+    BASE
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> pickDepth( const RigWellPathFormation& formation, PickPosition position, RiaDefines::DepthType depthType )
+{
+    const bool isTop = position == PickPosition::TOP;
+
+    switch ( depthType )
+    {
+        case RiaDefines::DepthType::MEASURED_DEPTH:
+            return isTop ? formation.mdTop : formation.mdBase;
+        case RiaDefines::DepthType::TRUE_VERTICAL_DEPTH:
+            return isTop ? formation.tvdTop : formation.tvdBase;
+        default:
+            return std::nullopt;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString pickName( const RigWellPathFormation& formation, PickPosition position )
+{
+    return formation.formationName + ( position == PickPosition::TOP ? " Top" : " Base" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+NamesAndDepths fluidPicks( const std::vector<RigWellPathFormation>& fluids, RiaDefines::DepthType depthType )
+{
+    std::map<double, QString, DepthComp> picks;
+
+    // Bases first, so a top at the same depth replaces the base
+    for ( auto position : { PickPosition::BASE, PickPosition::TOP } )
+    {
+        for ( const auto& fluid : fluids )
+        {
+            auto depth = pickDepth( fluid, position, depthType );
+            if ( !depth ) return {};
+
+            picks[*depth] = pickName( fluid, position );
+        }
+    }
+
+    NamesAndDepths result;
+    for ( const auto& [depth, name] : picks )
+    {
+        result.first.push_back( name );
+        result.second.push_back( depth );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+NamesAndDepths allPicksWithoutDuplicateDepths( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
+                                               RiaDefines::DepthType                                               depthType )
+{
+    NamesAndDepths              result;
+    std::set<double, DepthComp> usedDepths;
+
+    for ( auto position : { PickPosition::TOP, PickPosition::BASE } )
+    {
+        for ( const auto& [formation, level] : formations )
+        {
+            auto depth = pickDepth( formation, position, depthType );
+            if ( !depth ) return {};
+
+            if ( usedDepths.insert( *depth ).second )
+            {
+                result.first.push_back( pickName( formation, position ) );
+                result.second.push_back( *depth );
+            }
+        }
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// At each depth, keep the pick from the most detailed level not exceeding maxLevel
+//--------------------------------------------------------------------------------------------------
+NamesAndDepths picksUpToLevel( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
+                               FormationLevel                                                      maxLevel,
+                               RiaDefines::DepthType                                               depthType )
+{
+    std::map<double, std::pair<FormationLevel, QString>, DepthComp> picks;
+
+    for ( auto position : { PickPosition::TOP, PickPosition::BASE } )
+    {
+        for ( const auto& [formation, level] : formations )
+        {
+            auto depth = pickDepth( formation, position, depthType );
+            if ( !depth ) return {};
+
+            if ( level > maxLevel ) continue;
+
+            auto it = picks.find( *depth );
+            if ( it == picks.end() )
+            {
+                picks.emplace( *depth, std::make_pair( level, pickName( formation, position ) ) );
+            }
+            else if ( it->second.first < level )
+            {
+                it->second = { level, pickName( formation, position ) };
+            }
+        }
+    }
+
+    NamesAndDepths result;
+    for ( const auto& [depth, levelAndName] : picks )
+    {
+        result.first.push_back( levelAndName.second );
+        result.second.push_back( depth );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool isFluid( const QString& formationName )
+{
+    const QString name = formationName.trimmed();
+    return name == "OIL" || name == "GAS" || name == "WATER";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Group names are all upper case. Otherwise the number of dots in the numeric part gives the level,
+/// e.g. "Ile 2" is level 1 and "Ile 2.1" is level 2.
+//--------------------------------------------------------------------------------------------------
+FormationLevel detectLevel( const QString& formationName )
+{
+    const QString name = formationName.trimmed();
+
+    if ( std::none_of( name.begin(), name.end(), []( QChar c ) { return c.isLower(); } ) )
+    {
+        return FormationLevel::GROUP;
+    }
+
+    auto containsDigit = []( const QString& word ) { return std::any_of( word.begin(), word.end(), []( QChar c ) { return c.isDigit(); } ); };
+    auto containsLetter = []( const QString& word )
+    { return std::any_of( word.begin(), word.end(), []( QChar c ) { return c.isLetter(); } ); };
+
+    std::vector<QString> levelDescriptorCandidates;
+    for ( const QString& word : name.split( ' ' ) )
+    {
+        if ( containsDigit( word ) ) levelDescriptorCandidates.push_back( word );
+    }
+
+    if ( levelDescriptorCandidates.empty() ) return FormationLevel::LEVEL0;
+
+    if ( levelDescriptorCandidates.size() > 1 )
+    {
+        std::erase_if( levelDescriptorCandidates, containsLetter );
+    }
+
+    if ( levelDescriptorCandidates.size() != 1 ) return FormationLevel::UNKNOWN;
+
+    const QString levelDescriptor = levelDescriptorCandidates.front().split( '+' ).front();
+
+    static const std::array levels = { FormationLevel::LEVEL1,
+                                       FormationLevel::LEVEL2,
+                                       FormationLevel::LEVEL3,
+                                       FormationLevel::LEVEL4,
+                                       FormationLevel::LEVEL5,
+                                       FormationLevel::LEVEL6,
+                                       FormationLevel::LEVEL7,
+                                       FormationLevel::LEVEL8,
+                                       FormationLevel::LEVEL9,
+                                       FormationLevel::LEVEL10 };
+
+    const auto dotCount = static_cast<size_t>( levelDescriptor.count( '.' ) );
+    return dotCount < levels.size() ? levels[dotCount] : FormationLevel::UNKNOWN;
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key )
+    : m_filePath( filePath )
+    , m_keyInFile( key )
 {
-    m_filePath  = filePath;
-    m_keyInFile = key;
-
-    for ( const RigWellPathFormation& formation : formations )
+    for ( const auto& formation : formations )
     {
         if ( isFluid( formation.formationName ) )
         {
@@ -36,10 +240,9 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
         }
         else
         {
-            FormationLevel level             = detectLevel( formation.formationName );
-            m_formationsLevelsPresent[level] = true;
-
-            m_formations.push_back( std::pair<RigWellPathFormation, FormationLevel>( formation, level ) );
+            auto level = detectLevel( formation.formationName );
+            m_formationsLevelsPresent.insert( level );
+            m_formations.emplace_back( formation, level );
         }
     }
 }
@@ -47,217 +250,29 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>* names,
-                                                                            std::vector<double>*  measuredDepths,
-                                                                            RiaDefines::DepthType depthType ) const
+std::pair<std::vector<QString>, std::vector<double>>
+    RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel level, bool includeFluids, RiaDefines::DepthType depthType ) const
 {
-    std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
-
-    if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
-    {
-        for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
-        {
-            if ( !tempMakeVectorUniqueOnMeasuredDepth.count( formation.first.mdTop ) )
-            {
-                measuredDepths->push_back( formation.first.mdTop );
-                names->push_back( formation.first.formationName + " Top" );
-                tempMakeVectorUniqueOnMeasuredDepth[formation.first.mdTop] = true;
-            }
-        }
-
-        for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
-        {
-            if ( !tempMakeVectorUniqueOnMeasuredDepth.count( formation.first.mdBase ) )
-            {
-                measuredDepths->push_back( formation.first.mdBase );
-                names->push_back( formation.first.formationName + " Base" );
-                tempMakeVectorUniqueOnMeasuredDepth[formation.first.mdBase] = true;
-            }
-        }
-    }
-    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-    {
-        for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
-        {
-            if ( !tempMakeVectorUniqueOnMeasuredDepth.count( formation.first.tvdTop ) )
-            {
-                measuredDepths->push_back( formation.first.tvdTop );
-                names->push_back( formation.first.formationName + " Top" );
-                tempMakeVectorUniqueOnMeasuredDepth[formation.first.tvdTop] = true;
-            }
-        }
-
-        for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
-        {
-            if ( !tempMakeVectorUniqueOnMeasuredDepth.count( formation.first.tvdBase ) )
-            {
-                measuredDepths->push_back( formation.first.tvdBase );
-                names->push_back( formation.first.formationName + " Base" );
-                tempMakeVectorUniqueOnMeasuredDepth[formation.first.tvdBase] = true;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                                              const FormationLevel&                      maxLevel,
-                                                              const PickPosition&                        position,
-                                                              std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                                              RiaDefines::DepthType                      depthType ) const
-{
-    QString postFix;
-
-    if ( position == TOP )
-    {
-        postFix = " Top";
-    }
-    else
-    {
-        postFix = " Base";
-    }
-
-    for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : formations )
-    {
-        double depth;
-
-        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
-        {
-            if ( position == TOP )
-            {
-                depth = formation.first.mdTop;
-            }
-            else
-            {
-                depth = formation.first.mdBase;
-            }
-        }
-        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-        {
-            if ( position == TOP )
-            {
-                depth = formation.first.tvdTop;
-            }
-            else
-            {
-                depth = formation.first.tvdBase;
-            }
-        }
-        else
-            return;
-
-        if ( formation.second > maxLevel ) continue;
-
-        if ( !uniqueListMaker->count( depth ) || uniqueListMaker->at( depth ).level < formation.second )
-        {
-            ( *uniqueListMaker )[depth] = LevelAndName( formation.second, formation.first.formationName + postFix );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                                const FormationLevel&                                               maxLevel,
-                                                std::vector<QString>*                                               names,
-                                                std::vector<double>*                                                depths,
-                                                RiaDefines::DepthType                                               depthType ) const
-{
-    std::map<double, LevelAndName, DepthComp> tempMakeVectorUniqueOnDepth;
-
-    evaluateFormationsForOnePosition( formations, maxLevel, PickPosition::TOP, &tempMakeVectorUniqueOnDepth, depthType );
-    evaluateFormationsForOnePosition( formations, maxLevel, PickPosition::BASE, &tempMakeVectorUniqueOnDepth, depthType );
-
-    for ( const std::pair<const double, LevelAndName>& uniqueDepth : tempMakeVectorUniqueOnDepth )
-    {
-        depths->push_back( uniqueDepth.first );
-        names->push_back( uniqueDepth.second.name );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormation>& fluidFormations,
-                                            std::vector<QString>*                    names,
-                                            std::vector<double>*                     depths,
-                                            RiaDefines::DepthType                    depthType ) const
-{
-    std::map<double, QString, DepthComp> uniqueListMaker;
-
-    for ( const RigWellPathFormation& formation : fluidFormations )
-    {
-        double depthBase;
-        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
-        {
-            depthBase = formation.mdBase;
-        }
-        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-        {
-            depthBase = formation.tvdBase;
-        }
-        else
-            return;
-
-        uniqueListMaker[depthBase] = formation.formationName + " Base";
-    }
-
-    for ( const RigWellPathFormation& formation : fluidFormations )
-    {
-        double depthTop;
-        if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
-        {
-            depthTop = formation.mdTop;
-        }
-        else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-        {
-            depthTop = formation.tvdTop;
-        }
-        else
-            return;
-
-        uniqueListMaker[depthTop] = formation.formationName + " Top";
-    }
-
-    for ( const std::pair<const double, QString>& depthAndFormation : uniqueListMaker )
-    {
-        depths->push_back( depthAndFormation.first );
-        names->push_back( depthAndFormation.second );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel        level,
-                                                             std::vector<QString>* names,
-                                                             std::vector<double>*  depths,
-                                                             bool                  includeFluids,
-                                                             RiaDefines::DepthType depthType ) const
-{
-    names->clear();
-    depths->clear();
-
+    NamesAndDepths result;
     if ( includeFluids )
     {
-        evaluateFluids( m_fluids, names, depths, depthType );
+        result = fluidPicks( m_fluids, depthType );
     }
 
-    if ( level == FormationLevel::NONE )
+    NamesAndDepths formationResult;
+    if ( level == FormationLevel::ALL )
     {
-        return;
+        formationResult = allPicksWithoutDuplicateDepths( m_formations, depthType );
     }
-    else if ( level == FormationLevel::ALL )
+    else if ( level != FormationLevel::NONE )
     {
-        depthAndFormationNamesWithoutDuplicatesOnDepth( names, depths, depthType );
+        formationResult = picksUpToLevel( m_formations, level, depthType );
     }
-    else
-    {
-        evaluateFormations( m_formations, level, names, depths, depthType );
-    }
+
+    result.first.insert( result.first.end(), formationResult.first.begin(), formationResult.first.end() );
+    result.second.insert( result.second.end(), formationResult.second.begin(), formationResult.second.end() );
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,13 +280,7 @@ void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel     
 //--------------------------------------------------------------------------------------------------
 std::vector<RigWellPathFormations::FormationLevel> RigWellPathFormations::formationsLevelsPresent() const
 {
-    std::vector<RigWellPathFormations::FormationLevel> formationLevels;
-
-    for ( const std::pair<const RigWellPathFormations::FormationLevel, bool>& formationLevel : m_formationsLevelsPresent )
-    {
-        formationLevels.push_back( formationLevel.first );
-    }
-    return formationLevels;
+    return { m_formationsLevelsPresent.begin(), m_formationsLevelsPresent.end() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,108 +305,4 @@ QString RigWellPathFormations::keyInFile() const
 size_t RigWellPathFormations::formationNamesCount() const
 {
     return m_formations.size() + m_fluids.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigWellPathFormations::isFluid( QString formationName )
-{
-    formationName = formationName.trimmed();
-
-    return formationName == "OIL" || formationName == "GAS" || formationName == "WATER";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigWellPathFormations::FormationLevel RigWellPathFormations::detectLevel( QString formationName )
-{
-    formationName = formationName.trimmed();
-
-    bool isGroupName = true;
-    for ( QChar c : formationName )
-    {
-        if ( c.isLower() )
-        {
-            isGroupName = false;
-            break;
-        }
-    }
-    if ( isGroupName )
-    {
-        return FormationLevel::GROUP;
-    }
-
-    QStringList formationNameSplitted = formationName.split( " " );
-
-    std::vector<QString> levelDesctiptorCandidates;
-
-    for ( QString word : formationNameSplitted )
-    {
-        for ( const QChar& c : word )
-        {
-            if ( c.isDigit() )
-            {
-                levelDesctiptorCandidates.push_back( word );
-                break;
-            }
-        }
-    }
-    if ( levelDesctiptorCandidates.empty() )
-    {
-        return FormationLevel::LEVEL0;
-    }
-
-    if ( levelDesctiptorCandidates.size() > 1 )
-    {
-        for ( auto it = levelDesctiptorCandidates.begin(); it != levelDesctiptorCandidates.end(); it++ )
-        {
-            for ( const QChar& c : *it )
-            {
-                if ( c.isLetter() )
-                {
-                    levelDesctiptorCandidates.erase( it );
-                }
-            }
-        }
-    }
-    if ( levelDesctiptorCandidates.size() != 1 ) return FormationLevel::UNKNOWN;
-
-    QString levelDescriptor = levelDesctiptorCandidates[0];
-
-    QStringList joinedLevel = levelDescriptor.split( '+' );
-    if ( joinedLevel.size() > 1 )
-    {
-        levelDescriptor = joinedLevel[0];
-    }
-
-    int dotCount = levelDescriptor.count( '.' );
-
-    switch ( dotCount )
-    {
-        case 0:
-            return FormationLevel::LEVEL1;
-        case 1:
-            return FormationLevel::LEVEL2;
-        case 2:
-            return FormationLevel::LEVEL3;
-        case 3:
-            return FormationLevel::LEVEL4;
-        case 4:
-            return FormationLevel::LEVEL5;
-        case 5:
-            return FormationLevel::LEVEL6;
-        case 6:
-            return FormationLevel::LEVEL7;
-        case 7:
-            return FormationLevel::LEVEL8;
-        case 8:
-            return FormationLevel::LEVEL9;
-        case 9:
-            return FormationLevel::LEVEL10;
-        default:
-            break;
-    }
-    return FormationLevel::UNKNOWN;
 }

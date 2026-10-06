@@ -19,6 +19,9 @@
 #include "RifWellPathFormationsImporter.h"
 #include "RifWellPathFormationReader.h"
 
+#include "Riu3DMainWindowTools.h"
+#include "RiuMessageDialog.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -52,17 +55,9 @@ std::optional<RigWellPathFormations> RifWellPathFormationsImporter::reloadWellPa
 //--------------------------------------------------------------------------------------------------
 std::map<QString, RigWellPathFormations> RifWellPathFormationsImporter::readWellPathFormationsFromPath( const QString& filePath )
 {
-    // If we have the file in the map, assume it is already read.
-    if ( m_fileNameToWellPathFormationMap.find( filePath ) != m_fileNameToWellPathFormationMap.end() )
-    {
-        return m_fileNameToWellPathFormationMap[filePath];
-    }
+    readAllWellPathFormations( filePath );
 
-    std::map<QString, RigWellPathFormations> wellPathToFormationMap = RifWellPathFormationReader::readWellFormationsToGeometry( filePath );
-
-    m_fileNameToWellPathFormationMap[filePath] = wellPathToFormationMap;
-
-    return wellPathToFormationMap;
+    return m_fileNameToWellPathFormationMap[filePath];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +90,11 @@ void RifWellPathFormationsImporter::readAllWellPathFormations( const QString& fi
         return;
     }
 
-    std::map<QString, RigWellPathFormations> wellPathToFormationMap = RifWellPathFormationReader::readWellFormationsToGeometry( filePath );
+    auto wellFormations = RifWellPathFormationReader::readWellFormations( filePath );
+    if ( !wellFormations )
+    {
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Import failure", wellFormations.error() );
+    }
 
-    m_fileNameToWellPathFormationMap[filePath] = wellPathToFormationMap;
+    m_fileNameToWellPathFormationMap[filePath] = wellFormations.value_or( RifWellPathFormationReader::WellFormations() );
 }
