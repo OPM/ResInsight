@@ -1223,32 +1223,6 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::rftCurveDepthValues( RifReaderRftInterface*      reader,
-                                                             const QString&              wellName,
-                                                             const QDateTime&            timeStep,
-                                                             RigEclipseWellLogExtractor* extractor,
-                                                             RiaDefines::DepthType       depthType )
-{
-    if ( !reader ) return {};
-
-    if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-    {
-        auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-        std::vector<double> tvdDepths;
-        reader->values( tvdAddress, &tvdDepths );
-        return tvdDepths;
-    }
-
-    auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
-    std::vector<double> depths;
-    reader->values( mdAddress, &depths );
-    if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-    return depths;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues )
 {
     if ( m_observedFmuRftData )

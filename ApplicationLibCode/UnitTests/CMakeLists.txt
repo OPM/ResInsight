@@ -94,6 +94,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftCrossPlotTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools-Test.cpp

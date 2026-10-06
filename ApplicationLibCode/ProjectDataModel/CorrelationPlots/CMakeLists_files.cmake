@@ -9,6 +9,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCorrelationReportPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTornadoPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationBarChartTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftCrossPlotTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

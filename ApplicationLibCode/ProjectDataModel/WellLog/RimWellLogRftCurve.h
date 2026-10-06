@@ -96,18 +96,6 @@ public:
 
     void setScaleFactor( double factor );
 
-    // Returns the depth values for the given well/time step, strictly matching depthType: MD
-    // (native RFT MD channel, falling back to extractor-derived MD if the channel is missing) or
-    // TVD (native RFT TVD channel). Returns an empty vector if the requested depth type is not
-    // available, rather than silently substituting the other depth type — callers that filter by
-    // depth range rely on this to exclude/blank out data instead of comparing a range against the
-    // wrong unit.
-    static std::vector<double> rftCurveDepthValues( RifReaderRftInterface*      reader,
-                                                    const QString&              wellName,
-                                                    const QDateTime&            timeStep,
-                                                    RigEclipseWellLogExtractor* extractor,
-                                                    RiaDefines::DepthType       depthType = RiaDefines::DepthType::MEASURED_DEPTH );
-
 protected:
     QString     createCurveAutoName() override;
     QString     createCurveNameFromTemplate( const QString& templateText ) override;

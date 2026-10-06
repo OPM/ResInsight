@@ -89,29 +89,6 @@ public:
 
     std::vector<CaseData> createCaseData() const;
 
-    // Computes mean RFT pressure per ensemble case (one entry per case, infinity = no data).
-    // Indices match ensemble->allSummaryCases().
-    static std::vector<double> computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                           const QString&        wellName,
-                                                           const QDateTime&      timeStep,
-                                                           RimEclipseResultCase* eclipseCase,
-                                                           bool                  useDepthRange,
-                                                           double                depthRangeMin,
-                                                           double                depthRangeMax,
-                                                           RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
-
-    // Computes the individual RFT pressure samples within the depth range per ensemble case.
-    // Indices match ensemble->allSummaryCases(). A case with no data gets an empty vector.
-    static std::vector<std::vector<double>>
-        computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
-                                       const QString&        wellName,
-                                       const QDateTime&      timeStep,
-                                       RimEclipseResultCase* eclipseCase,
-                                       bool                  useDepthRange,
-                                       double                depthRangeMin,
-                                       double                depthRangeMax,
-                                       RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
-
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
     void           setAutoScaleXEnabled( bool ) override {}
