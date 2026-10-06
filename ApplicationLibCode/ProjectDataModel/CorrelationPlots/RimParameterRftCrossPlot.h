@@ -48,10 +48,19 @@ class RimParameterRftCrossPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Determines how the RFT pressure samples within the selected depth range are reduced to
+    // (ensemble parameter, pressure) points shown in the cross plot.
+    enum class SamplingMode
+    {
+        ALL_SAMPLES, // One point per individual RFT sample within the depth range.
+        MEAN_PER_REALIZATION // One point per realization, using the mean pressure within the depth range.
+    };
+    using SamplingModeEnum = caf::AppEnum<SamplingMode>;
+
     struct CaseData
     {
         double          parameterValue;
-        double          pressureValue; // mean pressure in depth range
+        double          pressureValue; // pressure sample, or mean pressure in depth range
         RimSummaryCase* summaryCase;
     };
 
@@ -90,6 +99,18 @@ public:
                                                            double                depthRangeMin,
                                                            double                depthRangeMax,
                                                            RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
+
+    // Computes the individual RFT pressure samples within the depth range per ensemble case.
+    // Indices match ensemble->allSummaryCases(). A case with no data gets an empty vector.
+    static std::vector<std::vector<double>>
+        computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                       const QString&        wellName,
+                                       const QDateTime&      timeStep,
+                                       RimEclipseResultCase* eclipseCase,
+                                       bool                  useDepthRange,
+                                       double                depthRangeMin,
+                                       double                depthRangeMax,
+                                       RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
 
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
@@ -131,6 +152,7 @@ private:
     caf::PdmField<double>                              m_depthRangeMin;
     caf::PdmField<double>                              m_depthRangeMax;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
+    caf::PdmField<SamplingModeEnum>                    m_samplingMode;
     caf::PdmField<QString>                             m_ensembleParameter;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
