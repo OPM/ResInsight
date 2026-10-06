@@ -24,6 +24,8 @@
 
 #include "RimWellPathComponentInterface.h"
 
+#include "Well/RigWellPathFormations.h"
+
 #include "cafAppEnum.h"
 #include "cafFilePath.h"
 #include "cafPdmChildField.h"
@@ -43,7 +45,6 @@
 class RifWellPathImporter;
 class RifWellPathFormationsImporter;
 class RigWellPath;
-class RigWellPathFormations;
 
 class RimProject;
 class RimWellLogFile;
@@ -115,7 +116,7 @@ public:
 
     RimWellLogFile* firstWellLogFileMatchingChannelName( const QString& channelName ) const;
 
-    void setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPathFormations );
+    void setFormationsGeometry( const RigWellPathFormations& wellPathFormations );
     bool readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
     bool reloadWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
     bool hasFormations() const;
@@ -230,6 +231,6 @@ private:
 
 private:
     // Geometry and data
-    cvf::ref<RigWellPath>           m_wellPathGeometry;
-    cvf::ref<RigWellPathFormations> m_wellPathFormations;
+    cvf::ref<RigWellPath>                m_wellPathGeometry;
+    std::optional<RigWellPathFormations> m_wellPathFormations;
 };

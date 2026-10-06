@@ -35,6 +35,8 @@
 
 #include <QPointer>
 
+#include <optional>
+
 class RimEnsembleWellLogs;
 class RimEnsembleWellLogsCollection;
 class RimEnsembleCurveFilterCollection;
@@ -156,7 +158,7 @@ private:
     void onEnsembleCurvesAppearanceChanged( const caf::SignalEmitter* emitter );
     void setLogScaleFromSelectedResult( const QString resVar );
 
-    cvf::ref<RigWellPathFormations> createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets );
+    std::optional<RigWellPathFormations> createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets );
 
 private:
     caf::PdmField<bool> m_showCurves;

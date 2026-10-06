@@ -36,9 +36,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::readWellFormationsToGeometry( const QString& filePath )
+std::map<QString, RigWellPathFormations> RifWellPathFormationReader::readWellFormationsToGeometry( const QString& filePath )
 {
-    std::map<QString, cvf::ref<RigWellPathFormations>> result;
+    std::map<QString, RigWellPathFormations> result;
 
     std::vector<QString> wellNames;
     std::vector<QString> formationNames;
@@ -112,8 +112,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::r
 
     for ( const std::pair<const QString, std::vector<RigWellPathFormation>>& formation : formations )
     {
-        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations( formation.second, filePath, formation.first );
-        result[formation.first]                            = wellPathFormations;
+        result.emplace( formation.first, RigWellPathFormations( formation.second, filePath, formation.first ) );
     }
 
     return result;

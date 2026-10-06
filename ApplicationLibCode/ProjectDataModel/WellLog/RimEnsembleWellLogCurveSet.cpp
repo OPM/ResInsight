@@ -749,7 +749,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
     if ( m_statistics->hideEnsembleCurves() ) return;
 
     std::shared_ptr<RigWellLogIndexDepthOffset> offsets;
-    cvf::ref<RigWellPathFormations>             wellPathFormations;
+    std::optional<RigWellPathFormations>        wellPathFormations;
 
     if ( m_depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::K_LAYER )
     {
@@ -792,7 +792,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 }
 
                 RimWellPath* wellPath = RimProject::current()->wellPathByName( wellLogFile->wellName() );
-                if ( wellPathFormations.notNull() ) wellPath->setFormationsGeometry( wellPathFormations );
+                if ( wellPathFormations ) wellPath->setFormationsGeometry( *wellPathFormations );
 
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
@@ -1232,18 +1232,18 @@ void RimEnsembleWellLogCurveSet::setWellLogChannelName( const QString& wellLogCh
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellPathFormations> RimEnsembleWellLogCurveSet::createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets )
+std::optional<RigWellPathFormations> RimEnsembleWellLogCurveSet::createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets )
 {
     RimFormationNamesCollection* formationNamesCollection = RimProject::current()->activeOilField()->formationNamesCollection.v();
-    if ( !formationNamesCollection ) return nullptr;
+    if ( !formationNamesCollection ) return std::nullopt;
 
-    if ( formationNamesCollection->formationNamesList().empty() ) return nullptr;
+    if ( formationNamesCollection->formationNamesList().empty() ) return std::nullopt;
 
     RimFormationNames* rimFormationNames = formationNamesCollection->formationNamesList()[0];
-    if ( !rimFormationNames ) return nullptr;
+    if ( !rimFormationNames ) return std::nullopt;
 
     auto formationNames = rimFormationNames->formationNamesData();
-    if ( !formationNames ) return nullptr;
+    if ( !formationNames ) return std::nullopt;
 
     std::vector<RigWellPathFormation> wellPathFormationItems;
     for ( int kLayer : offsets->sortedIndexes() )
@@ -1255,10 +1255,8 @@ cvf::ref<RigWellPathFormations> RimEnsembleWellLogCurveSet::createWellPathFormat
         wellPathFormationItems.push_back( wellPathFormation );
     }
 
-    QString                         unusedFilePath = "";
-    cvf::ref<RigWellPathFormations> wellPathFormations =
-        new RigWellPathFormations( wellPathFormationItems, unusedFilePath, "Ensemble formation" );
-    return wellPathFormations;
+    QString unusedFilePath = "";
+    return RigWellPathFormations( wellPathFormationItems, unusedFilePath, "Ensemble formation" );
 }
 
 //--------------------------------------------------------------------------------------------------
