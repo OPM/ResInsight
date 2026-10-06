@@ -65,6 +65,17 @@
 #include <limits>
 #include <numeric>
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Short abbreviation used in axis titles and plot titles for the active depth type.
+//--------------------------------------------------------------------------------------------------
+QString depthTypeAbbreviation( RiaDefines::DepthType depthType )
+{
+    return depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? "TVD" : "MD";
+}
+} // namespace
+
 CAF_PDM_SOURCE_INIT( RimParameterRftCrossPlot, "ParameterRftCrossPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -81,8 +92,10 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     m_selectedTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
     CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
-    CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
-    CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
+    CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth" );
+    CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
+    CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::MEASURED_DEPTH ), "Depth Type" );
+    m_depthType.uiCapability()->setUiHidden( true ); // driven by the parent RimRftCorrelationReportPlot
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -137,6 +150,14 @@ void RimParameterRftCrossPlot::setDepthRange( double minMd, double maxMd )
 {
     m_depthRangeMin = minMd;
     m_depthRangeMax = maxMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setDepthType( RiaDefines::DepthType depthType )
+{
+    m_depthType = depthType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +235,14 @@ double RimParameterRftCrossPlot::depthRangeMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::DepthType RimParameterRftCrossPlot::depthType() const
+{
+    return m_depthType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 {
     return m_plotWidget;
@@ -228,7 +257,8 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
                                                                           RimEclipseResultCase* eclipseCase,
                                                                           bool                  useDepthRange,
                                                                           double                depthRangeMin,
-                                                                          double                depthRangeMax )
+                                                                          double                depthRangeMax,
+                                                                          RiaDefines::DepthType depthType )
 {
     if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
 
@@ -271,7 +301,7 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
 
         // Use the same depth values the RFT curves use for their depth axis, so the filter
         // operates on values consistent with what the user sees in the RFT plot.
-        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor );
+        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor, depthType );
 
         std::vector<double> samplesInRange;
         if ( useDepthRange )
@@ -321,7 +351,8 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
                                                                             m_eclipseCase(),
                                                                             m_useDepthRange(),
                                                                             m_depthRangeMin(),
-                                                                            m_depthRangeMax() );
+                                                                            m_depthRangeMax(),
+                                                                            m_depthType() );
 
     if ( pressurePerCase.size() != allCases.size() ) return {};
 
@@ -360,8 +391,10 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString depthLabel = m_useDepthRange() ? QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                                 : QString( "Mean Pressure" );
+    const QString depthLabel =
+        m_useDepthRange()
+            ? QString( "Mean Pressure [%1 %2 - %3]" ).arg( depthTypeAbbreviation( m_depthType() ) ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+            : QString( "Mean Pressure" );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -537,7 +570,7 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     dataGroup->add( &m_selectedTimeStep );
     dataGroup->add( &m_eclipseCase );
 
-    auto* depthGroup = uiOrdering.addNewGroup( "Depth Range" );
+    auto* depthGroup = uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( depthTypeAbbreviation( m_depthType() ) ) );
     depthGroup->add( &m_useDepthRange );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
@@ -662,7 +695,8 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
                                                               m_eclipseCase(),
                                                               m_useDepthRange(),
                                                               m_depthRangeMin(),
-                                                              m_depthRangeMax() );
+                                                              m_depthRangeMax(),
+                                                              m_depthType() );
             }
 
             // Compute correlation for each numeric parameter, then sort by abs value descending
@@ -752,8 +786,9 @@ void RimParameterRftCrossPlot::updatePlotTitle()
     {
         if ( m_useDepthRange() )
         {
-            m_description = QString( "%1 vs RFT Pressure [%2 - %3 m], %4" )
+            m_description = QString( "%1 vs RFT Pressure [%2 %3 - %4 m], %5" )
                                 .arg( m_ensembleParameter() )
+                                .arg( depthTypeAbbreviation( m_depthType() ) )
                                 .arg( m_depthRangeMin() )
                                 .arg( m_depthRangeMax() )
                                 .arg( m_ensemble->name() );

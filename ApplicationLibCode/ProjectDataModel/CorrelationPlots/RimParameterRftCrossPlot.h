@@ -18,8 +18,10 @@
 #pragma once
 
 #include "Appearance/RimFontSizeField.h"
+#include "RiaDefines.h"
 #include "RimPlot.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -61,6 +63,7 @@ public:
     void setWellName( const QString& wellName );
     void setTimeStep( const QDateTime& timeStep );
     void setDepthRange( double minMd, double maxMd );
+    void setDepthType( RiaDefines::DepthType depthType );
     void setEnsembleParameter( const QString& paramName );
 
     QString               ensembleParameter() const;
@@ -71,6 +74,7 @@ public:
     bool                  useDepthRange() const;
     double                depthRangeMin() const;
     double                depthRangeMax() const;
+    RiaDefines::DepthType depthType() const;
 
     RiuQwtPlotWidget* viewer();
 
@@ -84,7 +88,8 @@ public:
                                                            RimEclipseResultCase* eclipseCase,
                                                            bool                  useDepthRange,
                                                            double                depthRangeMin,
-                                                           double                depthRangeMax );
+                                                           double                depthRangeMax,
+                                                           RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
 
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
@@ -118,14 +123,15 @@ private:
     RimSummaryCase* findClosestCase( const QPoint& canvasPos );
 
 private:
-    caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<QDateTime>                m_selectedTimeStep;
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-    caf::PdmField<bool>                     m_useDepthRange;
-    caf::PdmField<double>                   m_depthRangeMin;
-    caf::PdmField<double>                   m_depthRangeMax;
-    caf::PdmField<QString>                  m_ensembleParameter;
+    caf::PdmPtrField<RimSummaryEnsemble*>              m_ensemble;
+    caf::PdmField<QString>                             m_wellName;
+    caf::PdmField<QDateTime>                           m_selectedTimeStep;
+    caf::PdmPtrField<RimEclipseResultCase*>            m_eclipseCase;
+    caf::PdmField<bool>                                m_useDepthRange;
+    caf::PdmField<double>                              m_depthRangeMin;
+    caf::PdmField<double>                              m_depthRangeMax;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
+    caf::PdmField<QString>                             m_ensembleParameter;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
