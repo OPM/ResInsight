@@ -63,6 +63,7 @@
 #include <QPaintDevice>
 
 #include <limits>
+#include <map>
 #include <numeric>
 
 namespace
@@ -75,6 +76,17 @@ QString depthTypeAbbreviation( RiaDefines::DepthType depthType )
     return depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ? "TVD" : "MD";
 }
 } // namespace
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimParameterRftCrossPlot::SamplingMode>::setUp()
+{
+    addItem( RimParameterRftCrossPlot::SamplingMode::ALL_SAMPLES, "ALL_SAMPLES", "All Samples" );
+    addItem( RimParameterRftCrossPlot::SamplingMode::MEAN_PER_REALIZATION, "MEAN_PER_REALIZATION", "Mean per Realization" );
+    setDefault( RimParameterRftCrossPlot::SamplingMode::MEAN_PER_REALIZATION );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimParameterRftCrossPlot, "ParameterRftCrossPlot" );
 
@@ -96,6 +108,7 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
     CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::MEASURED_DEPTH ), "Depth Type" );
     m_depthType.uiCapability()->setUiHidden( true ); // driven by the parent RimRftCorrelationReportPlot
+    CAF_PDM_InitField( &m_samplingMode, "SamplingMode", SamplingModeEnum( SamplingMode::MEAN_PER_REALIZATION ), "Sampling" );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -251,14 +264,14 @@ RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                                          const QString&        wellName,
-                                                                          const QDateTime&      timeStep,
-                                                                          RimEclipseResultCase* eclipseCase,
-                                                                          bool                  useDepthRange,
-                                                                          double                depthRangeMin,
-                                                                          double                depthRangeMax,
-                                                                          RiaDefines::DepthType depthType )
+std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                                                                          const QString&        wellName,
+                                                                                          const QDateTime&      timeStep,
+                                                                                          RimEclipseResultCase* eclipseCase,
+                                                                                          bool                  useDepthRange,
+                                                                                          double                depthRangeMin,
+                                                                                          double                depthRangeMax,
+                                                                                          RiaDefines::DepthType depthType )
 {
     if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
 
@@ -272,21 +285,21 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
 
     const auto& allCases = ensemble->allSummaryCases();
 
-    std::vector<double> pressurePerCase;
-    pressurePerCase.reserve( allCases.size() );
+    std::vector<std::vector<double>> samplesPerCase;
+    samplesPerCase.reserve( allCases.size() );
 
     for ( RimSummaryCase* summaryCase : allCases )
     {
         if ( !summaryCase )
         {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            samplesPerCase.push_back( {} );
             continue;
         }
 
         RifReaderRftInterface* reader = summaryCase->rftReader();
         if ( !reader )
         {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            samplesPerCase.push_back( {} );
             continue;
         }
 
@@ -295,7 +308,7 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
         reader->values( pressureAddress, &pressures );
         if ( pressures.empty() )
         {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            samplesPerCase.push_back( {} );
             continue;
         }
 
@@ -309,8 +322,8 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
             if ( depths.size() != pressures.size() )
             {
                 // Depth filter requested but no aligned depth data is available for this case;
-                // exclude rather than silently return an unfiltered mean.
-                pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                // exclude rather than silently return an unfiltered set of samples.
+                samplesPerCase.push_back( {} );
                 continue;
             }
             for ( size_t i = 0; i < depths.size(); ++i )
@@ -321,10 +334,36 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
             samplesInRange = pressures;
         }
 
-        if ( samplesInRange.empty() )
+        samplesPerCase.push_back( samplesInRange );
+    }
+
+    return samplesPerCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
+                                                                          const QString&        wellName,
+                                                                          const QDateTime&      timeStep,
+                                                                          RimEclipseResultCase* eclipseCase,
+                                                                          bool                  useDepthRange,
+                                                                          double                depthRangeMin,
+                                                                          double                depthRangeMax,
+                                                                          RiaDefines::DepthType depthType )
+{
+    const std::vector<std::vector<double>> samplesPerCase =
+        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, useDepthRange, depthRangeMin, depthRangeMax, depthType );
+
+    std::vector<double> pressurePerCase;
+    pressurePerCase.reserve( samplesPerCase.size() );
+
+    for ( const std::vector<double>& samples : samplesPerCase )
+    {
+        if ( samples.empty() )
             pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
         else
-            pressurePerCase.push_back( std::accumulate( samplesInRange.begin(), samplesInRange.end(), 0.0 ) / samplesInRange.size() );
+            pressurePerCase.push_back( std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size() );
     }
 
     return pressurePerCase;
@@ -345,29 +384,57 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
 
     const auto& allCases = m_ensemble->allSummaryCases();
 
-    const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
-                                                                            m_wellName(),
-                                                                            m_selectedTimeStep(),
-                                                                            m_eclipseCase(),
-                                                                            m_useDepthRange(),
-                                                                            m_depthRangeMin(),
-                                                                            m_depthRangeMax(),
-                                                                            m_depthType() );
-
-    if ( pressurePerCase.size() != allCases.size() ) return {};
-
     std::vector<CaseData> result;
     result.reserve( allCases.size() );
 
-    for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+    if ( m_samplingMode() == SamplingMode::ALL_SAMPLES )
     {
-        RimSummaryCase* summaryCase = allCases[caseIdx];
-        if ( !summaryCase ) continue;
-        if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
-        if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+        const std::vector<std::vector<double>> samplesPerCase = computePressureSamplesPerCase( m_ensemble(),
+                                                                                               m_wellName(),
+                                                                                               m_selectedTimeStep(),
+                                                                                               m_eclipseCase(),
+                                                                                               m_useDepthRange(),
+                                                                                               m_depthRangeMin(),
+                                                                                               m_depthRangeMax(),
+                                                                                               m_depthType() );
 
-        result.push_back(
-            { .parameterValue = parameter.values[caseIdx].toDouble(), .pressureValue = pressurePerCase[caseIdx], .summaryCase = summaryCase } );
+        if ( samplesPerCase.size() != allCases.size() ) return {};
+
+        for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+        {
+            RimSummaryCase* summaryCase = allCases[caseIdx];
+            if ( !summaryCase ) continue;
+            if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+
+            const double parameterValue = parameter.values[caseIdx].toDouble();
+            for ( double pressureValue : samplesPerCase[caseIdx] )
+                result.push_back( { .parameterValue = parameterValue, .pressureValue = pressureValue, .summaryCase = summaryCase } );
+        }
+    }
+    else
+    {
+        const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
+                                                                                m_wellName(),
+                                                                                m_selectedTimeStep(),
+                                                                                m_eclipseCase(),
+                                                                                m_useDepthRange(),
+                                                                                m_depthRangeMin(),
+                                                                                m_depthRangeMax(),
+                                                                                m_depthType() );
+
+        if ( pressurePerCase.size() != allCases.size() ) return {};
+
+        for ( size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx )
+        {
+            RimSummaryCase* summaryCase = allCases[caseIdx];
+            if ( !summaryCase ) continue;
+            if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
+            if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
+
+            result.push_back( { .parameterValue = parameter.values[caseIdx].toDouble(),
+                                .pressureValue  = pressurePerCase[caseIdx],
+                                .summaryCase    = summaryCase } );
+        }
     }
 
     return result;
@@ -391,10 +458,13 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString depthLabel =
-        m_useDepthRange()
-            ? QString( "Mean Pressure [%1 %2 - %3]" ).arg( depthTypeAbbreviation( m_depthType() ) ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-            : QString( "Mean Pressure" );
+    const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+    const QString depthLabel    = m_useDepthRange() ? QString( "%1 [%2 %3 - %4]" )
+                                                       .arg( pressureLabel )
+                                                       .arg( depthTypeAbbreviation( m_depthType() ) )
+                                                       .arg( m_depthRangeMin() )
+                                                       .arg( m_depthRangeMax() )
+                                                    : pressureLabel;
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -420,8 +490,9 @@ void RimParameterRftCrossPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
 {
-    QString asciiData;
-    asciiData += "Realization\tParameter\tMean Pressure\n";
+    QString       asciiData;
+    const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+    asciiData += QString( "Realization\tParameter\t%1\n" ).arg( pressureLabel );
     for ( const auto& [paramValue, pressureValue, summaryCase] : createCaseData() )
     {
         asciiData += QString( "%1\t%2\t%3\n" ).arg( summaryCase->displayCaseName() ).arg( paramValue ).arg( pressureValue );
@@ -579,6 +650,7 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
+    crossPlotGroup->add( &m_samplingMode );
 
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
@@ -757,11 +829,29 @@ void RimParameterRftCrossPlot::createPoints()
         }
     }
 
-    int idx = 0;
+    // Group points by summary case so "All Samples" mode draws one curve (and color) per
+    // realization, with all its samples, instead of one curve per individual sample.
+    std::vector<RimSummaryCase*>                                                   caseOrder;
+    std::map<RimSummaryCase*, std::pair<std::vector<double>, std::vector<double>>> pointsPerCase;
     for ( const auto& [paramValue, pressureValue, summaryCase] : caseData )
     {
+        auto it = pointsPerCase.find( summaryCase );
+        if ( it == pointsPerCase.end() )
+        {
+            caseOrder.push_back( summaryCase );
+            it = pointsPerCase.emplace( summaryCase, std::make_pair( std::vector<double>{}, std::vector<double>{} ) ).first;
+        }
+        it->second.first.push_back( paramValue );
+        it->second.second.push_back( pressureValue );
+    }
+
+    int idx = 0;
+    for ( RimSummaryCase* summaryCase : caseOrder )
+    {
+        const auto& [xValues, yValues] = pointsPerCase[summaryCase];
+
         auto* plotCurve = new RiuQwtPlotCurve;
-        plotCurve->setSamplesValues( { paramValue }, { pressureValue } );
+        plotCurve->setSamplesValues( xValues, yValues );
         plotCurve->setStyle( QwtPlotCurve::NoCurve );
 
         const bool isSelected = selectedSummaryCases.contains( summaryCase );
