@@ -1383,3 +1383,11 @@ void RimOpmFlowJob::setIsChildJob( bool isChildJob )
 {
     m_isChildJob = isChildJob;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::isChildJob() const
+{
+    return m_isChildJob();
+}

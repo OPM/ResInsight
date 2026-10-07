@@ -18,8 +18,12 @@
 
 #pragma once
 
+#include <atomic>
+
+#include <QMutex>
 #include <QObject>
 #include <QStringList>
+#include <QWaitCondition>
 
 class QWidget;
 
@@ -40,5 +44,8 @@ signals:
     void finished();
 
 private:
-    bool m_keepRunning;
+    std::atomic<bool> m_keepRunning;
+    int               m_monitoringIntervalSeconds;
+    QMutex            m_mutex;
+    QWaitCondition    m_waitForStop;
 };

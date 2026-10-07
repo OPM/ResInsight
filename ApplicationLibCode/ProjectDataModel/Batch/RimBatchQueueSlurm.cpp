@@ -68,13 +68,20 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
         return;
     }
 
+    QString jobName  = generateJobName();
+    m_stdOutFileName = QString( "%1/%2.out" ).arg( workDir ).arg( jobName );
+    m_stdErrFileName = QString( "%1/%2.err" ).arg( workDir ).arg( jobName );
+
+    QString stdOut = m_stdOutFileName;
+    QString stdErr = m_stdErrFileName;
+
     if ( useWsl )
     {
         workDir = RiaWslTools::convertToWslPath( workDir );
         script  = RiaWslTools::convertToWslPath( script );
+        stdOut  = RiaWslTools::convertToWslPath( stdOut );
+        stdErr  = RiaWslTools::convertToWslPath( stdErr );
     }
-
-    QString jobName = generateJobName();
 
     QStringList arguments;
     arguments << "sbatch";
@@ -92,9 +99,9 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
         arguments << "-D";
         arguments << workDir;
         arguments << "-o";
-        arguments << QString( "%1/%2.out" ).arg( workDir ).arg( jobName );
+        arguments << stdOut;
         arguments << "-e";
-        arguments << QString( "%1/%2.err" ).arg( workDir ).arg( jobName );
+        arguments << stdErr;
     }
 
     arguments << "-n";
@@ -111,6 +118,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     }
     else
     {
+        m_process->monitor()->started();
         m_batchProcess = std::move( batchProcess );
     }
 }
@@ -142,6 +150,8 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
     if ( m_batchProcess && m_process && m_process->monitor() )
     {
         auto jobId = RiaHpcTools::decodeSlurmJobId( m_batchProcess->stdOut() );
+
+        readStdOutErrIntoProcessLog();
 
         if ( runOk )
         {

@@ -50,6 +50,10 @@ protected:
     std::pair<std::unique_ptr<RimProcess>, QString> runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor );
     std::pair<bool, QString>                        buildLaunchScript( QString workDir );
     QString                                         generateJobName();
+    void                                            readStdOutErrIntoProcessLog();
+
+    QString m_stdOutFileName;
+    QString m_stdErrFileName;
 
     std::shared_ptr<RimProcess> m_process;
 };

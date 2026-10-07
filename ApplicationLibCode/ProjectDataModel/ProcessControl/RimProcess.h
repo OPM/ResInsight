@@ -73,8 +73,11 @@ public:
     void notifyErrorFinish();
     void writeToStdIn( QStringList stdIn );
 
-    QStringList stdErr() const;
-    QStringList stdOut() const;
+    const QStringList& stdErr() const;
+    const QStringList& stdOut() const;
+
+    void appendStdOut( QString line );
+    void appendStdErr( QString line );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -99,4 +102,5 @@ private:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     bool                               m_enableLogging;
     QPointer<QProcess>                 m_qProcess;
+    QStringList                        m_emptyList;
 };

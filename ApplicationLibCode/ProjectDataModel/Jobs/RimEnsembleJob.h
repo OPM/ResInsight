@@ -73,6 +73,8 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
     std::vector<RealizationInfo> setUpSelectedRealizations() const;
     std::string                  outputIteration() const;
@@ -92,6 +94,7 @@ private:
     caf::PdmChildField<RimOpmFlowJobSettings*>  m_jobSettings;
     caf::PdmChildField<RimJobWellSettings*>     m_jobWellSettings;
     caf::PdmPtrField<RimEnsembleFileSet*>       m_outputEnsembleFileSet;
+    caf::PdmField<QString>                      m_outputEnsembleName;
 
     caf::PdmField<std::vector<QDateTime>> m_datesInInputDeck;
     caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;

@@ -37,6 +37,8 @@ public:
     RiuBatchQueueMonitor( QWidget* parent );
     ~RiuBatchQueueMonitor() override;
 
+    void stopMonitoring();
+
 private slots:
     void slotUpdateView( const QStringList& information );
     void toggleUpdates();

@@ -206,7 +206,14 @@ void RimSingleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
 
             if ( state() == JobState::Running )
             {
-                tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
+                if ( m_percentageDone == 0.0 )
+                {
+                    tag->text = "Submitted";
+                }
+                else
+                {
+                    tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
+                }
             }
             else
             {

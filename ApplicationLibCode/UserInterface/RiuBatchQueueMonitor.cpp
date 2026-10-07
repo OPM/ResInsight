@@ -39,8 +39,9 @@
 //--------------------------------------------------------------------------------------------------
 RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     : QWidget( pParent )
+    , m_monitorWorker( nullptr )
 {
-    m_checkBoxAutoUpdate = new QCheckBox( "Enable Auto Update", this );
+    m_checkBoxAutoUpdate = new QCheckBox( "Enable Job Monitor", this );
     m_checkBoxAutoUpdate->setChecked( false );
 
     QHBoxLayout* pTopLayout = new QHBoxLayout;
@@ -90,9 +91,18 @@ void RiuBatchQueueMonitor::slotUpdateView( const QStringList& information )
 
         auto parts = line.split( ' ', Qt::SplitBehaviorFlags::SkipEmptyParts );
 
+        // only show jobs with ResInsight prefix
+        if ( parts.count() < 2 ) continue;
+        if ( !parts[1].startsWith( "RI_" ) ) continue;
+
         for ( int i = 0; i < parts.size(); ++i )
         {
-            m_jobView->setItem( newRowIndex, i, new QTableWidgetItem( parts.at( i ) ) );
+            auto item = new QTableWidgetItem( parts.at( i ) );
+            if ( i == 2 ) // run time should be right-aligned
+            {
+                item->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter );
+            }
+            m_jobView->setItem( newRowIndex, i, item );
         }
     }
 }
@@ -119,10 +129,18 @@ void RiuBatchQueueMonitor::toggleUpdates()
     }
     else
     {
-        if ( m_monitorWorker != nullptr )
-        {
-            m_monitorWorker->stopMonitoring();
-            m_monitorWorker = nullptr;
-        }
+        stopMonitoring();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchQueueMonitor::stopMonitoring()
+{
+    if ( m_monitorWorker != nullptr )
+    {
+        m_monitorWorker->stopMonitoring();
+        m_monitorWorker = nullptr;
     }
 }

@@ -20,6 +20,7 @@
 
 #include "RiaHpcTools.h"
 
+#include <QMutexLocker>
 #include <QStringList>
 #include <QThread>
 #include <QWidget>
@@ -30,6 +31,7 @@
 RiuBatchMonitorWorker::RiuBatchMonitorWorker( QObject* parent )
     : QObject( parent )
     , m_keepRunning( true )
+    , m_monitoringIntervalSeconds( 5 )
 {
 }
 
@@ -38,7 +40,11 @@ RiuBatchMonitorWorker::RiuBatchMonitorWorker( QObject* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuBatchMonitorWorker::stopMonitoring()
 {
+    // signal to worker thread it is time to stop
     m_keepRunning = false;
+    // wait for thread to finish, but don't wait forever
+    QMutexLocker locker( &m_mutex );
+    m_waitForStop.wait( &m_mutex, 8000 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,8 +56,20 @@ void RiuBatchMonitorWorker::gatherInformation()
     {
         auto jobInfo = RiaHpcTools::listSlurmJobs();
         emit informationGathered( jobInfo );
-        QThread::sleep( 5 ); // Sleep for 5 seconds before gathering information again
+
+        // poll exit flag 10 times per second to respond quickly to program exit
+        int       i    = 0;
+        const int maxI = m_monitoringIntervalSeconds * 10;
+        while ( i < maxI && m_keepRunning )
+        {
+            QThread::msleep( 100 );
+            i++;
+        }
     }
 
     emit finished();
+
+    m_mutex.lock();
+    m_waitForStop.wakeAll();
+    m_mutex.unlock();
 }
