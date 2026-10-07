@@ -228,27 +228,8 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 {
     // Keyword priority order for output
     static const std::vector<QString> keywordOrder = {
-        "END",
-        "WELSPECS",
-        "COMPORD",
-        "GRUPTREE",
-        "COMPDAT",
-        "COMPLUMP",
-        "WELSEGS",
-        "WSEGVALV",
-        "WSEGAICD",
-        "COMPSEGS",
-        "WCONHIST",
-        "WCONINJH",
-        "WCONPROD",
-        "WCONINJE",
-        "WRFTPLT",
-        "GCONPROD",
-        "GCONINJE",
-        "GEFAC",
-        "TUNING",
-        "RPTSCHED",
-        "RPTRST",
+        "END",      "WELSPECS", "COMPORD",  "GRUPTREE", "COMPDAT",  "COMPLUMP", "WELSEGS", "WSEGVALV", "WSEGAICD", "COMPSEGS", "WCONHIST",
+        "WCONINJH", "WCONPROD", "WCONINJE", "WRFTPLT",  "GCONPROD", "GCONINJE", "GEFAC",   "TUNING",   "RPTSCHED", "RPTRST",
     };
 
     QString result;
