@@ -128,3 +128,37 @@ QString RimBatchQueue::generateJobName()
 
     return candidate;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueue::readStdOutErrIntoProcessLog()
+{
+    if ( !m_stdOutFileName.isEmpty() )
+    {
+        QFile file( m_stdOutFileName );
+        if ( file.open( QIODevice::ReadOnly ) )
+        {
+            QTextStream in( &file );
+            while ( !in.atEnd() )
+            {
+                m_process->appendStdOut( in.readLine() );
+            }
+            file.close();
+        }
+    }
+
+    if ( !m_stdErrFileName.isEmpty() )
+    {
+        QFile file( m_stdErrFileName );
+        if ( file.open( QIODevice::ReadOnly ) )
+        {
+            QTextStream in( &file );
+            while ( !in.atEnd() )
+            {
+                m_process->appendStdErr( in.readLine() );
+            }
+            file.close();
+        }
+    }
+}

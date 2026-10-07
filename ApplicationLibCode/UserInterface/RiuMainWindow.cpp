@@ -367,6 +367,8 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
         }
     }
 
+    m_batchMonitor->stopMonitoring();
+
     if ( auto proj = RimProject::current() )
     {
         proj->mainWindowDockState = dockWidgetStateString();

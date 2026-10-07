@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="24"
+     height="24"
+     viewBox="0 0 24 24"
+     fill="none">
+
+    <!-- Queue -->
+    <path d="M3 5H9"
+          stroke="black"
+          stroke-width="1"
+          stroke-linecap="round"/>
+
+    <path d="M3 10H9"
+          stroke="black"
+          stroke-width="1"
+          stroke-linecap="round"/>
+
+    <path d="M3 15H9"
+          stroke="black"
+          stroke-width="1"
+          stroke-linecap="round"/>
+
+    <!-- Monitor -->
+    <rect x="12"
+          y="4"
+          width="9"
+          height="7"
+          rx="1"
+          stroke="black"
+          stroke-width="1"/>
+
+    <!-- Trend/monitoring graph -->
+    <path d="M14 9L16 7L17 8L19 5"
+          stroke="black"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+</svg>

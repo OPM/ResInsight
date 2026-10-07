@@ -36,6 +36,7 @@ protected:
     void readyReadStandardOutput() override;
     void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
     void started() override;
+    void appendStdOut( QString line ) override;
 
 private:
     caf::PdmPointer<RimGenericJob> m_job;

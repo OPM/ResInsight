@@ -69,6 +69,9 @@ RimEnsembleJob::RimEnsembleJob()
     m_inputEnsemble = nullptr;
     m_inputEnsemble.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitField( &m_outputEnsembleName, "OutputEnsembleName", QString( "wp-0" ), "Output Ensemble Name" );
+    m_outputEnsembleName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
     m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedRealizations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
@@ -117,6 +120,14 @@ RimEnsembleJob::~RimEnsembleJob()
 QString RimEnsembleJob::jobInputFileKey()
 {
     return "OpmFlowInputEnsemble";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::initAfterRead()
+{
+    m_outputEnsembleName = QString( "wp-%1" ).arg( m_outputIterationNumber.value() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,6 +442,7 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_inputEnsemble );
+    genGrp->add( &m_outputEnsembleName );
     genGrp->add( &m_createSummaryEnsemble );
     genGrp->add( &m_createGridEnsemble );
 
@@ -505,5 +517,16 @@ void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::Pdm
             tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_outputIterationNumber )
+    {
+        m_outputEnsembleName = QString( "wp-%1" ).arg( m_outputIterationNumber.value() );
     }
 }

@@ -38,6 +38,22 @@ CAF_CMD_SOURCE_INIT( RicDuplicateJobFeature, "RicDuplicateJobFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicDuplicateJobFeature::isCommandEnabled() const
+{
+    if ( auto job = dynamic_cast<RimOpmFlowJob*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        if ( job->isChildJob() )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicDuplicateJobFeature::onActionTriggered( bool isChecked )
 {
     if ( auto job = dynamic_cast<RimOpmFlowJob*>( caf::SelectionManager::instance()->selectedItem() ) )

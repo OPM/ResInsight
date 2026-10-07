@@ -64,6 +64,7 @@ public:
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
     void setJobWellSettings( RimJobWellSettings* jobWellSettings );
     void setIsChildJob( bool isChildJob );
+    bool isChildJob() const;
 
     void initAfterCopy();
 

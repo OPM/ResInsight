@@ -192,7 +192,7 @@ QStringList listSlurmJobs()
 {
     QStringList arguments;
     arguments << "--format";
-    arguments << "\"%i %j %M %T %P %B\"";
+    arguments << "%i %j %M %T %P %B";
     arguments << "--me";
     arguments << "--noheader";
 

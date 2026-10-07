@@ -463,6 +463,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/SummaryEnsemble.svg" );
     else if ( dockWidgetName == plotWindowQuickAccessName() || dockWidgetName == mainWindowQuickAccessName() )
         return QIcon( ":/pinned.svg" );
+    else if ( dockWidgetName == mainWindowBatchQueueMonitorName() )
+        return QIcon( ":/BatchMonitor.svg" );
 
     return QIcon( ":/view.svg" );
 }
