@@ -16,14 +16,14 @@ import pytest
 
 pytest.importorskip("taskmaestro")
 
-import yaml  # noqa: E402
-from rips.taskmaestro_helper import __main__ as helper_main  # noqa: E402
-from rips.taskmaestro_helper.catalog import build_catalog, export_registered  # noqa: E402
-from rips.taskmaestro_helper.definition import (  # noqa: E402
+import yaml
+from rips.taskmaestro_helper import __main__ as helper_main
+from rips.taskmaestro_helper.catalog import build_catalog, export_registered
+from rips.taskmaestro_helper.definition import (
     load_definition,
     write_definition,
 )
-from rips.taskmaestro_helper.describe import describe_yaml  # noqa: E402
+from rips.taskmaestro_helper.describe import describe_yaml
 
 TEST_DATA = Path(__file__).parent / "test_data" / "taskmaestro_workflows"
 PIPELINE = "tm_helper_pipeline"
