@@ -258,6 +258,8 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
             result += rawTextEvent->text();
             if ( !result.endsWith( '\n' ) ) result += '\n';
+            // Match the blank-line separator appendKeywordText() adds after a keyword block.
+            result += '\n';
         }
     };
 
