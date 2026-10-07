@@ -18,13 +18,13 @@
 
 #pragma once
 
-#include "RimBatchQueue.h"
+#include "RimBatchQueueSlurm.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimBatchQueueLsf : public RimBatchQueue
+class RimBatchQueueLsf : public RimBatchQueueSlurm
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,5 +35,6 @@ public:
     void queueProcess( std::shared_ptr<RimProcess> process, int processes ) override;
     void stopProcess() override;
 
-private:
+protected:
+    void setFinished( bool runOk ) override;
 };

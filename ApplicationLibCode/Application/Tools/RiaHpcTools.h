@@ -32,6 +32,8 @@ namespace RiaHpcTools
 {
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
 
+void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
+
 void stopLsfJob( QString jobId );
 void stopSlurmJob( QString jobId );
 
