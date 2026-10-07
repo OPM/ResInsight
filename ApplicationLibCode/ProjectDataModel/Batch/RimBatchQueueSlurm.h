@@ -31,7 +31,7 @@ class RimBatchQueueSlurm : public RimBatchQueue
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimBatchQueueSlurm();
+    RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType = RiaDefines::BatchSchedulerType::SLURM );
     ~RimBatchQueueSlurm();
 
     void queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses ) override;
@@ -40,7 +40,9 @@ public:
 protected:
     void setFinished( bool runOk ) override;
 
-private:
+    virtual QString jobId() const;
+
+protected:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     std::unique_ptr<RimProcess>        m_batchProcess;
 };

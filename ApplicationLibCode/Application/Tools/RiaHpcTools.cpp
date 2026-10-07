@@ -153,6 +153,21 @@ QStringList decodeLsfQueues( QStringList stdOut )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId )
+{
+    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        stopSlurmJob( jobId );
+    }
+    else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
+    {
+        stopLsfJob( jobId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void stopLsfJob( QString jobId )
 {
     runUtilityCommand( "bkill", { jobId } );

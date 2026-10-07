@@ -34,6 +34,14 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimBatchQueue, "BatchQueue" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimBatchQueue::RimBatchQueue( RiaDefines::BatchSchedulerType schedulerType )
+    : m_schedulerType( schedulerType )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimBatchQueue* RimBatchQueue::createBatchQueue()
 {
     switch ( RiaPreferencesHpc::current()->batchScheduler() )
@@ -161,4 +169,12 @@ void RimBatchQueue::readStdOutErrIntoProcessLog()
             file.close();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::BatchSchedulerType RimBatchQueue::schedulerType() const
+{
+    return m_schedulerType;
 }

@@ -47,6 +47,10 @@ public:
     virtual void setFinished( bool runOk ) {};
 
 protected:
+    RimBatchQueue( RiaDefines::BatchSchedulerType schedulerType );
+
+    RiaDefines::BatchSchedulerType schedulerType() const;
+
     std::pair<std::unique_ptr<RimProcess>, QString> runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor );
     std::pair<bool, QString>                        buildLaunchScript( QString workDir );
     QString                                         generateJobName();
@@ -56,4 +60,7 @@ protected:
     QString m_stdErrFileName;
 
     std::shared_ptr<RimProcess> m_process;
+
+private:
+    RiaDefines::BatchSchedulerType m_schedulerType;
 };
