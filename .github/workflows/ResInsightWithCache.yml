@@ -463,9 +463,17 @@ jobs:
             done < <(find "$d" -type f -print0)
             (cd "$d" && zip -qr "$GITHUB_WORKSPACE/dist/${dest_name}.zip" .)
           done
-          # Publish the python wheel/sdist built for pypi alongside the zips.
+          # Publish the python wheel/sdist built for pypi alongside the zips,
+          # renamed to drop the version number so the rolling release always
+          # exposes a stable, predictable asset name.
           if [ -d artifacts/dist-python ]; then
-            cp artifacts/dist-python/* dist/
+            for f in artifacts/dist-python/*; do
+              case "$f" in
+                *.tar.gz) cp "$f" dist/rips.tar.gz ;;
+                *.whl) cp "$f" dist/rips.whl ;;
+                *) cp "$f" dist/ ;;
+              esac
+            done
           fi
           ls -l dist
 
