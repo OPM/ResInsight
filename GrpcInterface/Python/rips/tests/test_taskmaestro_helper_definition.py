@@ -13,10 +13,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-import yaml
 
 pytest.importorskip("taskmaestro")
 
+import yaml  # noqa: E402
 from rips.taskmaestro_helper import __main__ as helper_main  # noqa: E402
 from rips.taskmaestro_helper.catalog import build_catalog, export_registered  # noqa: E402
 from rips.taskmaestro_helper.definition import (  # noqa: E402
