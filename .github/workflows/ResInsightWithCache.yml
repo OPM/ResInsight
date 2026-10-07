@@ -368,7 +368,7 @@ jobs:
         if: matrix.config.publish-to-pypi
         uses: actions/upload-artifact@v7
         with:
-          name: python-distribution
+          name: dist-python
           path: GrpcInterface/Python/dist
           retention-days: 5
 
@@ -400,7 +400,7 @@ jobs:
     - name: Download python distribution folder
       uses: actions/download-artifact@v8
       with:
-        name: python-distribution
+        name: dist-python
         path: dist
 
     - name: Display structure of downloaded files
@@ -432,13 +432,21 @@ jobs:
 
       - name: Package assets
         # Only matrix configs with a dist-name are published (dist-<dist-name>);
-        # the zip name matches the dist-name directly.
+        # the zip name matches the dist-name directly. The dist-python
+        # artifact (wheel/sdist built for pypi) is also published as-is.
         shell: bash
         run: |
           set -e
           mkdir dist
           shopt -s nullglob
           dirs=(artifacts/dist-*/)
+          # dist-python holds raw wheel/sdist files, not an install tree;
+          # publish it as-is instead of zipping it with the other dist-* dirs.
+          filtered_dirs=()
+          for d in "${dirs[@]}"; do
+            [ "$d" = "artifacts/dist-python/" ] || filtered_dirs+=("$d")
+          done
+          dirs=("${filtered_dirs[@]}")
           if [ ${#dirs[@]} -eq 0 ]; then
             echo "::error::No dist-* artifact directories found"
             exit 1
@@ -455,6 +463,10 @@ jobs:
             done < <(find "$d" -type f -print0)
             (cd "$d" && zip -qr "$GITHUB_WORKSPACE/dist/${dest_name}.zip" .)
           done
+          # Publish the python wheel/sdist built for pypi alongside the zips.
+          if [ -d artifacts/dist-python ]; then
+            cp artifacts/dist-python/* dist/
+          fi
           ls -l dist
 
       - name: Update rolling release in builds repo
@@ -468,7 +480,7 @@ jobs:
             gh release create "$TAG" --prerelease --title "ResInsight dev build" --notes "Rolling build"
           fi
           run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          asset_list=$(cd dist && for f in *.zip; do echo "- $f"; done)
+          asset_list=$(cd dist && for f in *; do echo "- $f"; done)
           notes=$(cat <<EOF
           Built from OPM/ResInsight@${GITHUB_SHA::8} on $(date -u +%Y-%m-%dT%H:%MZ)
           Source build job: $run_url
