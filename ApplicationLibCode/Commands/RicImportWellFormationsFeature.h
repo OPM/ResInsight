@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,17 @@
 
 #pragma once
 
-#include "Well/RigWellPathFormations.h"
-
-#include <QDateTime>
-#include <QString>
-
-#include <map>
-#include <optional>
-#include <vector>
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-///
-///
+/// Imports one or more well formations files (e.g. FMU formations.csv) into the project-level
+/// RimWellFormationsCollection, without linking the resulting entries to any well path or file set.
 //==================================================================================================
-class RifWellPathFormationsImporter
+class RicImportWellFormationsFeature : public caf::CmdFeature
 {
-public:
-    std::optional<RigWellPathFormations> readWellPathFormations( const QString& formationFilePath, const QString& wellName );
-    std::optional<RigWellPathFormations> reloadWellPathFormations( const QString& formationFilePath, const QString& wellName );
+    CAF_CMD_HEADER_INIT;
 
-    std::map<QString, RigWellPathFormations> readWellPathFormationsFromPath( const QString& filePath );
-
-    void reloadAllWellPathFormations();
-
-private:
-    void readAllWellPathFormations( const QString& filePath );
-
-    std::map<QString /*filename*/, std::map<QString /*wellName*/, RigWellPathFormations>> m_fileNameToWellPathFormationMap;
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

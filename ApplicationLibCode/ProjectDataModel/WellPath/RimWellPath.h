@@ -32,6 +32,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
@@ -43,7 +44,6 @@
 #include <optional>
 
 class RifWellPathImporter;
-class RifWellPathFormationsImporter;
 class RigWellPath;
 
 class RimProject;
@@ -65,6 +65,7 @@ class RimWellIASettingsCollection;
 class RimWellLogFile;
 class RimWellLog;
 class RimWellEventTimeline;
+class RimWellFormationsFile;
 
 //==================================================================================================
 ///
@@ -116,11 +117,13 @@ public:
 
     RimWellLogFile* firstWellLogFileMatchingChannelName( const QString& channelName ) const;
 
-    void setFormationsGeometry( const RigWellPathFormations& wellPathFormations );
-    bool readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
-    bool reloadWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
-    bool hasFormations() const;
+    void                         setFormationsGeometry( const RigWellPathFormations& wellPathFormations );
+    void                         setWellFormationsFile( RimWellFormationsFile* wellFormationsFile, const QString& keyInFile );
+    bool                         refreshFormationsFromFile();
+    bool                         hasFormations() const;
     const RigWellPathFormations* formationsGeometry() const;
+    RimWellFormationsFile*       wellFormationsFile() const;
+    QString                      formationKeyInFile() const;
 
     void                         add3dWellLogCurve( Rim3dWellLogCurve* rim3dWellLogCurve );
     Rim3dWellLogCurveCollection* rim3dWellLogCurveCollection() const;
@@ -206,8 +209,9 @@ private:
 
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
 
-    caf::PdmField<caf::FilePath> m_wellPathFormationFilePath;
-    caf::PdmField<QString>       m_formationKeyInFile;
+    caf::PdmPtrField<RimWellFormationsFile*> m_wellFormationsFile;
+    caf::PdmField<QString>                   m_formationKeyInFile;
+    caf::PdmField<caf::FilePath>             m_wellPathFormationFilePath_OBSOLETE;
 
     caf::PdmField<bool>                    m_showWellPath;
     caf::PdmField<bool>                    m_showWellPathLabel;

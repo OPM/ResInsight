@@ -48,7 +48,6 @@ class RimProject;
 class RimWellLogLasFile;
 class RimWellLogFile;
 class RimWellPath;
-class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class RimWellLog;
 class RimEclipseCase;
@@ -188,8 +187,7 @@ private:
     void updateMswSegments();
 
 private:
-    std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
-    std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;
+    std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
 
     caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
