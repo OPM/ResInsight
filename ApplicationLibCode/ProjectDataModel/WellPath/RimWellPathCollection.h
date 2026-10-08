@@ -96,6 +96,9 @@ public:
     };
     using MswGroupingEnum = caf::AppEnum<RimWellPathCollection::MswGroupingMode>;
 
+    // Legacy global "Active" toggle. No longer exposed as a tree checkbox: well path visibility is now controlled
+    // per-view via RimWellPathInViewCollection. Kept (hidden) only so older project files retain their value, used
+    // to seed the per-view collection checkbox the first time it is created.
     caf::PdmField<bool> isActive;
 
     caf::PdmField<bool>         showWellPathLabel;
@@ -111,6 +114,7 @@ public:
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
     cvf::BoundingBox          wellPathsBoundingBox() const;
+    QString                   collectionName() const;
     void                      removeWellPath( RimWellPath* wellPath );
 
     void deleteAllWellPaths();
@@ -168,8 +172,6 @@ private:
     void                          initAfterRead() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    caf::PdmFieldHandle* objectToggleField() override;
-
     std::vector<RimWellPath*> readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
     void                      sortWellsByName();
 
@@ -185,6 +187,9 @@ private:
     static QString unGroupedText();
 
     void updateMswSegments();
+
+    void appendWellPath( RimWellPath* wellPath );
+    void updateViewTreeItems();
 
 private:
     std::unique_ptr<RifWellPathImporter> m_wellPathImporter;

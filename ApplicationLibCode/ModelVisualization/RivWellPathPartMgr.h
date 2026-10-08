@@ -139,6 +139,7 @@ private:
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 
     bool isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
+    bool isWellPathVisibleInView() const;
 
 private:
     caf::PdmPointer<RimWellPath> m_rimWellPath;

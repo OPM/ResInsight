@@ -813,11 +813,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportCompletions::
     std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
     if ( wellPaths.empty() )
     {
+        // No explicit well path selection: default to all well paths in the project.
         RimProject* project = RimProject::current();
-        for ( RimWellPath* wellPath : project->activeOilField()->wellPathCollection->allWellPaths() )
-        {
-            if ( wellPath->showWellPath() ) wellPaths.push_back( wellPath );
-        }
+        wellPaths           = project->activeOilField()->wellPathCollection->allWellPaths();
     }
 
     if ( wellPaths.empty() ) return std::unexpected( "No well paths to export." );

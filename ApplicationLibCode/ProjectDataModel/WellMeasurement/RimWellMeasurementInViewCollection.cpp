@@ -29,6 +29,7 @@
 #include "RimWellMeasurementInView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -90,7 +91,10 @@ std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::visib
         RimWellPathCollection* wellPathCollection = RimWellPathCollection::instance();
 
         auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
-        if ( wellPath && !wellPath->showWellPath() ) return {};
+        if ( !wellPath ) return {};
+
+        auto* view = firstAncestorOfType<Rim3dView>();
+        if ( view && view->wellPathInViewCollection() && !view->wellPathInViewCollection()->isWellPathVisible( wellPath ) ) return {};
     }
 
     std::vector<RimWellMeasurementInView*> visible;

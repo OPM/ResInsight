@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaNameUniquenessTools.h"
+#include "RiaViewDefines.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"

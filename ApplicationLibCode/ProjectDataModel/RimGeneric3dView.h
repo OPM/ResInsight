@@ -28,6 +28,7 @@
 class Rim3dOverlayInfoConfig;
 class RimSurfaceInViewCollection;
 class RimPolygonInViewCollection;
+class RimWellPathInViewCollection;
 
 class RimGeneric3dView : public Rim3dView
 {
@@ -37,8 +38,9 @@ public:
     RimGeneric3dView();
     ~RimGeneric3dView() override;
 
-    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
-    RimPolygonInViewCollection* polygonInViewCollection() const override;
+    RimSurfaceInViewCollection*  surfaceInViewCollection() const override;
+    RimPolygonInViewCollection*  polygonInViewCollection() const override;
+    RimWellPathInViewCollection* wellPathInViewCollection() const override;
 
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
@@ -77,9 +79,10 @@ private:
     void             invalidateDomainBoundingBox();
 
 private:
-    caf::PdmChildField<RimSurfaceInViewCollection*> m_surfaceCollection;
-    caf::PdmChildField<RimPolygonInViewCollection*> m_polygonInViewCollection;
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>     m_overlayInfoConfig;
+    caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
+    caf::PdmChildField<RimPolygonInViewCollection*>  m_polygonInViewCollection;
+    caf::PdmChildField<RimWellPathInViewCollection*> m_wellPathInViewCollection;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>      m_overlayInfoConfig;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
 
