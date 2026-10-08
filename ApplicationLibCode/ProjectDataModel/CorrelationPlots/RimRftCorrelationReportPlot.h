@@ -92,6 +92,7 @@ private:
     void applyDepthTypeToSubPlots();
     void applyWellFormationsToSubPlots();
     void installTrackClickFilters();
+    void updateSelectedZoneHighlight();
     void onRftTrackDepthClicked( double depth );
 
 private:

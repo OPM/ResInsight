@@ -42,10 +42,8 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 #include "qwt_plot.h"
-
-#include "qwt_plot.h"
-#include <QMouseEvent>
-#include <QPointer>
+#include "qwt_plot_zoneitem.h"
+#include "qwt_text.h"
 
 #include <QContextMenuEvent>
 #include <QFrame>
@@ -54,9 +52,7 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-#include <functional>
-#include <optional>
-
+#include <algorithm>
 #include <functional>
 #include <optional>
 
@@ -467,6 +463,7 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
     {
         m_wellRftPlot->loadDataAndUpdate();
         installTrackClickFilters();
+        updateSelectedZoneHighlight();
         syncTornadoInputsFromCrossPlot();
         m_tornadoPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
@@ -641,6 +638,62 @@ void RimRftCorrelationReportPlot::installTrackClickFilters()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Shades the depth interval of each selected zone in the RFT plot tracks. Highlight items are
+/// identified by their title so stale ones can be removed whatever else the track has detached.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    const QString highlightTag = "SelectedZoneHighlight";
+
+    std::vector<RimRftCrossPlotTools::DepthInterval> intervals;
+    if ( m_parameterRftCrossPlot->filterMode() == RimRftCrossPlotTools::DepthFilterMode::ZONES )
+    {
+        intervals = RimRftCrossPlotTools::buildDepthIntervals( RimRftCrossPlotTools::DepthFilterMode::ZONES,
+                                                               0.0,
+                                                               0.0,
+                                                               m_parameterRftCrossPlot->wellFormationsFile(),
+                                                               m_parameterRftCrossPlot->wellName(),
+                                                               m_parameterRftCrossPlot->selectedZones(),
+                                                               m_depthType() );
+    }
+
+    const bool isVertical = m_wellRftPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL;
+
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track || !track->viewer() ) continue;
+
+        QwtPlot* qwtPlot = track->viewer()->qwtPlot();
+        if ( !qwtPlot ) continue;
+
+        for ( QwtPlotItem* item : qwtPlot->itemList( QwtPlotItem::Rtti_PlotZone ) )
+        {
+            if ( item->title().text() == highlightTag ) item->detach();
+        }
+
+        for ( const auto& interval : intervals )
+        {
+            QColor color( 255, 165, 0 );
+            color.setAlpha( 70 );
+
+            auto* zone = new QwtPlotZoneItem();
+            zone->setTitle( highlightTag );
+            zone->setOrientation( isVertical ? Qt::Horizontal : Qt::Vertical );
+            zone->setInterval( interval.top, interval.base );
+            zone->setPen( color, 0.0, Qt::NoPen );
+            zone->setBrush( QBrush( color ) );
+            zone->setZ( 5.0 );
+            zone->attach( qwtPlot );
+        }
+
+        qwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::onRftTrackDepthClicked( double depth )
@@ -661,8 +714,15 @@ void RimRftCorrelationReportPlot::onRftTrackDepthClicked( double depth )
         const double                base      = useTvd ? formation.tvdBase : formation.mdBase;
         if ( depth < top || depth > base ) continue;
 
+        std::vector<QString> zones = m_parameterRftCrossPlot->selectedZones();
+        auto                 it    = std::find( zones.begin(), zones.end(), formation.formationName );
+        if ( it != zones.end() )
+            zones.erase( it ); // clicking a selected zone again deselects it
+        else
+            zones.push_back( formation.formationName );
+
         m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
-        m_parameterRftCrossPlot->setSelectedZones( { formation.formationName } );
+        m_parameterRftCrossPlot->setSelectedZones( zones );
         loadDataAndUpdate();
         updateConnectedEditors();
         return;
