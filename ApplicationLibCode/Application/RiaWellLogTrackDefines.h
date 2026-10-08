@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-
 namespace RiaDefines
 {
 
@@ -32,7 +30,8 @@ enum class WellLogTrackTrajectoryType
 enum class WellLogTrackFormationSource
 {
     CASE,
-    WELL_PICK_FILTER
+    WELL_PICK_FILTER,
+    WELL_PICKS_NO_TRAJECTORY
 };
 
 enum class WellLogTrackFormationLevel

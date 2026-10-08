@@ -24,6 +24,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
+#include "RiaWellLogTrackDefines.h"
 
 #include "Well/RigWellLogCurveData.h"
 
