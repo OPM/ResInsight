@@ -308,11 +308,11 @@ void RiuRftCorrelationPlotTools::setDepthIntervalBars( RiuQwtPlotWidget*        
     QwtPlot* qwtPlot = plotWidget->qwtPlot();
     if ( !qwtPlot ) return;
 
-    // itemList() is a live reference; copy it before detaching items
+    // itemList() is a live reference; copy it before deleting items
     const QwtPlotItemList items = qwtPlot->itemList();
     for ( QwtPlotItem* item : items )
     {
-        if ( dynamic_cast<DepthIntervalBar*>( item ) ) item->detach();
+        if ( dynamic_cast<DepthIntervalBar*>( item ) ) delete item;
     }
 
     for ( const auto& interval : intervals )

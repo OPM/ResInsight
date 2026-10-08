@@ -64,16 +64,20 @@ struct DepthInterval
 QString depthTypeAbbreviation( RiaDefines::DepthType depthType );
 
 // Returns the depth values for the given well/time step, strictly matching depthType: MD
-// (native RFT MD channel, falling back to extractor-derived MD if the channel is missing) or
-// TVD (native RFT TVD channel). Returns an empty vector if the requested depth type is not
-// available, rather than silently substituting the other depth type — callers that filter by
-// depth range rely on this to exclude/blank out data instead of comparing a range against the
-// wrong unit.
+// (native RFT MD channel, falling back to extractor-derived MD, then to MD interpolated from
+// observed FMU RFT data for the well) or TVD (native RFT TVD channel). Returns an empty vector if
+// the requested depth type is not available, rather than silently substituting the other depth
+// type — callers that filter by depth range rely on this to exclude/blank out data instead of
+// comparing a range against the wrong unit.
 std::vector<double> rftCurveDepthValues( RifReaderRftInterface*      reader,
                                          const QString&              wellName,
                                          const QDateTime&            timeStep,
                                          RigEclipseWellLogExtractor* extractor,
                                          RiaDefines::DepthType       depthType = RiaDefines::DepthType::MEASURED_DEPTH );
+
+// MD for the reader's TVD samples, interpolated from the MD/TVD pairs of observed FMU RFT data for
+// the well at the time step. Empty if no such data is available.
+std::vector<double> measuredDepthFromObservedData( RifReaderRftInterface* reader, const QString& wellName, const QDateTime& timeStep );
 
 // Returns the subset of pressures whose corresponding depth is within [depthRangeMin, depthRangeMax].
 // If useDepthRange is false, all pressures are returned unfiltered. If useDepthRange is true and
@@ -128,7 +132,8 @@ struct ObservedPressure
 
 // Observed pressure samples within depthIntervals for the well/time step, across all observed data
 // sets. Samples in the same zone are combined into one entry: mean pressure, with rangeMin/rangeMax
-// covering all of them. An empty depthIntervals list means no filtering.
+// covering all of them. An empty depthIntervals list means no filtering. Samples are named by the
+// selected zones when depthIntervals come from a zone filter, otherwise by zoneIntervals.
 std::vector<ObservedPressure> computeObservedPressures( const QString&                    wellName,
                                                         const QDateTime&                  timeStep,
                                                         const std::vector<DepthInterval>& depthIntervals,

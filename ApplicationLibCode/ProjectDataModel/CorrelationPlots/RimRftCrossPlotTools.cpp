@@ -24,6 +24,7 @@
 
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigWellPathFormations.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "Formations/RimWellFormationsFile.h"
 
@@ -83,7 +84,40 @@ std::vector<double> RimRftCrossPlotTools::rftCurveDepthValues( RifReaderRftInter
     std::vector<double> depths;
     reader->values( mdAddress, &depths );
     if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+    if ( depths.empty() ) depths = measuredDepthFromObservedData( reader, wellName, timeStep );
     return depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Same fallback as RimWellLogRftCurve uses when there is no grid, so the filter sees the MD the
+/// RFT curves are drawn at.
+//--------------------------------------------------------------------------------------------------
+std::vector<double>
+    RimRftCrossPlotTools::measuredDepthFromObservedData( RifReaderRftInterface* reader, const QString& wellName, const QDateTime& timeStep )
+{
+    auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    std::vector<double> tvdDepths;
+    reader->values( tvdAddress, &tvdDepths );
+    if ( tvdDepths.empty() ) return {};
+
+    auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+    {
+        RifReaderRftInterface* observedReader = observedData->rftReader();
+        if ( !observedReader || !observedReader->availableTimeSteps( wellName ).count( timeStep ) ) continue;
+
+        std::vector<double> observedTvd;
+        std::vector<double> observedMd;
+        observedReader->values( tvdAddress, &observedTvd );
+        observedReader->values( mdAddress, &observedMd );
+
+        // At least two samples are needed to estimate the MD/TVD relationship
+        if ( observedTvd.size() < 2 || observedTvd.size() != observedMd.size() ) continue;
+
+        return RigWellPathGeometryTools::interpolateMdFromTvd( observedMd, observedTvd, tvdDepths );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,8 +293,10 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
             QString zoneName;
             if ( filteredDepths.size() == filteredPressures.size() )
             {
-                const auto& lookup    = zoneIntervals.empty() ? depthIntervals : zoneIntervals;
-                double      thickness = std::numeric_limits<double>::infinity();
+                // When filtering by zones, name the sample by a selected zone so it is never shown as a zone outside the filter
+                const bool  filteredByZones = !depthIntervals.empty() && !depthIntervals.front().zoneName.isEmpty();
+                const auto& lookup          = filteredByZones || zoneIntervals.empty() ? depthIntervals : zoneIntervals;
+                double      thickness       = std::numeric_limits<double>::infinity();
                 for ( const auto& interval : lookup )
                 {
                     // Prefer the narrowest matching zone when formation levels overlap

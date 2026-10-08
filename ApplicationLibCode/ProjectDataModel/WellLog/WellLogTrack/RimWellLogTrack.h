@@ -41,6 +41,7 @@
 
 #include <map>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace RiaDefines
@@ -100,11 +101,12 @@ public:
     RimWellLogTrack();
     ~RimWellLogTrack() override;
 
-    QWidget*                         viewWidget() override;
-    RiuQwtPlotWidget*                viewer();
-    std::map<QString, cvf::Color3ub> formationZoneColors() const;
-    int                              formationShadingAlpha() const;
-    RiuPlotWidget*                   plotWidget() override;
+    QWidget*                                         viewWidget() override;
+    RiuQwtPlotWidget*                                viewer();
+    std::map<QString, cvf::Color3ub>                 formationZoneColors() const;
+    std::vector<std::tuple<QString, double, double>> formationZoneDisplayRanges() const;
+    int                                              formationShadingAlpha() const;
+    RiuPlotWidget*                                   plotWidget() override;
 
     void zoomAll() override;
 

@@ -29,7 +29,8 @@
 #include "RimWellRftPlot.h"
 
 #include "Formations/RimWellFormationsFile.h"
-#include "Well/RigWellPathFormations.h"
+
+#include "RiaWellLogUnitTools.h"
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
@@ -42,6 +43,7 @@
 #include "DockWidget.h"
 
 #include "cafPdmOptionItemInfo.h"
+#include "cafPdmPointer.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
@@ -603,11 +605,15 @@ void RimRftCorrelationReportPlot::installTrackClickFilters()
         RiuQwtPlotWidget* widget = track->viewer();
         if ( !widget ) continue;
 
+        caf::PdmPointer<RimWellLogTrack> trackPtr( track );
         RiuRftCorrelationPlotTools::installDepthClickFilter(
             widget,
             RimDepthTrackPlot::depthAxis( orientation ),
             isVertical,
-            [this]( double depth ) { onRftTrackDepthClicked( depth ); },
+            [this, trackPtr]( double depth )
+            {
+                if ( trackPtr ) onRftTrackDepthClicked( trackPtr, depth );
+            },
             m_trackClickFilter );
     }
 }
@@ -621,26 +627,36 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
     if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
 
     const auto filterMode = m_parameterRftCrossPlot->filterMode();
-
-    std::vector<RimRftCrossPlotTools::DepthInterval> intervals =
-        RimRftCrossPlotTools::buildDepthIntervals( filterMode,
-                                                   m_parameterRftCrossPlot->depthRangeMin(),
-                                                   m_parameterRftCrossPlot->depthRangeMax(),
-                                                   m_parameterRftCrossPlot->wellFormationsFile(),
-                                                   m_parameterRftCrossPlot->wellName(),
-                                                   m_parameterRftCrossPlot->selectedZones(),
-                                                   m_depthType() );
-
     const bool isVertical = m_wellRftPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL;
 
-    std::vector<RiuRftCorrelationPlotTools::DepthInterval> barIntervals;
-    for ( const auto& interval : intervals )
-        barIntervals.push_back( { interval.top, interval.base } );
+    // Bars are drawn in plot coordinates, so the depth range is converted to the plot's depth unit
+    std::vector<RiuRftCorrelationPlotTools::DepthInterval> depthRangeBars;
+    if ( filterMode == RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE )
+    {
+        const auto fromDepthUnit = m_wellRftPlot->caseDepthUnit();
+        const auto toDepthUnit   = m_wellRftPlot->depthUnit();
+        depthRangeBars.push_back(
+            { RiaWellLogUnitTools<double>::convertDepth( m_parameterRftCrossPlot->depthRangeMin(), fromDepthUnit, toDepthUnit ),
+              RiaWellLogUnitTools<double>::convertDepth( m_parameterRftCrossPlot->depthRangeMax(), fromDepthUnit, toDepthUnit ) } );
+    }
+
+    const std::vector<QString> selectedZones = m_parameterRftCrossPlot->selectedZones();
 
     for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
     {
         auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
         if ( !track || !track->viewer() ) continue;
+
+        std::vector<RiuRftCorrelationPlotTools::DepthInterval> barIntervals = depthRangeBars;
+        if ( filterMode == RimRftCrossPlotTools::DepthFilterMode::ZONES )
+        {
+            // Use the zones as shaded on this track so the bars line up with them
+            for ( const auto& [name, top, base] : track->formationZoneDisplayRanges() )
+            {
+                if ( std::find( selectedZones.begin(), selectedZones.end(), name ) != selectedZones.end() )
+                    barIntervals.push_back( { top, base } );
+            }
+        }
 
         RiuRftCorrelationPlotTools::setDepthIntervalBars( track->viewer(), barIntervals, isVertical );
     }
@@ -672,30 +688,21 @@ void RimRftCorrelationReportPlot::syncZoneColorsToCrossPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftCorrelationReportPlot::onRftTrackDepthClicked( double depth )
+void RimRftCorrelationReportPlot::onRftTrackDepthClicked( RimWellLogTrack* track, double depth )
 {
     if ( !m_parameterRftCrossPlot() ) return;
 
-    RimWellFormationsFile* wellFormationsFile = m_parameterRftCrossPlot->wellFormationsFile();
-    if ( !wellFormationsFile ) return;
-
-    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( m_parameterRftCrossPlot->wellName() );
-    if ( !formations ) return;
-
-    const bool useTvd = m_depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
-    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    // The track's zones are in plot coordinates and don't overlap, so the hit is the zone shaded at the click
+    for ( const auto& [name, top, base] : track->formationZoneDisplayRanges() )
     {
-        const RigWellPathFormation& formation = formations->formationAt( i );
-        const double                top       = useTvd ? formation.tvdTop : formation.mdTop;
-        const double                base      = useTvd ? formation.tvdBase : formation.mdBase;
-        if ( depth < top || depth > base ) continue;
+        if ( depth < std::min( top, base ) || depth > std::max( top, base ) ) continue;
 
         std::vector<QString> zones = m_parameterRftCrossPlot->selectedZones();
-        auto                 it    = std::find( zones.begin(), zones.end(), formation.formationName );
+        auto                 it    = std::find( zones.begin(), zones.end(), name );
         if ( it != zones.end() )
             zones.erase( it ); // clicking a selected zone again deselects it
         else
-            zones.push_back( formation.formationName );
+            zones.push_back( name );
 
         m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
         m_parameterRftCrossPlot->setSelectedZones( zones );

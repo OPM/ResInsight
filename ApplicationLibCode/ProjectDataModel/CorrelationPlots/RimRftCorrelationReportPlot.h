@@ -31,6 +31,7 @@
 
 class RimParameterRftCrossPlot;
 class RimRftTornadoPlot;
+class RimWellLogTrack;
 class RimWellRftPlot;
 
 namespace ads
@@ -95,7 +96,7 @@ private:
     void installTrackClickFilters();
     void updateSelectedZoneHighlight();
     void syncZoneColorsToCrossPlot();
-    void onRftTrackDepthClicked( double depth );
+    void onRftTrackDepthClicked( RimWellLogTrack* track, double depth );
 
 private:
     caf::PdmProxyValueField<QString> m_name;
