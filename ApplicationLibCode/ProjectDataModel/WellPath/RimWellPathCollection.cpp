@@ -33,7 +33,6 @@
 
 #include "RifOsduWellLogReader.h"
 #include "RifOsduWellPathReader.h"
-#include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
 #include "RigEclipseCaseData.h"
@@ -41,6 +40,8 @@
 #include "Well/RigOsduWellLogData.h"
 #include "Well/RigWellPath.h"
 
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseTools.h"
@@ -88,6 +89,7 @@
 #include <cmath>
 #include <fstream>
 #include <memory>
+#include <set>
 
 namespace caf
 {
@@ -156,8 +158,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &m_mswShowBands, "MswShowBands", true, "Show Bands" );
     CAF_PDM_InitField( &m_mswAutoUpdateSegments, "MswAutoUpdateSegments", true, "Auto Update Segments" );
 
-    m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
-    m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
+    m_wellPathImporter = std::make_unique<RifWellPathImporter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -525,6 +526,9 @@ void RimWellPathCollection::addWellLog( RimWellLog* wellLog, RimWellPath* wellPa
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths )
 {
+    auto oilField = RimProject::current()->activeOilField();
+    if ( !oilField ) return;
+
     QString outputMessage = "Well Picks Import\n";
     outputMessage += "-----------------------------------------------\n";
     outputMessage += "Well Name \tDetected Well Path \tCount\n";
@@ -533,27 +537,30 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     for ( const QString& filePath : filePaths )
     {
-        std::map<QString, RigWellPathFormations> newFormations = m_wellPathFormationsImporter->readWellPathFormationsFromPath( filePath );
+        RimWellFormationsFile* wellFormationsFile = oilField->wellFormationsCollection->findOrCreate( filePath );
 
-        for ( const auto& newFormation : newFormations )
+        for ( const QString& wellName : wellFormationsFile->wellNames() )
         {
+            auto formations = wellFormationsFile->formationsForWell( wellName );
+            if ( !formations ) continue;
+
             fileReadSuccess = true;
 
-            RimWellPath* wellPath = tryFindMatchingWellPath( newFormation.first );
+            RimWellPath* wellPath = tryFindMatchingWellPath( wellName );
             if ( !wellPath )
             {
                 wellPath = new RimWellPath();
-                wellPath->setName( newFormation.first );
+                wellPath->setName( wellName );
                 addWellPath( wellPath );
                 RiaLogging::info( std::format( "Created new well: {}", wellPath->name() ) );
             }
-            wellPath->setFormationsGeometry( newFormation.second );
+            wellPath->setWellFormationsFile( wellFormationsFile, wellName );
 
-            QString wellFormationsCount = QString( "%1" ).arg( newFormation.second.formationNamesCount() );
+            QString wellFormationsCount = QString( "%1" ).arg( formations->formationNamesCount() );
 
             m_mostRecentlyUpdatedWellPath = wellPath;
 
-            outputMessage += newFormation.first + "\t\t";
+            outputMessage += wellName + "\t\t";
             outputMessage += wellPath->name() + " \t\t\t";
             outputMessage += wellFormationsCount + "\n";
         }
@@ -913,36 +920,45 @@ RimWellPath* RimWellPathCollection::mostRecentlyUpdatedWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+/// Resolves the cached formations for each well path from its linked RimWellFormationsFile. Files
+/// referenced by a project-level formations collection entry are read lazily by that entry itself.
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFormationFiles()
 {
     for ( const auto& wellPath : m_wellPaths )
     {
-        QString errorMessage;
-        if ( !wellPath->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
-        {
-            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-        }
+        wellPath->refreshFormationsFromFile();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Reloads every well formations file referenced by a well path from disk, then re-resolves each
+/// well path's cached formations.
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::reloadAllWellPathFormations()
 {
-    caf::ProgressInfo progress( m_wellPaths.size(), "Reloading well picks from file" );
-
+    std::set<RimWellFormationsFile*> filesToReload;
     for ( const auto& wellPath : m_wellPaths )
     {
-        QString errorMessage;
-        if ( !wellPath->reloadWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
+        if ( auto file = wellPath->wellFormationsFile() )
         {
-            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
+            filesToReload.insert( file );
         }
+    }
 
-        progress.setProgressDescription( QString( "Reloading formation file for %1" ).arg( wellPath->name() ) );
+    caf::ProgressInfo progress( filesToReload.size(), "Reloading well picks from file" );
+    for ( auto file : filesToReload )
+    {
+        progress.setProgressDescription( QString( "Reloading %1" ).arg( file->shortName() ) );
+        if ( auto result = file->reload(); !result )
+        {
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", result.error() );
+        }
         progress.incrementProgress();
     }
+
+    readWellPathFormationFiles();
 }
 
 //--------------------------------------------------------------------------------------------------

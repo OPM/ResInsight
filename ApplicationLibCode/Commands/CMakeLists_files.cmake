@@ -9,6 +9,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFormationNamesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellFormationsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadFormationNamesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadWellPathFormationNamesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicHideIntersectionFeature.cpp
