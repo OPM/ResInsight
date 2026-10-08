@@ -301,6 +301,7 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
         target.rangeMin = std::min( target.rangeMin, observed.rangeMin );
         target.rangeMax = std::max( target.rangeMax, observed.rangeMax );
         counts[it->second]++;
+        target.count++;
     }
 
     for ( size_t i = 0; i < aggregated.size(); ++i )

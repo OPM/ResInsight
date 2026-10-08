@@ -902,7 +902,13 @@ void RimParameterRftCrossPlot::attachObservedPressure()
         QColor lineColor = zoneColor ? *zoneColor : QColor( Qt::black );
         lineColor.setAlpha( 255 );
 
-        attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "", lineColor );
+        QString label;
+        if ( observed.count > 1 )
+            label = QString( "Observed Pressure (average of %1 observations)" ).arg( observed.count );
+        else if ( isFirst )
+            label = "Observed Pressure";
+
+        attachLine( observed.pressure, Qt::SolidLine, label, lineColor );
         isFirst = false;
 
         if ( observed.rangeMax <= observed.rangeMin ) continue;

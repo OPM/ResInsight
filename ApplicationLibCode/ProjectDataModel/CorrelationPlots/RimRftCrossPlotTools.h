@@ -123,6 +123,7 @@ struct ObservedPressure
     QString zoneName; // formation zone containing the sample; empty if not filtered by zones
     double  rangeMin = 0.0; // lowest pressure - error among the observations
     double  rangeMax = 0.0; // highest pressure + error among the observations
+    int     count    = 1; // number of observations combined into this entry
 };
 
 // Observed pressure samples within depthIntervals for the well/time step, across all observed data
