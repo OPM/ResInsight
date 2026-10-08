@@ -153,6 +153,30 @@ void RimCurveSetAppearance::setEnsembleParameter( const QString& ensembleParamet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCurveSetAppearance::setColorByEnsembleParameter( const QString& ensembleParameter )
+{
+    m_colorMode         = RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM;
+    m_ensembleParameter = ensembleParameter;
+    updateEnsembleParameterLegend( m_ensembleLegendConfig );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Changes the ensemble parameter only if curves are colored by ensemble parameter. Returns true
+/// if the parameter was changed.
+//--------------------------------------------------------------------------------------------------
+bool RimCurveSetAppearance::syncEnsembleParameter( const QString& ensembleParameter )
+{
+    if ( m_colorMode() != RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM || m_ensembleParameter() == ensembleParameter )
+        return false;
+
+    m_ensembleParameter = ensembleParameter;
+    updateEnsembleParameterLegend( m_ensembleLegendConfig );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimCurveSetAppearance::legendConfig() const
 {
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR ||
