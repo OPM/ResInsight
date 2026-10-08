@@ -25,6 +25,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <optional>
 #include <vector>
 
 class RifReaderRftInterface;
@@ -54,8 +55,9 @@ using DepthFilterModeEnum = caf::AppEnum<DepthFilterMode>;
 // A single inclusive depth interval, in the unit/datum of whichever depth type it was built for.
 struct DepthInterval
 {
-    double top  = 0.0;
-    double base = 0.0;
+    double  top  = 0.0;
+    double  base = 0.0;
+    QString zoneName; // set when the interval comes from a formation zone
 };
 
 // Short abbreviation used in axis titles and plot titles for the active depth type.
@@ -93,6 +95,11 @@ std::vector<DepthInterval> buildDepthIntervals( DepthFilterMode             mode
                                                 const std::vector<QString>& selectedZones,
                                                 RiaDefines::DepthType       depthType );
 
+// Returns one interval per formation zone of the well (named by zone), used to look up which zone a
+// depth belongs to. Empty if no well formations file or no formations for the well.
+std::vector<DepthInterval>
+    buildAllZoneIntervals( RimWellFormationsFile* wellFormationsFile, const QString& wellName, RiaDefines::DepthType depthType );
+
 // Returns the subset of pressures whose corresponding depth lies within any of depthIntervals
 // (inclusive). An empty depthIntervals list means "no filter", returning pressures unchanged; a
 // size mismatch between depths/pressures returns an empty vector (no aligned depth data).
@@ -107,6 +114,26 @@ QString depthFilterDescription( DepthFilterMode             mode,
                                 double                      depthRangeMin,
                                 double                      depthRangeMax,
                                 const std::vector<QString>& selectedZones );
+
+// A single observed (e.g. FMU) RFT pressure sample with its uncertainty.
+struct ObservedPressure
+{
+    double  pressure = 0.0;
+    double  error    = 0.0; // observed pressure error; 0 if not available
+    QString zoneName; // formation zone containing the sample; empty if not filtered by zones
+    double  rangeMin = 0.0; // lowest pressure - error among the observations
+    double  rangeMax = 0.0; // highest pressure + error among the observations
+    int     count    = 1; // number of observations combined into this entry
+};
+
+// Observed pressure samples within depthIntervals for the well/time step, across all observed data
+// sets. Samples in the same zone are combined into one entry: mean pressure, with rangeMin/rangeMax
+// covering all of them. An empty depthIntervals list means no filtering.
+std::vector<ObservedPressure> computeObservedPressures( const QString&                    wellName,
+                                                        const QDateTime&                  timeStep,
+                                                        const std::vector<DepthInterval>& depthIntervals,
+                                                        RiaDefines::DepthType             depthType = RiaDefines::DepthType::MEASURED_DEPTH,
+                                                        const std::vector<DepthInterval>& zoneIntervals = {} );
 
 // Arithmetic mean of the given samples, or infinity if samples is empty.
 double computeMean( const std::vector<double>& samples );
