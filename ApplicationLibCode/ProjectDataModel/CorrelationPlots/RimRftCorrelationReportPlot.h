@@ -66,6 +66,7 @@ public:
     std::vector<RimPlot*> childPlotsForTextExport() const override;
 
     void initializeFromSourcePlot( RimWellRftPlot* source );
+    void syncEnsembleParameterToRftCurves();
 
 private:
     QString createDescription() const;
@@ -91,6 +92,10 @@ private:
     void syncTornadoInputsFromCrossPlot();
     void applyDepthTypeToSubPlots();
     void applyWellFormationsToSubPlots();
+    void installTrackClickFilters();
+    void updateSelectedZoneHighlight();
+    void syncZoneColorsToCrossPlot();
+    void onRftTrackDepthClicked( double depth );
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -106,6 +111,7 @@ private:
 
     QWidget*           m_viewWidget            = nullptr;
     QObject*           m_contextMenuFilter     = nullptr;
+    QObject*           m_trackClickFilter      = nullptr;
     ads::CDockManager* m_dockManager           = nullptr;
     ads::CDockWidget*  m_rftDockWidget         = nullptr;
     ads::CDockWidget*  m_correlationDockWidget = nullptr;

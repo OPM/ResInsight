@@ -18,12 +18,18 @@
 
 #include "RimRftCorrelationReportPlot.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
+#include "RimDepthTrackPlot.h"
 #include "RimParameterRftCrossPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
 #include "Formations/RimWellFormationsFile.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
@@ -38,10 +44,23 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
+#include "qwt_plot.h"
+#include "qwt_plot_item.h"
+#include "qwt_scale_map.h"
+#include "qwt_text.h"
+
 #include <QContextMenuEvent>
 #include <QFrame>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPointer>
 #include <QSettings>
+#include <QTimer>
 #include <QVBoxLayout>
+
+#include <algorithm>
+#include <functional>
+#include <optional>
 
 static const char* RFT_DOCK_LAYOUT_REGISTRY_KEY = "RftCorrelationReportPlot/defaultDockLayout";
 
@@ -87,6 +106,96 @@ public:
 
 private:
     caf::PdmObject* m_item;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Thin gray translucent bar drawn in pixel width along the left edge (vertical depth axis) or
+/// bottom edge (horizontal depth axis) of the canvas, spanning a depth interval.
+//--------------------------------------------------------------------------------------------------
+class RftSelectedZoneBar : public QwtPlotItem
+{
+public:
+    RftSelectedZoneBar( double top, double base, bool isDepthVertical )
+        : m_top( top )
+        , m_base( base )
+        , m_isDepthVertical( isDepthVertical )
+    {
+        setZ( 5.0 );
+    }
+
+    void draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override
+    {
+        constexpr double barWidth = 6.0;
+
+        QRectF bar;
+        if ( m_isDepthVertical )
+        {
+            const double y0 = yMap.transform( m_top );
+            const double y1 = yMap.transform( m_base );
+            bar             = QRectF( canvasRect.left(), std::min( y0, y1 ), barWidth, std::abs( y1 - y0 ) );
+        }
+        else
+        {
+            const double x0 = xMap.transform( m_top );
+            const double x1 = xMap.transform( m_base );
+            bar             = QRectF( std::min( x0, x1 ), canvasRect.bottom() - barWidth, std::abs( x1 - x0 ), barWidth );
+        }
+
+        painter->fillRect( bar, QColor( 90, 90, 90, 110 ) );
+    }
+
+private:
+    double m_top;
+    double m_base;
+    bool   m_isDepthVertical;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Reports the depth value under a left-button click (not drag) on a depth track canvas.
+//--------------------------------------------------------------------------------------------------
+class RftTrackDepthClickFilter : public QObject
+{
+public:
+    RftTrackDepthClickFilter( QwtPlot* plot, QwtAxisId depthAxis, bool isDepthVertical, std::function<void( double )> callback, QObject* parent )
+        : QObject( parent )
+        , m_plot( plot )
+        , m_depthAxis( depthAxis )
+        , m_isDepthVertical( isDepthVertical )
+        , m_callback( std::move( callback ) )
+    {
+    }
+
+    bool eventFilter( QObject*, QEvent* event ) override
+    {
+        if ( !m_plot ) return false;
+
+        if ( event->type() == QEvent::MouseButtonPress )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>( event );
+            if ( mouseEvent->button() == Qt::LeftButton ) m_pressPos = mouseEvent->pos();
+        }
+        else if ( event->type() == QEvent::MouseButtonRelease )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>( event );
+            if ( mouseEvent->button() == Qt::LeftButton && m_pressPos && ( mouseEvent->pos() - *m_pressPos ).manhattanLength() < 4 )
+            {
+                const double pixel = m_isDepthVertical ? mouseEvent->pos().y() : mouseEvent->pos().x();
+                const double depth = m_plot->invTransform( m_depthAxis, pixel );
+
+                // Defer so the model and plot updates run after this mouse event is fully handled
+                QTimer::singleShot( 0, this, [this, depth]() { m_callback( depth ); } );
+            }
+            m_pressPos.reset();
+        }
+        return false;
+    }
+
+private:
+    QPointer<QwtPlot>             m_plot;
+    QwtAxisId                     m_depthAxis;
+    bool                          m_isDepthVertical;
+    std::function<void( double )> m_callback;
+    std::optional<QPoint>         m_pressPos;
 };
 
 //==================================================================================================
@@ -253,6 +362,8 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     if ( auto* w = m_tornadoPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
     if ( auto* w = m_parameterRftCrossPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
 
+    installTrackClickFilters();
+
     auto makeDockWidget = [&]( const QString& title, RimPlotWindow* plot, QWidget* widget ) -> ads::CDockWidget*
     {
         auto* dock = new ads::CDockWidget( title, m_dockManager );
@@ -402,6 +513,9 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
     if ( m_showWindow )
     {
         m_wellRftPlot->loadDataAndUpdate();
+        installTrackClickFilters();
+        updateSelectedZoneHighlight();
+        syncZoneColorsToCrossPlot();
         syncTornadoInputsFromCrossPlot();
         m_tornadoPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
@@ -418,7 +532,7 @@ void RimRftCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::P
     uiOrdering.add( &m_depthType );
 
     // Delegate cross-plot settings (ensemble, well, depth range, parameter) to the cross plot
-    m_parameterRftCrossPlot->uiOrdering( uiConfigName, uiOrdering );
+    m_parameterRftCrossPlot->appendDataAndFilterUiOrdering( uiOrdering );
 
     auto* layoutGroup = uiOrdering.addNewGroup( "Dock Layout" );
     layoutGroup->setCollapsedByDefault();
@@ -519,8 +633,25 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
     {
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
+
+        syncEnsembleParameterToRftCurves();
     }
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Makes RFT curves colored by ensemble parameter use the cross plot's ensemble parameter.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::syncEnsembleParameterToRftCurves()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() );
+    if ( curveSet && curveSet->syncEnsembleParameter( m_parameterRftCrossPlot->ensembleParameter() ) )
+    {
+        m_wellRftPlot->rebuildCurves();
+        curveSet->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -541,6 +672,143 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setDepthType( m_parameterRftCrossPlot->depthType() );
     m_tornadoPlot->setFilterMode( m_parameterRftCrossPlot->filterMode() );
     m_tornadoPlot->setSelectedZones( m_parameterRftCrossPlot->selectedZones() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Makes a click on a formation in the RFT plot tracks select that formation as the zone filter
+/// used by the cross plot and tornado plot.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::installTrackClickFilters()
+{
+    if ( !m_wellRftPlot() ) return;
+
+    if ( m_trackClickFilter ) m_trackClickFilter->deleteLater();
+    m_trackClickFilter = new QObject( this );
+
+    const auto orientation = m_wellRftPlot->depthOrientation();
+    const bool isVertical  = orientation == RiaDefines::Orientation::VERTICAL;
+
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track ) continue;
+
+        RiuQwtPlotWidget* widget = track->viewer();
+        if ( !widget || !widget->qwtPlot() ) continue;
+
+        auto* filter = new RftTrackDepthClickFilter(
+            widget->qwtPlot(),
+            widget->toQwtPlotAxis( RimDepthTrackPlot::depthAxis( orientation ) ),
+            isVertical,
+            [this]( double depth ) { onRftTrackDepthClicked( depth ); },
+            m_trackClickFilter );
+        widget->qwtPlot()->canvas()->installEventFilter( filter );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Marks the depth interval of each selected zone in the RFT plot tracks with a thin bar along the
+/// depth axis side. Stale bars are found by type and removed before new ones are attached.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    const auto filterMode = m_parameterRftCrossPlot->filterMode();
+
+    std::vector<RimRftCrossPlotTools::DepthInterval> intervals =
+        RimRftCrossPlotTools::buildDepthIntervals( filterMode,
+                                                   m_parameterRftCrossPlot->depthRangeMin(),
+                                                   m_parameterRftCrossPlot->depthRangeMax(),
+                                                   m_parameterRftCrossPlot->wellFormationsFile(),
+                                                   m_parameterRftCrossPlot->wellName(),
+                                                   m_parameterRftCrossPlot->selectedZones(),
+                                                   m_depthType() );
+
+    const bool isVertical = m_wellRftPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL;
+
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track || !track->viewer() ) continue;
+
+        QwtPlot* qwtPlot = track->viewer()->qwtPlot();
+        if ( !qwtPlot ) continue;
+
+        // itemList() is a live reference; copy it before detaching items
+        const QwtPlotItemList items = qwtPlot->itemList();
+        for ( QwtPlotItem* item : items )
+        {
+            if ( dynamic_cast<RftSelectedZoneBar*>( item ) ) item->detach();
+        }
+
+        for ( const auto& interval : intervals )
+        {
+            auto* bar = new RftSelectedZoneBar( interval.top, interval.base, isVertical );
+            bar->attach( qwtPlot );
+        }
+
+        qwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Gives the cross plot the formation colors used by the RFT plot tracks, looked up by formation name.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::syncZoneColorsToCrossPlot()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    std::map<QString, QColor> zoneColors;
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount() && zoneColors.empty(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track ) continue;
+
+        for ( const auto& [name, color] : track->formationZoneColors() )
+        {
+            // The alpha carries the track's shading transparency, used for the observed pressure band
+            zoneColors[name] = QColor( color.r(), color.g(), color.b(), track->formationShadingAlpha() );
+        }
+    }
+
+    m_parameterRftCrossPlot->setZoneColors( zoneColors );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onRftTrackDepthClicked( double depth )
+{
+    if ( !m_parameterRftCrossPlot() ) return;
+
+    RimWellFormationsFile* wellFormationsFile = m_parameterRftCrossPlot->wellFormationsFile();
+    if ( !wellFormationsFile ) return;
+
+    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( m_parameterRftCrossPlot->wellName() );
+    if ( !formations ) return;
+
+    const bool useTvd = m_depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
+    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    {
+        const RigWellPathFormation& formation = formations->formationAt( i );
+        const double                top       = useTvd ? formation.tvdTop : formation.mdTop;
+        const double                base      = useTvd ? formation.tvdBase : formation.mdBase;
+        if ( depth < top || depth > base ) continue;
+
+        std::vector<QString> zones = m_parameterRftCrossPlot->selectedZones();
+        auto                 it    = std::find( zones.begin(), zones.end(), formation.formationName );
+        if ( it != zones.end() )
+            zones.erase( it ); // clicking a selected zone again deselects it
+        else
+            zones.push_back( formation.formationName );
+
+        m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
+        m_parameterRftCrossPlot->setSelectedZones( zones );
+        loadDataAndUpdate();
+        updateConnectedEditors();
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

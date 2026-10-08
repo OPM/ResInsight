@@ -26,9 +26,11 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+#include <QColor>
 #include <QDateTime>
 #include <QPointer>
 
+#include <map>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -77,6 +79,10 @@ public:
     void setDepthType( RiaDefines::DepthType depthType );
     void setEnsembleParameter( const QString& paramName );
     void setWellFormations( RimWellFormationsFile* wellFormationsFile );
+    void setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode );
+    void setSelectedZones( const std::vector<QString>& zones );
+    void setZoneColors( const std::map<QString, QColor>& zoneColors );
+    void appendDataAndFilterUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     QString                               ensembleParameter() const;
     QString                               wellName() const;
@@ -120,6 +126,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void            createPoints();
+    void            attachObservedPressure();
     void            updatePlotTitle();
     void            updateValueRanges();
     void            cleanupBeforeClose();
@@ -137,6 +144,7 @@ private:
     caf::PdmField<double>                                    m_depthRangeMax;
     caf::PdmPtrField<RimWellFormationsFile*>                 m_wellFormations;
     caf::PdmField<std::vector<QString>>                      m_selectedZones;
+    std::map<QString, QColor>                                m_zoneColors;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthType>>       m_depthType;
     caf::PdmField<SamplingModeEnum>                          m_samplingMode;
     caf::PdmField<QString>                                   m_ensembleParameter;
