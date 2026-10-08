@@ -20,13 +20,17 @@
 
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationReportPlot.h"
+#include "RimOilField.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimParameterRftCrossPlot.h"
 #include "RimProject.h"
 #include "RimRftCorrelationReportPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimWellRftPlot.h"
@@ -228,6 +232,21 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
             }
         }
         report->crossPlot()->setWellName( source->simWellOrWellPathName() );
+
+        // Default to filtering by formation when a formations file has data for the well
+        if ( auto* project = RimProject::current();
+             project && project->activeOilField() && project->activeOilField()->wellFormationsCollection() )
+        {
+            for ( RimWellFormationsFile* file : project->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
+            {
+                if ( file->formationsForWell( source->simWellOrWellPathName() ) )
+                {
+                    report->crossPlot()->setWellFormations( file );
+                    report->crossPlot()->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
+                    break;
+                }
+            }
+        }
 
         const auto timeSteps = source->selectedTimeSteps();
         if ( !timeSteps.empty() ) report->crossPlot()->setTimeStep( timeSteps.front() );
