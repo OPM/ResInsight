@@ -27,6 +27,7 @@
 
 class RimEclipseCaseCollection;
 class RimFormationNamesCollection;
+class RimWellFormationsCollection;
 class RimFractureTemplateCollection;
 class RimCompletionTemplateCollection;
 class RimValveTemplateCollection;
@@ -73,6 +74,7 @@ public:
     caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
     caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
+    caf::PdmChildField<RimWellFormationsCollection*>        wellFormationsCollection;
     caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
     caf::PdmChildField<RimMeasurement*>                     measurement;
     caf::PdmChildField<RimSurfaceCollection*>               surfaceCollection;

@@ -36,6 +36,7 @@
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimWellFormationsCollection.h"
 #include "Jobs/RimJobCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -1488,6 +1489,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->vfpDataCollection() )
             {
                 uiTreeOrdering.add( oilField->vfpDataCollection() );
+            }
+            if ( oilField->wellFormationsCollection() )
+            {
+                uiTreeOrdering.add( oilField->wellFormationsCollection() );
             }
         }
     }

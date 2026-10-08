@@ -22,6 +22,7 @@
 
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimWellFormationsCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
@@ -59,6 +60,7 @@ RimOilField::RimOilField()
 
     CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection, "SummaryCaseCollection", "Summary Cases", ":/GridModels.png" );
     CAF_PDM_InitFieldNoDefault( &formationNamesCollection, "FormationNamesCollection", "Formations" );
+    CAF_PDM_InitFieldNoDefault( &wellFormationsCollection, "WellFormationsCollection", "Well Formations" );
     CAF_PDM_InitFieldNoDefault( &observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations" );
@@ -96,6 +98,7 @@ RimOilField::RimOilField()
     summaryCaseMainCollection    = new RimSummaryCaseMainCollection();
     observedDataCollection       = new RimObservedDataCollection();
     formationNamesCollection     = new RimFormationNamesCollection();
+    wellFormationsCollection     = new RimWellFormationsCollection();
     annotationCollection         = new RimAnnotationCollection();
     ensembleWellLogsCollection   = new RimEnsembleWellLogsCollection();
     polygonCollection            = RimPolygonCollection::createTopmost();
