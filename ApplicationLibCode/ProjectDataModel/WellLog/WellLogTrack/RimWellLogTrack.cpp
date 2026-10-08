@@ -1783,6 +1783,14 @@ RiuQwtPlotWidget* RimWellLogTrack::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimColorLegend* RimWellLogTrack::formationColorLegend() const
+{
+    return m_regionAnnotationSettings ? m_regionAnnotationSettings->colorShadingLegend() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimWellLogTrack::plotWidget()
 {
     return m_plotWidget;

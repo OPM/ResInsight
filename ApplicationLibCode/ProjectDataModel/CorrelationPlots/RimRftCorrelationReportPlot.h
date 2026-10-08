@@ -93,6 +93,7 @@ private:
     void applyWellFormationsToSubPlots();
     void installTrackClickFilters();
     void updateSelectedZoneHighlight();
+    void syncZoneColorsToCrossPlot();
     void onRftTrackDepthClicked( double depth );
 
 private:

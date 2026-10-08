@@ -204,6 +204,14 @@ void RimParameterRftCrossPlot::setSelectedZones( const std::vector<QString>& zon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setZoneColors( const std::map<QString, QColor>& zoneColors )
+{
+    m_zoneColors = zoneColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimParameterRftCrossPlot::ensembleParameter() const
 {
     return m_ensembleParameter;
@@ -857,12 +865,12 @@ void RimParameterRftCrossPlot::attachObservedPressure()
         RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
     if ( observedPressures.empty() ) return;
 
-    auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label )
+    auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label, const QColor& color )
     {
         auto* marker = new QwtPlotMarker();
         marker->setLineStyle( QwtPlotMarker::HLine );
         marker->setYValue( value );
-        QPen pen( Qt::black );
+        QPen pen( color );
         pen.setStyle( style );
         pen.setWidth( 1 );
         marker->setLinePen( pen );
@@ -882,15 +890,22 @@ void RimParameterRftCrossPlot::attachObservedPressure()
     bool isFirst = true;
     for ( const auto& observed : observedPressures )
     {
-        attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "" );
+        // Use the formation color when known; otherwise fall back to black lines and no shaded band
+        std::optional<QColor> zoneColor;
+        if ( auto it = m_zoneColors.find( observed.zoneName ); it != m_zoneColors.end() && it->second.isValid() ) zoneColor = it->second;
+        const QColor lineColor = zoneColor ? *zoneColor : QColor( Qt::black );
+
+        attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "", lineColor );
         isFirst = false;
 
         if ( observed.error <= 0.0 ) continue;
 
-        attachLine( observed.pressure - observed.error, Qt::DashLine, "" );
-        attachLine( observed.pressure + observed.error, Qt::DashLine, "" );
+        attachLine( observed.pressure - observed.error, Qt::DashLine, "", lineColor );
+        attachLine( observed.pressure + observed.error, Qt::DashLine, "", lineColor );
 
-        QColor shadingColor( 255, 192, 203 );
+        if ( !zoneColor ) continue;
+
+        QColor shadingColor = *zoneColor;
         shadingColor.setAlpha( 60 );
 
         auto* shading = new QwtPlotZoneItem();

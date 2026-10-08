@@ -55,8 +55,9 @@ using DepthFilterModeEnum = caf::AppEnum<DepthFilterMode>;
 // A single inclusive depth interval, in the unit/datum of whichever depth type it was built for.
 struct DepthInterval
 {
-    double top  = 0.0;
-    double base = 0.0;
+    double  top  = 0.0;
+    double  base = 0.0;
+    QString zoneName; // set when the interval comes from a formation zone
 };
 
 // Short abbreviation used in axis titles and plot titles for the active depth type.
@@ -112,8 +113,9 @@ QString depthFilterDescription( DepthFilterMode             mode,
 // A single observed (e.g. FMU) RFT pressure sample with its uncertainty.
 struct ObservedPressure
 {
-    double pressure = 0.0;
-    double error    = 0.0; // observed pressure error; 0 if not available
+    double  pressure = 0.0;
+    double  error    = 0.0; // observed pressure error; 0 if not available
+    QString zoneName; // formation zone containing the sample; empty if not filtered by zones
 };
 
 // All observed pressure samples (with errors) within depthIntervals for the well/time step,

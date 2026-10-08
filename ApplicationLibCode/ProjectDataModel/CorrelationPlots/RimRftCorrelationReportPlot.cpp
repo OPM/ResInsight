@@ -18,6 +18,8 @@
 
 #include "RimRftCorrelationReportPlot.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
 #include "RimDepthTrackPlot.h"
 #include "RimParameterRftCrossPlot.h"
 #include "RimRftCrossPlotTools.h"
@@ -513,6 +515,7 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
         m_wellRftPlot->loadDataAndUpdate();
         installTrackClickFilters();
         updateSelectedZoneHighlight();
+        syncZoneColorsToCrossPlot();
         syncTornadoInputsFromCrossPlot();
         m_tornadoPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
@@ -740,6 +743,32 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
 
         qwtPlot->replot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Gives the cross plot the formation colors used by the RFT plot tracks, looked up by formation name.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::syncZoneColorsToCrossPlot()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    std::map<QString, QColor> zoneColors;
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount() && zoneColors.empty(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track ) continue;
+
+        RimColorLegend* legend = track->formationColorLegend();
+        if ( !legend ) continue;
+
+        for ( auto* item : legend->colorLegendItems() )
+        {
+            const cvf::Color3f c             = item->color();
+            zoneColors[item->categoryName()] = QColor::fromRgbF( c.r(), c.g(), c.b() );
+        }
+    }
+
+    m_parameterRftCrossPlot->setZoneColors( zoneColors );
 }
 
 //--------------------------------------------------------------------------------------------------

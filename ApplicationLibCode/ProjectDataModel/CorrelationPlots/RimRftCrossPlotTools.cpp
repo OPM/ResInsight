@@ -130,9 +130,9 @@ std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDept
         if ( !isSelected ) continue;
 
         if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-            intervals.push_back( { formation.tvdTop, formation.tvdBase } );
+            intervals.push_back( { formation.tvdTop, formation.tvdBase, formation.formationName } );
         else
-            intervals.push_back( { formation.mdTop, formation.mdBase } );
+            intervals.push_back( { formation.mdTop, formation.mdBase, formation.formationName } );
     }
 
     return intervals;
@@ -225,10 +225,25 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
         std::vector<double>       filteredErrors;
         if ( errors.size() == pressures.size() ) filteredErrors = filterPressuresByDepthIntervals( depths, errors, depthIntervals );
 
+        const std::vector<double> filteredDepths = filterPressuresByDepthIntervals( depths, depths, depthIntervals );
+
         for ( size_t i = 0; i < filteredPressures.size(); ++i )
         {
             const double error = i < filteredErrors.size() && filteredErrors.size() == filteredPressures.size() ? filteredErrors[i] : 0.0;
-            result.push_back( { filteredPressures[i], error } );
+
+            QString zoneName;
+            if ( filteredDepths.size() == filteredPressures.size() )
+            {
+                for ( const auto& interval : depthIntervals )
+                {
+                    if ( filteredDepths[i] >= interval.top && filteredDepths[i] <= interval.base )
+                    {
+                        zoneName = interval.zoneName;
+                        break;
+                    }
+                }
+            }
+            result.push_back( { filteredPressures[i], error, zoneName } );
         }
     }
 

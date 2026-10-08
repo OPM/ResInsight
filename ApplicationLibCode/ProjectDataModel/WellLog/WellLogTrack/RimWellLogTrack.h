@@ -100,6 +100,7 @@ public:
 
     QWidget*          viewWidget() override;
     RiuQwtPlotWidget* viewer();
+    RimColorLegend*   formationColorLegend() const;
     RiuPlotWidget*    plotWidget() override;
 
     void zoomAll() override;
