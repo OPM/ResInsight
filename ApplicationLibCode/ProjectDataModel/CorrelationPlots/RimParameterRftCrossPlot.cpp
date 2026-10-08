@@ -26,8 +26,12 @@
 #include "RigEnsembleParameter.h"
 #include "RigStatisticsTools.h"
 
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRftCrossPlotTools.h"
 #include "RimSummaryCase.h"
@@ -44,6 +48,7 @@
 
 #include "cafPdmPointer.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_picker_machine.h"
 #include "qwt_plot.h"
@@ -86,9 +91,15 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStep, "TimeStep", "Time Step" );
     m_selectedTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
-    CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
+    CAF_PDM_InitField( &m_filterMode,
+                       "FilterMode",
+                       RimRftCrossPlotTools::DepthFilterModeEnum( RimRftCrossPlotTools::DepthFilterMode::NONE ),
+                       "Depth Filter" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
+    CAF_PDM_InitFieldNoDefault( &m_wellFormations, "WellFormations", "Well Formations File" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedZones, "SelectedZones", "Zones" );
+    m_selectedZones.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::MEASURED_DEPTH ), "Depth Type" );
     m_depthType.uiCapability()->setUiHidden( true ); // driven by the parent RimRftCorrelationReportPlot
     CAF_PDM_InitField( &m_samplingMode, "SamplingMode", SamplingModeEnum( SamplingMode::MEAN_PER_REALIZATION ), "Sampling" );
@@ -167,6 +178,14 @@ void RimParameterRftCrossPlot::setEnsembleParameter( const QString& paramName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setWellFormations( RimWellFormationsFile* wellFormationsFile )
+{
+    m_wellFormations = wellFormationsFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimParameterRftCrossPlot::ensembleParameter() const
 {
     return m_ensembleParameter;
@@ -209,7 +228,7 @@ RimEclipseResultCase* RimParameterRftCrossPlot::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 bool RimParameterRftCrossPlot::useDepthRange() const
 {
-    return m_useDepthRange();
+    return m_filterMode() != RimRftCrossPlotTools::DepthFilterMode::NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,9 +258,48 @@ RiaDefines::DepthType RimParameterRftCrossPlot::depthType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimRftCrossPlotTools::DepthFilterMode RimParameterRftCrossPlot::filterMode() const
+{
+    return m_filterMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimParameterRftCrossPlot::selectedZones() const
+{
+    return m_selectedZones();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellFormationsFile* RimParameterRftCrossPlot::wellFormationsFile() const
+{
+    return m_wellFormations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 {
     return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimParameterRftCrossPlot::depthIntervals() const
+{
+    return RimRftCrossPlotTools::buildDepthIntervals( useDepthRange(),
+                                                      m_filterMode(),
+                                                      m_depthRangeMin(),
+                                                      m_depthRangeMax(),
+                                                      m_wellFormations(),
+                                                      m_wellName(),
+                                                      m_selectedZones(),
+                                                      m_depthType() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,9 +326,7 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
                                                                                                                      m_wellName(),
                                                                                                                      m_selectedTimeStep(),
                                                                                                                      m_eclipseCase(),
-                                                                                                                     m_useDepthRange(),
-                                                                                                                     m_depthRangeMin(),
-                                                                                                                     m_depthRangeMax(),
+                                                                                                                     depthIntervals(),
                                                                                                                      m_depthType() );
 
         if ( samplesPerCase.size() != allCases.size() ) return {};
@@ -292,9 +348,7 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
                                                                                                       m_wellName(),
                                                                                                       m_selectedTimeStep(),
                                                                                                       m_eclipseCase(),
-                                                                                                      m_useDepthRange(),
-                                                                                                      m_depthRangeMin(),
-                                                                                                      m_depthRangeMax(),
+                                                                                                      depthIntervals(),
                                                                                                       m_depthType() );
 
         if ( pressurePerCase.size() != allCases.size() ) return {};
@@ -333,13 +387,15 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
-    const QString depthLabel    = m_useDepthRange() ? QString( "%1 [%2 %3 - %4]" )
-                                                       .arg( pressureLabel )
-                                                       .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
-                                                       .arg( m_depthRangeMin() )
-                                                       .arg( m_depthRangeMax() )
-                                                    : pressureLabel;
+    const QString pressureLabel     = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+    const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( useDepthRange(),
+                                                                                    m_filterMode(),
+                                                                                    m_depthType(),
+                                                                                    m_depthRangeMin(),
+                                                                                    m_depthRangeMax(),
+                                                                                    m_selectedZones() );
+    const QString depthLabel        = filterDescription.isEmpty() ? pressureLabel
+                                                                  : QString( "%1 [%2]" ).arg( pressureLabel ).arg( filterDescription );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -518,11 +574,18 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto* depthGroup =
         uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
-    depthGroup->add( &m_useDepthRange );
+    depthGroup->add( &m_filterMode );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
-    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() );
-    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() );
+    depthGroup->add( &m_wellFormations );
+    depthGroup->add( &m_selectedZones );
+
+    const bool useRange = m_filterMode() == RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE;
+    const bool useZones = m_filterMode() == RimRftCrossPlotTools::DepthFilterMode::ZONES;
+    m_depthRangeMin.uiCapability()->setUiHidden( !useRange );
+    m_depthRangeMax.uiCapability()->setUiHidden( !useRange );
+    m_wellFormations.uiCapability()->setUiHidden( !useZones );
+    m_selectedZones.uiCapability()->setUiHidden( !useZones || !m_wellFormations() );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -562,6 +625,13 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
             }
         }
         m_selectedTimeStep = timeSteps.empty() ? QDateTime() : *timeSteps.begin();
+    }
+
+    if ( changedField == &m_wellName || changedField == &m_wellFormations )
+    {
+        // The selected zones belong to the previous well/formations file; clear them so stale zone
+        // names are not silently applied as a filter.
+        m_selectedZones = std::vector<QString>();
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
@@ -626,6 +696,32 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
                 options.push_back( caf::PdmOptionItemInfo( rc->caseUserDescription(), rc ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_wellFormations )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", static_cast<RimWellFormationsFile*>( nullptr ) ) );
+        auto* project = RimProject::current();
+        if ( project && project->activeOilField() && project->activeOilField()->wellFormationsCollection() )
+        {
+            for ( RimWellFormationsFile* file : project->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
+                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_filterMode )
+    {
+        using DepthFilterMode = RimRftCrossPlotTools::DepthFilterMode;
+        for ( auto mode : { DepthFilterMode::NONE, DepthFilterMode::DEPTH_RANGE, DepthFilterMode::ZONES } )
+        {
+            options.push_back( caf::PdmOptionItemInfo( RimRftCrossPlotTools::DepthFilterModeEnum::uiText( mode ), mode ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_selectedZones )
+    {
+        if ( m_wellFormations() )
+        {
+            for ( const QString& zoneName : m_wellFormations->zoneNames( m_wellName() ) )
+                options.push_back( caf::PdmOptionItemInfo( zoneName, zoneName ) );
+        }
+    }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
         if ( m_ensemble() )
@@ -641,9 +737,7 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
                                                                                     m_wellName(),
                                                                                     m_selectedTimeStep(),
                                                                                     m_eclipseCase(),
-                                                                                    m_useDepthRange(),
-                                                                                    m_depthRangeMin(),
-                                                                                    m_depthRangeMax(),
+                                                                                    depthIntervals(),
                                                                                     m_depthType() );
             }
 
@@ -750,14 +844,16 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle && m_ensemble() )
     {
-        if ( m_useDepthRange() )
+        const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( useDepthRange(),
+                                                                                        m_filterMode(),
+                                                                                        m_depthType(),
+                                                                                        m_depthRangeMin(),
+                                                                                        m_depthRangeMax(),
+                                                                                        m_selectedZones() );
+        if ( !filterDescription.isEmpty() )
         {
-            m_description = QString( "%1 vs RFT Pressure [%2 %3 - %4 m], %5" )
-                                .arg( m_ensembleParameter() )
-                                .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
-                                .arg( m_depthRangeMin() )
-                                .arg( m_depthRangeMax() )
-                                .arg( m_ensemble->name() );
+            m_description =
+                QString( "%1 vs RFT Pressure [%2], %3" ).arg( m_ensembleParameter() ).arg( filterDescription ).arg( m_ensemble->name() );
         }
         else
         {

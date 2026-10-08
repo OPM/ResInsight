@@ -103,3 +103,109 @@ TEST( RimRftCrossPlotToolsTest, DepthTypeAbbreviation )
     EXPECT_EQ( QString( "MD" ), RimRftCrossPlotTools::depthTypeAbbreviation( RiaDefines::DepthType::MEASURED_DEPTH ) );
     EXPECT_EQ( QString( "TVD" ), RimRftCrossPlotTools::depthTypeAbbreviation( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Disabled filtering returns no intervals regardless of mode.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DisabledReturnsEmpty )
+{
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( false,
+                                                                RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+                                                                1000.0,
+                                                                2000.0,
+                                                                nullptr,
+                                                                QString(),
+                                                                {},
+                                                                RiaDefines::DepthType::MEASURED_DEPTH );
+    EXPECT_TRUE( intervals.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Depth range mode produces a single interval matching the requested range.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DepthRangeProducesSingleInterval )
+{
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( true,
+                                                                RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+                                                                1000.0,
+                                                                2000.0,
+                                                                nullptr,
+                                                                QString(),
+                                                                {},
+                                                                RiaDefines::DepthType::MEASURED_DEPTH );
+    ASSERT_EQ( size_t( 1 ), intervals.size() );
+    EXPECT_DOUBLE_EQ( 1000.0, intervals[0].top );
+    EXPECT_DOUBLE_EQ( 2000.0, intervals[0].base );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Zones mode with no well formations file available produces no intervals.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_ZonesWithoutFileReturnsEmpty )
+{
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( true,
+                                                                RimRftCrossPlotTools::DepthFilterMode::ZONES,
+                                                                1000.0,
+                                                                2000.0,
+                                                                nullptr,
+                                                                "WELL-A",
+                                                                { "ZoneA" },
+                                                                RiaDefines::DepthType::MEASURED_DEPTH );
+    EXPECT_TRUE( intervals.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An empty interval list means no filtering, so all pressures pass through.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, FilterPressuresByDepthIntervals_EmptyIntervalsReturnsAllSamples )
+{
+    std::vector<double> depths{ 1000.0, 2000.0, 3000.0 };
+    std::vector<double> pressures{ 10.0, 20.0, 30.0 };
+
+    auto filtered = RimRftCrossPlotTools::filterPressuresByDepthIntervals( depths, pressures, {} );
+
+    EXPECT_EQ( pressures, filtered );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only samples within any of the given (possibly non-contiguous) intervals are returned.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, FilterPressuresByDepthIntervals_FiltersByMultipleIntervals )
+{
+    std::vector<double> depths{ 1000.0, 1500.0, 2000.0, 2500.0, 3000.0 };
+    std::vector<double> pressures{ 10.0, 15.0, 20.0, 25.0, 30.0 };
+
+    std::vector<RimRftCrossPlotTools::DepthInterval> intervals{ { 1000.0, 1500.0 }, { 2800.0, 3200.0 } };
+    auto filtered = RimRftCrossPlotTools::filterPressuresByDepthIntervals( depths, pressures, intervals );
+
+    std::vector<double> expected{ 10.0, 15.0, 30.0 };
+    EXPECT_EQ( expected, filtered );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A filter description is empty when filtering is disabled.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, DepthFilterDescription_DisabledReturnsEmpty )
+{
+    QString description = RimRftCrossPlotTools::depthFilterDescription( false,
+                                                                        RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+                                                                        RiaDefines::DepthType::MEASURED_DEPTH,
+                                                                        1000.0,
+                                                                        2000.0,
+                                                                        {} );
+    EXPECT_TRUE( description.isEmpty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Zone mode description lists the selected zone names.
+//--------------------------------------------------------------------------------------------------
+TEST( RimRftCrossPlotToolsTest, DepthFilterDescription_ZonesListsSelectedZoneNames )
+{
+    QString description = RimRftCrossPlotTools::depthFilterDescription( true,
+                                                                        RimRftCrossPlotTools::DepthFilterMode::ZONES,
+                                                                        RiaDefines::DepthType::MEASURED_DEPTH,
+                                                                        1000.0,
+                                                                        2000.0,
+                                                                        { "Valysar", "Therys" } );
+    EXPECT_EQ( QString( "Zones: Valysar, Therys" ), description );
+}
