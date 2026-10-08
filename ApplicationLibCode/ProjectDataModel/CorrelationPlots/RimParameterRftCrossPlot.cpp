@@ -585,6 +585,7 @@ void RimParameterRftCrossPlot::appendDataAndFilterUiOrdering( caf::PdmUiOrdering
     dataGroup->add( &m_wellName );
     dataGroup->add( &m_selectedTimeStep );
     dataGroup->add( &m_eclipseCase );
+    dataGroup->add( &m_ensembleParameter );
 
     auto* depthGroup =
         uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
@@ -602,7 +603,6 @@ void RimParameterRftCrossPlot::appendDataAndFilterUiOrdering( caf::PdmUiOrdering
     m_selectedZones.uiCapability()->setUiHidden( !useZones || !m_wellFormations() );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
-    crossPlotGroup->add( &m_ensembleParameter );
     crossPlotGroup->add( &m_samplingMode );
 }
 
