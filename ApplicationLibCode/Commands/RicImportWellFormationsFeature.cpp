@@ -38,6 +38,18 @@ CAF_CMD_SOURCE_INIT( RicImportWellFormationsFeature, "RicImportWellFormationsFea
 //--------------------------------------------------------------------------------------------------
 void RicImportWellFormationsFeature::onActionTriggered( bool isChecked )
 {
+    std::vector<RimWellFormationsFile*> importedFiles = importFilesWithDialog();
+    if ( !importedFiles.empty() )
+    {
+        Riu3DMainWindowTools::selectAsCurrentItem( importedFiles.back() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellFormationsFile*> RicImportWellFormationsFeature::importFilesWithDialog()
+{
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR" );
     QStringList     filePaths  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
@@ -45,24 +57,21 @@ void RicImportWellFormationsFeature::onActionTriggered( bool isChecked )
                                                                   defaultDir,
                                                                   "Well Formations (*.csv);;All Files (*.*)" );
 
-    if ( filePaths.empty() ) return;
+    if ( filePaths.empty() ) return {};
 
     // Remember the path for next time
     app->setLastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR", QFileInfo( filePaths.last() ).absolutePath() );
 
     RimProject* project = RimProject::current();
-    if ( !project || !project->activeOilField() ) return;
+    if ( !project || !project->activeOilField() ) return {};
 
     RimWellFormationsCollection* collection = project->activeOilField()->wellFormationsCollection();
-    if ( !collection ) return;
+    if ( !collection ) return {};
 
     std::vector<RimWellFormationsFile*> importedFiles = collection->importFiles( filePaths );
     collection->updateConnectedEditors();
 
-    if ( !importedFiles.empty() )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( importedFiles.back() );
-    }
+    return importedFiles;
 }
 
 //--------------------------------------------------------------------------------------------------
