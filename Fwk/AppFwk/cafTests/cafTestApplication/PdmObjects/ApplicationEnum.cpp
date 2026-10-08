@@ -13,8 +13,8 @@ void caf::AppEnum<ApplicationEnum::MyEnumType>::setUp()
     addItem( ApplicationEnum::MyEnumType::T3, "T3", "T 3" );
     addItem( ApplicationEnum::MyEnumType::T4, "T4", "T 4" );
     addItem( ApplicationEnum::MyEnumType::T5, "T5", "T 5" );
-    addItem( ApplicationEnum::MyEnumType::T6, "T5", "T 6" );
-    addItem( ApplicationEnum::MyEnumType::T7, "T6", "T 7" );
+    addItem( ApplicationEnum::MyEnumType::T6, "T6", "T 6" );
+    addItem( ApplicationEnum::MyEnumType::T7, "T7", "T 7" );
 
     setDefault( ApplicationEnum::MyEnumType::T4 );
 }
