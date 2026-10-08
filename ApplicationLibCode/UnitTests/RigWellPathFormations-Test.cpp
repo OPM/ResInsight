@@ -15,7 +15,7 @@ namespace
 {
 RigWellPathFormation formation( const QString& name, double mdTop, double mdBase, double tvdTop = 0.0, double tvdBase = 0.0 )
 {
-    return RigWellPathFormation{ mdTop, mdBase, tvdTop, tvdBase, name };
+    return RigWellPathFormation{ mdTop, mdBase, tvdTop, tvdBase, name, std::nullopt };
 }
 
 RigWellPathFormations createHierarchy()
