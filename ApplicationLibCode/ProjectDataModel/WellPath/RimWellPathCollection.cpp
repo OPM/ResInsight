@@ -536,11 +536,19 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
     // The collection is deletable from the project tree
     if ( !oilField->wellFormationsCollection() ) oilField->wellFormationsCollection = new RimWellFormationsCollection();
 
-    bool fileReadSuccess = false;
+    bool    fileReadSuccess = false;
+    QString errorMessage;
 
     for ( const QString& filePath : filePaths )
     {
-        RimWellFormationsFile* wellFormationsFile = oilField->wellFormationsCollection->findOrCreate( filePath );
+        auto file = oilField->wellFormationsCollection->findOrCreate( filePath );
+        if ( !file )
+        {
+            errorMessage += "\nError in: " + filePath + "\n\t" + file.error();
+            continue;
+        }
+
+        RimWellFormationsFile* wellFormationsFile = *file;
 
         for ( const QString& wellName : wellFormationsFile->wellNames() )
         {
@@ -573,6 +581,11 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
     if ( fileReadSuccess )
     {
         RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
+    }
+
+    if ( !errorMessage.isEmpty() )
+    {
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", errorMessage );
     }
 
     sortWellsByName();

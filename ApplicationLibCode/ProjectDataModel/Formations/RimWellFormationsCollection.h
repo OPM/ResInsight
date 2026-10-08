@@ -21,6 +21,10 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include <QString>
+
+#include <expected>
+
 namespace caf
 {
 class CmdFeatureMenuBuilder;
@@ -42,13 +46,14 @@ public:
 
     const caf::PdmChildArrayField<RimWellFormationsFile*>& wellFormationsFiles() const { return m_wellFormationsFiles; }
 
-    RimWellFormationsFile* findOrCreate( const QString& filePath );
+    std::expected<RimWellFormationsFile*, QString> findOrCreate( const QString& filePath );
 
     RimWellFormationsFile* findFileForWell( const QString& wellName ) const;
 
     std::vector<RimWellFormationsFile*> importFiles( const QStringList& filePaths );
 
 protected:
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:

@@ -2607,7 +2607,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
          m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
     {
         auto formations = m_formationSettings->resolveWellPickFormations();
-        if ( !formations.has_value() ) return;
+        if ( !formations ) return;
 
         if ( plot->depthType() != RiaDefines::DepthType::MEASURED_DEPTH && plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
              plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )

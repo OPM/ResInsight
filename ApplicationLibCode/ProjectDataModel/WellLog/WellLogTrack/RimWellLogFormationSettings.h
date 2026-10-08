@@ -78,7 +78,7 @@ public:
 
     // Resolves the formations to show for the WELL_PICK_FILTER source: the selected well path's
     // own formations if present, otherwise the well looked up directly in wellFormationsFile().
-    std::optional<RigWellPathFormations> resolveWellPickFormations() const;
+    const RigWellPathFormations* resolveWellPickFormations() const;
 
     // Simulation well
     QString simWellName() const;

@@ -18,7 +18,6 @@
 
 #include "RimWellFormationsCollection.h"
 
-#include "RiaLogging.h"
 #include "RimWellFormationsFile.h"
 
 #include "RiuMessageDialog.h"
@@ -26,6 +25,8 @@
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include <QFileInfo>
+
+#include <memory>
 
 CAF_PDM_SOURCE_INIT( RimWellFormationsCollection, "WellFormationsCollection" );
 
@@ -42,9 +43,10 @@ RimWellFormationsCollection::RimWellFormationsCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the existing entry for filePath if present, otherwise imports and returns a new one
+/// Returns the existing entry for filePath if present, otherwise imports and returns a new one. A
+/// file that cannot be read is not added.
 //--------------------------------------------------------------------------------------------------
-RimWellFormationsFile* RimWellFormationsCollection::findOrCreate( const QString& filePath )
+std::expected<RimWellFormationsFile*, QString> RimWellFormationsCollection::findOrCreate( const QString& filePath )
 {
     const QString absoluteFilePath = QFileInfo( filePath ).absoluteFilePath();
 
@@ -52,20 +54,25 @@ RimWellFormationsFile* RimWellFormationsCollection::findOrCreate( const QString&
     {
         if ( QFileInfo( file->filePath() ).absoluteFilePath() == absoluteFilePath )
         {
+            // An earlier read may have failed, e.g. if the file was missing or malformed at the time
+            if ( file->wellNames().isEmpty() )
+            {
+                if ( auto result = file->reload(); !result ) return std::unexpected( result.error() );
+            }
             return file;
         }
     }
 
-    auto newFile = new RimWellFormationsFile();
+    auto newFile = std::make_unique<RimWellFormationsFile>();
     newFile->setFilePath( filePath );
     if ( auto result = newFile->reload(); !result )
     {
-        RiaLogging::error( result.error().toStdString() );
+        return std::unexpected( result.error() );
     }
 
-    m_wellFormationsFiles.push_back( newFile );
+    m_wellFormationsFiles.push_back( newFile.get() );
 
-    return newFile;
+    return newFile.release();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +83,7 @@ RimWellFormationsFile* RimWellFormationsCollection::findFileForWell( const QStri
 {
     for ( RimWellFormationsFile* file : m_wellFormationsFiles )
     {
-        if ( file->formationsForWell( wellName ).has_value() ) return file;
+        if ( file->formationsForWell( wellName ) ) return file;
     }
 
     return nullptr;
@@ -92,15 +99,14 @@ std::vector<RimWellFormationsFile*> RimWellFormationsCollection::importFiles( co
 
     for ( const QString& filePath : filePaths )
     {
-        auto newFile = new RimWellFormationsFile();
-        newFile->setFilePath( filePath );
-        if ( auto result = newFile->reload(); !result )
+        auto file = findOrCreate( filePath );
+        if ( !file )
         {
-            totalErrorMessage += "\nError in: " + filePath + "\n\t" + result.error();
+            totalErrorMessage += "\nError in: " + filePath + "\n\t" + file.error();
+            continue;
         }
 
-        m_wellFormationsFiles.push_back( newFile );
-        importedFiles.push_back( newFile );
+        importedFiles.push_back( *file );
     }
 
     if ( !totalErrorMessage.isEmpty() )
@@ -109,6 +115,15 @@ std::vector<RimWellFormationsFile*> RimWellFormationsCollection::importFiles( co
     }
 
     return importedFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellFormationsCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimWellFormationsFile::updateReferringObjects( referringObjects );
 }
 
 //--------------------------------------------------------------------------------------------------

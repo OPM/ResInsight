@@ -537,7 +537,6 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
     m_tornadoPlot->setSelectedParameter( m_parameterRftCrossPlot->ensembleParameter() );
     m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
-    m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
     m_tornadoPlot->setDepthType( m_parameterRftCrossPlot->depthType() );
     m_tornadoPlot->setFilterMode( m_parameterRftCrossPlot->filterMode() );
@@ -554,7 +553,6 @@ void RimRftCorrelationReportPlot::applyWellFormationsToSubPlots()
 
     RimWellFormationsFile* wellFormationsFile = m_parameterRftCrossPlot->wellFormationsFile();
 
-    m_parameterRftCrossPlot->setWellFormations( wellFormationsFile );
     if ( m_tornadoPlot() ) m_tornadoPlot->setWellFormations( wellFormationsFile );
 }
 

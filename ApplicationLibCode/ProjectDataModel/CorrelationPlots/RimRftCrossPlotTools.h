@@ -83,10 +83,9 @@ std::vector<double> filterPressuresByDepthRange( const std::vector<double>& dept
                                                  double                     depthRangeMax );
 
 // Builds the active depth filter intervals from either a depth range or a set of selected zones.
-// Returns an empty vector (meaning "no filter") when useFilter is false, or when ZONES mode is
+// Returns an empty vector (meaning "no filter") when the mode is NONE, or when ZONES mode is
 // selected but no well formations file, well name, or matching zones are available.
-std::vector<DepthInterval> buildDepthIntervals( bool                        useFilter,
-                                                DepthFilterMode             mode,
+std::vector<DepthInterval> buildDepthIntervals( DepthFilterMode             mode,
                                                 double                      depthRangeMin,
                                                 double                      depthRangeMax,
                                                 RimWellFormationsFile*      wellFormationsFile,
@@ -103,8 +102,7 @@ std::vector<double> filterPressuresByDepthIntervals( const std::vector<double>& 
 
 // Short description of the active depth filter for titles/axis labels/group text, e.g.
 // "MD 1000 - 2000 m" or "Zones: Valysar, Therys". Empty when filtering is disabled.
-QString depthFilterDescription( bool                        useFilter,
-                                DepthFilterMode             mode,
+QString depthFilterDescription( DepthFilterMode             mode,
                                 RiaDefines::DepthType       depthType,
                                 double                      depthRangeMin,
                                 double                      depthRangeMax,

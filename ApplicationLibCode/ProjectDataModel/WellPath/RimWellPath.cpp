@@ -22,6 +22,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -489,6 +490,7 @@ void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         refreshFormationsFromFile();
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimMainPlotCollection::current()->updatePlotsWithFormations();
     }
     else
     {
@@ -584,8 +586,14 @@ void RimWellPath::initAfterRead()
         {
             if ( !oilField->wellFormationsCollection() ) oilField->wellFormationsCollection = new RimWellFormationsCollection();
 
-            auto* file = oilField->wellFormationsCollection->findOrCreate( m_wellPathFormationFilePath_OBSOLETE().path() );
-            setWellFormationsFile( file, m_formationKeyInFile() );
+            if ( auto file = oilField->wellFormationsCollection->findOrCreate( m_wellPathFormationFilePath_OBSOLETE().path() ) )
+            {
+                setWellFormationsFile( *file, m_formationKeyInFile() );
+            }
+            else
+            {
+                RiaLogging::error( file.error().toStdString() );
+            }
         }
     }
 }
@@ -1058,10 +1066,18 @@ bool RimWellPath::refreshFormationsFromFile()
 {
     if ( !m_wellFormationsFile() )
     {
+        m_wellPathFormations.reset();
         return false;
     }
 
-    m_wellPathFormations = m_wellFormationsFile()->formationsForWell( m_formationKeyInFile() );
+    if ( auto formations = m_wellFormationsFile()->formationsForWell( m_formationKeyInFile() ) )
+    {
+        m_wellPathFormations = *formations;
+    }
+    else
+    {
+        m_wellPathFormations.reset();
+    }
     return m_wellPathFormations.has_value();
 }
 

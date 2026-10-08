@@ -101,8 +101,7 @@ std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthRange( const std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDepthIntervals( bool                        useFilter,
-                                                                                            DepthFilterMode             mode,
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDepthIntervals( DepthFilterMode             mode,
                                                                                             double                      depthRangeMin,
                                                                                             double                      depthRangeMax,
                                                                                             RimWellFormationsFile*      wellFormationsFile,
@@ -110,15 +109,15 @@ std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDept
                                                                                             const std::vector<QString>& selectedZones,
                                                                                             RiaDefines::DepthType       depthType )
 {
-    if ( !useFilter || mode == DepthFilterMode::NONE ) return {};
+    if ( mode == DepthFilterMode::NONE ) return {};
 
     if ( mode == DepthFilterMode::DEPTH_RANGE ) return { DepthInterval{ depthRangeMin, depthRangeMax } };
 
     // ZONES mode
     if ( !wellFormationsFile || selectedZones.empty() ) return {};
 
-    std::optional<RigWellPathFormations> formations = wellFormationsFile->formationsForWell( wellName );
-    if ( !formations.has_value() ) return {};
+    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( wellName );
+    if ( !formations ) return {};
 
     std::vector<DepthInterval> intervals;
     for ( size_t i = 0; i < formations->formationCount(); ++i )
@@ -169,14 +168,13 @@ std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthIntervals( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimRftCrossPlotTools::depthFilterDescription( bool                        useFilter,
-                                                      DepthFilterMode             mode,
+QString RimRftCrossPlotTools::depthFilterDescription( DepthFilterMode             mode,
                                                       RiaDefines::DepthType       depthType,
                                                       double                      depthRangeMin,
                                                       double                      depthRangeMax,
                                                       const std::vector<QString>& selectedZones )
 {
-    if ( !useFilter || mode == DepthFilterMode::NONE ) return {};
+    if ( mode == DepthFilterMode::NONE ) return {};
 
     if ( mode == DepthFilterMode::ZONES )
     {

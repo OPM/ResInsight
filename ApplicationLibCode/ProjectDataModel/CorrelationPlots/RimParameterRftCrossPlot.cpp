@@ -226,14 +226,6 @@ RimEclipseResultCase* RimParameterRftCrossPlot::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimParameterRftCrossPlot::useDepthRange() const
-{
-    return m_filterMode() != RimRftCrossPlotTools::DepthFilterMode::NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimParameterRftCrossPlot::depthRangeMin() const
 {
     return m_depthRangeMin();
@@ -292,8 +284,7 @@ RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimRftCrossPlotTools::DepthInterval> RimParameterRftCrossPlot::depthIntervals() const
 {
-    return RimRftCrossPlotTools::buildDepthIntervals( useDepthRange(),
-                                                      m_filterMode(),
+    return RimRftCrossPlotTools::buildDepthIntervals( m_filterMode(),
                                                       m_depthRangeMin(),
                                                       m_depthRangeMax(),
                                                       m_wellFormations(),
@@ -387,15 +378,11 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString pressureLabel     = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
-    const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( useDepthRange(),
-                                                                                    m_filterMode(),
-                                                                                    m_depthType(),
-                                                                                    m_depthRangeMin(),
-                                                                                    m_depthRangeMax(),
-                                                                                    m_selectedZones() );
-    const QString depthLabel        = filterDescription.isEmpty() ? pressureLabel
-                                                                  : QString( "%1 [%2]" ).arg( pressureLabel ).arg( filterDescription );
+    const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+    const QString filterDescription =
+        RimRftCrossPlotTools::depthFilterDescription( m_filterMode(), m_depthType(), m_depthRangeMin(), m_depthRangeMax(), m_selectedZones() );
+    const QString depthLabel = filterDescription.isEmpty() ? pressureLabel
+                                                           : QString( "%1 [%2]" ).arg( pressureLabel ).arg( filterDescription );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -844,12 +831,8 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle && m_ensemble() )
     {
-        const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( useDepthRange(),
-                                                                                        m_filterMode(),
-                                                                                        m_depthType(),
-                                                                                        m_depthRangeMin(),
-                                                                                        m_depthRangeMax(),
-                                                                                        m_selectedZones() );
+        const QString filterDescription =
+            RimRftCrossPlotTools::depthFilterDescription( m_filterMode(), m_depthType(), m_depthRangeMin(), m_depthRangeMax(), m_selectedZones() );
         if ( !filterDescription.isEmpty() )
         {
             m_description =

@@ -105,12 +105,11 @@ TEST( RimRftCrossPlotToolsTest, DepthTypeAbbreviation )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Disabled filtering returns no intervals regardless of mode.
+/// Disabled filtering returns no intervals.
 //--------------------------------------------------------------------------------------------------
 TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DisabledReturnsEmpty )
 {
-    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( false,
-                                                                RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( RimRftCrossPlotTools::DepthFilterMode::NONE,
                                                                 1000.0,
                                                                 2000.0,
                                                                 nullptr,
@@ -125,8 +124,7 @@ TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DisabledReturnsEmpty )
 //--------------------------------------------------------------------------------------------------
 TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DepthRangeProducesSingleInterval )
 {
-    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( true,
-                                                                RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
                                                                 1000.0,
                                                                 2000.0,
                                                                 nullptr,
@@ -143,8 +141,7 @@ TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_DepthRangeProducesSingleInte
 //--------------------------------------------------------------------------------------------------
 TEST( RimRftCrossPlotToolsTest, BuildDepthIntervals_ZonesWithoutFileReturnsEmpty )
 {
-    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( true,
-                                                                RimRftCrossPlotTools::DepthFilterMode::ZONES,
+    auto intervals = RimRftCrossPlotTools::buildDepthIntervals( RimRftCrossPlotTools::DepthFilterMode::ZONES,
                                                                 1000.0,
                                                                 2000.0,
                                                                 nullptr,
@@ -187,8 +184,7 @@ TEST( RimRftCrossPlotToolsTest, FilterPressuresByDepthIntervals_FiltersByMultipl
 //--------------------------------------------------------------------------------------------------
 TEST( RimRftCrossPlotToolsTest, DepthFilterDescription_DisabledReturnsEmpty )
 {
-    QString description = RimRftCrossPlotTools::depthFilterDescription( false,
-                                                                        RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE,
+    QString description = RimRftCrossPlotTools::depthFilterDescription( RimRftCrossPlotTools::DepthFilterMode::NONE,
                                                                         RiaDefines::DepthType::MEASURED_DEPTH,
                                                                         1000.0,
                                                                         2000.0,
@@ -201,8 +197,7 @@ TEST( RimRftCrossPlotToolsTest, DepthFilterDescription_DisabledReturnsEmpty )
 //--------------------------------------------------------------------------------------------------
 TEST( RimRftCrossPlotToolsTest, DepthFilterDescription_ZonesListsSelectedZoneNames )
 {
-    QString description = RimRftCrossPlotTools::depthFilterDescription( true,
-                                                                        RimRftCrossPlotTools::DepthFilterMode::ZONES,
+    QString description = RimRftCrossPlotTools::depthFilterDescription( RimRftCrossPlotTools::DepthFilterMode::ZONES,
                                                                         RiaDefines::DepthType::MEASURED_DEPTH,
                                                                         1000.0,
                                                                         2000.0,

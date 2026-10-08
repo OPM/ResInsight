@@ -195,13 +195,11 @@ void RimWellLogFormationSettings::setWellNameInFormationsFile( const QString& we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<RigWellPathFormations> RimWellLogFormationSettings::resolveWellPickFormations() const
+const RigWellPathFormations* RimWellLogFormationSettings::resolveWellPickFormations() const
 {
     if ( m_formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER && m_formationWellPathForSourceWellPath() )
     {
-        const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
-        if ( formations ) return *formations;
-        return std::nullopt;
+        return m_formationWellPathForSourceWellPath->formationsGeometry();
     }
 
     if ( m_formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY && m_wellFormationsFile() &&
@@ -210,7 +208,7 @@ std::optional<RigWellPathFormations> RimWellLogFormationSettings::resolveWellPic
         return m_wellFormationsFile->formationsForWell( m_wellNameInFormationsFile() );
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,7 +331,7 @@ void RimWellLogFormationSettings::uiOrdering( const QString& uiConfigName, caf::
         // WELL_PICKS_NO_TRAJECTORY source, so this source only ever shows the well path picker.
         uiOrdering.add( &m_formationWellPathForSourceWellPath );
 
-        if ( resolveWellPickFormations().has_value() )
+        if ( resolveWellPickFormations() )
         {
             uiOrdering.add( &m_formationLevel );
             uiOrdering.add( &m_showFormationFluids );
@@ -346,7 +344,7 @@ void RimWellLogFormationSettings::uiOrdering( const QString& uiConfigName, caf::
         uiOrdering.add( &m_wellFormationsFile );
         if ( m_wellFormationsFile() ) uiOrdering.add( &m_wellNameInFormationsFile );
 
-        if ( resolveWellPickFormations().has_value() )
+        if ( resolveWellPickFormations() )
         {
             uiOrdering.add( &m_formationLevel );
             uiOrdering.add( &m_showFormationFluids );
