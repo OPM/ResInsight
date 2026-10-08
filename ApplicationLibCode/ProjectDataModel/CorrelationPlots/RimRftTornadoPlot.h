@@ -21,6 +21,7 @@
 
 #include "Appearance/RimFontSizeField.h"
 #include "RiaDefines.h"
+#include "RimRftCrossPlotTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -35,6 +36,7 @@
 
 class RimEclipseResultCase;
 class RimSummaryEnsemble;
+class RimWellFormationsFile;
 class RiuQwtPlotWidget;
 
 //==================================================================================================
@@ -63,6 +65,9 @@ public:
     void setUseDepthRange( bool useDepthRange );
     void setDepthRange( double minMd, double maxMd );
     void setDepthType( RiaDefines::DepthType depthType );
+    void setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode );
+    void setWellFormations( RimWellFormationsFile* wellFormationsFile );
+    void setSelectedZones( const std::vector<QString>& zones );
     void setSelectedParameter( const QString& paramName );
 
     RiuQwtPlotWidget* viewer();
@@ -94,16 +99,21 @@ private:
     void                      updatePlotTitle();
     void                      cleanupBeforeClose();
 
+    std::vector<RimRftCrossPlotTools::DepthInterval> depthIntervals() const;
+
 private:
     // Data source inputs
-    caf::PdmPtrField<RimSummaryEnsemble*>              m_ensemble;
-    caf::PdmField<QString>                             m_wellName;
-    caf::PdmField<QDateTime>                           m_selectedTimeStep;
-    caf::PdmPtrField<RimEclipseResultCase*>            m_eclipseCase;
-    caf::PdmField<bool>                                m_useDepthRange;
-    caf::PdmField<double>                              m_depthRangeMin;
-    caf::PdmField<double>                              m_depthRangeMax;
-    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
+    caf::PdmPtrField<RimSummaryEnsemble*>                    m_ensemble;
+    caf::PdmField<QString>                                   m_wellName;
+    caf::PdmField<QDateTime>                                 m_selectedTimeStep;
+    caf::PdmPtrField<RimEclipseResultCase*>                  m_eclipseCase;
+    caf::PdmField<bool>                                      m_useDepthRange;
+    caf::PdmField<RimRftCrossPlotTools::DepthFilterModeEnum> m_filterMode;
+    caf::PdmField<double>                                    m_depthRangeMin;
+    caf::PdmField<double>                                    m_depthRangeMax;
+    caf::PdmPtrField<RimWellFormationsFile*>                 m_wellFormations;
+    caf::PdmField<std::vector<QString>>                      m_selectedZones;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>>       m_depthType;
 
     // Tornado settings
     caf::PdmField<bool>         m_showAbsoluteValues;

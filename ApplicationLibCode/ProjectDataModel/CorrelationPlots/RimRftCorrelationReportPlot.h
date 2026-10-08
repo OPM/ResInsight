@@ -90,6 +90,7 @@ private:
     void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
     void applyDepthTypeToSubPlots();
+    void applyWellFormationsToSubPlots();
 
 private:
     caf::PdmProxyValueField<QString> m_name;

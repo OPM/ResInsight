@@ -30,6 +30,8 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 
+#include "Formations/RimWellFormationsFile.h"
+
 #include "RiuContextMenuLauncher.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotItem.h"
@@ -60,8 +62,14 @@ RimRftTornadoPlot::RimRftTornadoPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStep, "TimeStep", "Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
     CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
+    CAF_PDM_InitField( &m_filterMode,
+                       "FilterMode",
+                       RimRftCrossPlotTools::DepthFilterModeEnum( RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE ),
+                       "Filter By" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
+    CAF_PDM_InitFieldNoDefault( &m_wellFormations, "WellFormations", "Well Formations File" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedZones, "SelectedZones", "Zones" );
     CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::MEASURED_DEPTH ), "Depth Type" );
     m_depthType.uiCapability()->setUiHidden( true ); // driven by the parent RimRftCorrelationReportPlot
 
@@ -153,6 +161,30 @@ void RimRftTornadoPlot::setDepthRange( double minMd, double maxMd )
 void RimRftTornadoPlot::setDepthType( RiaDefines::DepthType depthType )
 {
     m_depthType = depthType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode )
+{
+    m_filterMode = filterMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setWellFormations( RimWellFormationsFile* wellFormationsFile )
+{
+    m_wellFormations = wellFormationsFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setSelectedZones( const std::vector<QString>& zones )
+{
+    m_selectedZones = zones;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,6 +395,21 @@ void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftTornadoPlot::depthIntervals() const
+{
+    return RimRftCrossPlotTools::buildDepthIntervals( m_useDepthRange(),
+                                                      m_filterMode(),
+                                                      m_depthRangeMin(),
+                                                      m_depthRangeMax(),
+                                                      m_wellFormations(),
+                                                      m_wellName(),
+                                                      m_selectedZones(),
+                                                      m_depthType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
     std::map<QString, double> correlations;
@@ -376,9 +423,7 @@ std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBa
                                                                                                   m_wellName(),
                                                                                                   m_selectedTimeStep(),
                                                                                                   m_eclipseCase(),
-                                                                                                  m_useDepthRange(),
-                                                                                                  m_depthRangeMin(),
-                                                                                                  m_depthRangeMax(),
+                                                                                                  depthIntervals(),
                                                                                                   m_depthType() );
 
     // For each numeric parameter, compute Pearson correlation against pressurePerCase
@@ -421,12 +466,14 @@ void RimRftTornadoPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle() && m_ensemble() )
     {
-        const QString rangeStr = m_useDepthRange() ? QString( " [%1 %2 - %3 m]" )
-                                                         .arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) )
-                                                         .arg( m_depthRangeMin() )
-                                                         .arg( m_depthRangeMax() )
-                                                   : QString();
-        m_description          = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
+        const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( m_useDepthRange(),
+                                                                                        m_filterMode(),
+                                                                                        m_depthType(),
+                                                                                        m_depthRangeMin(),
+                                                                                        m_depthRangeMax(),
+                                                                                        m_selectedZones() );
+        const QString rangeStr          = filterDescription.isEmpty() ? QString() : QString( " [%1]" ).arg( filterDescription );
+        m_description = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
     }
 
     m_plotWidget->setPlotTitle( m_description() );

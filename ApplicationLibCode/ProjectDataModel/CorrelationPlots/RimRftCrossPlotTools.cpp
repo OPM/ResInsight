@@ -23,6 +23,9 @@
 #include "RiaExtractionTools.h"
 
 #include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellPathFormations.h"
+
+#include "Formations/RimWellFormationsFile.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
@@ -30,8 +33,21 @@
 #include "RimSummaryEnsemble.h"
 #include "RimWellPath.h"
 
+#include <algorithm>
 #include <limits>
 #include <numeric>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimRftCrossPlotTools::DepthFilterMode>::setUp()
+{
+    addItem( RimRftCrossPlotTools::DepthFilterMode::NONE, "NONE", "None" );
+    addItem( RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE, "DEPTH_RANGE", "Depth Range" );
+    addItem( RimRftCrossPlotTools::DepthFilterMode::ZONES, "ZONES", "Formation" );
+    setDefault( RimRftCrossPlotTools::DepthFilterMode::NONE );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,7 +92,59 @@ std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthRange( const std
                                                                        double                     depthRangeMin,
                                                                        double                     depthRangeMax )
 {
-    if ( !useDepthRange ) return pressures;
+    std::vector<DepthInterval> intervals;
+    if ( useDepthRange ) intervals.push_back( { depthRangeMin, depthRangeMax } );
+
+    return filterPressuresByDepthIntervals( depths, pressures, intervals );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDepthIntervals( bool                        useFilter,
+                                                                                            DepthFilterMode             mode,
+                                                                                            double                      depthRangeMin,
+                                                                                            double                      depthRangeMax,
+                                                                                            RimWellFormationsFile*      wellFormationsFile,
+                                                                                            const QString&              wellName,
+                                                                                            const std::vector<QString>& selectedZones,
+                                                                                            RiaDefines::DepthType       depthType )
+{
+    if ( !useFilter || mode == DepthFilterMode::NONE ) return {};
+
+    if ( mode == DepthFilterMode::DEPTH_RANGE ) return { DepthInterval{ depthRangeMin, depthRangeMax } };
+
+    // ZONES mode
+    if ( !wellFormationsFile || selectedZones.empty() ) return {};
+
+    std::optional<RigWellPathFormations> formations = wellFormationsFile->formationsForWell( wellName );
+    if ( !formations.has_value() ) return {};
+
+    std::vector<DepthInterval> intervals;
+    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    {
+        const RigWellPathFormation& formation = formations->formationAt( i );
+
+        bool isSelected = std::find( selectedZones.begin(), selectedZones.end(), formation.formationName ) != selectedZones.end();
+        if ( !isSelected ) continue;
+
+        if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
+            intervals.push_back( { formation.tvdTop, formation.tvdBase } );
+        else
+            intervals.push_back( { formation.mdTop, formation.mdBase } );
+    }
+
+    return intervals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthIntervals( const std::vector<double>&        depths,
+                                                                           const std::vector<double>&        pressures,
+                                                                           const std::vector<DepthInterval>& depthIntervals )
+{
+    if ( depthIntervals.empty() ) return pressures;
 
     // Depth filter requested but no aligned depth data is available; exclude rather than
     // silently return an unfiltered set of samples.
@@ -84,9 +152,43 @@ std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthRange( const std
 
     std::vector<double> samplesInRange;
     for ( size_t i = 0; i < depths.size(); ++i )
-        if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
+    {
+        for ( const DepthInterval& interval : depthIntervals )
+        {
+            if ( depths[i] >= interval.top && depths[i] <= interval.base )
+            {
+                samplesInRange.push_back( pressures[i] );
+                break;
+            }
+        }
+    }
 
     return samplesInRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimRftCrossPlotTools::depthFilterDescription( bool                        useFilter,
+                                                      DepthFilterMode             mode,
+                                                      RiaDefines::DepthType       depthType,
+                                                      double                      depthRangeMin,
+                                                      double                      depthRangeMax,
+                                                      const std::vector<QString>& selectedZones )
+{
+    if ( !useFilter || mode == DepthFilterMode::NONE ) return {};
+
+    if ( mode == DepthFilterMode::ZONES )
+    {
+        if ( selectedZones.empty() ) return {};
+
+        QStringList zoneList;
+        for ( const QString& zone : selectedZones )
+            zoneList << zone;
+        return QString( "Zones: %1" ).arg( zoneList.join( ", " ) );
+    }
+
+    return QString( "%1 %2 - %3 m" ).arg( depthTypeAbbreviation( depthType ) ).arg( depthRangeMin ).arg( depthRangeMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,14 +204,12 @@ double RimRftCrossPlotTools::computeMean( const std::vector<double>& samples )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimRftCrossPlotTools::computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
-                                                                                      const QString&        wellName,
-                                                                                      const QDateTime&      timeStep,
-                                                                                      RimEclipseResultCase* eclipseCase,
-                                                                                      bool                  useDepthRange,
-                                                                                      double                depthRangeMin,
-                                                                                      double                depthRangeMax,
-                                                                                      RiaDefines::DepthType depthType )
+std::vector<std::vector<double>> RimRftCrossPlotTools::computePressureSamplesPerCase( RimSummaryEnsemble*               ensemble,
+                                                                                      const QString&                    wellName,
+                                                                                      const QDateTime&                  timeStep,
+                                                                                      RimEclipseResultCase*             eclipseCase,
+                                                                                      const std::vector<DepthInterval>& depthIntervals,
+                                                                                      RiaDefines::DepthType             depthType )
 {
     if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
 
@@ -154,7 +254,7 @@ std::vector<std::vector<double>> RimRftCrossPlotTools::computePressureSamplesPer
         // operates on values consistent with what the user sees in the RFT plot.
         std::vector<double> depths = rftCurveDepthValues( reader, wellName, timeStep, extractor, depthType );
 
-        samplesPerCase.push_back( filterPressuresByDepthRange( depths, pressures, useDepthRange, depthRangeMin, depthRangeMax ) );
+        samplesPerCase.push_back( filterPressuresByDepthIntervals( depths, pressures, depthIntervals ) );
     }
 
     return samplesPerCase;
@@ -163,17 +263,15 @@ std::vector<std::vector<double>> RimRftCrossPlotTools::computePressureSamplesPer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimRftCrossPlotTools::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                                      const QString&        wellName,
-                                                                      const QDateTime&      timeStep,
-                                                                      RimEclipseResultCase* eclipseCase,
-                                                                      bool                  useDepthRange,
-                                                                      double                depthRangeMin,
-                                                                      double                depthRangeMax,
-                                                                      RiaDefines::DepthType depthType )
+std::vector<double> RimRftCrossPlotTools::computeMeanPressurePerCase( RimSummaryEnsemble*               ensemble,
+                                                                      const QString&                    wellName,
+                                                                      const QDateTime&                  timeStep,
+                                                                      RimEclipseResultCase*             eclipseCase,
+                                                                      const std::vector<DepthInterval>& depthIntervals,
+                                                                      RiaDefines::DepthType             depthType )
 {
     const std::vector<std::vector<double>> samplesPerCase =
-        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, useDepthRange, depthRangeMin, depthRangeMax, depthType );
+        computePressureSamplesPerCase( ensemble, wellName, timeStep, eclipseCase, depthIntervals, depthType );
 
     std::vector<double> pressurePerCase;
     pressurePerCase.reserve( samplesPerCase.size() );

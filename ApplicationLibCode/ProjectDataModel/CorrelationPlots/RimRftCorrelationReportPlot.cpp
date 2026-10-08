@@ -23,6 +23,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellRftPlot.h"
 
+#include "Formations/RimWellFormationsFile.h"
+
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
@@ -528,6 +530,8 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
 {
     if ( !m_tornadoPlot() || !m_parameterRftCrossPlot() ) return;
 
+    applyWellFormationsToSubPlots();
+
     m_tornadoPlot->setEnsemble( m_parameterRftCrossPlot->ensemble() );
     m_tornadoPlot->setWellName( m_parameterRftCrossPlot->wellName() );
     m_tornadoPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
@@ -536,6 +540,22 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
     m_tornadoPlot->setDepthType( m_parameterRftCrossPlot->depthType() );
+    m_tornadoPlot->setFilterMode( m_parameterRftCrossPlot->filterMode() );
+    m_tornadoPlot->setSelectedZones( m_parameterRftCrossPlot->selectedZones() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Pushes the user's manual "Well Formations File" selection in the cross plot down to the sub
+/// plots so their "Filter By: Zones" option becomes available.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::applyWellFormationsToSubPlots()
+{
+    if ( !m_parameterRftCrossPlot() ) return;
+
+    RimWellFormationsFile* wellFormationsFile = m_parameterRftCrossPlot->wellFormationsFile();
+
+    m_parameterRftCrossPlot->setWellFormations( wellFormationsFile );
+    if ( m_tornadoPlot() ) m_tornadoPlot->setWellFormations( wellFormationsFile );
 }
 
 //--------------------------------------------------------------------------------------------------
