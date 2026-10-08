@@ -2,6 +2,8 @@
 
 #include "RifWellPathFormationReader.h"
 
+#include "RiaWellLogTrackDefines.h"
+
 #include <QString>
 
 #include <vector>
@@ -105,7 +107,7 @@ TEST( RifWellPathFormationReader, ErrorWhenNoDepthColumns )
 
 TEST( RifWellPathFormationReader, ErrorWhenRequiredColumnsMissing )
 {
-    const QString content = "wellname;zone;topmd;basemd\n"
+    const QString content = "wellname;formation;topmd;basemd\n"
                             "A-1;Zone;100.0;110.0\n";
 
     EXPECT_FALSE( RifWellPathFormationReader::parseWellFormations( content, "picks.txt" ).has_value() );
@@ -120,4 +122,58 @@ TEST( RifWellPathFormationReader, ErrorWhenNoRows )
 TEST( RifWellPathFormationReader, ErrorWhenFileMissing )
 {
     EXPECT_FALSE( RifWellPathFormationReader::readWellFormations( "this/file/does/not/exist.txt" ).has_value() );
+}
+
+TEST( RifWellPathFormationReader, ParseFmuFormationsCsv )
+{
+    const QString content = "X_UTME,Y_UTMN,TOP_TVD,TOP_MD,ZONE_CODE,WELL,BASE_TVD,BASE_MD,ZONE\n"
+                            "460994.9,5933813.29,1644.0,1693.0,1,R_A2,1662.0,1711.0,Valysar\n"
+                            "460994.9,5933813.29,1662.0,1711.0,2,R_A2,1678.0,1727.0,Therys\n";
+
+    auto result = RifWellPathFormationReader::parseWellFormations( content, "formations.csv" );
+    ASSERT_TRUE( result.has_value() );
+    ASSERT_EQ( 1u, result->size() );
+
+    const auto& well = result->at( "R_A2" );
+    EXPECT_EQ( 2u, well.formationNamesCount() );
+
+    auto [mdNames, mdDepths] = allFormations( well, RiaDefines::DepthType::MEASURED_DEPTH );
+    // The base of Valysar coincides with the top of Therys, so it is deduplicated like adjacent "unitname" zones
+    EXPECT_EQ( ( std::vector<QString>{ "Valysar Top", "Therys Top", "Therys Base" } ), mdNames );
+    EXPECT_EQ( ( std::vector<double>{ 1693.0, 1711.0, 1727.0 } ), mdDepths );
+
+    // TOP_TVD/BASE_TVD (without the "SS" suffix) are already positive-down, and are used as-is
+    auto [tvdNames, tvdDepths] = allFormations( well, RiaDefines::DepthType::TRUE_VERTICAL_DEPTH );
+    EXPECT_EQ( ( std::vector<double>{ 1644.0, 1662.0, 1678.0 } ), tvdDepths );
+}
+
+TEST( RifWellPathFormationReader, ParseFmuFormationsCsvIncludesTopXY )
+{
+    const QString content = "X_UTME,Y_UTMN,TOP_TVD,TOP_MD,ZONE_CODE,WELL,BASE_TVD,BASE_MD,ZONE\n"
+                            "460994.9,5933813.29,1644.0,1693.0,1,R_A2,1662.0,1711.0,Valysar\n"
+                            "461200.1,5933900.5,1662.0,1711.0,2,R_A2,1678.0,1727.0,Therys\n";
+
+    auto result = RifWellPathFormationReader::parseWellFormations( content, "formations.csv" );
+    ASSERT_TRUE( result.has_value() );
+
+    const auto& well = result->at( "R_A2" );
+    ASSERT_TRUE( well.formationAt( 0 ).topXY.has_value() );
+    EXPECT_DOUBLE_EQ( 460994.9, well.formationAt( 0 ).topXY->x() );
+    EXPECT_DOUBLE_EQ( 5933813.29, well.formationAt( 0 ).topXY->y() );
+
+    ASSERT_TRUE( well.formationAt( 1 ).topXY.has_value() );
+    EXPECT_DOUBLE_EQ( 461200.1, well.formationAt( 1 ).topXY->x() );
+    EXPECT_DOUBLE_EQ( 5933900.5, well.formationAt( 1 ).topXY->y() );
+}
+
+TEST( RifWellPathFormationReader, ParseFmuFormationsCsvWithoutXY )
+{
+    const QString content = "TOP_MD,WELL,BASE_MD,ZONE\n"
+                            "1693.0,R_A2,1711.0,Valysar\n";
+
+    auto result = RifWellPathFormationReader::parseWellFormations( content, "formations.csv" );
+    ASSERT_TRUE( result.has_value() );
+
+    const auto& well = result->at( "R_A2" );
+    EXPECT_FALSE( well.formationAt( 0 ).topXY.has_value() );
 }

@@ -19,21 +19,30 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RiaWellLogTrackDefines.h"
 
+#include "cvfVector2.h"
+
+#include <optional>
 #include <set>
+#include <tuple>
 #include <utility>
 #include <vector>
 
 #include <QString>
 
+namespace RiaDefines
+{
+enum class WellLogTrackFormationLevel;
+}
+
 struct RigWellPathFormation
 {
-    double  mdTop{ 0.0 };
-    double  mdBase{ 0.0 };
-    double  tvdTop{ 0.0 };
-    double  tvdBase{ 0.0 };
-    QString formationName;
+    double                    mdTop{ 0.0 };
+    double                    mdBase{ 0.0 };
+    double                    tvdTop{ 0.0 };
+    double                    tvdBase{ 0.0 };
+    QString                   formationName;
+    std::optional<cvf::Vec2d> topXY;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -51,12 +60,17 @@ public:
     std::pair<std::vector<QString>, std::vector<double>>
         depthAndFormationNamesUpToLevel( FormationLevel level, bool includeFluids, RiaDefines::DepthType depthType ) const;
 
+    // Returns formation name and (top, base) depth range per zone, for shaded region plotting.
+    std::vector<std::tuple<QString, double, double>> depthRangesUpToLevel( FormationLevel level, RiaDefines::DepthType depthType ) const;
+
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
     QString filePath() const;
     QString keyInFile() const;
 
-    size_t formationNamesCount() const;
+    size_t                      formationNamesCount() const;
+    size_t                      formationCount() const;
+    const RigWellPathFormation& formationAt( size_t index ) const;
 
 private:
     QString m_filePath;

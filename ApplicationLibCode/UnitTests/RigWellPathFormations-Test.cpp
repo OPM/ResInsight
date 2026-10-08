@@ -2,6 +2,8 @@
 
 #include "Well/RigWellPathFormations.h"
 
+#include "RiaWellLogTrackDefines.h"
+
 #include <QString>
 
 #include <vector>
@@ -130,4 +132,45 @@ TEST( RigWellPathFormations, UnsupportedDepthTypeGivesNoPicks )
         EXPECT_TRUE( names.empty() );
         EXPECT_TRUE( depths.empty() );
     }
+}
+
+TEST( RigWellPathFormations, DepthRangesUpToLevelReturnsZoneIntervals )
+{
+    auto formations = createHierarchy();
+
+    {
+        auto ranges = formations.depthRangesUpToLevel( FormationLevel::GROUP, DepthType::MEASURED_DEPTH );
+        ASSERT_EQ( 1u, ranges.size() );
+        EXPECT_EQ( QString( "GARN" ), std::get<0>( ranges[0] ) );
+        EXPECT_DOUBLE_EQ( 100.0, std::get<1>( ranges[0] ) );
+        EXPECT_DOUBLE_EQ( 200.0, std::get<2>( ranges[0] ) );
+    }
+    {
+        auto ranges = formations.depthRangesUpToLevel( FormationLevel::LEVEL1, DepthType::MEASURED_DEPTH );
+        ASSERT_EQ( 3u, ranges.size() );
+        EXPECT_EQ( QString( "GARN" ), std::get<0>( ranges[0] ) );
+        EXPECT_EQ( QString( "Garn 1" ), std::get<0>( ranges[1] ) );
+        EXPECT_EQ( QString( "Garn 2" ), std::get<0>( ranges[2] ) );
+    }
+    {
+        auto ranges = formations.depthRangesUpToLevel( FormationLevel::NONE, DepthType::MEASURED_DEPTH );
+        EXPECT_TRUE( ranges.empty() );
+    }
+}
+
+TEST( RigWellPathFormations, DepthRangesUpToLevelExcludesFluids )
+{
+    RigWellPathFormations formations( { formation( "Garn", 100.0, 200.0 ), formation( "OIL", 120.0, 140.0 ) }, "file", "well" );
+
+    auto ranges = formations.depthRangesUpToLevel( FormationLevel::ALL, DepthType::MEASURED_DEPTH );
+    ASSERT_EQ( 1u, ranges.size() );
+    EXPECT_EQ( QString( "Garn" ), std::get<0>( ranges[0] ) );
+}
+
+TEST( RigWellPathFormations, DepthRangesUpToLevelUnsupportedDepthTypeGivesNoRanges )
+{
+    RigWellPathFormations formations( { formation( "Garn", 100.0, 200.0 ) }, "file", "well" );
+
+    auto ranges = formations.depthRangesUpToLevel( FormationLevel::ALL, DepthType::TRUE_VERTICAL_DEPTH_RKB );
+    EXPECT_TRUE( ranges.empty() );
 }

@@ -18,6 +18,8 @@
 
 #include "RigWellPathFormations.h"
 
+#include "RiaWellLogTrackDefines.h"
+
 #include <QStringList>
 
 #include <algorithm>
@@ -278,6 +280,34 @@ std::pair<std::vector<QString>, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+/// Returns one (name, top, base) range per formation whose level does not exceed the given level,
+/// for use as shaded zone regions. Unlike depthAndFormationNamesUpToLevel(), this does not merge
+/// hierarchical levels at coincident depths, so a parent/child formation pair can overlap in the
+/// result when both satisfy the level filter (e.g. requesting LEVEL1 also includes any GROUP-level
+/// parent zone covering the same depth range).
+//--------------------------------------------------------------------------------------------------
+std::vector<std::tuple<QString, double, double>> RigWellPathFormations::depthRangesUpToLevel( FormationLevel        level,
+                                                                                              RiaDefines::DepthType depthType ) const
+{
+    std::vector<std::tuple<QString, double, double>> result;
+    if ( level == FormationLevel::NONE ) return result;
+
+    for ( const auto& [formation, formationLevel] : m_formations )
+    {
+        if ( level != FormationLevel::ALL && formationLevel > level ) continue;
+
+        auto top  = pickDepth( formation, PickPosition::TOP, depthType );
+        auto base = pickDepth( formation, PickPosition::BASE, depthType );
+        if ( !top || !base ) continue;
+
+        result.emplace_back( formation.formationName, *top, *base );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigWellPathFormations::FormationLevel> RigWellPathFormations::formationsLevelsPresent() const
 {
     return { m_formationsLevelsPresent.begin(), m_formationsLevelsPresent.end() };
@@ -305,4 +335,20 @@ QString RigWellPathFormations::keyInFile() const
 size_t RigWellPathFormations::formationNamesCount() const
 {
     return m_formations.size() + m_fluids.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the non-fluid formation at index, in the order the input data was given
+//--------------------------------------------------------------------------------------------------
+const RigWellPathFormation& RigWellPathFormations::formationAt( size_t index ) const
+{
+    return m_formations[index].first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigWellPathFormations::formationCount() const
+{
+    return m_formations.size();
 }
