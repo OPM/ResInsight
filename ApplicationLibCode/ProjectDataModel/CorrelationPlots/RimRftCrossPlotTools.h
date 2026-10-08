@@ -121,10 +121,13 @@ struct ObservedPressure
     double  pressure = 0.0;
     double  error    = 0.0; // observed pressure error; 0 if not available
     QString zoneName; // formation zone containing the sample; empty if not filtered by zones
+    double  rangeMin = 0.0; // lowest pressure - error among the observations
+    double  rangeMax = 0.0; // highest pressure + error among the observations
 };
 
-// All observed pressure samples (with errors) within depthIntervals for the well/time step,
-// across all observed data sets. An empty depthIntervals list means no filtering.
+// Observed pressure samples within depthIntervals for the well/time step, across all observed data
+// sets. Samples in the same zone are combined into one entry: mean pressure, with rangeMin/rangeMax
+// covering all of them. An empty depthIntervals list means no filtering.
 std::vector<ObservedPressure> computeObservedPressures( const QString&                    wellName,
                                                         const QDateTime&                  timeStep,
                                                         const std::vector<DepthInterval>& depthIntervals,

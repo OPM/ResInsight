@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <numeric>
 
 namespace caf
@@ -270,11 +271,45 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
                     }
                 }
             }
-            result.push_back( { filteredPressures[i], error, zoneName } );
+            result.push_back( { filteredPressures[i], error, zoneName, filteredPressures[i] - error, filteredPressures[i] + error } );
         }
     }
 
-    return result;
+    // Combine multiple observations in the same zone: mean pressure, band spanning all observations
+    std::vector<ObservedPressure> aggregated;
+    std::vector<int>              counts;
+    std::map<QString, size_t>     zoneIndex;
+    for ( const auto& observed : result )
+    {
+        if ( observed.zoneName.isEmpty() )
+        {
+            aggregated.push_back( observed );
+            counts.push_back( 1 );
+            continue;
+        }
+
+        auto [it, inserted] = zoneIndex.insert( { observed.zoneName, aggregated.size() } );
+        if ( inserted )
+        {
+            aggregated.push_back( observed );
+            counts.push_back( 1 );
+            continue;
+        }
+
+        ObservedPressure& target = aggregated[it->second];
+        target.pressure += observed.pressure;
+        target.rangeMin = std::min( target.rangeMin, observed.rangeMin );
+        target.rangeMax = std::max( target.rangeMax, observed.rangeMax );
+        counts[it->second]++;
+    }
+
+    for ( size_t i = 0; i < aggregated.size(); ++i )
+    {
+        aggregated[i].pressure /= counts[i];
+        aggregated[i].error = std::max( aggregated[i].pressure - aggregated[i].rangeMin, aggregated[i].rangeMax - aggregated[i].pressure );
+    }
+
+    return aggregated;
 }
 //--------------------------------------------------------------------------------------------------
 ///

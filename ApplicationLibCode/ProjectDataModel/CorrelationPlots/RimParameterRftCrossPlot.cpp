@@ -905,10 +905,10 @@ void RimParameterRftCrossPlot::attachObservedPressure()
         attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "", lineColor );
         isFirst = false;
 
-        if ( observed.error <= 0.0 ) continue;
+        if ( observed.rangeMax <= observed.rangeMin ) continue;
 
-        attachLine( observed.pressure - observed.error, Qt::DashLine, "", lineColor );
-        attachLine( observed.pressure + observed.error, Qt::DashLine, "", lineColor );
+        attachLine( observed.rangeMin, Qt::DashLine, "", lineColor );
+        attachLine( observed.rangeMax, Qt::DashLine, "", lineColor );
 
         if ( !zoneColor ) continue;
 
@@ -916,7 +916,7 @@ void RimParameterRftCrossPlot::attachObservedPressure()
 
         auto* shading = new QwtPlotZoneItem();
         shading->setOrientation( Qt::Horizontal );
-        shading->setInterval( observed.pressure - observed.error, observed.pressure + observed.error );
+        shading->setInterval( observed.rangeMin, observed.rangeMax );
         shading->setPen( shadingColor, 0.0, Qt::NoPen );
         shading->setBrush( QBrush( shadingColor ) );
         shading->setZ( 999.0 );
@@ -972,8 +972,8 @@ void RimParameterRftCrossPlot::updateValueRanges()
     for ( const auto& observed :
           RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
     {
-        yMin = std::min( yMin, observed.pressure - observed.error );
-        yMax = std::max( yMax, observed.pressure + observed.error );
+        yMin = std::min( yMin, observed.rangeMin );
+        yMax = std::max( yMax, observed.rangeMax );
     }
 
     if ( xMin == std::numeric_limits<double>::infinity() )
