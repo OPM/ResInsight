@@ -18,6 +18,8 @@
 
 #include "RifWellPathFormationReader.h"
 
+#include "RifCsvHtmlTableTools.h"
+
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
@@ -27,14 +29,6 @@
 
 namespace
 {
-//--------------------------------------------------------------------------------------------------
-/// The FMU formations.csv format is comma-separated, the "well pick" formats are semicolon-separated
-//--------------------------------------------------------------------------------------------------
-QChar detectDelimiter( const QString& line )
-{
-    return line.contains( ',' ) ? ',' : ';';
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +98,7 @@ std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFo
         if ( stream.atEnd() ) return std::unexpected( parseFailure );
 
         const QString rawHeaderLine = stream.readLine();
-        delimiter                   = detectDelimiter( rawHeaderLine );
+        delimiter                   = RifCsvHtmlTableTools::detectDelimiter( rawHeaderLine );
         header                      = parseHeader( rawHeaderLine, delimiter );
     }
 

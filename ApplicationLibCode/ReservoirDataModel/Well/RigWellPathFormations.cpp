@@ -281,16 +281,22 @@ std::pair<std::vector<QString>, std::vector<double>>
 ///
 //--------------------------------------------------------------------------------------------------
 /// Returns one (name, top, base) range per formation whose level does not exceed the given level,
-/// for use as shaded zone regions. Unlike depthAndFormationNamesUpToLevel(), this does not merge
-/// hierarchical levels at coincident depths, so a parent/child formation pair can overlap in the
-/// result when both satisfy the level filter (e.g. requesting LEVEL1 also includes any GROUP-level
-/// parent zone covering the same depth range).
+/// for use as shaded zone regions. Each zone is clipped against the more detailed zones inside it, so
+/// parent and child zones are not drawn on top of each other.
 //--------------------------------------------------------------------------------------------------
 std::vector<std::tuple<QString, double, double>> RigWellPathFormations::depthRangesUpToLevel( FormationLevel        level,
                                                                                               RiaDefines::DepthType depthType ) const
 {
-    std::vector<std::tuple<QString, double, double>> result;
-    if ( level == FormationLevel::NONE ) return result;
+    struct Zone
+    {
+        QString        name;
+        double         top;
+        double         base;
+        FormationLevel level;
+    };
+
+    std::vector<Zone> zones;
+    if ( level == FormationLevel::NONE ) return {};
 
     for ( const auto& [formation, formationLevel] : m_formations )
     {
@@ -300,7 +306,49 @@ std::vector<std::tuple<QString, double, double>> RigWellPathFormations::depthRan
         auto base = pickDepth( formation, PickPosition::BASE, depthType );
         if ( !top || !base ) continue;
 
-        result.emplace_back( formation.formationName, *top, *base );
+        zones.push_back( { formation.formationName, *top, *base, formationLevel } );
+    }
+
+    // UNKNOWN has no place in the hierarchy, so it neither hides nor is hidden by other zones
+    auto isMoreDetailed = []( FormationLevel candidate, FormationLevel reference )
+    { return candidate <= FormationLevel::LEVEL10 && reference <= FormationLevel::LEVEL10 && candidate > reference; };
+
+    const double minThickness = 0.1;
+
+    std::vector<std::tuple<QString, double, double>> result;
+    for ( const auto& zone : zones )
+    {
+        const double lower = std::min( zone.top, zone.base );
+        const double upper = std::max( zone.top, zone.base );
+
+        std::vector<std::pair<double, double>> covered;
+        for ( const auto& other : zones )
+        {
+            if ( !isMoreDetailed( other.level, zone.level ) ) continue;
+            covered.emplace_back( std::min( other.top, other.base ), std::max( other.top, other.base ) );
+        }
+        std::sort( covered.begin(), covered.end() );
+
+        // Keep the parts of the zone not covered by a more detailed zone, in the zone's own direction
+        auto addPart = [&]( double from, double to )
+        {
+            if ( to - from <= minThickness ) return;
+            if ( zone.top <= zone.base )
+                result.emplace_back( zone.name, from, to );
+            else
+                result.emplace_back( zone.name, to, from );
+        };
+
+        double current = lower;
+        for ( const auto& [coveredLower, coveredUpper] : covered )
+        {
+            if ( coveredLower >= upper ) break;
+            if ( coveredUpper <= current ) continue;
+
+            addPart( current, std::min( coveredLower, upper ) );
+            current = std::max( current, coveredUpper );
+        }
+        addPart( current, upper );
     }
     return result;
 }

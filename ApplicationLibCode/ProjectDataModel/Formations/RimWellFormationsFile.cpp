@@ -21,6 +21,10 @@
 #include "RiaLogging.h"
 #include "RifCsvHtmlTableTools.h"
 
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
+
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -82,12 +86,12 @@ std::expected<void, QString> RimWellFormationsFile::reload()
     if ( !result )
     {
         m_wellFormations.clear();
-        updateContentTable();
+        m_contentTable = "";
         return std::unexpected( result.error() );
     }
 
     m_wellFormations = std::move( *result );
-    updateContentTable();
+    m_contentTable   = "";
     return {};
 }
 
@@ -125,11 +129,11 @@ QStringList RimWellFormationsFile::zoneNames( const QString& wellName ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<RigWellPathFormations> RimWellFormationsFile::formationsForWell( const QString& wellName ) const
+const RigWellPathFormations* RimWellFormationsFile::formationsForWell( const QString& wellName ) const
 {
     if ( auto it = m_wellFormations.find( wellName ); it != m_wellFormations.end() )
     {
-        return it->second;
+        return &it->second;
     }
 
     // Fall back to a normalized name match, to handle differences between e.g. RFT and FMU well names
@@ -138,11 +142,11 @@ std::optional<RigWellPathFormations> RimWellFormationsFile::formationsForWell( c
     {
         if ( normalizedWellName( candidateName ) == normalizedTarget )
         {
-            return formations;
+            return &formations;
         }
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +171,28 @@ void RimWellFormationsFile::fieldChangedByUi( const caf::PdmFieldHandle* changed
         {
             RiaLogging::error( result.error().toStdString() );
         }
+
+        updateReferringObjects( objectsWithReferringPtrFields() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Well paths cache the formations resolved from their file, so they must be refreshed when the
+/// file is reloaded or deleted
+//--------------------------------------------------------------------------------------------------
+void RimWellFormationsFile::updateReferringObjects( const std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    for ( caf::PdmObjectHandle* object : referringObjects )
+    {
+        if ( auto wellPath = dynamic_cast<RimWellPath*>( object ) )
+        {
+            wellPath->refreshFormationsFromFile();
+            wellPath->updateConnectedEditors();
+        }
+    }
+
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimMainPlotCollection::current()->updatePlotsWithFormations();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +208,9 @@ void RimWellFormationsFile::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void RimWellFormationsFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    // Built on demand, as the table is only needed when the file is shown in the property editor
+    if ( m_contentTable().isEmpty() ) updateContentTable();
+
     uiOrdering.add( &m_filePath );
     uiOrdering.add( &m_contentTable );
     uiOrdering.skipRemainingFields();
@@ -231,7 +259,9 @@ void RimWellFormationsFile::updateUiTreeName()
 //--------------------------------------------------------------------------------------------------
 void RimWellFormationsFile::updateContentTable()
 {
-    auto result = RifCsvHtmlTableTools::generateHtmlTableFromFile( filePath() );
+    const int maxRowCount = 1000;
+
+    auto result = RifCsvHtmlTableTools::generateHtmlTableFromFile( filePath(), maxRowCount );
     if ( result )
     {
         m_contentTable = *result;

@@ -61,10 +61,9 @@ RimRftTornadoPlot::RimRftTornadoPlot()
     CAF_PDM_InitField( &m_wellName, "WellName", QString(), "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStep, "TimeStep", "Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
-    CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
     CAF_PDM_InitField( &m_filterMode,
                        "FilterMode",
-                       RimRftCrossPlotTools::DepthFilterModeEnum( RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE ),
+                       RimRftCrossPlotTools::DepthFilterModeEnum( RimRftCrossPlotTools::DepthFilterMode::NONE ),
                        "Filter By" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
@@ -136,14 +135,6 @@ void RimRftTornadoPlot::setTimeStep( const QDateTime& timeStep )
 void RimRftTornadoPlot::setEclipseCase( RimEclipseResultCase* eclipseCase )
 {
     m_eclipseCase = eclipseCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRftTornadoPlot::setUseDepthRange( bool useDepthRange )
-{
-    m_useDepthRange = useDepthRange;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,8 +388,7 @@ void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIte
 //--------------------------------------------------------------------------------------------------
 std::vector<RimRftCrossPlotTools::DepthInterval> RimRftTornadoPlot::depthIntervals() const
 {
-    return RimRftCrossPlotTools::buildDepthIntervals( m_useDepthRange(),
-                                                      m_filterMode(),
+    return RimRftCrossPlotTools::buildDepthIntervals( m_filterMode(),
                                                       m_depthRangeMin(),
                                                       m_depthRangeMax(),
                                                       m_wellFormations(),
@@ -466,14 +456,10 @@ void RimRftTornadoPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle() && m_ensemble() )
     {
-        const QString filterDescription = RimRftCrossPlotTools::depthFilterDescription( m_useDepthRange(),
-                                                                                        m_filterMode(),
-                                                                                        m_depthType(),
-                                                                                        m_depthRangeMin(),
-                                                                                        m_depthRangeMax(),
-                                                                                        m_selectedZones() );
-        const QString rangeStr          = filterDescription.isEmpty() ? QString() : QString( " [%1]" ).arg( filterDescription );
-        m_description = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
+        const QString filterDescription =
+            RimRftCrossPlotTools::depthFilterDescription( m_filterMode(), m_depthType(), m_depthRangeMin(), m_depthRangeMax(), m_selectedZones() );
+        const QString rangeStr = filterDescription.isEmpty() ? QString() : QString( " [%1]" ).arg( filterDescription );
+        m_description          = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
     }
 
     m_plotWidget->setPlotTitle( m_description() );

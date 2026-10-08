@@ -25,6 +25,7 @@
 
 #include <expected>
 #include <optional>
+#include <vector>
 
 //==================================================================================================
 /// A single well formations/well picks file (e.g. an FMU formations.csv or a well pick export),
@@ -44,11 +45,12 @@ public:
 
     std::expected<void, QString> reload();
 
-    QStringList                          wellNames() const;
-    QStringList                          zoneNames( const QString& wellName ) const;
-    std::optional<RigWellPathFormations> formationsForWell( const QString& wellName ) const;
+    QStringList                  wellNames() const;
+    QStringList                  zoneNames( const QString& wellName ) const;
+    const RigWellPathFormations* formationsForWell( const QString& wellName ) const;
 
     static QString normalizedWellName( const QString& wellName );
+    static void    updateReferringObjects( const std::vector<caf::PdmObjectHandle*>& referringObjects );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

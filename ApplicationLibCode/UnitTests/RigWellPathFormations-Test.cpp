@@ -147,10 +147,19 @@ TEST( RigWellPathFormations, DepthRangesUpToLevelReturnsZoneIntervals )
     }
     {
         auto ranges = formations.depthRangesUpToLevel( FormationLevel::LEVEL1, DepthType::MEASURED_DEPTH );
+        ASSERT_EQ( 2u, ranges.size() );
+        EXPECT_EQ( QString( "Garn 1" ), std::get<0>( ranges[0] ) );
+        EXPECT_EQ( QString( "Garn 2" ), std::get<0>( ranges[1] ) );
+    }
+    {
+        // Garn 2 is only partly covered by Garn 2.1, so the remainder is kept
+        auto ranges = formations.depthRangesUpToLevel( FormationLevel::ALL, DepthType::MEASURED_DEPTH );
         ASSERT_EQ( 3u, ranges.size() );
-        EXPECT_EQ( QString( "GARN" ), std::get<0>( ranges[0] ) );
-        EXPECT_EQ( QString( "Garn 1" ), std::get<0>( ranges[1] ) );
-        EXPECT_EQ( QString( "Garn 2" ), std::get<0>( ranges[2] ) );
+        EXPECT_EQ( QString( "Garn 1" ), std::get<0>( ranges[0] ) );
+        EXPECT_EQ( QString( "Garn 2" ), std::get<0>( ranges[1] ) );
+        EXPECT_DOUBLE_EQ( 175.0, std::get<1>( ranges[1] ) );
+        EXPECT_DOUBLE_EQ( 200.0, std::get<2>( ranges[1] ) );
+        EXPECT_EQ( QString( "Garn 2.1" ), std::get<0>( ranges[2] ) );
     }
     {
         auto ranges = formations.depthRangesUpToLevel( FormationLevel::NONE, DepthType::MEASURED_DEPTH );

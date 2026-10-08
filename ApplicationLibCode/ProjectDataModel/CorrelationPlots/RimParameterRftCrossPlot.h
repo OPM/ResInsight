@@ -83,7 +83,6 @@ public:
     QDateTime                             selectedTimeStep() const;
     RimSummaryEnsemble*                   ensemble() const;
     RimEclipseResultCase*                 eclipseCase() const;
-    bool                                  useDepthRange() const;
     double                                depthRangeMin() const;
     double                                depthRangeMax() const;
     RiaDefines::DepthType                 depthType() const;
