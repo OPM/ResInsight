@@ -532,8 +532,8 @@ void RimRftCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::P
     uiOrdering.add( &m_depthType );
 
     // Delegate cross-plot settings (ensemble, well, depth range, parameter) to the cross plot
+    m_parameterRftCrossPlot->appendDataAndFilterUiOrdering( uiOrdering );
     m_parameterRftCrossPlot->uiOrdering( uiConfigName, uiOrdering );
-    m_parameterRftCrossPlot->appendDepthFilterUiOrdering( uiOrdering );
 
     auto* layoutGroup = uiOrdering.addNewGroup( "Dock Layout" );
     layoutGroup->setCollapsedByDefault();

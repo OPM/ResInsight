@@ -575,10 +575,21 @@ void RimParameterRftCrossPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adds the depth filter fields; used by the parent report plot, not shown in the cross plot's own editor.
+/// Adds the data source, parameter and depth filter groups; used by the parent report plot, not shown
+/// in the cross plot's own editor.
 //--------------------------------------------------------------------------------------------------
-void RimParameterRftCrossPlot::appendDepthFilterUiOrdering( caf::PdmUiOrdering& uiOrdering )
+void RimParameterRftCrossPlot::appendDataAndFilterUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
+    auto* dataGroup = uiOrdering.addNewGroup( "Data Source" );
+    dataGroup->add( &m_ensemble );
+    dataGroup->add( &m_wellName );
+    dataGroup->add( &m_selectedTimeStep );
+    dataGroup->add( &m_eclipseCase );
+
+    auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
+    crossPlotGroup->add( &m_ensembleParameter );
+    crossPlotGroup->add( &m_samplingMode );
+
     auto* depthGroup =
         uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
     depthGroup->add( &m_filterMode );
@@ -600,16 +611,6 @@ void RimParameterRftCrossPlot::appendDepthFilterUiOrdering( caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto* dataGroup = uiOrdering.addNewGroup( "Data Source" );
-    dataGroup->add( &m_ensemble );
-    dataGroup->add( &m_wellName );
-    dataGroup->add( &m_selectedTimeStep );
-    dataGroup->add( &m_eclipseCase );
-
-    auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
-    crossPlotGroup->add( &m_ensembleParameter );
-    crossPlotGroup->add( &m_samplingMode );
-
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_useAutoPlotTitle );
