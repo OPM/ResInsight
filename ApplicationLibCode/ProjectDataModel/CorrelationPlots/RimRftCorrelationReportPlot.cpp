@@ -23,6 +23,7 @@
 #include "RimRftCrossPlotTools.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
 #include "Formations/RimWellFormationsFile.h"
@@ -629,6 +630,16 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
     {
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
+
+        if ( m_wellRftPlot() )
+        {
+            auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() );
+            if ( curveSet && curveSet->syncEnsembleParameter( paramName ) )
+            {
+                m_wellRftPlot->rebuildCurves();
+                curveSet->updateConnectedEditors();
+            }
+        }
     }
     updateConnectedEditors();
 }
