@@ -109,20 +109,19 @@ QString depthFilterDescription( DepthFilterMode             mode,
                                 double                      depthRangeMax,
                                 const std::vector<QString>& selectedZones );
 
-// Observed (e.g. FMU) RFT pressure reduced to a single value with an uncertainty.
+// A single observed (e.g. FMU) RFT pressure sample with its uncertainty.
 struct ObservedPressure
 {
-    double mean  = 0.0;
-    double error = 0.0; // mean of the observed pressure error channel; 0 if not available
+    double pressure = 0.0;
+    double error    = 0.0; // observed pressure error; 0 if not available
 };
 
-// Mean observed pressure (and mean error) within depthIntervals for the well/time step, taken
-// from the first observed data set with matching samples. Returns nullopt if there is no
-// observed data. An empty depthIntervals list means no filtering.
-std::optional<ObservedPressure> computeObservedPressure( const QString&                    wellName,
-                                                         const QDateTime&                  timeStep,
-                                                         const std::vector<DepthInterval>& depthIntervals,
-                                                         RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
+// All observed pressure samples (with errors) within depthIntervals for the well/time step,
+// across all observed data sets. An empty depthIntervals list means no filtering.
+std::vector<ObservedPressure> computeObservedPressures( const QString&                    wellName,
+                                                        const QDateTime&                  timeStep,
+                                                        const std::vector<DepthInterval>& depthIntervals,
+                                                        RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
 
 // Arithmetic mean of the given samples, or infinity if samples is empty.
 double computeMean( const std::vector<double>& samples );

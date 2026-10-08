@@ -842,12 +842,14 @@ void RimParameterRftCrossPlot::createPoints()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Draws the observed pressure as a solid horizontal line, with dashed lines at +/- observed error.
+/// Draws every observed pressure within the selected depth intervals as a solid horizontal line,
+/// with dashed lines and a shaded band at +/- the observed error. Only the first line is labelled.
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::attachObservedPressure()
 {
-    auto observed = RimRftCrossPlotTools::computeObservedPressure( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
-    if ( !observed ) return;
+    const auto observedPressures =
+        RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
+    if ( observedPressures.empty() ) return;
 
     auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label )
     {
@@ -871,18 +873,23 @@ void RimParameterRftCrossPlot::attachObservedPressure()
         marker->attach( m_plotWidget->qwtPlot() );
     };
 
-    attachLine( observed->mean, Qt::SolidLine, "Observed Pressure" );
-    if ( observed->error > 0.0 )
+    bool isFirst = true;
+    for ( const auto& observed : observedPressures )
     {
-        attachLine( observed->mean - observed->error, Qt::DashLine, "" );
-        attachLine( observed->mean + observed->error, Qt::DashLine, "" );
+        attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "" );
+        isFirst = false;
+
+        if ( observed.error <= 0.0 ) continue;
+
+        attachLine( observed.pressure - observed.error, Qt::DashLine, "" );
+        attachLine( observed.pressure + observed.error, Qt::DashLine, "" );
 
         QColor shadingColor( 255, 192, 203 );
         shadingColor.setAlpha( 60 );
 
         auto* shading = new QwtPlotZoneItem();
         shading->setOrientation( Qt::Horizontal );
-        shading->setInterval( observed->mean - observed->error, observed->mean + observed->error );
+        shading->setInterval( observed.pressure - observed.error, observed.pressure + observed.error );
         shading->setPen( shadingColor, 0.0, Qt::NoPen );
         shading->setBrush( QBrush( shadingColor ) );
         shading->setZ( 999.0 );
@@ -935,10 +942,11 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
-    if ( auto observed = RimRftCrossPlotTools::computeObservedPressure( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
+    for ( const auto& observed :
+          RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
     {
-        yMin = std::min( yMin, observed->mean - observed->error );
-        yMax = std::max( yMax, observed->mean + observed->error );
+        yMin = std::min( yMin, observed.pressure - observed.error );
+        yMax = std::max( yMax, observed.pressure + observed.error );
     }
 
     if ( xMin == std::numeric_limits<double>::infinity() )

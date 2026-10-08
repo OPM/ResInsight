@@ -194,13 +194,14 @@ QString RimRftCrossPlotTools::depthFilterDescription( DepthFilterMode           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<RimRftCrossPlotTools::ObservedPressure>
-    RimRftCrossPlotTools::computeObservedPressure( const QString&                    wellName,
-                                                   const QDateTime&                  timeStep,
-                                                   const std::vector<DepthInterval>& depthIntervals,
-                                                   RiaDefines::DepthType             depthType )
+std::vector<RimRftCrossPlotTools::ObservedPressure>
+    RimRftCrossPlotTools::computeObservedPressures( const QString&                    wellName,
+                                                    const QDateTime&                  timeStep,
+                                                    const std::vector<DepthInterval>& depthIntervals,
+                                                    RiaDefines::DepthType             depthType )
 {
-    if ( wellName.isEmpty() || !timeStep.isValid() ) return std::nullopt;
+    std::vector<ObservedPressure> result;
+    if ( wellName.isEmpty() || !timeStep.isValid() ) return result;
 
     for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
     {
@@ -219,24 +220,20 @@ std::optional<RimRftCrossPlotTools::ObservedPressure>
         std::vector<double> errors;
         reader->values( errorAddress, &errors );
 
+        // Filtering pressures and errors with the same depths/intervals keeps the two vectors aligned.
         const std::vector<double> filteredPressures = filterPressuresByDepthIntervals( depths, pressures, depthIntervals );
-        if ( filteredPressures.empty() ) continue;
+        std::vector<double>       filteredErrors;
+        if ( errors.size() == pressures.size() ) filteredErrors = filterPressuresByDepthIntervals( depths, errors, depthIntervals );
 
-        ObservedPressure result;
-        result.mean = computeMean( filteredPressures );
-
-        if ( errors.size() == pressures.size() )
+        for ( size_t i = 0; i < filteredPressures.size(); ++i )
         {
-            const std::vector<double> filteredErrors = filterPressuresByDepthIntervals( depths, errors, depthIntervals );
-            if ( !filteredErrors.empty() ) result.error = computeMean( filteredErrors );
+            const double error = i < filteredErrors.size() && filteredErrors.size() == filteredPressures.size() ? filteredErrors[i] : 0.0;
+            result.push_back( { filteredPressures[i], error } );
         }
-
-        return result;
     }
 
-    return std::nullopt;
+    return result;
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
