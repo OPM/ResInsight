@@ -18,12 +18,15 @@
 
 #include "RimRftCorrelationReportPlot.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimParameterRftCrossPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellRftPlot.h"
 
 #include "Formations/RimWellFormationsFile.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
@@ -38,10 +41,24 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
+#include "qwt_plot.h"
+
+#include "qwt_plot.h"
+#include <QMouseEvent>
+#include <QPointer>
+
 #include <QContextMenuEvent>
 #include <QFrame>
+#include <QMouseEvent>
+#include <QPointer>
 #include <QSettings>
 #include <QVBoxLayout>
+
+#include <functional>
+#include <optional>
+
+#include <functional>
+#include <optional>
 
 static const char* RFT_DOCK_LAYOUT_REGISTRY_KEY = "RftCorrelationReportPlot/defaultDockLayout";
 
@@ -87,6 +104,51 @@ public:
 
 private:
     caf::PdmObject* m_item;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Reports the depth value under a left-button click (not drag) on a depth track canvas.
+//--------------------------------------------------------------------------------------------------
+class RftTrackDepthClickFilter : public QObject
+{
+public:
+    RftTrackDepthClickFilter( QwtPlot* plot, QwtAxisId depthAxis, bool isDepthVertical, std::function<void( double )> callback, QObject* parent )
+        : QObject( parent )
+        , m_plot( plot )
+        , m_depthAxis( depthAxis )
+        , m_isDepthVertical( isDepthVertical )
+        , m_callback( std::move( callback ) )
+    {
+    }
+
+    bool eventFilter( QObject*, QEvent* event ) override
+    {
+        if ( !m_plot ) return false;
+
+        if ( event->type() == QEvent::MouseButtonPress )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>( event );
+            if ( mouseEvent->button() == Qt::LeftButton ) m_pressPos = mouseEvent->pos();
+        }
+        else if ( event->type() == QEvent::MouseButtonRelease )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>( event );
+            if ( mouseEvent->button() == Qt::LeftButton && m_pressPos && ( mouseEvent->pos() - *m_pressPos ).manhattanLength() < 4 )
+            {
+                const double pixel = m_isDepthVertical ? mouseEvent->pos().y() : mouseEvent->pos().x();
+                m_callback( m_plot->invTransform( m_depthAxis, pixel ) );
+            }
+            m_pressPos.reset();
+        }
+        return false;
+    }
+
+private:
+    QPointer<QwtPlot>             m_plot;
+    QwtAxisId                     m_depthAxis;
+    bool                          m_isDepthVertical;
+    std::function<void( double )> m_callback;
+    std::optional<QPoint>         m_pressPos;
 };
 
 //==================================================================================================
@@ -253,6 +315,8 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     if ( auto* w = m_tornadoPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
     if ( auto* w = m_parameterRftCrossPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
 
+    installTrackClickFilters();
+
     auto makeDockWidget = [&]( const QString& title, RimPlotWindow* plot, QWidget* widget ) -> ads::CDockWidget*
     {
         auto* dock = new ads::CDockWidget( title, m_dockManager );
@@ -402,6 +466,7 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
     if ( m_showWindow )
     {
         m_wellRftPlot->loadDataAndUpdate();
+        installTrackClickFilters();
         syncTornadoInputsFromCrossPlot();
         m_tornadoPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
@@ -541,6 +606,67 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setDepthType( m_parameterRftCrossPlot->depthType() );
     m_tornadoPlot->setFilterMode( m_parameterRftCrossPlot->filterMode() );
     m_tornadoPlot->setSelectedZones( m_parameterRftCrossPlot->selectedZones() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Makes a click on a formation in the RFT plot tracks select that formation as the zone filter
+/// used by the cross plot and tornado plot.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::installTrackClickFilters()
+{
+    if ( !m_wellRftPlot() ) return;
+
+    delete m_trackClickFilter;
+    m_trackClickFilter = new QObject( this );
+
+    const auto orientation = m_wellRftPlot->depthOrientation();
+    const bool isVertical  = orientation == RiaDefines::Orientation::VERTICAL;
+
+    for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
+        if ( !track ) continue;
+
+        RiuQwtPlotWidget* widget = track->viewer();
+        if ( !widget || !widget->qwtPlot() ) continue;
+
+        auto* filter = new RftTrackDepthClickFilter(
+            widget->qwtPlot(),
+            widget->toQwtPlotAxis( RimDepthTrackPlot::depthAxis( orientation ) ),
+            isVertical,
+            [this]( double depth ) { onRftTrackDepthClicked( depth ); },
+            m_trackClickFilter );
+        widget->qwtPlot()->canvas()->installEventFilter( filter );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onRftTrackDepthClicked( double depth )
+{
+    if ( !m_parameterRftCrossPlot() ) return;
+
+    RimWellFormationsFile* wellFormationsFile = m_parameterRftCrossPlot->wellFormationsFile();
+    if ( !wellFormationsFile ) return;
+
+    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( m_parameterRftCrossPlot->wellName() );
+    if ( !formations ) return;
+
+    const bool useTvd = m_depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
+    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    {
+        const RigWellPathFormation& formation = formations->formationAt( i );
+        const double                top       = useTvd ? formation.tvdTop : formation.mdTop;
+        const double                base      = useTvd ? formation.tvdBase : formation.mdBase;
+        if ( depth < top || depth > base ) continue;
+
+        m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
+        m_parameterRftCrossPlot->setSelectedZones( { formation.formationName } );
+        loadDataAndUpdate();
+        updateConnectedEditors();
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

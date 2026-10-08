@@ -28,10 +28,12 @@
 #include "Formations/RimWellFormationsFile.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimWellPath.h"
+#include "RimWellPlotTools.h"
 
 #include <algorithm>
 #include <limits>
@@ -187,6 +189,52 @@ QString RimRftCrossPlotTools::depthFilterDescription( DepthFilterMode           
     }
 
     return QString( "%1 %2 - %3 m" ).arg( depthTypeAbbreviation( depthType ) ).arg( depthRangeMin ).arg( depthRangeMax );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RimRftCrossPlotTools::ObservedPressure>
+    RimRftCrossPlotTools::computeObservedPressure( const QString&                    wellName,
+                                                   const QDateTime&                  timeStep,
+                                                   const std::vector<DepthInterval>& depthIntervals,
+                                                   RiaDefines::DepthType             depthType )
+{
+    if ( wellName.isEmpty() || !timeStep.isValid() ) return std::nullopt;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+    {
+        RifReaderRftInterface* reader = observedData->rftReader();
+        if ( !reader || !reader->availableTimeSteps( wellName ).count( timeStep ) ) continue;
+
+        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        std::vector<double> pressures;
+        reader->values( pressureAddress, &pressures );
+        if ( pressures.empty() ) continue;
+
+        std::vector<double> depths = rftCurveDepthValues( reader, wellName, timeStep, nullptr, depthType );
+
+        auto errorAddress =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+        std::vector<double> errors;
+        reader->values( errorAddress, &errors );
+
+        const std::vector<double> filteredPressures = filterPressuresByDepthIntervals( depths, pressures, depthIntervals );
+        if ( filteredPressures.empty() ) continue;
+
+        ObservedPressure result;
+        result.mean = computeMean( filteredPressures );
+
+        if ( errors.size() == pressures.size() )
+        {
+            const std::vector<double> filteredErrors = filterPressuresByDepthIntervals( depths, errors, depthIntervals );
+            if ( !filteredErrors.empty() ) result.error = computeMean( filteredErrors );
+        }
+
+        return result;
+    }
+
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------

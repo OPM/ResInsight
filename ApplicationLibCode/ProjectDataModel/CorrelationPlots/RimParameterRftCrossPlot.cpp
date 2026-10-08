@@ -186,6 +186,22 @@ void RimParameterRftCrossPlot::setWellFormations( RimWellFormationsFile* wellFor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode )
+{
+    m_filterMode = filterMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setSelectedZones( const std::vector<QString>& zones )
+{
+    m_selectedZones = zones;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimParameterRftCrossPlot::ensembleParameter() const
 {
     return m_ensembleParameter;
@@ -820,6 +836,33 @@ void RimParameterRftCrossPlot::createPoints()
         plotCurve->setTitle( summaryCase->displayCaseName() );
         plotCurve->attach( m_plotWidget->qwtPlot() );
     }
+
+    attachObservedPressure();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Draws the observed pressure as a solid horizontal line, with dashed lines at +/- observed error.
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::attachObservedPressure()
+{
+    auto observed = RimRftCrossPlotTools::computeObservedPressure( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
+    if ( !observed ) return;
+
+    auto attachLine = [this]( double value, Qt::PenStyle style )
+    {
+        auto* marker = new QwtPlotMarker();
+        marker->setLineStyle( QwtPlotMarker::HLine );
+        marker->setYValue( value );
+        marker->setLinePen( QPen( Qt::red, 2, style ) );
+        marker->attach( m_plotWidget->qwtPlot() );
+    };
+
+    attachLine( observed->mean, Qt::SolidLine );
+    if ( observed->error > 0.0 )
+    {
+        attachLine( observed->mean + observed->error, Qt::DashLine );
+        attachLine( observed->mean - observed->error, Qt::DashLine );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -865,6 +908,12 @@ void RimParameterRftCrossPlot::updateValueRanges()
         xMax = std::max( xMax, paramValue );
         yMin = std::min( yMin, pressureValue );
         yMax = std::max( yMax, pressureValue );
+    }
+
+    if ( auto observed = RimRftCrossPlotTools::computeObservedPressure( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
+    {
+        yMin = std::min( yMin, observed->mean - observed->error );
+        yMax = std::max( yMax, observed->mean + observed->error );
     }
 
     if ( xMin == std::numeric_limits<double>::infinity() )

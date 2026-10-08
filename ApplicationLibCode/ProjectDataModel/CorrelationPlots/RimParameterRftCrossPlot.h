@@ -77,6 +77,8 @@ public:
     void setDepthType( RiaDefines::DepthType depthType );
     void setEnsembleParameter( const QString& paramName );
     void setWellFormations( RimWellFormationsFile* wellFormationsFile );
+    void setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode );
+    void setSelectedZones( const std::vector<QString>& zones );
 
     QString                               ensembleParameter() const;
     QString                               wellName() const;
@@ -120,6 +122,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void            createPoints();
+    void            attachObservedPressure();
     void            updatePlotTitle();
     void            updateValueRanges();
     void            cleanupBeforeClose();
