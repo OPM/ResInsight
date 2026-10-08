@@ -582,6 +582,8 @@ void RimWellPath::initAfterRead()
     {
         if ( auto oilField = RimProject::current()->activeOilField() )
         {
+            if ( !oilField->wellFormationsCollection() ) oilField->wellFormationsCollection = new RimWellFormationsCollection();
+
             auto* file = oilField->wellFormationsCollection->findOrCreate( m_wellPathFormationFilePath_OBSOLETE().path() );
             setWellFormationsFile( file, m_formationKeyInFile() );
         }
