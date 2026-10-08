@@ -106,6 +106,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
+    void                                                                 onAddWellPicksClicked();
     caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackFormationSource>> m_formationSource;
     caf::PdmPtrField<RimCase*>                                           m_formationCase;
     caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackTrajectoryType>>  m_formationTrajectoryType;

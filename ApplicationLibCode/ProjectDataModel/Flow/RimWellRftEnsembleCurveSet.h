@@ -48,6 +48,8 @@ public:
     QString             ensembleName() const;
 
     void         setCurveColor( const cvf::Color3f& color );
+    bool         syncEnsembleParameter( const QString& ensembleParameter );
+    void         setColorByEnsembleParameter( const QString& ensembleParameter );
     cvf::Color3f curveColor( RimSummaryEnsemble* ensemble, const RimSummaryCase* summaryCase ) const;
 
     RimRegularLegendConfig* legendConfig();

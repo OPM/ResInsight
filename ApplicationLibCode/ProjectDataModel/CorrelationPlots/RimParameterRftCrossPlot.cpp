@@ -33,6 +33,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRftCorrelationReportPlot.h"
 #include "RimRftCrossPlotTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
@@ -40,23 +41,12 @@
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
-#include "RiuPlotCurve.h"
-#include "RiuQwtCurveSelectorFilter.h"
-#include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
-#include "RiuQwtSymbol.h"
+#include "RiuRftCorrelationPlotTools.h"
 
 #include "cafPdmPointer.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-
-#include "qwt_picker_machine.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_marker.h"
-#include "qwt_plot_picker.h"
-#include "qwt_scale_map.h"
-#include "qwt_text.h"
 
 #include <QMouseEvent>
 #include <QPaintDevice>
@@ -181,6 +171,30 @@ void RimParameterRftCrossPlot::setEnsembleParameter( const QString& paramName )
 void RimParameterRftCrossPlot::setWellFormations( RimWellFormationsFile* wellFormationsFile )
 {
     m_wellFormations = wellFormationsFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode )
+{
+    m_filterMode = filterMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setSelectedZones( const std::vector<QString>& zones )
+{
+    m_selectedZones = zones;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setZoneColors( const std::map<QString, QColor>& zoneColors )
+{
+    m_zoneColors = zoneColors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,7 +437,7 @@ QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
+    if ( m_plotWidget ) RiuRftCorrelationPlotTools::detachAllItems( m_plotWidget );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,54 +472,6 @@ void RimParameterRftCrossPlot::doRenderWindowContent( QPaintDevice* paintDevice 
     if ( m_plotWidget ) m_plotWidget->render( paintDevice );
 }
 
-namespace
-{
-class CurveTracker : public QwtPlotPicker
-{
-public:
-    CurveTracker( QwtPlot* plot )
-        : QwtPlotPicker( plot->canvas() )
-    {
-        setStateMachine( new QwtPickerTrackerMachine() );
-        setRubberBand( QwtPicker::NoRubberBand );
-        setTrackerMode( QwtPicker::AlwaysOn );
-    }
-
-protected:
-    QwtText trackerText( const QPoint& pos ) const override
-    {
-        double  minDistance = std::numeric_limits<double>::max();
-        QString closestCurveLabel;
-
-        for ( QwtPlotItem* item : plot()->itemList() )
-        {
-            if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
-            {
-                auto   curve    = static_cast<QwtPlotCurve*>( item );
-                double distance = std::numeric_limits<double>::max();
-                curve->closestPoint( pos, &distance );
-
-                if ( distance < minDistance )
-                {
-                    minDistance       = distance;
-                    closestCurveLabel = curve->title().text();
-                }
-            }
-        }
-
-        if ( minDistance < 20.0 )
-        {
-            QwtText text( closestCurveLabel );
-            text.setBackgroundBrush( QBrush( Qt::white ) );
-            text.setColor( Qt::black );
-            return text;
-        }
-        return QwtText();
-    }
-};
-
-} // anonymous namespace
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -520,12 +486,12 @@ RiuPlotWidget* RimParameterRftCrossPlot::doCreatePlotViewWidget( QWidget* parent
 
     if ( m_plotWidget )
     {
-        new CurveTracker( m_plotWidget->qwtPlot() );
+        RiuRftCorrelationPlotTools::installCurveTracker( m_plotWidget );
 
         caf::PdmPointer<RimParameterRftCrossPlot> self( this );
-        new RiuQwtCurveSelectorFilter( m_plotWidget->qwtPlot(),
-                                       [self]( const QPoint& pos ) -> const caf::PdmUiItem*
-                                       { return self ? self->findClosestCase( pos ) : nullptr; } );
+        RiuRftCorrelationPlotTools::installCurveSelector( m_plotWidget,
+                                                          [self]( const QPoint& pos ) -> const caf::PdmUiItem*
+                                                          { return self ? self->findClosestCase( pos ) : nullptr; } );
     }
 
     return m_plotWidget;
@@ -549,15 +515,17 @@ void RimParameterRftCrossPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Adds the data source, parameter and depth filter groups; used by the parent report plot, not shown
+/// in the cross plot's own editor.
 //--------------------------------------------------------------------------------------------------
-void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimParameterRftCrossPlot::appendDataAndFilterUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     auto* dataGroup = uiOrdering.addNewGroup( "Data Source" );
     dataGroup->add( &m_ensemble );
     dataGroup->add( &m_wellName );
     dataGroup->add( &m_selectedTimeStep );
     dataGroup->add( &m_eclipseCase );
+    dataGroup->add( &m_ensembleParameter );
 
     auto* depthGroup =
         uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
@@ -575,9 +543,14 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     m_selectedZones.uiCapability()->setUiHidden( !useZones || !m_wellFormations() );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
-    crossPlotGroup->add( &m_ensembleParameter );
     crossPlotGroup->add( &m_samplingMode );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_useAutoPlotTitle );
@@ -622,7 +595,15 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    loadDataAndUpdate();
+
+    // The parent report plot syncs the other sub plots and the track zone highlight from this plot
+    if ( auto* reportPlot = firstAncestorOrThisOfType<RimRftCorrelationReportPlot>() )
+    {
+        if ( changedField == &m_ensembleParameter ) reportPlot->syncEnsembleParameterToRftCurves();
+        reportPlot->loadDataAndUpdate();
+    }
+    else
+        loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -690,7 +671,7 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
         if ( project && project->activeOilField() && project->activeOilField()->wellFormationsCollection() )
         {
             for ( RimWellFormationsFile* file : project->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
-                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file ) );
+                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file, false, file->uiCapability()->uiIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_filterMode )
@@ -807,18 +788,65 @@ void RimParameterRftCrossPlot::createPoints()
     {
         const auto& [xValues, yValues] = pointsPerCase[summaryCase];
 
-        auto* plotCurve = new RiuQwtPlotCurve;
-        plotCurve->setSamplesValues( xValues, yValues );
-        plotCurve->setStyle( QwtPlotCurve::NoCurve );
+        RiuRftCorrelationPlotTools::PointSeries series;
+        series.x          = xValues;
+        series.y          = yValues;
+        series.title      = summaryCase->displayCaseName();
+        series.color      = colorTable.cycledQColor( idx++ );
+        series.isSelected = selectedSummaryCases.contains( summaryCase );
+        RiuRftCorrelationPlotTools::attachPointSeries( m_plotWidget, series );
+    }
 
-        const bool isSelected = selectedSummaryCases.contains( summaryCase );
-        auto*      symbol     = new RiuQwtSymbol( isSelected ? RiuPlotCurveSymbol::SYMBOL_XCROSS : RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
-        symbol->setSize( 8, 8 );
-        symbol->setColor( colorTable.cycledQColor( idx++ ) );
-        plotCurve->setSymbol( symbol );
+    attachObservedPressure();
+}
 
-        plotCurve->setTitle( summaryCase->displayCaseName() );
-        plotCurve->attach( m_plotWidget->qwtPlot() );
+//--------------------------------------------------------------------------------------------------
+/// Draws every observed pressure within the selected depth intervals as a solid horizontal line,
+/// with dashed lines and a shaded band at +/- the observed error. Only the first line is labelled.
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::attachObservedPressure()
+{
+    const auto observedPressures =
+        RimRftCrossPlotTools::computeObservedPressures( m_wellName(),
+                                                        m_selectedTimeStep(),
+                                                        depthIntervals(),
+                                                        m_depthType(),
+                                                        RimRftCrossPlotTools::buildAllZoneIntervals( m_wellFormations(),
+                                                                                                     m_wellName(),
+                                                                                                     m_depthType() ) );
+    if ( observedPressures.empty() ) return;
+
+    auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label, const QColor& color )
+    { RiuRftCorrelationPlotTools::attachHorizontalLine( m_plotWidget, value, style, label, color ); };
+
+    bool isFirst = true;
+    for ( const auto& observed : observedPressures )
+    {
+        // Use the formation color when known; otherwise fall back to black lines and no shaded band
+        std::optional<QColor> zoneColor;
+        if ( auto it = m_zoneColors.find( observed.zoneName ); it != m_zoneColors.end() && it->second.isValid() ) zoneColor = it->second;
+        QColor lineColor = zoneColor ? *zoneColor : QColor( Qt::black );
+        lineColor.setAlpha( 255 );
+
+        QString label;
+        if ( observed.count > 1 )
+            label = QString( "Observed Pressure (average of %1 observations)" ).arg( observed.count );
+        else if ( isFirst )
+            label = "Observed Pressure";
+
+        attachLine( observed.pressure, Qt::SolidLine, label, lineColor );
+        isFirst = false;
+
+        if ( observed.rangeMax <= observed.rangeMin ) continue;
+
+        attachLine( observed.rangeMin, Qt::DashLine, "", lineColor );
+        attachLine( observed.rangeMax, Qt::DashLine, "", lineColor );
+
+        if ( !zoneColor ) continue;
+
+        const QColor shadingColor = *zoneColor; // alpha matches the track's formation shading
+
+        RiuRftCorrelationPlotTools::attachHorizontalBand( m_plotWidget, observed.rangeMin, observed.rangeMax, shadingColor );
     }
 }
 
@@ -867,6 +895,13 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
+    for ( const auto& observed :
+          RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
+    {
+        yMin = std::min( yMin, observed.rangeMin );
+        yMax = std::max( yMax, observed.rangeMax );
+    }
+
     if ( xMin == std::numeric_limits<double>::infinity() )
     {
         m_xValueRange = std::nullopt;
@@ -893,7 +928,7 @@ RimSummaryCase* RimParameterRftCrossPlot::findClosestCase( const QPoint& canvasP
     for ( const auto& d : caseData )
         points.push_back( { d.parameterValue, d.pressureValue } );
 
-    int idx = RiuQwtCurveSelectorFilter::closestPointIndex( m_plotWidget->qwtPlot(), canvasPos, points );
+    int idx = RiuRftCorrelationPlotTools::closestPointIndex( m_plotWidget, canvasPos, points );
     return idx >= 0 ? caseData[idx].summaryCase : nullptr;
 }
 

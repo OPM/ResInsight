@@ -24,17 +24,21 @@
 
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigWellPathFormations.h"
+#include "Well/RigWellPathGeometryTools.h"
 
 #include "Formations/RimWellFormationsFile.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimWellPath.h"
+#include "RimWellPlotTools.h"
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <numeric>
 
 namespace caf
@@ -80,7 +84,40 @@ std::vector<double> RimRftCrossPlotTools::rftCurveDepthValues( RifReaderRftInter
     std::vector<double> depths;
     reader->values( mdAddress, &depths );
     if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+    if ( depths.empty() ) depths = measuredDepthFromObservedData( reader, wellName, timeStep );
     return depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Same fallback as RimWellLogRftCurve uses when there is no grid, so the filter sees the MD the
+/// RFT curves are drawn at.
+//--------------------------------------------------------------------------------------------------
+std::vector<double>
+    RimRftCrossPlotTools::measuredDepthFromObservedData( RifReaderRftInterface* reader, const QString& wellName, const QDateTime& timeStep )
+{
+    auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    std::vector<double> tvdDepths;
+    reader->values( tvdAddress, &tvdDepths );
+    if ( tvdDepths.empty() ) return {};
+
+    auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+    {
+        RifReaderRftInterface* observedReader = observedData->rftReader();
+        if ( !observedReader || !observedReader->availableTimeSteps( wellName ).count( timeStep ) ) continue;
+
+        std::vector<double> observedTvd;
+        std::vector<double> observedMd;
+        observedReader->values( tvdAddress, &observedTvd );
+        observedReader->values( mdAddress, &observedMd );
+
+        // At least two samples are needed to estimate the MD/TVD relationship
+        if ( observedTvd.size() < 2 || observedTvd.size() != observedMd.size() ) continue;
+
+        return RigWellPathGeometryTools::interpolateMdFromTvd( observedMd, observedTvd, tvdDepths );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +130,7 @@ std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthRange( const std
                                                                        double                     depthRangeMax )
 {
     std::vector<DepthInterval> intervals;
-    if ( useDepthRange ) intervals.push_back( { depthRangeMin, depthRangeMax } );
+    if ( useDepthRange ) intervals.push_back( { depthRangeMin, depthRangeMax, QString() } );
 
     return filterPressuresByDepthIntervals( depths, pressures, intervals );
 }
@@ -111,7 +148,7 @@ std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDept
 {
     if ( mode == DepthFilterMode::NONE ) return {};
 
-    if ( mode == DepthFilterMode::DEPTH_RANGE ) return { DepthInterval{ depthRangeMin, depthRangeMax } };
+    if ( mode == DepthFilterMode::DEPTH_RANGE ) return { DepthInterval{ depthRangeMin, depthRangeMax, QString() } };
 
     // ZONES mode
     if ( !wellFormationsFile || selectedZones.empty() ) return {};
@@ -128,11 +165,34 @@ std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDept
         if ( !isSelected ) continue;
 
         if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-            intervals.push_back( { formation.tvdTop, formation.tvdBase } );
+            intervals.push_back( { formation.tvdTop, formation.tvdBase, formation.formationName } );
         else
-            intervals.push_back( { formation.mdTop, formation.mdBase } );
+            intervals.push_back( { formation.mdTop, formation.mdBase, formation.formationName } );
     }
 
+    return intervals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildAllZoneIntervals( RimWellFormationsFile* wellFormationsFile,
+                                                                                              const QString&         wellName,
+                                                                                              RiaDefines::DepthType  depthType )
+{
+    if ( !wellFormationsFile ) return {};
+
+    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( wellName );
+    if ( !formations ) return {};
+
+    const bool                 useTvd = depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
+    std::vector<DepthInterval> intervals;
+    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    {
+        const RigWellPathFormation& formation = formations->formationAt( i );
+        intervals.push_back(
+            { useTvd ? formation.tvdTop : formation.mdTop, useTvd ? formation.tvdBase : formation.mdBase, formation.formationName } );
+    }
     return intervals;
 }
 
@@ -189,6 +249,105 @@ QString RimRftCrossPlotTools::depthFilterDescription( DepthFilterMode           
     return QString( "%1 %2 - %3 m" ).arg( depthTypeAbbreviation( depthType ) ).arg( depthRangeMin ).arg( depthRangeMax );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::ObservedPressure>
+    RimRftCrossPlotTools::computeObservedPressures( const QString&                    wellName,
+                                                    const QDateTime&                  timeStep,
+                                                    const std::vector<DepthInterval>& depthIntervals,
+                                                    RiaDefines::DepthType             depthType,
+                                                    const std::vector<DepthInterval>& zoneIntervals )
+{
+    std::vector<ObservedPressure> result;
+    if ( wellName.isEmpty() || !timeStep.isValid() ) return result;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+    {
+        RifReaderRftInterface* reader = observedData->rftReader();
+        if ( !reader || !reader->availableTimeSteps( wellName ).count( timeStep ) ) continue;
+
+        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        std::vector<double> pressures;
+        reader->values( pressureAddress, &pressures );
+        if ( pressures.empty() ) continue;
+
+        std::vector<double> depths = rftCurveDepthValues( reader, wellName, timeStep, nullptr, depthType );
+
+        auto errorAddress =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+        std::vector<double> errors;
+        reader->values( errorAddress, &errors );
+
+        // Filtering pressures and errors with the same depths/intervals keeps the two vectors aligned.
+        const std::vector<double> filteredPressures = filterPressuresByDepthIntervals( depths, pressures, depthIntervals );
+        std::vector<double>       filteredErrors;
+        if ( errors.size() == pressures.size() ) filteredErrors = filterPressuresByDepthIntervals( depths, errors, depthIntervals );
+
+        const std::vector<double> filteredDepths = filterPressuresByDepthIntervals( depths, depths, depthIntervals );
+
+        for ( size_t i = 0; i < filteredPressures.size(); ++i )
+        {
+            const double error = i < filteredErrors.size() && filteredErrors.size() == filteredPressures.size() ? filteredErrors[i] : 0.0;
+
+            QString zoneName;
+            if ( filteredDepths.size() == filteredPressures.size() )
+            {
+                // When filtering by zones, name the sample by a selected zone so it is never shown as a zone outside the filter
+                const bool  filteredByZones = !depthIntervals.empty() && !depthIntervals.front().zoneName.isEmpty();
+                const auto& lookup          = filteredByZones || zoneIntervals.empty() ? depthIntervals : zoneIntervals;
+                double      thickness       = std::numeric_limits<double>::infinity();
+                for ( const auto& interval : lookup )
+                {
+                    // Prefer the narrowest matching zone when formation levels overlap
+                    if ( filteredDepths[i] >= interval.top && filteredDepths[i] <= interval.base && interval.base - interval.top < thickness )
+                    {
+                        zoneName  = interval.zoneName;
+                        thickness = interval.base - interval.top;
+                    }
+                }
+            }
+            result.push_back( { filteredPressures[i], error, zoneName, filteredPressures[i] - error, filteredPressures[i] + error } );
+        }
+    }
+
+    // Combine multiple observations in the same zone: mean pressure, band spanning all observations
+    std::vector<ObservedPressure> aggregated;
+    std::vector<int>              counts;
+    std::map<QString, size_t>     zoneIndex;
+    for ( const auto& observed : result )
+    {
+        if ( observed.zoneName.isEmpty() )
+        {
+            aggregated.push_back( observed );
+            counts.push_back( 1 );
+            continue;
+        }
+
+        auto [it, inserted] = zoneIndex.insert( { observed.zoneName, aggregated.size() } );
+        if ( inserted )
+        {
+            aggregated.push_back( observed );
+            counts.push_back( 1 );
+            continue;
+        }
+
+        ObservedPressure& target = aggregated[it->second];
+        target.pressure += observed.pressure;
+        target.rangeMin = std::min( target.rangeMin, observed.rangeMin );
+        target.rangeMax = std::max( target.rangeMax, observed.rangeMax );
+        counts[it->second]++;
+        target.count++;
+    }
+
+    for ( size_t i = 0; i < aggregated.size(); ++i )
+    {
+        aggregated[i].pressure /= counts[i];
+        aggregated[i].error = std::max( aggregated[i].pressure - aggregated[i].rangeMin, aggregated[i].rangeMax - aggregated[i].pressure );
+    }
+
+    return aggregated;
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

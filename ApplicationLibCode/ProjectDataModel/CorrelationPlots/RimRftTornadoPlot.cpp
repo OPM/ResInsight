@@ -36,11 +36,9 @@
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotItem.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuRftCorrelationPlotTools.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-
-#include "qwt_plot.h"
-#include "qwt_text.h"
 
 #include <QPaintDevice>
 
@@ -256,8 +254,7 @@ void RimRftTornadoPlot::detachAllCurves()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
+        RiuRftCorrelationPlotTools::detachBarChartItems( m_plotWidget );
     }
 }
 
@@ -323,13 +320,13 @@ void RimRftTornadoPlot::onLoadDataAndUpdate()
         m_lastCorrelations  = addDataToChartBuilder( chartBuilder );
         const int labelSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
         chartBuilder.setLabelFontSize( labelSize );
-        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
+        RiuRftCorrelationPlotTools::addHorizontalBarChart( m_plotWidget, chartBuilder, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         RimCorrelationBarChartTools::highlightSelectedParameterBar( m_plotWidget,
                                                                     m_selectedParameter,
                                                                     RiaColorTools::toQColor( m_barColor() ),
                                                                     RiaColorTools::toQColor( m_highlightBarColor() ) );
 
-        m_plotWidget->qwtPlot()->insertLegend( nullptr );
+        RiuRftCorrelationPlotTools::removeLegend( m_plotWidget );
 
         updateAxes();
         updatePlotTitle();

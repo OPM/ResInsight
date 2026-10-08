@@ -29,6 +29,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
+#include "RicImportWellFormationsFeature.h"
+
 #include "Formations/RimWellFormationsCollection.h"
 #include "Formations/RimWellFormationsFile.h"
 
@@ -341,7 +343,10 @@ void RimWellLogFormationSettings::uiOrdering( const QString& uiConfigName, caf::
     {
         // Well picks use explicit top/base depths and do not require a well path trajectory, so
         // this source can be used e.g. for an RFT well with no associated/modelled well path.
-        uiOrdering.add( &m_wellFormationsFile );
+        uiOrdering.add( &m_wellFormationsFile, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        uiOrdering.addNewButton( "Add Well Picks",
+                                 [this]() { onAddWellPicksClicked(); },
+                                 { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
         if ( m_wellFormationsFile() ) uiOrdering.add( &m_wellNameInFormationsFile );
 
         if ( resolveWellPickFormations() )
@@ -390,6 +395,27 @@ void RimWellLogFormationSettings::fieldChangedByUi( const caf::PdmFieldHandle* c
     {
         track->loadDataAndUpdate();
         track->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFormationSettings::onAddWellPicksClicked()
+{
+    std::vector<RimWellFormationsFile*> importedFiles = RicImportWellFormationsFeature::importFilesWithDialog();
+    if ( importedFiles.empty() ) return;
+
+    RimWellFormationsFile* file = importedFiles.back();
+    m_wellFormationsFile        = file;
+
+    QStringList wellNames      = file->wellNames();
+    m_wellNameInFormationsFile = wellNames.isEmpty() ? QString() : wellNames.first();
+
+    if ( auto track = firstAncestorOrThisOfType<RimWellLogTrack>() )
+    {
+        track->loadDataAndUpdate();
+        track->updateEditors();
     }
 }
 
