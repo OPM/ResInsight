@@ -34,7 +34,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifCsvHtmlTableTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
