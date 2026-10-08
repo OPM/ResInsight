@@ -55,6 +55,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoneitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_text.h"
 
@@ -848,20 +849,44 @@ void RimParameterRftCrossPlot::attachObservedPressure()
     auto observed = RimRftCrossPlotTools::computeObservedPressure( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
     if ( !observed ) return;
 
-    auto attachLine = [this]( double value, Qt::PenStyle style )
+    auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label )
     {
         auto* marker = new QwtPlotMarker();
         marker->setLineStyle( QwtPlotMarker::HLine );
         marker->setYValue( value );
-        marker->setLinePen( QPen( Qt::red, 2, style ) );
+        QPen pen( Qt::black );
+        pen.setStyle( style );
+        pen.setWidth( 1 );
+        marker->setLinePen( pen );
+
+        if ( !label.isEmpty() )
+        {
+            QwtText text( label );
+            text.setColor( Qt::black );
+            marker->setLabel( text );
+            marker->setLabelAlignment( Qt::AlignTop | Qt::AlignLeft );
+        }
+
+        marker->setZ( 1000.0 );
         marker->attach( m_plotWidget->qwtPlot() );
     };
 
-    attachLine( observed->mean, Qt::SolidLine );
+    attachLine( observed->mean, Qt::SolidLine, "Observed Pressure" );
     if ( observed->error > 0.0 )
     {
-        attachLine( observed->mean + observed->error, Qt::DashLine );
-        attachLine( observed->mean - observed->error, Qt::DashLine );
+        attachLine( observed->mean - observed->error, Qt::DashLine, "" );
+        attachLine( observed->mean + observed->error, Qt::DashLine, "" );
+
+        QColor shadingColor( 255, 192, 203 );
+        shadingColor.setAlpha( 60 );
+
+        auto* shading = new QwtPlotZoneItem();
+        shading->setOrientation( Qt::Horizontal );
+        shading->setInterval( observed->mean - observed->error, observed->mean + observed->error );
+        shading->setPen( shadingColor, 0.0, Qt::NoPen );
+        shading->setBrush( QBrush( shadingColor ) );
+        shading->setZ( 999.0 );
+        shading->attach( m_plotWidget->qwtPlot() );
     }
 }
 
