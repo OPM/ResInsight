@@ -693,17 +693,16 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
 {
     if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
 
-    std::vector<RimRftCrossPlotTools::DepthInterval> intervals;
-    if ( m_parameterRftCrossPlot->filterMode() == RimRftCrossPlotTools::DepthFilterMode::ZONES )
-    {
-        intervals = RimRftCrossPlotTools::buildDepthIntervals( RimRftCrossPlotTools::DepthFilterMode::ZONES,
-                                                               0.0,
-                                                               0.0,
-                                                               m_parameterRftCrossPlot->wellFormationsFile(),
-                                                               m_parameterRftCrossPlot->wellName(),
-                                                               m_parameterRftCrossPlot->selectedZones(),
-                                                               m_depthType() );
-    }
+    const auto filterMode = m_parameterRftCrossPlot->filterMode();
+
+    std::vector<RimRftCrossPlotTools::DepthInterval> intervals =
+        RimRftCrossPlotTools::buildDepthIntervals( filterMode,
+                                                   m_parameterRftCrossPlot->depthRangeMin(),
+                                                   m_parameterRftCrossPlot->depthRangeMax(),
+                                                   m_parameterRftCrossPlot->wellFormationsFile(),
+                                                   m_parameterRftCrossPlot->wellName(),
+                                                   m_parameterRftCrossPlot->selectedZones(),
+                                                   m_depthType() );
 
     const bool isVertical = m_wellRftPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL;
 
