@@ -41,24 +41,12 @@
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
-#include "RiuPlotCurve.h"
-#include "RiuQwtCurveSelectorFilter.h"
-#include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
-#include "RiuQwtSymbol.h"
+#include "RiuRftCorrelationPlotTools.h"
 
 #include "cafPdmPointer.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-
-#include "qwt_picker_machine.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_marker.h"
-#include "qwt_plot_picker.h"
-#include "qwt_plot_zoneitem.h"
-#include "qwt_scale_map.h"
-#include "qwt_text.h"
 
 #include <QMouseEvent>
 #include <QPaintDevice>
@@ -449,7 +437,7 @@ QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
+    if ( m_plotWidget ) RiuRftCorrelationPlotTools::detachAllItems( m_plotWidget );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,54 +472,6 @@ void RimParameterRftCrossPlot::doRenderWindowContent( QPaintDevice* paintDevice 
     if ( m_plotWidget ) m_plotWidget->render( paintDevice );
 }
 
-namespace
-{
-class CurveTracker : public QwtPlotPicker
-{
-public:
-    CurveTracker( QwtPlot* plot )
-        : QwtPlotPicker( plot->canvas() )
-    {
-        setStateMachine( new QwtPickerTrackerMachine() );
-        setRubberBand( QwtPicker::NoRubberBand );
-        setTrackerMode( QwtPicker::AlwaysOn );
-    }
-
-protected:
-    QwtText trackerText( const QPoint& pos ) const override
-    {
-        double  minDistance = std::numeric_limits<double>::max();
-        QString closestCurveLabel;
-
-        for ( QwtPlotItem* item : plot()->itemList() )
-        {
-            if ( item->rtti() == QwtPlotItem::Rtti_PlotCurve )
-            {
-                auto   curve    = static_cast<QwtPlotCurve*>( item );
-                double distance = std::numeric_limits<double>::max();
-                curve->closestPoint( pos, &distance );
-
-                if ( distance < minDistance )
-                {
-                    minDistance       = distance;
-                    closestCurveLabel = curve->title().text();
-                }
-            }
-        }
-
-        if ( minDistance < 20.0 )
-        {
-            QwtText text( closestCurveLabel );
-            text.setBackgroundBrush( QBrush( Qt::white ) );
-            text.setColor( Qt::black );
-            return text;
-        }
-        return QwtText();
-    }
-};
-
-} // anonymous namespace
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -546,12 +486,12 @@ RiuPlotWidget* RimParameterRftCrossPlot::doCreatePlotViewWidget( QWidget* parent
 
     if ( m_plotWidget )
     {
-        new CurveTracker( m_plotWidget->qwtPlot() );
+        RiuRftCorrelationPlotTools::installCurveTracker( m_plotWidget );
 
         caf::PdmPointer<RimParameterRftCrossPlot> self( this );
-        new RiuQwtCurveSelectorFilter( m_plotWidget->qwtPlot(),
-                                       [self]( const QPoint& pos ) -> const caf::PdmUiItem*
-                                       { return self ? self->findClosestCase( pos ) : nullptr; } );
+        RiuRftCorrelationPlotTools::installCurveSelector( m_plotWidget,
+                                                          [self]( const QPoint& pos ) -> const caf::PdmUiItem*
+                                                          { return self ? self->findClosestCase( pos ) : nullptr; } );
     }
 
     return m_plotWidget;
@@ -848,18 +788,13 @@ void RimParameterRftCrossPlot::createPoints()
     {
         const auto& [xValues, yValues] = pointsPerCase[summaryCase];
 
-        auto* plotCurve = new RiuQwtPlotCurve;
-        plotCurve->setSamplesValues( xValues, yValues );
-        plotCurve->setStyle( QwtPlotCurve::NoCurve );
-
-        const bool isSelected = selectedSummaryCases.contains( summaryCase );
-        auto*      symbol     = new RiuQwtSymbol( isSelected ? RiuPlotCurveSymbol::SYMBOL_XCROSS : RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
-        symbol->setSize( 8, 8 );
-        symbol->setColor( colorTable.cycledQColor( idx++ ) );
-        plotCurve->setSymbol( symbol );
-
-        plotCurve->setTitle( summaryCase->displayCaseName() );
-        plotCurve->attach( m_plotWidget->qwtPlot() );
+        RiuRftCorrelationPlotTools::PointSeries series;
+        series.x          = xValues;
+        series.y          = yValues;
+        series.title      = summaryCase->displayCaseName();
+        series.color      = colorTable.cycledQColor( idx++ );
+        series.isSelected = selectedSummaryCases.contains( summaryCase );
+        RiuRftCorrelationPlotTools::attachPointSeries( m_plotWidget, series );
     }
 
     attachObservedPressure();
@@ -882,26 +817,7 @@ void RimParameterRftCrossPlot::attachObservedPressure()
     if ( observedPressures.empty() ) return;
 
     auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label, const QColor& color )
-    {
-        auto* marker = new QwtPlotMarker();
-        marker->setLineStyle( QwtPlotMarker::HLine );
-        marker->setYValue( value );
-        QPen pen( color );
-        pen.setStyle( style );
-        pen.setWidth( 1 );
-        marker->setLinePen( pen );
-
-        if ( !label.isEmpty() )
-        {
-            QwtText text( label );
-            text.setColor( Qt::black );
-            marker->setLabel( text );
-            marker->setLabelAlignment( Qt::AlignTop | Qt::AlignLeft );
-        }
-
-        marker->setZ( 1000.0 );
-        marker->attach( m_plotWidget->qwtPlot() );
-    };
+    { RiuRftCorrelationPlotTools::attachHorizontalLine( m_plotWidget, value, style, label, color ); };
 
     bool isFirst = true;
     for ( const auto& observed : observedPressures )
@@ -930,13 +846,7 @@ void RimParameterRftCrossPlot::attachObservedPressure()
 
         const QColor shadingColor = *zoneColor; // alpha matches the track's formation shading
 
-        auto* shading = new QwtPlotZoneItem();
-        shading->setOrientation( Qt::Horizontal );
-        shading->setInterval( observed.rangeMin, observed.rangeMax );
-        shading->setPen( shadingColor, 0.0, Qt::NoPen );
-        shading->setBrush( QBrush( shadingColor ) );
-        shading->setZ( 999.0 );
-        shading->attach( m_plotWidget->qwtPlot() );
+        RiuRftCorrelationPlotTools::attachHorizontalBand( m_plotWidget, observed.rangeMin, observed.rangeMax, shadingColor );
     }
 }
 
@@ -1018,7 +928,7 @@ RimSummaryCase* RimParameterRftCrossPlot::findClosestCase( const QPoint& canvasP
     for ( const auto& d : caseData )
         points.push_back( { d.parameterValue, d.pressureValue } );
 
-    int idx = RiuQwtCurveSelectorFilter::closestPointIndex( m_plotWidget->qwtPlot(), canvasPos, points );
+    int idx = RiuRftCorrelationPlotTools::closestPointIndex( m_plotWidget, canvasPos, points );
     return idx >= 0 ? caseData[idx].summaryCase : nullptr;
 }
 

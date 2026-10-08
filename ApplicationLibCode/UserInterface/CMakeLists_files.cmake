@@ -89,6 +89,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurveSelectorFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuRftCorrelationPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.cpp

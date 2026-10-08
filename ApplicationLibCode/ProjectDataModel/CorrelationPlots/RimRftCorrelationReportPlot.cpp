@@ -34,6 +34,7 @@
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuRftCorrelationPlotTools.h"
 
 #include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
@@ -44,10 +45,6 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
-#include "qwt_plot.h"
-#include "qwt_plot_item.h"
-#include "qwt_scale_map.h"
-#include "qwt_text.h"
 
 #include <QContextMenuEvent>
 #include <QFrame>
@@ -106,96 +103,6 @@ public:
 
 private:
     caf::PdmObject* m_item;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Thin gray translucent bar drawn in pixel width along the left edge (vertical depth axis) or
-/// bottom edge (horizontal depth axis) of the canvas, spanning a depth interval.
-//--------------------------------------------------------------------------------------------------
-class RftSelectedZoneBar : public QwtPlotItem
-{
-public:
-    RftSelectedZoneBar( double top, double base, bool isDepthVertical )
-        : m_top( top )
-        , m_base( base )
-        , m_isDepthVertical( isDepthVertical )
-    {
-        setZ( 5.0 );
-    }
-
-    void draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override
-    {
-        constexpr double barWidth = 6.0;
-
-        QRectF bar;
-        if ( m_isDepthVertical )
-        {
-            const double y0 = yMap.transform( m_top );
-            const double y1 = yMap.transform( m_base );
-            bar             = QRectF( canvasRect.left(), std::min( y0, y1 ), barWidth, std::abs( y1 - y0 ) );
-        }
-        else
-        {
-            const double x0 = xMap.transform( m_top );
-            const double x1 = xMap.transform( m_base );
-            bar             = QRectF( std::min( x0, x1 ), canvasRect.bottom() - barWidth, std::abs( x1 - x0 ), barWidth );
-        }
-
-        painter->fillRect( bar, QColor( 90, 90, 90, 110 ) );
-    }
-
-private:
-    double m_top;
-    double m_base;
-    bool   m_isDepthVertical;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Reports the depth value under a left-button click (not drag) on a depth track canvas.
-//--------------------------------------------------------------------------------------------------
-class RftTrackDepthClickFilter : public QObject
-{
-public:
-    RftTrackDepthClickFilter( QwtPlot* plot, QwtAxisId depthAxis, bool isDepthVertical, std::function<void( double )> callback, QObject* parent )
-        : QObject( parent )
-        , m_plot( plot )
-        , m_depthAxis( depthAxis )
-        , m_isDepthVertical( isDepthVertical )
-        , m_callback( std::move( callback ) )
-    {
-    }
-
-    bool eventFilter( QObject*, QEvent* event ) override
-    {
-        if ( !m_plot ) return false;
-
-        if ( event->type() == QEvent::MouseButtonPress )
-        {
-            auto* mouseEvent = static_cast<QMouseEvent*>( event );
-            if ( mouseEvent->button() == Qt::LeftButton ) m_pressPos = mouseEvent->pos();
-        }
-        else if ( event->type() == QEvent::MouseButtonRelease )
-        {
-            auto* mouseEvent = static_cast<QMouseEvent*>( event );
-            if ( mouseEvent->button() == Qt::LeftButton && m_pressPos && ( mouseEvent->pos() - *m_pressPos ).manhattanLength() < 4 )
-            {
-                const double pixel = m_isDepthVertical ? mouseEvent->pos().y() : mouseEvent->pos().x();
-                const double depth = m_plot->invTransform( m_depthAxis, pixel );
-
-                // Defer so the model and plot updates run after this mouse event is fully handled
-                QTimer::singleShot( 0, this, [this, depth]() { m_callback( depth ); } );
-            }
-            m_pressPos.reset();
-        }
-        return false;
-    }
-
-private:
-    QPointer<QwtPlot>             m_plot;
-    QwtAxisId                     m_depthAxis;
-    bool                          m_isDepthVertical;
-    std::function<void( double )> m_callback;
-    std::optional<QPoint>         m_pressPos;
 };
 
 //==================================================================================================
@@ -694,15 +601,14 @@ void RimRftCorrelationReportPlot::installTrackClickFilters()
         if ( !track ) continue;
 
         RiuQwtPlotWidget* widget = track->viewer();
-        if ( !widget || !widget->qwtPlot() ) continue;
+        if ( !widget ) continue;
 
-        auto* filter = new RftTrackDepthClickFilter(
-            widget->qwtPlot(),
-            widget->toQwtPlotAxis( RimDepthTrackPlot::depthAxis( orientation ) ),
+        RiuRftCorrelationPlotTools::installDepthClickFilter(
+            widget,
+            RimDepthTrackPlot::depthAxis( orientation ),
             isVertical,
             [this]( double depth ) { onRftTrackDepthClicked( depth ); },
             m_trackClickFilter );
-        widget->qwtPlot()->canvas()->installEventFilter( filter );
     }
 }
 
@@ -727,28 +633,16 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
 
     const bool isVertical = m_wellRftPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL;
 
+    std::vector<RiuRftCorrelationPlotTools::DepthInterval> barIntervals;
+    for ( const auto& interval : intervals )
+        barIntervals.push_back( { interval.top, interval.base } );
+
     for ( size_t i = 0; i < m_wellRftPlot->plotCount(); ++i )
     {
         auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
         if ( !track || !track->viewer() ) continue;
 
-        QwtPlot* qwtPlot = track->viewer()->qwtPlot();
-        if ( !qwtPlot ) continue;
-
-        // itemList() is a live reference; copy it before detaching items
-        const QwtPlotItemList items = qwtPlot->itemList();
-        for ( QwtPlotItem* item : items )
-        {
-            if ( dynamic_cast<RftSelectedZoneBar*>( item ) ) item->detach();
-        }
-
-        for ( const auto& interval : intervals )
-        {
-            auto* bar = new RftSelectedZoneBar( interval.top, interval.base, isVertical );
-            bar->attach( qwtPlot );
-        }
-
-        qwtPlot->replot();
+        RiuRftCorrelationPlotTools::setDepthIntervalBars( track->viewer(), barIntervals, isVertical );
     }
 }
 

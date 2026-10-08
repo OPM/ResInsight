@@ -1588,7 +1588,7 @@ void RimWellLogTrack::updateEditors()
 {
     updateConnectedEditors();
 
-    // The track is itself a RimPlotWindow, so skip it to reach the owning plot (e.g. the RFT plot embedding track fields)
+    // Also refresh the owning plot window (e.g. the RFT plot that embeds the track fields in its own UI)
     if ( auto plotWindow = firstAncestorOfType<RimPlotWindow>() ) plotWindow->updateConnectedEditors();
 }
 
