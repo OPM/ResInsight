@@ -715,7 +715,9 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
         QwtPlot* qwtPlot = track->viewer()->qwtPlot();
         if ( !qwtPlot ) continue;
 
-        for ( QwtPlotItem* item : qwtPlot->itemList() )
+        // itemList() is a live reference; copy it before detaching items
+        const QwtPlotItemList items = qwtPlot->itemList();
+        for ( QwtPlotItem* item : items )
         {
             if ( dynamic_cast<RftSelectedZoneBar*>( item ) ) item->detach();
         }
