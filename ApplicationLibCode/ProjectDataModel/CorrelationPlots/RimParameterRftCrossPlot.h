@@ -82,6 +82,7 @@ public:
     void setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode );
     void setSelectedZones( const std::vector<QString>& zones );
     void setZoneColors( const std::map<QString, QColor>& zoneColors );
+    void appendDepthFilterUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     QString                               ensembleParameter() const;
     QString                               wellName() const;

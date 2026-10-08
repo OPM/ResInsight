@@ -575,6 +575,27 @@ void RimParameterRftCrossPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the depth filter fields; used by the parent report plot, not shown in the cross plot's own editor.
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::appendDepthFilterUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    auto* depthGroup =
+        uiOrdering.addNewGroup( QString( "Depth Range (%1)" ).arg( RimRftCrossPlotTools::depthTypeAbbreviation( m_depthType() ) ) );
+    depthGroup->add( &m_filterMode );
+    depthGroup->add( &m_depthRangeMin );
+    depthGroup->add( &m_depthRangeMax );
+    depthGroup->add( &m_wellFormations );
+    depthGroup->add( &m_selectedZones );
+
+    const bool useRange = m_filterMode() == RimRftCrossPlotTools::DepthFilterMode::DEPTH_RANGE;
+    const bool useZones = m_filterMode() == RimRftCrossPlotTools::DepthFilterMode::ZONES;
+    m_depthRangeMin.uiCapability()->setUiHidden( !useRange );
+    m_depthRangeMax.uiCapability()->setUiHidden( !useRange );
+    m_wellFormations.uiCapability()->setUiHidden( !useZones );
+    m_selectedZones.uiCapability()->setUiHidden( !useZones || !m_wellFormations() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
