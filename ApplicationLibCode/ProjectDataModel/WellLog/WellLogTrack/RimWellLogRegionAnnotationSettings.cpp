@@ -40,7 +40,7 @@ RimWellLogRegionAnnotationSettings::RimWellLogRegionAnnotationSettings()
     CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors" );
     m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
-    CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency" );
+    CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 85, "Color Transparency" );
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels" );
