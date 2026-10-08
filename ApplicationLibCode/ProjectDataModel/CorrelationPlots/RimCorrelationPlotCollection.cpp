@@ -33,6 +33,7 @@
 #include "RimRftCrossPlotTools.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
@@ -227,6 +228,11 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
                 if ( param.isNumeric() )
                 {
                     report->crossPlot()->setEnsembleParameter( param.name );
+
+                    if ( auto* curveSet = report->wellRftPlot()->findEnsembleCurveSet( ensemble ) )
+                    {
+                        curveSet->setColorByEnsembleParameter( param.name );
+                    }
                     break;
                 }
             }

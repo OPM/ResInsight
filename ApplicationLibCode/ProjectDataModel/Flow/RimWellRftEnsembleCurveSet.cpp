@@ -114,6 +114,14 @@ bool RimWellRftEnsembleCurveSet::syncEnsembleParameter( const QString& ensembleP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftEnsembleCurveSet::setColorByEnsembleParameter( const QString& ensembleParameter )
+{
+    m_appearance->setColorByEnsembleParameter( ensembleParameter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimWellRftEnsembleCurveSet::curveColor( RimSummaryEnsemble* ensemble, const RimSummaryCase* summaryCase ) const
 {
     if ( !summaryCase ) return m_appearance->statisticsCurveColor();

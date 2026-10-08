@@ -62,6 +62,7 @@ public:
     void                    setColorMode( ColorModeEnum colorMode );
     void                    setEnsembleParameter( const QString& ensembleParameter );
     bool                    syncEnsembleParameter( const QString& ensembleParameter );
+    void                    setColorByEnsembleParameter( const QString& ensembleParameter );
     RimRegularLegendConfig* legendConfig() const;
 
 private:
