@@ -52,6 +52,7 @@
 #include <QPainter>
 #include <QPointer>
 #include <QSettings>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -176,7 +177,10 @@ public:
             if ( mouseEvent->button() == Qt::LeftButton && m_pressPos && ( mouseEvent->pos() - *m_pressPos ).manhattanLength() < 4 )
             {
                 const double pixel = m_isDepthVertical ? mouseEvent->pos().y() : mouseEvent->pos().x();
-                m_callback( m_plot->invTransform( m_depthAxis, pixel ) );
+                const double depth = m_plot->invTransform( m_depthAxis, pixel );
+
+                // Defer so the model and plot updates run after this mouse event is fully handled
+                QTimer::singleShot( 0, this, [this, depth]() { m_callback( depth ); } );
             }
             m_pressPos.reset();
         }
@@ -657,7 +661,7 @@ void RimRftCorrelationReportPlot::installTrackClickFilters()
 {
     if ( !m_wellRftPlot() ) return;
 
-    delete m_trackClickFilter;
+    if ( m_trackClickFilter ) m_trackClickFilter->deleteLater();
     m_trackClickFilter = new QObject( this );
 
     const auto orientation = m_wellRftPlot->depthOrientation();
