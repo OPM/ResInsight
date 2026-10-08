@@ -36,6 +36,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObservedFmuRftData.h"
+#include "RimOilField.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -56,6 +57,9 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 #include "RimWellRftEnsembleCurveSet.h"
+
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
@@ -268,16 +272,48 @@ void RimWellRftPlot::updateFormationsOnPlot() const
                 }
             }
 
-            if ( wellPath )
+            // Prefer well-pick (formations.csv) zone bands over case-derived formation names when
+            // they are available for the selected well, so the RFT profile shows the same zone
+            // bands used by other well log tracks and the RFT correlation/cross plots.
+            RimWellFormationsFile* wellFormationsFile = nullptr;
+            QString                wellNameInFile     = associatedSimWellName();
+
+            if ( wellPath && wellPath->formationsGeometry() )
+            {
+                wellFormationsFile = wellPath->wellFormationsFile();
+            }
+
+            if ( wellFormationsFile )
+            {
+                track->setAndUpdateWellPickFormationsData( wellPath );
+            }
+            else if ( wellPath )
             {
                 track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
             }
             else
             {
-                track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                       associatedSimWellName(),
-                                                                       m_branchIndex,
-                                                                       m_branchDetection );
+                // No well path trajectory is available (e.g. a purely simulation-well based RFT
+                // entry). Prefer a formations file with explicit, depth-based zone picks for this
+                // well over the case/K-layer based formation names, since there is no trajectory to
+                // extract K-layers along.
+                RimWellFormationsFile* formationsFileForWell = nullptr;
+                if ( proj->activeOilField() && proj->activeOilField()->wellFormationsCollection() )
+                {
+                    formationsFileForWell = proj->activeOilField()->wellFormationsCollection()->findFileForWell( wellNameInFile );
+                }
+
+                if ( formationsFileForWell )
+                {
+                    track->setAndUpdateFormationFileData( formationsFileForWell, wellNameInFile );
+                }
+                else
+                {
+                    track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
+                                                                           associatedSimWellName(),
+                                                                           m_branchIndex,
+                                                                           m_branchDetection );
+                }
             }
         }
     }

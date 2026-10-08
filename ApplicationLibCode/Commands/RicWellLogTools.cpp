@@ -19,6 +19,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaWellLogTrackDefines.h"
 
 #include "RigEclipseCaseData.h"
 #include "Well/RigWellLogCurveData.h"
