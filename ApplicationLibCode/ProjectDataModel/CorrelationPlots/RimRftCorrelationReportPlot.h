@@ -66,6 +66,7 @@ public:
     std::vector<RimPlot*> childPlotsForTextExport() const override;
 
     void initializeFromSourcePlot( RimWellRftPlot* source );
+    void syncEnsembleParameterToRftCurves();
 
 private:
     QString createDescription() const;

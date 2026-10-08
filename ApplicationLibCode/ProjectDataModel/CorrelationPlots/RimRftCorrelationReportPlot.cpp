@@ -634,17 +634,24 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
 
-        if ( m_wellRftPlot() )
-        {
-            auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() );
-            if ( curveSet && curveSet->syncEnsembleParameter( paramName ) )
-            {
-                m_wellRftPlot->rebuildCurves();
-                curveSet->updateConnectedEditors();
-            }
-        }
+        syncEnsembleParameterToRftCurves();
     }
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Makes RFT curves colored by ensemble parameter use the cross plot's ensemble parameter.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::syncEnsembleParameterToRftCurves()
+{
+    if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
+
+    auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() );
+    if ( curveSet && curveSet->syncEnsembleParameter( m_parameterRftCrossPlot->ensembleParameter() ) )
+    {
+        m_wellRftPlot->rebuildCurves();
+        curveSet->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -658,7 +658,10 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 
     // The parent report plot syncs the other sub plots and the track zone highlight from this plot
     if ( auto* reportPlot = firstAncestorOrThisOfType<RimRftCorrelationReportPlot>() )
+    {
+        if ( changedField == &m_ensembleParameter ) reportPlot->syncEnsembleParameterToRftCurves();
         reportPlot->loadDataAndUpdate();
+    }
     else
         loadDataAndUpdate();
 }
