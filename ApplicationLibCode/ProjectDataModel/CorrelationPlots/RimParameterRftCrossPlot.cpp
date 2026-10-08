@@ -721,7 +721,7 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
         if ( project && project->activeOilField() && project->activeOilField()->wellFormationsCollection() )
         {
             for ( RimWellFormationsFile* file : project->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
-                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file ) );
+                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file, false, file->uiCapability()->uiIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_filterMode )
@@ -862,7 +862,13 @@ void RimParameterRftCrossPlot::createPoints()
 void RimParameterRftCrossPlot::attachObservedPressure()
 {
     const auto observedPressures =
-        RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() );
+        RimRftCrossPlotTools::computeObservedPressures( m_wellName(),
+                                                        m_selectedTimeStep(),
+                                                        depthIntervals(),
+                                                        m_depthType(),
+                                                        RimRftCrossPlotTools::buildAllZoneIntervals( m_wellFormations(),
+                                                                                                     m_wellName(),
+                                                                                                     m_depthType() ) );
     if ( observedPressures.empty() ) return;
 
     auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label, const QColor& color )
@@ -893,7 +899,8 @@ void RimParameterRftCrossPlot::attachObservedPressure()
         // Use the formation color when known; otherwise fall back to black lines and no shaded band
         std::optional<QColor> zoneColor;
         if ( auto it = m_zoneColors.find( observed.zoneName ); it != m_zoneColors.end() && it->second.isValid() ) zoneColor = it->second;
-        const QColor lineColor = zoneColor ? *zoneColor : QColor( Qt::black );
+        QColor lineColor = zoneColor ? *zoneColor : QColor( Qt::black );
+        lineColor.setAlpha( 255 );
 
         attachLine( observed.pressure, Qt::SolidLine, isFirst ? "Observed Pressure" : "", lineColor );
         isFirst = false;
@@ -905,8 +912,7 @@ void RimParameterRftCrossPlot::attachObservedPressure()
 
         if ( !zoneColor ) continue;
 
-        QColor shadingColor = *zoneColor;
-        shadingColor.setAlpha( 60 );
+        const QColor shadingColor = *zoneColor; // alpha matches the track's formation shading
 
         auto* shading = new QwtPlotZoneItem();
         shading->setOrientation( Qt::Horizontal );

@@ -1587,8 +1587,9 @@ void RimWellLogTrack::updateParentPlotZoom()
 void RimWellLogTrack::updateEditors()
 {
     updateConnectedEditors();
-    RimPlotWindow* plotWindow = firstAncestorOrThisOfTypeAsserted<RimPlotWindow>();
-    plotWindow->updateConnectedEditors();
+
+    // The track is itself a RimPlotWindow, so skip it to reach the owning plot (e.g. the RFT plot embedding track fields)
+    if ( auto plotWindow = firstAncestorOfType<RimPlotWindow>() ) plotWindow->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1783,9 +1784,57 @@ RiuQwtPlotWidget* RimWellLogTrack::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimColorLegend* RimWellLogTrack::formationColorLegend() const
+int RimWellLogTrack::formationShadingAlpha() const
 {
-    return m_regionAnnotationSettings ? m_regionAnnotationSettings->colorShadingLegend() : nullptr;
+    if ( !m_regionAnnotationSettings ) return 255;
+    return ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, cvf::Color3ub> RimWellLogTrack::formationZoneColors() const
+{
+    std::map<QString, cvf::Color3ub> colors;
+
+    auto* plot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
+    if ( !plot || !m_regionAnnotationSettings ) return colors;
+
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER &&
+         m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
+    {
+        return colors;
+    }
+
+    auto formations = m_formationSettings->resolveWellPickFormations();
+    if ( !formations ) return colors;
+
+    RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+    if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
+    if ( !legend ) return colors;
+
+    std::map<QString, cvf::Color3ub> nameToColor;
+    for ( auto* item : legend->colorLegendItems() )
+    {
+        nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+    }
+
+    // Same name-first, palette-index-second assignment as updateFormationNamesOnPlot()
+    const cvf::Color3ubArray paletteColors  = legend->colorArray();
+    const auto               formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
+    const auto               depthRanges    = formations->depthRangesUpToLevel( formationLevel, plot->depthType() );
+
+    for ( size_t i = 0; i < depthRanges.size(); i++ )
+    {
+        const QString& name = std::get<0>( depthRanges[i] );
+        auto           it   = nameToColor.find( name );
+        if ( it != nameToColor.end() )
+            colors.emplace( name, it->second );
+        else if ( paletteColors.size() > 0 )
+            colors.emplace( name, paletteColors[i % paletteColors.size()] );
+    }
+
+    return colors;
 }
 
 //--------------------------------------------------------------------------------------------------

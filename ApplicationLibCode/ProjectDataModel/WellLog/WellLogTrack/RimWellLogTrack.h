@@ -35,6 +35,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfColor3.h"
+
 #include <QPointer>
 
 #include <map>
@@ -98,10 +100,11 @@ public:
     RimWellLogTrack();
     ~RimWellLogTrack() override;
 
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer();
-    RimColorLegend*   formationColorLegend() const;
-    RiuPlotWidget*    plotWidget() override;
+    QWidget*                         viewWidget() override;
+    RiuQwtPlotWidget*                viewer();
+    std::map<QString, cvf::Color3ub> formationZoneColors() const;
+    int                              formationShadingAlpha() const;
+    RiuPlotWidget*                   plotWidget() override;
 
     void zoomAll() override;
 

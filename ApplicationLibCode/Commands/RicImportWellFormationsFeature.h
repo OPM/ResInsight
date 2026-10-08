@@ -20,6 +20,10 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
+class RimWellFormationsFile;
+
 //==================================================================================================
 /// Imports one or more well formations files (e.g. FMU formations.csv) into the project-level
 /// RimWellFormationsCollection, without linking the resulting entries to any well path or file set.
@@ -27,6 +31,10 @@
 class RicImportWellFormationsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    // Asks the user for files and imports them; returns the imported files without changing selection
+    static std::vector<RimWellFormationsFile*> importFilesWithDialog();
 
 protected:
     void onActionTriggered( bool isChecked ) override;

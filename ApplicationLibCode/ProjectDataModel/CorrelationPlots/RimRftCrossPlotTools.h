@@ -95,6 +95,11 @@ std::vector<DepthInterval> buildDepthIntervals( DepthFilterMode             mode
                                                 const std::vector<QString>& selectedZones,
                                                 RiaDefines::DepthType       depthType );
 
+// Returns one interval per formation zone of the well (named by zone), used to look up which zone a
+// depth belongs to. Empty if no well formations file or no formations for the well.
+std::vector<DepthInterval>
+    buildAllZoneIntervals( RimWellFormationsFile* wellFormationsFile, const QString& wellName, RiaDefines::DepthType depthType );
+
 // Returns the subset of pressures whose corresponding depth lies within any of depthIntervals
 // (inclusive). An empty depthIntervals list means "no filter", returning pressures unchanged; a
 // size mismatch between depths/pressures returns an empty vector (no aligned depth data).
@@ -123,7 +128,8 @@ struct ObservedPressure
 std::vector<ObservedPressure> computeObservedPressures( const QString&                    wellName,
                                                         const QDateTime&                  timeStep,
                                                         const std::vector<DepthInterval>& depthIntervals,
-                                                        RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH );
+                                                        RiaDefines::DepthType             depthType = RiaDefines::DepthType::MEASURED_DEPTH,
+                                                        const std::vector<DepthInterval>& zoneIntervals = {} );
 
 // Arithmetic mean of the given samples, or infinity if samples is empty.
 double computeMean( const std::vector<double>& samples );

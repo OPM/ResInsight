@@ -758,13 +758,10 @@ void RimRftCorrelationReportPlot::syncZoneColorsToCrossPlot()
         auto* track = dynamic_cast<RimWellLogTrack*>( m_wellRftPlot->plotByIndex( i ) );
         if ( !track ) continue;
 
-        RimColorLegend* legend = track->formationColorLegend();
-        if ( !legend ) continue;
-
-        for ( auto* item : legend->colorLegendItems() )
+        for ( const auto& [name, color] : track->formationZoneColors() )
         {
-            const cvf::Color3f c             = item->color();
-            zoneColors[item->categoryName()] = QColor::fromRgbF( c.r(), c.g(), c.b() );
+            // The alpha carries the track's shading transparency, used for the observed pressure band
+            zoneColors[name] = QColor( color.r(), color.g(), color.b(), track->formationShadingAlpha() );
         }
     }
 

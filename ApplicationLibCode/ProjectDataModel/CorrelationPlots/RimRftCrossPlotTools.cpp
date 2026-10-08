@@ -141,6 +141,29 @@ std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildDept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftCrossPlotTools::buildAllZoneIntervals( RimWellFormationsFile* wellFormationsFile,
+                                                                                              const QString&         wellName,
+                                                                                              RiaDefines::DepthType  depthType )
+{
+    if ( !wellFormationsFile ) return {};
+
+    const RigWellPathFormations* formations = wellFormationsFile->formationsForWell( wellName );
+    if ( !formations ) return {};
+
+    const bool                 useTvd = depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
+    std::vector<DepthInterval> intervals;
+    for ( size_t i = 0; i < formations->formationCount(); ++i )
+    {
+        const RigWellPathFormation& formation = formations->formationAt( i );
+        intervals.push_back(
+            { useTvd ? formation.tvdTop : formation.mdTop, useTvd ? formation.tvdBase : formation.mdBase, formation.formationName } );
+    }
+    return intervals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimRftCrossPlotTools::filterPressuresByDepthIntervals( const std::vector<double>&        depths,
                                                                            const std::vector<double>&        pressures,
                                                                            const std::vector<DepthInterval>& depthIntervals )
@@ -198,7 +221,8 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
     RimRftCrossPlotTools::computeObservedPressures( const QString&                    wellName,
                                                     const QDateTime&                  timeStep,
                                                     const std::vector<DepthInterval>& depthIntervals,
-                                                    RiaDefines::DepthType             depthType )
+                                                    RiaDefines::DepthType             depthType,
+                                                    const std::vector<DepthInterval>& zoneIntervals )
 {
     std::vector<ObservedPressure> result;
     if ( wellName.isEmpty() || !timeStep.isValid() ) return result;
@@ -234,12 +258,15 @@ std::vector<RimRftCrossPlotTools::ObservedPressure>
             QString zoneName;
             if ( filteredDepths.size() == filteredPressures.size() )
             {
-                for ( const auto& interval : depthIntervals )
+                const auto& lookup    = zoneIntervals.empty() ? depthIntervals : zoneIntervals;
+                double      thickness = std::numeric_limits<double>::infinity();
+                for ( const auto& interval : lookup )
                 {
-                    if ( filteredDepths[i] >= interval.top && filteredDepths[i] <= interval.base )
+                    // Prefer the narrowest matching zone when formation levels overlap
+                    if ( filteredDepths[i] >= interval.top && filteredDepths[i] <= interval.base && interval.base - interval.top < thickness )
                     {
-                        zoneName = interval.zoneName;
-                        break;
+                        zoneName  = interval.zoneName;
+                        thickness = interval.base - interval.top;
                     }
                 }
             }
