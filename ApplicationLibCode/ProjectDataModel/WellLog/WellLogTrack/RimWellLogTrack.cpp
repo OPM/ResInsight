@@ -2618,9 +2618,14 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         auto formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
 
         double rkbDiff = 0.0;
-        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB && m_formationSettings->wellPathForSourceWellPath() )
+        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
         {
-            rkbDiff = m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+            // Picks-only wells have no trajectory
+            auto sourceWellPath = m_formationSettings->wellPathForSourceWellPath();
+            if ( sourceWellPath && sourceWellPath->wellPathGeometry() )
+            {
+                rkbDiff = sourceWellPath->wellPathGeometry()->rkbDiff();
+            }
         }
 
         // Fluid contacts are single-depth picks (no zone thickness); keep these as simple pick lines.

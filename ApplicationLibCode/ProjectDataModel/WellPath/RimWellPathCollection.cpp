@@ -533,6 +533,9 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
     outputMessage += "-----------------------------------------------\n";
     outputMessage += "Well Name \tDetected Well Path \tCount\n";
 
+    // The collection is deletable from the project tree
+    if ( !oilField->wellFormationsCollection() ) oilField->wellFormationsCollection = new RimWellFormationsCollection();
+
     bool fileReadSuccess = false;
 
     for ( const QString& filePath : filePaths )
