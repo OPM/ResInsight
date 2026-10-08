@@ -33,6 +33,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRftCorrelationReportPlot.h"
 #include "RimRftCrossPlotTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
@@ -639,7 +640,12 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    loadDataAndUpdate();
+
+    // The parent report plot syncs the other sub plots and the track zone highlight from this plot
+    if ( auto* reportPlot = firstAncestorOrThisOfType<RimRftCorrelationReportPlot>() )
+        reportPlot->loadDataAndUpdate();
+    else
+        loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
