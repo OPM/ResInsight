@@ -42,12 +42,14 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 #include "qwt_plot.h"
-#include "qwt_plot_zoneitem.h"
+#include "qwt_plot_item.h"
+#include "qwt_scale_map.h"
 #include "qwt_text.h"
 
 #include <QContextMenuEvent>
 #include <QFrame>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QPointer>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -100,6 +102,48 @@ public:
 
 private:
     caf::PdmObject* m_item;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Thin gray translucent bar drawn in pixel width along the left edge (vertical depth axis) or
+/// bottom edge (horizontal depth axis) of the canvas, spanning a depth interval.
+//--------------------------------------------------------------------------------------------------
+class RftSelectedZoneBar : public QwtPlotItem
+{
+public:
+    RftSelectedZoneBar( double top, double base, bool isDepthVertical )
+        : m_top( top )
+        , m_base( base )
+        , m_isDepthVertical( isDepthVertical )
+    {
+        setZ( 5.0 );
+    }
+
+    void draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override
+    {
+        constexpr double barWidth = 6.0;
+
+        QRectF bar;
+        if ( m_isDepthVertical )
+        {
+            const double y0 = yMap.transform( m_top );
+            const double y1 = yMap.transform( m_base );
+            bar             = QRectF( canvasRect.left(), std::min( y0, y1 ), barWidth, std::abs( y1 - y0 ) );
+        }
+        else
+        {
+            const double x0 = xMap.transform( m_top );
+            const double x1 = xMap.transform( m_base );
+            bar             = QRectF( std::min( x0, x1 ), canvasRect.bottom() - barWidth, std::abs( x1 - x0 ), barWidth );
+        }
+
+        painter->fillRect( bar, QColor( 90, 90, 90, 110 ) );
+    }
+
+private:
+    double m_top;
+    double m_base;
+    bool   m_isDepthVertical;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -638,14 +682,12 @@ void RimRftCorrelationReportPlot::installTrackClickFilters()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Shades the depth interval of each selected zone in the RFT plot tracks. Highlight items are
-/// identified by their title so stale ones can be removed whatever else the track has detached.
+/// Marks the depth interval of each selected zone in the RFT plot tracks with a thin bar along the
+/// depth axis side. Stale bars are found by type and removed before new ones are attached.
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
 {
     if ( !m_wellRftPlot() || !m_parameterRftCrossPlot() ) return;
-
-    const QString highlightTag = "SelectedZoneHighlight";
 
     std::vector<RimRftCrossPlotTools::DepthInterval> intervals;
     if ( m_parameterRftCrossPlot->filterMode() == RimRftCrossPlotTools::DepthFilterMode::ZONES )
@@ -669,24 +711,15 @@ void RimRftCorrelationReportPlot::updateSelectedZoneHighlight()
         QwtPlot* qwtPlot = track->viewer()->qwtPlot();
         if ( !qwtPlot ) continue;
 
-        for ( QwtPlotItem* item : qwtPlot->itemList( QwtPlotItem::Rtti_PlotZone ) )
+        for ( QwtPlotItem* item : qwtPlot->itemList() )
         {
-            if ( item->title().text() == highlightTag ) item->detach();
+            if ( dynamic_cast<RftSelectedZoneBar*>( item ) ) item->detach();
         }
 
         for ( const auto& interval : intervals )
         {
-            QColor color( 255, 165, 0 );
-            color.setAlpha( 70 );
-
-            auto* zone = new QwtPlotZoneItem();
-            zone->setTitle( highlightTag );
-            zone->setOrientation( isVertical ? Qt::Horizontal : Qt::Vertical );
-            zone->setInterval( interval.top, interval.base );
-            zone->setPen( color, 0.0, Qt::NoPen );
-            zone->setBrush( QBrush( color ) );
-            zone->setZ( 5.0 );
-            zone->attach( qwtPlot );
+            auto* bar = new RftSelectedZoneBar( interval.top, interval.base, isVertical );
+            bar->attach( qwtPlot );
         }
 
         qwtPlot->replot();
