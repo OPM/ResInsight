@@ -28,6 +28,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -41,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimSegmentInterval, "SegmentInterval" );
 //--------------------------------------------------------------------------------------------------
 RimSegmentInterval::RimSegmentInterval()
 {
-    CAF_PDM_InitScriptableObject( "Segment Interval", ":/WellPathComponent16x16.png", "", "SegmentInterval" );
+    CAF_PDM_InitScriptableObject( "Segment Interval", ":/Segment.svg", "", "SegmentInterval" );
     CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "Start MD" );
     CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "End MD" );
     CAF_PDM_InitScriptableField( &m_diameter,
@@ -52,6 +53,13 @@ RimSegmentInterval::RimSegmentInterval()
                                  "RoughnessFactor",
                                  RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                                  "Roughness Factor" );
+
+    CAF_PDM_InitField( &m_fixedSegmentLength, "FixedSegmentLength", std::make_pair( false, 50.0 ), "Fixed Segment Length" );
+    m_fixedSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_minSegmentLength, "MinSegmentLength", std::make_pair( false, 10.0 ), "Min Segment Length" );
+    m_minSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", std::make_pair( false, 100.0 ), "Max Segment Length" );
+    m_maxSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
     CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
@@ -156,6 +164,60 @@ void RimSegmentInterval::setDiameter( double diameter )
 void RimSegmentInterval::setRoughnessFactor( double roughness )
 {
     m_roughnessFactor = roughness;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimSegmentInterval::fixedSegmentLength() const
+{
+    if ( m_fixedSegmentLength().first && m_fixedSegmentLength().second > 0.0 ) return m_fixedSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimSegmentInterval::minSegmentLength() const
+{
+    if ( m_minSegmentLength().first && m_minSegmentLength().second > 0.0 ) return m_minSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimSegmentInterval::maxSegmentLength() const
+{
+    if ( m_maxSegmentLength().first && m_maxSegmentLength().second > 0.0 ) return m_maxSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::setFixedSegmentLength( std::optional<double> length )
+{
+    m_fixedSegmentLength = std::make_pair( length.has_value(), length.value_or( m_fixedSegmentLength().second ) );
+    if ( length ) enforceSegmentationRules( &m_fixedSegmentLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::setMinSegmentLength( std::optional<double> length )
+{
+    m_minSegmentLength = std::make_pair( length.has_value(), length.value_or( m_minSegmentLength().second ) );
+    if ( length ) enforceSegmentationRules( &m_minSegmentLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::setMaxSegmentLength( std::optional<double> length )
+{
+    m_maxSegmentLength = std::make_pair( length.has_value(), length.value_or( m_maxSegmentLength().second ) );
+    if ( length ) enforceSegmentationRules( &m_maxSegmentLength );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +369,7 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     if ( changedField == &m_startMD || changedField == &m_endMD )
     {
-        uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+        updateUiName();
 
         // Validate interval
         if ( m_startMD >= m_endMD )
@@ -321,6 +383,17 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         {
             collection->updateOverlapVisualFeedback();
         }
+    }
+
+    const bool segmentationEnabled = ( changedField == &m_fixedSegmentLength && m_fixedSegmentLength().first ) ||
+                                     ( changedField == &m_minSegmentLength && m_minSegmentLength().first ) ||
+                                     ( changedField == &m_maxSegmentLength && m_maxSegmentLength().first );
+    if ( segmentationEnabled ) enforceSegmentationRules( changedField );
+
+    if ( changedField == &m_fixedSegmentLength || changedField == &m_minSegmentLength || changedField == &m_maxSegmentLength )
+    {
+        updateUiName();
+        uiCapability()->updateConnectedEditors();
     }
 
     updateConnectedEditors();
@@ -339,12 +412,23 @@ void RimSegmentInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         m_endMD.uiCapability()->setUiName( isMetric ? "End MD [m]" : "End MD [ft]" );
         m_diameter.uiCapability()->setUiName( isMetric ? "Diameter [m]" : "Diameter [ft]" );
         m_roughnessFactor.uiCapability()->setUiName( isMetric ? "Roughness Factor [m]" : "Roughness Factor [ft]" );
+        m_fixedSegmentLength.uiCapability()->setUiName( isMetric ? "Fixed Segment Length [m]" : "Fixed Segment Length [ft]" );
+        m_minSegmentLength.uiCapability()->setUiName( isMetric ? "Min Segment Length [m]" : "Min Segment Length [ft]" );
+        m_maxSegmentLength.uiCapability()->setUiName( isMetric ? "Max Segment Length [m]" : "Max Segment Length [ft]" );
     }
 
-    uiOrdering.add( &m_startMD );
-    uiOrdering.add( &m_endMD );
-    uiOrdering.add( &m_diameter );
-    uiOrdering.add( &m_roughnessFactor );
+    auto* intervalGroup = uiOrdering.addNewGroup( "Interval" );
+    intervalGroup->add( &m_startMD );
+    intervalGroup->add( &m_endMD );
+
+    auto* diameterGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
+    diameterGroup->add( &m_diameter );
+    diameterGroup->add( &m_roughnessFactor );
+
+    auto* segmentationGroup = uiOrdering.addNewGroup( "Segmentation" );
+    segmentationGroup->add( &m_fixedSegmentLength );
+    segmentationGroup->add( &m_minSegmentLength );
+    segmentationGroup->add( &m_maxSegmentLength );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,7 +436,19 @@ void RimSegmentInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimSegmentInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+    updateUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::updateUiName()
+{
+    QString name = QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() );
+    if ( auto fixedLength = fixedSegmentLength() ) name += QString( " (fixed %1)" ).arg( *fixedLength );
+    if ( auto minLength = minSegmentLength() ) name += QString( " (min %1)" ).arg( *minLength );
+    if ( auto maxLength = maxSegmentLength() ) name += QString( " (max %1)" ).arg( *maxLength );
+    uiCapability()->setUiName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,6 +461,25 @@ void RimSegmentInterval::updateConnectedEditors()
     m_endMD.uiCapability()->updateConnectedEditors();
     m_diameter.uiCapability()->updateConnectedEditors();
     m_roughnessFactor.uiCapability()->updateConnectedEditors();
+    m_fixedSegmentLength.uiCapability()->updateConnectedEditors();
+    m_minSegmentLength.uiCapability()->updateConnectedEditors();
+    m_maxSegmentLength.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Fixed length cannot be combined with min/max length. Min and max length can be combined.
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::enforceSegmentationRules( const caf::PdmFieldHandle* activeField )
+{
+    if ( activeField == &m_fixedSegmentLength )
+    {
+        m_minSegmentLength = std::make_pair( false, m_minSegmentLength().second );
+        m_maxSegmentLength = std::make_pair( false, m_maxSegmentLength().second );
+    }
+    else
+    {
+        m_fixedSegmentLength = std::make_pair( false, m_fixedSegmentLength().second );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

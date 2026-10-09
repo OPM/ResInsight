@@ -27,6 +27,8 @@
 #include <QDateTime>
 #include <QString>
 
+#include <optional>
+
 class RimWellPath;
 
 namespace caf
@@ -61,6 +63,14 @@ public:
     void setEndMD( double endMD );
     void setDiameter( double diameter );
     void setRoughnessFactor( double roughness );
+
+    // Segmentation. Fixed length cannot be combined with min/max length, min and max length can be combined.
+    std::optional<double> fixedSegmentLength() const;
+    std::optional<double> minSegmentLength() const;
+    std::optional<double> maxSegmentLength() const;
+    void                  setFixedSegmentLength( std::optional<double> length );
+    void                  setMinSegmentLength( std::optional<double> length );
+    void                  setMaxSegmentLength( std::optional<double> length );
 
     // Date tracking
     void enableCustomStartDate( bool enable );
@@ -103,13 +113,19 @@ protected:
 
 private:
     void    updateConnectedEditors();
+    void    updateUiName();
     QString generateDisplayLabel() const;
+    void    enforceSegmentationRules( const caf::PdmFieldHandle* activeField );
 
 private:
     caf::PdmField<double> m_startMD;
     caf::PdmField<double> m_endMD;
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
+
+    caf::PdmField<std::pair<bool, double>> m_fixedSegmentLength;
+    caf::PdmField<std::pair<bool, double>> m_minSegmentLength;
+    caf::PdmField<std::pair<bool, double>> m_maxSegmentLength;
 
     caf::PdmField<bool>      m_useCustomStartDate;
     caf::PdmField<QDateTime> m_startDate;

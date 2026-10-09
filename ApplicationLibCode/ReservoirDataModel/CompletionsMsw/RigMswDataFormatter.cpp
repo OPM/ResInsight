@@ -23,8 +23,24 @@
 #include "RigMswTableData.h"
 #include "RigMswUnifiedData.h"
 
+#include <algorithm>
+
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+/// COMPSEGS items between the end length and ISEG, written as defaults when ISEG is exported:
+/// direction, end of range, connection depth and thermal length
+//--------------------------------------------------------------------------------------------------
+constexpr int compsegsItemsBeforeSegmentNumber = 4;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool hasSegmentNumbers( const std::vector<CompsegsRow>& rows )
+{
+    return std::ranges::any_of( rows, []( const CompsegsRow& row ) { return row.segmentNumber.has_value(); } );
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Helper function to format WELSEGS segment data rows
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +71,7 @@ void formatWelsegsRows( RifTextDataTableFormatter& formatter, const std::vector<
 //--------------------------------------------------------------------------------------------------
 void formatCompsegsRows( RifTextDataTableFormatter& formatter, const std::vector<CompsegsRow>& rows, bool isLgrData )
 {
+    const bool exportSegmentNumbers = hasSegmentNumbers( rows );
     for ( const auto& row : rows )
     {
         if ( isLgrData )
@@ -68,6 +85,19 @@ void formatCompsegsRows( RifTextDataTableFormatter& formatter, const std::vector
         formatter.add( row.branch );
         formatter.add( row.distanceStart );
         formatter.add( row.distanceEnd );
+
+        if ( exportSegmentNumbers )
+        {
+            for ( int item = 0; item < compsegsItemsBeforeSegmentNumber; ++item )
+            {
+                formatter.add( formatter.defaultMarker() );
+            }
+
+            if ( row.segmentNumber )
+                formatter.add( *row.segmentNumber );
+            else
+                formatter.add( formatter.defaultMarker() );
+        }
 
         formatter.rowCompleted();
     }
@@ -193,33 +223,24 @@ void formatWsegsicdRows( RifTextDataTableFormatter& formatter, const std::vector
 //--------------------------------------------------------------------------------------------------
 /// Helper function to create COMPSEGS headers
 //--------------------------------------------------------------------------------------------------
-std::vector<RifTextDataTableColumn> createCompsegsHeader( bool isLgrData )
+std::vector<RifTextDataTableColumn> createCompsegsHeader( bool isLgrData, bool exportSegmentNumbers )
 {
-    if ( isLgrData )
+    std::vector<RifTextDataTableColumn> header;
+    if ( isLgrData ) header.emplace_back( "Grid" );
+
+    for ( const auto* title : { "I", "J", "K", "Branch no", "Start Length", "End Length" } )
     {
-        return { RifTextDataTableColumn( "Grid" ),
-                 RifTextDataTableColumn( "I" ),
-                 RifTextDataTableColumn( "J" ),
-                 RifTextDataTableColumn( "K" ),
-                 RifTextDataTableColumn( "Branch no" ),
-                 RifTextDataTableColumn( "Start Length" ),
-                 RifTextDataTableColumn( "End Length" ),
-                 RifTextDataTableColumn( "Dir Pen" ),
-                 RifTextDataTableColumn( "End Range" ),
-                 RifTextDataTableColumn( "Connection Depth" ) };
+        header.emplace_back( title );
     }
-    else
+
+    // Short titles for the defaulted items keep the rows with ISEG within the max data row width
+    const auto trailingTitles = exportSegmentNumbers ? std::vector<QString>{ "Dir", "End", "Depth", "Therm", "ISEG" }
+                                                     : std::vector<QString>{ "Dir Pen", "End Range", "Connection Depth" };
+    for ( const auto& title : trailingTitles )
     {
-        return { RifTextDataTableColumn( "I" ),
-                 RifTextDataTableColumn( "J" ),
-                 RifTextDataTableColumn( "K" ),
-                 RifTextDataTableColumn( "Branch no" ),
-                 RifTextDataTableColumn( "Start Length" ),
-                 RifTextDataTableColumn( "End Length" ),
-                 RifTextDataTableColumn( "Dir Pen" ),
-                 RifTextDataTableColumn( "End Range" ),
-                 RifTextDataTableColumn( "Connection Depth" ) };
+        header.emplace_back( title );
     }
+    return header;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -418,7 +439,7 @@ void RigMswDataFormatter::formatCompsegsTable( RifTextDataTableFormatter& format
         formatter.rowCompleted();
     }
 
-    auto header = createCompsegsHeader( isLgrData );
+    auto header = createCompsegsHeader( isLgrData, hasSegmentNumbers( rows ) );
     formatter.header( header );
 
     formatCompsegsRows( formatter, rows, isLgrData );

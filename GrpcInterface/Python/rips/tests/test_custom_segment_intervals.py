@@ -78,3 +78,45 @@ def test_custom_segment_interval_invalid_range(rips_instance, initialize_test):
     # Also test equal values (start_md == end_md), which should also fail
     with pytest.raises(rips.RipsError, match="End MD must be greater than Start MD"):
         well_path.segment_collection().add_segment_interval(start_md=150, end_md=150)
+
+
+def test_segment_interval_segmentation_lengths(rips_instance, initialize_test):
+    """Fixed segment length is exclusive with min/max; min and max can be combined"""
+
+    well_path_coll = rips_instance.project.well_path_collection()
+    well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
+    well_path.name = "Test Well for Segmentation Lengths"
+
+    interval = well_path.segment_collection().add_segment_interval(
+        start_md=100, end_md=200
+    )
+
+    interval.set_min_segment_length(length=10.0)
+    interval.set_max_segment_length(length=40.0)
+    min_length = interval.set_min_segment_length(length=10.0)
+    assert min_length is not None
+
+    interval.set_fixed_segment_length(length=25.0)
+    interval.set_max_segment_length(length=30.0)
+    interval.set_fixed_segment_length(enable=False)
+
+    with pytest.raises(rips.RipsError, match="greater than zero"):
+        interval.set_min_segment_length(length=0.0)
+
+
+def test_segment_collection_single_segment_around_perforations(
+    rips_instance, initialize_test
+):
+    well_path_coll = rips_instance.project.well_path_collection()
+    well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
+    well_path.name = "Test Well for Single Segment Options"
+
+    collection = well_path.segment_collection()
+    assert collection.single_segment_before_first_perforation is False
+    assert collection.single_segment_after_last_perforation is False
+
+    collection.single_segment_before_first_perforation = True
+    collection.single_segment_after_last_perforation = True
+    collection.update()
+    assert collection.single_segment_before_first_perforation is True
+    assert collection.single_segment_after_last_perforation is True

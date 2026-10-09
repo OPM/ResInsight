@@ -8,7 +8,7 @@
 //  (at your option) any later version.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RicNewSegmentIntervalFeature.h"
+#include "RicCreateSegmentIntervalFeature.h"
 
 #include "RimProject.h"
 #include "RimSegmentCollection.h"
@@ -19,15 +19,16 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QIcon>
 
-CAF_CMD_SOURCE_INIT( RicNewSegmentIntervalFeature, "RicNewSegmentIntervalFeature" );
+CAF_CMD_SOURCE_INIT( RicCreateSegmentIntervalFeature, "RicCreateSegmentIntervalFeature" );
 
-bool RicNewSegmentIntervalFeature::isCommandEnabled() const
+bool RicCreateSegmentIntervalFeature::isCommandEnabled() const
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimSegmentCollection>() != nullptr;
 }
 
-void RicNewSegmentIntervalFeature::onActionTriggered( bool isChecked )
+void RicCreateSegmentIntervalFeature::onActionTriggered( bool isChecked )
 {
     auto* collection = caf::SelectionManager::instance()->selectedItemOfType<RimSegmentCollection>();
     if ( !collection ) return;
@@ -39,7 +40,8 @@ void RicNewSegmentIntervalFeature::onActionTriggered( bool isChecked )
     if ( auto* project = RimProject::current() ) project->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
-void RicNewSegmentIntervalFeature::setupActionLook( QAction* actionToSetup )
+void RicCreateSegmentIntervalFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Segment Interval" );
+    actionToSetup->setText( "Create Segment Interval" );
+    actionToSetup->setIcon( QIcon( ":/Segment.svg" ) );
 }

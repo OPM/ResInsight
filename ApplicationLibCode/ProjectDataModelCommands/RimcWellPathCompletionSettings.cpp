@@ -50,3 +50,104 @@ QString RimcSegmentCollection_addSegmentInterval::classKeywordReturnedType() con
 {
     return RimSegmentInterval::classKeywordStatic();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setSegmentLengthBase::RimcSegmentInterval_setSegmentLengthBase( caf::PdmObjectHandle* self, const QString& description )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( description );
+    CAF_PDM_InitScriptableField( &m_length, "Length", 50.0, "Length" );
+    CAF_PDM_InitScriptableField( &m_enable, "Enable", true, "Enable" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcSegmentInterval_setSegmentLengthBase::execute()
+{
+    auto* interval = self<RimSegmentInterval>();
+    if ( !interval ) return std::unexpected( "Segment interval is null." );
+    if ( m_enable() && m_length() <= 0.0 ) return std::unexpected( "Segment length must be greater than zero." );
+
+    const std::optional<double> length = m_enable() ? std::optional<double>( m_length() ) : std::nullopt;
+
+    switch ( lengthType() )
+    {
+        case LengthType::FIXED:
+            interval->setFixedSegmentLength( length );
+            break;
+        case LengthType::MIN:
+            interval->setMinSegmentLength( length );
+            break;
+        case LengthType::MAX:
+            interval->setMaxSegmentLength( length );
+            break;
+    }
+
+    interval->updateAllRequiredEditors();
+    return interval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcSegmentInterval_setSegmentLengthBase::classKeywordReturnedType() const
+{
+    return RimSegmentInterval::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSegmentInterval, RimcSegmentInterval_setFixedSegmentLength, "SetFixedSegmentLength" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setFixedSegmentLength::RimcSegmentInterval_setFixedSegmentLength( caf::PdmObjectHandle* self )
+    : RimcSegmentInterval_setSegmentLengthBase( self, "Set Fixed Segment Length" )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setSegmentLengthBase::LengthType RimcSegmentInterval_setFixedSegmentLength::lengthType() const
+{
+    return LengthType::FIXED;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSegmentInterval, RimcSegmentInterval_setMinSegmentLength, "SetMinSegmentLength" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setMinSegmentLength::RimcSegmentInterval_setMinSegmentLength( caf::PdmObjectHandle* self )
+    : RimcSegmentInterval_setSegmentLengthBase( self, "Set Min Segment Length" )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setSegmentLengthBase::LengthType RimcSegmentInterval_setMinSegmentLength::lengthType() const
+{
+    return LengthType::MIN;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSegmentInterval, RimcSegmentInterval_setMaxSegmentLength, "SetMaxSegmentLength" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setMaxSegmentLength::RimcSegmentInterval_setMaxSegmentLength( caf::PdmObjectHandle* self )
+    : RimcSegmentInterval_setSegmentLengthBase( self, "Set Max Segment Length" )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSegmentInterval_setSegmentLengthBase::LengthType RimcSegmentInterval_setMaxSegmentLength::lengthType() const
+{
+    return LengthType::MAX;
+}
