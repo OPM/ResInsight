@@ -287,6 +287,27 @@ void RifReaderFmuRft::importData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifReaderFmuRft::csvText() const
+{
+    QString     text;
+    QTextStream stream( &text );
+
+    stream << "WELL,DATE,MEASUREMENT_ID,UTM_X,UTM_Y,MD,TVD,ZONE,PRESSURE,PRESSURE_ERROR\n";
+    for ( const auto& obs : m_observations )
+    {
+        stream << obs.wellDate.wellName << "," << obs.wellDate.dateTime.toString( "yyyy-MM-dd" ) << "," << obs.wellDate.measurementId << ","
+               << QString::number( obs.location.utmx, 'f', 2 ) << "," << QString::number( obs.location.utmy, 'f', 2 ) << ","
+               << QString::number( obs.location.mdrkb, 'f', 2 ) << "," << QString::number( obs.location.tvdmsl, 'f', 2 ) << ","
+               << obs.location.formation << "," << QString::number( obs.pressure, 'f', 2 ) << ","
+               << QString::number( obs.pressureError, 'f', 2 ) << "\n";
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&                                     wellName,
                                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {

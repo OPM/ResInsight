@@ -19,14 +19,13 @@
 #include "RimWellFormationsFile.h"
 
 #include "RiaLogging.h"
-#include "RifCsvHtmlTableTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "Tools/RimCsvPreviewTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
@@ -44,10 +43,7 @@ RimWellFormationsFile::RimWellFormationsFile()
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_contentTable, "ContentTable", "Content" );
-    m_contentTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_contentTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
-    m_contentTable.uiCapability()->setUiReadOnly( true );
-    m_contentTable.xmlCapability()->disableIO();
+    RimCsvPreviewTools::initPreviewField( m_contentTable );
 
     setDeletable( true );
 }
@@ -223,12 +219,7 @@ void RimWellFormationsFile::defineEditorAttribute( const caf::PdmFieldHandle* fi
 {
     if ( field == &m_contentTable )
     {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
+        RimCsvPreviewTools::setPreviewEditorAttribute( attribute );
     }
 }
 
@@ -259,15 +250,5 @@ void RimWellFormationsFile::updateUiTreeName()
 //--------------------------------------------------------------------------------------------------
 void RimWellFormationsFile::updateContentTable()
 {
-    const int maxRowCount = 1000;
-
-    auto result = RifCsvHtmlTableTools::generateHtmlTableFromFile( filePath(), maxRowCount );
-    if ( result )
-    {
-        m_contentTable = *result;
-    }
-    else
-    {
-        m_contentTable = result.error();
-    }
+    m_contentTable = RimCsvPreviewTools::htmlTableFromFile( filePath() );
 }
