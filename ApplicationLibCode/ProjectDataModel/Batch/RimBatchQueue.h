@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaHpcDefines.h"
+
 #include "cafPdmObject.h"
 
 #include "cafPdmPointer.h"
@@ -55,6 +57,7 @@ protected:
     std::pair<bool, QString>                        buildLaunchScript( QString workDir );
     QString                                         generateJobName();
     void                                            readStdOutErrIntoProcessLog();
+    void                                            cleanUpOldLogFiles();
 
     QString m_stdOutFileName;
     QString m_stdErrFileName;

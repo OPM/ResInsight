@@ -72,6 +72,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     QString jobName  = generateJobName();
     m_stdOutFileName = QString( "%1/%2.out" ).arg( workDir ).arg( jobName );
     m_stdErrFileName = QString( "%1/%2.err" ).arg( workDir ).arg( jobName );
+    cleanUpOldLogFiles();
 
     QString stdOut = m_stdOutFileName;
     QString stdErr = m_stdErrFileName;
@@ -84,31 +85,8 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
         stdErr  = RiaWslTools::convertToWslPath( stdErr );
     }
 
-    QStringList arguments;
-    arguments << "sbatch";
-    arguments << "-p";
-    arguments << prefs->queueName();
-    arguments << "-J";
-    arguments << jobName;
-
-    if ( prefs->exclusiveJob() )
-    {
-        arguments << "--exclusive";
-    }
-    if ( !workDir.isEmpty() )
-    {
-        arguments << "-D";
-        arguments << workDir;
-        arguments << "-o";
-        arguments << stdOut;
-        arguments << "-e";
-        arguments << stdErr;
-    }
-
-    arguments << "-n";
-    arguments << QString( "%1" ).arg( numberOfProcesses );
-    arguments << "--wait";
-    arguments << script;
+    QStringList arguments =
+        generateCommand( script, jobName, workDir, stdOut, stdErr, prefs->queueName(), prefs->exclusiveJob(), numberOfProcesses );
 
     auto [batchProcess, output] = runCommand( arguments, m_monitor );
 
@@ -127,11 +105,51 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RimBatchQueueSlurm::generateCommand( QString script,
+                                                 QString jobName,
+                                                 QString workDir,
+                                                 QString stdOutLog,
+                                                 QString stdErrLog,
+                                                 QString queueName,
+                                                 bool    exclusive,
+                                                 int     numberOfProcesses )
+{
+    QStringList arguments;
+    arguments << "sbatch";
+    arguments << "-p";
+    arguments << queueName;
+    arguments << "-J";
+    arguments << jobName;
+
+    if ( exclusive )
+    {
+        arguments << "--exclusive";
+    }
+    if ( !workDir.isEmpty() )
+    {
+        arguments << "-D";
+        arguments << workDir;
+        arguments << "-o";
+        arguments << stdOutLog;
+        arguments << "-e";
+        arguments << stdErrLog;
+    }
+
+    arguments << "-n";
+    arguments << QString( "%1" ).arg( numberOfProcesses );
+    arguments << "--wait";
+    arguments << script;
+    return arguments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimBatchQueueSlurm::jobId() const
 {
     if ( m_batchProcess )
     {
-        return RiaHpcTools::decodeSlurmJobId( m_batchProcess->stdOut() );
+        return RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
     }
     return QString();
 }
@@ -162,7 +180,7 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
 {
     if ( m_batchProcess && m_process && m_process->monitor() )
     {
-        auto jobId = RiaHpcTools::decodeSlurmJobId( m_batchProcess->stdOut() );
+        auto jobId = RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
 
         readStdOutErrIntoProcessLog();
 

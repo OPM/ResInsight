@@ -18,26 +18,30 @@
 
 #pragma once
 
-#include "RimBatchQueueSlurm.h"
+#include "cafPdmObject.h"
+
+#include "RiaHpcDefines.h"
+
+#include <QString>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimBatchQueueLsf : public RimBatchQueueSlurm
+class RimBatchQueueSelector : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimBatchQueueLsf();
-    ~RimBatchQueueLsf();
+    RimBatchQueueSelector();
+    ~RimBatchQueueSelector();
 
-    QStringList generateCommand( QString script,
-                                 QString jobName,
-                                 QString workDir,
-                                 QString stdOutLog,
-                                 QString stdErrLog,
-                                 QString queueName,
-                                 bool    exclusive,
-                                 int     numberOfProcesses ) override;
+    void setBatchSchedulerType( RiaHpcDefines::BatchSchedulerType schedulerType );
+
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+private:
+    caf::PdmField<QString>         m_queueName;
+    RiaDefines::BatchSchedulerType m_schedulerType;
 };

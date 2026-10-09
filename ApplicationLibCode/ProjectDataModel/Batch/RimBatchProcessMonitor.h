@@ -34,7 +34,6 @@ public:
 
 protected:
     void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
-    void started() override;
 
 private:
     caf::PdmPointer<RimBatchQueue> m_batchQueue;

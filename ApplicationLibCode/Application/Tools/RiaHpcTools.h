@@ -32,18 +32,12 @@ namespace RiaHpcTools
 {
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
 
-void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
-
-void stopLsfJob( QString jobId );
-void stopSlurmJob( QString jobId );
-
-QStringList listSlurmJobs();
-QStringList listLsfJobs();
+void        stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
+QString     findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
+QStringList listJobs( RiaDefines::BatchSchedulerType scheduler );
 
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );
-
-QString decodeSlurmJobId( QStringList stdOut );
 
 } // namespace RiaHpcTools

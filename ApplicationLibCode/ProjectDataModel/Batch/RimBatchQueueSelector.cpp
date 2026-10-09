@@ -16,61 +16,54 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuBatchMonitorWorker.h"
+#include "RimBatchQueueSelector.h"
 
 #include "RiaHpcTools.h"
 
-#include <QMutexLocker>
-#include <QStringList>
-#include <QThread>
-#include <QWidget>
+#include "cafPdmFieldCapability.h"
+#include "cafPdmUiComboBoxEditor.h"
+
+CAF_PDM_SOURCE_INIT( RimBatchQueueSelector, "BatchQueueSelector" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, QObject* parent )
-    : QObject( parent )
-    , m_keepRunning( true )
-    , m_monitoringIntervalSeconds( 5 )
-    , m_scheduler( scheduler )
+RimBatchQueueSelector::RimBatchQueueSelector()
+{
+    CAF_PDM_InitObject( "Batch Queue Selector" );
+
+    CAF_PDM_InitFieldNoDefault( &m_queueName, "QueueName", "Select Queue/Partition" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimBatchQueueSelector::~RimBatchQueueSelector()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchMonitorWorker::stopMonitoring()
+void RimBatchQueueSelector::setBatchSchedulerType( RiaDefines::BatchSchedulerType schedulerType )
 {
-    // signal to worker thread it is time to stop
-    m_keepRunning = false;
-    // wait for thread to finish, but don't wait forever
-    QMutexLocker locker( &m_mutex );
-    m_waitForStop.wait( &m_mutex, 8000 );
+    m_schedulerType = schedulerType;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchMonitorWorker::gatherInformation()
+QList<caf::PdmOptionItemInfo> RimBatchQueueSelector::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    while ( m_keepRunning )
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_queueName )
     {
-        auto jobInfo = RiaHpcTools::listJobs( m_scheduler );
-        emit informationGathered( jobInfo );
-
-        // poll exit flag 10 times per second to respond quickly to program exit
-        int       i    = 0;
-        const int maxI = m_monitoringIntervalSeconds * 10;
-        while ( i < maxI && m_keepRunning )
+        auto candidates = RiaHpcTools::availableQueues( m_schedulerType );
+        for ( auto& q : candidates )
         {
-            QThread::msleep( 100 );
-            i++;
+            options.push_back( caf::PdmOptionItemInfo( q, QVariant::fromValue( q ) ) );
         }
     }
-
-    emit finished();
-
-    m_mutex.lock();
-    m_waitForStop.wakeAll();
-    m_mutex.unlock();
+    return options;
 }
