@@ -130,6 +130,10 @@ if(MSVC)
     COMMAND_EXPAND_LISTS
   )
 
+  # Both targets deploy Qt DLLs into the same folder; serialize them to avoid
+  # concurrent writes failing with "permission denied" in parallel builds
+  add_dependencies(ResInsight-featuretests ResInsight)
+
   set_target_properties(
     ResInsight-featuretests PROPERTIES COMPILE_FLAGS "/wd4190"
   )
