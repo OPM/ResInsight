@@ -25,6 +25,7 @@
 #include "RimRftCrossPlotTools.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPlotTools.h"
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
@@ -207,14 +208,13 @@ RimParameterRftCrossPlot* RimRftCorrelationReportPlot::crossPlot() const
 /// Initialize the owned RimWellRftPlot from the source plot's selected data sources.
 /// We keep the fresh (curve-free) child plot and call initializeDataSources(source) so
 /// syncCurvesFromUiSelection builds curves from scratch without touching unresolved copies.
+/// Without a source plot, the first well with ensemble RFT data is used with all available data sources.
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* source )
 {
-    if ( !source ) return;
-
     applyDepthTypeToSubPlots();
 
-    m_wellRftPlot->setSimWellOrWellPathName( source->simWellOrWellPathName() );
+    m_wellRftPlot->setSimWellOrWellPathName( source ? source->simWellOrWellPathName() : RimWellPlotTools::firstWellNameWithEnsembleRftData() );
 
     // A fresh RimWellRftPlot has no tracks; syncCurvesFromUiSelection exits early without one.
     // Guard against duplicate track creation if this is called more than once.

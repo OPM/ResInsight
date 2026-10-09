@@ -21,6 +21,7 @@
 #include "RimCorrelationPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimRftCorrelationReportPlot.h"
+#include "RimWellPlotTools.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -36,7 +37,14 @@ CAF_CMD_SOURCE_INIT( RicCreateRftCorrelationReportFeature, "RicCreateRftCorrelat
 //--------------------------------------------------------------------------------------------------
 bool RicCreateRftCorrelationReportFeature::isCommandEnabled() const
 {
-    return dynamic_cast<RimWellRftPlot*>( caf::SelectionManager::instance()->selectedItem() ) != nullptr;
+    if ( dynamic_cast<RimWellRftPlot*>( caf::SelectionManager::instance()->selectedItem() ) ) return true;
+
+    if ( dynamic_cast<RimCorrelationPlotCollection*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        return !RimWellPlotTools::firstWellNameWithEnsembleRftData().isEmpty();
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,8 +52,8 @@ bool RicCreateRftCorrelationReportFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateRftCorrelationReportFeature::onActionTriggered( bool /*isChecked*/ )
 {
+    // Without a source plot, a default report is created for the first available ensemble RFT data
     auto* sourcePlot = dynamic_cast<RimWellRftPlot*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !sourcePlot ) return;
 
     auto* correlationColl = RimMainPlotCollection::current()->correlationPlotCollection();
     if ( !correlationColl ) return;
