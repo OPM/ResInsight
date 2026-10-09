@@ -124,8 +124,6 @@ public:
 
     bool showMswSegmentBands() const;
 
-    RimWellPath* mostRecentlyUpdatedWellPath();
-
     void         readWellPathFormationFiles();
     void         reloadAllWellPathFormations();
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
@@ -189,7 +187,6 @@ private:
 private:
     std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
 
-    caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
     caf::PdmChildField<RimWellEventTimeline*>         m_eventTimeline;
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
