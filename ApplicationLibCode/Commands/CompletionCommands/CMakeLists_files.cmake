@@ -14,7 +14,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportValveTemplatesFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSegmentIntervalFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSegmentIntervalFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSegmentIntervalFeature.cpp
 )
 

@@ -84,7 +84,7 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
                                                                                     exportDate );
 
     auto unitSystem = eclipseCase->eclipseCaseData()->unitsType();
-    return RicWellPathExportMswGeometryPath::collectTableData( wellExportData, unitSystem );
+    return RicWellPathExportMswGeometryPath::collectTableData( wellExportData, unitSystem, segmentCollection->exportCompsegsSegmentNumber() );
 }
 
 //--------------------------------------------------------------------------------------------------

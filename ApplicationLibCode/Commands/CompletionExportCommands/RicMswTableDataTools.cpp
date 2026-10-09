@@ -20,12 +20,15 @@
 
 #include "Well/RigWellPath.h"
 
+#include "RimSegmentCollection.h"
+#include "RimSegmentInterval.h"
 #include "RimWellPath.h"
 
 #include "cafAssert.h"
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +135,226 @@ std::vector<std::pair<double, double>>
     }
 
     return subSegmentMDPairs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RicMswTableDataTools::SegmentationInterval>
+    RicMswTableDataTools::segmentationIntervals( const RimSegmentCollection* segmentCollection, const std::optional<QDateTime>& exportDate )
+{
+    std::vector<SegmentationInterval> result;
+    if ( !segmentCollection ) return result;
+
+    for ( const auto* interval : segmentCollection->segmentationIntervals( exportDate ) )
+    {
+        result.push_back(
+            { interval->startMD(), interval->endMD(), interval->minSegmentLength(), interval->maxSegmentLength(), interval->fixedSegmentLength() } );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswTableDataTools::SegmentationSettings RicMswTableDataTools::segmentationSettings( const RimSegmentCollection*     segmentCollection,
+                                                                                       const std::optional<QDateTime>& exportDate )
+{
+    SegmentationSettings settings;
+    if ( !segmentCollection ) return settings;
+
+    settings.intervals                           = segmentationIntervals( segmentCollection, exportDate );
+    settings.singleSegmentBeforeFirstPerforation = segmentCollection->singleSegmentBeforeFirstPerforation();
+    settings.singleSegmentAfterLastPerforation   = segmentCollection->singleSegmentAfterLastPerforation();
+    return settings;
+}
+
+namespace
+{
+const RicMswTableDataTools::SegmentationInterval* intervalAtMD( const std::vector<RicMswTableDataTools::SegmentationInterval>& intervals,
+                                                                double                                                         md )
+{
+    for ( const auto& interval : intervals )
+    {
+        if ( md >= interval.startMD && md <= interval.endMD ) return &interval;
+    }
+    return nullptr;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RicMswTableDataTools::placeSegmentNodes( double                                   outletMD,
+                                                             const std::vector<double>&               allCandidateNodes,
+                                                             const std::vector<SegmentationInterval>& intervals,
+                                                             double                                   lastMD )
+{
+    if ( intervals.empty() ) return allCandidateNodes;
+
+    const double tolerance = 1.0e-6;
+
+    // Fixed length: replace the candidates inside the interval by nodes at the centre of fixed length segments
+    std::vector<double> candidateNodes;
+    for ( double candidate : allCandidateNodes )
+    {
+        const auto* interval = intervalAtMD( intervals, candidate );
+        if ( !interval || !interval->fixedLength.has_value() ) candidateNodes.push_back( candidate );
+    }
+    for ( const auto& interval : intervals )
+    {
+        if ( !interval.fixedLength.has_value() || *interval.fixedLength <= 0.0 ) continue;
+
+        const double length = *interval.fixedLength;
+        const double endMD  = std::min( interval.endMD, lastMD );
+        for ( int k = 0;; ++k )
+        {
+            const double segmentStart = std::max( interval.startMD + k * length, outletMD );
+            const double segmentEnd   = std::min( interval.startMD + ( k + 1 ) * length, endMD );
+            if ( interval.startMD + k * length >= endMD - tolerance ) break;
+            if ( segmentEnd - segmentStart > tolerance ) candidateNodes.push_back( 0.5 * ( segmentStart + segmentEnd ) );
+        }
+    }
+    std::ranges::sort( candidateNodes );
+
+    // Min length: greedily keep candidates at least the min length from the previous kept node
+    std::vector<double> keptNodes;
+    double              previousMD = outletMD;
+    for ( size_t i = 0; i < candidateNodes.size(); )
+    {
+        const auto* interval = intervalAtMD( intervals, candidateNodes[i] );
+        if ( !interval || !interval->minLength.has_value() )
+        {
+            keptNodes.push_back( candidateNodes[i] );
+            previousMD = candidateNodes[i++];
+            continue;
+        }
+
+        const double minLength = *interval->minLength;
+        bool         anyKept   = false;
+        size_t       j         = i;
+        for ( ; j < candidateNodes.size() && intervalAtMD( intervals, candidateNodes[j] ) == interval; ++j )
+        {
+            if ( candidateNodes[j] - previousMD >= minLength - tolerance )
+            {
+                keptNodes.push_back( candidateNodes[j] );
+                previousMD = candidateNodes[j];
+                anyKept    = true;
+            }
+        }
+
+        // Keep one node for an interval shorter than the min length, the last one gives the longest segment
+        if ( !anyKept )
+        {
+            keptNodes.push_back( candidateNodes[j - 1] );
+            previousMD = candidateNodes[j - 1];
+        }
+        i = j;
+    }
+
+    // Max length: insert evenly spaced nodes where the spacing to the previous node is too long
+    std::vector<double> nodes;
+    previousMD = outletMD;
+    for ( double nodeMD : keptNodes )
+    {
+        const auto* interval = intervalAtMD( intervals, nodeMD );
+        if ( interval && interval->maxLength.has_value() )
+        {
+            const double maxLength = *interval->maxLength;
+            const double gap       = nodeMD - previousMD;
+            if ( gap > maxLength + tolerance )
+            {
+                const int    segmentCount = static_cast<int>( std::ceil( ( gap - tolerance ) / maxLength ) );
+                const double spacing      = gap / segmentCount;
+                for ( int k = 1; k < segmentCount; ++k )
+                {
+                    nodes.push_back( previousMD + k * spacing );
+                }
+            }
+        }
+        nodes.push_back( nodeMD );
+        previousMD = nodeMD;
+    }
+
+    return nodes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RicMswTableDataTools::collapseNodesOutsidePerforations( const std::vector<double>& nodes,
+                                                                            double                     regionStartMD,
+                                                                            double                     regionEndMD,
+                                                                            double                     firstPerforationMD,
+                                                                            double                     lastPerforationMD,
+                                                                            bool                       singleBefore,
+                                                                            bool                       singleAfter )
+{
+    if ( firstPerforationMD > lastPerforationMD ) return nodes;
+
+    const auto countBefore    = std::ranges::count_if( nodes, [&]( double md ) { return md < firstPerforationMD; } );
+    const auto countAfter     = std::ranges::count_if( nodes, [&]( double md ) { return md > lastPerforationMD; } );
+    const bool collapseBefore = singleBefore && countBefore >= 2;
+    const bool collapseAfter  = singleAfter && countAfter >= 2;
+
+    std::vector<double> result;
+    if ( collapseBefore ) result.push_back( 0.5 * ( regionStartMD + firstPerforationMD ) );
+    bool afterAdded = false;
+    for ( double md : nodes )
+    {
+        if ( collapseBefore && md < firstPerforationMD ) continue;
+        if ( collapseAfter && md > lastPerforationMD )
+        {
+            if ( !afterAdded ) result.push_back( 0.5 * ( lastPerforationMD + regionEndMD ) );
+            afterAdded = true;
+            continue;
+        }
+        result.push_back( md );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<size_t> RicMswTableDataTools::upstreamNodeIndex( const std::vector<double>& nodes, double md )
+{
+    if ( nodes.empty() ) return std::nullopt;
+
+    std::optional<size_t> upstream;
+    double                minDistance = std::numeric_limits<double>::infinity();
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+        const double distance = md - nodes[i];
+        if ( distance >= 0.0 && distance < minDistance )
+        {
+            minDistance = distance;
+            upstream    = i;
+        }
+    }
+
+    // md is upstream of all nodes, use the most upstream node
+    if ( !upstream ) upstream = std::ranges::min_element( nodes ) - nodes.begin();
+    return upstream;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<size_t> RicMswTableDataTools::nearestNodeIndex( const std::vector<double>& nodes, double md )
+{
+    std::optional<size_t> nearest;
+    double                minDistance = std::numeric_limits<double>::infinity();
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+        const double distance = std::abs( md - nodes[i] );
+        if ( distance < minDistance )
+        {
+            minDistance = distance;
+            nearest     = i;
+        }
+    }
+    return nearest;
 }
 
 //--------------------------------------------------------------------------------------------------
