@@ -320,7 +320,9 @@ Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData )
     newKw.addRecord( Opm::DeckRecord{ std::move( headerItems ) } );
 
     // data rows
-    for ( auto& csRow : mswData.compsegsData() )
+    const auto& rows                 = mswData.compsegsData();
+    const bool  exportSegmentNumbers = std::ranges::any_of( rows, []( const CompsegsRow& row ) { return row.segmentNumber.has_value(); } );
+    for ( auto& csRow : rows )
     {
         std::vector<Opm::DeckItem> items;
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::COMPSEGS::I::itemName, csRow.i ) );
@@ -329,6 +331,15 @@ Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData )
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::COMPSEGS::BRANCH::itemName, csRow.branch ) );
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::COMPSEGS::DISTANCE_START::itemName, csRow.distanceStart ) );
         items.push_back( RifOpmDeckTools::item( Opm::ParserKeywords::COMPSEGS::DISTANCE_END::itemName, csRow.distanceEnd ) );
+
+        if ( exportSegmentNumbers )
+        {
+            items.push_back( RifOpmDeckTools::defaultItem( Opm::ParserKeywords::COMPSEGS::DIRECTION::itemName ) );
+            items.push_back( RifOpmDeckTools::defaultItem( Opm::ParserKeywords::COMPSEGS::END_IJK::itemName ) );
+            items.push_back( RifOpmDeckTools::defaultItem( Opm::ParserKeywords::COMPSEGS::CENTER_DEPTH::itemName ) );
+            items.push_back( RifOpmDeckTools::defaultItem( Opm::ParserKeywords::COMPSEGS::THERMAL_LENGTH::itemName ) );
+            items.push_back( RifOpmDeckTools::optionalItem( Opm::ParserKeywords::COMPSEGS::SEGMENT_NUMBER::itemName, csRow.segmentNumber ) );
+        }
 
         newKw.addRecord( Opm::DeckRecord{ std::move( items ) } );
     }
