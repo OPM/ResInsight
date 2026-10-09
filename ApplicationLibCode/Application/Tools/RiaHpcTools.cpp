@@ -53,6 +53,114 @@ QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
     return {};
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void stopLsfJob( QString jobId )
+{
+    runUtilityCommand( "bkill", { jobId } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void stopSlurmJob( QString jobId )
+{
+    runUtilityCommand( "scancel", { jobId } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString decodeSlurmJobId( QStringList stdOut )
+{
+    for ( const auto& line : stdOut )
+    {
+        if ( line.trimmed().startsWith( "Submitted batch job" ) )
+        {
+            auto parts = line.split( ' ', Qt::SkipEmptyParts );
+            if ( parts.size() > 3 )
+            {
+                return parts[3].trimmed();
+            }
+        }
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString decodeLsfJobId( QStringList stdOut )
+{
+    for ( const auto& line : stdOut )
+    {
+        if ( line.trimmed().startsWith( "Job <" ) )
+        {
+            auto parts = line.split( ' ', Qt::SkipEmptyParts );
+            if ( parts.size() > 1 )
+            {
+                auto candidate = parts[1].trimmed();
+                if ( candidate.startsWith( '<' ) && candidate.endsWith( '>' ) )
+                {
+                    return candidate.mid( 1, candidate.length() - 2 );
+                }
+            }
+        }
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList listSlurmJobs()
+{
+    QStringList arguments;
+    arguments << "--format";
+    arguments << "%i %j %M %T %P %B"; // id name time state partition nodes
+    arguments << "--me";
+    arguments << "--noheader";
+
+    return runUtilityCommand( "squeue", arguments );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList listLsfJobs()
+{
+    QStringList arguments;
+    arguments << "-w";
+
+    auto output = runUtilityCommand( "bjobs", arguments );
+
+    QStringList jobInfo;
+
+    bool foundStart = false;
+
+    for ( auto line : output )
+    {
+        auto parts = line.split( ' ', Qt::SkipEmptyParts );
+        if ( parts.size() < 8 ) continue;
+        if ( !foundStart && parts[0] == "JOBID" )
+        {
+            foundStart = true;
+            continue;
+        }
+
+        if ( foundStart )
+        {
+            // output was jobid user stat queue from_host exec_host job_name submit_time
+            // convert to jobid job_name submit_time state queue exec_host
+            QString newLine;
+            newLine = parts[0] + " " + parts[6] + " " + parts[7] + " " + parts[2] + " " + parts[3] + " " + parts[5];
+            jobInfo << newLine;
+        }
+    }
+    return jobInfo;
+}
+
 } // namespace
 
 namespace RiaHpcTools
@@ -75,6 +183,53 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler )
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList listJobs( RiaDefines::BatchSchedulerType scheduler )
+{
+    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        return listSlurmJobs();
+    }
+    else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
+    {
+        return listLsfJobs();
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId )
+{
+    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        stopSlurmJob( jobId );
+    }
+    else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
+    {
+        stopLsfJob( jobId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut )
+{
+    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        return decodeSlurmJobId( stdOut );
+    }
+    else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
+    {
+        return decodeLsfJobId( stdOut );
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,78 +303,6 @@ QStringList decodeLsfQueues( QStringList stdOut )
     }
 
     return retList;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId )
-{
-    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
-    {
-        stopSlurmJob( jobId );
-    }
-    else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
-    {
-        stopLsfJob( jobId );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void stopLsfJob( QString jobId )
-{
-    runUtilityCommand( "bkill", { jobId } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void stopSlurmJob( QString jobId )
-{
-    runUtilityCommand( "scancel", { jobId } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString decodeSlurmJobId( QStringList stdOut )
-{
-    for ( const auto& line : stdOut )
-    {
-        if ( line.contains( "Submitted batch job" ) )
-        {
-            auto parts = line.split( ' ' );
-            if ( parts.size() > 3 )
-            {
-                return parts[3].trimmed();
-            }
-        }
-    }
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList listSlurmJobs()
-{
-    QStringList arguments;
-    arguments << "--format";
-    arguments << "%i %j %M %T %P %B";
-    arguments << "--me";
-    arguments << "--noheader";
-
-    return runUtilityCommand( "squeue", arguments );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList listLsfJobs()
-{
-    return {};
 }
 
 } // namespace RiaHpcTools

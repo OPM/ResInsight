@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaHpcDefines.h"
+
 #include <atomic>
 
 #include <QMutex>
@@ -32,7 +34,7 @@ class RiuBatchMonitorWorker : public QObject
     Q_OBJECT
 
 public:
-    explicit RiuBatchMonitorWorker( QObject* parent = nullptr );
+    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, QObject* parent = nullptr );
 
     void stopMonitoring();
 
@@ -44,8 +46,9 @@ signals:
     void finished();
 
 private:
-    std::atomic<bool> m_keepRunning;
-    int               m_monitoringIntervalSeconds;
-    QMutex            m_mutex;
-    QWaitCondition    m_waitForStop;
+    std::atomic<bool>              m_keepRunning;
+    int                            m_monitoringIntervalSeconds;
+    QMutex                         m_mutex;
+    QWaitCondition                 m_waitForStop;
+    RiaDefines::BatchSchedulerType m_scheduler;
 };

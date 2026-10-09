@@ -26,6 +26,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
+#include <QInputDialog>
+
 CAF_PDM_SOURCE_INIT( RiaPreferencesHpc, "RiaPreferencesHpc" );
 
 //--------------------------------------------------------------------------------------------------
@@ -41,8 +43,7 @@ RiaPreferencesHpc::RiaPreferencesHpc()
     CAF_PDM_InitField( &m_exclusive, "exclusive", false, "Exclusive - do not share assigned nodes with other jobs." );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_exclusive );
 
-    CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue name" );
-    m_queueName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue/partition name" );
 
     CAF_PDM_InitFieldNoDefault( &m_batchSchedulerOptions, "batchSchedulerOptions", "Optional command line arguments" );
 }
@@ -68,39 +69,21 @@ void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
         auto localGrp = uiOrdering.addNewGroup( "Local Computer Options" );
         localGrp->add( &m_maxParallelJobs );
     }
-    else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::SLURM )
+    else
     {
-        auto hpcGrp = uiOrdering.addNewGroup( "Slurm Options" );
+        auto hpcGrp = uiOrdering.addNewGroup( "Batch Scheduler Options" );
         hpcGrp->add( &m_queueName );
+
+        hpcGrp->addNewButton( "Browse",
+                              [this]()
+                              {
+                                  auto newName = RiaPreferencesHpc::selectQueue( m_batchScheduler(), m_queueName() );
+                                  m_queueName.setValueWithFieldChanged( newName );
+                              },
+                              { .newRow = false, .totalColumnSpan = 1 } );
         hpcGrp->add( &m_exclusive );
         hpcGrp->add( &m_batchSchedulerOptions );
     }
-    else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
-    {
-        auto hpcGrp = uiOrdering.addNewGroup( "LSF Options" );
-        hpcGrp->add( &m_queueName );
-        hpcGrp->add( &m_exclusive );
-        hpcGrp->add( &m_batchSchedulerOptions );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaPreferencesHpc::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_queueName )
-    {
-        auto candidates = RiaHpcTools::availableQueues( m_batchScheduler() );
-        for ( auto& q : candidates )
-        {
-            options.push_back( caf::PdmOptionItemInfo( q, QVariant::fromValue( q ) ) );
-        }
-    }
-
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,4 +142,28 @@ QString RiaPreferencesHpc::batchSchedulerOptions() const
 bool RiaPreferencesHpc::exclusiveJob() const
 {
     return m_exclusive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesHpc::selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue )
+{
+    QStringList queues    = RiaHpcTools::availableQueues( scheduler );
+    QString     labelText = "Available Queues/Partitions:";
+    if ( queues.isEmpty() )
+    {
+        labelText = "Warning: failed to get available queues/partitions.";
+        queues.append( currentQueue );
+    }
+
+    int currentQueueIndex = currentQueue.isEmpty() ? 0 : queues.indexOf( currentQueue );
+
+    bool    ok;
+    QString selectedQueue = QInputDialog::getItem( nullptr, "Select Queue/Partition", labelText, queues, currentQueueIndex, false, &ok );
+    if ( ok && !selectedQueue.isEmpty() )
+    {
+        return selectedQueue;
+    }
+    return currentQueue;
 }

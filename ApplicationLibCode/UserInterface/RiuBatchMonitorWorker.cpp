@@ -28,10 +28,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchMonitorWorker::RiuBatchMonitorWorker( QObject* parent )
+RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, QObject* parent )
     : QObject( parent )
     , m_keepRunning( true )
     , m_monitoringIntervalSeconds( 5 )
+    , m_scheduler( scheduler )
 {
 }
 
@@ -54,7 +55,7 @@ void RiuBatchMonitorWorker::gatherInformation()
 {
     while ( m_keepRunning )
     {
-        auto jobInfo = RiaHpcTools::listSlurmJobs();
+        auto jobInfo = RiaHpcTools::listJobs( m_scheduler );
         emit informationGathered( jobInfo );
 
         // poll exit flag 10 times per second to respond quickly to program exit

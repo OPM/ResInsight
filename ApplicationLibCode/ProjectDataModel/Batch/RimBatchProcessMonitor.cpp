@@ -46,16 +46,3 @@ void RimBatchProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitSt
         m_batchQueue->setFinished( exitStatus == QProcess::NormalExit && exitCode == 0 );
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimBatchProcessMonitor::started()
-{
-    // if ( m_batchQueue.notNull() )
-    //{
-    //     m_batchQueue->setStarted();
-    // }
-
-    RimProcessMonitor::started();
-}

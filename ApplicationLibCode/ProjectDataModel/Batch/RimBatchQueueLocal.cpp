@@ -27,6 +27,7 @@ CAF_PDM_SOURCE_INIT( RimBatchQueueLocal, "BatchQueueLocal" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimBatchQueueLocal::RimBatchQueueLocal()
+    : RimBatchQueue( RiaDefines::BatchSchedulerType::LOCAL_COMPUTER )
 {
 }
 

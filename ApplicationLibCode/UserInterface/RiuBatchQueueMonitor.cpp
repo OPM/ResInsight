@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesHpc.h"
 
 #include "RiuBatchMonitorWorker.h"
 #include "RiuMessagePanel.h"
@@ -114,7 +115,9 @@ void RiuBatchQueueMonitor::toggleUpdates()
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        m_monitorWorker = new RiuBatchMonitorWorker();
+        auto schedulerType = RiaPreferencesHpc::current()->batchScheduler();
+
+        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType );
         auto thread     = new QThread( this );
 
         m_monitorWorker->moveToThread( thread );

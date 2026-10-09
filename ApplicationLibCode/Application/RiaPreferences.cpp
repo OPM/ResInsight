@@ -499,7 +499,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         m_opmPreferences()->appendItems( uiOrdering );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameHpc() )
+    else if ( uiConfigName == RiaPreferences::tabNameBatchScheduler() )
     {
         m_hpcPreferences()->appendItems( uiOrdering );
     }
@@ -683,9 +683,9 @@ QString RiaPreferences::tabNameOpmFlow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameHpc()
+QString RiaPreferences::tabNameBatchScheduler()
 {
-    return "HPC/Batch Scheduler";
+    return "Batch Scheduler";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -742,7 +742,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameScripting();
     names << tabNameCloudApi();
     names << tabNameOpmFlow();
-    names << tabNameHpc();
+    names << tabNameBatchScheduler();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif

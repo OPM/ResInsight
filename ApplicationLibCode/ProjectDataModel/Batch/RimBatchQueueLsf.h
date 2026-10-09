@@ -32,9 +32,12 @@ public:
     RimBatchQueueLsf();
     ~RimBatchQueueLsf();
 
-    void queueProcess( std::shared_ptr<RimProcess> process, int processes ) override;
-    void stopProcess() override;
-
-protected:
-    void setFinished( bool runOk ) override;
+    QStringList generateCommand( QString script,
+                                 QString jobName,
+                                 QString workDir,
+                                 QString stdOutLog,
+                                 QString stdErrLog,
+                                 QString queueName,
+                                 bool    exclusive,
+                                 int     numberOfProcesses ) override;
 };

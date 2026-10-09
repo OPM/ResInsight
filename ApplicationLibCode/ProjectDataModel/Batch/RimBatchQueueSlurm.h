@@ -42,6 +42,15 @@ protected:
 
     virtual QString jobId() const;
 
+    virtual QStringList generateCommand( QString script,
+                                         QString jobName,
+                                         QString workDir,
+                                         QString stdOutLog,
+                                         QString stdErrLog,
+                                         QString queueName,
+                                         bool    exclusive,
+                                         int     numberOfProcesses );
+
 protected:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     std::unique_ptr<RimProcess>        m_batchProcess;

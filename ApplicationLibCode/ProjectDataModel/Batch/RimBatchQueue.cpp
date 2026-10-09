@@ -24,6 +24,7 @@
 
 #include "ProcessControl/RimProcess.h"
 #include "RimBatchQueueLocal.h"
+#include "RimBatchQueueLsf.h"
 #include "RimBatchQueueSlurm.h"
 
 #include <QDateTime>
@@ -47,7 +48,7 @@ RimBatchQueue* RimBatchQueue::createBatchQueue()
     switch ( RiaPreferencesHpc::current()->batchScheduler() )
     {
         case RiaDefines::BatchSchedulerType::LSF:
-            break;
+            return new RimBatchQueueLsf();
 
         case RiaDefines::BatchSchedulerType::SLURM:
             return new RimBatchQueueSlurm();
@@ -177,4 +178,19 @@ void RimBatchQueue::readStdOutErrIntoProcessLog()
 RiaDefines::BatchSchedulerType RimBatchQueue::schedulerType() const
 {
     return m_schedulerType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueue::cleanUpOldLogFiles()
+{
+    if ( !m_stdOutFileName.isEmpty() && QFile::exists( m_stdOutFileName ) )
+    {
+        QFile::remove( m_stdOutFileName );
+    }
+    if ( !m_stdErrFileName.isEmpty() && QFile::exists( m_stdErrFileName ) )
+    {
+        QFile::remove( m_stdErrFileName );
+    }
 }

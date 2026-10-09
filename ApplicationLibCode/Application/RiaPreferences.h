@@ -180,7 +180,7 @@ private:
     static QString tabNameImportExport();
     static QString tabNameOpmFlow();
     static QString tabNameExperimental();
-    static QString tabNameHpc();
+    static QString tabNameBatchScheduler();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
