@@ -97,6 +97,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
+#include "Workflow/RimWorkflowCollection.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
@@ -348,8 +349,25 @@ bool RiaGuiApplication::checkWithUserBeforeClose()
     if ( !notifyUserAboutRunningJobs() ) return false;
     // ask user to save modified project if needed
     if ( !askUserToSaveModifiedProject() ) return false;
+    if ( !askUserToDiscardWorkflowEdits() ) return false;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Workflow edits are not part of the project file; they are lost unless saved to a workflow folder
+//--------------------------------------------------------------------------------------------------
+bool RiaGuiApplication::askUserToDiscardWorkflowEdits()
+{
+    if ( !project() || !project()->workflowCollection() || !project()->workflowCollection()->hasUnsavedChanges() ) return true;
+
+    const auto answer = QMessageBox::question( m_mainWindow,
+                                               "Unsaved Workflow Changes",
+                                               "Some workflows have changes that are not saved to their workflow folder.\n\n"
+                                               "Discard the changes?",
+                                               QMessageBox::Discard | QMessageBox::Cancel,
+                                               QMessageBox::Cancel );
+    return answer == QMessageBox::Discard;
 }
 
 //--------------------------------------------------------------------------------------------------

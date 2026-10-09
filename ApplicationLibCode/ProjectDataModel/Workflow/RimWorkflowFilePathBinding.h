@@ -29,9 +29,9 @@ class RimWorkflowFilePathBinding : public RimWorkflowFieldBinding
 public:
     RimWorkflowFilePathBinding();
 
-    void    applySchema( const QJsonObject& fieldSchema ) override;
-    QString toYamlValue() const override;
-    QString displayValue() const override;
+    void       applySchema( const QJsonObject& fieldSchema ) override;
+    QJsonValue toJsonValue() const override;
+    QString    displayValue() const override;
 
     caf::PdmFieldHandle* valueField() override { return &m_value; }
 

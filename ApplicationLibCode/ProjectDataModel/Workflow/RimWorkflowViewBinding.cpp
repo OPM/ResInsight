@@ -23,6 +23,8 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
+#include <QJsonObject>
+
 CAF_PDM_SOURCE_INIT( RimWorkflowViewBinding, "WorkflowViewBinding" );
 
 //--------------------------------------------------------------------------------------------------
@@ -44,10 +46,10 @@ QString RimWorkflowViewBinding::displayValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowViewBinding::toYamlValue() const
+QJsonValue RimWorkflowViewBinding::toJsonValue() const
 {
-    if ( m_view() == nullptr ) return "null";
-    return QString( "{__resinsight_ref__: View, view_id: %1}" ).arg( m_view()->id() );
+    if ( m_view() == nullptr ) return QJsonValue::Null;
+    return QJsonObject{ { "__resinsight_ref__", "View" }, { "view_id", m_view()->id() } };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,4 +74,32 @@ QList<caf::PdmOptionItemInfo> RimWorkflowViewBinding::calculateValueOptions( con
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowViewBinding::isObjectReference() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowViewBinding::applySchema( const QJsonObject& fieldSchema )
+{
+    RimWorkflowFieldBinding::applySchema( fieldSchema );
+    const QJsonObject reference = fieldSchema.value( "default" ).toObject();
+    if ( reference.value( "__resinsight_ref__" ).toString() != "View" || !reference.contains( "view_id" ) ) return;
+
+    const int viewId = reference.value( "view_id" ).toInt( -1 );
+    for ( RimEclipseCase* eclipseCase : RimEclipseCaseTools::eclipseCases() )
+    {
+        if ( !eclipseCase ) continue;
+        for ( RimEclipseView* view : eclipseCase->reservoirViews() )
+        {
+            if ( view && view->id() == viewId ) m_view = view;
+        }
+    }
 }

@@ -18,157 +18,15 @@
 
 #include "RimWorkflowDescribeTools.h"
 
+#include "RimWorkflowPortCompatibility.h"
+#include "RimWorkflowSchemaTools.h"
+
 #include <QJsonArray>
 #include <QJsonValue>
-#include <QMap>
 #include <QStringList>
 
 namespace
 {
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QJsonObject resolveRef( const QString& ref, const QJsonObject& rootSchema )
-{
-    const QString prefix = "#/$defs/";
-    if ( !ref.startsWith( prefix ) ) return {};
-    return rootSchema.value( "$defs" ).toObject().value( ref.mid( prefix.size() ) ).toObject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Follow $ref and unwrap single-item allOf and Optional (anyOf with null) to the underlying type
-//--------------------------------------------------------------------------------------------------
-QJsonObject underlyingSchema( QJsonObject schema, const QJsonObject& rootSchema )
-{
-    constexpr int maxDepth = 16;
-    for ( int depth = 0; depth < maxDepth; ++depth )
-    {
-        if ( schema.contains( "$ref" ) )
-        {
-            schema = resolveRef( schema.value( "$ref" ).toString(), rootSchema );
-            continue;
-        }
-
-        const QJsonArray allOf = schema.value( "allOf" ).toArray();
-        if ( allOf.size() == 1 )
-        {
-            schema = allOf.first().toObject();
-            continue;
-        }
-
-        if ( schema.value( "anyOf" ).isArray() )
-        {
-            QJsonArray nonNull;
-            for ( const QJsonValue& arm : schema.value( "anyOf" ).toArray() )
-            {
-                if ( arm.toObject().value( "type" ).toString() != "null" ) nonNull.append( arm );
-            }
-            if ( nonNull.size() == 1 )
-            {
-                schema = nonNull.first().toObject();
-                continue;
-            }
-        }
-        break;
-    }
-    return schema;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool isOpaque( const QJsonObject& schema, const QJsonObject& rootSchema )
-{
-    return underlyingSchema( schema, rootSchema ).value( "x-taskmaestro-opaque" ).toBool( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Python type of a runtime-only object, either bare or wrapped in an ObjectModel `value` field
-//--------------------------------------------------------------------------------------------------
-QString objectPythonType( const QJsonObject& typeSchema, const QJsonObject& rootSchema )
-{
-    if ( typeSchema.contains( "x-taskmaestro-python-type" ) ) return typeSchema.value( "x-taskmaestro-python-type" ).toString();
-
-    const QJsonObject valueSchema = typeSchema.value( "properties" ).toObject().value( "value" ).toObject();
-    if ( valueSchema.isEmpty() ) return {};
-    return underlyingSchema( valueSchema, rootSchema ).value( "x-taskmaestro-python-type" ).toString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString jsonType( const QJsonObject& typeSchema )
-{
-    const QString type = typeSchema.value( "type" ).toString();
-    if ( type == "boolean" || type == "integer" || type == "number" || type == "array" ) return type;
-    return "string";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// taskmaestro_resinsight.models.Vec3 is a plain pydantic model (x, y, z numbers), so it has no
-/// x-taskmaestro-python-type tag; recognize it structurally instead.
-//--------------------------------------------------------------------------------------------------
-bool isVec3Schema( const QJsonObject& typeSchema )
-{
-    if ( typeSchema.value( "type" ).toString() != "object" ) return false;
-
-    const QJsonObject properties = typeSchema.value( "properties" ).toObject();
-    if ( properties.size() != 3 ) return false;
-
-    for ( const QString& component : QStringList{ "x", "y", "z" } )
-    {
-        if ( properties.value( component ).toObject().value( "type" ).toString() != "number" ) return false;
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QJsonObject configFieldSchema( const QString&     fieldName,
-                               const QJsonObject& inputSchema,
-                               const QStringList& requiredFields,
-                               const QJsonObject& configValues )
-{
-    QJsonObject entry{ { "name", fieldName } };
-
-    const QJsonObject properties = inputSchema.value( "properties" ).toObject();
-    if ( !properties.contains( fieldName ) )
-    {
-        entry["type"]     = "string";
-        entry["required"] = true;
-        entry["error"]    = "field not found in input model";
-        return entry;
-    }
-
-    const QJsonObject property   = properties.value( fieldName ).toObject();
-    const QJsonObject typeSchema = underlyingSchema( property, inputSchema );
-    QString resinsightType       = RimWorkflowDescribeTools::resinsightTypeFromPythonType( objectPythonType( typeSchema, inputSchema ) );
-    if ( resinsightType.isEmpty() && isVec3Schema( typeSchema ) ) resinsightType = "Vec3";
-
-    entry["type"]     = resinsightType.isEmpty() ? jsonType( typeSchema ) : "object";
-    entry["required"] = requiredFields.contains( fieldName );
-
-    const QString description = property.value( "description" ).toString();
-    if ( !description.isEmpty() ) entry["description"] = description;
-
-    // Prefer the value already in input.yaml; fall back to the model default
-    if ( configValues.contains( fieldName ) )
-        entry["default"] = configValues.value( fieldName );
-    else if ( property.contains( "default" ) )
-        entry["default"] = property.value( "default" );
-
-    const QString format = typeSchema.value( "format" ).toString();
-    if ( !format.isEmpty() ) entry["format"] = format;
-
-    if ( !resinsightType.isEmpty() ) entry["resinsight_type"] = resinsightType;
-
-    return entry;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void appendEdge( QJsonArray& edges, const QJsonObject& ref, const QString& to, const QString& input )
 {
     const QString from = ref.value( "task" ).toString();
@@ -236,7 +94,7 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
     const QJsonObject outputProperties = outputSchema.value( "properties" ).toObject();
     for ( auto it = outputProperties.begin(); it != outputProperties.end(); ++it )
     {
-        if ( it.key() == "value" && isOpaque( it.value().toObject(), outputSchema ) ) continue;
+        if ( it.key() == "value" && RimWorkflowSchemaTools::isOpaque( it.value().toObject(), outputSchema ) ) continue;
         outputs.append( it.key() );
     }
 
@@ -251,13 +109,17 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
     {
         const QString fieldName = value.toString();
         if ( fieldName.isEmpty() ) continue;
-        configFields.append( configFieldSchema( fieldName, inputSchema, requiredFields, configValues ) );
+        configFields.append( RimWorkflowSchemaTools::configFieldSchema( fieldName, inputSchema, requiredFields, configValues ) );
     }
 
     return QJsonObject{ { "name", task.value( "name" ).toString() },
                         { "inputs", inputs },
                         { "outputs", outputs },
-                        { "config_fields", configFields } };
+                        { "config_fields", configFields },
+                        { "input_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::inputPorts( task ) ) },
+                        { "output_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::outputPorts( task ) ) },
+                        { "input_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::inputPorts( task ) ) },
+                        { "output_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::outputPorts( task ) ) } };
 }
 } // namespace
 
@@ -304,17 +166,5 @@ QString RimWorkflowDescribeTools::errorFromDescribe( const QJsonObject& describe
 //--------------------------------------------------------------------------------------------------
 QString RimWorkflowDescribeTools::resinsightTypeFromPythonType( const QString& pythonType )
 {
-    const int separator = pythonType.lastIndexOf( '.' );
-    if ( separator < 0 ) return {};
-
-    const QString module = pythonType.left( separator );
-    if ( module != "rips" && !module.startsWith( "rips." ) ) return {};
-
-    static const QMap<QString, QString> typeMap = { { "Case", "EclipseCase" },
-                                                    { "Reservoir", "EclipseCase" },
-                                                    { "EclipseCase", "EclipseCase" },
-                                                    { "WellPath", "WellPath" },
-                                                    { "View", "View" },
-                                                    { "EclipseView", "View" } };
-    return typeMap.value( pythonType.mid( separator + 1 ) );
+    return RimWorkflowSchemaTools::resinsightTypeFromPythonType( pythonType );
 }

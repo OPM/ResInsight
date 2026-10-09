@@ -38,6 +38,7 @@ public:
 
 signals:
     void taskStateChanged( const QString& runId, const QString& taskName, const QString& state, const QString& error );
+    void mapItemStateChanged( const QString& runId, const QString& taskName, const QString& item, const QString& state, const QString& error );
     void runFinished( bool succeeded, bool cancelled );
 
 private slots:

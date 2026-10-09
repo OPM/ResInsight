@@ -74,7 +74,7 @@
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
-#include "RiuWorkflowGraphView.h"
+#include "RiuWorkflowEditorWidget.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -1289,8 +1289,8 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
     m_pdmRoot = pdmRoot;
     if ( !pdmRoot )
     {
-        m_displayedWorkflowJob = nullptr;
-        if ( m_workflowGraphView ) m_workflowGraphView->showGraph( {}, {} );
+        if ( m_workflowEditor ) m_workflowEditor->clear();
+        updateWorkflowDockTitle();
     }
 
     for ( auto tv : projectTreeViews() )
@@ -1619,13 +1619,14 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* binding )
 {
-    if ( !m_workflowGraphView || !m_displayedWorkflowJob || binding->firstAncestorOrThisOfType<RimWorkflowJob>() != m_displayedWorkflowJob.p() )
+    if ( !m_workflowEditor || !m_workflowEditor->job() || binding->firstAncestorOrThisOfType<RimWorkflowJob>() != m_workflowEditor->job() )
         return;
 
     if ( auto* task = binding->firstAncestorOrThisOfType<RimWorkflowTaskInput>() )
     {
-        m_workflowGraphView->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
+        m_workflowEditor->graphView()->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
     }
+    m_workflowEditor->updateTaskIssues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1633,13 +1634,51 @@ void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* bindi
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
 {
-    if ( !m_workflowGraphView || m_displayedWorkflowJob.p() != job ) return;
-    m_workflowGraphView->resetTaskStates();
-    const auto states = job->taskStates();
-    const auto errors = job->taskErrors();
-    for ( auto it = states.cbegin(); it != states.cend(); ++it )
-        m_workflowGraphView->setTaskState( it.key(), it.value(), errors.value( it.key() ) );
-    m_workflowGraphView->setRunStatus( job->runStatus() );
+    if ( !m_workflowEditor || m_workflowEditor->job() != job ) return;
+    m_workflowEditor->updateJobState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Called by RimWorkflow after edits, undo, save and validation. A null workflow means the set of
+/// workflows changed (rescan).
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::workflowDefinitionChanged( RimWorkflow* workflow )
+{
+    if ( workflow ) workflow->updateConnectedEditors();
+    if ( !m_workflowEditor ) return;
+
+    RimWorkflow* displayed = m_workflowEditor->workflow();
+    if ( !displayed )
+    {
+        m_workflowEditor->clear();
+    }
+    else if ( !workflow || workflow == displayed )
+    {
+        RimWorkflowJob* job = m_workflowEditor->job();
+        if ( !job )
+        {
+            const auto jobs = displayed->jobs();
+            if ( !jobs.empty() ) job = jobs.front();
+        }
+        m_workflowEditor->setWorkflow( displayed, job );
+    }
+    updateWorkflowDockTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWorkflow* RiuMainWindow::displayedWorkflow() const
+{
+    return m_workflowEditor ? m_workflowEditor->workflow() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWorkflowEditorWidget* RiuMainWindow::workflowEditor() const
+{
+    return m_workflowEditor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1650,29 +1689,55 @@ void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* jo
     if ( !m_workflowGraphDock )
     {
         m_workflowGraphDock = RiuDockWidgetTools::createDockWidget( "Workflow", "WorkflowGraph", dockManager() );
-        m_workflowGraphView = new RiuWorkflowGraphView( m_workflowGraphDock );
-        m_workflowGraphDock->setWidget( m_workflowGraphView );
+        m_workflowEditor    = new RiuWorkflowEditorWidget( m_workflowGraphDock );
+        m_workflowGraphDock->setWidget( m_workflowEditor );
         dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea,
                                       m_workflowGraphDock,
                                       dockManager()->centralWidget()->dockAreaWidget() );
+        connect( m_workflowEditor, &RiuWorkflowEditorWidget::taskSelected, this, &RiuMainWindow::showWorkflowTaskProperties );
     }
 
-    m_displayedWorkflowJob = job;
-    m_workflowGraphDock->setWindowTitle( QString( "Workflow: %1" ).arg( workflow->name() ) );
-    m_workflowGraphView->showGraph( workflow->graph(), workflow->loadError() );
-    if ( job )
-    {
-        for ( RimWorkflowTaskInput* task : job->taskInputs() )
-        {
-            for ( RimWorkflowFieldBinding* binding : task->items() )
-            {
-                if ( binding ) m_workflowGraphView->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
-            }
-        }
-    }
-    if ( job ) workflowJobStateChanged( job );
+    m_workflowEditor->setWorkflow( workflow, job );
+    updateWorkflowDockTitle();
     m_workflowGraphDock->toggleView( true );
     m_workflowGraphDock->setAsCurrentTab();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the inputs of the selected graph node, or the job when the selection is cleared
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWorkflowTaskProperties( const QString& taskName )
+{
+    if ( !m_workflowEditor ) return;
+
+    RimWorkflowJob* job = m_workflowEditor->job();
+    if ( !job ) return;
+
+    if ( RimWorkflowTaskInput* task = taskName.isEmpty() ? nullptr : job->taskInput( taskName ) )
+    {
+        m_pdmUiPropertyView->showProperties( task );
+    }
+    else if ( dynamic_cast<RimWorkflowTaskInput*>( m_pdmUiPropertyView->currentObject() ) )
+    {
+        m_pdmUiPropertyView->showProperties( job );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateWorkflowDockTitle()
+{
+    if ( !m_workflowGraphDock ) return;
+
+    RimWorkflow* workflow = displayedWorkflow();
+    if ( !workflow )
+    {
+        m_workflowGraphDock->setWindowTitle( "Workflow" );
+        return;
+    }
+    const bool modified = workflow->isEditable() && workflow->isDirty();
+    m_workflowGraphDock->setWindowTitle( QString( "Workflow: %1%2" ).arg( workflow->name(), modified ? "*" : "" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

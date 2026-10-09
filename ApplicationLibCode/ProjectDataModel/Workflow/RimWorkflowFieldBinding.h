@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QJsonValue>
+
 class QJsonObject;
 
 class RimWorkflowFieldBinding : public caf::PdmObject
@@ -35,17 +37,17 @@ public:
     void    setDescription( const QString& description );
     void    setRequired( bool required );
 
-    virtual void    applySchema( const QJsonObject& fieldSchema );
-    virtual QString toYamlValue() const = 0;
-    virtual QString displayValue() const;
+    virtual void       applySchema( const QJsonObject& fieldSchema );
+    virtual QJsonValue toJsonValue() const = 0;
+    virtual bool       isObjectReference() const;
+    virtual QString    displayValue() const;
 
     virtual caf::PdmFieldHandle* valueField() = 0;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    bool           hasValue() const;
-    static QString yamlQuotedScalar( const QString& value );
+    bool hasValue() const;
 
     caf::PdmField<QString> m_fieldName;
     caf::PdmField<QString> m_description;
