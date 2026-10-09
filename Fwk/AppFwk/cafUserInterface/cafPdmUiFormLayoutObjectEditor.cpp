@@ -283,6 +283,9 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
 
                             if ( labelPos == PdmUiItemInfo::LabelPosition::HIDDEN )
                             {
+                                // Not added to the layout, so reparent explicitly. Otherwise the label stays in a
+                                // previous group box and is deleted with it when the field moves to another group.
+                                fieldLabelWidget->setParent( containerWidgetWithGridLayout );
                                 fieldLabelWidget->hide();
                             }
                             else if ( labelPos == PdmUiItemInfo::LabelPosition::TOP )

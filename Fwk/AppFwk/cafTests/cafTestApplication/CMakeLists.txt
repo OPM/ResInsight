@@ -66,6 +66,8 @@ set(PROJECT_FILES
     PdmObjects/ValidationTest.cpp
     PdmObjects/ReentrantEditorRebuild.h
     PdmObjects/ReentrantEditorRebuild.cpp
+    PdmObjects/GroupVisibilityByEnum.h
+    PdmObjects/GroupVisibilityByEnum.cpp
 )
 
 qt_add_executable(
