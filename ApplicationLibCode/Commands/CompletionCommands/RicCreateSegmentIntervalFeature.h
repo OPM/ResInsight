@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSegmentIntervalFeature : public caf::CmdFeature
+class RicCreateSegmentIntervalFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

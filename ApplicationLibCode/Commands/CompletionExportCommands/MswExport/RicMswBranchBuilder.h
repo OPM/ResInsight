@@ -20,6 +20,7 @@
 
 #include "CompletionsMsw/RigMswSegment.h"
 #include "RiaDefines.h"
+#include "RicMswTableDataTools.h"
 #include "RigActiveCellInfo.h"
 #include "Well/RigWellLogExtractor.h"
 
@@ -47,8 +48,10 @@ namespace RicMswBranchBuilder
 {
 
 //--------------------------------------------------------------------------------------------------
-/// Mapping from a sub-segment's MD range to its main-bore segment number.
-/// One entry is emitted per sub-segment (a cell split into N sub-segments produces N entries).
+/// Mapping from a main-bore segment's MD span to its segment number and node MD.
+/// The span is the part of the branch served by the segment node. Without segmentation rules one
+/// entry is emitted per sub-segment (a cell split into N sub-segments produces N entries), and the
+/// node is at the centre of the span.
 /// Used by valve, fracture, and lateral builders to locate the outlet segment for a given MD.
 //--------------------------------------------------------------------------------------------------
 struct CellSegmentEntry
@@ -56,6 +59,17 @@ struct CellSegmentEntry
     double cellStartMD;
     double cellEndMD;
     int    lastSubSegmentNumber;
+    double nodeMD;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// MD span served by one segment node, nodeIndex refers to the node list.
+//--------------------------------------------------------------------------------------------------
+struct NodeSpan
+{
+    double startMD;
+    double endMD;
+    size_t nodeIndex;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -137,9 +151,19 @@ std::optional<RigMswCellIntersection>
 int findOutletSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap, double md );
 
 //--------------------------------------------------------------------------------------------------
+/// Split the cell pieces of a branch into the spans served by each segment node. Without
+/// segmentation rules each piece is served by its own centre node. Otherwise the pieces are split
+/// at the nodes, and each part is served by the nearest node upstream of it (the most upstream node
+/// for parts above all nodes). Consecutive parts served by the same node are merged.
+//--------------------------------------------------------------------------------------------------
+std::vector<NodeSpan> segmentSpans( const std::vector<std::pair<double, double>>& cellPieces, const std::vector<double>& nodes );
+
+//--------------------------------------------------------------------------------------------------
 /// Build main-bore WELSEGS segments directly from well-path geometry.
-/// For each grid-cell intersection overlapping a bare perforation (no active valve) a COMPSEGS
-/// entry is embedded.  Optionally fills cellSegMap for later valve outlet-segment lookups.
+/// Segment nodes are placed at cell centres and adjusted by the segmentation intervals (min/max
+/// segment length). A COMPSEGS entry is embedded for each grid-cell intersection overlapping a bare
+/// perforation (no active valve), on the segment whose node is nearest the entry centre.
+/// Optionally fills cellSegMap for later valve outlet-segment lookups.
 //--------------------------------------------------------------------------------------------------
 RigMswBranch buildMainBoreBranch( const RimWellPath*                                wellPath,
                                   const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
@@ -155,6 +179,7 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                                   int                                               outletSegmentNumber,
                                   double                                            maxSegmentLength,
                                   const std::vector<std::pair<double, double>>&     customSegmentIntervals,
+                                  const RicMswTableDataTools::SegmentationSettings& segmentationSettings,
                                   const std::optional<QDateTime>&                   exportDate,
                                   RiaDefines::EclipseUnitSystem                     unitSystem,
                                   std::vector<CellSegmentEntry>*                    cellSegMap,
