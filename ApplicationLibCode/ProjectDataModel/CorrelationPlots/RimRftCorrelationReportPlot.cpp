@@ -710,7 +710,12 @@ void RimRftCorrelationReportPlot::onRftTrackDepthClicked( RimWellLogTrack* track
 
         m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
         m_parameterRftCrossPlot->setSelectedZones( zones );
-        loadDataAndUpdate();
+
+        // The zone filter does not affect the RFT curves; skip reloading the RFT plot to keep its zoom
+        updateSelectedZoneHighlight();
+        syncTornadoInputsFromCrossPlot();
+        m_tornadoPlot->loadDataAndUpdate();
+        m_parameterRftCrossPlot->loadDataAndUpdate();
         updateConnectedEditors();
         return;
     }
