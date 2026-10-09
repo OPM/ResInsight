@@ -227,10 +227,14 @@ void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* sour
 
     m_wellRftPlot->initializeDataSources( source );
 
-    // The correlation report operates on a single time step; trim any extras that
-    // initializeDataSources may have preselected when only a few were available.
+    // The correlation report operates on a single time step; prefer the time step selected in the
+    // source plot, and trim any extras that initializeDataSources may have preselected.
     auto selectedTimeSteps = m_wellRftPlot->selectedTimeSteps();
-    if ( selectedTimeSteps.size() > 1 )
+    if ( source && !source->selectedTimeSteps().empty() )
+    {
+        m_wellRftPlot->setSelectedTimeSteps( { source->selectedTimeSteps().front() } );
+    }
+    else if ( selectedTimeSteps.size() > 1 )
     {
         m_wellRftPlot->setSelectedTimeSteps( { selectedTimeSteps.front() } );
     }
