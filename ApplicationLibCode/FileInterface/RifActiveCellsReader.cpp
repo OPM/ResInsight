@@ -93,6 +93,9 @@ std::vector<std::vector<int>>
             if ( indexToCell >= activeCellCount )
             {
                 indexToCell = poreValueIndex - activeCellCount;
+
+                // An odd number of values has no matching cell for the last value
+                if ( indexToCell >= activeCellCount ) continue;
             }
 
             if ( porvValues[poreValueIndex] > 0.0 )
