@@ -113,6 +113,9 @@ void RifPerforationIntervalReader::readFileIntoMap( const QString&              
                 continue;
             }
 
+            // Four values are read starting at mdStartIndex
+            if ( parts.size() < mdStartIndex + 4 ) continue;
+
             interval.startMD    = parts[mdStartIndex].toDouble();
             interval.endMD      = parts[mdStartIndex + 1].toDouble();
             interval.diameter   = parts[mdStartIndex + 2].toDouble();
