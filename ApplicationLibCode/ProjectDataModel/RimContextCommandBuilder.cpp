@@ -1064,7 +1064,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseFeature";
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
-        menuBuilder << "RicCloseObservedDataFeature";
         menuBuilder << "RicDeleteSubPlotFeature";
 
         menuBuilder << "RicNewMultiPlotFeature";

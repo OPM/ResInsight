@@ -108,6 +108,8 @@ public:
     virtual bool isRegressionCurve() const;
     void         updateLegendEntryVisibilityNoPlotUpdate() override;
 
+    bool deleteIfDataSourceIsMissing() override;
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;

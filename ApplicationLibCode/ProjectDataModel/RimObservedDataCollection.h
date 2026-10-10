@@ -35,8 +35,6 @@ class RimObservedDataCollection : public caf::PdmObject
 public:
     RimObservedDataCollection();
 
-    void                    removeObservedSummaryData( RimObservedSummaryData* observedSummaryData );
-    void                    removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );
     RimObservedSummaryData* createAndAddRsmObservedSummaryDataFromFile( const QString& fileName, QString* errorText = nullptr );
     RimObservedSummaryData*
         createAndAddCvsObservedSummaryDataFromFile( const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr );
