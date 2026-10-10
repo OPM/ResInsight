@@ -18,7 +18,9 @@
 
 #include "RiuFileDialogTools.h"
 
+#include <QDir>
 #include <QFileDialog>
+#include <QSettings>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,12 +63,39 @@ QString RiuFileDialogTools::getExistingDirectory( QWidget*       parent /*= null
                                                   const QString& caption /*= QString()*/,
                                                   const QString& dir /*= QString() */ )
 {
-#ifdef WIN32
-    return QFileDialog::getExistingDirectory( parent, caption, dir );
-#else
-    auto options = QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog;
-    return QFileDialog::getExistingDirectory( parent, caption, dir, options );
-#endif
+    const QString registryKey      = "RiuFileDialogTools/RecentFolders";
+    const int     maxRecentFolders = 10;
+
+    QSettings   settings;
+    QStringList recentFolders;
+    for ( const QString& folder : settings.value( registryKey ).toStringList() )
+    {
+        if ( QDir( folder ).exists() ) recentFolders.push_back( folder );
+    }
+
+    // The native dialog does not support a history, so the Qt dialog is used to show recently used
+    // folders in the "Look in" dropdown
+    QFileDialog dialog( parent, caption, dir );
+    dialog.setFileMode( QFileDialog::Directory );
+    dialog.setOptions( QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog );
+
+    // The dialog lists the history with the last entry on top
+    QStringList history( recentFolders.rbegin(), recentFolders.rend() );
+    dialog.setHistory( history );
+
+    if ( dialog.exec() != QDialog::Accepted || dialog.selectedFiles().isEmpty() ) return {};
+
+    const QString selectedFolder = QDir::cleanPath( dialog.selectedFiles().front() );
+
+    recentFolders.removeAll( selectedFolder );
+    recentFolders.prepend( selectedFolder );
+    while ( recentFolders.size() > maxRecentFolders )
+    {
+        recentFolders.removeLast();
+    }
+    settings.setValue( registryKey, recentFolders );
+
+    return selectedFolder;
 }
 
 //--------------------------------------------------------------------------------------------------
