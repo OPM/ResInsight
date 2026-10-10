@@ -8,8 +8,11 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <vector>
+
+#include <QTemporaryDir>
 
 // Test importing a VTU file
 TEST( RifVtkSurfaceImporterTest, ImportFromFile )
@@ -50,6 +53,45 @@ TEST( RifVtkSurfaceImporterTest, ImportFromFile )
     {
         ASSERT_TRUE( std::isnan( triangleMeshData->propertyValues( "ReservoirPerm" )[i] ) );
     }
+}
+
+// Connectivity referring to a non-existing vertex used to read outside the vertex array
+TEST( RifVtkSurfaceImporterTest, ConnectivityOutOfRangeIsRejected )
+{
+    const std::string xml = R"(<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="1.0">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="3" NumberOfCells="1">
+      <Points>
+        <DataArray type="Float64" Name="Coordinates" NumberOfComponents="3">0 0 0 1 0 0 0 1 0</DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="UInt32" Name="connectivity">100000000 1 2</DataArray>
+        <DataArray type="UInt32" Name="offsets">3</DataArray>
+        <DataArray type="UInt8" Name="types">5</DataArray>
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>)";
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    const auto filePath = std::filesystem::path( tempDir.path().toStdString() ) / "surface.vtu";
+
+    auto writeFile = [&filePath]( const std::string& content )
+    {
+        std::ofstream out( filePath );
+        out << content;
+    };
+
+    writeFile( xml );
+    EXPECT_EQ( nullptr, RifVtkSurfaceImporter::importFromFile( filePath ) );
+
+    // The same file with valid indices is accepted
+    auto validXml = xml;
+    validXml.replace( validXml.find( "100000000" ), 9, "0" );
+    writeFile( validXml );
+    EXPECT_NE( nullptr, RifVtkSurfaceImporter::importFromFile( filePath ) );
 }
 
 // Test parsing a PVD file
