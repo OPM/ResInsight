@@ -22,10 +22,12 @@
 #include "RiaTestDataDirectory.h"
 #include "RifActiveCellsReader.h"
 
+#include "ert/ecl/ecl_endian_flip.hpp"
 #include "ert/ecl/ecl_file.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 
 #include <QDir>
+#include <QTemporaryDir>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,4 +119,45 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
     }
 
     ecl_grid_free( mainEclGrid );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Odd number of PORV values for a dual porosity case. Used to write one int past the end of the
+/// active cell vector.
+//--------------------------------------------------------------------------------------------------
+TEST( RifActiveCellsReaderTest, DualPorosityWithOddPorvCount )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const int     porvCount = 11;
+    const QString filePath  = tempDir.path() + "/ODD_PORV.INIT";
+
+    {
+        ecl_kw_type* kw   = ecl_kw_alloc( "PORV", porvCount, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
+        float*       data = static_cast<float*>( ecl_kw_get_ptr( kw ) );
+        for ( int i = 0; i < porvCount; i++ )
+        {
+            data[i] = 1.0f + static_cast<float>( i );
+        }
+
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_NE( nullptr, fortio );
+        ecl_kw_fwrite( kw, fortio );
+        fortio_fclose( fortio );
+        ecl_kw_free( kw );
+    }
+
+    ecl_file_type* initFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), ECL_FILE_CLOSE_STREAM );
+    ASSERT_NE( nullptr, initFile );
+
+    auto activeCells = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, true, 0 );
+    ecl_file_close( initFile );
+
+    ASSERT_EQ( size_t( 1 ), activeCells.size() );
+    ASSERT_EQ( size_t( porvCount / 2 ), activeCells[0].size() );
+    for ( int value : activeCells[0] )
+    {
+        EXPECT_GT( value, 0 );
+    }
 }
