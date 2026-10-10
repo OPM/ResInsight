@@ -81,6 +81,9 @@ public:
 
     void importData();
 
+    // Imported observations as comma separated text with a header row
+    QString csvText() const;
+
 private:
     static std::vector<WellDate> importWellDates( const QString& fileName );
     static std::vector<Location> importLocations( const QString& fileName );

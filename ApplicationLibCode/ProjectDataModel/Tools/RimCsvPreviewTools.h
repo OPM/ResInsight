@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,30 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
 
-#include <vector>
+#include <QString>
 
-class RimObservedFmuRftData;
-class RimObservedSummaryData;
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicCloseObservedDataFeature : public caf::CmdFeature
+namespace caf
 {
-    CAF_CMD_HEADER_INIT;
+class PdmUiEditorAttribute;
+}
 
-public:
-    static void deleteObservedSummaryData( const std::vector<RimObservedSummaryData*>& data );
-    static void deleteObservedRmuRftData( const std::vector<RimObservedFmuRftData*>& data );
+//==================================================================================================
+/// Helpers for showing CSV data as a read-only HTML table in the property editor
+//==================================================================================================
+namespace RimCsvPreviewTools
+{
+const int defaultMaxRowCount = 1000;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-};
+// Configures the field as a read-only, non-persistent HTML text editor without label
+void initPreviewField( caf::PdmField<QString>& field );
+
+// Call from defineEditorAttribute() for the preview field
+void setPreviewEditorAttribute( caf::PdmUiEditorAttribute* attribute );
+
+// Returns the HTML table, or the error message if the content could not be parsed
+QString htmlTableFromText( const QString& csvText, int maxRowCount = defaultMaxRowCount );
+QString htmlTableFromFile( const QString& filePath, int maxRowCount = defaultMaxRowCount );
+
+} // namespace RimCsvPreviewTools

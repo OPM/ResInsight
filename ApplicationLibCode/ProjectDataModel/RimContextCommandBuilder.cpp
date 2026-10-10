@@ -49,7 +49,6 @@
 #include "RimColorLegendItem.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
-#include "RimCorrelationPlotCollection.h"
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
@@ -603,13 +602,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewAnalysisPlotFeature";
             menuBuilder << "RicNewPlotDataFilterFeature";
         }
-        else if ( dynamic_cast<RimCorrelationPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewCorrelationPlotFeature";
-            menuBuilder << "RicNewCorrelationMatrixPlotFeature";
-            menuBuilder << "RicNewParameterResultCrossPlotFeature";
-            menuBuilder << "RicNewCorrelationReportPlotFeature";
-        }
         else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCorrelationPlotFeature";
@@ -1072,7 +1064,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseFeature";
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
-        menuBuilder << "RicCloseObservedDataFeature";
         menuBuilder << "RicDeleteSubPlotFeature";
 
         menuBuilder << "RicNewMultiPlotFeature";

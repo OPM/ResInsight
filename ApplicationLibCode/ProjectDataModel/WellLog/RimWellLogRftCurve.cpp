@@ -330,6 +330,21 @@ RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::deleteIfDataSourceIsMissing()
+{
+    if ( m_eclipseCase || m_summaryCase || m_ensemble || m_observedFmuRftData || m_pressureDepthData ) return false;
+
+    auto track = firstAncestorOrThisOfType<RimWellLogTrack>();
+    if ( !track ) return false;
+
+    track->removeCurve( this );
+    delete this;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setPressureDepthData( RimPressureDepthData* observedFmuRftData )
 {
     m_pressureDepthData = observedFmuRftData;

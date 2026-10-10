@@ -755,7 +755,6 @@ void RimParameterRftCrossPlot::createPoints()
     caf::ColorTable colorTable = RiaColorTables::categoryPaletteColors();
 
     auto caseData = createCaseData();
-    if ( caseData.empty() ) return;
 
     std::set<RimSummaryCase*> selectedSummaryCases;
     auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName() );
@@ -806,21 +805,14 @@ void RimParameterRftCrossPlot::createPoints()
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::attachObservedPressure()
 {
-    const auto observedPressures =
-        RimRftCrossPlotTools::computeObservedPressures( m_wellName(),
-                                                        m_selectedTimeStep(),
-                                                        depthIntervals(),
-                                                        m_depthType(),
-                                                        RimRftCrossPlotTools::buildAllZoneIntervals( m_wellFormations(),
-                                                                                                     m_wellName(),
-                                                                                                     m_depthType() ) );
-    if ( observedPressures.empty() ) return;
+    const auto pressures = observedPressures();
+    if ( pressures.empty() ) return;
 
     auto attachLine = [this]( double value, Qt::PenStyle style, const QString& label, const QColor& color )
     { RiuRftCorrelationPlotTools::attachHorizontalLine( m_plotWidget, value, style, label, color ); };
 
     bool isFirst = true;
-    for ( const auto& observed : observedPressures )
+    for ( const auto& observed : pressures )
     {
         // Use the formation color when known; otherwise fall back to black lines and no shaded band
         std::optional<QColor> zoneColor;
@@ -848,6 +840,20 @@ void RimParameterRftCrossPlot::attachObservedPressure()
 
         RiuRftCorrelationPlotTools::attachHorizontalBand( m_plotWidget, observed.rangeMin, observed.rangeMax, shadingColor );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Shared by drawing and range computation so the axis range matches the drawn zone averages
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::ObservedPressure> RimParameterRftCrossPlot::observedPressures() const
+{
+    return RimRftCrossPlotTools::computeObservedPressures( m_wellName(),
+                                                           m_selectedTimeStep(),
+                                                           depthIntervals(),
+                                                           m_depthType(),
+                                                           RimRftCrossPlotTools::buildAllZoneIntervals( m_wellFormations(),
+                                                                                                        m_wellName(),
+                                                                                                        m_depthType() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -895,25 +901,35 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
-    for ( const auto& observed :
-          RimRftCrossPlotTools::computeObservedPressures( m_wellName(), m_selectedTimeStep(), depthIntervals(), m_depthType() ) )
+    for ( const auto& observed : observedPressures() )
     {
         yMin = std::min( yMin, observed.rangeMin );
         yMax = std::max( yMax, observed.rangeMax );
     }
 
-    if ( xMin == std::numeric_limits<double>::infinity() )
+    // Without RFT samples, use the parameter range so the X axis does not keep the range of a previous time step
+    if ( xMin == std::numeric_limits<double>::infinity() && m_ensemble() && !m_ensembleParameter().isEmpty() )
     {
-        m_xValueRange = std::nullopt;
-        m_yValueRange = std::nullopt;
-        return;
+        const RigEnsembleParameter parameter = m_ensemble->ensembleParameter( m_ensembleParameter );
+        if ( parameter.isNumeric() && parameter.isValid() )
+        {
+            xMin = parameter.minValue;
+            xMax = parameter.maxValue;
+        }
     }
 
-    const double xRange = xMax - xMin;
-    const double yRange = yMax - yMin;
+    // Observed data is shown even when there are no RFT samples, so the ranges are computed independently
+    auto paddedRange = []( double minValue, double maxValue ) -> std::optional<std::pair<double, double>>
+    {
+        if ( minValue == std::numeric_limits<double>::infinity() ) return std::nullopt;
 
-    m_xValueRange = std::make_pair( xMin - xRange * 0.1, xMax + xRange * 0.1 );
-    m_yValueRange = std::make_pair( yMin - yRange * 0.1, yMax + yRange * 0.1 );
+        const double range   = maxValue - minValue;
+        const double padding = range > 0.0 ? range * 0.1 : std::max( std::abs( minValue ) * 0.01, 1.0 );
+        return std::make_pair( minValue - padding, maxValue + padding );
+    };
+
+    m_xValueRange = paddedRange( xMin, xMax );
+    m_yValueRange = paddedRange( yMin, yMax );
 }
 
 //--------------------------------------------------------------------------------------------------

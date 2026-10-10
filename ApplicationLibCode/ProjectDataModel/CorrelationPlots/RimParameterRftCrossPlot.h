@@ -132,7 +132,8 @@ private:
     void            cleanupBeforeClose();
     RimSummaryCase* findClosestCase( const QPoint& canvasPos );
 
-    std::vector<RimRftCrossPlotTools::DepthInterval> depthIntervals() const;
+    std::vector<RimRftCrossPlotTools::DepthInterval>    depthIntervals() const;
+    std::vector<RimRftCrossPlotTools::ObservedPressure> observedPressures() const;
 
 private:
     caf::PdmPtrField<RimSummaryEnsemble*>                    m_ensemble;

@@ -93,8 +93,6 @@ public:
 
     static const char* plotNameFormatString();
 
-    void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
-
     bool showErrorBarsForObservedData() const;
     void onLegendDefinitionChanged();
 

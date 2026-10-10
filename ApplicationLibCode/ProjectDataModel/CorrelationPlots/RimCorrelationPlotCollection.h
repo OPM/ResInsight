@@ -81,6 +81,8 @@ public:
     std::vector<RimRftCorrelationReportPlot*> rftReports() const;
 
 private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::vector<QString>& quantityNames = {} );
     void applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
                                               RimSummaryEnsemble*         ensemble,

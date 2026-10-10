@@ -24,7 +24,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 
 #include <memory>
 
@@ -45,11 +44,16 @@ public:
 
 protected:
     void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    void updateContentTable();
 
 private:
     std::unique_ptr<RifReaderFmuRft> m_fmuRftReader;
 
-    caf::PdmField<caf::FilePath>                  m_directoryPath;
-    caf::PdmField<QString>                        m_directoryPath_OBSOLETE;
-    caf::PdmProxyValueField<std::vector<QString>> m_wells;
+    caf::PdmField<caf::FilePath> m_directoryPath;
+    caf::PdmField<QString>       m_directoryPath_OBSOLETE;
+    caf::PdmField<QString>       m_contentTable;
 };
