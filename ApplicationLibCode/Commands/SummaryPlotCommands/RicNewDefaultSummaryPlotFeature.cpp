@@ -143,9 +143,8 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
     {
         createFromSummaryCases( selectedIndividualSummaryCases );
     }
-    else
+    else if ( !selectedEnsembles.empty() )
     {
-        CAF_ASSERT( !selectedEnsembles.empty() );
         RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( selectedEnsembles );
     }
 }
