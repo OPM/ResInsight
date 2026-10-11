@@ -23,8 +23,10 @@
 #include "RiuMessageDialog.h"
 
 #include "RifEclipseOutputFileTools.h"
+#include "RifOpmCommonFlowDiagGridSource.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderInterface.h"
+#include "RifReaderOpmCommon.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -47,14 +49,25 @@
 class RigOpmFlowDiagStaticData
 {
 public:
-    RigOpmFlowDiagStaticData( const ecl_grid_type* mainGrid, const std::wstring& initFilename, RiaDefines::EclipseUnitSystem caseUnitSystem )
+    RigOpmFlowDiagStaticData( const ecl_grid_type*           mainGrid,
+                              const Opm::ECLGraphGridSource* gridSource,
+                              const std::wstring&            initFilename,
+                              RiaDefines::EclipseUnitSystem  caseUnitSystem )
         : m_initData( initFilename )
     {
         try
         {
             if ( mainGrid )
             {
-                m_eclGraph   = std::make_unique<Opm::ECLGraph>( Opm::ECLGraph::load( mainGrid, m_initData ) );
+                m_eclGraph = std::make_unique<Opm::ECLGraph>( Opm::ECLGraph::load( mainGrid, m_initData ) );
+            }
+            else if ( gridSource )
+            {
+                m_eclGraph = std::make_unique<Opm::ECLGraph>( Opm::ECLGraph::load( *gridSource, m_initData ) );
+            }
+
+            if ( m_eclGraph )
+            {
                 m_poreVolume = m_eclGraph->poreVolume();
             }
 
@@ -447,6 +460,8 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
             auto           fileReader = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->readerInterface();
             ecl_grid_type* mainGrid   = nullptr;
 
+            std::unique_ptr<RifOpmCommonFlowDiagGridSource> opmGridSource;
+
             if ( auto eclOutput = dynamic_cast<const RifReaderEclipseOutput*>( fileReader ) )
             {
                 mainGrid = eclOutput->loadAllGrids();
@@ -455,11 +470,23 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                     return false;
                 }
             }
+            else if ( dynamic_cast<const RifReaderOpmCommon*>( fileReader ) )
+            {
+                try
+                {
+                    opmGridSource = std::make_unique<RifOpmCommonFlowDiagGridSource>( m_eclipseCase->gridFileName().toStdString() );
+                }
+                catch ( const std::exception& e )
+                {
+                    RiaLogging::warning( std::string( "Flow diagnostics: Could not read grid topology. " ) + e.what() );
+                }
+            }
 
             RiaDefines::EclipseUnitSystem caseUnitSystem = eclipseCaseData->unitsType();
             try
             {
-                m_opmFlowDiagStaticData = std::make_unique<RigOpmFlowDiagStaticData>( mainGrid, initFileName, caseUnitSystem );
+                m_opmFlowDiagStaticData =
+                    std::make_unique<RigOpmFlowDiagStaticData>( mainGrid, opmGridSource.get(), initFileName, caseUnitSystem );
             }
             catch ( const std::exception& e )
             {
@@ -469,6 +496,22 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
             if ( mainGrid )
             {
                 ecl_grid_free( mainGrid );
+            }
+
+            // Flow diagnostics results are indexed by the graph's cell index, assumed equal to the active cell result index
+            auto* eclGraphOwner = m_opmFlowDiagStaticData ? &m_opmFlowDiagStaticData->m_eclGraph : nullptr;
+            if ( eclGraphOwner && *eclGraphOwner )
+            {
+                auto&        eclGraph = *eclGraphOwner;
+                const size_t activeCellCount =
+                    eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
+                if ( eclGraph->numCells() != activeCellCount )
+                {
+                    RiaLogging::warning( "Flow diagnostics disabled: Cell count in flow graph (" + std::to_string( eclGraph->numCells() ) +
+                                         ") differs from active cell count (" + std::to_string( activeCellCount ) + ")." );
+                    eclGraph.reset();
+                    m_opmFlowDiagStaticData->m_poreVolume.clear();
+                }
             }
         }
     }
