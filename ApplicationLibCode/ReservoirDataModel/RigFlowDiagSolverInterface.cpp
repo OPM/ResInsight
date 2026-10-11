@@ -457,7 +457,14 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
             }
 
             RiaDefines::EclipseUnitSystem caseUnitSystem = eclipseCaseData->unitsType();
-            m_opmFlowDiagStaticData = std::make_unique<RigOpmFlowDiagStaticData>( mainGrid, initFileName, caseUnitSystem );
+            try
+            {
+                m_opmFlowDiagStaticData = std::make_unique<RigOpmFlowDiagStaticData>( mainGrid, initFileName, caseUnitSystem );
+            }
+            catch ( const std::exception& e )
+            {
+                RiaLogging::warning( std::string( "Failed to read INIT file for flow diagnostics: " ) + e.what() );
+            }
 
             if ( mainGrid )
             {
