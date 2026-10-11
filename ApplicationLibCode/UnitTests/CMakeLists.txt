@@ -28,6 +28,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleFractureStatisticsCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResults-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSgasResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPorvSoilSgasResultCalculator-Test.cpp
