@@ -154,7 +154,13 @@ std::pair<bool, std::vector<double>>
             // called. Must check if result is loaded. See RimReloadCaseTools::updateAll3dViews()
             if ( resultAddress.isValid() && resultData.hasResultEntry( resultAddress ) && resultData.isResultLoaded( resultAddress ) )
             {
-                gridResultValues = resultData.cellScalarResults( resultAddress, timeStep );
+                // Results with a single time step (e.g. input properties) are used for all time steps
+                const auto& allTimeSteps = resultData.cellScalarResults( resultAddress );
+                if ( allTimeSteps.size() == 1 ) timeStep = 0;
+                if ( timeStep >= 0 && static_cast<size_t>( timeStep ) < allTimeSteps.size() )
+                {
+                    gridResultValues = allTimeSteps[timeStep];
+                }
             }
         }
 
