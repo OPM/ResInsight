@@ -156,6 +156,7 @@ private:
 
     void createMainWindow();
     void createMainPlotWindow();
+    void loadAndUpdateMainWindowViews();
 
     void storeTreeViewState();
     void storeDockState();

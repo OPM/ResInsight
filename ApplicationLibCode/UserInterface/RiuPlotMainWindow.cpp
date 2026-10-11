@@ -99,8 +99,6 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_autoUpdateEnabled( false )
     , m_autoUpdateTimerId( -1 )
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-
     setUpCentralDockWidget();
     createActions();
     createMenus();
@@ -275,6 +273,12 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
 {
+    if ( hasBeenClosed() )
+    {
+        event->accept();
+        return;
+    }
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app->isMain3dWindowVisible() )
     {
