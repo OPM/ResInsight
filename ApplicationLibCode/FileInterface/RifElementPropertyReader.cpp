@@ -127,7 +127,11 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
         return fieldAndData;
     }
 
-    CAF_ASSERT( m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size() );
+    // The file may have been moved or deleted after the metadata was read
+    if ( !table.hasData || m_fieldsMetaData[fieldName].dataColumns.size() != table.data.size() )
+    {
+        return fieldAndData;
+    }
 
     for ( size_t i = 0; i < table.data.size(); i++ )
     {

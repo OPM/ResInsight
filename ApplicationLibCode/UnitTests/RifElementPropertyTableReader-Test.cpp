@@ -6,7 +6,9 @@
 #include "RifElementPropertyTableReader.h"
 #include "RifFileParseTools.h"
 
+#include <QFile>
 #include <QString>
+#include <QTemporaryDir>
 #include <numeric>
 
 static const QString ELEM_PROP_TEST_DATA_DIRECTORY = QString( "%1/RifElementPropertyTableReader/" ).arg( TEST_DATA_DIR );
@@ -150,4 +152,25 @@ TEST( RicElementPropertyTableReaderTest, ReadAllElementPropertiesInFileContainin
     EXPECT_EQ( 4320u, ratioData.size() );
     EXPECT_FLOAT_EQ( 0.19041f, ratioData.front() );
     EXPECT_FLOAT_EQ( 0.25f, ratioData.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicElementPropertyTableReaderTest, ReadAllElementPropertiesFromRemovedFile )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString fileName = tempDir.filePath( "ELASTIC_TABLE.inp" );
+    ASSERT_TRUE( QFile::copy( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE.inp", fileName ) );
+
+    RifElementPropertyReader reader( { 1, 2, 3 } );
+    reader.addFile( fileName.toStdString() );
+
+    ASSERT_TRUE( QFile::remove( fileName ) );
+
+    auto result = reader.readAllElementPropertiesInFileContainingField( "MODULUS" );
+
+    EXPECT_TRUE( result.empty() );
 }
