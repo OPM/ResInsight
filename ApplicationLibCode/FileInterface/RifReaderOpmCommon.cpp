@@ -911,6 +911,9 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
 
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
 
+            // An empty restart file, e.g. while the simulation is starting, reports step 0 without any arrays
+            if ( m_restartFile->size() == 0 ) m_restartFile = nullptr;
+
             const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RifReaderOpmCommon" );
             if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Import of meta data from " + m_restartFileName, startTime );
         }
@@ -1096,7 +1099,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
     }
 
     auto task = progress.task( "Handling well information", 10 );
-    if ( loadWellDataEnabled() && !m_restartFileName.empty() )
+    if ( loadWellDataEnabled() && m_restartFile != nullptr )
     {
         auto startTime = RiaLogging::currentTime();
 
