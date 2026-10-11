@@ -665,7 +665,7 @@ void RimWellLogTrack::curveStackingChanged( const caf::SignalEmitter* emitter, b
 
     m_propertyAxisSettings->setAutoScaleEnabled( true );
     updatePropertyValueZoom();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,6 +933,8 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateAxisRangesFromPlotWidget()
 {
+    if ( !m_plotWidget ) return;
+
     auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( valueAxis() );
     auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( depthAxis() );
 
@@ -1617,7 +1619,7 @@ void RimWellLogTrack::updatePlotWidgetFromAxisRanges()
 {
     updatePropertyValueZoom();
     updateDepthZoom();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2669,6 +2671,8 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 {
     removeRegionAnnotations();
 
+    if ( !m_plotWidget ) return;
+
     if ( m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::NO_ANNOTATIONS ) return;
 
     if ( m_annotationTool == nullptr )
@@ -3313,7 +3317,7 @@ void RimWellLogTrack::removeRegionAnnotations()
 void RimWellLogTrack::doUpdateLayout()
 {
     updateFonts();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
