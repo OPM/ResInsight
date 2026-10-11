@@ -380,6 +380,15 @@ void RimPolygonFilter::onGridChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The cached cell indices are only valid for the grid they were computed from
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::setCase( RimCase* srcCase )
+{
+    RimCellFilter::setCase( srcCase );
+    m_cells.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex )
@@ -394,10 +403,13 @@ void RimPolygonFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility
 
     if ( gridIndex >= static_cast<int>( m_cells.size() ) ) return;
 
+    const auto filterSize = includeVisibility->size();
+
     if ( m_filterMode == FilterModeType::INCLUDE )
     {
         for ( auto cellIdx : m_cells[gridIndex] )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *includeVisibility )[cellIdx] = true;
         }
     }
@@ -405,6 +417,7 @@ void RimPolygonFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility
     {
         for ( auto cellIdx : m_cells[gridIndex] )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *excludeVisibility )[cellIdx] = false;
         }
     }
