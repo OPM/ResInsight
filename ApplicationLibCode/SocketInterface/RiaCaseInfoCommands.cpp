@@ -611,6 +611,7 @@ public:
             if ( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>( item );
+                if ( !eclipseItem->m_resultDefinition ) continue;
 
                 eclipseItem->m_resultDefinition->eclipseCase()
                     ->eclipseCaseData()
@@ -623,6 +624,7 @@ public:
             else if ( item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>( item );
+                if ( !geomechItem->m_resultDefinition ) continue;
 
                 validIndex = geomechItem->m_resultDefinition->ownerCaseData()
                                  ->femParts()

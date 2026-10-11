@@ -107,7 +107,7 @@ void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem 
 
         geoMechSelectionItem = extractGeoMechSelectionItem( selectionItem, newFollowAnimView );
 
-        if ( geoMechSelectionItem )
+        if ( geoMechSelectionItem && geoMechSelectionItem->m_resultDefinition )
         {
             const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
             RigFemPart*  femPart   = geoMechSelectionItem->m_resultDefinition->ownerCaseData()->femParts()->part( gridIndex );
