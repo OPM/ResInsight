@@ -1164,6 +1164,8 @@ void RimEclipseView::updateVisibleCellColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::appendWellsAndFracturesToModel()
 {
+    if ( !eclipseCase() || !eclipseCase()->eclipseCaseData() ) return;
+
     if ( nativeOrOverrideViewer() )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
