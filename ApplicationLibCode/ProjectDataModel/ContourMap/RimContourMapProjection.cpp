@@ -140,6 +140,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
     caf::ProgressInfo progress( 100, "Generate Results", true );
 
     if ( !m_contourMapGrid || !m_contourMapProjection || gridInformationIsStale() ) updateGridInformation();
+    if ( !m_contourMapGrid || !m_contourMapProjection ) return;
 
     progress.setProgress( 10 );
 
