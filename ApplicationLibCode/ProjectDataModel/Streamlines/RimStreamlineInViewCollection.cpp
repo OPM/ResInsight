@@ -439,6 +439,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
     auto mainGrid = eclView->mainGrid();
     if ( !mainGrid ) return;
 
+    if ( !eclipseCase() || !eclipseCase()->eclipseCaseData() ) return;
+
     if ( m_shouldGenerateTracers && isActive() )
     {
         // reset generated streamlines
