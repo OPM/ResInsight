@@ -95,3 +95,28 @@ TEST( RifOpmCommonFlowDiagGridSource, SameGraphAsResdata )
 {
     compareGraphs( std::filesystem::path( TEST_MODEL_DIR ) / "flow_diagnostics_test/SIMPLE_SUMMARY2.EGRID" );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmCommonFlowDiagGridSource, SameGraphAsResdataWithNestedLgr )
+{
+    compareGraphs( std::filesystem::path( TEST_MODEL_DIR ) / "NestedHybridGrid/DROGON_NESTED.EGRID" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmCommonFlowDiagGridSource, SameGraphAsResdataOpmFlowOutput )
+{
+    compareGraphs( std::filesystem::path( TEST_MODEL_DIR ) / "msw-export/opm-simulation-reference/BASE_MODEL_1.EGRID" );
+    compareGraphs( std::filesystem::path( TEST_MODEL_DIR ) / "synthetic_ensemble_with_dynamic_filter/Real0/SYNTH.EGRID" );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Norne from a resinsight-tutorials checkout next to the ResInsight checkout. Skipped if not present.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmCommonFlowDiagGridSource, SameGraphAsResdataNorne )
+{
+    compareGraphs( std::filesystem::path( TEST_MODEL_DIR ) / "../../resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID" );
+}
