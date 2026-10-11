@@ -60,7 +60,6 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafProgressInfo.h"
@@ -205,7 +204,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
                 delete duplicateCase;
             }
 
-            if ( !candidateCases.empty() && RiaGuiApplication::isRunning() && RiuPlotMainWindow::instance()->isVisible() )
+            if ( !candidateCases.empty() && RiaGuiApplication::isRunning() && RiaGuiApplication::instance()->isMainPlotWindowVisible() )
             {
                 RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( candidateCases.front() );
@@ -225,7 +224,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 
     if ( RiaGuiApplication::isRunning() )
     {
-        if ( RiuPlotMainWindow::instance()->isVisible() ) RiuPlotMainWindowTools::refreshToolbars();
+        if ( RiaGuiApplication::instance()->isMainPlotWindowVisible() ) RiuPlotMainWindowTools::refreshToolbars();
 
         // Call process events to clear the queue. This make sure that we are able raise the 3D window on top of the
         // plot window. Otherwise the event processing ends up with the plot window on top.
