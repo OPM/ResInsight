@@ -60,6 +60,9 @@ RimViewWindow::RimViewWindow()
 
     CAF_PDM_InitField( &m_dockWindowId, "DockWindowId", QString(), "Dock Window Id" );
     m_dockWindowId.uiCapability()->setUiHidden( true );
+    // The dock id must be unique, as the dock manager identifies dock widgets by name. Copies (including plots created
+    // from templates) get a new id.
+    m_dockWindowId.xmlCapability()->setCopyable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
