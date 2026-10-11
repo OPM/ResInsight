@@ -22,8 +22,18 @@
 #include "RifEclipseReportKeywords.h"
 
 #include "RiaDefines.h"
+#include "RiaStringEncodingTools.h"
 
 #include "RigActiveCellInfo.h"
+
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/fortio.h>
+
+#include <QDir>
+#include <QTemporaryDir>
 
 //--------------------------------------------------------------------------------------------------
 /// A grid with no active matrix cells must not cause division by zero
@@ -83,4 +93,40 @@ TEST( RifEclipseOutputFileTools, ValidKeywordsNoActiveCells )
                                                                            RiaDefines::PorosityModelType::FRACTURE_MODEL,
                                                                            1 )
                      .empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A restart file without INTEHEAD keywords produces no time steps, and must not cause division by zero
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseOutputFileTools, TimeStepsFileWithoutIntehead )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString fileName = QDir( tempDir.path() ).filePath( "CASE.UNRST" );
+    {
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_TRUE( fortio != nullptr );
+
+        ecl_kw_type* kw = ecl_kw_alloc( SEQNUM_KW, 1, ECL_INT );
+        ecl_kw_iset_int( kw, 0, 0 );
+        ecl_kw_fwrite( kw, fortio );
+        ecl_kw_free( kw );
+
+        fortio_fclose( fortio );
+    }
+
+    ecl_file_type* eclFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), ECL_FILE_CLOSE_STREAM );
+    ASSERT_TRUE( eclFile != nullptr );
+
+    std::vector<QDateTime> timeSteps;
+    std::vector<double>    daysSinceSimulationStart;
+    size_t                 perTimeStepHeaderKeywordCount = 1;
+    RifEclipseOutputFileTools::timeSteps( eclFile, &timeSteps, &daysSinceSimulationStart, &perTimeStepHeaderKeywordCount );
+
+    EXPECT_TRUE( timeSteps.empty() );
+    EXPECT_TRUE( daysSinceSimulationStart.empty() );
+    EXPECT_EQ( size_t( 1 ), perTimeStepHeaderKeywordCount );
+
+    ecl_file_close( eclFile );
 }
