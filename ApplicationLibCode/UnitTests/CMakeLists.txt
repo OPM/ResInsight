@@ -101,6 +101,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowVec3Binding-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDockWindowController-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFilterInViewCollection-Test.cpp
