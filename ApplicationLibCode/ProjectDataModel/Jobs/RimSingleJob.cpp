@@ -152,7 +152,7 @@ bool RimSingleJob::execute()
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::setFinished( bool runOk )
 {
-    setState( runOk ? JobState::Completed : JobState::Failed );
+    RimGenericJob::setFinished( runOk );
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
@@ -168,6 +168,7 @@ void RimSingleJob::setStarted()
 {
     setState( RimSingleJob::JobState::Running );
     onProgress( m_percentageDone );
+    RimGenericJob::setStarted();
 }
 
 //--------------------------------------------------------------------------------------------------

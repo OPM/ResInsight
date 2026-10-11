@@ -345,8 +345,8 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
+    RimGenericJob::setFinished( runOk );
     setDeletable( true );
-    setState( RimGenericJob::Completed );
     updateConnectedEditors();
 
     if ( runOk )
@@ -527,6 +527,6 @@ void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     if ( changedField == &m_outputIterationNumber )
     {
-        m_outputEnsembleName = QString( "wp-%1" ).arg( m_outputIterationNumber.value() );
+        m_outputEnsembleName = QString::fromStdString( outputIteration() );
     }
 }

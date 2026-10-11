@@ -78,3 +78,58 @@ void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) c
     menuBuilder << "RicDuplicateJobFeature";
     menuBuilder << "RicViewJobLogFeature";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setStarted()
+{
+    m_startTime = QDateTime::currentDateTime();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGenericJob::runTimeSeconds()
+{
+    if ( m_startTime.isValid() )
+    {
+        if ( isRunning() )
+        {
+            return m_startTime.secsTo( QDateTime::currentDateTime() );
+        }
+        else if ( m_stopTime.isValid() )
+        {
+            return m_startTime.secsTo( m_stopTime );
+        }
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setFinished( bool runOk )
+{
+    m_stopTime = QDateTime::currentDateTime();
+    if ( runOk )
+    {
+        setState( RimGenericJob::Completed );
+    }
+    else
+    {
+        setState( RimGenericJob::Failed );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGenericJob::runTimeString()
+{
+    double seconds = runTimeSeconds();
+    int    h       = static_cast<int>( seconds / 3600 );
+    int    m       = static_cast<int>( ( seconds - h * 3600 ) / 60 );
+    int    s       = static_cast<int>( seconds - h * 3600 - m * 60 );
+    return QString( "%1:%2:%3" ).arg( h, 2, 10, QChar( '0' ) ).arg( m, 2, 10, QChar( '0' ) ).arg( s, 2, 10, QChar( '0' ) );
+}

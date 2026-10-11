@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
 
@@ -57,16 +58,20 @@ public:
     virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
     virtual void              processLogOutput( const QString& logLine ) {};
 
-    virtual void setFinished( bool runOk ) = 0;
-    virtual void setStarted() {};
+    virtual void setFinished( bool runOk );
+    virtual void setStarted();
 
     bool     isRunning() const;
     JobState state() const;
     void     setState( JobState state );
+    double   runTimeSeconds();
+    QString  runTimeString();
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    JobState m_jobState;
+    JobState  m_jobState;
+    QDateTime m_startTime;
+    QDateTime m_stopTime;
 };
