@@ -2,8 +2,24 @@
 
 #include "cvfBoundingBox.h"
 #include "cvfCamera.h"
+#include "cvfFrustum.h"
 
 using namespace cvf;
+
+//--------------------------------------------------------------------------------------------------
+/// Camera::computeViewFrustum() returns an empty frustum for a degenerate projection matrix. View
+/// frustum culling in ModelBasicList::partVisible() then asserted in Frustum::isOutside().
+//--------------------------------------------------------------------------------------------------
+TEST( CvfCameraCrashTriageTest, IncompleteFrustumDoesNotCull )
+{
+    Frustum frustum;
+
+    BoundingBox bb;
+    bb.add( Vec3d( 0, 0, 0 ) );
+    bb.add( Vec3d( 1, 1, 1 ) );
+
+    EXPECT_FALSE( frustum.isOutside( bb ) );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// computeFitViewEyePosition() used to assert/abort (CVF_ASSERT in Plane::distanceToOrigin) when
