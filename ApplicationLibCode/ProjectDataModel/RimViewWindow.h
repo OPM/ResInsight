@@ -25,6 +25,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QPointer>
+
 class QImage;
 class RimDockWindowController;
 
@@ -117,8 +119,8 @@ private:
 protected:
     caf::PdmChildField<RimDockWindowController*> m_windowController;
 
-    caf::PdmField<bool>    m_showWindow;
-    ads::CDockWidget*      m_dockWidget;
-    caf::PdmField<QString> m_dockWindowId;
-    bool                   m_isActiveViewer;
+    caf::PdmField<bool>        m_showWindow;
+    QPointer<ads::CDockWidget> m_dockWidget;
+    caf::PdmField<QString>     m_dockWindowId;
+    bool                       m_isActiveViewer;
 };

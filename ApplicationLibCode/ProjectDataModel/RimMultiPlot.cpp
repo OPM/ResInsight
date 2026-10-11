@@ -34,6 +34,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
+#include "DockWidget.h"
+
 #include <QPaintDevice>
 #include <QRegularExpression>
 

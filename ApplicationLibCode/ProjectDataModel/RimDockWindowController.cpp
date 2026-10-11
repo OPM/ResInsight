@@ -145,6 +145,14 @@ void RimDockWindowController::updateViewerWidget()
                 return;
             }
 
+            // The dock manager identifies dock widgets by name. A duplicate name (e.g. from a project saved with
+            // copied views) would unregister the existing dock widget, which is then deleted on next dock state restore.
+            if ( auto existing = mainWindow->dockManager()->findDockWidget( viewPdmObject()->dockWindowName() );
+                 existing && existing != dockWidget )
+            {
+                viewPdmObject()->resetDockWindowId();
+            }
+
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
