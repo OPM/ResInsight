@@ -93,6 +93,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
     , m_hasBeenVisible( false )
     , m_isBeingDestroyed( false )
+    , m_hasBeenClosed( false )
     , m_windowMenu( nullptr )
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
@@ -282,6 +283,9 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     // Do not save the state if the window never has been visible. This will write out a state that is not valid.
     // https://github.com/OPM/ResInsight/issues/9935
     if ( !m_hasBeenVisible ) return;
+
+    // The views were removed from docking when the window was closed, and the state was saved before that
+    if ( m_hasBeenClosed ) return;
 
     // Company and appname set through QCoreApplication
     QSettings settings;
@@ -863,7 +867,25 @@ void RiuMainWindowBase::closeEvent( QCloseEvent* event )
         view->removeWindowFromDock();
     }
 
+    m_hasBeenClosed = true;
+
     QMainWindow::closeEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindowBase::hasBeenClosed() const
+{
+    return m_hasBeenClosed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::clearClosedState()
+{
+    m_hasBeenClosed = false;
 }
 
 //--------------------------------------------------------------------------------------------------

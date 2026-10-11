@@ -46,7 +46,8 @@ void RicShowMainWindowFeature::showMainWindow()
         }
         else
         {
-            mainWnd->show();
+            // Recreates the views if the window has been closed
+            RiaGuiApplication::instance()->getOrCreateAndShowMainWindow();
         }
 
         mainWnd->raise();

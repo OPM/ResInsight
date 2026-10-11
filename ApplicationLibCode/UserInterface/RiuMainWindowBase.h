@@ -95,6 +95,11 @@ public:
     void setBeingDestroyed();
     bool isBeingDestroyed() const;
 
+    // Closing a main window hides it and removes all views from docking. The views must be recreated before the
+    // window is shown again.
+    bool hasBeenClosed() const;
+    void clearClosedState();
+
     ads::CDockManager* dockManager() const;
 
     QString dockWidgetStateString() const;
@@ -182,6 +187,7 @@ private:
     bool m_blockSubWindowProjectTreeSelection;
     bool m_hasBeenVisible;
     bool m_isBeingDestroyed;
+    bool m_hasBeenClosed;
 
     ads::CDockManager* m_dockManager;
 };

@@ -148,8 +148,6 @@ RiuMainWindow::RiuMainWindow()
     , m_holoLensToolBar( nullptr )
     , m_seismicHistogramPanel( nullptr )
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-
     setUpCentralDockWidget();
     createActions();
     createMenus();
@@ -355,6 +353,12 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent( QCloseEvent* event )
 {
+    if ( hasBeenClosed() )
+    {
+        event->accept();
+        return;
+    }
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if ( !app->isMainPlotWindowVisible() )
