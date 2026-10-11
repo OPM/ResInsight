@@ -32,7 +32,8 @@ are done by `registry.py` / `link_issues.py` in the system-doc repo.
 
 - **`registry.json` status is the single source of truth** for what has already
   been handled. Never re-triage a signature whose status is anything other than
-  `new` or `linked`, and update the status at every transition.
+  `new` or `linked` — except a `resolved` signature labelled **regressed** (see
+  below) — and update the status at every transition.
 - **Do not create GitHub issues.** One PR covers the whole batch; each fix's
   call stack goes in the PR body.
 - **Never post to GitHub before the human gate.** Prepare everything (patches,
@@ -57,6 +58,25 @@ are done by `registry.py` / `link_issues.py` in the system-doc repo.
 | `no-fix-found` | investigated, no confident fix; note recorded |
 | `on-hold` | deliberately parked |
 
+### Regressions
+
+`regressed` is a computed label, not a status. When a fix merges (or the linked
+issue closes as completed), `link_issues.py` records `fixed_in` — the version in
+`ResInsightVersion.cmake` at the merge commit. If the signature later crashes on
+a **strictly newer** version, it is labelled regressed: it leaves the closed-out
+section of the weekly report (`**Status:** resolved · **regressed**` plus a
+`**Regressed:**` line listing the versions) and returns to the worklist as
+`[resolved, regressed]`.
+
+- Equal versions are not a regression (pre-merge builds can share the dev
+  version string).
+- Newer *releases* only count if their `v<version>` tag contains the fix — a
+  release cut from a bugfix branch may not. The result is cached in
+  `fix_shipped`. Dev/RC builds are compared by version only.
+- Recording a new fix PR with `set --pr` clears `fixed_in`; the new merge sets
+  it again. Override by hand with `set --fixed-in VER` (or `--fixed-in ""` to
+  clear) if the computed version is wrong.
+
 ## Procedure
 
 ### 1. Pick the batch
@@ -65,9 +85,15 @@ Run `registry.py worklist` and take the 4–5 highest-impact entries. The
 `(unsymbolized crash site)` bucket is already filtered out — those stacks have
 no ResInsight symbol at the fault and are not individually actionable.
 
-`worklist` does not filter on status, so **check each candidate's status in
-`registry.json` and skip anything that is not `new` or `linked`** — otherwise
-signatures already covered by an open PR resurface.
+`worklist` lists signatures with no OPM issue, no fix PR and no handled status,
+ranked by occurrences on the newest released version, plus regressed signatures
+marked `[resolved, regressed]`. Still **check each candidate's status in
+`registry.json`** and skip anything that is not `new`, `linked`, or regressed.
+
+For a regressed signature, first read the previous fix (`pr` in the registry)
+and the `**Regressed:**` versions: decide whether the old fix was incomplete,
+was reverted/lost, or the new crashes take a different path to the same frame.
+Reference the previous PR in the new PR section.
 
 Read each entry (`top_frame`, `signature_frames`, `representative_stack`,
 `total_count`, `weeks`) and mark it picked:
@@ -177,12 +203,13 @@ python registry.py set --id <sid> --status no-fix-found \
 The PR merging is what closes a signature out. For every signature in that PR:
 
 ```
-python registry.py set --id <sid> --status resolved
+python registry.py set --id <sid> --pr-state MERGED --status resolved
 python registry.py render --date <latest-week>
 ```
 
 Signatures whose PR is still open stay at `pr-open`; do not mark them resolved
-early.
+early. `link_issues.py` fills `fixed_in` from the merge commit on its next run;
+that version is the baseline for regression detection.
 
 ### 9. Commit the registry change
 
@@ -194,3 +221,6 @@ branch and push to the user's fork. Do this after step 7 and again after step 8.
 - The same `top_frame` can appear under two signature ids (different deeper
   paths). Fixing one does not auto-resolve the other — handle each, though the
   same PR may cover both; set the status on both ids.
+- A regressed signature keeps its old `pr` until a new one is recorded with
+  `set --pr`; picking it with `--status investigating` removes it from the
+  worklist.
