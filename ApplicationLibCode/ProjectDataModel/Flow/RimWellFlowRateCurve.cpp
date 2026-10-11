@@ -163,7 +163,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    m_plotCurve->setTitle( createCurveAutoName() );
+    if ( m_plotCurve ) m_plotCurve->setTitle( createCurveAutoName() );
 
     if ( updateParentPlot )
     {
