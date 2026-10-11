@@ -3028,6 +3028,11 @@ static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_fil
   for (i = 0; i < num_nnchead_kw; i++) {
     ecl_file_view_type * lgr_view = ecl_file_alloc_global_blockview(ecl_file , NNCHEAD_KW , i);
     ecl_kw_type * nnchead_kw = ecl_file_view_iget_named_kw(lgr_view, NNCHEAD_KW, 0);
+    // NULL if the keyword cannot be read, e.g. from a truncated file
+    if (!nnchead_kw) {
+      ecl_file_view_free( lgr_view );
+      continue;
+    }
     int lgr_nr = ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);
 
     if (ecl_file_view_has_kw(lgr_view , NNC1_KW)) {
@@ -3179,6 +3184,10 @@ static ecl_grid_type * ecl_grid_alloc_EGRID_all_grids(const char * grid_file, bo
     if (ecl_file) {
       int num_grid               = ecl_file_get_num_named_kw( ecl_file , GRIDHEAD_KW );
       ecl_grid_type * main_grid  = ecl_grid_alloc_EGRID__( NULL , ecl_file , 0 , apply_mapaxes, ext_actnum );
+      if (!main_grid) {
+        ecl_file_close( ecl_file );
+        return NULL;
+      }
       int grid_nr;
 
       for ( grid_nr = 1; grid_nr < num_grid; grid_nr++) {

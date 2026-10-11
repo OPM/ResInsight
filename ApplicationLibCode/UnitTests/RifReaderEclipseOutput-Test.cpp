@@ -23,8 +23,12 @@
 #include "RigEclipseCaseData.h"
 
 #include "ert/ecl/ecl_kw_magic.h"
+#include <ert/ecl/ecl_endian_flip.h>
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl_well/well_info.hpp>
 
 #include "RiaStringEncodingTools.h"
 #include "RiaTestDataDirectory.h"
@@ -205,6 +209,101 @@ TEST( RigReservoirTest, OpenGridFileWithoutDimensKeyword )
 
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
     EXPECT_FALSE( readerInterfaceEcl->open( gridFileName, reservoir.p() ) );
+}
+
+TEST( RigReservoirTest, OpenEgridWithInvalidGridHeader )
+{
+    // ecl_grid_alloc_EGRID__() returns NULL for invalid grid dimensions. The caller dereferenced the NULL main
+    // grid and crashed instead of returning NULL.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString gridFileName = QDir( tempDir.path() ).filePath( "TEST.EGRID" );
+    {
+        std::vector<int>   intData( 100, 0 );
+        std::vector<float> floatData( 1, 0.0f );
+
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_TRUE( fortio );
+
+        auto writeKeyword = [fortio]( const char* name, int size, ecl_data_type type, const void* data )
+        {
+            ecl_kw_type* kw = ecl_kw_alloc_new( name, size, type, data );
+            ecl_kw_fwrite( kw, fortio );
+            ecl_kw_free( kw );
+        };
+
+        // GRIDHEAD with zero grid dimensions is rejected
+        writeKeyword( "FILEHEAD", (int)intData.size(), ECL_INT, intData.data() );
+        writeKeyword( "GRIDHEAD", (int)intData.size(), ECL_INT, intData.data() );
+        writeKeyword( "COORD", (int)floatData.size(), ECL_FLOAT, floatData.data() );
+        writeKeyword( "ZCORN", (int)floatData.size(), ECL_FLOAT, floatData.data() );
+
+        fortio_fclose( fortio );
+    }
+
+    EXPECT_EQ( nullptr, ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ) );
+}
+
+TEST( RigReservoirTest, ReadWellsFromRestartFileWithoutIntehead )
+{
+    // ecl_rsthead_alloc() returns NULL when INTEHEAD is missing or unreadable (truncated file). The well reader
+    // dereferenced the NULL header and crashed.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString restartFileName = QDir( tempDir.path() ).filePath( "TEST.UNRST" );
+    {
+        std::vector<int> data( 1, 1 );
+        ecl_kw_fwrite_param( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(),
+                             false,
+                             "SEQNUM",
+                             ECL_INT,
+                             (int)data.size(),
+                             data.data() );
+    }
+
+    ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), 0 );
+    ASSERT_TRUE( ecl_file );
+
+    well_info_type* wellInfo = well_info_alloc( { "GLOBAL" } );
+    well_info_add_UNRST_wells( wellInfo, ecl_file, false );
+    EXPECT_EQ( 0, well_info_get_num_wells( wellInfo ) );
+
+    well_info_free( wellInfo );
+    ecl_file_close( ecl_file );
+}
+
+TEST( RigReservoirTest, TimeStepsFromFileWithoutIntehead )
+{
+    // A restart file without INTEHEAD gives no time steps, and computing the header keyword count per time step
+    // divided by zero.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString restartFileName = QDir( tempDir.path() ).filePath( "TEST.UNRST" );
+    {
+        std::vector<int> data( 1, 1 );
+        ecl_kw_fwrite_param( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(),
+                             false,
+                             "SEQNUM",
+                             ECL_INT,
+                             (int)data.size(),
+                             data.data() );
+    }
+
+    ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), 0 );
+    ASSERT_TRUE( ecl_file );
+
+    std::vector<QDateTime> timeSteps;
+    std::vector<double>    daysSinceSimulationStart;
+    size_t                 perTimeStepHeaderKeywordCount = 0;
+    RifEclipseOutputFileTools::timeSteps( ecl_file, &timeSteps, &daysSinceSimulationStart, &perTimeStepHeaderKeywordCount );
+
+    EXPECT_TRUE( timeSteps.empty() );
+    EXPECT_EQ( size_t( 0 ), perTimeStepHeaderKeywordCount );
+
+    ecl_file_close( ecl_file );
 }
 
 TEST( RigReservoirTest, BasicTest10kRestart )
