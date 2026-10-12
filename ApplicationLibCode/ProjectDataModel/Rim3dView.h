@@ -52,12 +52,19 @@ class RimWellPathCollection;
 class RimAnnotationInViewCollection;
 class RimSurfaceInViewCollection;
 class RimPolygonInViewCollection;
+class RimWellPathInViewCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
 class RivWellPathsPartMgr;
 class RiuMainWindowBase;
 class RimViewNameConfig;
+
+namespace RiaDefines
+{
+enum class View3dContent;
+enum class ItemIn3dView;
+} // namespace RiaDefines
 
 namespace cvf
 {
@@ -130,6 +137,9 @@ public:
     // Default: no surface/polygon collection. RimGridView, RimGeneric3dView and RimSeismicView re-abstract these.
     virtual RimSurfaceInViewCollection* surfaceInViewCollection() const { return nullptr; }
     virtual RimPolygonInViewCollection* polygonInViewCollection() const { return nullptr; }
+
+    // Default: no per-view well path visibility. RimGridView and RimGeneric3dView re-abstract this.
+    virtual RimWellPathInViewCollection* wellPathInViewCollection() const { return nullptr; }
 
     void           setMeshOnlyDrawstyle();
     void           setMeshSurfDrawstyle();

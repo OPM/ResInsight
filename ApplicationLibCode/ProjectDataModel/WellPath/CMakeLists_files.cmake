@@ -6,6 +6,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathInView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDefTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGroup.cpp

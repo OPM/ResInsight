@@ -111,6 +111,7 @@ public:
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
     cvf::BoundingBox          wellPathsBoundingBox() const;
+    QString                   collectionName() const;
     void                      removeWellPath( RimWellPath* wellPath );
 
     void deleteAllWellPaths();
@@ -185,6 +186,9 @@ private:
     static QString unGroupedText();
 
     void updateMswSegments();
+
+    void appendWellPath( RimWellPath* wellPath );
+    void updateViewTreeItems();
 
 private:
     std::unique_ptr<RifWellPathImporter> m_wellPathImporter;

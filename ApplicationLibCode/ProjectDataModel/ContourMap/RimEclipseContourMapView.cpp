@@ -25,6 +25,7 @@
 
 #include "ContourMap/RimContourMapInViewCollection.h"
 #include "Polygons/RimPolygonInViewCollection.h"
+#include "RiaViewDefines.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"

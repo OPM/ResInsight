@@ -21,6 +21,7 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
+#include "RiaViewDefines.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"

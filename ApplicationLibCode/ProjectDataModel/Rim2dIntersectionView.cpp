@@ -18,6 +18,7 @@
 
 #include "Rim2dIntersectionView.h"
 
+#include "RiaViewDefines.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"

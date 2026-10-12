@@ -20,6 +20,7 @@
 
 #include "RigPolyLinesData.h"
 
+#include "RiaViewDefines.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"

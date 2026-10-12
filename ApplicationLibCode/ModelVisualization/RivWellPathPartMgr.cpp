@@ -54,6 +54,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathGeometryDef.h"
+#include "RimWellPathInViewCollection.h"
 #include "RimWellPathTarget.h"
 #include "RimWellPathTieIn.h"
 #include "RimWellPathValve.h"
@@ -151,6 +152,19 @@ bool RivWellPathPartMgr::isWellPathWithinBoundingBox( const cvf::BoundingBox& we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RivWellPathPartMgr::isWellPathVisibleInView() const
+{
+    if ( m_rimView.isNull() ) return true;
+
+    auto* wellPathsInView = m_rimView->wellPathInViewCollection();
+    if ( !wellPathsInView ) return true;
+
+    return wellPathsInView->isWellPathVisible( m_rimWellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const
 {
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
@@ -161,6 +175,8 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && !m_rimWellPath->showWellPath() ) return false;
+
+    if ( !isWellPathVisibleInView() ) return false;
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
 
@@ -178,6 +194,8 @@ void RivWellPathPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList* 
     if ( !eclView ) return;
 
     if ( !m_rimWellPath || !m_rimWellPath->showWellPath() || !m_rimWellPath->fractureCollection()->isChecked() ) return;
+
+    if ( !isWellPathVisibleInView() ) return;
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
 

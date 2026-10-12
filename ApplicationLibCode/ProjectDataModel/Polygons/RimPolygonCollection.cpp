@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaNameUniquenessTools.h"
+#include "RiaViewDefines.h"
 
 #include "Rim3dView.h"
 #include "RimGridView.h"
