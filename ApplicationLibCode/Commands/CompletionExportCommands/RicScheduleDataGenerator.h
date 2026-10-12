@@ -49,7 +49,8 @@ public:
     // mswWells lists the wells for which the multi-segment-well keywords (WELSEGS, COMPSEGS,
     // WSEGVALV, WSEGAICD) are exported. Wells not in the set get no MSW keywords; an empty set
     // suppresses MSW export for all wells. Well paths sharing an export name are one well in the deck:
-    // selecting any of them exports the MSW keywords once, for the well tree of the first selected one.
+    // selecting any of them exports the MSW keywords once for their shared well tree. MSW export returns
+    // an error if a shared export name spans independent well trees, since COMPSEGS must map every connection.
     // When firstDateAsComment is true, the first (earliest) date is written as a comment line
     // instead of a DATES keyword, since some commercial simulators reject a DATES entry that
     // equals the simulation start date. Later dates are always emitted as DATES keywords.
