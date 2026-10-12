@@ -65,6 +65,7 @@
 
 #include <QDir>
 
+#include <algorithm>
 #include <map>
 #include <optional>
 #include <set>
@@ -1384,6 +1385,19 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
                                                                                                       RimEclipseCase* eCase,
                                                                                                       const std::optional<QDateTime>& exportDate )
 {
+    if ( wellPath == nullptr ) return {};
+
+    return completionDataForWellPaths( { wellPath }, eCase, exportDate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData>
+    RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                                            RimEclipseCase*                  eCase,
+                                                                            const std::optional<QDateTime>&  exportDate )
+{
     if ( eCase == nullptr ) return {};
 
     // Ensure that the case is open. This will enable export without any open views.
@@ -1404,14 +1418,20 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
 
     std::vector<RigCompletionData> completions;
 
+    // Completions from all given well paths (and their laterals) are combined per cell, so that cells shared
+    // by several well paths are exported as a single connection.
     std::vector<RimWellPath*> allWellPathLaterals;
-    if ( wellPath->unitSystem() == eCase->eclipseCaseData()->unitsType() )
+    for ( auto* wellPath : wellPaths )
     {
-        allWellPathLaterals = wellPath->allWellPathLaterals();
-    }
-    else
-    {
-        return {};
+        if ( !wellPath || wellPath->unitSystem() != eCase->eclipseCaseData()->unitsType() ) continue;
+
+        for ( auto* lateral : wellPath->allWellPathLaterals() )
+        {
+            if ( std::find( allWellPathLaterals.begin(), allWellPathLaterals.end(), lateral ) == allWellPathLaterals.end() )
+            {
+                allWellPathLaterals.push_back( lateral );
+            }
+        }
     }
 
     std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;

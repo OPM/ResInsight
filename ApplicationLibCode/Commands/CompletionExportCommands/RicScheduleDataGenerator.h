@@ -48,7 +48,8 @@ public:
     // Generate schedule for multiple wells at specified dates.
     // mswWells lists the wells for which the multi-segment-well keywords (WELSEGS, COMPSEGS,
     // WSEGVALV, WSEGAICD) are exported. Wells not in the set get no MSW keywords; an empty set
-    // suppresses MSW export for all wells.
+    // suppresses MSW export for all wells. Well paths sharing an export name are one well in the deck:
+    // selecting any of them exports the MSW keywords once, for the well tree of the first selected one.
     // When firstDateAsComment is true, the first (earliest) date is written as a comment line
     // instead of a DATES keyword, since some commercial simulators reject a DATES entry that
     // equals the simulation start date. Later dates are always emitted as DATES keywords.
@@ -94,18 +95,19 @@ private:
                                                                     const QDateTime&                  date,
                                                                     const std::vector<RimWellEvent*>& eventsAtDate );
 
-    // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a well at a
-    // specific date based on events, merging both into the accumulator.
-    static void generateCompletionsForWell( RimEclipseCase&                      eclipseCase,
-                                            RimWellPath&                         well,
-                                            const QDateTime&                     date,
-                                            const std::vector<RimWellEvent*>&    eventsAtDate,
-                                            std::map<QString, Opm::DeckKeyword>& keywordBlocks );
+    // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a group of well paths sharing
+    // one export name at a specific date based on events, merging both into the accumulator. Connections in cells
+    // shared by several well paths in the group are combined into one record.
+    static void generateCompletionsForWellGroup( RimEclipseCase&                      eclipseCase,
+                                                 const std::vector<RimWellPath*>&     wellGroup,
+                                                 const QDateTime&                     date,
+                                                 const std::vector<RimWellEvent*>&    eventsAtDate,
+                                                 std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
     // wells and are appended as separate per-well blocks in unmergedBlocks.
-    // All four keywords are emitted only when the well is present in mswWells; otherwise none are.
+    // The caller decides which wells get MSW keywords (see mswWells in generateSchedule).
     // WELSEGS / COMPSEGS are written for tubing/perforation events, and for valve events when the
     // segment layout differs from the one last written for the well (tracked in emittedSegmentLayouts).
     static void generateMswForWell( RimEclipseCase&                                   eclipseCase,
@@ -114,7 +116,6 @@ private:
                                     const std::vector<RimWellEvent*>&                 eventsAtDate,
                                     std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                     std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                    const std::set<const RimWellPath*>&               mswWells,
                                     std::map<QString, QString>&                       emittedSegmentLayouts );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator

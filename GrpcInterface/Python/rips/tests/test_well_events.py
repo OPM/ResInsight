@@ -316,6 +316,141 @@ class TestScheduleGeneration:
         assert "2024" in schedule_text, "Schedule should contain the event date"
         assert "WELSEGS" in schedule_text, "Schedule should contain MSW WELSEGS keyword"
 
+    def test_generate_schedule_shared_well_name_exported_once(
+        self, project_with_case_and_well
+    ):
+        """Wells sharing an export name (multilateral) give one WELSPECS/COMPORD record and unique COMPDAT cells (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+
+        for index, well_path in enumerate(project.well_paths()):
+            well_path.name = "OP5" if index == 0 else "OP5_Y2"
+            well_path.update()
+            settings = well_path.completion_settings()
+            settings.well_name_for_export = "OP5"
+            settings.update()
+
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        assert (
+            len(re.findall(r"^\s*'OP5'\s+'", schedule_text.split("COMPORD")[0], re.M))
+            == 1
+        )
+        assert schedule_text.count("'OP5' 'INPUT'") == 1
+
+        compdat = schedule_text.split("COMPDAT")[1]
+        cells = re.findall(r"'OP5'\s+(\d+\s+\d+\s+\d+)", compdat)
+        assert cells and len(cells) == len(set(cells))
+
+    @staticmethod
+    def _two_wells_sharing_export_name(project, timeline, with_tubing=False):
+        """Import a second copy of well path A (renamed) and perforate both copies identically."""
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+        well_path_coll.import_well_path(
+            file_name=dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"
+        )
+
+        well_paths = [wp for wp in project.well_paths() if wp.name == "Well Path A"]
+        assert len(well_paths) == 2
+        for index, well_path in enumerate(well_paths):
+            well_path.name = f"Well Path A{index + 1}"
+            well_path.update()
+        for well_path in well_paths:
+            if with_tubing:
+                timeline.add_tubing_event(
+                    event_date="2024-01-01",
+                    well_path=well_path,
+                    start_md=1500.0,
+                    end_md=2300.0,
+                    inner_diameter=0.15,
+                    roughness=1.0e-5,
+                )
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+        timeline.set_timestamp(timestamp="2024-12-31")
+        return well_paths
+
+    @staticmethod
+    def _set_export_names(well_paths, names):
+        for well_path, name in zip(well_paths, names):
+            settings = well_path.completion_settings()
+            settings.well_name_for_export = name
+            settings.update()
+
+    @staticmethod
+    def _compdat_transmissibilities(schedule_text, well_name):
+        """Map 'I J K' -> connection transmissibility for the COMPDAT records of a well."""
+        compdat = schedule_text.split("COMPDAT")[1].split("\n/")[0]
+        pattern = rf"'{well_name}'\s+(\d+ \d+ \d+) \d+ '\w+' \S+ (\S+)"
+        return {cell: float(trans) for cell, trans in re.findall(pattern, compdat)}
+
+    def test_shared_well_name_combines_overlapping_connections(
+        self, project_with_case_and_well
+    ):
+        """Cells shared by well paths with the same export name are combined, not dropped (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = self._two_wells_sharing_export_name(project, timeline)
+
+        self._set_export_names(well_paths, ["OPA1", "OPA2"])
+        separate = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        single = self._compdat_transmissibilities(separate, "OPA1")
+        assert single and single == self._compdat_transmissibilities(separate, "OPA2")
+
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+        shared = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        combined = self._compdat_transmissibilities(shared, "OP5")
+        compdat = shared.split("COMPDAT")[1].split("\n/")[0]
+        assert len(re.findall(r"^\s*'OP5'", compdat, re.M)) == len(single)
+        assert combined.keys() == single.keys()
+        for cell, trans in single.items():
+            assert combined[cell] == pytest.approx(2.0 * trans, rel=1e-6)
+
+    @pytest.mark.parametrize("selected_index", [0, 1])
+    def test_shared_well_name_msw_exported_for_any_selected_member(
+        self, project_with_case_and_well, selected_index
+    ):
+        """MSW for a well name is exported once when any member is selected, not only the first (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = self._two_wells_sharing_export_name(
+            project, timeline, with_tubing=True
+        )
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_paths[selected_index]],
+            first_date_as_comment=False,
+        )
+
+        assert schedule_text.count("WELSEGS") == 1
+        assert schedule_text.count("COMPSEGS") == 1
+
     def test_generate_schedule_preserves_time_of_day(self, project_with_case_and_well):
         """Event timestamps with a time-of-day must be preserved in the exported DATES keyword (issue #14111)."""
         project, case, timeline = project_with_case_and_well

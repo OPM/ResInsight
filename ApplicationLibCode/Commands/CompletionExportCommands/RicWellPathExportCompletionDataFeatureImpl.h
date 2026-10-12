@@ -67,6 +67,11 @@ public:
     static std::vector<RigCompletionData>
         completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, const std::optional<QDateTime>& exportDate = std::nullopt );
 
+    // Completion data for several well paths (including their laterals), combined per cell into one connection.
+    static std::vector<RigCompletionData> completionDataForWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                                      RimEclipseCase*                  eCase,
+                                                                      const std::optional<QDateTime>&  exportDate = std::nullopt );
+
     static std::pair<double, cvf::Vec2i>
         wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "" );
 

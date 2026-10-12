@@ -28,6 +28,7 @@
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
+#include "RimWellEvent.h"
 #include "RimWellEventRawText.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventWellSpec.h"
@@ -50,6 +51,20 @@ namespace
 bool shouldEmitKeyword( const Opm::DeckKeyword& keyword )
 {
     return keyword.size() > 0 || keyword.isDataKeyword() || RifEventKeywordFormatter::isRecordlessKeyword( keyword );
+}
+
+QString exportNameForWell( const RimWellPath& well )
+{
+    return well.completionSettings() ? well.completionSettings()->wellNameForExport() : well.name();
+}
+
+// Wells in a multilateral group share one export name, so an event on any member applies to the whole group.
+bool eventBelongsToWell( const RimWellEvent& event, const RimWellPath& well )
+{
+    if ( event.wellName() == well.name() ) return true;
+
+    const RimWellPath* eventWell = event.wellPath();
+    return eventWell && exportNameForWell( *eventWell ) == exportNameForWell( well );
 }
 } // namespace
 
@@ -321,22 +336,53 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     // (keyed by keyword name, preserving well order) and serialised individually.
     std::map<QString, std::vector<Opm::DeckKeyword>> unmergedBlocks;
 
-    for ( auto* well : wellPaths )
+    // Wells sharing an export name (multilateral wells) are one well in the deck, so WELSPECS/COMPORD, COMPDAT and
+    // the MSW keywords are generated once per export name. Groups keep the export-name order of wellPaths, and
+    // top-level wells come first within a group so that a group is represented by its main well.
+    std::vector<std::vector<RimWellPath*>> wellGroups;
     {
-        if ( !well ) continue;
-
-        if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events ) )
+        std::map<QString, size_t> groupIndex;
+        for ( auto* well : wellPaths )
         {
-            mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
-            mergeKeyword( keywordBlocks,
-                          "COMPORD",
-                          RimKeywordFactory::compordKeyword( well->completionSettings()->wellNameForExport().toStdString() ) );
+            if ( !well ) continue;
+
+            auto [it, inserted] = groupIndex.try_emplace( exportNameForWell( *well ), wellGroups.size() );
+            if ( inserted ) wellGroups.emplace_back();
+            wellGroups[it->second].push_back( well );
         }
 
-        generateCompletionsForWell( eclipseCase, *well, date, events, keywordBlocks );
+        for ( auto& group : wellGroups )
+        {
+            std::stable_partition( group.begin(), group.end(), []( const RimWellPath* w ) { return w->isTopLevelWellPath(); } );
+        }
+    }
 
-        generateMswForWell( eclipseCase, *well, date, events, keywordBlocks, unmergedBlocks, mswWells, emittedSegmentLayouts );
-        generateWellControlForWell( *well, events, keywordBlocks );
+    for ( const auto& group : wellGroups )
+    {
+        for ( auto* well : group )
+        {
+            if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events ) )
+            {
+                mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
+                mergeKeyword( keywordBlocks, "COMPORD", RimKeywordFactory::compordKeyword( exportNameForWell( *well ).toStdString() ) );
+                break;
+            }
+        }
+
+        generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks );
+
+        // MSW keywords describe the whole well tree, so they are generated from the top-level well of the first
+        // group member selected for MSW export.
+        auto mswIt = std::find_if( group.begin(), group.end(), [&mswWells]( const RimWellPath* w ) { return mswWells.contains( w ); } );
+        if ( mswIt != group.end() )
+        {
+            generateMswForWell( eclipseCase, *( *mswIt )->topLevelWellPath(), date, events, keywordBlocks, unmergedBlocks, emittedSegmentLayouts );
+        }
+
+        for ( auto* well : group )
+        {
+            generateWellControlForWell( *well, events, keywordBlocks );
+        }
     }
 
     // Schedule-level keyword events (not tied to a specific well)
@@ -494,7 +540,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     {
         if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::TUBING ||
                event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
-             event->wellName() == well.name() )
+             eventBelongsToWell( *event, well ) )
         {
             hasEvents = true;
             break;
@@ -507,7 +553,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     const RimWellEventWellSpec* latestWellSpec = nullptr;
     for ( auto* event : timeline.events() )
     {
-        if ( event->eventType() != RimWellEvent::EventType::WELLSPEC || event->wellName() != well.name() ) continue;
+        if ( event->eventType() != RimWellEvent::EventType::WELLSPEC || !eventBelongsToWell( *event, well ) ) continue;
 
         auto* wellSpec = dynamic_cast<RimWellEventWellSpec*>( event );
         if ( !wellSpec ) continue;
@@ -537,16 +583,20 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateCompletionsForWell( RimEclipseCase&                      eclipseCase,
-                                                           RimWellPath&                         well,
-                                                           const QDateTime&                     date,
-                                                           const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                           std::map<QString, Opm::DeckKeyword>& keywordBlocks )
+void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase&                      eclipseCase,
+                                                                const std::vector<RimWellPath*>&     wellGroup,
+                                                                const QDateTime&                     date,
+                                                                const std::vector<RimWellEvent*>&    eventsAtDate,
+                                                                std::map<QString, Opm::DeckKeyword>& keywordBlocks )
 {
+    if ( wellGroup.empty() ) return;
+
+    const RimWellPath& representative = *wellGroup.front();
+
     bool hasPerfEvents = false;
     for ( auto* event : eventsAtDate )
     {
-        if ( event->eventType() == RimWellEvent::EventType::PERF && event->wellName() == well.name() )
+        if ( event->eventType() == RimWellEvent::EventType::PERF && eventBelongsToWell( *event, representative ) )
         {
             hasPerfEvents = true;
             break;
@@ -555,10 +605,20 @@ void RicScheduleDataGenerator::generateCompletionsForWell( RimEclipseCase&      
 
     if ( !hasPerfEvents ) return;
 
-    // Completion data is computed once and feeds both COMPDAT and COMPLUMP (the latter only emits
-    // records whose perforation has a completion number assigned). Both keywords merge across wells.
-    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( &well, &eclipseCase, date );
-    auto wellName = well.completionSettings()->wellNameForExport().toStdString();
+    // A connection must be exported once per well name. Completion data is computed for every distinct well tree
+    // in the group (a top-level well includes its laterals) and combined per cell, so connections shared by several
+    // well paths get their contributions combined instead of being duplicated or dropped.
+    std::vector<RimWellPath*> topLevelWells;
+    for ( auto* well : wellGroup )
+    {
+        auto* topLevel = well->topLevelWellPath();
+        if ( std::find( topLevelWells.begin(), topLevelWells.end(), topLevel ) == topLevelWells.end() ) topLevelWells.push_back( topLevel );
+    }
+
+    // Completion data feeds both COMPDAT and COMPLUMP (the latter only emits records whose perforation has a
+    // completion number assigned). Both keywords merge across wells.
+    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, &eclipseCase, date );
+    auto wellName = exportNameForWell( representative ).toStdString();
 
     mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
     mergeKeyword( keywordBlocks, "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
@@ -573,15 +633,8 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
                                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
                                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                                   const std::set<const RimWellPath*>&               mswWells,
                                                    std::map<QString, QString>&                       emittedSegmentLayouts )
 {
-    // MSW keywords are exported only for the wells the caller explicitly requested.
-    if ( !mswWells.contains( &wellPath ) )
-    {
-        return;
-    }
-
     auto* segmentCollection = wellPath.segmentCollection();
     if ( !segmentCollection )
     {
@@ -593,7 +646,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     bool hasGeometryEvents = false; // tubing or perforation changes require WELSEGS/COMPSEGS to be redefined
     for ( auto* event : eventsAtDate )
     {
-        if ( event->wellName() != wellPath.name() ) continue;
+        if ( !eventBelongsToWell( *event, wellPath ) ) continue;
 
         if ( event->eventType() == RimWellEvent::EventType::VALVE )
         {
@@ -638,7 +691,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     // WSEGVALV/WSEGAICD, but a valve becoming active adds valve segments and remaps connections, so the
     // segments are also redefined when the layout differs from the one last written for this well.
     const QString segmentLayout = RimKeywordFactory::deckKeywordToString( welsegsKw ) + RimKeywordFactory::deckKeywordToString( compsegsKw );
-    const QString wellName      = wellPath.completionSettings() ? wellPath.completionSettings()->wellNameForExport() : wellPath.name();
+    const QString wellName      = exportNameForWell( wellPath );
     auto          layoutIt      = emittedSegmentLayouts.find( wellName );
     const bool    layoutChanged = layoutIt == emittedSegmentLayouts.end() || layoutIt->second != segmentLayout;
 
