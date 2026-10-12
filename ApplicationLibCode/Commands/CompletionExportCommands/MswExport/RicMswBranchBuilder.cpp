@@ -199,7 +199,7 @@ std::optional<RigMswCellIntersection>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double segmentMidpointMD( const std::vector<CellSegmentEntry>& cellSegMap, int segmentNumber )
+double segmentNodeMD( const std::vector<CellSegmentEntry>& cellSegMap, int segmentNumber )
 {
     for ( const auto& entry : cellSegMap )
     {
@@ -487,7 +487,8 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
     std::vector<double> nodes = RicMswTableDataTools::placeSegmentNodes( heelMD,
                                                                          candidateNodes,
                                                                          segmentationSettings.intervals,
-                                                                         cellPieces.empty() ? heelMD : cellPieces.back().second );
+                                                                         cellPieces.empty() ? heelMD : cellPieces.back().second,
+                                                                         cellPieces.empty() ? heelMD : cellPieces.front().first );
 
     if ( !cellPieces.empty() && !perforationIntervals.empty() &&
          ( segmentationSettings.singleSegmentBeforeFirstPerforation || segmentationSettings.singleSegmentAfterLastPerforation ) )
@@ -496,6 +497,7 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
         double lastPerforationMD  = -std::numeric_limits<double>::infinity();
         for ( const auto* perf : perforationIntervals )
         {
+            if ( exportDate && !perf->isActiveOnDate( *exportDate ) ) continue;
             firstPerforationMD = std::min( firstPerforationMD, perf->startMD() );
             lastPerforationMD  = std::max( lastPerforationMD, perf->endMD() );
         }
@@ -686,7 +688,7 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                     {
                         const int    cellBranch = ++branchNumber;
                         const int    outletSeg  = findContainingSegmentForMD( cellSegMap, entry.ci.distanceStart );
-                        const double valveMD    = segmentMidpointMD( cellSegMap, outletSeg );
+                        const double valveMD    = segmentNodeMD( cellSegMap, outletSeg );
                         const double valveEndMD = valveMD + RicMswTableDataTools::valveSegmentLength;
                         const double startTVD   = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveMD );
                         const double endTVD     = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveEndMD );
@@ -770,7 +772,7 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                         {
                             const int    cellBranch = ++branchNumber;
                             const int    outletSeg  = findContainingSegmentForMD( cellSegMap, entry.ci.distanceStart );
-                            const double valveMD    = segmentMidpointMD( cellSegMap, outletSeg );
+                            const double valveMD    = segmentNodeMD( cellSegMap, outletSeg );
                             const double valveEndMD = valveMD + RicMswTableDataTools::valveSegmentLength;
                             const double startTVD   = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveMD );
                             const double endTVD     = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, valveEndMD );
