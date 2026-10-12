@@ -440,6 +440,7 @@ class TestScheduleGeneration:
         well_paths = self._two_wells_sharing_export_name(
             project, timeline, with_tubing=True
         )
+        well_paths[0].append_lateral_from_geometry(well_path_lateral=well_paths[1])
         self._set_export_names(well_paths, ["OP5", "OP5"])
 
         schedule_text = timeline.generate_schedule_text(
@@ -450,6 +451,47 @@ class TestScheduleGeneration:
 
         assert schedule_text.count("WELSEGS") == 1
         assert schedule_text.count("COMPSEGS") == 1
+
+    @pytest.mark.parametrize("selected_indices", [[0], [1], [0, 1]])
+    def test_shared_well_name_msw_rejects_independent_trees(
+        self, project_with_case_and_well, selected_indices
+    ):
+        """Independent trees cannot share an MSW name without leaving connections unmapped."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        for well_path in well_paths:
+            timeline.add_tubing_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=1500.0,
+                end_md=2300.0,
+                inner_diameter=0.15,
+                roughness=1.0e-5,
+            )
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+        timeline.set_timestamp(timestamp="2024-12-31")
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+
+        # Grouping independent trees remains supported without MSW export.
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        assert len(self._compdat_transmissibilities(schedule_text, "OP5")) == 12
+
+        with pytest.raises(rips.RipsError, match="OP5.*independent well trees"):
+            timeline.generate_schedule_text(
+                eclipse_case=case,
+                export_msw_for_wells=[well_paths[i] for i in selected_indices],
+                first_date_as_comment=False,
+            )
 
     def test_generate_schedule_preserves_time_of_day(self, project_with_case_and_well):
         """Event timestamps with a time-of-day must be preserved in the exported DATES keyword (issue #14111)."""

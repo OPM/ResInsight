@@ -359,6 +359,20 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
     for ( const auto& group : wellGroups )
     {
+        auto mswIt = std::find_if( group.begin(), group.end(), [&mswWells]( const RimWellPath* w ) { return mswWells.contains( w ); } );
+        if ( mswIt != group.end() )
+        {
+            const RimWellPath* mswRoot = ( *mswIt )->topLevelWellPath();
+            // Every COMPDAT connection must belong to the tree mapped by COMPSEGS.
+            if ( std::any_of( group.begin(), group.end(), [mswRoot]( const RimWellPath* w ) { return w->topLevelWellPath() != mswRoot; } ) )
+            {
+                return std::unexpected(
+                    QString( "Cannot export MSW for well '%1': the shared export name spans independent well trees. "
+                             "Connect the well paths as laterals, use distinct export names, or disable MSW export for this group." )
+                        .arg( exportNameForWell( **mswIt ) ) );
+            }
+        }
+
         for ( auto* well : group )
         {
             if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events ) )
@@ -371,9 +385,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
         generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks );
 
-        // MSW keywords describe the whole well tree, so they are generated from the top-level well of the first
-        // group member selected for MSW export.
-        auto mswIt = std::find_if( group.begin(), group.end(), [&mswWells]( const RimWellPath* w ) { return mswWells.contains( w ); } );
+        // MSW keywords describe the shared well tree, including all its laterals.
         if ( mswIt != group.end() )
         {
             generateMswForWell( eclipseCase, *( *mswIt )->topLevelWellPath(), date, events, keywordBlocks, unmergedBlocks, emittedSegmentLayouts );
