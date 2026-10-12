@@ -54,11 +54,11 @@ RimSegmentInterval::RimSegmentInterval()
                                  RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                                  "Roughness Factor" );
 
-    CAF_PDM_InitField( &m_fixedSegmentLength, "FixedSegmentLength", std::make_pair( false, 50.0 ), "Fixed Segment Length" );
+    CAF_PDM_InitScriptableField( &m_fixedSegmentLength, "FixedSegmentLength", std::make_pair( false, 50.0 ), "Fixed Segment Length" );
     m_fixedSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_minSegmentLength, "MinSegmentLength", std::make_pair( false, 10.0 ), "Min Segment Length" );
+    CAF_PDM_InitScriptableField( &m_minSegmentLength, "MinSegmentLength", std::make_pair( false, 10.0 ), "Min Segment Length" );
     m_minSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", std::make_pair( false, 100.0 ), "Max Segment Length" );
+    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", std::make_pair( false, 100.0 ), "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
