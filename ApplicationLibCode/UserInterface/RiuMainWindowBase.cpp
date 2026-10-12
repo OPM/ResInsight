@@ -95,10 +95,13 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_isBeingDestroyed( false )
     , m_hasBeenClosed( false )
     , m_windowMenu( nullptr )
+    , oneSecondTimerTriggered( this )
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
     m_dockManager->setStyleSheet( "" );
+
+    m_oneSecondTimer = std::make_unique<QBasicTimer>();
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaPreferencesSystem::current()->isFeatureEnabled( "undo-redo-view" ) )
     {
@@ -852,6 +855,11 @@ void RiuMainWindowBase::showEvent( QShowEvent* event )
 {
     m_hasBeenVisible = true;
 
+    if ( !m_oneSecondTimer->isActive() )
+    {
+        m_oneSecondTimer->start( 1000, this );
+    }
+
     QMainWindow::showEvent( event );
 }
 
@@ -861,6 +869,11 @@ void RiuMainWindowBase::showEvent( QShowEvent* event )
 void RiuMainWindowBase::closeEvent( QCloseEvent* event )
 {
     saveWinGeoAndDockToolBarLayout();
+
+    if ( m_oneSecondTimer->isActive() )
+    {
+        m_oneSecondTimer->stop();
+    }
 
     for ( auto view : viewWindows() )
     {
@@ -886,6 +899,21 @@ bool RiuMainWindowBase::hasBeenClosed() const
 void RiuMainWindowBase::clearClosedState()
 {
     m_hasBeenClosed = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::timerEvent( QTimerEvent* event )
+{
+    if ( event->timerId() == m_oneSecondTimer->timerId() )
+    {
+        oneSecondTimerTriggered.send();
+    }
+    else
+    {
+        QMainWindow::timerEvent( event );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

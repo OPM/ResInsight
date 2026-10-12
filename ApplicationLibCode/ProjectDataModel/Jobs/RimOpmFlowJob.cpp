@@ -98,7 +98,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     , m_fileDeckIsRestart( false )
     , m_startStepForProgress( -1 )
     , jobCompleted( this )
-    , progressUpdate( this )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -948,7 +947,6 @@ void RimOpmFlowJob::onProgress( double percentageDone )
 {
     m_percentageDone = percentageDone;
     updateConnectedEditors();
-    progressUpdate.send( percentageDone );
 }
 
 //--------------------------------------------------------------------------------------------------

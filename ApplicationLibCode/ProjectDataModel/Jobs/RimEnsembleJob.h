@@ -76,6 +76,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
+    void onRefreshTriggered( const caf::SignalEmitter* emitter );
+
     std::vector<RealizationInfo> setUpSelectedRealizations() const;
     std::string                  outputIteration() const;
 

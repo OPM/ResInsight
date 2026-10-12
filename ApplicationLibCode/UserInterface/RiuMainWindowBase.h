@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QBasicTimer>
 #include <QByteArray>
 #include <QMainWindow>
 #include <QPointer>
@@ -25,6 +26,7 @@
 #include <QStringList>
 
 #include "cafPdmUiDragDropInterface.h"
+#include "cafSignal.h"
 
 #include "ads_globals.h"
 
@@ -54,7 +56,7 @@ class RimViewWindow;
 //==================================================================================================
 ///
 //==================================================================================================
-class RiuMainWindowBase : public QMainWindow
+class RiuMainWindowBase : public QMainWindow, public caf::SignalEmitter
 {
     Q_OBJECT
 
@@ -106,6 +108,8 @@ public:
     bool    restoreDockWidgetState( QString dockStateString );
     bool    restoreLastDockWidgetState();
 
+    caf::Signal<> oneSecondTimerTriggered;
+
 public slots:
     void tileViewWindows();
 
@@ -125,6 +129,7 @@ protected:
 
     void showEvent( QShowEvent* event ) override;
     void closeEvent( QCloseEvent* event ) override;
+    void timerEvent( QTimerEvent* event ) override;
 
     virtual void onCentralWidgetContextMenu( QMenu& menu ) {};
 
@@ -189,5 +194,6 @@ private:
     bool m_isBeingDestroyed;
     bool m_hasBeenClosed;
 
-    ads::CDockManager* m_dockManager;
+    ads::CDockManager*           m_dockManager;
+    std::unique_ptr<QBasicTimer> m_oneSecondTimer;
 };

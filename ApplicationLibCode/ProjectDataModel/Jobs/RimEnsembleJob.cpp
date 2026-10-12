@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
 #include "Summary/RiaSummaryTools.h"
@@ -46,6 +47,7 @@
 #include "RimTools.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuMainWindowBase.h"
 
 #include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -267,6 +269,11 @@ bool RimEnsembleJob::execute()
         return false;
     }
 
+    if ( auto mainWnd = RiaGuiApplication::activeMainWindow() )
+    {
+        mainWnd->oneSecondTimerTriggered.connect( this, &RimEnsembleJob::onRefreshTriggered );
+    }
+
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
     m_subJobsCompleted = 0;
@@ -318,7 +325,17 @@ bool RimEnsembleJob::execute()
     setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
+    if ( anyJobsStarted ) setStarted();
+
     return anyJobsStarted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::onRefreshTriggered( const caf::SignalEmitter* emitter )
+{
+    if ( isRunning() ) updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,6 +533,14 @@ void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::Pdm
             tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
             tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
             treeItemAttribute->tags.push_back( std::move( tag ) );
+
+            if ( state() == JobState::Running )
+            {
+                auto timeTag = caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::black ),
+                                                                           QColor( Qt::white ),
+                                                                           runTimeString().toUtf8().constData() );
+                treeItemAttribute->tags.push_back( std::move( timeTag ) );
+            }
         }
     }
 }
