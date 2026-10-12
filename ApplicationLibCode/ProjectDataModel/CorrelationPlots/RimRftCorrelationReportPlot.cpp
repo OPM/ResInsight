@@ -25,6 +25,7 @@
 #include "RimRftCrossPlotTools.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPlotTools.h"
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
@@ -207,14 +208,13 @@ RimParameterRftCrossPlot* RimRftCorrelationReportPlot::crossPlot() const
 /// Initialize the owned RimWellRftPlot from the source plot's selected data sources.
 /// We keep the fresh (curve-free) child plot and call initializeDataSources(source) so
 /// syncCurvesFromUiSelection builds curves from scratch without touching unresolved copies.
+/// Without a source plot, the first well with ensemble RFT data is used with all available data sources.
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* source )
 {
-    if ( !source ) return;
-
     applyDepthTypeToSubPlots();
 
-    m_wellRftPlot->setSimWellOrWellPathName( source->simWellOrWellPathName() );
+    m_wellRftPlot->setSimWellOrWellPathName( source ? source->simWellOrWellPathName() : RimWellPlotTools::firstWellNameWithEnsembleRftData() );
 
     // A fresh RimWellRftPlot has no tracks; syncCurvesFromUiSelection exits early without one.
     // Guard against duplicate track creation if this is called more than once.
@@ -227,10 +227,14 @@ void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* sour
 
     m_wellRftPlot->initializeDataSources( source );
 
-    // The correlation report operates on a single time step; trim any extras that
-    // initializeDataSources may have preselected when only a few were available.
+    // The correlation report operates on a single time step; prefer the time step selected in the
+    // source plot, and trim any extras that initializeDataSources may have preselected.
     auto selectedTimeSteps = m_wellRftPlot->selectedTimeSteps();
-    if ( selectedTimeSteps.size() > 1 )
+    if ( source && !source->selectedTimeSteps().empty() )
+    {
+        m_wellRftPlot->setSelectedTimeSteps( { source->selectedTimeSteps().front() } );
+    }
+    else if ( selectedTimeSteps.size() > 1 )
     {
         m_wellRftPlot->setSelectedTimeSteps( { selectedTimeSteps.front() } );
     }
@@ -706,7 +710,12 @@ void RimRftCorrelationReportPlot::onRftTrackDepthClicked( RimWellLogTrack* track
 
         m_parameterRftCrossPlot->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
         m_parameterRftCrossPlot->setSelectedZones( zones );
-        loadDataAndUpdate();
+
+        // The zone filter does not affect the RFT curves; skip reloading the RFT plot to keep its zoom
+        updateSelectedZoneHighlight();
+        syncTornadoInputsFromCrossPlot();
+        m_tornadoPlot->loadDataAndUpdate();
+        m_parameterRftCrossPlot->loadDataAndUpdate();
         updateConnectedEditors();
         return;
     }

@@ -392,8 +392,6 @@ void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
     m_wellPaths.push_back( wellPath );
 
     rebuildWellPathNodes();
-
-    m_mostRecentlyUpdatedWellPath = wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,8 +566,6 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
             wellPath->setWellFormationsFile( wellFormationsFile, wellName );
 
             QString wellFormationsCount = QString( "%1" ).arg( formations->formationNamesCount() );
-
-            m_mostRecentlyUpdatedWellPath = wellPath;
 
             outputMessage += wellName + "\t\t";
             outputMessage += wellPath->name() + " \t\t\t";
@@ -923,14 +919,6 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPathCollection::mostRecentlyUpdatedWellPath()
-{
-    return m_mostRecentlyUpdatedWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------

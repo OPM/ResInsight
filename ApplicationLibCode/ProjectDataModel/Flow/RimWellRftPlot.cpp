@@ -949,30 +949,6 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData )
-{
-    for ( auto plot : plots() )
-    {
-        RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plot );
-        if ( track )
-        {
-            auto curves = track->curves();
-            for ( auto curve : curves )
-            {
-                RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
-                if ( rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData )
-                {
-                    track->removeCurve( rftCurve );
-                    delete rftCurve;
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions );

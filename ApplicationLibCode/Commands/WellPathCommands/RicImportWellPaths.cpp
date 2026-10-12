@@ -145,10 +145,9 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
         {
             RicNewGenericDataViewFeature::createInitialViewIfNeeded();
 
-            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if ( wellPath )
+            if ( !wellPaths.empty() && wellPaths.back() )
             {
-                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
+                Riu3DMainWindowTools::selectAsCurrentItem( wellPaths.back() );
             }
         }
     }

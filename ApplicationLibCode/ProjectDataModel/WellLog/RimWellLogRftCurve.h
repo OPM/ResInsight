@@ -96,6 +96,8 @@ public:
 
     void setScaleFactor( double factor );
 
+    bool deleteIfDataSourceIsMissing() override;
+
 protected:
     QString     createCurveAutoName() override;
     QString     createCurveNameFromTemplate( const QString& templateText ) override;

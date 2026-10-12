@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimObservedFmuRftData.h"
 
+#include "Tools/RimCsvPreviewTools.h"
+
 //==================================================================================================
 //
 //
@@ -30,6 +32,7 @@ CAF_PDM_SOURCE_INIT( RimObservedFmuRftData, "ObservedFmuRftData" );
 RimObservedFmuRftData::RimObservedFmuRftData()
 {
     CAF_PDM_InitObject( "Observed FMU Data", ":/ObservedRFTDataFile16x16.png" );
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_directoryPath, "ObservedFolder", "Directory" );
     m_directoryPath.uiCapability()->setUiReadOnly( true );
@@ -38,9 +41,8 @@ RimObservedFmuRftData::RimObservedFmuRftData()
     m_directoryPath_OBSOLETE.uiCapability()->setUiReadOnly( true );
     m_directoryPath_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
-    m_wells.uiCapability()->setUiReadOnly( true );
-    m_wells.registerGetMethod( this, &RimObservedFmuRftData::wells );
+    CAF_PDM_InitFieldNoDefault( &m_contentTable, "ContentTable", "Content" );
+    RimCsvPreviewTools::initPreviewField( m_contentTable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +60,7 @@ void RimObservedFmuRftData::createRftReaderInterface()
 {
     m_fmuRftReader = std::make_unique<RifReaderFmuRft>( m_directoryPath().path() );
     m_fmuRftReader->importData();
+    m_contentTable = "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,4 +126,39 @@ void RimObservedFmuRftData::initAfterRead()
     {
         m_directoryPath = m_directoryPath_OBSOLETE();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedFmuRftData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    // Built on demand, as the table is only needed when the data is shown in the property editor
+    if ( m_contentTable().isEmpty() ) updateContentTable();
+
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_directoryPath );
+    uiOrdering.add( &m_contentTable );
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedFmuRftData::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_contentTable )
+    {
+        RimCsvPreviewTools::setPreviewEditorAttribute( attribute );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedFmuRftData::updateContentTable()
+{
+    if ( !rftReader() ) return;
+
+    m_contentTable = RimCsvPreviewTools::htmlTableFromText( m_fmuRftReader->csvText() );
 }

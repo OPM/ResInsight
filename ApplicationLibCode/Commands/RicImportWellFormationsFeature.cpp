@@ -19,14 +19,15 @@
 #include "RicImportWellFormationsFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Formations/RimWellFormationsCollection.h"
 #include "Formations/RimWellFormationsFile.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -41,7 +42,9 @@ void RicImportWellFormationsFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellFormationsFile*> importedFiles = importFilesWithDialog();
     if ( !importedFiles.empty() )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( importedFiles.back() );
+        // Well formations are shown in the plot window data sources tree
+        RiuPlotMainWindowTools::onObjectAppended( importedFiles.back(),
+                                                  importedFiles.back()->firstAncestorOrThisOfType<RimWellFormationsCollection>() );
     }
 }
 
@@ -52,7 +55,7 @@ std::vector<RimWellFormationsFile*> RicImportWellFormationsFeature::importFilesW
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR" );
-    QStringList     filePaths  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+    QStringList     filePaths  = RiuFileDialogTools::getOpenFileNames( RiaGuiApplication::widgetToUseAsParent(),
                                                                   "Import Well Formations",
                                                                   defaultDir,
                                                                   "Well Formations (*.csv);;All Files (*.*)" );

@@ -85,6 +85,7 @@ std::vector<RimEclipseResultCase*>  gridCasesForWell( const QString& simWellName
 std::vector<RimEclipseResultCase*>  rftCasesForWell( const QString& simWellName );
 std::vector<RimSummaryEnsemble*>    rftEnsemblesForWell( const QString& simWellName );
 std::vector<RimSummaryEnsemble*>    rftEnsembles();
+QString                             firstWellNameWithEnsembleRftData();
 std::vector<RimObservedFmuRftData*> observedFmuRftDataForWell( const QString& simWellName );
 std::vector<RimObservedFmuRftData*> observedFmuRftData();
 QString                             simWellName( const QString& wellPathNameOrSimWellName );

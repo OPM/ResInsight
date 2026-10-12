@@ -30,6 +30,7 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
+#include "RimPlotCurve.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
@@ -42,7 +43,9 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafUtils.h"
 
+#include <QDir>
 #include <QFile>
+#include <QSet>
 
 CAF_PDM_SOURCE_INIT( RimObservedDataCollection, "ObservedDataCollection" );
 
@@ -56,24 +59,6 @@ RimObservedDataCollection::RimObservedDataCollection()
     CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedPressureDepthArray, "PressureDepthDataArray", "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::removeObservedSummaryData( RimObservedSummaryData* observedData )
-{
-    m_observedDataArray.removeChild( observedData );
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData )
-{
-    m_observedFmuRftArray.removeChild( observedFmuRftData );
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +90,16 @@ std::vector<RimPressureDepthData*> RimObservedDataCollection::allPressureDepthDa
 //--------------------------------------------------------------------------------------------------
 void RimObservedDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    // Delete curves that referenced the deleted observed data
+    std::set<caf::PdmObjectHandle*> uniqueReferringObjects( referringObjects.begin(), referringObjects.end() );
+    for ( caf::PdmObjectHandle* obj : uniqueReferringObjects )
+    {
+        if ( auto curve = dynamic_cast<RimPlotCurve*>( obj ) )
+        {
+            curve->deleteIfDataSourceIsMissing();
+        }
+    }
+
     RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
 
@@ -240,7 +235,23 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
 //--------------------------------------------------------------------------------------------------
 RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath( const QString& directoryPath )
 {
-    QString name = QString( "Imported FMU RFT Data %1" ).arg( m_observedFmuRftArray.size() + 1 );
+    // The data folder is often named e.g. "rft", so include the parent folder to make the name descriptive
+    const QDir  dir( directoryPath );
+    QStringList pathParts = QDir::cleanPath( dir.absolutePath() ).split( '/', Qt::SkipEmptyParts );
+    QString     baseName  = pathParts.size() >= 2 ? pathParts.mid( pathParts.size() - 2 ).join( '/' ) : dir.dirName();
+    if ( baseName.isEmpty() ) baseName = "Observed FMU Data";
+
+    QSet<QString> existingNames;
+    for ( const auto& existing : m_observedFmuRftArray )
+    {
+        existingNames.insert( existing->name() );
+    }
+
+    QString name = baseName;
+    for ( int i = 2; existingNames.contains( name ); ++i )
+    {
+        name = QString( "%1 (%2)" ).arg( baseName ).arg( i );
+    }
 
     RimObservedFmuRftData* fmuRftData = new RimObservedFmuRftData;
     fmuRftData->setDirectoryPath( directoryPath );

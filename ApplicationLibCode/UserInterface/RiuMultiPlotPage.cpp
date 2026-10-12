@@ -483,6 +483,10 @@ bool RiuMultiPlotPage::hasHeightForWidth() const
 //--------------------------------------------------------------------------------------------------
 int RiuMultiPlotPage::heightForWidth( int width ) const
 {
+    // The page aspect ratio is only relevant in page preview mode. Otherwise, a parent scroll area (e.g. a dock widget) will size the
+    // page taller than the visible area, and the bottom of the plot is clipped.
+    if ( !m_previewMode ) return -1;
+
     QPageLayout pageLayout  = m_plotDefinition->pageLayout();
     QRectF      rect        = pageLayout.fullRectPoints();
     double      aspectRatio = rect.height() / rect.width();

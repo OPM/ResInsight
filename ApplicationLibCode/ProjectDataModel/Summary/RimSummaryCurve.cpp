@@ -1401,6 +1401,21 @@ void RimSummaryCurve::updateTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::deleteIfDataSourceIsMissing()
+{
+    const bool isXCaseMissing = m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR && !m_xValuesSummaryCase();
+    if ( m_yValuesSummaryCase() && !isXCaseMissing ) return false;
+
+    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( !summaryPlot ) return false;
+
+    summaryPlot->deleteCurves( { this } );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;

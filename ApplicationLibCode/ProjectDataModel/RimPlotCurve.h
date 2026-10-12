@@ -133,11 +133,14 @@ public:
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
 
-    void          attach( RiuPlotWidget* );
-    void          detach( bool deletePlotCurve = false );
-    void          reattach( bool updateParentPlot = true );
-    bool          isSameCurve( const RiuPlotCurve* plotCurve ) const;
-    void          deletePlotCurve();
+    void attach( RiuPlotWidget* );
+    void detach( bool deletePlotCurve = false );
+    void reattach( bool updateParentPlot = true );
+    bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
+    void deletePlotCurve();
+
+    // Deletes this curve if its data source is missing. Returns true if deleted; the object must not be accessed afterwards.
+    virtual bool  deleteIfDataSourceIsMissing();
     RiuPlotCurve* plotCurve() const;
 
     std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
