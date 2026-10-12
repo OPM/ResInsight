@@ -376,6 +376,16 @@ TEST_F( RigNestedHybridGridReconstructorTest, LgrNamesAreConsistent )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Tree grouping: numbered component names collapse to their refinement level name.
+//--------------------------------------------------------------------------------------------------
+TEST( RigNestedHybridGridReconstructorNameTest, LevelGroupName )
+{
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR_NHG_L4_12" ), QString( "LGR_NHG_L4" ) );
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR_NHG_L2" ), QString( "LGR_NHG_L2" ) );
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR1" ), QString( "LGR1" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Results propagate to the reconstructed LGR cells: an active-cell-indexed STATIC result and the
 /// full-length REFINE input property (both loaded before reconstruction) must both carry, on an LGR
 /// cell, the source flat cell's value.

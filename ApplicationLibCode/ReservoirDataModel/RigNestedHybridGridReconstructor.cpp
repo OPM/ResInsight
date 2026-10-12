@@ -35,6 +35,8 @@
 
 #include "RiaDefines.h"
 
+#include <QRegularExpression>
+
 #include <algorithm>
 #include <array>
 #include <climits>
@@ -265,6 +267,16 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         QString( "Nested hybrid grid: created %1 LGRs (%2 cells)" ).arg( grid->gridCount() - 1 ).arg( sourceCells.size() ).toStdString() );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigNestedHybridGridReconstructor::levelGroupName( const QString& gridName )
+{
+    static const QRegularExpression re( "^(LGR_NHG_L\\d+)(_\\d+)?$" );
+    const auto                      match = re.match( gridName );
+    return match.hasMatch() ? match.captured( 1 ) : gridName;
 }
 
 //--------------------------------------------------------------------------------------------------
