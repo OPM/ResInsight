@@ -84,6 +84,7 @@ private:
                                                                 const std::vector<RimWellPath*>&    wellPaths,
                                                                 const QDateTime&                    date,
                                                                 const std::set<const RimWellPath*>& mswWells,
+                                                                std::map<QString, QString>&         emittedSegmentLayouts,
                                                                 bool                                dateAsComment = false,
                                                                 bool                                alignColumns  = false );
 
@@ -105,13 +106,16 @@ private:
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
     // wells and are appended as separate per-well blocks in unmergedBlocks.
     // All four keywords are emitted only when the well is present in mswWells; otherwise none are.
+    // WELSEGS / COMPSEGS are written for tubing/perforation events, and for valve events when the
+    // segment layout differs from the one last written for the well (tracked in emittedSegmentLayouts).
     static void generateMswForWell( RimEclipseCase&                                   eclipseCase,
                                     RimWellPath&                                      well,
                                     const QDateTime&                                  date,
                                     const std::vector<RimWellEvent*>&                 eventsAtDate,
                                     std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                     std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                    const std::set<const RimWellPath*>&               mswWells );
+                                    const std::set<const RimWellPath*>&               mswWells,
+                                    std::map<QString, QString>&                       emittedSegmentLayouts );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
     static void generateWellControlForWell( const RimWellPath&                   well,

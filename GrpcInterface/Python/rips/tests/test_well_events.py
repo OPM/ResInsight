@@ -1342,6 +1342,59 @@ class TestScheduleGeneration:
             f"Schedule should contain well name ({well_path.name} or {well_name_no_spaces})"
         )
 
+    def test_valve_only_date_redefines_segments_when_layout_changes(
+        self, project_with_case_and_well
+    ):
+        """A valve activated on a later date adds valve segments, so WELSEGS/COMPSEGS must be redefined (issue #14873)."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=1500.0,
+            end_md=2300.0,
+            inner_diameter=0.22,
+            roughness=9.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            skin_factor=0.5,
+            state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-03-01",
+            well_path=well_path,
+            measured_depth=2100.0,
+            valve_type="ICV",
+            state="OPEN",
+            flow_coefficient=0.7,
+            area=0.0001,
+        )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        sections = schedule_text.split("DATES\n")
+        january = [s for s in sections if "1 'JAN' 2024" in s or "1 JAN 2024" in s]
+        march = [s for s in sections if "1 'MAR' 2024" in s or "1 MAR 2024" in s]
+        assert len(january) == 1 and len(march) == 1
+
+        assert "WELSEGS" in january[0]
+        assert "WSEGVALV" in march[0]
+        assert "WELSEGS" in march[0], "New valve segments must be defined"
+        assert "COMPSEGS" in march[0], "Connections must be remapped to valve segments"
+        assert "WELSPECS" not in march[0]
+        assert "COMPDAT" not in march[0]
+
     def test_schedule_contains_wsegvalv_keyword(self, project_with_case_and_well):
         """Verify WSEGVALV keyword is generated for valve events."""
         project, case, timeline = project_with_case_and_well
