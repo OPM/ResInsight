@@ -93,12 +93,20 @@ def test_segment_interval_segmentation_lengths(rips_instance, initialize_test):
 
     interval.set_min_segment_length(length=10.0)
     interval.set_max_segment_length(length=40.0)
-    min_length = interval.set_min_segment_length(length=10.0)
-    assert min_length is not None
+    interval = interval.set_min_segment_length(length=10.0)
+    assert interval is not None
+    assert interval.min_segment_length == (True, 10.0)
+    assert interval.max_segment_length == (True, 40.0)
+    assert interval.fixed_segment_length[0] is False
 
     interval.set_fixed_segment_length(length=25.0)
-    interval.set_max_segment_length(length=30.0)
-    interval.set_fixed_segment_length(enable=False)
+    interval = interval.set_max_segment_length(length=30.0)
+    assert interval.max_segment_length == (True, 30.0)
+    assert interval.fixed_segment_length[0] is False
+
+    interval.set_fixed_segment_length(length=25.0)
+    interval = interval.set_fixed_segment_length(enable=False)
+    assert interval.fixed_segment_length[0] is False
 
     with pytest.raises(rips.RipsError, match="greater than zero"):
         interval.set_min_segment_length(length=0.0)
