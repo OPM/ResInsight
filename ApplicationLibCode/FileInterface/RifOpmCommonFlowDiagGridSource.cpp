@@ -30,6 +30,8 @@
 //--------------------------------------------------------------------------------------------------
 RifOpmCommonFlowDiagGridSource::RifOpmCommonFlowDiagGridSource( const std::string& gridFileName )
 {
+    // The EGrid constructor only indexes the file and reads small topology arrays (GRIDHEAD, ACTNUM, NNC, LGR info). COORD and ZCORN are
+    // loaded lazily on the first geometry access, which is never done here.
     m_grids.push_back( std::make_unique<Opm::EclIO::EGrid>( gridFileName ) );
 
     m_lgrNames   = m_grids.front()->list_of_lgrs();
