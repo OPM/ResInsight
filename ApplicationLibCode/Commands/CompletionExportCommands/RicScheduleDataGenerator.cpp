@@ -107,6 +107,10 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( cons
         }
     }
 
+    // Segment layout (WELSEGS + COMPSEGS) last written per export well name, used to detect when a
+    // valve-only date changes the segment structure and the segments must be redefined.
+    std::map<QString, QString> emittedSegmentLayouts;
+
     // Generate section for each date. The first retained date may be emitted as a comment instead
     // of a DATES keyword when firstDateAsComment is set. A RESTART marker truncates earlier dates,
     // including dates that only carry an insert-date event.
@@ -115,8 +119,14 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( cons
     {
         if ( restartDate.has_value() && date < *restartDate ) continue;
 
-        auto dateSection =
-            generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment, alignColumns );
+        auto dateSection = generateDateSection( timeline,
+                                                eclipseCase,
+                                                sortedWellPaths,
+                                                date,
+                                                mswWells,
+                                                emittedSegmentLayouts,
+                                                isFirstDate && firstDateAsComment,
+                                                alignColumns );
         if ( !dateSection ) return std::unexpected( dateSection.error() );
         result += *dateSection;
         isFirstDate = false;
@@ -223,6 +233,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
                                                                                const std::vector<RimWellPath*>&    wellPaths,
                                                                                const QDateTime&                    date,
                                                                                const std::set<const RimWellPath*>& mswWells,
+                                                                               std::map<QString, QString>&         emittedSegmentLayouts,
                                                                                bool                                dateAsComment,
                                                                                bool                                alignColumns )
 {
@@ -324,7 +335,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
         generateCompletionsForWell( eclipseCase, *well, date, events, keywordBlocks );
 
-        generateMswForWell( eclipseCase, *well, date, events, keywordBlocks, unmergedBlocks, mswWells );
+        generateMswForWell( eclipseCase, *well, date, events, keywordBlocks, unmergedBlocks, mswWells, emittedSegmentLayouts );
         generateWellControlForWell( *well, events, keywordBlocks );
     }
 
@@ -481,8 +492,8 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     bool hasEvents = false;
     for ( auto* event : eventsAtDate )
     {
-        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::VALVE ||
-               event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
+        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::TUBING ||
+               event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
              event->wellName() == well.name() )
         {
             hasEvents = true;
@@ -562,7 +573,8 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
                                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
                                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                                   const std::set<const RimWellPath*>&               mswWells )
+                                                   const std::set<const RimWellPath*>&               mswWells,
+                                                   std::map<QString, QString>&                       emittedSegmentLayouts )
 {
     // MSW keywords are exported only for the wells the caller explicitly requested.
     if ( !mswWells.contains( &wellPath ) )
@@ -577,23 +589,23 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     }
 
     // MSW is generated only when there are valve/tubing/perforation events at this exact date.
-    bool hasMswEvents  = false;
-    bool hasPerfEvents = false;
+    bool hasValveEvents    = false;
+    bool hasGeometryEvents = false; // tubing or perforation changes require WELSEGS/COMPSEGS to be redefined
     for ( auto* event : eventsAtDate )
     {
         if ( event->wellName() != wellPath.name() ) continue;
 
-        if ( event->eventType() == RimWellEvent::EventType::VALVE || event->eventType() == RimWellEvent::EventType::TUBING )
+        if ( event->eventType() == RimWellEvent::EventType::VALVE )
         {
-            hasMswEvents = true;
+            hasValveEvents = true;
         }
-        else if ( event->eventType() == RimWellEvent::EventType::PERF )
+        else if ( event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::PERF )
         {
-            hasPerfEvents = true;
+            hasGeometryEvents = true;
         }
     }
 
-    if ( !hasMswEvents && !hasPerfEvents )
+    if ( !hasValveEvents && !hasGeometryEvents )
     {
         return;
     }
@@ -620,10 +632,22 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     int  maxSegments = 0;
     int  maxBranches = 0;
     auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
-    appendUnmerged( "WELSEGS", std::move( welsegsKw ) );
+    auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswData );
 
-    auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswData );
-    appendUnmerged( "COMPSEGS", std::move( compsegsKw ) );
+    // Tubing and perforation changes always redefine the segments. A valve event usually only updates
+    // WSEGVALV/WSEGAICD, but a valve becoming active adds valve segments and remaps connections, so the
+    // segments are also redefined when the layout differs from the one last written for this well.
+    const QString segmentLayout = RimKeywordFactory::deckKeywordToString( welsegsKw ) + RimKeywordFactory::deckKeywordToString( compsegsKw );
+    const QString wellName      = wellPath.completionSettings() ? wellPath.completionSettings()->wellNameForExport() : wellPath.name();
+    auto          layoutIt      = emittedSegmentLayouts.find( wellName );
+    const bool    layoutChanged = layoutIt == emittedSegmentLayouts.end() || layoutIt->second != segmentLayout;
+
+    if ( hasGeometryEvents || layoutChanged )
+    {
+        emittedSegmentLayouts[wellName] = segmentLayout;
+        appendUnmerged( "WELSEGS", std::move( welsegsKw ) );
+        appendUnmerged( "COMPSEGS", std::move( compsegsKw ) );
+    }
 
     auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswData );
     mergeKeyword( keywordBlocks, "WSEGVALV", std::move( wsegvalvKw ) );
