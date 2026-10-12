@@ -22,6 +22,7 @@
 
 #include "Surface/RigTriangleMeshData.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -60,6 +61,9 @@ std::unique_ptr<RigTriangleMeshData> RifVtkSurfaceImporter::importFromXmlDoc( co
     // Read connectivity
     std::vector<unsigned> connectivity = RifVtkImportUtil::readConnectivity( piece );
     if ( connectivity.empty() ) return nullptr;
+
+    // Connectivity values are indices into the vertex array and must be valid
+    if ( std::ranges::any_of( connectivity, [&vertices]( unsigned index ) { return index >= vertices.size(); } ) ) return nullptr;
 
     // Avoid shared nodes
     std::vector<cvf::Vec3d> nonSharedVertices;

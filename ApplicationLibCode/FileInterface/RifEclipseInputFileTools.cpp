@@ -160,13 +160,38 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
         }
     }
 
+    auto freeKeywords = [&]()
+    {
+        if ( specGridKw ) ecl_kw_free( specGridKw );
+        if ( zCornKw ) ecl_kw_free( zCornKw );
+        if ( coordKw ) ecl_kw_free( coordKw );
+        if ( actNumKw ) ecl_kw_free( actNumKw );
+        if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
+    };
+
     if ( specGridKw && zCornKw && coordKw )
     {
+        if ( ecl_kw_get_size( specGridKw ) < 3 )
+        {
+            RiaLogging::error( "SPECGRID must contain at least three values (nx, ny, nz)" );
+            freeKeywords();
+            return false;
+        }
+
         int nx = ecl_kw_iget_int( specGridKw, 0 );
         int ny = ecl_kw_iget_int( specGridKw, 1 );
         int nz = ecl_kw_iget_int( specGridKw, 2 );
 
         ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
+
+        // The grid is null if the keyword sizes do not match the dimensions given by SPECGRID
+        if ( !inputGrid )
+        {
+            RiaLogging::error(
+                "Failed to create grid from GRDECL keywords. Check that the sizes of ZCORN, COORD and ACTNUM match SPECGRID." );
+            freeKeywords();
+            return false;
+        }
 
         RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase, false );
 
@@ -194,11 +219,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
             eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
         }
 
-        ecl_kw_free( specGridKw );
-        ecl_kw_free( zCornKw );
-        ecl_kw_free( coordKw );
-        if ( actNumKw ) ecl_kw_free( actNumKw );
-        if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
+        freeKeywords();
 
         ecl_grid_free( inputGrid );
 

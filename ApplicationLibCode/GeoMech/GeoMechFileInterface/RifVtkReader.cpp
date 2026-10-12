@@ -33,6 +33,7 @@
 
 #include <QString>
 
+#include <algorithm>
 #include <map>
 
 namespace RifVtkFieldNames
@@ -291,6 +292,11 @@ std::expected<RigElementType, std::string>
             // Read connectivity
             std::vector<unsigned> connectivity = RifVtkImportUtil::readConnectivity( piece );
             if ( connectivity.empty() ) return std::unexpected( "No connectivity found: " + d.filepath.string() );
+
+            if ( std::ranges::any_of( connectivity, [&vertices]( unsigned index ) { return index >= vertices.size(); } ) )
+            {
+                return std::unexpected( "Connectivity refers to a point that does not exist: " + d.filepath.string() );
+            }
 
             std::vector<std::pair<int, cvf::Vec3d>> partNodes;
             for ( int i = 0; i < static_cast<int>( vertices.size() ); i++ )

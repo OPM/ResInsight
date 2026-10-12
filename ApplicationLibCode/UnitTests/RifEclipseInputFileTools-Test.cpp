@@ -844,6 +844,55 @@ TEST( RifEclipseInputFileToolsTest, ExportGridInvalidParams )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// ZCORN size does not match SPECGRID. Used to dereference a null grid and crash.
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseInputFileToolsTest, OpenGridFileWithMismatchingZcornSize )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString fileName = tempDir.path() + "/mismatch.grdecl";
+    {
+        QFile file( fileName );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        QTextStream out( &file );
+        out << "SPECGRID\n 10 10 10 1 F\n/\n\nCOORD\n";
+        for ( int i = 0; i < 726; i++ )
+            out << "1.0 ";
+        out << "\n/\n\nZCORN\n 1.0 1.0 1.0 1.0\n/\n";
+    }
+
+    auto    eclipseCase = std::make_unique<RigEclipseCaseData>( nullptr );
+    QString errorMessages;
+    bool    success = RifEclipseInputFileTools::openGridFile( fileName, eclipseCase.get(), false, &errorMessages );
+
+    EXPECT_FALSE( success );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// SPECGRID with too few values. Used to read outside the keyword data.
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseInputFileToolsTest, OpenGridFileWithShortSpecgrid )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString fileName = tempDir.path() + "/short_specgrid.grdecl";
+    {
+        QFile file( fileName );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        QTextStream out( &file );
+        out << "SPECGRID\n 1\n/\n\nCOORD\n 0 0 0 0 0 1 1 0 0 1 0 1 0 1 0 0 1 1 1 1 0 1 1 1\n/\n\nZCORN\n 0 0 0 0 1 1 1 1\n/\n";
+    }
+
+    auto    eclipseCase = std::make_unique<RigEclipseCaseData>( nullptr );
+    QString errorMessages;
+    bool    success = RifEclipseInputFileTools::openGridFile( fileName, eclipseCase.get(), false, &errorMessages );
+
+    EXPECT_FALSE( success );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseInputFileToolsTest, ExportKeywordsInvalidParams )
