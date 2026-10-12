@@ -66,6 +66,9 @@ public:
     // Returns true if at least one refined region was reconstructed.
     static bool reconstruct( RigEclipseCaseData* caseData, const NestedHybridInput& input, QString* errorMessage = nullptr );
 
+    // "LGR_NHG_L4_2" -> "LGR_NHG_L4". Names not matching the nested hybrid pattern are returned unchanged.
+    static QString levelGroupName( const QString& gridName );
+
 private:
     // Build one RigLocalGrid of the given IJK dimensions. boxToFlat maps each local cell to its
     // source flat cell (UNDEFINED for holes); boxToParent maps each local cell to the parent (coarse)
