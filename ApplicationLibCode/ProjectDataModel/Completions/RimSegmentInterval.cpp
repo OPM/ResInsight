@@ -393,7 +393,6 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     if ( changedField == &m_fixedSegmentLength || changedField == &m_minSegmentLength || changedField == &m_maxSegmentLength )
     {
         updateUiName();
-        uiCapability()->updateConnectedEditors();
     }
 
     updateConnectedEditors();
@@ -479,6 +478,15 @@ void RimSegmentInterval::enforceSegmentationRules( const caf::PdmFieldHandle* ac
     else
     {
         m_fixedSegmentLength = std::make_pair( false, m_fixedSegmentLength().second );
+
+        // Min length must not exceed max length, the field just edited wins
+        if ( m_minSegmentLength().first && m_maxSegmentLength().first && m_minSegmentLength().second > m_maxSegmentLength().second )
+        {
+            if ( activeField == &m_minSegmentLength )
+                m_maxSegmentLength = std::make_pair( true, m_minSegmentLength().second );
+            else
+                m_minSegmentLength = std::make_pair( true, m_maxSegmentLength().second );
+        }
     }
 }
 

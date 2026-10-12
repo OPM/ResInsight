@@ -71,15 +71,16 @@ SegmentationSettings segmentationSettings( const RimSegmentCollection* segmentCo
 //--------------------------------------------------------------------------------------------------
 /// Place the segment nodes of a branch. Candidate nodes are the cell (piece) centres in MD order.
 /// Inside a fixed length interval, the candidates are replaced by nodes at the centre of segments of
-/// the fixed length, starting at the interval start and limited to [outletMD, lastMD]. Inside a min
-/// length interval, candidates closer than the min length to the previous node are dropped. Inside a
-/// max length interval, evenly spaced nodes are inserted until no spacing exceeds the max length.
-/// The spacing of the first node is measured from the outlet node.
+/// the fixed length, starting at the interval start and limited to [max(outletMD, firstMD), lastMD].
+/// Inside a min length interval, candidates closer than the min length to the previous node are
+/// dropped. Inside a max length interval, evenly spaced nodes are inserted until no spacing exceeds
+/// the max length; the spacing is measured from the previous node, but never from before the interval start.
 //--------------------------------------------------------------------------------------------------
 std::vector<double> placeSegmentNodes( double                                   outletMD,
                                        const std::vector<double>&               candidateNodes,
                                        const std::vector<SegmentationInterval>& intervals,
-                                       double                                   lastMD = std::numeric_limits<double>::infinity() );
+                                       double                                   lastMD  = std::numeric_limits<double>::infinity(),
+                                       double                                   firstMD = -std::numeric_limits<double>::infinity() );
 
 //--------------------------------------------------------------------------------------------------
 /// Replace the nodes in [regionStartMD, firstPerforationMD) and/or (lastPerforationMD, regionEndMD]

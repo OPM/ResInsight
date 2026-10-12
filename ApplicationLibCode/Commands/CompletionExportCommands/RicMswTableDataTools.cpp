@@ -188,7 +188,8 @@ const RicMswTableDataTools::SegmentationInterval* intervalAtMD( const std::vecto
 std::vector<double> RicMswTableDataTools::placeSegmentNodes( double                                   outletMD,
                                                              const std::vector<double>&               allCandidateNodes,
                                                              const std::vector<SegmentationInterval>& intervals,
-                                                             double                                   lastMD )
+                                                             double                                   lastMD,
+                                                             double                                   firstMD )
 {
     if ( intervals.empty() ) return allCandidateNodes;
 
@@ -209,7 +210,7 @@ std::vector<double> RicMswTableDataTools::placeSegmentNodes( double             
         const double endMD  = std::min( interval.endMD, lastMD );
         for ( int k = 0;; ++k )
         {
-            const double segmentStart = std::max( interval.startMD + k * length, outletMD );
+            const double segmentStart = std::max( { interval.startMD + k * length, outletMD, firstMD } );
             const double segmentEnd   = std::min( interval.startMD + ( k + 1 ) * length, endMD );
             if ( interval.startMD + k * length >= endMD - tolerance ) break;
             if ( segmentEnd - segmentStart > tolerance ) candidateNodes.push_back( 0.5 * ( segmentStart + segmentEnd ) );
@@ -260,15 +261,16 @@ std::vector<double> RicMswTableDataTools::placeSegmentNodes( double             
         const auto* interval = intervalAtMD( intervals, nodeMD );
         if ( interval && interval->maxLength.has_value() )
         {
-            const double maxLength = *interval->maxLength;
-            const double gap       = nodeMD - previousMD;
+            const double maxLength  = *interval->maxLength;
+            const double splitStart = std::max( previousMD, interval->startMD );
+            const double gap        = nodeMD - splitStart;
             if ( gap > maxLength + tolerance )
             {
                 const int    segmentCount = static_cast<int>( std::ceil( ( gap - tolerance ) / maxLength ) );
                 const double spacing      = gap / segmentCount;
                 for ( int k = 1; k < segmentCount; ++k )
                 {
-                    nodes.push_back( previousMD + k * spacing );
+                    nodes.push_back( splitStart + k * spacing );
                 }
             }
         }

@@ -94,6 +94,7 @@ message SimulatorCompsegsEntry {
   double distance_start = 5;
   double distance_end = 6;
   optional string grid_name = 7;
+  optional int32 segment_number = 8;
 }
 
 message SimulatorWsegvalvEntry {

@@ -235,6 +235,20 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_FixedLength )
                  RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 50.0, std::nullopt, std::nullopt, 20.0 } }, 45.0 ) );
 }
 
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLengthNotBeforeIntervalStart )
+{
+    // Heel at 0, interval [1000,1100], first candidate at 1050: no nodes are added before the interval
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 1050.0 }, { { 1000.0, 1100.0, std::nullopt, 25.0 } } );
+    expectNodes( { 1025.0, 1050.0 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_FixedLengthNotBeforeFirstCell )
+{
+    const auto nodes =
+        RicMswTableDataTools::placeSegmentNodes( 0.0, { 1050.0 }, { { 1000.0, 1100.0, std::nullopt, std::nullopt, 20.0 } }, 1100.0, 1040.0 );
+    expectNodes( { 1050.0, 1070.0, 1090.0 }, nodes );
+}
+
 TEST( RicMswBranchBuilder, CollapseNodesOutsidePerforations )
 {
     const std::vector<double> nodes = { 5.0, 12.0, 22.0, 31.5, 46.5, 55.0 };
