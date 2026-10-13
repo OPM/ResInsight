@@ -18,12 +18,14 @@
 
 #pragma once
 
-#include <QBasicTimer>
 #include <QObject>
 
 #include <memory>
 
 #include "cafSignal.h"
+
+class QTimerEvent;
+class QBasicTimer;
 
 //--------------------------------------------------------------------------------------------------
 ///
