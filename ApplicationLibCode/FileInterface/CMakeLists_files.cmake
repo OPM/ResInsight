@@ -86,6 +86,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonFlowDiagGridSource.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEdfmTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp

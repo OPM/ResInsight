@@ -10,9 +10,14 @@
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 #include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
 
 #include <QFileInfo>
 #include <QString>
+
+#include "RiaPreferencesGrid.h"
+
+#include "cafPdmField.h"
 
 #include <algorithm>
 #include <iostream>
@@ -153,4 +158,97 @@ TEST( FlowDiagnosticsTest, calculateRelPermCurves_Oil_in_Oil_Gas )
         EXPECT_NEAR( krogCurve->yVals[i], expectedKr[i], tolerance )
             << "Relative permeability mismatch at index " << i << " - Expected: " << expectedKr[i] << ", Actual: " << krogCurve->yVals[i];
     }
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void setOnlyLoadActiveCells( bool onlyActive )
+{
+    auto field = dynamic_cast<caf::PdmField<bool>*>( RiaPreferencesGrid::current()->findField( "onlyLoadActiveCells" ) );
+    ASSERT_NE( field, nullptr );
+    field->setValue( onlyActive );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Run flow diagnostics for the last time step, with all wells as tracers
+//--------------------------------------------------------------------------------------------------
+std::map<RigFlowDiagResultAddress, std::vector<double>>
+    calculateFlowDiagnostics( const QString& egridFilePath, RiaDefines::GridModelReader reader, bool onlyActiveCells )
+{
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( reader );
+    setOnlyLoadActiveCells( onlyActiveCells );
+
+    auto eclipseCase = std::make_unique<RimEclipseResultCase>();
+    eclipseCase->setGridFileName( egridFilePath );
+    const bool isOpen = eclipseCase->openEclipseGridFile();
+
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( RiaDefines::GridModelReader::NOT_SET );
+    setOnlyLoadActiveCells( false );
+
+    if ( !isOpen ) return {};
+
+    auto flowDiagSolution = eclipseCase->defaultFlowDiagSolution();
+    if ( !flowDiagSolution || eclipseCase->timeStepDates().empty() ) return {};
+
+    const size_t timeStepIndex = eclipseCase->timeStepDates().size() - 1;
+
+    RigFlowDiagSolverInterface solver( eclipseCase.get() );
+
+    auto result = solver.calculate( timeStepIndex,
+                                    RigFlowDiagResultAddress::PHASE_ALL,
+                                    flowDiagSolution->allInjectorTracerActiveCellIndices( timeStepIndex ),
+                                    flowDiagSolution->allProducerTracerActiveCellIndices( timeStepIndex ) );
+
+    return result.nativeResults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Flow diagnostics must give the same results for grids imported with resdata and opm-common,
+/// including when only active cell geometry is imported
+//--------------------------------------------------------------------------------------------------
+void compareResultsForAllGridReaders( const QString& egridFilePath )
+{
+    if ( !QFileInfo::exists( egridFilePath ) )
+    {
+        GTEST_SKIP() << "Test file not found: " << egridFilePath.toStdString();
+    }
+
+    const auto resdataResults = calculateFlowDiagnostics( egridFilePath, RiaDefines::GridModelReader::RESDATA, false );
+    ASSERT_FALSE( resdataResults.empty() );
+
+    for ( bool onlyActiveCells : { false, true } )
+    {
+        SCOPED_TRACE( onlyActiveCells ? "opm-common, active cells only" : "opm-common" );
+
+        const auto opmResults = calculateFlowDiagnostics( egridFilePath, RiaDefines::GridModelReader::OPM_COMMON, onlyActiveCells );
+        ASSERT_EQ( resdataResults.size(), opmResults.size() );
+
+        for ( const auto& [address, values] : resdataResults )
+        {
+            auto it = opmResults.find( address );
+            ASSERT_NE( it, opmResults.end() ) << address.variableName;
+            EXPECT_EQ( values, it->second ) << address.variableName;
+        }
+    }
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( FlowDiagnosticsTest, SameResultsForAllGridReaders )
+{
+    compareResultsForAllGridReaders( QString( TEST_MODEL_DIR ) + "/synthetic_ensemble_with_dynamic_filter/Real0/SYNTH.EGRID" );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Norne from a resinsight-tutorials checkout next to the ResInsight checkout. Skipped if not present.
+//--------------------------------------------------------------------------------------------------
+TEST( FlowDiagnosticsTest, SameResultsForAllGridReadersNorne )
+{
+    compareResultsForAllGridReaders( QString( TEST_MODEL_DIR ) +
+                                     "/../../resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID" );
 }
