@@ -52,6 +52,7 @@ private:
     caf::PdmField<size_t>                                       m_maxParallelJobs;
     caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>> m_batchScheduler;
     caf::PdmField<QString>                                      m_queueName;
-    caf::PdmField<QString>                                      m_batchSchedulerOptions;
+    caf::PdmField<QString>                                      m_additionalLsfOptions;
+    caf::PdmField<QString>                                      m_additionalSlurmOptions;
     caf::PdmField<bool>                                         m_exclusive;
 };

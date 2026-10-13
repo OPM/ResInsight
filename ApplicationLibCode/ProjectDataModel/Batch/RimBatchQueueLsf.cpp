@@ -85,3 +85,11 @@ QStringList RimBatchQueueLsf::generateCommand( QString script,
 
     return arguments;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimBatchQueueLsf::launchScriptDirective() const
+{
+    return "#BSUB";
+}

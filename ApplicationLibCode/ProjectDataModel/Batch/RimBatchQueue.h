@@ -58,6 +58,7 @@ protected:
     QString                                         generateJobName();
     void                                            readStdOutErrIntoProcessLog();
     void                                            cleanUpOldLogFiles();
+    virtual QString                                 launchScriptDirective() const = 0;
 
     QString m_stdOutFileName;
     QString m_stdErrFileName;

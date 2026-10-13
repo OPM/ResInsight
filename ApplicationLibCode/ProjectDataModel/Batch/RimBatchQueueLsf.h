@@ -40,4 +40,7 @@ public:
                                  QString queueName,
                                  bool    exclusive,
                                  int     numberOfProcesses ) override;
+
+protected:
+    QString launchScriptDirective() const override;
 };

@@ -36,4 +36,5 @@ public:
     void stopProcess() override;
 
 private:
+    QString launchScriptDirective() const override;
 };

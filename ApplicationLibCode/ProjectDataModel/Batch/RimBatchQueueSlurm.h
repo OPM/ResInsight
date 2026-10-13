@@ -51,6 +51,8 @@ protected:
                                          bool    exclusive,
                                          int     numberOfProcesses );
 
+    QString launchScriptDirective() const override;
+
 protected:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     std::unique_ptr<RimProcess>        m_batchProcess;

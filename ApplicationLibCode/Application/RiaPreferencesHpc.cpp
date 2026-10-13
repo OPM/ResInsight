@@ -45,7 +45,10 @@ RiaPreferencesHpc::RiaPreferencesHpc()
 
     CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue/partition name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_batchSchedulerOptions, "batchSchedulerOptions", "Optional command line arguments" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalSlurmOptions, "additionalSlurmOptions", "" );
+    m_additionalLsfOptions.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_additionalSlurmOptions.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +85,16 @@ void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
                               },
                               { .newRow = false, .totalColumnSpan = 1 } );
         hpcGrp->add( &m_exclusive );
-        hpcGrp->add( &m_batchSchedulerOptions );
+        if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
+        {
+            hpcGrp->addNewLabel( "Additional LSF options can be specified here. For example: -R \"select[x86_64Linux] span[ptile=4]\"" );
+            hpcGrp->add( &m_additionalLsfOptions );
+        }
+        else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::SLURM )
+        {
+            hpcGrp->addNewLabel( "Additional Slurm options can be specified here. For example: --mem=1G" );
+            hpcGrp->add( &m_additionalSlurmOptions );
+        }
     }
 }
 
@@ -133,7 +145,15 @@ QString RiaPreferencesHpc::queueName() const
 //--------------------------------------------------------------------------------------------------
 QString RiaPreferencesHpc::batchSchedulerOptions() const
 {
-    return m_batchSchedulerOptions();
+    if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
+    {
+        return m_additionalLsfOptions();
+    }
+    else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        return m_additionalSlurmOptions();
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------

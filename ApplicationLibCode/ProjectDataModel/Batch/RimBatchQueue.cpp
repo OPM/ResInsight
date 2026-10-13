@@ -93,8 +93,8 @@ std::pair<std::unique_ptr<RimProcess>, QString> RimBatchQueue::runCommand( QStri
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
 {
-    // write launch script to a unique file name in the working directory
-    QString filename = workDir + "/launch_" + QString::number( QDateTime::currentMSecsSinceEpoch() ) + ".sh";
+    // write launch script to the working directory
+    QString filename = workDir + "/launch_job.sh";
 
     QFile file( filename );
     if ( !file.open( QIODevice::WriteOnly ) )
@@ -105,18 +105,25 @@ std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
     // build launch script
     QTextStream out( &file );
 
+    out << "#!/bin/sh\n";
+
+    auto additionalOptions = RiaPreferencesHpc::current()->batchSchedulerOptions();
+    if ( !additionalOptions.isEmpty() )
+    {
+        out << launchScriptDirective() << " " << additionalOptions << "\n\n";
+    }
+
     if ( m_process != nullptr )
     {
-        out << "#!/bin/sh\n";
-
         QString cmdLine = m_process->command();
 
         for ( auto& p : m_process->parameters() )
         {
             cmdLine += " " + p;
         }
-        out << cmdLine << "\n\n";
+        out << cmdLine << "\n";
     }
+    out << "\n";
 
     file.close();
 

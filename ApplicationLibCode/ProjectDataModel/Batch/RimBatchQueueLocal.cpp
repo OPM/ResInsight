@@ -54,3 +54,11 @@ void RimBatchQueueLocal::stopProcess()
 {
     if ( m_process != nullptr ) RimProcessQueue::stopProcess( m_process->ID() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimBatchQueueLocal::launchScriptDirective() const
+{
+    return "";
+}
