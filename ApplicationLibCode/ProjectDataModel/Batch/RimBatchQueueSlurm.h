@@ -34,7 +34,7 @@ public:
     RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType = RiaDefines::BatchSchedulerType::SLURM );
     ~RimBatchQueueSlurm();
 
-    void queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses ) override;
+    void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) override;
     void stopProcess() override;
 
 protected:

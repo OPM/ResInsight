@@ -32,7 +32,7 @@ public:
     RimBatchQueueLocal();
     ~RimBatchQueueLocal();
 
-    void queueProcess( std::shared_ptr<RimProcess> process, int nProcesses ) override;
+    void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) override;
     void stopProcess() override;
 
 private:

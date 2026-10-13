@@ -48,7 +48,7 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses )
+void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask )
 {
     m_process = process;
     m_monitor = std::make_shared<RimBatchProcessMonitor>( this );
@@ -86,7 +86,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     }
 
     QStringList arguments =
-        generateCommand( script, jobName, workDir, stdOut, stdErr, prefs->queueName(), prefs->exclusiveJob(), numberOfProcesses );
+        generateCommand( script, jobName, workDir, stdOut, stdErr, prefs->queueName(), prefs->exclusiveJob(), nProcessesPerTask );
 
     auto [batchProcess, output] = runCommand( arguments, m_monitor );
 

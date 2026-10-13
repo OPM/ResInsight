@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <QBasicTimer>
 #include <QByteArray>
 #include <QMainWindow>
 #include <QPointer>
