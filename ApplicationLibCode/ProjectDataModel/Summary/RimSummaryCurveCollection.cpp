@@ -421,6 +421,10 @@ void RimSummaryCurveCollection::defineObjectEditorAttribute( QString uiConfigNam
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::updateCurveOrder()
 {
+    // Detach schedules a replot, avoid a replot for each reattached curve
     detachPlotCurves();
-    reattachPlotCurves();
+    for ( RimSummaryCurve* curve : m_curves )
+    {
+        if ( curve->isChecked() ) curve->reattach( false );
+    }
 }

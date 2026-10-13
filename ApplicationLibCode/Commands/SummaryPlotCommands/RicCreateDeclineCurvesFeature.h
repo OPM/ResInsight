@@ -22,6 +22,8 @@
 
 #include "RimSummaryDeclineCurve.h"
 
+#include "cvfColor3.h"
+
 class RimSummaryPlot;
 class RimSummaryCurve;
 
@@ -36,6 +38,8 @@ protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static cvf::Color3f createDistinctColor( RimSummaryPlot* summaryPlot, RimSummaryCurve* sourceCurve );
 
     static RimSummaryDeclineCurve* createDeclineCurveAndAddToPlot( RimSummaryCurve*                         sourceCurve,
                                                                    RimSummaryDeclineCurve::DeclineCurveType declineCurveType );
