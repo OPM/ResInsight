@@ -4584,15 +4584,15 @@
         "description": "Brine concentration interpolated at a defined coordinate within a local grid"
     },
     "LCGFRU": {
-        "category": "SUMMARY_WELL_CONNECTION",
+        "category": "SUMMARY_WELL_CONNECTION_LGR",
         "description": "As CGFRU but for local grids"
     },
     "LCOFRU": {
-        "category": "SUMMARY_WELL_CONNECTION",
+        "category": "SUMMARY_WELL_CONNECTION_LGR",
         "description": "As COFRU but for local grids"
     },
     "LCWFRU": {
-        "category": "SUMMARY_WELL_CONNECTION",
+        "category": "SUMMARY_WELL_CONNECTION_LGR",
         "description": "As CWFRU but for local grids"
     },
     "MLINEARS": {
