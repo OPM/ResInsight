@@ -124,3 +124,43 @@ TEST( RigDeclineCurveCalculatorTests, historyIsBackwardExtrapolationOfFittedCurv
     EXPECT_GT( ( *result )[0], ( *result )[1] );
     EXPECT_GT( ( *result )[3], ( *result )[4] );
 }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigDeclineCurveCalculatorTests, autoArpsRecoversHyperbolicParametersAndSkipsRampUp )
+{
+    const double year = RigDeclineCurveCalculator::secondsPerYear;
+    const double qi   = 100.0;
+    const double di   = 0.6 / year;
+    const double b    = 0.5;
+
+    std::vector<double> times;
+    std::vector<double> rates;
+
+    // Ramp-up before the peak rate must be ignored
+    for ( int i = -30; i <= -25; i++ )
+    {
+        times.push_back( i * 0.1 * year );
+        rates.push_back( 10.0 + ( i + 30 ) * 10.0 );
+    }
+    for ( int i = -24; i <= 0; i++ )
+    {
+        const double t = i * 0.1 * year;
+        times.push_back( t );
+        rates.push_back( RigDeclineCurveCalculator::computeFlowRateHyperbolicDecline( qi, di, t, b ) );
+    }
+
+    auto fit = RigDeclineCurveCalculator::fitAutoArps( times, rates );
+    ASSERT_TRUE( fit.has_value() );
+    EXPECT_NEAR( qi, fit->initialProductionRate, 0.5 );
+    EXPECT_NEAR( b, fit->hyperbolicDeclineConstantB, 0.05 );
+    EXPECT_NEAR( di * year, fit->initialDeclineRate * year, 0.05 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigDeclineCurveCalculatorTests, autoArpsFailsWithTooFewPoints )
+{
+    EXPECT_FALSE( RigDeclineCurveCalculator::fitAutoArps( { -10.0, 0.0 }, { 5.0, 4.0 } ).has_value() );
+}

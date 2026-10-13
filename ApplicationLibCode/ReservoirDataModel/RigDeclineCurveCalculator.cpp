@@ -22,7 +22,9 @@
 #include <QStringList>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <limits>
 #include <tuple>
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +209,192 @@ RigDeclineCurveCalculator::FitResult RigDeclineCurveCalculator::fitHyperbolicDec
     return std::make_pair( qi, di );
 }
 
+namespace
+{
+double autoArpsLoss( double b, double lnQi, double diPerYear, const std::vector<double>& tYears, const std::vector<double>& rates )
+{
+    const double qi   = std::exp( lnQi );
+    double       loss = 0.0;
+    for ( size_t i = 0; i < tYears.size(); i++ )
+    {
+        double q = 0.0;
+        if ( b < 1.0e-3 )
+        {
+            q = qi * std::exp( -diPerYear * tYears[i] );
+        }
+        else
+        {
+            const double base = 1.0 + b * diPerYear * tYears[i];
+            if ( base <= 0.0 ) return std::numeric_limits<double>::max();
+            q = qi / std::pow( base, 1.0 / b );
+        }
+        const double rel = ( q - rates[i] ) / rates[i];
+        loss += rel * rel;
+    }
+    return std::isfinite( loss ) ? loss : std::numeric_limits<double>::max();
+}
+
+// Nelder-Mead minimization of the loss in (ln qi, Di) for a fixed b
+std::pair<double, std::array<double, 2>>
+    minimizeAutoArps( double b, std::array<double, 2> start, const std::vector<double>& tYears, const std::vector<double>& rates )
+{
+    using Point = std::array<double, 2>;
+    auto f      = [&]( const Point& p ) { return autoArpsLoss( b, p[0], p[1], tYears, rates ); };
+
+    std::array<Point, 3>  s = { start,
+                                Point{ start[0] + 0.1, start[1] },
+                                Point{ start[0], start[1] + 0.1 * std::max( 1.0, std::abs( start[1] ) ) } };
+    std::array<double, 3> v = { f( s[0] ), f( s[1] ), f( s[2] ) };
+
+    for ( int iter = 0; iter < 500; iter++ )
+    {
+        std::array<int, 3> idx = { 0, 1, 2 };
+        std::sort( idx.begin(), idx.end(), [&]( int a, int c ) { return v[a] < v[c]; } );
+        const Point  best = s[idx[0]], mid = s[idx[1]], worst = s[idx[2]];
+        const double vb = v[idx[0]], vm = v[idx[1]], vw = v[idx[2]];
+        s = { best, mid, worst };
+        v = { vb, vm, vw };
+
+        if ( std::abs( vw - vb ) < 1.0e-18 ) break;
+
+        const Point centroid = { 0.5 * ( best[0] + mid[0] ), 0.5 * ( best[1] + mid[1] ) };
+        auto        along    = [&]( double k )
+        { return Point{ centroid[0] + k * ( worst[0] - centroid[0] ), centroid[1] + k * ( worst[1] - centroid[1] ) }; };
+
+        const Point  refl  = along( -1.0 );
+        const double vRefl = f( refl );
+        if ( vRefl < vb )
+        {
+            const Point  exp  = along( -2.0 );
+            const double vExp = f( exp );
+            if ( vExp < vRefl )
+            {
+                s[2] = exp;
+                v[2] = vExp;
+            }
+            else
+            {
+                s[2] = refl;
+                v[2] = vRefl;
+            }
+        }
+        else if ( vRefl < vm )
+        {
+            s[2] = refl;
+            v[2] = vRefl;
+        }
+        else
+        {
+            const Point  contr  = along( vRefl < vw ? -0.5 : 0.5 );
+            const double vContr = f( contr );
+            if ( vContr < std::min( vw, vRefl ) )
+            {
+                s[2] = contr;
+                v[2] = vContr;
+            }
+            else
+            {
+                for ( int k = 1; k < 3; k++ )
+                {
+                    s[k] = { best[0] + 0.5 * ( s[k][0] - best[0] ), best[1] + 0.5 * ( s[k][1] - best[1] ) };
+                    v[k] = f( s[k] );
+                }
+            }
+        }
+    }
+
+    const int bestIdx = static_cast<int>( std::min_element( v.begin(), v.end() ) - v.begin() );
+    return { v[bestIdx], s[bestIdx] };
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RigDeclineCurveCalculator::ArpsFit> RigDeclineCurveCalculator::fitAutoArps( const std::vector<double>& times,
+                                                                                          const std::vector<double>& flowRates )
+{
+    // Only use positive rates, starting at the peak rate to skip the ramp-up phase
+    std::vector<double> t, q;
+    for ( size_t i = 0; i < std::min( times.size(), flowRates.size() ); i++ )
+    {
+        if ( flowRates[i] > 0.0 && std::isfinite( flowRates[i] ) )
+        {
+            t.push_back( times[i] / secondsPerYear );
+            q.push_back( flowRates[i] );
+        }
+    }
+
+    if ( q.empty() ) return std::nullopt;
+    const size_t peak = static_cast<size_t>( std::max_element( q.begin(), q.end() ) - q.begin() );
+    t.erase( t.begin(), t.begin() + peak );
+    q.erase( q.begin(), q.begin() + peak );
+    if ( q.size() < 3 ) return std::nullopt;
+
+    // Start from the exponential fit
+    std::array<double, 2> start = { std::log( q.back() ), 0.0 };
+    {
+        std::vector<double> lnq;
+        for ( double v : q )
+            lnq.push_back( std::log( v ) );
+        std::vector<double> tSecondsStart;
+        for ( double v : t )
+            tSecondsStart.push_back( v * secondsPerYear );
+        auto line = fitLine( tSecondsStart, lnq );
+        if ( !line ) return std::nullopt;
+        start = { line->first, -line->second * secondsPerYear };
+        if ( !std::isfinite( start[0] ) || !std::isfinite( start[1] ) ) return std::nullopt;
+    }
+
+    double                bestLoss  = std::numeric_limits<double>::max();
+    double                bestB     = 0.0;
+    std::array<double, 2> bestPoint = start;
+
+    std::vector<double> tSeconds;
+    for ( double v : t )
+        tSeconds.push_back( v * secondsPerYear );
+
+    auto evaluate = [&]( double b )
+    {
+        // Use the linearized fit for this b as starting point when available
+        std::array<double, 2> bStart = start;
+        if ( b >= 1.0e-3 )
+        {
+            auto linear = fitHyperbolicDecline( tSeconds, q, b );
+            if ( linear && linear->first > 0.0 && std::isfinite( linear->second ) )
+                bStart = { std::log( linear->first ), linear->second * secondsPerYear };
+        }
+        // Restart from the previous result to escape a collapsed simplex
+        auto [loss, point] = minimizeAutoArps( b, bStart, t, q );
+        for ( int restart = 0; restart < 3; restart++ )
+            std::tie( loss, point ) = minimizeAutoArps( b, point, t, q );
+        if ( loss < bestLoss )
+        {
+            bestLoss  = loss;
+            bestB     = b;
+            bestPoint = point;
+        }
+    };
+
+    for ( int i = 0; i <= 20; i++ )
+        evaluate( 0.05 * i );
+
+    // Refine around the best grid value
+    const double coarseB = bestB;
+    for ( int i = -4; i <= 4; i++ )
+    {
+        const double b = coarseB + 0.01 * i;
+        if ( b >= 0.0 && b <= 1.0 ) evaluate( b );
+    }
+
+    if ( bestLoss == std::numeric_limits<double>::max() ) return std::nullopt;
+
+    const double qi = std::exp( bestPoint[0] );
+    const double di = bestPoint[1] / secondsPerYear;
+    if ( !std::isfinite( qi ) || !std::isfinite( di ) || di < 0.0 ) return std::nullopt;
+
+    return ArpsFit{ qi, di, bestB };
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -257,8 +445,9 @@ std::optional<RigDeclineCurveCalculator::DeclineParameters>
 
     double initialProductionRate = 0.0;
     double initialDeclineRate    = 0.0;
+    double hyperbolicConstantB   = model.hyperbolicDeclineConstantB;
 
-    if ( model.fitMethod == FitMethod::START_END_POINT )
+    if ( model.fitMethod == FitMethod::START_END_POINT && model.type != DeclineCurveType::AUTO_ARPS )
     {
         std::tie( initialProductionRate, initialDeclineRate ) = computeStartEndPointParameters( values, timeSteps, model.isAccumulated );
     }
@@ -286,7 +475,14 @@ std::optional<RigDeclineCurveCalculator::DeclineParameters>
         }
 
         FitResult fit;
-        if ( model.type == DeclineCurveType::EXPONENTIAL )
+        if ( model.type == DeclineCurveType::AUTO_ARPS )
+        {
+            auto arps = fitAutoArps( times, rates );
+            if ( !arps ) return std::nullopt;
+            fit                 = std::make_pair( arps->initialProductionRate, arps->initialDeclineRate );
+            hyperbolicConstantB = arps->hyperbolicDeclineConstantB;
+        }
+        else if ( model.type == DeclineCurveType::EXPONENTIAL )
         {
             fit = fitExponentialDecline( times, rates );
         }
@@ -305,7 +501,7 @@ std::optional<RigDeclineCurveCalculator::DeclineParameters>
 
     if ( !std::isfinite( initialProductionRate ) || !std::isfinite( initialDeclineRate ) ) return std::nullopt;
 
-    return DeclineParameters{ initialProductionRate, initialDeclineRate, referenceTime };
+    return DeclineParameters{ initialProductionRate, initialDeclineRate, referenceTime, hyperbolicConstantB };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +511,7 @@ double RigDeclineCurveCalculator::computePredictedValue( const DeclineModel& mod
 {
     const double qi = parameters.initialProductionRate;
     const double di = parameters.initialDeclineRate;
-    const double b  = model.hyperbolicDeclineConstantB;
+    const double b  = parameters.hyperbolicDeclineConstantB;
 
     switch ( model.type )
     {
@@ -325,6 +521,14 @@ double RigDeclineCurveCalculator::computePredictedValue( const DeclineModel& mod
         case DeclineCurveType::HARMONIC:
             return model.isAccumulated ? computeCumulativeProductionHarmonicDecline( qi, di, timeSinceStart )
                                        : computeFlowRateHarmonicDecline( qi, di, timeSinceStart );
+        case DeclineCurveType::AUTO_ARPS:
+            if ( b < 1.0e-3 )
+                return model.isAccumulated ? computeCumulativeProductionExponentialDecline( qi, di, timeSinceStart )
+                                           : computeFlowRateExponentialDecline( qi, di, timeSinceStart );
+            if ( std::abs( b - 1.0 ) < 1.0e-3 )
+                return model.isAccumulated ? computeCumulativeProductionHarmonicDecline( qi, di, timeSinceStart )
+                                           : computeFlowRateHarmonicDecline( qi, di, timeSinceStart );
+            [[fallthrough]];
         case DeclineCurveType::HYPERBOLIC:
             return model.isAccumulated ? computeCumulativeProductionHyperbolicDecline( qi, di, timeSinceStart, b )
                                        : computeFlowRateHyperbolicDecline( qi, di, timeSinceStart, b );
@@ -386,6 +590,7 @@ QString RigDeclineCurveCalculator::equationText( const DeclineModel& model, cons
             rateEquation       = "q(t) = qi / (1 + Di * t)";
             cumulativeEquation = "Np(t) = Np0 + (qi / Di) * ln(qi / q(t))";
             break;
+        case DeclineCurveType::AUTO_ARPS:
         case DeclineCurveType::HYPERBOLIC:
             rateEquation       = "q(t) = qi / (1 + b * Di * t)^(1 / b)";
             cumulativeEquation = "Np(t) = Np0 + qi^b / ((1 - b) * Di) * (qi^(1 - b) - q(t)^(1 - b))";
@@ -401,8 +606,8 @@ QString RigDeclineCurveCalculator::equationText( const DeclineModel& model, cons
     const QString qiUnit = model.isAccumulated ? " [per year]" : "";
     QString       parameterText =
         QString( "qi = %1%2, Di = %3 [1/year]" ).arg( qi, 0, 'g', 6 ).arg( qiUnit ).arg( parameters.initialDeclineRate * secondsPerYear, 0, 'g', 6 );
-    if ( model.type == DeclineCurveType::HYPERBOLIC )
-        parameterText += QString( ", b = %1" ).arg( model.hyperbolicDeclineConstantB, 0, 'g', 4 );
+    if ( model.type == DeclineCurveType::HYPERBOLIC || model.type == DeclineCurveType::AUTO_ARPS )
+        parameterText += QString( ", b = %1" ).arg( parameters.hyperbolicDeclineConstantB, 0, 'g', 4 );
     lines << parameterText;
 
     const QString referenceDate = QDateTime::fromSecsSinceEpoch( parameters.referenceTime ).date().toString( Qt::ISODate );

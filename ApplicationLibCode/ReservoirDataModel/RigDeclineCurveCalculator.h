@@ -37,7 +37,8 @@ public:
     {
         EXPONENTIAL,
         HARMONIC,
-        HYPERBOLIC
+        HYPERBOLIC,
+        AUTO_ARPS // Arps model where the hyperbolic constant is fitted to the data
     };
 
     enum class FitMethod
@@ -59,6 +60,7 @@ public:
         double initialProductionRate; // [rate unit]
         double initialDeclineRate; // [1/second]
         time_t referenceTime; // time at which the initial production rate applies
+        double hyperbolicDeclineConstantB = 0.5; // fitted for AUTO_ARPS, otherwise copied from the model
     };
 
     static constexpr double secondsPerYear = 365.25 * 24.0 * 3600.0;
@@ -75,6 +77,29 @@ public:
                                                                          const std::vector<double>& values,
                                                                          const std::vector<time_t>& timeSteps,
                                                                          const std::vector<time_t>& futureTimeSteps );
+
+    struct ArpsFit
+    {
+        double initialProductionRate;
+        double initialDeclineRate; // [1/second]
+        double hyperbolicDeclineConstantB;
+    };
+
+    // Automatic Arps fit inspired by AutoDCA (https://github.com/equinor/decline-curve-analysis), q(t) = qi / (1 + b * Di * t)^(1 / b),
+    // where b = 0 is exponential and b = 1 is harmonic.
+    //
+    // Algorithm:
+    //  1. Keep positive, finite rates and discard everything before the peak rate (ramp-up/plateau build-up). At least three points
+    //     must remain.
+    //  2. For a grid of b values in [0, 1] (step 0.05), minimize the sum of squared relative errors ((q_model - q) / q)^2 over (ln qi, Di)
+    //     using Nelder-Mead. The start guess is the linearized hyperbolic fit for that b (the exponential fit for b = 0), and the
+    //     minimization is restarted a few times from its own result to avoid a collapsed simplex. Parameter sets where the model is
+    //     undefined in the fitted time range are rejected.
+    //  3. Refine b with a finer grid (step 0.01) around the best coarse value, and return the parameters with the lowest loss. Fits with
+    //     a negative decline rate are rejected.
+    //
+    // Time values are seconds relative to the reference time (<= 0).
+    static std::optional<ArpsFit> fitAutoArps( const std::vector<double>& times, const std::vector<double>& flowRates );
 
     static QString equationText( const DeclineModel& model, const DeclineParameters& parameters );
 
