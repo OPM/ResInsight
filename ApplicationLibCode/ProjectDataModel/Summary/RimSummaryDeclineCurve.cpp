@@ -56,6 +56,7 @@ void caf::AppEnum<RimSummaryDeclineCurve::DeclineCurveType>::setUp()
     addItem( RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL, "EXPONENTIAL", "Exponential" );
     addItem( RimSummaryDeclineCurve::DeclineCurveType::HARMONIC, "HARMONIC", "Harmonic" );
     addItem( RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC, "HYPERBOLIC", "Hyperbolic" );
+    addItem( RimSummaryDeclineCurve::DeclineCurveType::AUTO_ARPS, "AUTO_ARPS", "Auto (Arps)" );
     setDefault( RimSummaryDeclineCurve::DeclineCurveType::HARMONIC );
 }
 
@@ -347,7 +348,7 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     caf::PdmUiGroup* declineCurveGroup = uiOrdering.addNewGroup( "Decline Curve" );
     declineCurveGroup->add( &m_declineCurveType );
-    declineCurveGroup->add( &m_fitMethod );
+    if ( m_declineCurveType != RimSummaryDeclineCurve::DeclineCurveType::AUTO_ARPS ) declineCurveGroup->add( &m_fitMethod );
     declineCurveGroup->add( &m_predictionYears );
 
     if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC )
