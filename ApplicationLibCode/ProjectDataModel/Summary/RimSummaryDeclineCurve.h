@@ -21,12 +21,20 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
+
+#include "RigDeclineCurveCalculator.h"
 
 #include "RimSummaryCurve.h"
 
+#include <QDate>
+#include <QPointer>
+
+#include <optional>
 #include <utility>
 
 class RimTimeAxisAnnotation;
+class RiuDraggableOverlayFrame;
 
 //==================================================================================================
 ///
@@ -37,16 +45,19 @@ class RimSummaryDeclineCurve : public RimSummaryCurve
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class DeclineCurveType
-    {
-        EXPONENTIAL,
-        HARMONIC,
-        HYPERBOLIC
-    };
+    using DeclineCurveType = RigDeclineCurveCalculator::DeclineCurveType;
+    using FitMethod        = RigDeclineCurveCalculator::FitMethod;
 
     RimSummaryDeclineCurve();
+    ~RimSummaryDeclineCurve() override;
 
     void setDeclineCurveType( DeclineCurveType declineCurveType );
+    void setFitMethod( FitMethod fitMethod );
+
+    QString equationText() const;
+
+    // Returns a new overlay frame (owned by the caller) showing the equation, or nullptr if it should not be shown
+    RiuDraggableOverlayFrame* createEquationOverlayFrame( QWidget* parent, int overlayMargins );
 
     // Y Axis functions
     std::vector<double> valuesY() const override;
@@ -71,6 +82,14 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    RigDeclineCurveCalculator::DeclineModel declineModel( RifEclipseSummaryAddressDefines::CurveType curveType ) const;
+
+    QString equationTextProxy() const;
+    void    updateEquationOverlay();
+
+    void syncDatesFromSliders();
+    void syncSlidersFromDates();
+
     void appendFutureTimeSteps( std::vector<time_t>& timeSteps ) const;
 
     std::vector<double> createDeclineCurveValues( const std::vector<double>&                 values,
@@ -86,20 +105,12 @@ private:
     std::set<QDateTime> createFutureTimeSteps( const std::vector<time_t>& timeSteps ) const;
     static void         appendTimeSteps( std::vector<time_t>& timeSteps, const std::set<QDateTime>& moreTimeSteps );
 
-    static std::pair<double, double> computeInitialProductionAndDeclineRate( const std::vector<double>&                 values,
-                                                                             const std::vector<time_t>&                 timeSteps,
-                                                                             RifEclipseSummaryAddressDefines::CurveType curveType );
-
-    double computePredictedValue( double                                     initialProductionRate,
-                                  double                                     initialDeclineRate,
-                                  double                                     timeSinceStart,
-                                  RifEclipseSummaryAddressDefines::CurveType curveType ) const;
-
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;
 
 private:
     caf::PdmField<caf::AppEnum<DeclineCurveType>> m_declineCurveType;
+    caf::PdmField<caf::AppEnum<FitMethod>>        m_fitMethod;
     caf::PdmField<int>                            m_predictionYears;
     caf::PdmField<double>                         m_hyperbolicDeclineConstant;
 
@@ -107,5 +118,12 @@ private:
     caf::PdmField<int> m_minTimeSliderPosition;
     caf::PdmField<int> m_maxTimeSliderPosition;
 
+    // Time selection as dates. Takes precedence over the slider positions when valid.
+    caf::PdmField<QDate> m_minDate;
+    caf::PdmField<QDate> m_maxDate;
+
     caf::PdmField<bool> m_showTimeSelectionInPlot;
+
+    caf::PdmProxyValueField<QString> m_equationText;
+    caf::PdmField<bool>              m_showEquationInPlot;
 };
