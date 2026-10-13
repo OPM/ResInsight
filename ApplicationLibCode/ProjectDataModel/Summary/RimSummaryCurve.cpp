@@ -1088,6 +1088,15 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == objectToggleField() && isChecked() )
+    {
+        // Re-attaching changes the legend order, so reattach all curves to keep it consistent with the project tree
+        if ( auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>() )
+        {
+            curveCollection->updateCurveOrder();
+        }
+    }
+
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     bool loadAndUpdate = false;
