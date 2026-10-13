@@ -28,6 +28,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringPool.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaTimer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.cpp

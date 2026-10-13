@@ -57,7 +57,7 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     m_jobView->verticalHeader()->setVisible( false );
 
     QStringList headerNames;
-    headerNames << "Job ID" << "Job Name" << "Run Time" << "State" << "Queue/Partition" << "Where";
+    headerNames << "Job ID" << "Job Name" << "Time" << "State" << "Queue/Partition" << "Where";
 
     m_jobView->setHorizontalHeaderLabels( headerNames );
 
@@ -99,7 +99,7 @@ void RiuBatchQueueMonitor::slotUpdateView( const QStringList& information )
         for ( int i = 0; i < parts.size(); ++i )
         {
             auto item = new QTableWidgetItem( parts.at( i ) );
-            if ( i == 2 ) // run time should be right-aligned
+            if ( i == 2 ) // time should be right-aligned
             {
                 item->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter );
             }

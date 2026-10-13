@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
+#include "RiaTimer.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "JobCommands/RicRunJobFeature.h"
@@ -53,6 +54,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSignal.h"
 
 #include <QFile>
 
@@ -64,6 +66,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
     , m_subJobsStarted( 0 )
+    , m_refreshTimer( std::make_unique<RiaTimer>() )
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
@@ -105,6 +108,8 @@ RimEnsembleJob::RimEnsembleJob()
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createGridEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSummaryEnsemble );
+
+    m_refreshTimer->tick.connect( this, &RimEnsembleJob::onRefreshTriggered );
 
     setDeletable( true );
 }
@@ -269,10 +274,7 @@ bool RimEnsembleJob::execute()
         return false;
     }
 
-    if ( auto mainWnd = RiaGuiApplication::activeMainWindow() )
-    {
-        mainWnd->oneSecondTimerTriggered.connect( this, &RimEnsembleJob::onRefreshTriggered );
-    }
+    m_refreshTimer->start();
 
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
@@ -365,6 +367,8 @@ void RimEnsembleJob::setFinished( bool runOk )
     RimGenericJob::setFinished( runOk );
     setDeletable( true );
     updateConnectedEditors();
+
+    m_refreshTimer->stop();
 
     if ( runOk )
     {
