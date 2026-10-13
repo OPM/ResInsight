@@ -49,6 +49,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
+#include "RimSummaryDeclineCurve.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
@@ -92,6 +93,7 @@
 #include <QKeyEvent>
 #include <QRectF>
 #include <QString>
+#include <QTimer>
 
 #include <algorithm>
 #include <cmath>
@@ -100,6 +102,19 @@
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimSummaryPlot::EquationBoxPosition>::setUp()
+{
+    addItem( RimSummaryPlot::EquationBoxPosition::UPPER_LEFT, "UPPER_LEFT", "Upper Left" );
+    addItem( RimSummaryPlot::EquationBoxPosition::UPPER_RIGHT, "UPPER_RIGHT", "Upper Right" );
+    addItem( RimSummaryPlot::EquationBoxPosition::LOWER_LEFT, "LOWER_LEFT", "Lower Left" );
+    addItem( RimSummaryPlot::EquationBoxPosition::LOWER_RIGHT, "LOWER_RIGHT", "Lower Right" );
+    setDefault( RimSummaryPlot::EquationBoxPosition::UPPER_RIGHT );
+}
+}; // namespace caf
 
 namespace
 {
@@ -149,6 +164,10 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title" );
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
+    CAF_PDM_InitField( &m_equationBoxPosition,
+                       "EquationBoxPosition",
+                       caf::AppEnum<EquationBoxPosition>( EquationBoxPosition::UPPER_RIGHT ),
+                       "Equation Box Position" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
@@ -407,6 +426,20 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     }
 
     text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
+
+    QString equationsText;
+    for ( auto curve : allCurves )
+    {
+        if ( auto declineCurve = dynamic_cast<RimSummaryDeclineCurve*>( curve ); declineCurve && declineCurve->isChecked() )
+        {
+            equationsText += "\n" + declineCurve->curveName() + "\n" + declineCurve->equationText() + "\n";
+        }
+    }
+
+    if ( !equationsText.isEmpty() )
+    {
+        text += "\n\n------------ Decline Curve Equations --------------\n" + equationsText;
+    }
 
     return text;
 }
@@ -1393,6 +1426,95 @@ void RimSummaryPlot::updateAndRedrawTimeAnnotations()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Delete all decline curve equation boxes and recreate them for the visible decline curves in project tree order
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::rebuildEquationOverlays()
+{
+    auto widget = plotWidget();
+    if ( !widget ) return;
+    if ( m_equationOverlayFrames.empty() && !hasDeclineCurves() ) return;
+
+    for ( auto& frame : m_equationOverlayFrames )
+    {
+        if ( frame )
+        {
+            widget->removeOverlayFrame( frame );
+            frame->deleteLater();
+        }
+    }
+    m_equationOverlayFrames.clear();
+
+    for ( auto curve : allCurves() )
+    {
+        if ( auto declineCurve = dynamic_cast<RimSummaryDeclineCurve*>( curve ) )
+        {
+            if ( auto frame = declineCurve->createEquationOverlayFrame( widget->getParentForOverlay(), widget->overlayMargins() ) )
+            {
+                using Corner = RiuDraggableOverlayFrame::AnchorCorner;
+                switch ( m_equationBoxPosition() )
+                {
+                    case EquationBoxPosition::UPPER_LEFT:
+                        frame->setAnchorCorner( Corner::TopLeft );
+                        break;
+                    case EquationBoxPosition::UPPER_RIGHT:
+                        frame->setAnchorCorner( Corner::TopRight );
+                        break;
+                    case EquationBoxPosition::LOWER_LEFT:
+                        frame->setAnchorCorner( Corner::BottomLeft );
+                        break;
+                    case EquationBoxPosition::LOWER_RIGHT:
+                        frame->setAnchorCorner( Corner::BottomRight );
+                        break;
+                }
+                m_equationOverlayFrames.push_back( frame );
+                widget->addOverlayFrame( frame );
+            }
+        }
+    }
+
+    widget->updateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setEquationBoxPosition( EquationBoxPosition position )
+{
+    m_equationBoxPosition = position;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::hasDeclineCurves() const
+{
+    for ( auto curve : allCurves() )
+    {
+        if ( dynamic_cast<RimSummaryDeclineCurve*>( curve ) ) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::scheduleRebuildEquationOverlays()
+{
+    // Coalesce requests, as every decline curve requests a rebuild when its data is loaded
+    if ( m_equationOverlayRebuildPending ) return;
+    m_equationOverlayRebuildPending = true;
+
+    caf::PdmPointer<RimSummaryPlot> plot( this );
+    QTimer::singleShot( 0,
+                        [plot]()
+                        {
+                            if ( !plot ) return;
+                            plot->m_equationOverlayRebuildPending = false;
+                            plot->rebuildEquationOverlays();
+                        } );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::zoomAll()
@@ -1613,6 +1735,11 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_equationBoxPosition )
+    {
+        rebuildEquationOverlays();
+    }
+
     if ( changedField == &m_description )
     {
         m_useAutoPlotTitle = false;
@@ -1655,6 +1782,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     updateStackedCurveData();
+    scheduleRebuildEquationOverlays();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2686,6 +2814,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     mainOptions->add( &m_normalizeCurveYValues );
+    if ( hasDeclineCurves() ) mainOptions->add( &m_equationBoxPosition );
 
     if ( isMainDockedWindow() )
     {
@@ -2963,6 +3092,7 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     curvesChanged.send();
 
+    scheduleRebuildEquationOverlays();
     updateAndRedrawTimeAnnotations();
     updateStackedCurveData();
     scheduleReplotIfVisible();

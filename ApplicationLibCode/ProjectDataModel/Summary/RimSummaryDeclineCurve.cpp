@@ -18,22 +18,33 @@
 
 #include "RimSummaryDeclineCurve.h"
 
+#include "RiaColorTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RigDeclineCurveCalculator.h"
 
+#include "RiaPreferences.h"
+
 #include "RimSummaryPlot.h"
 #include "RimTimeAxisAnnotation.h"
 
+#include "RiuDraggableOverlayFrame.h"
+#include "RiuPlotWidget.h"
+#include "RiuTextContentFrame.h"
+
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include <QDateTime>
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimSummaryDeclineCurve, "DeclineCurve" );
 
@@ -47,6 +58,14 @@ void caf::AppEnum<RimSummaryDeclineCurve::DeclineCurveType>::setUp()
     addItem( RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC, "HYPERBOLIC", "Hyperbolic" );
     setDefault( RimSummaryDeclineCurve::DeclineCurveType::HARMONIC );
 }
+
+template <>
+void caf::AppEnum<RimSummaryDeclineCurve::FitMethod>::setUp()
+{
+    addItem( RimSummaryDeclineCurve::FitMethod::START_END_POINT, "START_END_POINT", "Start and End Point" );
+    addItem( RimSummaryDeclineCurve::FitMethod::REGRESSION, "REGRESSION", "Regression" );
+    setDefault( RimSummaryDeclineCurve::FitMethod::START_END_POINT );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -58,8 +77,11 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_declineCurveType, "DeclineCurveType", "Type" );
 
+    CAF_PDM_InitFieldNoDefault( &m_fitMethod, "FitMethod", "Fit Method" );
+
     CAF_PDM_InitField( &m_predictionYears, "PredictionYears", 5, "Years" );
     m_predictionYears.setRange( 1, 50 );
+    m_predictionYears.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_hyperbolicDeclineConstant, "HyperbolicDeclineConstant", 0.5, "Decline Constant" );
     m_hyperbolicDeclineConstant.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -70,7 +92,48 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
     CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "To" );
     m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
+    const QString dateFormat = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
+
+    CAF_PDM_InitFieldNoDefault( &m_minDate, "MinDate", "From", "", dateFormat );
+    m_minDate.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_maxDate, "MaxDate", "To", "", dateFormat );
+    m_maxDate.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", true, "Show In Plot" );
+
+    CAF_PDM_InitFieldNoDefault( &m_equationText, "EquationText", "Equation" );
+    m_equationText.registerGetMethod( this, &RimSummaryDeclineCurve::equationTextProxy );
+    m_equationText.uiCapability()->setUiReadOnly( true );
+    m_equationText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showEquationInPlot, "ShowEquationInPlot", true, "Show Equation In Plot" );
+
+    // Multi-selection editing only notifies the last object by default, all selected curves must be recalculated
+    for ( caf::PdmFieldHandle* field : std::initializer_list<caf::PdmFieldHandle*>{ &m_declineCurveType,
+                                                                                    &m_fitMethod,
+                                                                                    &m_predictionYears,
+                                                                                    &m_hyperbolicDeclineConstant,
+                                                                                    &m_minTimeSliderPosition,
+                                                                                    &m_maxTimeSliderPosition,
+                                                                                    &m_minDate,
+                                                                                    &m_maxDate,
+                                                                                    &m_showTimeSelectionInPlot,
+                                                                                    &m_showEquationInPlot } )
+    {
+        field->uiCapability()->setNotifyAllFieldsInMultiFieldChangedEvents( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryDeclineCurve::~RimSummaryDeclineCurve()
+{
+    if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
+    {
+        plot->scheduleRebuildEquationOverlays();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,132 +212,57 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     // Use only the values inside the range specified
     auto [timeStepsInRange, valuesInRange] = getInRangeValues( timeSteps, values, minTimeStep, maxTimeStep );
 
-    if ( timeStepsInRange.empty() || valuesInRange.empty() ) return values;
+    if ( timeStepsInRange.empty() || valuesInRange.empty() ) return {};
 
-    auto [initialProductionRate, initialDeclineRate] = computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, curveType );
-    if ( std::isinf( initialProductionRate ) || std::isnan( initialProductionRate ) || std::isinf( initialDeclineRate ) ||
-         std::isnan( initialDeclineRate ) )
+    std::vector<time_t> futureTimeSteps;
+    for ( const QDateTime& futureTime : createFutureTimeSteps( timeStepsInRange ) )
     {
-        return values;
+        futureTimeSteps.push_back( RiaTimeTTools::fromQDateTime( futureTime ) );
     }
 
-    QDateTime initialTime = RiaQDateTimeTools::fromTime_t( timeStepsInRange.back() );
+    auto outValues =
+        RigDeclineCurveCalculator::computeDeclineCurveValues( declineModel( curveType ), valuesInRange, timeStepsInRange, futureTimeSteps );
+    if ( outValues ) return *outValues;
 
-    std::set<QDateTime> futureTimeSteps = createFutureTimeSteps( timeStepsInRange );
-    std::vector<double> outValues       = valuesInRange;
-    for ( const QDateTime& futureTime : futureTimeSteps )
-    {
-        double timeSinceStart = futureTime.toSecsSinceEpoch() - initialTime.toSecsSinceEpoch();
-        double predictedValue = computePredictedValue( initialProductionRate, initialDeclineRate, timeSinceStart, curveType );
-        if ( curveType == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED ) predictedValue += valuesInRange.back();
-        outValues.push_back( predictedValue );
-    }
-
-    return outValues;
+    // The fit failed. Must match the time steps from timeStepsY(), so leave the prediction undefined.
+    valuesInRange.resize( valuesInRange.size() + futureTimeSteps.size(), std::numeric_limits<double>::quiet_NaN() );
+    return valuesInRange;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>& values,
-                                                                                          const std::vector<time_t>& timeSteps,
-                                                                                          RifEclipseSummaryAddressDefines::CurveType curveType )
+QString RimSummaryDeclineCurve::equationText() const
 {
-    CAF_ASSERT( values.size() == timeSteps.size() );
+    auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
 
-    auto computeProductionRate = []( double t0, double v0, double t1, double v1 ) { return ( v1 - v0 ) / ( t1 - t0 ); };
+    auto [timeStepsInRange, valuesInRange] =
+        getInRangeValues( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY(), minTimeStep, maxTimeStep );
 
-    if ( curveType == RifEclipseSummaryAddressDefines::CurveType::RATE )
-    {
-        // Use the first (time step, value) pair as t0
-        const size_t    idx0 = 0;
-        const QDateTime t0   = RiaQDateTimeTools::fromTime_t( timeSteps[idx0] );
-        const double    v0   = values[idx0];
+    const auto model      = declineModel( curveType() );
+    auto       parameters = RigDeclineCurveCalculator::computeDeclineParameters( model, valuesInRange, timeStepsInRange );
+    if ( !parameters ) return "Equation not available";
 
-        // Last point on the existing curve (within user-specified range) is the initial production rate (for non-accumulated data).
-        const QDateTime initialTime           = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
-        const double    initialProductionRate = values.back();
-
-        // Compute the decline rate using the rates at the two points
-        double initialDeclineRate =
-            RigDeclineCurveCalculator::computeDeclineRate( t0.toSecsSinceEpoch(), v0, initialTime.toSecsSinceEpoch(), initialProductionRate );
-        return { initialProductionRate, initialDeclineRate };
-    }
-
-    // Select a point (t0) 1/4 into the user-specified range
-    const double    historyStep = 0.25;
-    const size_t    idx0        = static_cast<size_t>( timeSteps.size() * historyStep );
-    const QDateTime t0          = RiaQDateTimeTools::fromTime_t( timeSteps[idx0] );
-    const double    v0          = values[idx0];
-
-    // For accumulated result: compute the initial production rate from the two points.
-    const QDateTime initialTime  = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
-    double initialProductionRate = computeProductionRate( t0.toSecsSinceEpoch(), v0, initialTime.toSecsSinceEpoch(), values.back() );
-
-    // Compute the at production rate at time t0 by using a point even further back in the existing curve (tx).
-    size_t    idxX            = 0;
-    QDateTime tx              = RiaQDateTimeTools::fromTime_t( timeSteps[idxX] );
-    double    vx              = values[idxX];
-    double    productionRate0 = computeProductionRate( tx.toSecsSinceEpoch(), vx, t0.toSecsSinceEpoch(), v0 );
-
-    // Compute the decline rate using the rates at the two points
-    double initialDeclineRate = RigDeclineCurveCalculator::computeDeclineRate( t0.toSecsSinceEpoch(),
-                                                                               productionRate0,
-                                                                               initialTime.toSecsSinceEpoch(),
-                                                                               initialProductionRate );
-    return { initialProductionRate, initialDeclineRate };
+    return RigDeclineCurveCalculator::equationText( model, *parameters );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSummaryDeclineCurve::computePredictedValue( double                                     initialProductionRate,
-                                                      double                                     initialDeclineRate,
-                                                      double                                     timeSinceStart,
-                                                      RifEclipseSummaryAddressDefines::CurveType curveType ) const
+RigDeclineCurveCalculator::DeclineModel RimSummaryDeclineCurve::declineModel( RifEclipseSummaryAddressDefines::CurveType curveType ) const
 {
-    if ( curveType == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED )
-    {
-        if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL )
-        {
-            return RigDeclineCurveCalculator::computeCumulativeProductionExponentialDecline( initialProductionRate,
-                                                                                             initialDeclineRate,
-                                                                                             timeSinceStart );
-        }
-        else if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HARMONIC )
-        {
-            return RigDeclineCurveCalculator::computeCumulativeProductionHarmonicDecline( initialProductionRate,
-                                                                                          initialDeclineRate,
-                                                                                          timeSinceStart );
-        }
-        else if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC )
-        {
-            return RigDeclineCurveCalculator::computeCumulativeProductionHyperbolicDecline( initialProductionRate,
-                                                                                            initialDeclineRate,
-                                                                                            timeSinceStart,
-                                                                                            m_hyperbolicDeclineConstant );
-        }
-    }
-    else
-    {
-        if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL )
-        {
-            return RigDeclineCurveCalculator::computeFlowRateExponentialDecline( initialProductionRate, initialDeclineRate, timeSinceStart );
-        }
-        else if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HARMONIC )
-        {
-            return RigDeclineCurveCalculator::computeFlowRateHarmonicDecline( initialProductionRate, initialDeclineRate, timeSinceStart );
-        }
-        else if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC )
-        {
-            return RigDeclineCurveCalculator::computeFlowRateHyperbolicDecline( initialProductionRate,
-                                                                                initialDeclineRate,
-                                                                                timeSinceStart,
-                                                                                m_hyperbolicDeclineConstant );
-        }
-    }
+    return { m_declineCurveType(),
+             m_fitMethod(),
+             m_hyperbolicDeclineConstant(),
+             curveType == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED };
+}
 
-    return 0.0;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryDeclineCurve::equationTextProxy() const
+{
+    return equationText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +286,15 @@ std::pair<time_t, time_t> RimSummaryDeclineCurve::selectedTimeStepRange() const
 {
     // Scale the slider values to the full time step range
 
-    auto [min, max]  = fullTimeStepRange();
+    auto [min, max] = fullTimeStepRange();
+
+    if ( m_minDate().isValid() && m_maxDate().isValid() )
+    {
+        const time_t dateMin = RiaTimeTTools::fromQDateTime( RiaQDateTimeTools::createDateTime( m_minDate() ) );
+        const time_t dateMax = RiaTimeTTools::fromQDateTime( RiaQDateTimeTools::createDateTime( m_maxDate() ) ) + 24 * 3600 - 1;
+        return { dateMin, dateMax };
+    }
+
     auto range       = max - min;
     auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeSliderPosition / 100.0 ) );
     auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
@@ -351,6 +347,7 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     caf::PdmUiGroup* declineCurveGroup = uiOrdering.addNewGroup( "Decline Curve" );
     declineCurveGroup->add( &m_declineCurveType );
+    declineCurveGroup->add( &m_fitMethod );
     declineCurveGroup->add( &m_predictionYears );
 
     if ( m_declineCurveType == RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC )
@@ -358,7 +355,14 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         declineCurveGroup->add( &m_hyperbolicDeclineConstant );
     }
 
+    declineCurveGroup->add( &m_equationText );
+    declineCurveGroup->add( &m_showEquationInPlot );
+
+    if ( !m_minDate().isValid() || !m_maxDate().isValid() ) syncDatesFromSliders();
+
     caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
+    timeSelectionGroup->add( &m_minDate );
+    timeSelectionGroup->add( &m_maxDate );
     timeSelectionGroup->add( &m_minTimeSliderPosition );
     timeSelectionGroup->add( &m_maxTimeSliderPosition );
     timeSelectionGroup->add( &m_showTimeSelectionInPlot );
@@ -381,9 +385,30 @@ void RimSummaryDeclineCurve::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_minTimeSliderPosition = m_maxTimeSliderPosition;
     }
 
+    if ( changedField == &m_minTimeSliderPosition || changedField == &m_maxTimeSliderPosition )
+    {
+        syncDatesFromSliders();
+    }
+
+    if ( changedField == &m_minDate || changedField == &m_maxDate )
+    {
+        if ( m_minDate() > m_maxDate() )
+        {
+            if ( changedField == &m_minDate )
+                m_maxDate = m_minDate();
+            else
+                m_minDate = m_maxDate();
+        }
+        syncSlidersFromDates();
+    }
+
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_declineCurveType || changedField == &m_predictionYears || changedField == &m_hyperbolicDeclineConstant ||
-         changedField == &m_minTimeSliderPosition || changedField == &m_maxTimeSliderPosition || changedField == &m_showTimeSelectionInPlot )
+
+    if ( changedField == objectToggleField() ) updateEquationOverlay();
+    if ( changedField == &m_declineCurveType || changedField == &m_fitMethod || changedField == &m_predictionYears ||
+         changedField == &m_hyperbolicDeclineConstant || changedField == &m_minTimeSliderPosition ||
+         changedField == &m_maxTimeSliderPosition || changedField == &m_minDate || changedField == &m_maxDate ||
+         changedField == &m_showTimeSelectionInPlot || changedField == &m_showEquationInPlot )
     {
         loadAndUpdateDataAndPlot();
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -408,6 +433,28 @@ void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_decimals = 2;
         }
     }
+    else if ( field == &m_predictionYears )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = 50;
+        }
+    }
+    else if ( field == &m_equationText )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
+        {
+            myAttr->heightHint = -1;
+        }
+    }
+    else if ( field == &m_minDate || field == &m_maxDate )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
+        {
+            myAttr->dateFormat = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
+        }
+    }
     else if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
@@ -417,6 +464,50 @@ void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_showSpinBox = false;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryDeclineCurve::syncDatesFromSliders()
+{
+    // No data loaded yet, keep the dates invalid so they are synced when data is available
+    if ( RimSummaryCurve::timeStepsY().empty() ) return;
+
+    auto [min, max]  = fullTimeStepRange();
+    auto range       = max - min;
+    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeSliderPosition / 100.0 ) );
+    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
+
+    m_minDate = RiaQDateTimeTools::fromTime_t( selectedMin ).date();
+    m_maxDate = RiaQDateTimeTools::fromTime_t( selectedMax ).date();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryDeclineCurve::syncSlidersFromDates()
+{
+    auto [min, max] = fullTimeStepRange();
+    if ( max <= min ) return;
+
+    auto toSliderPosition = [min = min, max = max]( const QDate& date )
+    {
+        const double fraction =
+            static_cast<double>( RiaTimeTTools::fromQDateTime( RiaQDateTimeTools::createDateTime( date ) ) - min ) / ( max - min );
+        return std::clamp( static_cast<int>( std::lround( fraction * 100.0 ) ), 0, 100 );
+    };
+
+    m_minTimeSliderPosition = toSliderPosition( m_minDate() );
+    m_maxTimeSliderPosition = toSliderPosition( m_maxDate() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryDeclineCurve::setFitMethod( FitMethod fitMethod )
+{
+    m_fitMethod = fitMethod;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,6 +543,34 @@ void RimSummaryDeclineCurve::updateTimeAnnotations()
     {
         plot->updateAndRedrawTimeAnnotations();
     }
+
+    updateEquationOverlay();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryDeclineCurve::updateEquationOverlay()
+{
+    if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
+    {
+        plot->scheduleRebuildEquationOverlays();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuDraggableOverlayFrame* RimSummaryDeclineCurve::createEquationOverlayFrame( QWidget* parent, int overlayMargins )
+{
+    if ( !m_showEquationInPlot() || !isChecked() ) return nullptr;
+
+    auto frame        = new RiuDraggableOverlayFrame( parent, overlayMargins );
+    auto contentFrame = new RiuTextContentFrame( nullptr, createCurveAutoName(), equationText(), -1 );
+    contentFrame->setTitleColor( RiaColorTools::toQColor( color() ) );
+    frame->setContentFrame( contentFrame );
+    frame->setMaximumWidth( 10000 );
+    return frame;
 }
 
 //--------------------------------------------------------------------------------------------------

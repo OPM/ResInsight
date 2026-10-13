@@ -83,6 +83,14 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping, publ
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class EquationBoxPosition
+    {
+        UPPER_LEFT,
+        UPPER_RIGHT,
+        LOWER_LEFT,
+        LOWER_RIGHT,
+    };
+
     caf::Signal<>                curvesChanged;
     caf::Signal<RimSummaryPlot*> axisChanged;
     caf::Signal<>                titleChanged;
@@ -127,6 +135,10 @@ public:
     void updateCaseNameHasChanged();
 
     void updateAndRedrawTimeAnnotations();
+    void rebuildEquationOverlays();
+    void scheduleRebuildEquationOverlays();
+    void setEquationBoxPosition( EquationBoxPosition position );
+    bool hasDeclineCurves() const;
     void updateAnnotationsInPlotWidget();
 
     void updateAxes() override;
@@ -326,7 +338,8 @@ private:
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 
 private:
-    caf::PdmField<bool> m_normalizeCurveYValues;
+    caf::PdmField<bool>                              m_normalizeCurveYValues;
+    caf::PdmField<caf::AppEnum<EquationBoxPosition>> m_equationBoxPosition;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
@@ -346,9 +359,11 @@ private:
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
 
-    QPointer<RiuSummaryPlot>           m_summaryPlot;
-    QPointer<RiuDraggableOverlayFrame> m_loadingOverlayFrame;
-    std::unique_ptr<QwtPlotTextLabel>  m_plotInfoLabel;
+    QPointer<RiuSummaryPlot>                        m_summaryPlot;
+    QPointer<RiuDraggableOverlayFrame>              m_loadingOverlayFrame;
+    std::vector<QPointer<RiuDraggableOverlayFrame>> m_equationOverlayFrames;
+    bool                                            m_equationOverlayRebuildPending = false;
+    std::unique_ptr<QwtPlotTextLabel>               m_plotInfoLabel;
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
