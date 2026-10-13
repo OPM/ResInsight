@@ -48,6 +48,15 @@ RiuTextContentFrame::RiuTextContentFrame( QWidget* parent, const QString& title,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuTextContentFrame::setTitleColor( const QColor& color )
+{
+    m_titleColor = color;
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QSize RiuTextContentFrame::sizeHint() const
 {
     LayoutInfo layout( QSize( 200, 100 ) ); // Use default size
@@ -116,8 +125,9 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( font() );
         QString formattedTitle = m_title;
+        QColor  titleColor     = m_titleColor.isValid() ? m_titleColor : textColor;
         td.setHtml(
-            QString( "<body><font color='%1' ><b>%2</b></font></body>" ).arg( textColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
+            QString( "<body><font color='%1' ><b>%2</b></font></body>" ).arg( titleColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
         td.drawContents( painter );
         painter->restore();
     }

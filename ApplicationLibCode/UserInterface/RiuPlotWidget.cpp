@@ -35,9 +35,11 @@
 
 #include <QDragEnterEvent>
 #include <QGraphicsSceneEvent>
+#include <QTimer>
 
 #include <algorithm>
 #include <limits>
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -164,7 +166,11 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 
     overlayFrame->hide();
     overlayFrame->setParent( nullptr );
-    m_overlayFrames.removeOne( overlayFrame );
+    if ( m_overlayFrames.removeOne( overlayFrame ) )
+    {
+        // Rebuild the positions of the remaining frames, deferred to stay safe during widget destruction
+        QTimer::singleShot( 0, this, [this]() { updateOverlayFrameLayout(); } );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +213,8 @@ void RiuPlotWidget::removeEventFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotWidget::updateOverlayFrameLayout()
 {
+    using Corner = RiuDraggableOverlayFrame::AnchorCorner;
+
     const int spacing = 5;
 
     int xpos                 = spacing;
@@ -216,6 +224,45 @@ void RiuPlotWidget::updateOverlayFrameLayout()
     QSize canvasSize = getParentForOverlay()->size();
     QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
 
+    // Frames stacked in the same corner (other than top left) share the width of the widest one to align the stack
+    std::map<Corner, int> stackWidths;
+    for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
+    {
+        if ( frame && frame->anchorCorner() != Corner::TopLeft )
+        {
+            int& stackWidth = stackWidths[frame->anchorCorner()];
+            stackWidth      = std::max( { stackWidth, frame->minimumSizeHint().width(), frame->sizeHint().width() } );
+        }
+    }
+
+    // Offset of the next frame from the anchor corner. A stack wraps into a new column towards the plot center when full.
+    struct StackPosition
+    {
+        int x;
+        int y;
+    };
+    std::map<Corner, StackPosition> stackPositions;
+
+    const QRect canvasRect = getParentForOverlay()->rect();
+
+    auto placeInStack = [&]( RiuDraggableOverlayFrame* frame )
+    {
+        const Corner   corner   = frame->anchorCorner();
+        StackPosition& position = stackPositions.try_emplace( corner, StackPosition{ spacing, spacing } ).first->second;
+        if ( position.y + frame->height() + spacing > canvasRect.height() && position.y > spacing )
+        {
+            position.x += frame->width() + spacing;
+            position.y = spacing;
+        }
+
+        const bool isRight  = corner == Corner::TopRight || corner == Corner::BottomRight;
+        const bool isBottom = corner == Corner::BottomLeft || corner == Corner::BottomRight;
+        const int  x        = isRight ? canvasRect.right() - position.x - frame->width() + 1 : position.x;
+        const int  y        = isBottom ? canvasRect.bottom() - position.y - frame->height() + 1 : position.y;
+        frame->move( x, y );
+        position.y += frame->height() + spacing;
+    };
+
     for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
     {
         if ( frame )
@@ -223,12 +270,14 @@ void RiuPlotWidget::updateOverlayFrameLayout()
             QSize minFrameSize     = frame->minimumSizeHint();
             QSize desiredFrameSize = frame->sizeHint();
 
-            int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width() );
+            int width  = frame->anchorCorner() == Corner::TopLeft ? std::max( minFrameSize.width(), desiredFrameSize.width() )
+                                                                  : stackWidths[frame->anchorCorner()];
+            width      = std::min( width, maxFrameSize.width() );
             int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ), maxFrameSize.height() );
 
             frame->resize( width, height );
 
-            if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
+            if ( frame->anchorCorner() == Corner::TopLeft )
             {
                 if ( ypos + frame->height() + spacing > getParentForOverlay()->height() && widthOfCurrentColumn > 0 )
                 {
@@ -240,15 +289,21 @@ void RiuPlotWidget::updateOverlayFrameLayout()
                 ypos += frame->height() + spacing;
                 widthOfCurrentColumn = std::max( widthOfCurrentColumn, frame->width() );
             }
-            else if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopRight )
+            else if ( frame->anchorCorner() == Corner::TopRight )
             {
-                QRect  frameRect      = frame->frameGeometry();
-                QRect  canvasRect     = getParentForOverlay()->rect();
-                QPoint canvasTopRight = canvasRect.topRight();
-                frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
-                frame->move( frameRect.topLeft() );
+                placeInStack( frame );
             }
             frame->show();
+        }
+    }
+
+    // Bottom corners stack upwards from the bottom edge. Iterate in reverse so the first frame ends up topmost.
+    for ( auto it = m_overlayFrames.rbegin(); it != m_overlayFrames.rend(); ++it )
+    {
+        RiuDraggableOverlayFrame* frame = *it;
+        if ( frame && ( frame->anchorCorner() == Corner::BottomLeft || frame->anchorCorner() == Corner::BottomRight ) )
+        {
+            placeInStack( frame );
         }
     }
 }
