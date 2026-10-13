@@ -35,6 +35,8 @@ public:
     {
         TopLeft,
         TopRight,
+        BottomLeft,
+        BottomRight,
     };
 
 public:

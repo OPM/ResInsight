@@ -19,6 +19,7 @@
 
 #include "RiuAbstractOverlayContentFrame.h"
 
+#include <QColor>
 #include <QFrame>
 #include <QString>
 
@@ -28,6 +29,8 @@ class RiuTextContentFrame : public RiuAbstractOverlayContentFrame
 
 public:
     RiuTextContentFrame( QWidget* parent, const QString& title, const QString& text, int fontPixeSize );
+
+    void setTitleColor( const QColor& color );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -66,4 +69,5 @@ private:
     QString m_title;
     QString m_text;
     int     m_fontSize;
+    QColor  m_titleColor;
 };
