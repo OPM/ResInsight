@@ -14,6 +14,15 @@
         <DataArray type="Float32" Name="Stress" NumberOfComponents="1" format="ascii">
           150.0 250.0
         </DataArray>
+        <DataArray type="Float32" Name="stress[0]" NumberOfComponents="3" format="ascii">
+          11 12 13  111 112 113
+        </DataArray>
+        <DataArray type="Float32" Name="stress[1]" NumberOfComponents="3" format="ascii">
+          12 22 23  112 122 123
+        </DataArray>
+        <DataArray type="Float32" Name="stress[2]" NumberOfComponents="3" format="ascii">
+          13 23 33  113 123 133
+        </DataArray>
       </CellData>
       <Points>
         <DataArray type="Float32" Name="Coordinates" NumberOfComponents="3" format="ascii">
