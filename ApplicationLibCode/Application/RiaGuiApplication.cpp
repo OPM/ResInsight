@@ -1065,14 +1065,9 @@ void RiaGuiApplication::loadAndUpdateMainWindowViews()
 {
     if ( !m_project || !m_mainWindow ) return;
 
-    for ( RimCase* gridModel : m_project->allGridCases() )
+    for ( auto view : m_project->allViews() )
     {
-        if ( !gridModel ) continue;
-
-        for ( Rim3dView* view : gridModel->views() )
-        {
-            if ( view ) view->loadDataAndUpdate();
-        }
+        if ( view ) view->loadDataAndUpdate();
     }
 
     m_mainWindow->restoreDockWidgetState( m_project->mainWindowDockState );
