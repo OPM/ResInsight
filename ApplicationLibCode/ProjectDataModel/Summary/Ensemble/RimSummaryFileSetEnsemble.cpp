@@ -26,15 +26,44 @@
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
+#include "RimFileSummaryCase.h"
+#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsembleTools.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+
+#include <algorithm>
+#include <map>
 
 CAF_PDM_SOURCE_INIT( RimSummaryFileSetEnsemble, "RimSummaryFileSetEnsemble" );
 
 namespace internal
 {
 const QString pathPatternPlaceholder = "*";
+
+// Longest common folder (ending with '/') of the summary header files, used to make the stored header paths independent of the
+// absolute location of the ensemble data.
+QString commonHeaderFolder( const std::vector<RimFileSummaryCase*>& fileCases )
+{
+    if ( fileCases.empty() ) return {};
+
+    QString first  = fileCases.front()->summaryHeaderFilename();
+    QString folder = first.left( first.lastIndexOf( '/' ) + 1 );
+    for ( auto fileCase : fileCases )
+    {
+        const QString header = fileCase->summaryHeaderFilename();
+        while ( !folder.isEmpty() && !header.startsWith( folder ) )
+        {
+            folder = folder.left( folder.lastIndexOf( '/', -2 ) + 1 );
+        }
+    }
+
+    return folder;
 }
+} // namespace internal
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,6 +73,9 @@ RimSummaryFileSetEnsemble::RimSummaryFileSetEnsemble()
     CAF_PDM_InitObject( "Path Pattern Ensemble", ":/SummaryCase.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleFileSet, "EnsembleFileSet", "Ensemble File Set" );
+
+    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFiles, "AdditionalSummaryFiles", "Additional Summary Files" );
+    m_additionalSummaryFiles.uiCapability()->setUiHidden( true );
 
     m_cases.xmlCapability()->disableIO();
 
@@ -152,6 +184,9 @@ void RimSummaryFileSetEnsemble::onFileSetNameChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool notifyChange )
 {
+    // Keep user-defined summary vectors across a recreation of the cases
+    storeAdditionalSummaryFiles();
+
     m_cases.deleteChildren();
 
     if ( m_ensembleFileSet() )
@@ -172,6 +207,8 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool noti
             return;
         }
 
+        restoreAdditionalSummaryFiles( newCases );
+
         replaceCases( newCases, notifyChange );
 
         // Update name of cases and ensemble after all cases are added
@@ -180,6 +217,120 @@ void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool noti
             summaryCase->setShowTreeNodes( false );
             summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
             summaryCase->updateAutoShortName();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::onProjectBeingSaved()
+{
+    storeAdditionalSummaryFiles();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::storeAdditionalSummaryFiles()
+{
+    if ( m_cases.empty() ) return;
+
+    // Keep the project file portable and the entries short: the summary header files are identified by the path relative to the common
+    // folder of all header files in the ensemble, and the additional summary files by file name only. The additional files are located
+    // in the project folder (or the temp folder before the project is saved).
+    std::vector<RimFileSummaryCase*> fileCases;
+    for ( auto summaryCase : m_cases.childrenByType() )
+    {
+        if ( auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase ) )
+        {
+            fileCases.push_back( fileSummaryCase );
+        }
+    }
+
+    const QString commonFolder = internal::commonHeaderFolder( fileCases );
+
+    QStringList lines;
+    for ( auto fileSummaryCase : fileCases )
+    {
+        QString additionalFile = fileSummaryCase->additionalSummaryFilePath();
+        if ( additionalFile.isEmpty() ) continue;
+
+        lines.push_back( fileSummaryCase->summaryHeaderFilename().mid( commonFolder.size() ) + "|" + QFileInfo( additionalFile ).fileName() );
+    }
+
+    m_additionalSummaryFiles = lines.join( '\n' );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFileSetEnsemble::restoreAdditionalSummaryFiles( const std::vector<RimSummaryCase*>& summaryCases )
+{
+    if ( m_additionalSummaryFiles().isEmpty() ) return;
+
+    std::map<QString, QString> additionalFileForHeader;
+    for ( const auto& line : m_additionalSummaryFiles().split( '\n', Qt::SkipEmptyParts ) )
+    {
+        // The additional file name is generated and does not contain separator characters
+        auto separatorIndex = line.lastIndexOf( '|' );
+        if ( separatorIndex > 0 )
+        {
+            additionalFileForHeader[line.left( separatorIndex )] = line.mid( separatorIndex + 1 );
+        }
+    }
+
+    std::vector<RimFileSummaryCase*> fileCases;
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase ) )
+        {
+            fileCases.push_back( fileSummaryCase );
+        }
+    }
+
+    const QString commonFolder = internal::commonHeaderFolder( fileCases );
+
+    std::vector<QString> searchFolders;
+    if ( RimProject::current() && !RimProject::current()->fileName().isEmpty() )
+    {
+        searchFolders.push_back( QFileInfo( RimProject::current()->fileName() ).absolutePath() );
+    }
+    searchFolders.push_back( QDir::tempPath() );
+
+    // The common folder changes if realizations are added to or removed from the file set. Fall back to a unique suffix match of the
+    // stored path to avoid losing the user-defined vectors.
+    auto findAdditionalFile = [&]( const QString& header ) -> QString
+    {
+        auto it = additionalFileForHeader.find( header.mid( commonFolder.size() ) );
+        if ( it != additionalFileForHeader.end() ) return it->second;
+
+        QString match;
+        for ( const auto& [storedHeader, additionalFile] : additionalFileForHeader )
+        {
+            if ( !header.endsWith( "/" + storedHeader ) ) continue;
+
+            const auto matchCount = std::count_if( fileCases.begin(),
+                                                   fileCases.end(),
+                                                   [&]( auto c ) { return c->summaryHeaderFilename().endsWith( "/" + storedHeader ); } );
+            if ( matchCount == 1 ) match = additionalFile;
+        }
+        return match;
+    };
+
+    for ( auto fileSummaryCase : fileCases )
+    {
+        const QString additionalFileName = findAdditionalFile( fileSummaryCase->summaryHeaderFilename() );
+        if ( additionalFileName.isEmpty() ) continue;
+
+        for ( const auto& folder : searchFolders )
+        {
+            QString filePath = QDir( folder ).absoluteFilePath( additionalFileName );
+            if ( QFile::exists( filePath ) )
+            {
+                fileSummaryCase->setAdditionalSummaryFilePath( filePath );
+                break;
+            }
         }
     }
 }

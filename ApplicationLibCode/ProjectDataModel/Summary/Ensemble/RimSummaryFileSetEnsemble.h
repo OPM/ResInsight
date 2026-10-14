@@ -43,6 +43,7 @@ public:
     void cleanupBeforeDelete() override;
 
     void reloadCases() override;
+    void onProjectBeingSaved();
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -58,6 +59,14 @@ private:
     void createSummaryCasesFromEnsembleFileSet( bool notifyChange );
     void connectSignals();
 
+    void storeAdditionalSummaryFiles();
+    void restoreAdditionalSummaryFiles( const std::vector<RimSummaryCase*>& summaryCases );
+
 private:
     caf::PdmPtrField<RimEnsembleFileSet*> m_ensembleFileSet;
+
+    // Cases are recreated from the file set, and are not stored in the project file. One entry per line, formatted as
+    // "<summary header file relative to the common folder>|<additional summary file name>", used to restore user-defined summary vectors.
+    // Only relative paths are stored to keep the project portable.
+    caf::PdmField<QString> m_additionalSummaryFiles;
 };
