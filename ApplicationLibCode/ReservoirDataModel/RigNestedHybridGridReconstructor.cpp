@@ -32,6 +32,10 @@
 #include "RigNestedHybridGridLayout.h"
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultBranch.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RiaDefines.h"
 
@@ -253,6 +257,7 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
     updateActiveCellInfo( caseData, sourceCells );
     extendFullLengthResults( caseData, origCellCount, sourceCells );
     repointNncConnections( caseData, origCellCount, sourceCells );
+    repointWellResultPoints( caseData, origCellCount, sourceCells );
 
     // Fill LGR cells of any already-loaded active-cell-indexed results from their source flat cells.
     for ( auto model : { RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::PorosityModelType::FRACTURE_MODEL } )
@@ -495,4 +500,61 @@ void RigNestedHybridGridReconstructor::repointNncConnections( RigEclipseCaseData
             connections[i] = RigConnection( na, nb, conn.face(), conn.polygon() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The well connections read from the restart file reference the original scattered refined cells
+/// in the main grid. Those cells are hidden after reconstruction, but the well cell geometry does not
+/// check the invalid flag, so the stale connections would show the hidden flat cells. Re-point each
+/// such connection and well head to the corresponding LGR cell.
+//--------------------------------------------------------------------------------------------------
+void RigNestedHybridGridReconstructor::repointWellResultPoints( RigEclipseCaseData*             caseData,
+                                                                size_t                          origCellCount,
+                                                                const std::map<size_t, size_t>& sourceCells )
+{
+    RigMainGrid* grid = caseData->mainGrid();
+    if ( !grid || caseData->wellResults().empty() ) return;
+
+    std::vector<size_t> flatToLgr( origCellCount, cvf::UNDEFINED_SIZE_T );
+    for ( const auto& [global, flat] : sourceCells )
+    {
+        if ( flat < origCellCount ) flatToLgr[flat] = global;
+    }
+
+    auto repoint = [&]( RigWellResultPoint& point )
+    {
+        // The flat grid has no LGRs of its own, so all original connections are in the main grid
+        if ( !point.isCell() || point.gridIndex() != 0 || point.cellIndex() >= origCellCount ) return;
+
+        const size_t global = flatToLgr[point.cellIndex()];
+        if ( global == cvf::UNDEFINED_SIZE_T ) return;
+
+        const RigCell& lgrCell = grid->cell( global );
+        point.setGridIndex( lgrCell.hostGrid()->gridIndex() );
+        point.setGridCellIndex( lgrCell.gridLocalCellIndex() );
+    };
+
+    cvf::Collection<RigSimWellData> wells = caseData->wellResults();
+    for ( auto& well : wells )
+    {
+        for ( RigWellResultFrame& frame : well->m_wellCellsTimeSteps )
+        {
+            RigWellResultPoint wellHead = frame.wellHead();
+            repoint( wellHead );
+            frame.setWellHead( wellHead );
+
+            std::vector<RigWellResultBranch> branches = frame.wellResultBranches();
+            for ( RigWellResultBranch& branch : branches )
+            {
+                std::vector<RigWellResultPoint> points = branch.branchResultPoints();
+                for ( RigWellResultPoint& point : points )
+                    repoint( point );
+                branch.setBranchResultPoints( points );
+            }
+            frame.setWellResultBranches( branches );
+        }
+    }
+
+    // Recomputes the well cells per grid for the new grid set
+    caseData->setSimWellData( wells );
 }
