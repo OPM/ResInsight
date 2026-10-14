@@ -107,7 +107,8 @@ private:
     caf::PdmField<int> m_cellCountJ;
     caf::PdmField<int> m_cellCountK;
 
-    caf::PdmPtrField<RimCellFilter*> m_dataFilter;
+    caf::PdmPtrField<RimCellFilter*> m_startDataFilter;
+    caf::PdmPtrField<RimCellFilter*> m_dataFilter; // grow filter
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 
