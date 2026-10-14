@@ -544,7 +544,8 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 if ( !method->classKeywordReturnedType().isEmpty() )
                 {
                     QString classKeywordReturnedType = method->classKeywordReturnedType();
-                    returnComment                    = classKeywordReturnedType;
+                    returnComment =
+                        PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
                     containerClassName =
                         PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
 
