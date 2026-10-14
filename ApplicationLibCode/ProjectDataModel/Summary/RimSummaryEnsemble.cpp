@@ -64,9 +64,14 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
-    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Summary Case Group",
+                                                    ":/SummaryGroup16x16.png",
+                                                    "",
+                                                    "",
+                                                    "SummaryEnsemble",
+                                                    "A group of summary cases, typically an ensemble" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cases, "SummaryCases", "" );
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
@@ -261,6 +266,14 @@ void RimSummaryEnsemble::reloadCases()
 void RimSummaryEnsemble::setNameTemplate( const QString& name )
 {
     m_nameTemplateString = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setAutoName( bool autoName )
+{
+    m_autoName = autoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1279,6 +1292,15 @@ void RimSummaryEnsemble::buildMetaData()
     clearChildNodes();
     buildChildNodes();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::onSummaryVectorsChanged()
+{
+    m_analyzer.reset();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

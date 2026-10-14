@@ -503,8 +503,9 @@ void RimSummaryEnsembleTools::resetHighlightAllPlots()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryEnsembleTools::caseWithMostDataObjects( const std::vector<RimSummaryCase*>& sourceCases )
 {
-    size_t maxAddrCount = 0;
-    size_t maxAddrIndex = sourceCases.size();
+    size_t maxAddrCount         = 0;
+    size_t maxAddrIndex         = sourceCases.size();
+    bool   maxHasBuiltAddresses = false;
 
     for ( size_t i = 0; i < sourceCases.size(); i++ )
     {
@@ -515,12 +516,16 @@ RimSummaryCase* RimSummaryEnsembleTools::caseWithMostDataObjects( const std::vec
         if ( !reader ) continue;
 
         // If no RifSummaryAddress is created, the number of keywords on file is returned. This can be the case for a realization in an
-        // ensemble.
-        auto addrCount = reader->dataObjectCount();
-        if ( addrCount > maxAddrCount )
+        // ensemble. The keyword count is not comparable with the address count (e.g. user-defined vectors are not part of the keyword
+        // count), so cases with created addresses are always preferred over cases with only a keyword count.
+        const bool hasBuiltAddresses = !reader->allResultAddresses().empty();
+        const auto addrCount         = reader->dataObjectCount();
+
+        if ( ( hasBuiltAddresses && !maxHasBuiltAddresses ) || ( hasBuiltAddresses == maxHasBuiltAddresses && addrCount > maxAddrCount ) )
         {
-            maxAddrCount = addrCount;
-            maxAddrIndex = i;
+            maxAddrCount         = addrCount;
+            maxAddrIndex         = i;
+            maxHasBuiltAddresses = hasBuiltAddresses;
         }
     }
 
