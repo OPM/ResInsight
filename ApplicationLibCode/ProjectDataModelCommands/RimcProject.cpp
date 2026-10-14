@@ -28,6 +28,7 @@
 #include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
@@ -54,6 +55,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimValveTemplateCollection.h"
@@ -130,6 +132,64 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::exec
 QString RimProject_importSummaryCase::classKeywordReturnedType() const
 {
     return RimFileSummaryCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryEnsemble, "importSummaryEnsemble" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_importSummaryEnsemble::RimProject_importSummaryEnsemble( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Import Summary Ensemble", "", "", "Import summary files as one ensemble" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileNames, "FileNames", "", "", "", "Summary files (SMSPEC), one for each realization" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleName, "EnsembleName", "", "", "", "Ensemble name. Automatically generated if empty" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryEnsemble::execute()
+{
+    QStringList summaryFileNames;
+    for ( const QString& fileName : m_fileNames() )
+    {
+        QString absolutePath = fileName;
+        if ( !QFileInfo( absolutePath ).exists() )
+        {
+            absolutePath = QDir( RiaApplication::instance()->startDir() ).absoluteFilePath( fileName );
+        }
+        summaryFileNames.push_back( absolutePath );
+    }
+
+    if ( summaryFileNames.isEmpty() ) return std::unexpected( "No summary files specified." );
+
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = true, .allowDialogs = false };
+    auto newCases = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    if ( newCases.empty() ) return std::unexpected( "Unable to import any of the summary files." );
+
+    auto* mainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !mainCollection ) return std::unexpected( "No summary case collection found." );
+
+    auto ensemble = mainCollection->addEnsemble( newCases, m_ensembleName(), true );
+
+    // The name template is only used when auto naming is disabled
+    if ( !m_ensembleName().isEmpty() ) ensemble->setAutoName( false );
+    RiaSummaryTools::updateSummaryEnsembleNames();
+
+    mainCollection->updateConnectedEditors();
+
+    return ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_importSummaryEnsemble::classKeywordReturnedType() const
+{
+    return RimSummaryEnsemble::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
