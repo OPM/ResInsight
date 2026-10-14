@@ -69,6 +69,7 @@ public:
     QString name() const;
 
     void                                        setNameTemplate( const QString& name );
+    void                                        setAutoName( bool autoName );
     virtual void                                updateName( const std::set<QString>& existingEnsembleNames );
     void                                        setUsePathKey1( bool useKey1 );
     void                                        setUsePathKey2( bool useKey2 );
@@ -119,6 +120,7 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
     void onCalculationUpdated();
+    void onSummaryVectorsChanged();
 
     void updateReferringCurveSets();
     void updateReferringCurveSetsZoomAll();
