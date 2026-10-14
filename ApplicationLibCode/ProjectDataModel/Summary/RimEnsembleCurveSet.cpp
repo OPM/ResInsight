@@ -70,6 +70,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiButton.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiDateEditor.h"
@@ -107,7 +108,12 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     , m_realizationHash( 0 )
 
 {
-    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Ensemble Curve Set",
+                                                    ":/EnsembleCurveSet16x16.png",
+                                                    "",
+                                                    "",
+                                                    "EnsembleCurveSet",
+                                                    "A curve set for a summary ensemble" );
 
     CAF_PDM_InitFieldNoDefault( &m_realizationCurves, "EnsembleCurveSet", "Ensemble Curve Set" );
     m_realizationCurves.uiCapability()->setUiTreeChildrenHidden( false );
