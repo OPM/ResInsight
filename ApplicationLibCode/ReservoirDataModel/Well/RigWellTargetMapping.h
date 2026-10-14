@@ -68,7 +68,8 @@ public:
         int                     maxNumTargets;
         int                     maxIterations;
         RigEclipseResultAddress filterAddress;
-        RimCellFilter*          dataFilter = nullptr;
+        RimCellFilter*          startDataFilter = nullptr; // falls back to growDataFilter if null
+        RimCellFilter*          growDataFilter  = nullptr;
     };
 
     static void generateCandidates( RimEclipseCase*            eclipseCase,
