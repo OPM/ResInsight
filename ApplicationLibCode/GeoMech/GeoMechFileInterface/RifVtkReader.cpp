@@ -54,6 +54,11 @@ constexpr const char* E33 = "E33";
 constexpr const char* E12 = "E12";
 constexpr const char* E13 = "E13";
 constexpr const char* E23 = "E23";
+
+// Fields in the convention of the derived results
+constexpr const char* derivedS = "S";
+constexpr const char* derivedE = "E";
+constexpr const char* por      = "POR";
 } // namespace RifVtkFieldNames
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +87,8 @@ void RifVtkReader::close()
 //--------------------------------------------------------------------------------------------------
 bool RifVtkReader::populateDerivedResultNames() const
 {
-    return false;
+    using namespace RifVtkFieldNames;
+    return m_propertyPartDataElements.contains( std::string( S ) + separator + S11 ) && m_propertyPartDataNodes.contains( por );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,8 +134,9 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
     std::map<int, std::vector<std::pair<int, std::vector<int>>>>            elements;
     std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
     std::map<int, std::vector<std::map<std::string, std::vector<float>>>>   properties;
+    std::map<int, std::vector<std::map<std::string, std::vector<float>>>>   pointProperties;
 
-    auto result = read( m_inputPath, parts, nodes, elements, elementSets, properties, m_displacements, m_stepNames );
+    auto result = read( m_inputPath, parts, nodes, elements, elementSets, properties, pointProperties, m_displacements, m_stepNames );
     if ( !result )
     {
         RiaLogging::error( result.error() );
@@ -222,12 +229,20 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
         femPart->setElementPartId( femParts->partCount() );
         femParts->addFemPart( femPart );
 
+        std::vector<int>& elementNodes = m_elementNodes[femPart->elementPartId()];
+        for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+        {
+            const int* conn = femPart->connectivities( elmIdx );
+            elementNodes.insert( elementNodes.end(), conn, conn + RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) ) );
+        }
+
         modelProgress.incrementProgress();
     }
 
     size_t elementCount = femParts->part( 0 )->elementCount();
 
     readScalarData( femParts, parts, properties, elementCount );
+    readNodalData( femParts, pointProperties );
 
     return true;
 }
@@ -242,6 +257,7 @@ std::expected<RigElementType, std::string>
                         std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
                         std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
                         std::map<int, std::vector<std::map<std::string, std::vector<float>>>>&   properties,
+                        std::map<int, std::vector<std::map<std::string, std::vector<float>>>>&   pointProperties,
                         std::map<int, std::vector<std::vector<cvf::Vec3f>>>&                     displacements,
                         std::vector<std::string>&                                                stepNames )
 {
@@ -332,6 +348,7 @@ std::expected<RigElementType, std::string>
                               .toStdString() );
 
         properties[partId].push_back( partProperties );
+        pointProperties[partId].push_back( RifVtkImportUtil::readPointProperties( piece ) );
         displacements[partId].push_back( partDisplacements );
 
         isFirst = false;
@@ -449,7 +466,18 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarElementField
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RifVtkReader::scalarElementNodeFieldAndComponentNames()
 {
-    return {};
+    using namespace RifVtkFieldNames;
+
+    std::map<std::string, std::vector<std::string>> retVal;
+    if ( m_propertyPartDataElements.contains( std::string( S ) + separator + S11 ) && m_propertyPartDataNodes.contains( por ) )
+    {
+        retVal[derivedS] = { S11, S22, S33, S12, S13, S23 };
+    }
+    if ( m_propertyPartDataElements.contains( std::string( E ) + separator + E11 ) )
+    {
+        retVal[derivedE] = { E11, E22, E33, E12, E13, E23 };
+    }
+    return retVal;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,7 +485,7 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarElementNodeF
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RifVtkReader::scalarIntegrationPointFieldAndComponentNames()
 {
-    return {};
+    return scalarElementNodeFieldAndComponentNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,7 +607,43 @@ void RifVtkReader::readElementNodeField( const std::string&                field
                                          int                               frameIndex,
                                          std::vector<std::vector<float>*>* resultValues )
 {
-    readField( RigFemResultPosEnum::RIG_ELEMENT_NODAL, fieldName, partIndex, stepIndex, resultValues );
+    CAF_ASSERT( resultValues );
+
+    // Stress and strain are cell values; every corner of an element gets its cell's value. S is effective
+    // stress, tension positive, from the simulator's total stress (compression positive) and the node pore
+    // pressure: S = POR * I - S_VTK. Then ST = -S + POR gives the simulator's stress back.
+    using namespace RifVtkFieldNames;
+
+    const auto components = scalarElementNodeFieldAndComponentNames()[fieldName];
+    const auto nodesIt    = m_elementNodes.find( partIndex );
+    if ( components.empty() || nodesIt == m_elementNodes.end() ) return;
+    const std::vector<int>& elementNodes = nodesIt->second;
+
+    const bool                 isStress  = fieldName == derivedS;
+    const std::string          cellField = isStress ? S : E;
+    const std::vector<double>& porValues = m_propertyPartDataNodes[por][stepIndex][partIndex];
+    if ( isStress && porValues.empty() ) return;
+
+    constexpr int nodesPerElement = 8;
+    for ( size_t c = 0; c < components.size() && c < resultValues->size(); c++ )
+    {
+        std::vector<float>* values = ( *resultValues )[c];
+        if ( values == nullptr ) continue;
+
+        const std::vector<double>& cellValues = m_propertyPartDataElements[cellField + separator + components[c]][stepIndex][partIndex];
+        if ( cellValues.empty() ) continue;
+
+        const bool isNormal = c < 3;
+        values->resize( elementNodes.size() );
+        for ( size_t i = 0; i < elementNodes.size(); i++ )
+        {
+            const double cellValue = cellValues[i / nodesPerElement];
+            if ( isStress )
+                ( *values )[i] = static_cast<float>( ( isNormal ? porValues[elementNodes[i]] : 0.0 ) - cellValue );
+            else
+                ( *values )[i] = static_cast<float>( cellValue );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -591,7 +655,7 @@ void RifVtkReader::readIntegrationPointField( const std::string&                
                                               int                               frameIndex,
                                               std::vector<std::vector<float>*>* resultValues )
 {
-    readField( RigFemResultPosEnum::RIG_INTEGRATION_POINT, fieldName, partIndex, stepIndex, resultValues );
+    readElementNodeField( fieldName, partIndex, stepIndex, frameIndex, resultValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -705,6 +769,30 @@ void RifVtkReader::readScalarData( RigFemPartCollection*                        
                     }
                 }
                 stepId++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Scalar node data, e.g. from OPM Flow with --vtk-write-geo-mech-nodal. "pressure" becomes the pore pressure POR.
+//--------------------------------------------------------------------------------------------------
+void RifVtkReader::readNodalData( RigFemPartCollection*                                                        femParts,
+                                  const std::map<int, std::vector<std::map<std::string, std::vector<float>>>>& pointProperties )
+{
+    for ( const auto& [partId, propertiesPerTimeStep] : pointProperties )
+    {
+        if ( partId >= femParts->partCount() ) continue;
+        const size_t nodeCount = femParts->part( partId )->nodeCount();
+
+        for ( int stepId = 0; stepId < static_cast<int>( propertiesPerTimeStep.size() ); stepId++ )
+        {
+            for ( const auto& [propertyName, values] : propertiesPerTimeStep[stepId] )
+            {
+                if ( values.size() != nodeCount ) continue;
+
+                const std::string fieldName = ( propertyName == "pressure" ) ? RifVtkFieldNames::por : propertyName;
+                m_propertyPartDataNodes[fieldName][stepId][partId].assign( values.begin(), values.end() );
             }
         }
     }

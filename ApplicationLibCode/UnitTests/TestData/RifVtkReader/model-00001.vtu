@@ -3,6 +3,9 @@
   <UnstructuredGrid>
     <Piece NumberOfCells="2" NumberOfPoints="12">
       <PointData>
+        <DataArray type="Float32" Name="pressure" NumberOfComponents="1" format="ascii">
+          0 10 20 30 40 50 60 70 80 90 100 110
+        </DataArray>
         <DataArray type="Float32" Name="disp" NumberOfComponents="3" format="ascii">
           0.1 0.2 0.3  0.1 0.2 0.3  0.1 0.2 0.3
           0.1 0.2 0.3  0.1 0.2 0.3  0.1 0.2 0.3
@@ -22,6 +25,15 @@
         </DataArray>
         <DataArray type="Float32" Name="stress[2]" NumberOfComponents="3" format="ascii">
           13 23 33  113 123 133
+        </DataArray>
+        <DataArray type="Float32" Name="strain[0]" NumberOfComponents="3" format="ascii">
+          0.1 0.2 0.3  1.1 1.2 1.3
+        </DataArray>
+        <DataArray type="Float32" Name="strain[1]" NumberOfComponents="3" format="ascii">
+          0.2 0.4 0.5  1.2 1.4 1.5
+        </DataArray>
+        <DataArray type="Float32" Name="strain[2]" NumberOfComponents="3" format="ascii">
+          0.3 0.5 0.6  1.3 1.5 1.6
         </DataArray>
       </CellData>
       <Points>
