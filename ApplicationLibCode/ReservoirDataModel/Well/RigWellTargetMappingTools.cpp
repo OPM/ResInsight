@@ -24,10 +24,12 @@
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
+#include "RigFault.h"
 #include "RigFloodingSettings.h"
 #include "RigGridBase.h"
 #include "RigHydrocarbonFlowTools.h"
@@ -157,6 +159,50 @@ void RigWellTargetMappingTools::assignClusterIdToCells( const RigActiveCellInfo&
         ActiveCellIndex resultIndex = activeCellInfo.cellResultIndex( reservoirCellIdx );
         if ( resultIndex.value() != cvf::UNDEFINED_SIZE_T ) clusters[resultIndex.value()] = clusterId;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Flags the NNCs that connect cells across a fault
+//--------------------------------------------------------------------------------------------------
+std::vector<bool> RigWellTargetMappingTools::findFaultNncs( RigMainGrid* mainGrid )
+{
+    if ( mainGrid->nncData() == nullptr ) return {};
+
+    std::vector<bool> isFaultNnc( mainGrid->nncData()->allConnections().size(), false );
+    for ( const auto& fault : mainGrid->faults() )
+    {
+        for ( size_t nncIdx : fault->connectionIndices() )
+        {
+            if ( nncIdx < isFaultNnc.size() ) isFaultNnc[nncIdx] = true;
+        }
+    }
+    return isFaultNnc;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigWellTargetMappingTools::countFaultFacesPerActiveCell( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo )
+{
+    const std::vector<CellFaceType> faces = { CellFaceType::POS_I,
+                                              CellFaceType::NEG_I,
+                                              CellFaceType::POS_J,
+                                              CellFaceType::NEG_J,
+                                              CellFaceType::POS_K,
+                                              CellFaceType::NEG_K };
+
+    std::vector<int> result( activeCellInfo->reservoirActiveCellCount(), 0 );
+    for ( size_t reservoirIdx = 0; reservoirIdx < activeCellInfo->reservoirCellCount(); reservoirIdx++ )
+    {
+        ActiveCellIndex resultIdx = activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirIdx ) );
+        if ( resultIdx.value() == cvf::UNDEFINED_SIZE_T ) continue;
+
+        for ( CellFaceType face : faces )
+        {
+            if ( mainGrid->findFaultFromCellIndexAndCellFace( reservoirIdx, face ) != nullptr ) result[resultIdx.value()]++;
+        }
+    }
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,6 +488,8 @@ std::vector<ReservoirCellIndex> RigWellTargetMappingTools::findCandidates( RimEc
                 ActiveCellIndex    neighborResultIndex = resultsData->activeCellInfo()->cellResultIndex( neighborResvCellIdx );
                 if ( neighborResultIndex.value() != cvf::UNDEFINED_SIZE_T && clusters[neighborResultIndex.value()] == 0 )
                 {
+                    if ( limits.avoidFaults && mainGrid->findFaultFromCellIndexAndCellFace( cellIdx.value(), face ) != nullptr ) continue;
+
                     double permeability     = data.permeabilityX[neighborResultIndex.value()];
                     double transmissibility = getTransmissibilityValueForFace( data.transmissibilityX,
                                                                                data.transmissibilityY,
@@ -471,6 +519,7 @@ std::vector<ReservoirCellIndex> RigWellTargetMappingTools::findCandidates( RimEc
             for ( auto& [cellInfo, nncResultIdx] : nncCells )
             {
                 auto& [otherCellIdx, face] = cellInfo;
+                if ( limits.avoidFaults && nncResultIdx < data.isFaultNnc.size() && data.isFaultNnc[nncResultIdx] ) continue;
                 double transmissibility    = data.transmissibilityNNC->at( nncResultIdx );
 
                 ActiveCellIndex otherResultIndex = resultsData->activeCellInfo()->cellResultIndex( otherCellIdx );

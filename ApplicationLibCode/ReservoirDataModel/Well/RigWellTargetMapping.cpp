@@ -146,6 +146,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         data.transmissibilityNNC = nullptr;
     }
 
+    if ( limits.avoidFaults && mainGrid != nullptr ) data.isFaultNnc = RigWellTargetMappingTools::findFaultNncs( mainGrid );
+
     // Evaluate for each realization after opening its grid, using the mapping's time step.
     auto computeFilterVector = [&]( RimCellFilter* dataFilter ) -> std::vector<double>
     {
@@ -245,6 +247,15 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     RigWellTargetMappingTools::createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
+
+    if ( limits.avoidFaults && mainGrid != nullptr )
+    {
+        RigWellTargetMappingTools::createResultVector( *eclipseCase,
+                                                       wellTargetFaultFacesResultName(),
+                                                       RigWellTargetMappingTools::countFaultFacesPerActiveCell( mainGrid,
+                                                                                                                resultsData->activeCellInfo() ),
+                                                       timeStepIdx );
+    }
 
     std::vector<RigWellTargetMappingTools::ClusterStatistics> statistics =
         RigWellTargetMappingTools::generateStatistics( eclipseCase, data.pressure, data.permeabilityX, numClustersFound, timeStepIdx, resultName );
@@ -520,4 +531,12 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
 QString RigWellTargetMapping::wellTargetResultName()
 {
     return "WELL_TARGET_NUM";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellTargetMapping::wellTargetFaultFacesResultName()
+{
+    return "WELL_TARGET_FAULT_FACES";
 }

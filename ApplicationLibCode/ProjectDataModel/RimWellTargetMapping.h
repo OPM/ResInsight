@@ -110,6 +110,8 @@ private:
     caf::PdmPtrField<RimCellFilter*> m_startDataFilter;
     caf::PdmPtrField<RimCellFilter*> m_dataFilter; // grow filter
 
+    caf::PdmField<bool> m_avoidFaults;
+
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 
     double m_minimumSaturationOil;

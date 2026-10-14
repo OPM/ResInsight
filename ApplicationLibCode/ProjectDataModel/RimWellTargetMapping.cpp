@@ -172,6 +172,13 @@ RimWellTargetMapping::RimWellTargetMapping()
                                 "",
                                 "Limits where clusters can grow. If empty, clusters can grow anywhere in the model." );
 
+    CAF_PDM_InitField( &m_avoidFaults,
+                       "AvoidFaults",
+                       false,
+                       "Avoid Growing Across Faults",
+                       "",
+                       "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault faces per cell." );
+
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
     m_minimumSaturationOil = cvf::UNDEFINED_DOUBLE;
@@ -510,6 +517,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
     uiOrdering.add( &m_startDataFilter );
     uiOrdering.add( &m_dataFilter );
+    uiOrdering.add( &m_avoidFaults );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
     if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );
@@ -570,6 +578,7 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
              .transmissibility = m_transmissibility,
              .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
+             .avoidFaults      = m_avoidFaults,
              .filterAddress    = m_resultDefinition->eclipseResultAddress(),
              .startDataFilter  = m_startDataFilter(),
              .growDataFilter   = m_dataFilter() };

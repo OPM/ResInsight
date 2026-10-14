@@ -126,6 +126,33 @@ TEST( RimWellTargetMappingTest, StartFilterOptionsUseOwningCase )
     EXPECT_EQ( caf::PdmOptionItemInfo( "Case filter", filter ).value(), options[1].value() );
 }
 
+TEST( RimWellTargetMappingTest, AvoidFaultsGeneratesFaultFaceResult )
+{
+    RigEclipseResultAddress address( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetFaultFacesResultName() );
+
+    for ( bool avoidFaults : { false, true } )
+    {
+        auto eclipseCase = openCase( "Real0", "BRUGGE_0000.EGRID" );
+        ASSERT_NE( nullptr, eclipseCase );
+
+        auto mapping = new TestableWellTargetMapping;
+        eclipseCase->addWellTargetMapping( mapping );
+        setField( *mapping, "TimeStep", 1 );
+        setField( *mapping, "Iterations", 10 );
+        setField( *mapping, "MaxNumTargets", 1 );
+        setField( *mapping, "AvoidFaults", avoidFaults );
+        mapping->initAfterRead();
+
+        auto results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        ASSERT_EQ( avoidFaults, results->hasResultEntry( address ) );
+        if ( !avoidFaults ) continue;
+
+        const auto& faultFaces = results->cellScalarResults( address, 1 );
+        ASSERT_EQ( results->activeCellInfo()->reservoirActiveCellCount(), faultFaces.size() );
+        EXPECT_GT( std::count_if( faultFaces.begin(), faultFaces.end(), []( double v ) { return v > 0.0; } ), 0 );
+    }
+}
+
 TEST( RimWellTargetMappingTest, FilterOptionsUseOwningEnsemble )
 {
     RimReservoirGridEnsemble ensemble;
