@@ -63,6 +63,7 @@ public:
         std::vector<double>        transmissibilityY;
         std::vector<double>        transmissibilityZ;
         const std::vector<double>* transmissibilityNNC;
+        std::vector<bool>          isFaultNnc; // empty if fault barriers are not used
     };
 
     class ClusterStatistics
@@ -99,6 +100,9 @@ public:
         double permeability;
         double pressure;
     };
+
+    static std::vector<bool> findFaultNncs( RigMainGrid* mainGrid );
+    static std::vector<int>  countFaultFacesPerActiveCell( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo );
 
     static double getValueForFace( const std::vector<double>& x,
                                    const std::vector<double>& y,

@@ -67,6 +67,7 @@ public:
         double                  transmissibility;
         int                     maxNumTargets;
         int                     maxIterations;
+        bool                    avoidFaults = false; // do not grow across fault faces and fault NNCs
         RigEclipseResultAddress filterAddress;
         RimCellFilter*          startDataFilter = nullptr; // falls back to growDataFilter if null
         RimCellFilter*          growDataFilter  = nullptr;
@@ -102,4 +103,5 @@ public:
                                                            double                              expandBoundingBoxZPercent );
 
     static QString wellTargetResultName();
+    static QString wellTargetFaultFacesResultName();
 };
