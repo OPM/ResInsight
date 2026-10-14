@@ -12,19 +12,14 @@ resinsight = rips.Instance.find()
 
 project = resinsight.project
 
-# Summary ensembles and summary groups are both represented by
-# SummaryCaseSubCollection. Use the 'is_ensemble' flag to pick the ensembles.
-ensembles = [
-    collection
-    for collection in project.descendants(rips.SummaryCaseSubCollection)
-    if collection.is_ensemble
-]
+# Get all summary ensembles in the project
+ensembles = project.summary_ensembles()
 
 if not ensembles:
     print("No summary ensemble found in the current project")
     sys.exit(1)
 
-summary_plot_collection = project.descendants(rips.SummaryPlotCollection)[0]
+summary_plot_collection = project.summary_plot_collection()
 
 for ensemble in ensembles:
     print("Creating plots for ensemble: " + ensemble.summary_collection_name)
