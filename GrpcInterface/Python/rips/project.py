@@ -31,6 +31,8 @@ from .resinsight_classes import (
     SnapshotContentType,
     SnapshotFileFormat,
     SummaryCase,
+    SummaryEnsemble,
+    SummaryPlotCollection,
     WellPath,
 )
 
@@ -624,3 +626,26 @@ def remove_key_values(self, key):
     """
     request = KeyValueStore_pb2.KeyValueStoreRemoveRequest(name=key)
     self.__key_value_store_stub.RemoveValue(request)
+
+
+@add_method(Project)
+def summary_ensembles(self: Project) -> List[SummaryEnsemble]:
+    """Get all summary ensembles in the project
+
+    Returns:
+        List[SummaryEnsemble]: Summary case groups flagged as ensembles
+    """
+    return [group for group in self.descendants(SummaryEnsemble) if group.is_ensemble]
+
+
+@add_method(Project)
+def summary_plot_collection(self: Project) -> SummaryPlotCollection:
+    """Get the summary plot collection of the project
+
+    Returns:
+        SummaryPlotCollection: The collection used to create summary plots
+    """
+    collections = self.descendants(SummaryPlotCollection)
+    if not collections:
+        raise RipsError("No summary plot collection found in the project")
+    return collections[0]

@@ -55,6 +55,24 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimProject_importSummaryEnsemble : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_importSummaryEnsemble( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_fileNames;
+    caf::PdmField<QString>              m_ensembleName;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimProject_summaryCase : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;

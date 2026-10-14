@@ -29,6 +29,7 @@ from .exception import RipsError as RipsError  # noqa: E402
 from .surface import RegularSurface as RegularSurface  # noqa: E402
 from . import well_events as well_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
+from . import summary_ensemble as summary_ensemble  # noqa: F401, E402
 
 __all__: List[str] = []
 for key in class_dict():  # noqa: F405
