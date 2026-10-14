@@ -113,6 +113,19 @@ TEST( RimWellTargetMappingTest, FilterOptionsUseOwningCase )
     EXPECT_EQ( caf::PdmOptionItemInfo( "Case filter", filter ).value(), options[1].value() );
 }
 
+TEST( RimWellTargetMappingTest, StartFilterOptionsUseOwningCase )
+{
+    RimEclipseResultCase eclipseCase;
+    auto                 mapping = new TestableWellTargetMapping;
+    eclipseCase.addWellTargetMapping( mapping );
+    auto filter = eclipseCase.dataFilterCollection()->addNewRangeFilter();
+    filter->setName( "Case filter" );
+
+    auto options = mapping->calculateValueOptions( mapping->findField( "StartDataFilter" ) );
+    ASSERT_EQ( 2, options.size() );
+    EXPECT_EQ( caf::PdmOptionItemInfo( "Case filter", filter ).value(), options[1].value() );
+}
+
 TEST( RimWellTargetMappingTest, FilterOptionsUseOwningEnsemble )
 {
     RimReservoirGridEnsemble ensemble;
@@ -222,9 +235,9 @@ TEST_P( RimWellTargetMappingFilterTest, FiltersClustersWithoutViews )
     if ( useEnsemble )
     {
         RigWellTargetMapping::ClusteringLimits limits{};
-        limits.maxNumTargets = 1;
-        limits.maxIterations = 10;
-        limits.dataFilter    = filter;
+        limits.maxNumTargets  = 1;
+        limits.maxIterations  = 10;
+        limits.growDataFilter = filter;
         RigFloodingSettings                 floodingSettings( RigFloodingSettings::FloodingType::WATER_FLOODING,
                                               0.0,
                                               RigFloodingSettings::FloodingType::GAS_FLOODING,

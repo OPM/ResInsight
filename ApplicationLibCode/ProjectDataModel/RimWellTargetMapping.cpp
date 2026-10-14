@@ -160,7 +160,17 @@ RimWellTargetMapping::RimWellTargetMapping()
                        "How much to increase the bounding box of the first case to cover for any grid size differences across the "
                        "ensemble." );
 
-    CAF_PDM_InitFieldNoDefault( &m_dataFilter, "DataFilter", "Data Filter" );
+    // "DataFilter" is the grow filter; keeping the keyword keeps old project files working (an empty start filter falls back to it).
+    CAF_PDM_InitFieldNoDefault( &m_startDataFilter,
+                                "StartDataFilter",
+                                "Start Data Filter",
+                                "",
+                                "Limits where starting cells are searched for. If empty, the grow data filter is used." );
+    CAF_PDM_InitFieldNoDefault( &m_dataFilter,
+                                "DataFilter",
+                                "Grow Data Filter",
+                                "",
+                                "Limits where clusters can grow. If empty, clusters can grow anywhere in the model." );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
@@ -226,7 +236,7 @@ QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const
             caf::AppEnum<RigWellTargetMapping::VolumesType>::setEnumSubset( &m_volumesType, findAvailableVolumesTypes( fc ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_dataFilter )
+    else if ( fieldNeedingOptions == &m_dataFilter || fieldNeedingOptions == &m_startDataFilter )
     {
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
@@ -498,6 +508,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
 
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
+    uiOrdering.add( &m_startDataFilter );
     uiOrdering.add( &m_dataFilter );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
@@ -560,7 +571,8 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
              .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
              .filterAddress    = m_resultDefinition->eclipseResultAddress(),
-             .dataFilter       = m_dataFilter() };
+             .startDataFilter  = m_startDataFilter(),
+             .growDataFilter   = m_dataFilter() };
 }
 
 //--------------------------------------------------------------------------------------------------
