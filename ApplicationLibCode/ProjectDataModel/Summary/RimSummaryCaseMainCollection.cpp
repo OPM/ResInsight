@@ -890,6 +890,11 @@ void RimSummaryCaseMainCollection::onProjectBeingSaved()
             fileSumCase->onProjectBeingSaved();
         }
     }
+
+    for ( auto ensemble : summaryFileSetEnsembles() )
+    {
+        ensemble->onProjectBeingSaved();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

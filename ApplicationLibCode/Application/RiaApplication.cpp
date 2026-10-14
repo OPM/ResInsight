@@ -1043,6 +1043,12 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
     m_project->setFileName( RiaFilePathTools::toInternalSeparator( fileName ) );
 
+    // Move additional summary data to the project folder before the project file is written
+    if ( auto sumCaseMainColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseMainCollection() : nullptr )
+    {
+        sumCaseMainColl->onProjectBeingSaved();
+    }
+
     onProjectBeingSaved();
 
     if ( !m_project->writeProjectFile() )
