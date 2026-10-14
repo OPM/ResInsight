@@ -262,8 +262,8 @@ TEST_P( RimWellTargetMappingFilterTest, FiltersClustersWithoutViews )
     if ( useEnsemble )
     {
         RigWellTargetMapping::ClusteringLimits limits{};
-        limits.maxNumTargets = 1;
-        limits.maxIterations = 10;
+        limits.maxNumTargets  = 1;
+        limits.maxIterations  = 10;
         limits.growDataFilter = filter;
         RigFloodingSettings                 floodingSettings( RigFloodingSettings::FloodingType::WATER_FLOODING,
                                               0.0,

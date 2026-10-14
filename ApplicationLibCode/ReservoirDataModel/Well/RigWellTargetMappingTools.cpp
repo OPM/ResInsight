@@ -184,12 +184,8 @@ std::vector<bool> RigWellTargetMappingTools::findFaultNncs( RigMainGrid* mainGri
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RigWellTargetMappingTools::countFaultFacesPerActiveCell( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo )
 {
-    const std::vector<CellFaceType> faces = { CellFaceType::POS_I,
-                                              CellFaceType::NEG_I,
-                                              CellFaceType::POS_J,
-                                              CellFaceType::NEG_J,
-                                              CellFaceType::POS_K,
-                                              CellFaceType::NEG_K };
+    const std::vector<CellFaceType> faces =
+        { CellFaceType::POS_I, CellFaceType::NEG_I, CellFaceType::POS_J, CellFaceType::NEG_J, CellFaceType::POS_K, CellFaceType::NEG_K };
 
     std::vector<int> result( activeCellInfo->reservoirActiveCellCount(), 0 );
     for ( size_t reservoirIdx = 0; reservoirIdx < activeCellInfo->reservoirCellCount(); reservoirIdx++ )
@@ -520,7 +516,7 @@ std::vector<ReservoirCellIndex> RigWellTargetMappingTools::findCandidates( RimEc
             {
                 auto& [otherCellIdx, face] = cellInfo;
                 if ( limits.avoidFaults && nncResultIdx < data.isFaultNnc.size() && data.isFaultNnc[nncResultIdx] ) continue;
-                double transmissibility    = data.transmissibilityNNC->at( nncResultIdx );
+                double transmissibility = data.transmissibilityNNC->at( nncResultIdx );
 
                 ActiveCellIndex otherResultIndex = resultsData->activeCellInfo()->cellResultIndex( otherCellIdx );
                 if ( otherResultIndex.value() == cvf::UNDEFINED_SIZE_T ) continue;

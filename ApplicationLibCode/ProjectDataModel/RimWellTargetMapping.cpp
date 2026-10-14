@@ -177,7 +177,8 @@ RimWellTargetMapping::RimWellTargetMapping()
                        false,
                        "Avoid Growing Across Faults",
                        "",
-                       "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault faces per cell." );
+                       "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault faces per "
+                       "cell." );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 

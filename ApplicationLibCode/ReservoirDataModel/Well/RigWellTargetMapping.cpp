@@ -194,8 +194,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 
     const std::vector<double> growFilterVector = computeFilterVector( limits.growDataFilter );
     // Without a start filter, the grow filter is used to find the starting cells.
-    const std::vector<double> startFilterVector =
-        limits.startDataFilter ? computeFilterVector( limits.startDataFilter ) : growFilterVector;
+    const std::vector<double> startFilterVector = limits.startDataFilter ? computeFilterVector( limits.startDataFilter ) : growFilterVector;
 
     const QString logKeyword = "RigWellTargetMapping";
 
