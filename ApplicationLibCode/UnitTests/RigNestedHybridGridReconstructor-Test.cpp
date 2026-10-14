@@ -42,6 +42,11 @@
 #include "RimCellRangeFilter.h"
 #include "RimEclipseResultCase.h"
 
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultBranch.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
+
 #include <QDir>
 #include <QFile>
 
@@ -172,6 +177,38 @@ protected:
 
         s_input = buildInput( dir );
 
+        // The restart file of this model has no well connections, so add a synthetic well with
+        // connections into a refined and an unrefined flat cell to check that they are re-pointed.
+        for ( size_t i = 0; i < s_input.refine.size(); i++ )
+        {
+            if ( s_input.refine[i] > 1 && s_wellRefinedFlatCell == cvf::UNDEFINED_SIZE_T ) s_wellRefinedFlatCell = i;
+            if ( s_input.refine[i] == 1 && s_wellUnrefinedFlatCell == cvf::UNDEFINED_SIZE_T ) s_wellUnrefinedFlatCell = i;
+        }
+        {
+            auto makePoint = []( size_t cellIndex )
+            {
+                RigWellResultPoint point;
+                point.setGridIndex( 0 );
+                point.setGridCellIndex( cellIndex );
+                return point;
+            };
+
+            RigWellResultBranch branch;
+            branch.setBranchResultPoints( { makePoint( s_wellRefinedFlatCell ), makePoint( s_wellUnrefinedFlatCell ) } );
+
+            RigWellResultFrame frame;
+            frame.setWellHead( makePoint( s_wellRefinedFlatCell ) );
+            frame.addWellResultBranch( branch );
+
+            cvf::ref<RigSimWellData> well = new RigSimWellData;
+            well->setWellName( "SYNTHETIC_NHG_WELL" );
+            well->m_wellCellsTimeSteps.push_back( frame );
+
+            cvf::Collection<RigSimWellData> wells = s_reservoir->wellResults();
+            wells.push_back( well.p() );
+            s_reservoir->setSimWellData( wells );
+        }
+
         QString err;
         if ( !RigNestedHybridGridReconstructor::reconstruct( s_reservoir.p(), s_input, &err ) )
         {
@@ -204,6 +241,8 @@ protected:
     static RigNestedHybridGridReconstructor::NestedHybridInput s_input;
     static RigEclipseResultAddress                             s_staticAddr;
     static size_t                                              s_activeCellsBeforeReconstruct;
+    static size_t                                              s_wellRefinedFlatCell;
+    static size_t                                              s_wellUnrefinedFlatCell;
     static bool                                                s_setupOk;
     static QString                                             s_setupError;
 };
@@ -214,7 +253,9 @@ cvf::ref<RifReaderEclipseOutput>                    RigNestedHybridGridReconstru
 RigNestedHybridGridReconstructor::NestedHybridInput RigNestedHybridGridReconstructorTest::s_input;
 RigEclipseResultAddress                             RigNestedHybridGridReconstructorTest::s_staticAddr;
 size_t                                              RigNestedHybridGridReconstructorTest::s_activeCellsBeforeReconstruct = 0;
-bool                                                RigNestedHybridGridReconstructorTest::s_setupOk                      = false;
+size_t                                              RigNestedHybridGridReconstructorTest::s_wellRefinedFlatCell   = cvf::UNDEFINED_SIZE_T;
+size_t                                              RigNestedHybridGridReconstructorTest::s_wellUnrefinedFlatCell = cvf::UNDEFINED_SIZE_T;
+bool                                                RigNestedHybridGridReconstructorTest::s_setupOk               = false;
 QString                                             RigNestedHybridGridReconstructorTest::s_setupError;
 
 //--------------------------------------------------------------------------------------------------
@@ -949,4 +990,50 @@ TEST_F( RigNestedHybridGridReconstructorTest, RangeFilterUsesOriginalIjk )
         // The slices are chosen to cross more than one refinement level
         EXPECT_GE( visibleLevels.size(), 2u ) << "axis " << slice.axis;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Simulation well connections into refined flat cells follow the cells into the reconstructed
+/// LGRs, so the hidden flat cells are not shown as well cells in the main grid. Connections into
+/// unrefined cells stay in the main grid.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, WellConnectionsFollowLgrCells )
+{
+    ASSERT_NE( s_wellRefinedFlatCell, cvf::UNDEFINED_SIZE_T );
+    ASSERT_NE( s_wellUnrefinedFlatCell, cvf::UNDEFINED_SIZE_T );
+
+    const RigSimWellData* well = nullptr;
+    for ( const auto& w : s_reservoir->wellResults() )
+        if ( w->m_wellName == "SYNTHETIC_NHG_WELL" ) well = w.p();
+    ASSERT_NE( well, nullptr );
+    ASSERT_EQ( well->m_wellCellsTimeSteps.size(), 1u );
+
+    const RigWellResultFrame& frame = well->m_wellCellsTimeSteps.front();
+
+    auto expectInLgrCellFrom = [&]( const RigWellResultPoint& point, size_t flatCell )
+    {
+        ASSERT_TRUE( point.isCell() );
+        ASSERT_GT( point.gridIndex(), 0u );
+        const RigGridBase* lgr = grid()->gridByIndex( point.gridIndex() );
+        ASSERT_LT( point.cellIndex(), lgr->cellCount() );
+
+        const auto& sourceCells = grid()->nestedHybridLgrSourceCells();
+        auto        it          = sourceCells.find( lgr->reservoirCellIndex( point.cellIndex() ) );
+        ASSERT_NE( it, sourceCells.end() );
+        EXPECT_EQ( it->second, flatCell );
+    };
+
+    expectInLgrCellFrom( frame.wellHead(), s_wellRefinedFlatCell );
+
+    const auto points = frame.allResultPoints();
+    ASSERT_EQ( points.size(), 2u );
+    expectInLgrCellFrom( points[0], s_wellRefinedFlatCell );
+    EXPECT_EQ( points[1].gridIndex(), 0u );
+    EXPECT_EQ( points[1].cellIndex(), s_wellUnrefinedFlatCell );
+
+    // The well cells used for visualization no longer include the hidden flat cell
+    const cvf::UByteArray* mainGridWellCells = s_reservoir->wellCellsInGrid( 0 );
+    ASSERT_NE( mainGridWellCells, nullptr );
+    EXPECT_FALSE( ( *mainGridWellCells )[s_wellRefinedFlatCell] );
+    EXPECT_TRUE( ( *mainGridWellCells )[s_wellUnrefinedFlatCell] );
 }

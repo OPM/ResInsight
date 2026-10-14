@@ -93,4 +93,8 @@ private:
     // Re-point existing (file) NNC connections that referenced the original scattered refined cells
     // to the new LGR cells, preserving transmissibilities (connection results are indexed by position).
     static void repointNncConnections( RigEclipseCaseData* caseData, size_t origCellCount, const std::map<size_t, size_t>& sourceCells );
+
+    // Re-point simulation well connections (and well heads) that referenced the original scattered
+    // refined cells to the new LGR cells, and recompute the well cells per grid.
+    static void repointWellResultPoints( RigEclipseCaseData* caseData, size_t origCellCount, const std::map<size_t, size_t>& sourceCells );
 };
