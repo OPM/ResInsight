@@ -31,6 +31,7 @@
 class RimSummaryCase;
 class RimSummaryPlotCollection;
 class RimSummaryEnsemble;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///
@@ -45,8 +46,35 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
 
+    static std::vector<RimSummaryEnsemble*> allEnsembles( RimSummaryEnsemble*                               ensemble,
+                                                          const caf::PdmPtrArrayField<RimSummaryEnsemble*>& ensembleArray );
+
+    static RimSummaryPlot* createSummaryPlot( const std::vector<RimSummaryCase*>&     summaryCases,
+                                              const std::vector<RimSummaryEnsemble*>& ensembles,
+                                              const QString&                          address );
+
 private:
-    caf::PdmField<QString>                 m_addressString;
-    caf::PdmPtrArrayField<RimSummaryCase*> m_summaryCases;
-    caf::PdmPtrField<RimSummaryEnsemble*>  m_ensemble;
+    caf::PdmField<QString>                     m_addressString;
+    caf::PdmPtrArrayField<RimSummaryCase*>     m_summaryCases;
+    caf::PdmPtrField<RimSummaryEnsemble*>      m_ensemble;
+    caf::PdmPtrArrayField<RimSummaryEnsemble*> m_ensembles;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSummaryPlotCollection_newSummaryMultiPlot : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSummaryPlotCollection_newSummaryMultiPlot( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>>        m_addressStrings;
+    caf::PdmPtrArrayField<RimSummaryCase*>     m_summaryCases;
+    caf::PdmPtrArrayField<RimSummaryEnsemble*> m_ensembles;
 };

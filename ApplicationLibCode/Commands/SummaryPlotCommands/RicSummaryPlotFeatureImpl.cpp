@@ -54,6 +54,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
@@ -540,6 +541,30 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const s
 
                 if ( historyCurve ) newPlot->addCurveNoUpdate( historyCurve );
             }
+        }
+    }
+    newPlot->applyDefaultCurveAppearances();
+
+    return newPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsembles( const std::vector<RimSummaryEnsemble*>& ensembles,
+                                                                          QStringList                             summaryAddressFilters )
+{
+    RimSummaryPlot* newPlot = new RimSummaryPlot();
+    newPlot->enableAutoPlotTitle( true );
+
+    for ( auto ensemble : ensembles )
+    {
+        if ( !ensemble ) continue;
+
+        auto addresses = applySummaryAddressFiltersToCases( ensemble->allSummaryCases(), summaryAddressFilters );
+        for ( const auto& addr : addresses )
+        {
+            newPlot->ensembleCurveSetCollection()->addCurveSet( createCurveSet( ensemble, addr, EnsembleColoringType::NONE, "" ) );
         }
     }
     newPlot->applyDefaultCurveAppearances();

@@ -173,7 +173,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_summaryCurveCollection = new RimSummaryCurveCollection;
     m_summaryCurveCollection->curvesChanged.connect( this, &RimSummaryPlot::onCurveCollectionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "" );
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "" );

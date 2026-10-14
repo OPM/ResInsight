@@ -58,6 +58,9 @@ public:
                                                          EnsembleColoringType ensembleColoringStyle           = EnsembleColoringType::NONE,
                                                          QString              ensembleColoringParameter       = "" );
 
+    // Creates one plot with one curve set per address and ensemble, to allow comparison of ensembles in the same plot
+    static RimSummaryPlot* createSummaryPlotForEnsembles( const std::vector<RimSummaryEnsemble*>& ensembles, QStringList summaryAddressFilters );
+
     static RimSummaryPlot* createSummaryPlotForCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                       QStringList                         summaryAddressFilters,
                                                       bool                                addHistoryCurves = false );
