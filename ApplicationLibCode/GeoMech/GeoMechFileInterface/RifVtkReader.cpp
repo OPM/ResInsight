@@ -658,50 +658,48 @@ void RifVtkReader::readScalarData( RigFemPartCollection*                        
                         auto map = propertyDataMap( RigFemResultPosEnum::RIG_ELEMENT );
                         if ( map == nullptr ) continue;
 
-                        // Multi-component element results: stress[0/1] -> S_VTK, strain[0/1] -> E_VTK
-                        // Each VTK array contains 3 components per element.
-                        // Mapping:
-                        //   stress[0]: S_VTK.S11 (index 0), S_VTK.S22 (index 1), S_VTK.S33 (index 2)
-                        //   stress[1]: S_VTK.S12 (index 0), S_VTK.S13 (index 1), S_VTK.S23 (index 2)
-                        //   strain[0]: E_VTK.E11 (index 0), E_VTK.E22 (index 1), E_VTK.E33 (index 2)
-                        //   strain[1]: E_VTK.E12 (index 0), E_VTK.E13 (index 1), E_VTK.E23 (index 2)
-
+                        // OPM Flow writes a symmetric 3x3 tensor as three rows "stress[0..2]" of 3 values each.
+                        // The upper triangle is read. z is negated on import, so the xz and yz components change sign.
                         struct StressStrainMapping
                         {
-                            std::string                vtkName;
-                            std::string                fieldName;
-                            std::array<std::string, 3> componentNames;
+                            std::string vtkName;
+                            int         column;
+                            std::string fieldName;
+                            std::string componentName;
+                            double      sign;
                         };
 
                         using namespace RifVtkFieldNames;
                         static const std::vector<StressStrainMapping> mappings = {
-                            { "stress[0]", S, { S11, S22, S33 } },
-                            { "stress[1]", S, { S12, S13, S23 } },
-                            { "strain[0]", E, { E11, E22, E33 } },
-                            { "strain[1]", E, { E12, E13, E23 } },
+                            { "stress[0]", 0, S, S11, 1.0 },
+                            { "stress[0]", 1, S, S12, 1.0 },
+                            { "stress[0]", 2, S, S13, -1.0 },
+                            { "stress[1]", 1, S, S22, 1.0 },
+                            { "stress[1]", 2, S, S23, -1.0 },
+                            { "stress[2]", 2, S, S33, 1.0 },
+                            { "strain[0]", 0, E, E11, 1.0 },
+                            { "strain[0]", 1, E, E12, 1.0 },
+                            { "strain[0]", 2, E, E13, -1.0 },
+                            { "strain[1]", 1, E, E22, 1.0 },
+                            { "strain[1]", 2, E, E23, -1.0 },
+                            { "strain[2]", 2, E, E33, 1.0 },
                         };
 
                         for ( const auto& mapping : mappings )
                         {
                             if ( propertyName != mapping.vtkName ) continue;
 
-                            for ( int compIdx = 0; compIdx < 3; compIdx++ )
+                            std::string internalKey = mapping.fieldName + separator + mapping.componentName;
+
+                            for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
                             {
-                                std::string internalKey = mapping.fieldName + separator + mapping.componentNames[compIdx];
-
-                                if ( map->count( internalKey ) == 0 ) ( *map )[internalKey] = {};
-                                if ( ( *map )[internalKey].count( stepId ) == 0 ) ( *map )[internalKey][stepId] = {};
-
-                                for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
+                                size_t              dataSize = femParts->part( partIdx )->elementCount();
+                                std::vector<double> compValues( dataSize, 0.0 );
+                                for ( size_t i = 0; i < dataSize; i++ )
                                 {
-                                    size_t              dataSize = femParts->part( partIdx )->elementCount();
-                                    std::vector<double> compValues( dataSize, 0.0 );
-                                    for ( size_t i = 0; i < dataSize; i++ )
-                                    {
-                                        compValues[i] = values[i * 3 + compIdx];
-                                    }
-                                    ( *map )[internalKey][stepId][partIdx] = compValues;
+                                    compValues[i] = mapping.sign * values[i * 3 + mapping.column];
                                 }
+                                ( *map )[internalKey][stepId][partIdx] = compValues;
                             }
                         }
                     }
