@@ -47,9 +47,12 @@ std::vector<time_t> RifSummaryReaderAggregator::timeSteps( const RifEclipseSumma
 std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     std::vector<double> values;
+    bool                anyReaderHasValues = false;
     for ( const auto& reader : m_summaryReaders )
     {
         auto [isOk, readerValues] = reader->values( resultAddress );
+
+        if ( !readerValues.empty() ) anyReaderHasValues = true;
 
         if ( readerValues.empty() )
         {
@@ -69,6 +72,9 @@ std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const R
 
         values.insert( values.end(), readerValues.begin(), readerValues.end() );
     }
+
+    // The address is unknown to all readers. Do not return zeros, as this hides vectors in other readers, like additional summary files
+    if ( !anyReaderHasValues ) return { false, {} };
 
     CAF_ASSERT( m_aggregatedTimeSteps.size() == values.size() );
 

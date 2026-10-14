@@ -24,6 +24,7 @@
 
 #include "RimFileSummaryCase.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RimcDataContainerDouble.h"
 #include "RimcDataContainerString.h"
@@ -276,6 +277,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorVal
     {
         fileSummaryCase->buildTreeNodesIfRequired();
         fileSummaryCase->updateConnectedEditors();
+
+        if ( auto* ensemble = fileSummaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>() )
+        {
+            ensemble->onSummaryVectorsChanged();
+        }
     }
 
     return nullptr;

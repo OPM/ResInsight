@@ -63,6 +63,9 @@ public:
     std::expected<void, QString> setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
     void                         onProjectBeingSaved();
 
+    QString additionalSummaryFilePath() const;
+    void    setAdditionalSummaryFilePath( const QString& filePath );
+
     static std::unique_ptr<RifSummaryReaderInterface> findRelatedFilesAndCreateReader( const QString&          headerFileName,
                                                                                        bool                    lookForRestartFiles,
                                                                                        RifEnsembleImportConfig ensembleImportState,
