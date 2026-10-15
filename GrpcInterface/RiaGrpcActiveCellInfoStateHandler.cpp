@@ -25,10 +25,15 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechCase.h"
 
 #include "Riu3dSelectionManager.h"
 
@@ -59,6 +64,36 @@ grpc::Status RiaGrpcActiveCellInfoStateHandler::init( const rips::CellInfoReques
     m_porosityModel  = RiaDefines::PorosityModelType( m_request->porosity_model() );
     RimCase* rimCase = RiaGrpcHelper::findCase( m_request->case_request().id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
+
+    // A geomechanical case has no active cells: every element, with its part as grid index
+    auto geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase );
+    if ( geoMechCase && geoMechCase->geoMechData() )
+    {
+        const RigFemPartCollection* parts = geoMechCase->geoMechData()->femParts();
+        for ( int partIndex = 0; partIndex < parts->partCount(); partIndex++ )
+        {
+            const RigFemPart*     part = parts->part( partIndex );
+            const RigFemPartGrid* grid = part->getOrCreateStructGrid();
+            for ( int elementIdx = 0; elementIdx < part->elementCount(); elementIdx++ )
+            {
+                size_t i = 0, j = 0, k = 0;
+                if ( !grid->ijkFromCellIndex( elementIdx, &i, &j, &k ) ) i = j = k = cvf::UNDEFINED_SIZE_T;
+
+                rips::CellInfo info;
+                info.set_grid_index( partIndex );
+                info.set_parent_grid_index( partIndex );
+                info.set_coarsening_box_index( -1 );
+                for ( rips::Vec3i* ijk : { info.mutable_local_ijk(), info.mutable_parent_ijk() } )
+                {
+                    ijk->set_i( static_cast<int>( i ) );
+                    ijk->set_j( static_cast<int>( j ) );
+                    ijk->set_k( static_cast<int>( k ) );
+                }
+                m_geoMechCellInfos.push_back( info );
+            }
+        }
+        return grpc::Status::OK;
+    }
 
     if ( !m_eclipseCase )
     {
@@ -198,6 +233,17 @@ grpc::Status RiaGrpcActiveCellInfoStateHandler::assignReply( rips::CellInfoArray
     size_t       indexInPackage = 0u;
     reply->mutable_data()->Reserve( (int)packageSize );
 
+    if ( !m_eclipseCase )
+    {
+        for ( ; indexInPackage < packageSize && m_currentCellIdx < m_geoMechCellInfos.size(); ++indexInPackage )
+        {
+            *reply->add_data() = m_geoMechCellInfos[m_currentCellIdx++];
+        }
+        if ( indexInPackage > 0u ) return Status::OK;
+        return Status( grpc::OUT_OF_RANGE,
+                       "We've reached the end. This is not an error but means transmission is finished" );
+    }
+
     // Stream until you've reached the package size or total cell count. Whatever comes first.
     // If you've reached the package size you'll come back for another round.
     for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
@@ -262,6 +308,8 @@ void RiaGrpcActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*          
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCenters* reply )
 {
+    if ( !m_eclipseCase ) return Status( grpc::UNIMPLEMENTED, "Cell centers are only available for grid cases" );
+
     const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
     size_t       indexInPackage = 0u;
     reply->mutable_centers()->Reserve( (int)packageSize );
@@ -334,6 +382,8 @@ void RiaGrpcActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*   
 //--------------------------------------------------------------------------------------------------
 Status RiaGrpcActiveCellInfoStateHandler::assignCellCornersReply( rips::CellCornersArray* reply )
 {
+    if ( !m_eclipseCase ) return Status( grpc::UNIMPLEMENTED, "Cell corners are only available for grid cases" );
+
     const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
     size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );

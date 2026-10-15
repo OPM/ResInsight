@@ -27,10 +27,13 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechCase.h"
 
 #include "Riu3dSelectionManager.h"
 
@@ -75,6 +78,14 @@ grpc::Status RiaGrpcCaseService::GetCellCount( grpc::ServerContext*         cont
         reply->set_reservoir_cell_count( (int)activeCellInfo->reservoirCellCount() );
         return grpc::Status::OK;
     }
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase );
+    if ( geoMechCase && geoMechCase->geoMechData() )
+    {
+        const int elementCount = static_cast<int>( geoMechCase->geoMechData()->femParts()->totalElementCount() );
+        reply->set_active_cell_count( elementCount );
+        reply->set_reservoir_cell_count( elementCount );
+        return grpc::Status::OK;
+    }
     return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
 }
 
@@ -90,6 +101,16 @@ grpc::Status RiaGrpcCaseService::GetTimeSteps( grpc::ServerContext*     context,
     if ( rimCase )
     {
         std::vector<QDateTime> timeStepDates = rimCase->timeStepDates();
+        if ( auto geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase ) )
+        {
+            const QStringList names = geoMechCase->timeStepStrings();
+            for ( const QString& name : names )
+            {
+                reply->add_names( name.toStdString() );
+            }
+            // Only all or none: clients index dates by time step
+            if ( timeStepDates.size() != static_cast<size_t>( names.size() ) ) timeStepDates.clear();
+        }
         for ( QDateTime dateTime : timeStepDates )
         {
             rips::TimeStepDate* date = reply->add_dates();

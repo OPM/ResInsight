@@ -28,6 +28,11 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigFemResultAddress.h"
+#include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -37,12 +42,83 @@
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechCase.h"
 
 #include "Riu3dSelectionManager.h"
 
 #include <algorithm>
+#include <expected>
+#include <optional>
 
 using namespace rips;
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Geomechanical results are addressed by a GEOMECH_* property type (the position) and "FIELD:COMPONENT"
+//--------------------------------------------------------------------------------------------------
+std::optional<RigFemResultPosEnum> geoMechResultPosition( rips::PropertyType propertyType )
+{
+    switch ( propertyType )
+    {
+        case rips::PropertyType::GEOMECH_NODAL:
+            return RIG_NODAL;
+        case rips::PropertyType::GEOMECH_ELEMENT_NODAL:
+            return RIG_ELEMENT_NODAL;
+        case rips::PropertyType::GEOMECH_INTEGRATION_POINT:
+            return RIG_INTEGRATION_POINT;
+        case rips::PropertyType::GEOMECH_ELEMENT:
+            return RIG_ELEMENT;
+        default:
+            return std::nullopt;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One value per element, parts after each other: the mean over the element's nodes for nodal and
+/// element-nodal results.
+//--------------------------------------------------------------------------------------------------
+std::expected<std::vector<double>, std::string> geoMechElementValues( RimGeoMechCase*        geoMechCase,
+                                                                      const PropertyRequest* request )
+{
+    auto position = geoMechResultPosition( request->property_type() );
+    if ( !position ) return std::unexpected( "Use a GEOMECH_* property type for a geomechanical case" );
+
+    RigGeoMechCaseData* caseData = geoMechCase->geoMechData();
+    if ( !caseData ) return std::unexpected( "Geomechanical case data not found" );
+
+    const QString             name = QString::fromStdString( request->property_name() );
+    const RigFemResultAddress address( *position,
+                                       name.section( ':', 0, 0 ).toStdString(),
+                                       name.section( ':', 1, 1 ).toStdString() );
+
+    RigFemPartResultsCollection* results = caseData->femPartResults();
+    if ( request->time_step() < 0 || request->time_step() >= results->totalSteps() )
+        return std::unexpected( "No such time step" );
+    const auto [stepIndex, frameIndex] = results->stepListIndexToTimeStepAndDataFrameIndex( request->time_step() );
+
+    std::vector<double>         elementValues;
+    const RigFemPartCollection* parts = caseData->femParts();
+    for ( int partIndex = 0; partIndex < parts->partCount(); partIndex++ )
+    {
+        const RigFemPart*         part   = parts->part( partIndex );
+        const std::vector<float>& values = results->resultValues( address, partIndex, stepIndex, frameIndex );
+        if ( values.empty() ) return std::unexpected( "No such result" );
+
+        for ( int elementIdx = 0; elementIdx < part->elementCount(); elementIdx++ )
+        {
+            const int nodeCount = RigFemTypes::elementNodeCount( part->elementType( elementIdx ) );
+            double    sum       = 0.0;
+            for ( int localNode = 0; localNode < nodeCount; localNode++ )
+            {
+                sum += values[part->resultValueIdxFromResultPosType( *position, elementIdx, localNode )];
+            }
+            elementValues.push_back( sum / nodeCount );
+        }
+    }
+    return elementValues;
+}
+} // namespace
 
 #define NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS 10
 
@@ -143,6 +219,19 @@ public:
             }
             return grpc::Status( grpc::NOT_FOUND, "No such result" );
         }
+        if ( auto geoMechCase = dynamic_cast<RimGeoMechCase*>( RiaGrpcHelper::findCase( caseId ) ) )
+        {
+            if ( m_clientStreamer || !supportsGeoMech() )
+            {
+                return grpc::Status( grpc::UNIMPLEMENTED, "Geomechanical results can only be read for all elements" );
+            }
+            auto values = geoMechElementValues( geoMechCase, request );
+            if ( !values ) return grpc::Status( grpc::NOT_FOUND, values.error() );
+
+            m_geoMechValues = std::move( *values );
+            m_cellCount     = m_geoMechValues.size();
+            return grpc::Status::OK;
+        }
         return grpc::Status( grpc::NOT_FOUND, "Couldn't find an Eclipse case matching the case Id" );
     }
 
@@ -172,7 +261,8 @@ public:
         // If you've reached the package size you'll come back for another round.
         for ( ; indexInPackage < packageSize && m_streamedValueCount < m_cellCount; ++indexInPackage, ++m_streamedValueCount )
         {
-            reply->add_values( cellResult( m_streamedValueCount ) );
+            reply->add_values( m_geoMechValues.empty() ? cellResult( m_streamedValueCount )
+                                                       : m_geoMechValues[m_streamedValueCount] );
         }
         if ( indexInPackage > 0u )
         {
@@ -231,6 +321,9 @@ public:
     }
 
 protected:
+    // Only reading all elements is implemented for geomechanical cases
+    virtual bool supportsGeoMech() const { return false; }
+
     virtual void   initResultAccess( RigEclipseCaseData*           caseData,
                                      size_t                        gridIndex,
                                      RiaDefines::PorosityModelType porosityModel,
@@ -246,6 +339,7 @@ protected:
     size_t                        m_cellCount;
     bool                          m_clientStreamer;
     RigEclipseResultAddress       m_resultAddress;
+    std::vector<double>           m_geoMechValues;
 };
 
 class RiaActiveCellResultsStateHandler : public RiaCellResultsStateHandler
@@ -258,6 +352,8 @@ public:
     }
 
 protected:
+    bool supportsGeoMech() const override { return true; }
+
     void initResultAccess( RigEclipseCaseData*           caseData,
                            size_t                        gridIndex,
                            RiaDefines::PorosityModelType porosityModel,
@@ -448,6 +544,24 @@ grpc::Status RiaGrpcPropertiesService::GetAvailableProperties( grpc::ServerConte
             return grpc::Status::OK;
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find any results matching result type" );
+    }
+    if ( auto geoMechCase = dynamic_cast<RimGeoMechCase*>( RiaGrpcHelper::findCase( caseId ) ) )
+    {
+        auto position = geoMechResultPosition( request->property_type() );
+        if ( !position )
+            return grpc::Status( grpc::INVALID_ARGUMENT, "Use a GEOMECH_* property type for a geomechanical case" );
+        if ( !geoMechCase->geoMechData() ) return grpc::Status( grpc::NOT_FOUND, "Geomechanical case data not found" );
+
+        for ( const auto& [field, components] :
+              geoMechCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames( *position ) )
+        {
+            if ( components.empty() ) reply->add_property_names( field );
+            for ( const auto& component : components )
+            {
+                reply->add_property_names( field + ":" + component );
+            }
+        }
+        return grpc::Status::OK;
     }
     return grpc::Status( grpc::NOT_FOUND, "No such case" );
 }

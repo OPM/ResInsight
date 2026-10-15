@@ -27,6 +27,11 @@ enum PropertyType {
   FLOW_DIAGNOSTICS = 6;
   INJECTION_FLOODING = 7;
   REMOVED = 8;
+  // Geomechanical results by position; one value per element
+  GEOMECH_NODAL = 100;
+  GEOMECH_ELEMENT_NODAL = 101;
+  GEOMECH_INTEGRATION_POINT = 102;
+  GEOMECH_ELEMENT = 103;
   UNDEFINED = 999;
 }
 
