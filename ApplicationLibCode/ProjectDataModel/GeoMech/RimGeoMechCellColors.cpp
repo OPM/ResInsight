@@ -24,6 +24,8 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "cafPdmObjectScriptingCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimGeoMechCellColors, "GeoMechResultSlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +34,8 @@ CAF_PDM_SOURCE_INIT( RimGeoMechCellColors, "GeoMechResultSlot" );
 RimGeoMechCellColors::RimGeoMechCellColors()
     : legendConfigChanged( this )
 {
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Color Result", ":/CellResult.png", "", "", "GeoMechCellColors", "Geomechanical cell colors" );
+
     CAF_PDM_InitFieldNoDefault( &legendConfig, "LegendDefinition", "Color Legend" );
     legendConfig = new RimRegularLegendConfig();
     legendConfig->changed.connect( this, &RimGeoMechCellColors::onLegendConfigChanged );
