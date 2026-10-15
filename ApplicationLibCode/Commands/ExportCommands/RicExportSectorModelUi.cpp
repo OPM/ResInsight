@@ -65,8 +65,11 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitObject( "Export Sector Model for Simulation Input" );
 
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
+    m_exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitFieldNoDefault( &m_exportDeckName, "ExportDeckName", "Sector Model Name" );
     CAF_PDM_InitFieldNoDefault( &m_inputDeckName, "InputDeckName", "Source DATA File" );
+    m_inputDeckName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                                  QString( "Eclipse DATA files (*.DATA);;All files (*.*)" ) );
     m_inputDeckName.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_porvMultiplier, "PorvMultiplier", 1.0e6, "PORV Multiplier" );
@@ -102,13 +105,19 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedRegions, "SelectedRefinementRegions", "Refinement Regions" );
     m_selectedRegions.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedRegions.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::HEIGHT_HINT, 100 );
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_bcpropKeywords.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                                   static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FILL_CONTAINER ) );
+    m_bcpropKeywords.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
+    m_bcpropKeywords.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::EDIT_ON_SINGLE_CLICK, true );
     m_bcpropKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_keywordsToRemove, "KeywordsToRemove", "Keywords to Remove from Output" );
     m_keywordsToRemove.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_keywordsToRemove.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 200 );
     setDefaultKeywordsToRemove();
 
     // Model padding fields
@@ -146,6 +155,7 @@ RicExportSectorModelUi::RicExportSectorModelUi()
     CAF_PDM_InitField( &m_createSimulationJob, "CreateSimulationJob", false, "Create New Simulation Job" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSimulationJob );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobFolder, "SimulationJobFolder", "Working Folder" );
+    m_simulationJobFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitFieldNoDefault( &m_simulationJobName, "SimulationJobName", "Job Name" );
     CAF_PDM_InitField( &m_startSimulationJobAfterExport,
                        "StartSimulationJobAfterExport",
@@ -383,55 +393,6 @@ void RicExportSectorModelUi::setEclipseView( RimEclipseView* view )
         for ( auto* region : collection->regions() )
         {
             if ( region != nullptr ) m_selectedRegions.push_back( region );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_bcpropKeywords )
-    {
-        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttr )
-        {
-            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
-            tvAttr->alwaysEnforceResizePolicy = true;
-            tvAttr->editOnSingleClick         = true;
-        }
-    }
-    else if ( ( field == &m_exportFolder ) || ( field == &m_simulationJobFolder ) )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
-    else if ( field == &m_keywordsToRemove )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->heightHint = 200;
-        }
-    }
-    else if ( field == &m_selectedRegions )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->heightHint = 100;
-        }
-    }
-    else if ( field == &m_inputDeckName )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_fileSelectionFilter = "Eclipse DATA files (*.DATA);;All files (*.*)";
         }
     }
 }

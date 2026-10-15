@@ -38,6 +38,7 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
 #include <string>
 
 class RiaPreferencesSummary;
@@ -49,6 +50,8 @@ class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
 class RiaPreferencesCloudApi;
+
+class QValidator;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -160,8 +163,7 @@ public:
     caf::PdmField<QString> csvTextExportFieldSeparator;
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -222,7 +224,8 @@ private:
     caf::PdmField<double> m_surfaceImportResamplingDistance;
 
     // Well Path Import
-    caf::PdmField<QString> m_multiLateralWellPattern;
+    caf::PdmField<QString>      m_multiLateralWellPattern;
+    std::unique_ptr<QValidator> m_multiLateralWellPatternValidator;
 
     // Grid import
     caf::PdmChildField<RiaPreferencesGrid*> m_gridPreferences;

@@ -72,6 +72,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_holoLensExportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitField( &m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
@@ -99,6 +100,9 @@ RiaPreferencesSystem::RiaPreferencesSystem()
 
     CAF_PDM_InitFieldNoDefault( &m_enabledFeatures, "EnabledFeatures", "Experimental Features" );
     m_enabledFeatures.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    // Report the highlighted (clicked) feature so its description can be shown below the list.
+    m_enabledFeatures.uiCapability()->setAttribute<caf::PdmFieldHandle*>( caf::PdmUiTreeSelectionEditor::Keys::CURRENT_INDEX_FIELD_HANDLE,
+                                                                          &m_currentFeatureKeyword );
 
     // Transient UI helper fields, not stored in the preferences file.
     CAF_PDM_InitFieldNoDefault( &m_currentFeatureKeyword, "currentFeatureKeyword", "" );
@@ -106,6 +110,9 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     m_currentFeatureKeyword.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedFeatureDescription, "selectedFeatureDescription", "Description" );
+    m_selectedFeatureDescription.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE,
+                                                               static_cast<int>( caf::PdmUiTextEditor::WordWrap ) );
+    m_selectedFeatureDescription.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::HEIGHT_HINT, 60 );
     m_selectedFeatureDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectedFeatureDescription.uiCapability()->setUiReadOnly( true );
     m_selectedFeatureDescription.xmlCapability()->disableIO();
@@ -403,37 +410,6 @@ void RiaPreferencesSystem::initAfterRead()
 
         m_enabledFeatures = enabled;
         m_featureKeywords = QString();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferencesSystem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_holoLensExportFolder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
-    else if ( field == &m_enabledFeatures )
-    {
-        // Report the highlighted (clicked) feature so its description can be shown below the list.
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
-        {
-            myAttr->currentIndexFieldHandle = &m_currentFeatureKeyword;
-        }
-    }
-    else if ( field == &m_selectedFeatureDescription )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
-        {
-            myAttr->wrapMode   = caf::PdmUiTextEditorAttribute::WordWrap;
-            myAttr->heightHint = 60;
-        }
     }
 }
 

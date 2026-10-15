@@ -18,7 +18,9 @@
 
 #include "RiuTools.h"
 
+#include "cafPdmFieldHandle.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFieldHandle.h"
 
 #include <QMenu>
 #include <QObject>
@@ -54,12 +56,10 @@ void RiuTools::enableAllActionsOnShow( QObject* object, QMenu* menu )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuTools::enableUpDownArrowsForComboBox( caf::PdmUiEditorAttribute* attribute )
+void RiuTools::enableUpDownArrowsForComboBox( caf::PdmFieldHandle* field )
 {
-    if ( auto attrib = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute ) )
-    {
-        attrib->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-        attrib->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
-        attrib->showPreviousAndNextButtons = true;
-    }
+    auto* uiCapability = field->uiCapability();
+    uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_ICON, QIcon( ":/ComboBoxDown.svg" ) );
+    uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREVIOUS_ICON, QIcon( ":/ComboBoxUp.svg" ) );
+    uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS, true );
 }

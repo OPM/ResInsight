@@ -45,6 +45,7 @@ RicExportSurfaceToGriUi::RicExportSurfaceToGriUi()
 
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedProperties, "SelectedProperties", "Export Values" );
     m_selectedProperties.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -135,20 +136,6 @@ QString RicExportSurfaceToGriUi::exportFolder() const
 RicExportSurfaceToGriUi::ExportFormat RicExportSurfaceToGriUi::exportFormat() const
 {
     return m_exportFormat();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportSurfaceToGriUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_exportFolder )
-    {
-        if ( auto* attr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            attr->m_selectDirectory = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

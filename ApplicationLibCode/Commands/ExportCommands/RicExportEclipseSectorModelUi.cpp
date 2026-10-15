@@ -79,6 +79,9 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 
     CAF_PDM_InitField( &exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "" );
     CAF_PDM_InitField( &m_exportGridFilename, "ExportGridFilename", QString(), "Grid File Name" );
+    m_exportGridFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
+    m_exportGridFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                                       QString( "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)" ) );
     CAF_PDM_InitField( &exportInLocalCoordinates, "ExportInLocalCoords", false, "Export in Local Coordinates", "", "Remove UTM location on export", "" );
     CAF_PDM_InitField( &makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive" );
 
@@ -110,6 +113,9 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
 
     CAF_PDM_InitField( &m_exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name" );
+    m_exportFaultsFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
+    m_exportFaultsFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                                         QString( "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)" ) );
 
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField( &refinementCountI, "RefinementCountI", 1, ijkLabel );
@@ -121,15 +127,19 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 
     CAF_PDM_InitFieldNoDefault( &exportParameters, "ExportParams", "Export Parameters" );
     CAF_PDM_InitField( &m_exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
+    m_exportParametersFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
+    m_exportParametersFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                                             QString( "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)" ) );
 
     CAF_PDM_InitFieldNoDefault( &selectedKeywords, "ExportMainKeywords", "Keywords to Export" );
-
+    selectedKeywords.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::HEIGHT_HINT, 280 );
     CAF_PDM_InitField( &m_writeEchoInGrdeclFiles,
                        "WriteEchoInGrdeclFiles",
                        RiaPreferences::current()->writeEchoInGrdeclFiles(),
                        "Write NOECHO and ECHO" );
 
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
+    m_exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     m_exportFolder = defaultFolder();
 
     m_exportGridFilename       = defaultGridFileName();
@@ -241,38 +251,6 @@ void RicExportEclipseSectorModelUi::setMax( const caf::VecIjk0& max )
 cvf::Vec3st RicExportEclipseSectorModelUi::refinement() const
 {
     return cvf::Vec3st( refinementCountI(), refinementCountJ(), refinementCountK() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_exportParametersFilename || field == &m_exportGridFilename || field == &m_exportFaultsFilename )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectSaveFileName  = true;
-            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
-        }
-    }
-    else if ( field == &selectedKeywords )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
-        {
-            myAttr->heightHint = 280;
-        }
-    }
-
-    if ( field == &m_exportFolder )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@ RicCaseAndFileExportSettingsUi::RicCaseAndFileExportSettingsUi()
 
     CAF_PDM_InitFieldNoDefault( &folder, "Folder", "Export Folder" );
     folder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    folder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply" );
 }
@@ -50,21 +51,4 @@ QList<caf::PdmOptionItemInfo> RicCaseAndFileExportSettingsUi::calculateValueOpti
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicCaseAndFileExportSettingsUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                            QString                    uiConfigName,
-                                                            caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &folder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
 }
