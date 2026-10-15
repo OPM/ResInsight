@@ -67,6 +67,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellFlowRateCurve.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
@@ -132,6 +133,16 @@ void setColorShadingLegendFromFormationCase( RimWellLogRegionAnnotationSettings*
     QString legendName = formationNames->shortName();
     auto*   legend     = RimProject::current()->colorLegendCollection->findByName( legendName );
     if ( legend ) settings->setColorShadingLegend( legend );
+}
+
+// Palette color from the formation's position in the formations file, so a formation gets the same
+// unique color regardless of which other formations are present for the displayed well.
+cvf::Color3ub
+    paletteColorForFormation( const QString& name, size_t fallbackIndex, const QStringList& zoneOrder, const cvf::Color3ubArray& paletteColors )
+{
+    const int    fileIndex = zoneOrder.indexOf( name );
+    const size_t index     = fileIndex >= 0 ? static_cast<size_t>( fileIndex ) : fallbackIndex;
+    return paletteColors[index % paletteColors.size()];
 }
 } // namespace internal
 
@@ -1835,6 +1846,24 @@ std::vector<std::tuple<QString, double, double>> RimWellLogTrack::formationZoneD
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Zone names in the order they appear in the formations file used by this track, if any
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellLogTrack::wellPickZoneOrder() const
+{
+    RimWellFormationsFile* file = nullptr;
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
+    {
+        file = m_formationSettings->wellFormationsFile();
+    }
+    else if ( auto wellPath = m_formationSettings->wellPathForSourceWellPath() )
+    {
+        file = wellPath->wellFormationsFile();
+    }
+
+    return file ? file->zoneOrder() : QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<QString, cvf::Color3ub> RimWellLogTrack::formationZoneColors() const
@@ -1865,6 +1894,7 @@ std::map<QString, cvf::Color3ub> RimWellLogTrack::formationZoneColors() const
 
     // Same name-first, palette-index-second assignment as updateFormationNamesOnPlot()
     const cvf::Color3ubArray paletteColors  = legend->colorArray();
+    const QStringList        zoneOrder      = wellPickZoneOrder();
     const auto               formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
     const auto               depthRanges    = formations->depthRangesUpToLevel( formationLevel, plot->depthType() );
 
@@ -1875,7 +1905,7 @@ std::map<QString, cvf::Color3ub> RimWellLogTrack::formationZoneColors() const
         if ( it != nameToColor.end() )
             colors.emplace( name, it->second );
         else if ( paletteColors.size() > 0 )
-            colors.emplace( name, paletteColors[i % paletteColors.size()] );
+            colors.emplace( name, internal::paletteColorForFormation( name, i, zoneOrder, paletteColors ) );
     }
 
     return colors;
@@ -2783,7 +2813,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                     }
                     else if ( paletteColors.size() > 0 )
                     {
-                        orderedColors.set( i, paletteColors[i % paletteColors.size()] );
+                        orderedColors.set( i, internal::paletteColorForFormation( zoneNamesToPlot[i], i, wellPickZoneOrder(), paletteColors ) );
                     }
                 }
 

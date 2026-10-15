@@ -33,6 +33,8 @@ class RifWellPathFormationReader
 public:
     using WellFormations = std::map<QString /*wellName*/, RigWellPathFormations>;
 
-    static std::expected<WellFormations, QString> readWellFormations( const QString& filePath );
-    static std::expected<WellFormations, QString> parseWellFormations( const QString& content, const QString& filePath );
+    // If zoneOrder is given, it receives the unique zone names in order of first appearance in the file
+    static std::expected<WellFormations, QString> readWellFormations( const QString& filePath, QStringList* zoneOrder = nullptr );
+    static std::expected<WellFormations, QString>
+        parseWellFormations( const QString& content, const QString& filePath, QStringList* zoneOrder = nullptr );
 };

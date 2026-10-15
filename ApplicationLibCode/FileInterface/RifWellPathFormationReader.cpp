@@ -69,7 +69,8 @@ std::optional<double> toOptionalDouble( const QStringList& columns, int index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFormationReader::readWellFormations( const QString& filePath )
+std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFormationReader::readWellFormations( const QString& filePath,
+                                                                                                                   QStringList* zoneOrder )
 {
     QFile file( filePath );
     if ( !file.open( QFile::ReadOnly | QFile::Text ) )
@@ -77,14 +78,14 @@ std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFo
         return std::unexpected( QString( "Failed to open %1" ).arg( filePath ) );
     }
 
-    return parseWellFormations( QString::fromUtf8( file.readAll() ), filePath );
+    return parseWellFormations( QString::fromUtf8( file.readAll() ), filePath, zoneOrder );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFormationReader::parseWellFormations( const QString& content,
-                                                                                                                    const QString& filePath )
+std::expected<RifWellPathFormationReader::WellFormations, QString>
+    RifWellPathFormationReader::parseWellFormations( const QString& content, const QString& filePath, QStringList* zoneOrder )
 {
     const auto parseFailure = QString( "Failed to parse %1 as a well pick file" ).arg( filePath );
 
@@ -170,6 +171,7 @@ std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFo
         }
 
         formationsPerWell[wellName].push_back( formation );
+        if ( zoneOrder && !unitName.isEmpty() && !zoneOrder->contains( unitName ) ) zoneOrder->push_back( unitName );
     }
 
     if ( formationsPerWell.empty() )

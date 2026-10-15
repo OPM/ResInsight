@@ -45,8 +45,10 @@ public:
 
     std::expected<void, QString> reload();
 
-    QStringList                  wellNames() const;
-    QStringList                  zoneNames( const QString& wellName ) const;
+    QStringList wellNames() const;
+    QStringList zoneNames( const QString& wellName ) const;
+    // Unique zone names across all wells, in order of first appearance in the file
+    QStringList                  zoneOrder() const;
     const RigWellPathFormations* formationsForWell( const QString& wellName ) const;
 
     static QString normalizedWellName( const QString& wellName );
@@ -68,4 +70,5 @@ private:
     caf::PdmField<QString>       m_contentTable;
 
     RifWellPathFormationReader::WellFormations m_wellFormations;
+    QStringList                                m_zoneOrder;
 };
