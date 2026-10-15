@@ -166,16 +166,17 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
+        # Restore only; saved after a successful Configure so partial caches are never written.
+        uses: actions/cache/restore@v6
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.arch }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          prefix: vcpkg-clang/
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.arch }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Configure
         shell: bash
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite"
         run: >
           cmake -S . -B cmakebuild
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-release
@@ -194,6 +195,13 @@ jobs:
           -DRESINSIGHT_ENABLE_HDF5=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
+
+      - name: Save vcpkg cache
+        if: success() && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: |

@@ -48,15 +48,17 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
+        # Restore only; saved after a successful configure so partial caches are never written.
+        uses: actions/cache/restore@v6
         with:
-          cache-key: ${{ runner.os }}-clang-tidy-19-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ runner.os }}-clang-tidy-19-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Create compile commands and run clang-tidy
         # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite"
         run: |
           mkdir build
           cd build
@@ -70,6 +72,12 @@ jobs:
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
             ..
+      - name: Save vcpkg cache
+        if: success() && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
       - name: Run clang-tidy and apply fixes
         continue-on-error: true
         run: |
