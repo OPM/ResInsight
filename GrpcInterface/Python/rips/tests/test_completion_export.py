@@ -164,6 +164,70 @@ def test_export_completion_files_split_by_well(rips_instance, initialize_test):
         pass  # Keep exported files in the output directory
 
 
+def test_export_completion_well_entering_lgr_twice(rips_instance, initialize_test):
+    """A well going into the LGR, out of it, and into it again must give one
+    WELSPECL and one COMPDATL keyword, with rows for both perforations."""
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case = rips_instance.project.load_case(
+        path=case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    )
+    assert len(case.grids()) == 2
+
+    rips_instance.project.import_well_paths(
+        [case_root_path + "/lgr_twice/wellpath_lgr_twice.dev"]
+    )
+    well_path = rips_instance.project.well_path_by_name("LgrWell")
+    assert well_path is not None
+
+    # The well path leaves the LGR between MD 300 and MD 500
+    well_path.append_perforation_interval(
+        start_md=100.0, end_md=290.0, diameter=0.2, skin_factor=0.0
+    )
+    well_path.append_perforation_interval(
+        start_md=560.0, end_md=740.0, diameter=0.2, skin_factor=0.0
+    )
+
+    export_folder = os.path.abspath(
+        case_root_path + "/completion_export_output/lgr_twice"
+    )
+    os.makedirs(export_folder, exist_ok=True)
+    for old_file in os.listdir(export_folder):
+        os.remove(os.path.join(export_folder, old_file))
+
+    rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
+    case.export_well_path_completions(
+        time_step=0,
+        well_path_names=["LgrWell"],
+        file_split="UNIFIED_FILE",
+        include_perforations=True,
+        include_fishbones=False,
+        export_welspec=True,
+        export_comments=False,
+    )
+
+    lgr_files = [
+        f for f in os.listdir(export_folder) if f.endswith("_LGR") and "_MSW_" not in f
+    ]
+    assert len(lgr_files) == 1
+
+    with open(os.path.join(export_folder, lgr_files[0]), "r") as f:
+        lines = [line.strip() for line in f.read().split("\n")]
+
+    assert lines.count("WELSPECL") == 1
+    assert lines.count("COMPDATL") == 1
+
+    # Both perforations give connections in the LGR, on both sides of the part outside the LGR
+    compdatl_start = lines.index("COMPDATL")
+    compdatl_end = lines.index("/", compdatl_start)
+    rows = [
+        line
+        for line in lines[compdatl_start:compdatl_end]
+        if line.startswith("LgrWell")
+    ]
+    assert len(rows) > 2
+    assert all(row.split()[1] == "LGR1" for row in rows)
+
+
 def test_export_completion_dual_porosity_model(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/dualporo-testcase"
     project_path = case_root_path + "/Well-completions-mail.rsp"
