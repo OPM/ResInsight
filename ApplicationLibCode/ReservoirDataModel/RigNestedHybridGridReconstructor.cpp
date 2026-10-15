@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
@@ -70,7 +71,15 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
 
     if ( !caseData || !caseData->mainGrid() ) return setError( "No grid data." );
 
-    RigMainGrid* grid      = caseData->mainGrid();
+    RigMainGrid* grid = caseData->mainGrid();
+
+    // Active-cell-only grids keep cells in a sparse map and report a fixed total cell count, so
+    // appending LGR cells is not supported and would write out of bounds.
+    if ( dynamic_cast<RigActiveCellGrid*>( grid ) )
+    {
+        return setError( "Reconstruction is not supported for grids with only active cells loaded." );
+    }
+
     const size_t cellCount = grid->cellCount();
 
     if ( input.refine.size() != cellCount )

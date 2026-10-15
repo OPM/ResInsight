@@ -76,7 +76,7 @@ ActiveCellIndex RigActiveCellInfo::cellResultIndex( ReservoirCellIndex reservoir
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setCellResultIndex( ReservoirCellIndex reservoirCellIndex, ActiveCellIndex reservoirCellResultIndex )
 {
-    CAF_ASSERT( reservoirCellResultIndex.value() < m_reservoirCellToActiveCell.size() );
+    CAF_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
 
     m_reservoirCellToActiveCell[reservoirCellIndex.value()] = reservoirCellResultIndex;
 }
