@@ -57,6 +57,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
     CAF_PDM_InitField( &m_customPercentiles, "CustomPercentiles", QString(), "Custom Percentiles" );
     m_customPercentiles.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    m_customPercentiles.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT, "E.g. 5 25 75 95" );
     m_customPercentiles.setCustomValidationCallback( [this]() -> QString { return validateCustomPercentiles(); } );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
@@ -366,20 +367,6 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 {
     bool showCrossPlot = true;
     defaultUiOrdering( showCrossPlot, uiOrdering );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatistics::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_customPercentiles )
-    {
-        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEdAttr->placeholderText = "E.g. 5 25 75 95";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

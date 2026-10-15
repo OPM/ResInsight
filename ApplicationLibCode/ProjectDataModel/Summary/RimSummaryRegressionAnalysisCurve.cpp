@@ -32,6 +32,7 @@
 #include "RimTimeAxisAnnotation.h"
 
 #include "cafPdmUiDateEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
@@ -118,9 +119,15 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range" );
     CAF_PDM_InitFieldNoDefault( &m_minTimeSliderPosition, "MinTimeSliderPosition", "From" );
     m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
     CAF_PDM_InitFieldNoDefault( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", "To" );
     m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", false, "Show In Plot" );
 
@@ -129,14 +136,20 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
+    m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
 
     CAF_PDM_InitFieldNoDefault( &m_xRangeSelection, "XRangeSelection", "X Value Range" );
     CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
     m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_valueRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
+    m_valueRangeX.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 100 );
 
     CAF_PDM_InitFieldNoDefault( &m_yRangeSelection, "YRangeSelection", "Y Value Range" );
     CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
     m_valueRangeY.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_valueRangeY.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
+    m_valueRangeY.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 100 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,12 +481,32 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     regressionCurveGroup->add( &m_expressionText );
 
+    {
+        QFont font;
+        font.setPointSize( font.pointSize() + 2 );
+        m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::FONT, font );
+    }
+
     caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
     valueRangeYGroup->add( &m_yRangeSelection );
     if ( m_yRangeSelection() == RangeType::USER_DEFINED_RANGE )
     {
         valueRangeYGroup->add( &m_valueRangeY );
     }
+
+    auto setValueRangeLimits = []( auto& field, const std::vector<double>& values )
+    {
+        if ( values.empty() )
+        {
+            caf::PdmUiDoubleSliderEditor::clearRange( field.uiCapability() );
+            return;
+        }
+
+        auto [minIt, maxIt] = std::minmax_element( values.begin(), values.end() );
+        caf::PdmUiDoubleSliderEditor::setRange( field.uiCapability(), *minIt, *maxIt );
+    };
+    setValueRangeLimits( m_valueRangeX, m_sourceValuesX );
+    setValueRangeLimits( m_valueRangeY, m_sourceValuesY );
 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
@@ -542,70 +575,6 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     if ( plot ) plot->zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               caf::PdmUiEditorAttribute* attribute )
-{
-    RimSummaryCurve::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum     = 0;
-            myAttr->m_maximum     = 100;
-            myAttr->m_showSpinBox = false;
-        }
-    }
-    else if ( field == &m_expressionText )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-
-            QFont font;
-            auto  pointSize = font.pointSize();
-            font.setPointSize( pointSize + 2 );
-            myAttr->font = font;
-        }
-    }
-    else if ( field == &m_valueRangeX )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_decimals        = 2;
-            attr->m_sliderTickCount = 100;
-
-            auto values = m_sourceValuesX;
-            if ( !values.empty() )
-            {
-                attr->m_minimum = *std::min_element( values.begin(), values.end() );
-                attr->m_maximum = *std::max_element( values.begin(), values.end() );
-            }
-        }
-    }
-    else if ( field == &m_valueRangeY )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_decimals        = 2;
-            attr->m_sliderTickCount = 100;
-
-            auto values = m_sourceValuesY;
-            if ( !values.empty() )
-            {
-                attr->m_minimum = *std::min_element( values.begin(), values.end() );
-                attr->m_maximum = *std::max_element( values.begin(), values.end() );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

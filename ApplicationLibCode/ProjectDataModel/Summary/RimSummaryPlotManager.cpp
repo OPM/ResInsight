@@ -75,6 +75,10 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot" );
     CAF_PDM_InitFieldNoDefault( &m_filterText, "FilterText", "Filter Text" );
     m_filterText.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_filterText.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_filterText.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
+    m_filterText.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
+    m_filterText.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 
     CAF_PDM_InitFieldNoDefault( &m_addressCandidates, "AddressCandidates", "Vectors" );
     m_addressCandidates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
@@ -260,24 +264,6 @@ std::vector<QString> RimSummaryPlotManager::dataSourceDisplayNames() const
     }
 
     return displayNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_filterText )
-    {
-        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->enableEditableContent  = true;
-            attr->enableAutoComplete     = false;
-            attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

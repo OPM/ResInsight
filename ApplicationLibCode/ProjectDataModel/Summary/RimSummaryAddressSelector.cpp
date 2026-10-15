@@ -347,13 +347,6 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressSelector::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressSelector::isEnsemble() const
 {
     return m_summaryCaseCollection() != nullptr;

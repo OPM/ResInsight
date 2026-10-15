@@ -81,6 +81,7 @@
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiTreeViewEditor.h"
 #include "cafSelectionManager.h"
 
 #include <algorithm>
@@ -108,6 +109,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     , m_realizationHash( 0 )
 
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Ensemble Curve Set",
                                                     ":/EnsembleCurveSet16x16.png",
                                                     "",
@@ -165,6 +169,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField( &m_mainEnsembleColor, "MainEnsembleColor", RiaColorTools::textColor3f(), "Color" );
     CAF_PDM_InitField( &m_colorOpacity, "ColorTransparency", 0.8, "Opacity [0..1]" );
     m_colorOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.001 );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -194,19 +201,35 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot" );
 
-    const QString formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
+    const auto dateFormatCallback = []() { return RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() ); };
 
-    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", formatString );
+    CAF_PDM_InitFieldNoDefault( &m_minDateRange,
+                                "MinDateRange",
+                                "From",
+                                "",
+                                RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() ) );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+    m_minDateRange.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
 
     CAF_PDM_InitField( &m_minTimeSliderPosition, "MinTimeSliderPosition", 0, "" );
     m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", formatString );
+    CAF_PDM_InitFieldNoDefault( &m_maxDateRange,
+                                "MaxDateRange",
+                                "To",
+                                "",
+                                RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() ) );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+    m_maxDateRange.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
 
     CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "" );
     m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
@@ -1136,20 +1159,20 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleCurveSet::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        treeItemAttribute->tags.clear();
-        auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->bgColor = RiaColorTools::toQColor( m_colorForRealizations );
-        tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
-        tag->text    = "---";
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-        tag->clicked.connect( this, &RimEnsembleCurveSet::onColorTagClicked );
+    auto tag    = caf::PdmUiTreeViewItemTag::create();
+    tag.bgColor = RiaColorTools::toQColor( m_colorForRealizations );
+    tag.fgColor = RiaColorTools::toQColor( m_statistics->color() );
+    tag.text    = "---";
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
-    }
+    tag.clicked = [this]( size_t index ) { this->onColorTagClicked( nullptr, index ); };
+
+    tags.push_back( tag );
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1491,40 +1514,6 @@ caf::PdmFieldHandle* RimEnsembleCurveSet::userDescriptionField()
 caf::PdmFieldHandle* RimEnsembleCurveSet::objectToggleField()
 {
     return &m_showCurves;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum     = 0;
-            myAttr->m_maximum     = 100;
-            myAttr->m_showSpinBox = false;
-        }
-    }
-    if ( field == &m_colorOpacity )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum  = 0.001;
-            myAttr->m_maximum  = 1.0;
-            myAttr->m_decimals = 2;
-        }
-    }
-
-    if ( field == &m_minDateRange || field == &m_maxDateRange )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
-        {
-            QString formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
-            attrib->dateFormat   = formatString;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

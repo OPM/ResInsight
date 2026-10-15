@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDateTimeDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "Appearance/RimFontSizeField.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -163,7 +164,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     double                   fromDateToDisplayTime( const QDateTime& displayTime );
     QDateTime                fromDisplayTimeToDate( double displayTime );
@@ -172,8 +172,8 @@ protected:
     caf::FontTools::FontSize plotFontSize() const;
 
 private:
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    void                                   onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<QString> m_title;

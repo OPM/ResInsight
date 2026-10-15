@@ -32,6 +32,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 
@@ -41,6 +42,9 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 RimSummaryCase::RimSummaryCase()
     : nameChanged( this )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );
@@ -275,26 +279,27 @@ caf::PdmFieldHandle* RimSummaryCase::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimSummaryCase::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        // The tooltip text is set in RimEnsembleStatisticsCase::calculate for ensemble statistics. Use the presens of tooltip to determine
-        // if the tag should be added.
-        if ( !uiToolTip().isEmpty() )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/info16x16.png" );
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
-        if ( m_includeInAutoReload() )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/TimedRefresh.png" );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+    // The tooltip text is set in RimEnsembleStatisticsCase::calculate for ensemble statistics. Use the presens of tooltip to determine
+    // if the tag should be added.
+    if ( !uiToolTip().isEmpty() )
+    {
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/info16x16.png" );
+
+        tags.push_back( tag );
     }
+    if ( m_includeInAutoReload() )
+    {
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/TimedRefresh.png" );
+        tags.push_back( tag );
+    }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

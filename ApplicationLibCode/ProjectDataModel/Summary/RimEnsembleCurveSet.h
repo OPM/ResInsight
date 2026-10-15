@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
@@ -209,7 +210,6 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     std::set<time_t>                       allAvailableTimeSteps() const;
@@ -223,8 +223,8 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    void                                   childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     void updatePlotAxis();
 

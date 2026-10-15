@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -156,8 +157,7 @@ protected:
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     QString nameAndItemCount() const;
     void    updateIcon();

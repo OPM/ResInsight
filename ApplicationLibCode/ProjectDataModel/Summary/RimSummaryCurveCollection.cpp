@@ -49,6 +49,9 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     : curvesChanged( this )
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
+    uiCapability()->setAttribute<std::function<caf::PdmObjectHandle*()>>( caf::PdmUiTreeViewEditor::Keys::CURRENT_OBJECT,
+                                                                          [this]() -> caf::PdmObjectHandle*
+                                                                          { return m_currentSummaryCurve.p(); } );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Curves" );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
@@ -402,18 +405,6 @@ void RimSummaryCurveCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
 caf::PdmFieldHandle* RimSummaryCurveCollection::objectToggleField()
 {
     return &m_showCurves;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
-    if ( myAttr && m_currentSummaryCurve.notNull() )
-    {
-        myAttr->currentObject = m_currentSummaryCurve.p();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

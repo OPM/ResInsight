@@ -97,6 +97,34 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     m_indexLabel.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_autoUpdateAppearance, "AutoUpdateAppearance", false, "Update Appearance" );
+
+    m_stepDimension.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_WIDTH,
+                                                  120,
+                                                  caf::PdmUiToolBarEditor::uiEditorConfigName() );
+
+    const std::vector<caf::PdmFieldHandle*> steppingFields = { &m_summaryCase,
+                                                               &m_ensemble,
+                                                               &m_wellName,
+                                                               &m_groupName,
+                                                               &m_networkName,
+                                                               &m_region,
+                                                               &m_vectorName,
+                                                               &m_cellBlock,
+                                                               &m_wellSegment,
+                                                               &m_connection,
+                                                               &m_aquifer,
+                                                               &m_wellCompletionNumber };
+    for ( auto* field : steppingFields )
+    {
+        RiuTools::enableUpDownArrowsForComboBox( field );
+
+        auto* uiCapability = field->uiCapability();
+        uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_BUTTON_TEXT,
+                                    "Next (" + RimSummaryPlotControls::nextStepKeyText() + ")" );
+        uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREV_BUTTON_TEXT,
+                                    "Previous (" + RimSummaryPlotControls::prevStepKeyText() + ")" );
+        uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_WIDTH, 120, caf::PdmUiToolBarEditor::uiEditorConfigName() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -959,37 +987,6 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
 RimSummaryDataSourceStepping* RimSummaryPlotSourceStepping::dataSourceSteppingObject() const
 {
     return dynamic_cast<RimSummaryDataSourceStepping*>( m_objectForSourceStepping.p() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                          QString                    uiConfigName,
-                                                          caf::PdmUiEditorAttribute* attribute )
-{
-    auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-    if ( myAttr )
-    {
-        if ( field == &m_stepDimension )
-        {
-            myAttr->showPreviousAndNextButtons = false;
-        }
-        else
-        {
-            RiuTools::enableUpDownArrowsForComboBox( attribute );
-
-            QString nextText       = RimSummaryPlotControls::nextStepKeyText();
-            QString prevText       = RimSummaryPlotControls::prevStepKeyText();
-            myAttr->nextButtonText = "Next (" + nextText + ")";
-            myAttr->prevButtonText = "Previous (" + prevText + ")";
-        }
-    }
-
-    if ( myAttr && ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() ) )
-    {
-        myAttr->minimumWidth = 120;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

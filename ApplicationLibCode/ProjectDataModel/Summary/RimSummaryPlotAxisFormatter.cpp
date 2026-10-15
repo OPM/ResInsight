@@ -126,7 +126,6 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         }
         else
         {
-            bool usedShortName = false;
             if ( m_axisProperties->showDescription() )
             {
                 auto candidateName = quantityName;
@@ -134,16 +133,9 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
                 if ( sumAddress.isHistoryVector() ) candidateName = quantityName.substr( 0, quantityName.size() - 1 );
 
                 titleText = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( candidateName );
-
-                // Use the short name if no description is available
-                if ( titleText.empty() )
-                {
-                    titleText     = quantityName;
-                    usedShortName = true;
-                }
             }
 
-            if ( m_axisProperties->showAcronym() && !usedShortName )
+            if ( m_axisProperties->showAcronym() )
             {
                 if ( !titleText.empty() )
                 {
