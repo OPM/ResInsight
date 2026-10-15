@@ -385,19 +385,17 @@ m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::BU
 **Old pattern (deprecated):**
 ```cpp
 // In defineEditorAttribute() override
-auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+auto* myAttr = dynamic_cast<caf::PdmUiSomeEditorAttribute*>( attribute );
 if ( myAttr )
 {
-    myAttr->adjustWidthToContents = true;
-    myAttr->minimumContentsLength = 15;
+    myAttr->someMember = true;
 }
 ```
 
 **New pattern:**
 ```cpp
 // In field initialization or elsewhere
-m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
-m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 15 );
+m_field.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 ```
 
 ### Common Attribute Examples
