@@ -21,6 +21,7 @@
 #include "RiaPorosityModel.h"
 #include "RimNamedObject.h"
 #include "RimReservoirGridEnsembleBase.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -135,7 +136,7 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void createDerivedObjects() override;
     void initAfterRead() override;

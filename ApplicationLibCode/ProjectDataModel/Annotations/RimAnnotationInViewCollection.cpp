@@ -196,7 +196,27 @@ void RimAnnotationInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 {
     uiOrdering.add( &m_snapAnnotations );
     uiOrdering.add( &m_annotationFontSize );
-    if ( m_snapAnnotations() ) uiOrdering.add( &m_annotationPlaneDepth );
+    if ( m_snapAnnotations() )
+    {
+        if ( auto view = firstAncestorOrThisOfType<Rim3dView>() )
+        {
+            if ( auto rimCase = view->ownerCase() )
+            {
+                auto bb = rimCase->allCellsBoundingBox();
+                m_annotationPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                                                     static_cast<double>( -bb.max().z() ) );
+                m_annotationPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                                                     static_cast<double>( -bb.min().z() ) );
+            }
+            else
+            {
+                m_annotationPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+                m_annotationPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 10000.0 );
+            }
+        }
+
+        uiOrdering.add( &m_annotationPlaneDepth );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -211,37 +231,6 @@ void RimAnnotationInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
         updateUiIconFromToggleField();
     }
     scheduleRedrawOfRelevantViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_annotationPlaneDepth )
-    {
-        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( attr )
-        {
-            if ( auto view = firstAncestorOrThisOfType<Rim3dView>() )
-            {
-                if ( auto rimCase = view->ownerCase() )
-                {
-                    auto bb         = rimCase->allCellsBoundingBox();
-                    attr->m_minimum = -bb.max().z();
-                    attr->m_maximum = -bb.min().z();
-                }
-                else
-                {
-                    attr->m_minimum = 0;
-                    attr->m_maximum = 10000;
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

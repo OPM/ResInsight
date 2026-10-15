@@ -58,6 +58,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 #include "cafProgressInfo.h"
 
 #include "RigCaseCellResultsData.h"
@@ -80,6 +81,9 @@ void caf::AppEnum<RimReservoirGridEnsembleBase::GridModeType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimReservoirGridEnsemble::RimReservoirGridEnsemble()
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir Grid Ensemble",
                                                     ":/GridCaseGroup16x16.png",
                                                     "",
@@ -1130,17 +1134,18 @@ void RimReservoirGridEnsemble::updateGridModeToolTip()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirGridEnsemble::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimReservoirGridEnsemble::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
+    if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
     {
-        if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/info16x16.png" );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/info16x16.png" );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

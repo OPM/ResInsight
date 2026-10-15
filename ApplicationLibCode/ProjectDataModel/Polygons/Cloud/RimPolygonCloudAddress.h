@@ -19,6 +19,7 @@
 #pragma once
 
 #include "Polygons/RimPolygonContainer.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "Cloud/RiaSumoPolygons.h"
 
@@ -86,9 +87,9 @@ public:
     RimPolygonContainer* addNewSubCollection() override;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                                   appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
 private:
     RiaSumoConnector* sumoConnector();

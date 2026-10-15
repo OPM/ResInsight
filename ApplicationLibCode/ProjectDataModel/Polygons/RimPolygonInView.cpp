@@ -42,6 +42,7 @@
 #include "cafPdmUiButton.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include "cvfModelBasicList.h"
 
@@ -53,6 +54,9 @@ CAF_PDM_SOURCE_INIT( RimPolygonInView, "RimPolygonInView" );
 RimPolygonInView::RimPolygonInView()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygon, "Polygon", "Polygon" );
@@ -66,6 +70,10 @@ RimPolygonInView::RimPolygonInView()
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                            static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FIT_CONTENT ) );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::HEIGHT_HINT, 1000 );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
@@ -327,6 +335,8 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     {
         uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points", [this]() { togglePicking(); } );
         uiOrdering.add( &m_targets );
+        m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::BASE_COLOR,
+                                                m_enablePicking ? RiuGuiTheme::getColorByVariableName( "externalInputColor" ) : QColor() );
         uiOrdering.add( &m_handleScalingFactor );
     }
 
@@ -374,25 +384,36 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_enablePicking;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygonInView::treeItemTags()
+{
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
     if ( m_polygon() )
     {
-        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+        auto tag = caf::PdmUiTreeViewItemTag::create( RiaColorTools::toQColor( m_polygon->color() ),
+                                                      RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                      "---" );
+
+        // The polygon is not owned by this object, so it can be deleted independently
+        tag.clicked = [target = caf::PdmPointer<RimPolygon>( m_polygon() )]( size_t index )
         {
-            auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( m_polygon->color() ),
-                                                                   RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
-                                                                   "---" );
+            if ( target ) target->onColorTagClicked( nullptr, index );
+        };
 
-            tag->clicked.connect( m_polygon(), &RimPolygon::onColorTagClicked );
-
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        tags.push_back( tag );
 
         if ( m_polygon->isReadOnly() )
         {
-            caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/padlock.svg" );
+            tags.push_back( caf::PdmUiTreeViewItemTag::createWithIcon( ":/padlock.svg" ) );
         }
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,6 +423,8 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 {
     uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points", [this]() { togglePicking(); } );
     uiOrdering.add( &m_targets );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::BASE_COLOR,
+                                            m_enablePicking ? RiuGuiTheme::getColorByVariableName( "externalInputColor" ) : QColor() );
     uiOrdering.add( &m_handleScalingFactor );
 }
 
@@ -468,27 +491,6 @@ void RimPolygonInView::initAfterRead()
 double RimPolygonInView::scalingFactorForTarget() const
 {
     return m_handleScalingFactor();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonInView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_targets )
-    {
-        if ( auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute ) )
-        {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
-
-            if ( m_enablePicking )
-            {
-                tvAttribute->baseColor = RiuGuiTheme::getColorByVariableName( "externalInputColor" );
-            }
-            tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->heightHint                = 1000;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

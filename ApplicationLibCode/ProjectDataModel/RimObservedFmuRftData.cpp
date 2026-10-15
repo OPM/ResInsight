@@ -145,17 +145,6 @@ void RimObservedFmuRftData::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObservedFmuRftData::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_contentTable )
-    {
-        RimCsvPreviewTools::setPreviewEditorAttribute( attribute );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::updateContentTable()
 {
     if ( !rftReader() ) return;

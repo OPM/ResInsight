@@ -43,12 +43,6 @@ class RimSurfaceIntersectionCurve;
 class RimSurfaceIntersectionBand;
 class RimPolygon;
 
-namespace caf
-{
-class PdmUiListEditorAttribute;
-class PdmUiPushButtonEditorAttribute;
-} // namespace caf
-
 //==================================================================================================
 //
 //
@@ -143,13 +137,12 @@ private:
     caf::PdmFieldHandle* userDescriptionField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-    static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
-    static void setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute );
+    void        toggleViewerPointInput( caf::PdmField<bool>* inputField );
+    static void setBaseColor( caf::PdmFieldHandle& field, bool enable );
 
     RimSimWellInViewCollection* simulationWellCollection() const;
     void                        updateAzimuthLine();
@@ -186,7 +179,6 @@ private:
     caf::PdmPtrField<RimSimWellInView*> m_simulationWell;
 
     caf::PdmPtrField<RimPolygon*> m_projectPolygon;
-    caf::PdmField<bool>           m_editPolygonButton;
 
     caf::PdmField<bool> m_inputPolylineFromViewerEnabled;
     caf::PdmField<bool> m_inputExtrusionPointsFromViewerEnabled;

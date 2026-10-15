@@ -329,6 +329,13 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     updateMaxMinAndDefaultValues( false );
 
+    for ( auto* field : { &m_min, &m_max } )
+    {
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, static_cast<double>( m_lowerLimit ) );
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, static_cast<double>( m_upperLimit ) );
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, true );
+    }
+
     uiOrdering.add( &m_filterTarget, { .leftLabelColumnSpan = 1 } );
     if ( m_filterTarget() == ENSEMBLE_CASE )
     {
@@ -369,40 +376,13 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         }
         else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
+            QFontMetrics fm = QFontMetrics( QFont() );
+            m_topBottomN.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::MAXIMUM_WIDTH, fm.boundingRect( "XXXX" ).width() );
             uiOrdering.appendToRow( &m_topBottomN );
         }
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_min || field == &m_max )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
-        {
-            return;
-        }
-
-        myAttr->m_minimum                       = m_lowerLimit;
-        myAttr->m_maximum                       = m_upperLimit;
-        myAttr->m_delaySliderUpdateUntilRelease = true;
-    }
-    else if ( field == &m_topBottomN )
-    {
-        caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-
-        if ( !myAttr ) return;
-
-        QFontMetrics fm = QFontMetrics( QFont() );
-
-        myAttr->maximumWidth = fm.boundingRect( "XXXX" ).width();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

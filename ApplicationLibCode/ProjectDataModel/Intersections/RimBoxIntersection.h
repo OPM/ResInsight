@@ -90,7 +90,6 @@ public:
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -103,6 +102,7 @@ protected slots:
 private:
     friend class RimIntersectionCollection;
     void updateBoxManipulatorGeometry();
+    void updateManipulatorState();
 
     void updateVisibility();
     void clampSinglePlaneValues();

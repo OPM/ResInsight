@@ -107,6 +107,9 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
     caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
@@ -115,6 +118,9 @@ RimWellTargetMapping::RimWellTargetMapping()
 
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_saturationOil, "SaturationOil", 0.0, "Saturation Oil" );
     m_saturationOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -327,73 +333,6 @@ void RimWellTargetMapping::updateAllBoundaries()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-
-{
-    if ( field == &m_saturationOil && m_minimumSaturationOil != cvf::UNDEFINED_DOUBLE && m_maximumSaturationOil != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumSaturationOil;
-            doubleAttributes->m_maximum  = m_maximumSaturationOil;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_saturationGas && m_minimumSaturationGas != cvf::UNDEFINED_DOUBLE && m_maximumSaturationGas != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumSaturationGas;
-            doubleAttributes->m_maximum  = m_maximumSaturationGas;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_pressure && m_minimumPressure != cvf::UNDEFINED_DOUBLE && m_maximumPressure != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumPressure;
-            doubleAttributes->m_maximum  = m_maximumPressure;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_permeability && m_minimumPermeability != cvf::UNDEFINED_DOUBLE && m_maximumPermeability != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumPermeability;
-            doubleAttributes->m_maximum  = m_maximumPermeability;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_transmissibility && m_minimumTransmissibility != cvf::UNDEFINED_DOUBLE && m_maximumTransmissibility != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumTransmissibility;
-            doubleAttributes->m_maximum  = m_maximumTransmissibility;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum         = 0.0;
-            myAttr->m_maximum         = 1.0;
-            myAttr->m_sliderTickCount = 20;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::Vec3st RimWellTargetMapping::getResultGridCellCount() const
 {
     return cvf::Vec3st( m_cellCountI, m_cellCountJ, m_cellCountK );
@@ -519,6 +458,20 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_startDataFilter );
     uiOrdering.add( &m_dataFilter );
     uiOrdering.add( &m_avoidFaults );
+
+    auto setSliderRange = []( auto& field, double minimum, double maximum )
+    {
+        if ( minimum == cvf::UNDEFINED_DOUBLE || maximum == cvf::UNDEFINED_DOUBLE )
+            caf::PdmUiDoubleSliderEditor::clearRange( field.uiCapability() );
+        else
+            caf::PdmUiDoubleSliderEditor::setRange( field.uiCapability(), minimum, maximum );
+        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 3 );
+    };
+    setSliderRange( m_saturationOil, m_minimumSaturationOil, m_maximumSaturationOil );
+    setSliderRange( m_saturationGas, m_minimumSaturationGas, m_maximumSaturationGas );
+    setSliderRange( m_pressure, m_minimumPressure, m_maximumPressure );
+    setSliderRange( m_permeability, m_minimumPermeability, m_maximumPermeability );
+    setSliderRange( m_transmissibility, m_minimumTransmissibility, m_maximumTransmissibility );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
     if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );

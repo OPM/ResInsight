@@ -116,7 +116,6 @@ protected:
 
 private:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 
     int alignZValue( int z ) const;
@@ -126,6 +125,7 @@ private:
     void scheduleViewUpdate();
 
     QPixmap getImage();
+    void    showImageDialog();
 
     void                    updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax );
     std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin );
@@ -145,7 +145,6 @@ private:
     caf::PdmField<int>          m_lineThickness;
     caf::PdmField<cvf::Color3f> m_lineColor;
     caf::PdmField<bool>         m_transparent;
-    caf::PdmField<bool>         m_showImage;
     caf::PdmField<int>          m_inlineIndex;
     caf::PdmField<int>          m_xlineIndex;
     caf::PdmField<int>          m_depthIndex;

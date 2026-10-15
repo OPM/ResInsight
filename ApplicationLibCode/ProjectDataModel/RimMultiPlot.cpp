@@ -64,7 +64,9 @@ RimMultiPlot::RimMultiPlot()
 
     RiaPreferencesSummary* sumPrefs = RiaPreferencesSummary::current();
     CAF_PDM_InitScriptableField( &m_columnCount, "NumberOfColumns", ColumnCountEnum( sumPrefs->defaultMultiPlotColumnCount() ), "Number of Columns" );
+    m_columnCount.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ICON_SIZE, QSize( 24, 16 ) );
     CAF_PDM_InitScriptableField( &m_rowsPerPage, "RowsPerPage", RowCountEnum( sumPrefs->defaultMultiPlotRowCount() ), "Rows per Page" );
+    m_rowsPerPage.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ICON_SIZE, QSize( 24, 16 ) );
 
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
@@ -742,21 +744,6 @@ void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForMultiPlotLayout( uiConfigName, *titleAndLegendsGroup );
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_rowsPerPage || field == &m_columnCount )
-    {
-        auto myattr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( myattr )
-        {
-            myattr->iconSize = QSize( 24, 16 );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

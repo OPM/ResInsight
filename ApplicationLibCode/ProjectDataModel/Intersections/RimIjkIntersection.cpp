@@ -389,43 +389,6 @@ int RimIjkIntersection::axisCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIjkIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    auto* sliderAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-    if ( !sliderAttr ) return;
-
-    RigMainGrid* grid = mainGrid();
-    if ( !grid ) return;
-
-    int ni = static_cast<int>( grid->cellCountI() );
-    int nj = static_cast<int>( grid->cellCountJ() );
-    int nk = static_cast<int>( grid->cellCountK() );
-
-    if ( field == &m_fixedIndex )
-    {
-        sliderAttr->m_minimum = 1;
-        sliderAttr->m_maximum = std::max( 1, axisCellCount() );
-    }
-    else if ( field == &m_iMin || field == &m_iMax )
-    {
-        sliderAttr->m_minimum = 1;
-        sliderAttr->m_maximum = std::max( 1, ni );
-    }
-    else if ( field == &m_jMin || field == &m_jMax )
-    {
-        sliderAttr->m_minimum = 1;
-        sliderAttr->m_maximum = std::max( 1, nj );
-    }
-    else if ( field == &m_kMin || field == &m_kMax )
-    {
-        sliderAttr->m_minimum = 1;
-        sliderAttr->m_maximum = std::max( 1, nk );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
@@ -468,6 +431,27 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+
+    if ( grid )
+    {
+        auto setRange = []( caf::PdmFieldHandle& field, int maximum )
+        { caf::PdmUiSliderEditor::setRange( field.uiCapability(), 1, std::max( 1, maximum ) ); };
+
+        setRange( m_fixedIndex, axisCellCount() );
+        setRange( m_iMin, ni );
+        setRange( m_iMax, ni );
+        setRange( m_jMin, nj );
+        setRange( m_jMax, nj );
+        setRange( m_kMin, nk );
+        setRange( m_kMax, nk );
+    }
+    else
+    {
+        for ( auto* field : { &m_fixedIndex, &m_iMin, &m_iMax, &m_jMin, &m_jMax, &m_kMin, &m_kMax } )
+        {
+            caf::PdmUiSliderEditor::clearRange( field->uiCapability() );
+        }
+    }
 
     uiOrdering.skipRemainingFields( true );
 }

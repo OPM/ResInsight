@@ -133,6 +133,8 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed" );
     m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_animationSpeed.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 1 );
+    m_animationSpeed.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
     m_animationSpeed = 10;
 
     CAF_PDM_InitFieldNoDefault( &m_animationIndex, "AnimationIndex", "Animation Index" );
@@ -142,10 +144,14 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor" );
     m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_scaleFactor.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.1 );
+    m_scaleFactor.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 10000.0 );
     m_scaleFactor = 100.0;
 
     CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length" );
     m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_tracerLength.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 1 );
+    m_tracerLength.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 1000 );
     m_tracerLength = 100;
 
     CAF_PDM_InitFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines" );
@@ -582,6 +588,8 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     else if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
         visualizationGroup->add( &m_animationIndex );
+        m_animationIndex.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+        m_animationIndex.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, static_cast<int>( m_maxAnimationIndex ) );
     }
 
     uiOrdering.skipRemainingFields();
@@ -594,51 +602,6 @@ void RimStreamlineInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
 {
     uiTreeOrdering.add( &m_legendConfig );
     uiTreeOrdering.skipRemainingChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_animationSpeed )
-    {
-        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = 100;
-        }
-    }
-    else if ( field == &m_animationIndex )
-    {
-        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = static_cast<int>( m_maxAnimationIndex );
-        }
-    }
-    else if ( field == &m_tracerLength )
-    {
-        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>( 1000 );
-        }
-    }
-    else if ( field == &m_scaleFactor )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0.1;
-            myAttr->m_maximum = 10000.0;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

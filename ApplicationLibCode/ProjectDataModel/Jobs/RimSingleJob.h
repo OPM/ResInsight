@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimGenericJob.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafPdmPointer.h"
 
@@ -51,7 +52,7 @@ public:
     void setStarted() override;
 
 protected:
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     virtual QStringList                command()                           = 0;
     virtual std::map<QString, QString> environment()                       = 0;

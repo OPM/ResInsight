@@ -162,9 +162,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitField( &m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->" );
     m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncInjectorToProducerSelection.uiCapability()->setAttribute( caf::PdmUiToolButtonEditor::Keys::SIZE_POLICY,
+                                                                    QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
 
     CAF_PDM_InitField( &m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators" );
     m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncProducerToInjectorSelection.uiCapability()->setAttribute( caf::PdmUiToolButtonEditor::Keys::SIZE_POLICY,
+                                                                    QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
@@ -1608,24 +1612,6 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 bool RimEclipseResultDefinition::showDualPorosityLabel() const
 {
     return m_showDualPorosityLabel;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
-    {
-        if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
-        {
-            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
-            if ( toolButtonAttr )
-            {
-                toolButtonAttr->m_sizePolicy.setHorizontalPolicy( QSizePolicy::MinimumExpanding );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@
 #include "RimRoffCaseSumo.h"
 
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <algorithm>
 #include <format>
@@ -44,6 +45,9 @@ CAF_PDM_SOURCE_INIT( RimReservoirGridEnsembleSumo, "RimReservoirGridEnsembleSumo
 //--------------------------------------------------------------------------------------------------
 RimReservoirGridEnsembleSumo::RimReservoirGridEnsembleSumo()
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "Sumo Reservoir Grid Ensemble", ":/GridCaseGroup16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoDataSource, "SumoDataSource", "Sumo Data Source" );
@@ -155,18 +159,17 @@ void RimReservoirGridEnsembleSumo::defineUiOrdering( QString uiConfigName, caf::
 /// Flag an ensemble that does not cover all its realizations, so the missing ones are visible in the
 /// tree and not only in the property panel.
 //--------------------------------------------------------------------------------------------------
-void RimReservoirGridEnsembleSumo::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimReservoirGridEnsembleSumo::treeItemTags()
 {
-    RimReservoirGridEnsemble::defineObjectEditorAttribute( uiConfigName, attribute );
+    std::vector<caf::PdmUiTreeViewItemTag> tags = RimReservoirGridEnsemble::treeItemTags();
 
-    if ( realizationsWithoutGridData().empty() ) return;
+    if ( realizationsWithoutGridData().empty() ) return tags;
 
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( ":/warning.svg" );
-        treeItemAttribute->tags.push_back( std::move( tag ) );
-    }
+    auto tag = caf::PdmUiTreeViewItemTag::create();
+    tag.icon = caf::IconProvider( ":/warning.svg" );
+    tags.push_back( tag );
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

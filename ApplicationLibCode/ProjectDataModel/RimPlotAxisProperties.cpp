@@ -30,6 +30,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <cmath>
 
@@ -59,6 +60,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     , m_isRangeSettingsEnabled( true )
     , m_isAlwaysRequired( false )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "Axis Properties", ":/LeftAxis16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
@@ -776,33 +780,32 @@ void RimPlotAxisProperties::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBui
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPlotAxisProperties::treeItemTags()
 {
-    auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( !treeItemAttribute ) return;
-
-    treeItemAttribute->tags.clear();
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
     auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
     {
-        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( ":/SharedAxis.svg" );
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/SharedAxis.svg" );
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
+        tags.push_back( tag );
     }
 
     if ( isRangeUserDefined() )
     {
         // Indicate that the axis range is fixed by the user, and will not be updated by auto-zoom.
         // Clicking the tag releases the user-defined range, so the axis follows the data again.
-        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( ":/PinnedAxisRange.svg" );
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/PinnedAxisRange.svg" );
 
-        tag->clicked.connect( this, &RimPlotAxisProperties::onPinnedTagClicked );
+        tag.clicked = [this]( size_t index ) { this->onPinnedTagClicked( nullptr, index ); };
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

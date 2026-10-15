@@ -38,6 +38,7 @@ RimPlotTemplateFolderItem::RimPlotTemplateFolderItem()
     CAF_PDM_InitObject( "Plot Templates", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_folderName, "FolderName", "Folder" );
+    m_folderName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     m_folderName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &m_fileNames, "FileNames", "" );
     CAF_PDM_InitFieldNoDefault( &m_subFolders, "SubFolders", "" );
@@ -191,21 +192,6 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames( int levelsLeft )
         }
 
         createSubFolderItemsFromFolderPaths( folderPaths, levelsLeft );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_folderName )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
     }
 }
 

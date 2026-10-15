@@ -856,6 +856,11 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     pressureDataSourceGroup->add( &m_initialPressureEclipseCase );
 
     uiOrdering.add( &m_MD );
+    if ( wellPath() )
+    {
+        m_MD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, wellPath()->startMD() );
+        m_MD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, wellPath()->endMD() );
+    }
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPositionForUi );
     uiOrdering.add( &m_thicknessDirection );
@@ -896,25 +901,6 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_wellPenetrationLayer );
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanModel::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_MD )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr )
-        {
-            if ( !wellPath() ) return;
-
-            myAttr->m_minimum = wellPath()->startMD();
-            myAttr->m_maximum = wellPath()->endMD();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

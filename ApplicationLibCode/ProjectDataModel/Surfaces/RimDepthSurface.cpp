@@ -154,43 +154,27 @@ void RimDepthSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_depth )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_minimum = m_depthLowerLimit;
-            attr->m_maximum = m_depthUpperLimit;
-        }
-    }
-
-    if ( field == &m_minX || field == &m_maxX )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_minimum = m_areaOfInterestMin().x();
-            attr->m_maximum = m_areaOfInterestMax().x();
-        }
-    }
-
-    if ( field == &m_minY || field == &m_maxY )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_minimum = m_areaOfInterestMin().y();
-            attr->m_maximum = m_areaOfInterestMax().y();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimDepthSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimSurface::defineUiOrdering( uiConfigName, uiOrdering );
+
+    using Slider = caf::PdmUiDoubleSliderEditor;
+
+    m_depth.uiCapability()->setAttribute( Slider::Keys::MINIMUM, m_depthLowerLimit() );
+    m_depth.uiCapability()->setAttribute( Slider::Keys::MAXIMUM, m_depthUpperLimit() );
+
+    for ( auto* field : { &m_minX, &m_maxX } )
+    {
+        field->uiCapability()->setAttribute( Slider::Keys::MINIMUM, static_cast<double>( m_areaOfInterestMin().x() ) );
+        field->uiCapability()->setAttribute( Slider::Keys::MAXIMUM, static_cast<double>( m_areaOfInterestMax().x() ) );
+    }
+
+    for ( auto* field : { &m_minY, &m_maxY } )
+    {
+        field->uiCapability()->setAttribute( Slider::Keys::MINIMUM, static_cast<double>( m_areaOfInterestMin().y() ) );
+        field->uiCapability()->setAttribute( Slider::Keys::MAXIMUM, static_cast<double>( m_areaOfInterestMax().y() ) );
+    }
+
     uiOrdering.add( &m_depth );
 
     {

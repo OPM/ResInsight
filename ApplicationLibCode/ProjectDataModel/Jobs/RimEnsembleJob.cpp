@@ -51,6 +51,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QFile>
 
@@ -63,6 +64,9 @@ RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
     , m_subJobsStarted( 0 )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_inputEnsemble, "Ensemble", "Input Ensemble" );
@@ -475,35 +479,35 @@ std::vector<QString> RimEnsembleJob::dateStrings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
+    if ( state() == JobState::Failed )
     {
-        if ( state() == JobState::Failed )
-        {
-            auto txt = "Failed";
-            auto tag =
-                caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
-        else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
-        {
-            auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
-
-            if ( state() == JobState::Running )
-            {
-                tag->text = "Running";
-            }
-            else
-            {
-                tag->text = "Done";
-            }
-
-            cvf::Color3f viewColor     = cvf::Color3f( cvf::Color3f::GREEN );
-            cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
-            tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
-            tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        auto txt = "Failed";
+        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
+        tags.push_back( tag );
     }
+    else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
+    {
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+
+        if ( state() == JobState::Running )
+        {
+            tag.text = "Running";
+        }
+        else
+        {
+            tag.text = "Done";
+        }
+
+        cvf::Color3f viewColor     = cvf::Color3f( cvf::Color3f::GREEN );
+        cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+        tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
+        tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        tags.push_back( tag );
+    }
+
+    return tags;
 }

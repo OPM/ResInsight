@@ -44,7 +44,7 @@ RimWellEventKeyword::RimWellEventKeyword()
     m_items.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_items.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
-                                          static_cast<int>( caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER ) );
+                                          static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FILL_CONTAINER ) );
     m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
     m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::MINIMUM_HEIGHT, 200 );
 

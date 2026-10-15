@@ -53,6 +53,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include "cafAssert.h"
 
@@ -66,6 +67,9 @@ CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObject( "Cell Property Filter", ":/CellFilter_Values.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
@@ -294,11 +298,29 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
         {
             group2.add( &m_integerLowerBound );
             group2.add( &m_integerUpperBound );
+
+            for ( auto* field : { &m_integerLowerBound, &m_integerUpperBound } )
+            {
+                if ( m_minimumResultValue != cvf::UNDEFINED_DOUBLE && m_maximumResultValue != cvf::UNDEFINED_DOUBLE )
+                    caf::PdmUiSliderEditor::setRange( field->uiCapability(),
+                                                      static_cast<int>( m_minimumResultValue ),
+                                                      static_cast<int>( m_maximumResultValue ) );
+                else
+                    caf::PdmUiSliderEditor::clearRange( field->uiCapability() );
+            }
         }
         else
         {
             group2.add( &m_lowerBound );
             group2.add( &m_upperBound );
+
+            for ( auto* field : { &m_lowerBound, &m_upperBound } )
+            {
+                if ( m_minimumResultValue != cvf::UNDEFINED_DOUBLE && m_maximumResultValue != cvf::UNDEFINED_DOUBLE )
+                    caf::PdmUiDoubleSliderEditor::setRange( field->uiCapability(), m_minimumResultValue, m_maximumResultValue );
+                else
+                    caf::PdmUiDoubleSliderEditor::clearRange( field->uiCapability() );
+            }
         }
     }
 
@@ -454,55 +476,25 @@ void RimEclipsePropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimEclipsePropertyFilter::treeItemTags()
 {
-    if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
-    {
-        return;
-    }
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-    if ( field == &m_lowerBound || field == &m_upperBound )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum = m_minimumResultValue;
-            doubleAttributes->m_maximum = m_maximumResultValue;
-        }
-    }
-
-    if ( field == &m_integerLowerBound || field == &m_integerUpperBound )
-    {
-        if ( auto integerAttributes = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
-        {
-            integerAttributes->m_minimum = m_minimumResultValue;
-            integerAttributes->m_maximum = m_maximumResultValue;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( !m_isDuplicatedFromLinkedView ) return;
+    if ( !m_isDuplicatedFromLinkedView ) return tags;
 
     auto rimView = firstAncestorOrThisOfType<Rim3dView>();
-    if ( !rimView ) return;
+    if ( !rimView ) return tags;
 
     RimViewController* vc = rimView->viewController();
     if ( vc && vc->isPropertyFilterDuplicationActive() )
     {
-        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-        if ( treeItemAttribute )
-        {
-            treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/chain.png" );
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/chain.png" );
 
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,13 +58,11 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     caf::PdmFieldHandle*          userDescriptionField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void                          appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     void removeGeneratedResult( const QString& name );
 
     caf::PdmPtrArrayField<RimFaultInView*> m_faults;
     caf::PdmField<QString>                 m_resultName;
-    caf::PdmField<bool>                    m_generateButton;
 };

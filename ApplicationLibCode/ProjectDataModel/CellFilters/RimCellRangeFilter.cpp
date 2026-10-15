@@ -337,37 +337,6 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-    if ( !myAttr )
-    {
-        return;
-    }
-
-    auto counts = filterCellCounts();
-    if ( !counts ) return;
-
-    if ( field == &startIndexI || field == &cellCountI )
-    {
-        myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( counts->x() );
-    }
-    else if ( field == &startIndexJ || field == &cellCountJ )
-    {
-        myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( counts->y() );
-    }
-    else if ( field == &startIndexK || field == &cellCountK )
-    {
-        myAttr->m_minimum = 1;
-        myAttr->m_maximum = static_cast<int>( counts->z() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
@@ -434,6 +403,26 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     group->add( &m_labelK );
     group->add( &startIndexK );
     group->add( &cellCountK );
+
+    if ( auto counts = filterCellCounts() )
+    {
+        auto setRange = []( caf::PdmFieldHandle& field, size_t maximum )
+        { caf::PdmUiSliderEditor::setRange( field.uiCapability(), 1, static_cast<int>( maximum ) ); };
+
+        setRange( startIndexI, counts->x() );
+        setRange( cellCountI, counts->x() );
+        setRange( startIndexJ, counts->y() );
+        setRange( cellCountJ, counts->y() );
+        setRange( startIndexK, counts->z() );
+        setRange( cellCountK, counts->z() );
+    }
+    else
+    {
+        for ( auto* field : { &startIndexI, &cellCountI, &startIndexJ, &cellCountJ, &startIndexK, &cellCountK } )
+        {
+            caf::PdmUiSliderEditor::clearRange( field->uiCapability() );
+        }
+    }
 
     uiOrdering.skipRemainingFields( true );
 }

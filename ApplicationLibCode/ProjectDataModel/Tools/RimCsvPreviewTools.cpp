@@ -33,18 +33,8 @@ void RimCsvPreviewTools::initPreviewField( caf::PdmField<QString>& field )
     field.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     field.uiCapability()->setUiReadOnly( true );
     field.xmlCapability()->disableIO();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCsvPreviewTools::setPreviewEditorAttribute( caf::PdmUiEditorAttribute* attribute )
-{
-    if ( auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
-    {
-        myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-        myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-    }
+    field.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    field.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
 }
 
 //--------------------------------------------------------------------------------------------------

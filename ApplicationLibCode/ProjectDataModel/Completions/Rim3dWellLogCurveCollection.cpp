@@ -39,6 +39,8 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 
     CAF_PDM_InitField( &m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling" );
     m_planeWidthScaling.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_planeWidthScaling.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.25 );
+    m_planeWidthScaling.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 2.5 );
     CAF_PDM_InitField( &m_showGrid, "Show3dWellLogGrid", true, "Show Grid" );
     CAF_PDM_InitField( &m_showBackground, "Show3dWellLogBackground", false, "Show Background" );
     CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "" );
@@ -194,19 +196,4 @@ void Rim3dWellLogCurveCollection::defineUiOrdering( QString uiConfigName, caf::P
     settingsGroup->add( &m_showGrid );
     settingsGroup->add( &m_showBackground );
     settingsGroup->add( &m_planeWidthScaling );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( widthAttribute )
-    {
-        widthAttribute->m_minimum = 0.25;
-        widthAttribute->m_maximum = 2.5;
-    }
 }

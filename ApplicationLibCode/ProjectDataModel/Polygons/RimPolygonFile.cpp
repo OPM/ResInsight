@@ -27,6 +27,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
 
@@ -38,6 +39,9 @@ CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 RimPolygonFile::RimPolygonFile()
     : objectChanged( this )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "PolygonFile", ":/Folder.png" );
 
     // Inherited fields. The polygon items keep the original "Polygons" keyword so
@@ -244,10 +248,14 @@ void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygonFile::treeItemTags()
 {
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
     if ( m_items.empty() )
     {
-        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
+        tags.push_back( caf::PdmUiTreeViewItemTag::createWithIcon( ":/warning.svg" ) );
     }
+
+    return tags;
 }

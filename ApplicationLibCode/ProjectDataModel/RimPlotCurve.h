@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimPlotCurveAppearance.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
@@ -192,7 +193,7 @@ protected:
     void updateYAxisInPlot( RiuPlotAxis plotAxis );
     void updateXAxisInPlot( RiuPlotAxis plotAxis );
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 

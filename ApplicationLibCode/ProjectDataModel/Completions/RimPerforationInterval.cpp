@@ -60,9 +60,11 @@ RimPerforationInterval::RimPerforationInterval()
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
     CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
+    m_startDate.uiCapability()->setAttribute( caf::PdmUiDateEditor::Keys::DATE_FORMAT, "dd MMM yyyy" );
 
     CAF_PDM_InitField( &m_useCustomEndDate, "UseCustomEndDate", false, "Custom End Date" );
     CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
+    m_endDate.uiCapability()->setAttribute( caf::PdmUiDateEditor::Keys::DATE_FORMAT, "dd MMM yyyy" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_valves, "Valves", "Valves" );
 
@@ -398,6 +400,14 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
                 m_endMD.uiCapability()->setUiName( "End MD [ft]" );
                 m_diameter.uiCapability()->setUiName( "Diameter [ft]" );
             }
+
+            for ( auto* field : { &m_startMD, &m_endMD } )
+            {
+                field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                                     static_cast<double>( wellPath->uniqueStartMD() ) );
+                field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                                     static_cast<double>( wellPath->uniqueEndMD() ) );
+            }
         }
     }
 
@@ -468,34 +478,6 @@ QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( con
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_startDate || field == &m_endDate )
-    {
-        caf::PdmUiDateEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->dateFormat = "dd MMM yyyy";
-        }
-    }
-    else if ( field == &m_startMD || field == &m_endMD )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr )
-        {
-            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
-            if ( !wellPath ) return;
-
-            myAttr->m_minimum = wellPath->uniqueStartMD();
-            myAttr->m_maximum = wellPath->uniqueEndMD();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

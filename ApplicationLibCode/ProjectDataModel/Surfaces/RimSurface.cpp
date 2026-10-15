@@ -65,6 +65,8 @@ RimSurface::RimSurface()
     CAF_PDM_InitField( &m_enableOpacity, "EnableOpacity", false, "Enable Opacity" );
     CAF_PDM_InitField( &m_opacity, "Opacity", 0.6, "Opacity Value [0..1]" );
     m_opacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_opacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_opacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
 
     CAF_PDM_InitScriptableField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset" );
     m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -301,41 +303,25 @@ QString RimSurface::fullName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimSurface::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( doubleSliderAttrib )
+    RiaApplication*       app   = RiaApplication::instance();
+    std::vector<RimCase*> cases = app->project()->allGridCases();
+
+    cvf::BoundingBox bb;
+
+    for ( auto c : cases )
     {
-        if ( field == &m_depthOffset )
-        {
-            RiaApplication*       app   = RiaApplication::instance();
-            std::vector<RimCase*> cases = app->project()->allGridCases();
-
-            cvf::BoundingBox bb;
-
-            for ( auto c : cases )
-            {
-                bb.add( c->allCellsBoundingBox() );
-            }
-
-            double extentFromCase = std::fabs( bb.extent().z() ) * 2.0;
-            extentFromCase        = std::floor( extentFromCase / 1000.0 ) * 1000.0;
-
-            double minimumExtent = std::max( 1000.0, extentFromCase );
-
-            doubleSliderAttrib->m_minimum = -minimumExtent;
-            doubleSliderAttrib->m_maximum = minimumExtent;
-        }
+        bb.add( c->allCellsBoundingBox() );
     }
 
-    if ( field == &m_opacity )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_minimum = 0.0;
-            attr->m_maximum = 1.0;
-        }
-    }
+    double extentFromCase = std::fabs( bb.extent().z() ) * 2.0;
+    extentFromCase        = std::floor( extentFromCase / 1000.0 ) * 1000.0;
+
+    double minimumExtent = std::max( 1000.0, extentFromCase );
+
+    m_depthOffset.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, -minimumExtent );
+    m_depthOffset.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, minimumExtent );
 }
 
 //--------------------------------------------------------------------------------------------------

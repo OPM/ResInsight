@@ -51,6 +51,7 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     m_description.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "" );
+    m_expression.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::HEIGHT_HINT, -1 );
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_helpText,
@@ -58,6 +59,7 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
                                 "Use the right-click menu inside the text area for quick access to operators and "
                                 "functions." );
     m_helpText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_helpText.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::USE_WORD_WRAP, true );
     m_helpText.xmlCapability()->disableIO();
     m_helpText = "Use the right-click menu inside the text area for quick access to operators and functions.";
 
@@ -65,6 +67,7 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     m_unit.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables" );
+    m_variables.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ENABLE_DROP_TARGET, true );
 
     CAF_PDM_InitField( &m_id, "Id", -1, "Id" );
     m_id.uiCapability()->setUiHidden( true );
@@ -363,37 +366,6 @@ QString RimUserDefinedCalculation::buildCalculationName() const
     }
 
     return name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_expression )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->heightHint = -1;
-        }
-    }
-    else if ( field == &m_variables )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->enableDropTarget = true;
-        }
-    }
-    else if ( field == &m_helpText )
-    {
-        auto* attrib = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_useWordWrap = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

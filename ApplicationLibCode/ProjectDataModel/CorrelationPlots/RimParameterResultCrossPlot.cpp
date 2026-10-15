@@ -41,6 +41,7 @@
 
 #include "cafPdmPointer.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiValueRangeEditor.h"
 
@@ -76,7 +77,11 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 
     CAF_PDM_InitField( &m_useParameterFilter, "UseParameterFilter", false, "Use Parameter Filter" );
     CAF_PDM_InitField( &m_summaryFilterRange, "SummaryFilterRange", std::make_pair( 0.0, 0.0 ), "Summary Value Range", "", "", "" );
+    m_summaryFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 4 );
+    m_summaryFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
     CAF_PDM_InitField( &m_parameterFilterRange, "ParameterFilterRange", std::make_pair( 0.0, 0.0 ), "Parameter Value Range", "", "", "" );
+    m_parameterFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 4 );
+    m_parameterFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitFieldNoDefault( &m_excludedCasesText, "ExcludedCasesText", "Excluded Cases" );
     m_excludedCasesText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -154,6 +159,11 @@ void RimParameterResultCrossPlot::appendFilterFields( caf::PdmUiOrdering& uiOrde
     uiOrdering.add( &m_useParameterFilter );
     if ( m_useParameterFilter )
     {
+        m_summaryFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, m_yValueRange.first );
+        m_summaryFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, m_yValueRange.second );
+        m_parameterFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, m_xValueRange.first );
+        m_parameterFilterRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, m_xValueRange.second );
+
         uiOrdering.add( &m_summaryFilterRange );
         uiOrdering.add( &m_parameterFilterRange );
         uiOrdering.add( &m_excludedCasesText );
@@ -222,37 +232,6 @@ QList<caf::PdmOptionItemInfo> RimParameterResultCrossPlot::calculateValueOptions
         }
     }
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimParameterResultCrossPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_summaryFilterRange )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_decimals        = 4;
-            attr->m_sliderTickCount = 20;
-
-            attr->m_minimum = m_yValueRange.first;
-            attr->m_maximum = m_yValueRange.second;
-        }
-    }
-    else if ( field == &m_parameterFilterRange )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_decimals        = 4;
-            attr->m_sliderTickCount = 20;
-
-            attr->m_minimum = m_xValueRange.first;
-            attr->m_maximum = m_xValueRange.second;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

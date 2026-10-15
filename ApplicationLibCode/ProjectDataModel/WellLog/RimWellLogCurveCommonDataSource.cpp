@@ -111,6 +111,22 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     m_wbsSmoothing.v() = caf::Tristate::State::PartiallyTrue;
 
     CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold" );
+    m_wbsSmoothingThreshold.uiCapability()
+        ->setAttribute<std::function<QString()>>( caf::PdmUiLineEditor::Keys::DISPLAY_STRING,
+                                                  [this]() -> QString
+                                                  {
+                                                      if ( wbsSmoothingThreshold() != -1.0 ) return {};
+
+                                                      QString displayString = "Mixed";
+                                                      if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
+                                                      {
+                                                          auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(),
+                                                                                                m_uniqueWbsSmoothingThreshold.end() );
+                                                          displayString +=
+                                                              QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
+                                                      }
+                                                      return displayString;
+                                                  } );
 
     CAF_PDM_InitField( &m_maximumCurvePointInterval, "MaximumCurvePointInterval", std::make_pair( true, 10.0 ), "Maximum Curve Point Interval" );
 
@@ -118,6 +134,31 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Completion" );
+
+    for ( caf::PdmFieldHandle* field : std::vector<caf::PdmFieldHandle*>{ &m_case,
+                                                                          &m_summaryCase,
+                                                                          &m_simWellName,
+                                                                          &m_wellPath,
+                                                                          &m_timeStep,
+                                                                          &m_rftTimeStep,
+                                                                          &m_rftSegmentBranchIndex,
+                                                                          &m_rftWellName } )
+    {
+        RiuTools::enableUpDownArrowsForComboBox( field );
+    }
+
+    auto setNextPreviousButtonTexts = []( caf::PdmFieldHandle* field, const QString& modifierText )
+    {
+        field->uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_BUTTON_TEXT, "Next " + modifierText + "PgDown)" );
+        field->uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREV_BUTTON_TEXT, "Previous " + modifierText + "PgUp)" );
+    };
+
+    setNextPreviousButtonTexts( &m_case, "(Shift+" );
+    m_case.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 14 );
+    setNextPreviousButtonTexts( &m_wellPath, "(Ctrl+" );
+    setNextPreviousButtonTexts( &m_simWellName, "(Ctrl+" );
+    setNextPreviousButtonTexts( &m_timeStep, "(" );
+    m_timeStep.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 12 );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -1076,60 +1117,6 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     if ( !m_uniqueRftBranchIndices.empty() ) group->add( &m_rftSegmentBranchIndex );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                             QString                    uiConfigName,
-                                                             caf::PdmUiEditorAttribute* attribute )
-{
-    auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-    if ( myAttr )
-    {
-        if ( field == &m_case || field == &m_summaryCase || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
-             field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex || field == &m_rftWellName )
-        {
-            RiuTools::enableUpDownArrowsForComboBox( attribute );
-        }
-
-        QString modifierText;
-
-        if ( field == &m_case )
-        {
-            modifierText                  = ( "(Shift+" );
-            myAttr->minimumContentsLength = 14;
-        }
-        else if ( field == &m_wellPath || field == &m_simWellName )
-        {
-            modifierText = ( "(Ctrl+" );
-        }
-        else if ( field == &m_timeStep )
-        {
-            modifierText                  = ( "(" );
-            myAttr->minimumContentsLength = 12;
-        }
-
-        if ( !modifierText.isEmpty() )
-        {
-            myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
-            myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
-        }
-    }
-    auto* uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
-    if ( uiDisplayStringAttr && ( wbsSmoothingThreshold() == -1.0 ) && ( field == &m_wbsSmoothingThreshold ) )
-    {
-        QString displayString = "Mixed";
-
-        if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
-        {
-            auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(), m_uniqueWbsSmoothingThreshold.end() );
-            displayString += QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
-        }
-
-        uiDisplayStringAttr->m_displayString = displayString;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -61,6 +61,7 @@ RimOpmFlowJobSettings::RimOpmFlowJobSettings()
                        "",
                        "List of Eclipse keywords which should be ignored." );
     m_ignoreKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_ignoreKeywords.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 40 );
 
     CAF_PDM_InitField( &m_newtonMaxIterations,
                        "newtonMaxIterations",
@@ -415,19 +416,4 @@ QStringList RimOpmFlowJobSettings::commandLineOptions( QString resInsightWorkDir
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimOpmFlowJobSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_ignoreKeywords )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->heightHint = 40;
-        }
-    }
 }

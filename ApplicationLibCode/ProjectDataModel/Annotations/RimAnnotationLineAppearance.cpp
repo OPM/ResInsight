@@ -19,30 +19,6 @@
 #include "RimAnnotationLineAppearance.h"
 #include "RimAnnotationCollection.h"
 
-#include "RiaStdStringTools.h"
-
-#include <QValidator>
-
-#include "cafPdmUiLineEditor.h"
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class ThicknessValidator : public QValidator
-{
-public:
-    State validate( QString& input, int& pos ) const override
-    {
-        if ( input.isEmpty() ) return State::Intermediate;
-
-        int val = RiaStdStringTools::toInt( input.toStdString() );
-        if ( val > 0 && val < 8 )
-            return State::Acceptable;
-        else
-            return State::Invalid;
-    }
-};
-
 namespace caf
 {
 template <>
@@ -68,6 +44,7 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
     CAF_PDM_InitField( &m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden" );
     CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3f::DARK_GRAY ), "Line Color" );
     CAF_PDM_InitField( &m_thickness, "Thickness", 2, "Line Thickness" );
+    m_thickness.setRange( 1, 7 );
 
     // Stippling not yet supported. Needs new stuff in VizFwk
     CAF_PDM_InitField( &m_style, "Style", LineStyle(), "Style" );
@@ -163,23 +140,6 @@ void RimAnnotationLineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* c
     if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 
     objectChanged.send();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationLineAppearance::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_thickness )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->validator = new ThicknessValidator();
-        }
-    }
 }
 
 CAF_PDM_SOURCE_INIT( RimPolylineAppearance, "RimPolylineAppearance" );

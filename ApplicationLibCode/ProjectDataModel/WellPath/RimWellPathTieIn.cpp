@@ -235,6 +235,18 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     if ( m_parentWell() != nullptr )
     {
         tieInGroup->add( &m_tieInMeasuredDepth );
+
+        if ( parentWell() )
+        {
+            auto wellPathGeo = parentWell()->wellPathGeometry();
+            if ( wellPathGeo && wellPathGeo->measuredDepths().size() > 0 )
+            {
+                m_tieInMeasuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                                                   wellPathGeo->measuredDepths().front() );
+                m_tieInMeasuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                                                   wellPathGeo->measuredDepths().back() );
+            }
+        }
         tieInGroup->add( &m_addValveAtConnection );
 
         bool isFileWellPath = dynamic_cast<RimFileWellPath*>( m_childWell() );
@@ -308,31 +320,4 @@ QList<caf::PdmOptionItemInfo> RimWellPathTieIn::calculateValueOptions( const caf
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathTieIn::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_tieInMeasuredDepth )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr && parentWell() )
-        {
-            double minimumValue = 0.0, maximumValue = 0.0;
-
-            auto wellPathGeo = parentWell()->wellPathGeometry();
-
-            if ( wellPathGeo && wellPathGeo->measuredDepths().size() > 0 )
-            {
-                minimumValue = wellPathGeo->measuredDepths().front();
-                maximumValue = wellPathGeo->measuredDepths().back();
-
-                myAttr->m_minimum = minimumValue;
-                myAttr->m_maximum = maximumValue;
-            }
-        }
-    }
 }

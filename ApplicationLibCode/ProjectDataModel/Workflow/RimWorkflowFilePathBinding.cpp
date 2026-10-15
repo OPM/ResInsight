@@ -28,7 +28,6 @@ CAF_PDM_SOURCE_INIT( RimWorkflowFilePathBinding, "WorkflowFilePathBinding" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWorkflowFilePathBinding::RimWorkflowFilePathBinding()
-    : m_selectDirectory( false )
 {
     CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value" );
     m_value.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -42,7 +41,7 @@ void RimWorkflowFilePathBinding::applySchema( const QJsonObject& fieldSchema )
     RimWorkflowFieldBinding::applySchema( fieldSchema );
 
     const QString fmt = fieldSchema.value( "format" ).toString();
-    m_selectDirectory = ( fmt == "directory-path" );
+    m_value.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, fmt == "directory-path" );
 
     if ( fieldSchema.contains( "default" ) )
     {
@@ -67,18 +66,4 @@ QString RimWorkflowFilePathBinding::displayValue() const
 QString RimWorkflowFilePathBinding::toYamlValue() const
 {
     return hasValue() ? yamlQuotedScalar( m_value().path() ) : "null";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWorkflowFilePathBinding::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_value )
-    {
-        if ( auto* attr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            attr->m_selectDirectory = m_selectDirectory;
-        }
-    }
 }

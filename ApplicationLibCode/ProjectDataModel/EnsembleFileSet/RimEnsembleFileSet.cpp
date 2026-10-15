@@ -61,14 +61,16 @@ RimEnsembleFileSet::RimEnsembleFileSet()
     CAF_PDM_InitObject( "Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitField( &m_pathPattern, "PathPattern", QString(), "Path Pattern", "", "", "" );
+    m_pathPattern.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT, "Enter path pattern..." );
     CAF_PDM_InitField( &m_realizationSubSet,
                        "RealizationSubSet",
                        QString(),
                        "Realization Filter",
                        "",
                        "Specify realization numbers. Example: 1-5, 8, 11-20, !4 will include 1, 2, 3, 5, 8, 11-20" );
-
+    m_realizationSubSet.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT, "E.g. 0,1,4-10,!6. Use '*' for all." );
     CAF_PDM_InitFieldNoDefault( &m_ensembleInfo, "EnsembleInfo", "Info" );
+    m_ensembleInfo.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::HEIGHT_HINT, -1 );
     m_ensembleInfo.registerGetMethod( this, &RimEnsembleFileSet::ensembleInfo );
     m_ensembleInfo.uiCapability()->setUiReadOnly( true );
     m_ensembleInfo.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -263,34 +265,6 @@ void RimEnsembleFileSet::setUsePathKey2( bool useKey2 )
 void RimEnsembleFileSet::setAutoName( bool autoName )
 {
     m_autoName = autoName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleFileSet::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_pathPattern )
-    {
-        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEdAttr->placeholderText = "Enter path pattern...";
-        }
-    }
-    else if ( field == &m_realizationSubSet )
-    {
-        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEdAttr->placeholderText = "E.g. 0,1,4-10,!6. Use '*' for all.";
-        }
-    }
-    else if ( field == &m_ensembleInfo )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
-        {
-            myAttr->heightHint = -1;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

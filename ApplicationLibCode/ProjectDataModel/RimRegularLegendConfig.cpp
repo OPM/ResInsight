@@ -689,13 +689,6 @@ caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFieldVisibility()
 {
     bool showRangeItems = m_mappingMode != MappingType::CATEGORY_INTEGER;

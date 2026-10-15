@@ -21,6 +21,7 @@
 
 #include "Appearance/RimFontSizeField.h"
 #include "RimPlotAxisPropertiesInterface.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiuPlotAxis.h"
 
@@ -157,10 +158,10 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    void                     updateOptionSensitivity();
-    caf::FontTools::FontSize plotFontSize() const;
-    void                     defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void                     onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
+    void                                   updateOptionSensitivity();
+    caf::FontTools::FontSize               plotFontSize() const;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    void                                   onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<bool> m_isActive;

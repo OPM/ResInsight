@@ -73,6 +73,7 @@ RimTimeStepFilter::RimTimeStepFilter()
 
     CAF_PDM_InitField( &m_interval, "Interval", 1, "Interval" );
     m_interval.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    m_interval.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::AVOID_SENDING_ENTER_EVENT, true );
 
     CAF_PDM_InitField( &m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File" );
     m_timeStepNamesFromFile.xmlCapability()->disableIO();
@@ -323,21 +324,6 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions( const ca
     }
 
     return optionItems;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_interval )
-    {
-        caf::PdmUiLineEditorAttribute* attrib = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->avoidSendingEnterEventToParentWidget = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
