@@ -220,7 +220,9 @@ def test_export_completion_well_entering_lgr_twice(rips_instance, initialize_tes
     compdatl_start = lines.index("COMPDATL")
     compdatl_end = lines.index("/", compdatl_start)
     rows = [
-        line for line in lines[compdatl_start:compdatl_end] if line.startswith("LgrWell")
+        line
+        for line in lines[compdatl_start:compdatl_end]
+        if line.startswith("LgrWell")
     ]
     assert len(rows) > 2
     assert all(row.split()[1] == "LGR1" for row in rows)
