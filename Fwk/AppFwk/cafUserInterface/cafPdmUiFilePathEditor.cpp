@@ -71,45 +71,45 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
     m_button->setHidden( uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    m_selectSaveFileName           = false;
+    m_fileSelectionFilter          = "All files (*)";
+    m_defaultPath                  = QString();
+    m_selectDirectory              = false;
+    m_appendUiSelectedFolderToText = false;
+    m_multipleItemSeparator        = ';';
 
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
         if ( auto val = uiItem->attribute<bool>( Keys::SELECT_SAVE_FILE_NAME, uiConfigName ) )
         {
-            m_attributes.m_selectSaveFileName = val.value();
+            m_selectSaveFileName = val.value();
         }
 
         if ( auto val = uiItem->attribute<QString>( Keys::FILE_SELECTION_FILTER, uiConfigName ) )
         {
-            m_attributes.m_fileSelectionFilter = val.value();
+            m_fileSelectionFilter = val.value();
         }
 
         if ( auto val = uiItem->attribute<QString>( Keys::DEFAULT_PATH, uiConfigName ) )
         {
-            m_attributes.m_defaultPath = val.value();
+            m_defaultPath = val.value();
         }
 
         if ( auto val = uiItem->attribute<bool>( Keys::SELECT_DIRECTORY, uiConfigName ) )
         {
-            m_attributes.m_selectDirectory = val.value();
+            m_selectDirectory = val.value();
         }
 
         if ( auto val = uiItem->attribute<bool>( Keys::APPEND_UI_SELECTED_FOLDER_TO_TEXT, uiConfigName ) )
         {
-            m_attributes.m_appendUiSelectedFolderToText = val.value();
+            m_appendUiSelectedFolderToText = val.value();
         }
 
         if ( auto val = uiItem->attribute<QString>( Keys::MULTIPLE_ITEM_SEPARATOR, uiConfigName ) )
         {
             if ( !val.value().isEmpty() )
             {
-                m_attributes.m_multipleItemSeparator = val.value().at( 0 );
+                m_multipleItemSeparator = val.value().at( 0 );
             }
         }
 
@@ -119,7 +119,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_lineEdit->setText( uiField()->uiValue().toString() );
 
-    if ( m_attributes.m_appendUiSelectedFolderToText )
+    if ( m_appendUiSelectedFolderToText )
     {
         m_label->setToolTip( "Define multiple directories separated by ';'" );
         m_button->setText( QLatin1String( "Append" ) );
@@ -177,13 +177,13 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     QString defaultPath;
     if ( m_lineEdit->text().isEmpty() )
     {
-        if ( m_attributes.m_defaultPath.isNull() )
+        if ( m_defaultPath.isNull() )
         {
             defaultPath = QDir::homePath();
         }
         else
         {
-            defaultPath = m_attributes.m_defaultPath;
+            defaultPath = m_defaultPath;
         }
     }
     else
@@ -196,7 +196,7 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     fileDialogOptions = QFileDialog::DontUseNativeDialog;
 #endif
 
-    if ( m_attributes.m_selectDirectory )
+    if ( m_selectDirectory )
     {
         auto folderOptions = fileDialogOptions | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
 
@@ -206,13 +206,12 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         if ( !directoryPath.isEmpty() )
         {
             QString filePathString;
-            if ( m_attributes.m_appendUiSelectedFolderToText )
+            if ( m_appendUiSelectedFolderToText )
             {
                 filePathString = m_lineEdit->text();
-                if ( !filePathString.isEmpty() &&
-                     !filePathString.endsWith( m_attributes.m_multipleItemSeparator, Qt::CaseInsensitive ) )
+                if ( !filePathString.isEmpty() && !filePathString.endsWith( m_multipleItemSeparator, Qt::CaseInsensitive ) )
                 {
-                    filePathString += m_attributes.m_multipleItemSeparator;
+                    filePathString += m_multipleItemSeparator;
                 }
                 filePathString += directoryPath;
             }
@@ -228,12 +227,12 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     else
     {
         QString filePath;
-        if ( m_attributes.m_selectSaveFileName )
+        if ( m_selectSaveFileName )
         {
             filePath = QFileDialog::getSaveFileName( m_lineEdit,
                                                      tr( "Save File" ),
                                                      defaultPath,
-                                                     m_attributes.m_fileSelectionFilter,
+                                                     m_fileSelectionFilter,
                                                      nullptr,
                                                      fileDialogOptions );
         }
@@ -242,7 +241,7 @@ void PdmUiFilePathEditor::fileSelectionClicked()
             filePath = QFileDialog::getOpenFileName( m_lineEdit,
                                                      tr( "Choose a file" ),
                                                      defaultPath,
-                                                     m_attributes.m_fileSelectionFilter,
+                                                     m_fileSelectionFilter,
                                                      nullptr,
                                                      fileDialogOptions );
         }

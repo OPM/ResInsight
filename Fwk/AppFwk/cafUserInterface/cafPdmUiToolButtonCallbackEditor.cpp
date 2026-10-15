@@ -63,26 +63,8 @@ void PdmUiToolButtonCallbackEditor::configureAndUpdateUi( const QString& uiConfi
     m_toolButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_toolButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    // First try to get callback from the map-based attribute system
-    if ( auto uiItem = uiField()->fieldHandle()->uiCapability(); uiItem )
-    {
-        if ( auto callbackVariant = uiItem->attribute<std::function<void()>>( Keys::CALLBACK, uiConfigName ) )
-        {
-            m_attributes.m_onClickedCallback = callbackVariant.value();
-        }
-        // Fall back to old defineEditorAttribute method if callback not set via map
-        else if ( !m_attributes.m_onClickedCallback )
-        {
-            if ( auto pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() ) )
-            {
-                pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-            }
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiToolButtonCallbackEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
+    m_onClickedCallback = uiField()->attribute<std::function<void()>>( Keys::CALLBACK, uiConfigName ).value_or( nullptr );
+    uiField()->validateAttributes( "PdmUiToolButtonCallbackEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     m_toolButton->setCheckable( false );
 }
 
@@ -109,9 +91,9 @@ QWidget* PdmUiToolButtonCallbackEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolButtonCallbackEditor::slotClicked( bool checked )
 {
-    if ( m_attributes.m_onClickedCallback )
+    if ( m_onClickedCallback )
     {
-        m_attributes.m_onClickedCallback();
+        m_onClickedCallback();
     }
 }
 

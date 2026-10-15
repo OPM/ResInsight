@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmLogging.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiAttributeTools.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUniqueIdValidator.h"
@@ -152,52 +153,49 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
         m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-        PdmUiLineEditorAttribute leab;
+        bool                 avoidSendingEnterEventToParentWidget = false;
+        QPointer<QValidator> validator;
+        Qt::CaseSensitivity  completerCaseSensitivity = Qt::CaseInsensitive;
+        Qt::MatchFlags       completerFilterMode      = Qt::MatchContains;
+        int                  maximumWidth             = -1;
+        QString              placeholderText;
+        bool                 notifyWhenTextIsEdited = false;
         {
-            caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-            if ( uiObject )
-            {
-                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
-            }
-
-            // Override with map-based attributes if present (new system takes precedence)
             if ( auto uiItem = uiField() )
             {
-                // List of supported attributes for validation
-
                 if ( auto val = uiItem->attribute<int>( Keys::MAXIMUM_WIDTH, uiConfigName ) )
                 {
-                    leab.maximumWidth = val.value();
-                }
-
-                if ( auto val = uiItem->attribute<bool>( Keys::SELECT_ALL_ON_FOCUS_EVENT, uiConfigName ) )
-                {
-                    leab.selectAllOnFocusEvent = val.value();
+                    maximumWidth = val.value();
                 }
 
                 if ( auto val = uiItem->attribute<QString>( Keys::PLACEHOLDER_TEXT, uiConfigName ) )
                 {
-                    leab.placeholderText = val.value();
+                    placeholderText = val.value();
                 }
 
                 if ( auto val = uiItem->attribute<bool>( Keys::AVOID_SENDING_ENTER_EVENT, uiConfigName ) )
                 {
-                    leab.avoidSendingEnterEventToParentWidget = val.value();
+                    avoidSendingEnterEventToParentWidget = val.value();
                 }
 
                 if ( auto val = uiItem->attribute<Qt::CaseSensitivity>( Keys::COMPLETER_CASE_SENSITIVITY, uiConfigName ) )
                 {
-                    leab.completerCaseSensitivity = val.value();
+                    completerCaseSensitivity = val.value();
                 }
 
                 if ( auto val = uiItem->attribute<Qt::MatchFlags>( Keys::COMPLETER_FILTER_MODE, uiConfigName ) )
                 {
-                    leab.completerFilterMode = val.value();
+                    completerFilterMode = val.value();
                 }
 
                 if ( auto val = uiItem->attribute<bool>( Keys::NOTIFY_WHEN_TEXT_IS_EDITED, uiConfigName ) )
                 {
-                    leab.notifyWhenTextIsEdited = val.value();
+                    notifyWhenTextIsEdited = val.value();
+                }
+
+                if ( auto val = uiItem->attribute<QValidator*>( Keys::VALIDATOR, uiConfigName ) )
+                {
+                    validator = val.value();
                 }
 
                 // Validate: warn about unsupported attributes
@@ -243,24 +241,24 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 }
             }
 
-            if ( leab.validator )
+            if ( validator )
             {
-                m_lineEdit->setValidator( leab.validator );
+                m_lineEdit->setValidator( validator );
             }
 
-            m_lineEdit->setAvoidSendingEnterEventToParentWidget( leab.avoidSendingEnterEventToParentWidget );
+            m_lineEdit->setAvoidSendingEnterEventToParentWidget( avoidSendingEnterEventToParentWidget );
 
-            if ( leab.maximumWidth != -1 )
+            if ( maximumWidth != -1 )
             {
-                m_lineEdit->setMaximumWidth( leab.maximumWidth );
+                m_lineEdit->setMaximumWidth( maximumWidth );
             }
 
-            if ( !leab.placeholderText.isEmpty() )
+            if ( !placeholderText.isEmpty() )
             {
-                m_lineEdit->setPlaceholderText( leab.placeholderText );
+                m_lineEdit->setPlaceholderText( placeholderText );
             }
 
-            if ( leab.notifyWhenTextIsEdited )
+            if ( notifyWhenTextIsEdited )
             {
                 connect( m_lineEdit, SIGNAL( textEdited( const QString& ) ), this, SLOT( slotEditingFinished() ) );
             }
@@ -275,8 +273,8 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 m_completerTextList = new QStringListModel( this );
 
                 m_completer->setModel( m_completerTextList );
-                m_completer->setFilterMode( leab.completerFilterMode );
-                m_completer->setCaseSensitivity( leab.completerCaseSensitivity );
+                m_completer->setFilterMode( completerFilterMode );
+                m_completer->setCaseSensitivity( completerCaseSensitivity );
 
                 m_lineEdit->setCompleter( m_completer );
                 connect( m_completer,
@@ -308,22 +306,9 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             delete m_completer;
             m_optionCache.clear();
 
-            PdmUiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::PdmUiObjectHandle*                 uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-            if ( uiObject )
-            {
-                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &displayStringAttrib );
-            }
-
-            QString displayString;
-            if ( displayStringAttrib.m_displayString.isEmpty() )
-            {
-                displayString = uiField()->uiValue().toString();
-            }
-            else
-            {
-                displayString = displayStringAttrib.m_displayString;
-            }
+            QString displayString =
+                PdmUiAttributeTools::stringAttribute( uiField(), Keys::DISPLAY_STRING, uiConfigName ).value_or( QString() );
+            if ( displayString.isEmpty() ) displayString = uiField()->uiValue().toString();
 
             if ( displayString != m_lineEdit->text() )
             {

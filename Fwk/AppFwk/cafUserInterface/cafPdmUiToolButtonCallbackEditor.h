@@ -46,22 +46,6 @@
 
 namespace caf
 {
-class PdmUiToolButtonCallbackEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiToolButtonCallbackEditorAttribute() {}
-
-    // Usage:
-    // In the class having a proxyfield connected to a bool
-    // In defineEditorAttributes:
-    //   attr->setCallback( std::bind( &MyClass::myFunctionToBeCalled, this ) );
-    //
-    void setCallback( std::function<void()> callback ) { m_onClickedCallback = callback; }
-
-public:
-    std::function<void()> m_onClickedCallback;
-};
-
 class PdmUiToolButtonCallbackEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -72,8 +56,11 @@ public:
     ~PdmUiToolButtonCallbackEditor() override {}
 
     // Attribute key constants for compile-time safety and discoverability
+    // Usage, on a proxy field connected to a bool:
+    //   field.uiCapability()->setAttribute<std::function<void()>>( Keys::CALLBACK, [this]() { onClicked(); } );
     struct Keys
     {
+        // std::function<void()>. Called when the button is clicked
         static inline const QString CALLBACK = QStringLiteral( "callback" );
     };
 
@@ -89,8 +76,8 @@ protected slots:
     void slotClicked( bool checked );
 
 private:
-    QPointer<QToolButton>                  m_toolButton;
-    PdmUiToolButtonCallbackEditorAttribute m_attributes;
+    QPointer<QToolButton> m_toolButton;
+    std::function<void()> m_onClickedCallback;
 };
 
 } // end namespace caf

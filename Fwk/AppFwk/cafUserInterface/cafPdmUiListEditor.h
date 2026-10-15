@@ -50,21 +50,6 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiListEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiListEditorAttribute();
-
-public:
-    QColor  baseColor;
-    QString qssState;
-    int     heightHint;
-    bool    allowHorizontalScrollBar;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class PdmUiListEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT

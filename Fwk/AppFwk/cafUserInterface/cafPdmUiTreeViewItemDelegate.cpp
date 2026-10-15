@@ -90,10 +90,10 @@ void PdmUiTreeViewItemDelegate::clearAllTags()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewItemDelegate::addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag )
+void PdmUiTreeViewItemDelegate::addTag( QModelIndex index, const PdmUiTreeViewItemTag& tag )
 {
-    std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>& tagList = m_tags[index];
-    tagList.push_back( std::move( tag ) );
+    std::vector<PdmUiTreeViewItemTag>& tagList = m_tags[index];
+    tagList.push_back( tag );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
 
     if ( tagIndex < it->second.size() )
     {
-        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[tagIndex].get();
+        const PdmUiTreeViewItemTag* tag = &it->second[tagIndex];
         return tag->rect;
     }
 
@@ -133,16 +133,16 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
 
     QPoint offset( 0, 0 );
 
-    for ( const std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>& tag : it->second )
+    for ( PdmUiTreeViewItemTag& tag : it->second )
     {
-        if ( tag->selectedOnly && !( option.state & QStyle::State_Selected ) ) continue;
+        if ( tag.selectedOnly && !( option.state & QStyle::State_Selected ) ) continue;
 
-        if ( tag->icon.valid() )
+        if ( tag.icon.valid() )
         {
-            auto  icon     = tag->icon.icon();
+            auto  icon     = tag.icon.icon();
             QSize iconSize = icon->actualSize( fullSize );
             QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
+            if ( tag.position == PdmUiTreeViewItemTag::Position::AT_END )
             {
                 QPoint bottomRight( rect.bottomRight().x() - offset.x(), center.y() + iconSize.height() / 2 );
                 QPoint topLeft( bottomRight.x() - iconSize.width(), bottomRight.y() - iconSize.height() );
@@ -156,7 +156,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             }
             offset += QPoint( iconSize.width() + 2, 0 );
             icon->paint( painter, iconRect );
-            tag->rect = iconRect;
+            tag.rect = iconRect;
         }
         else
         {
@@ -168,15 +168,15 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             font.setPointSize( std::max( 1, font.pointSize() - 1 ) );
             painter->setFont( font );
 
-            QString text    = tag->text;
-            QColor  bgColor = tag->bgColor;
-            QColor  fgColor = tag->fgColor;
+            QString text    = tag.text;
+            QColor  bgColor = tag.bgColor;
+            QColor  fgColor = tag.fgColor;
 
             QSize textSize( QFontMetrics( font ).size( Qt::TextSingleLine, text ) );
             int   textDiff = ( fullSize.height() - textSize.height() );
 
             QRect textRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
+            if ( tag.position == PdmUiTreeViewItemTag::Position::AT_END )
             {
                 QPoint bottomRight     = rect.bottomRight() - QPoint( outsideLeftRightMargins, 0 ) - offset;
                 QPoint textBottomRight = bottomRight - QPoint( insideleftRightMargins, textDiff / 2 );
@@ -207,7 +207,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
 
             painter->setPen( fgColor );
             painter->drawText( textRect, Qt::AlignCenter, text );
-            tag->rect = tagRect;
+            tag.rect = tagRect;
         }
     }
     // Restore painter
@@ -217,16 +217,16 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const caf::PdmUiTreeViewItemAttribute::Tag*> PdmUiTreeViewItemDelegate::tags( QModelIndex index ) const
+std::vector<const PdmUiTreeViewItemTag*> PdmUiTreeViewItemDelegate::tags( QModelIndex index ) const
 {
-    std::vector<const caf::PdmUiTreeViewItemAttribute::Tag*> tagPtrVector;
+    std::vector<const PdmUiTreeViewItemTag*> tagPtrVector;
 
     auto it = m_tags.find( index );
     if ( it != m_tags.end() )
     {
         for ( const auto& tag : it->second )
         {
-            tagPtrVector.push_back( tag.get() );
+            tagPtrVector.push_back( &tag );
         }
     }
     return tagPtrVector;
@@ -245,7 +245,7 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
         auto* mouseEvent = static_cast<QMouseEvent*>( event );
         if ( mouseEvent->button() == Qt::LeftButton && mouseEvent->modifiers() == Qt::NoModifier )
         {
-            const PdmUiTreeViewItemAttribute::Tag* tag;
+            const PdmUiTreeViewItemTag* tag;
             if ( tagClicked( mouseEvent->pos(), option.rect, itemIndex, &tag ) )
             {
                 auto uiItem       = m_treeView->uiItemFromModelIndex( itemIndex );
@@ -265,7 +265,8 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                         {
                             indexInParent = reorderability->indexOf( pdmObject );
                         }
-                        tag->clicked.send( indexInParent );
+                        if ( auto clicked = tag->clicked )
+                            clicked( indexInParent ); // copy, the tag can be destroyed by the callback
                     }
                 }
 
@@ -292,7 +293,7 @@ bool PdmUiTreeViewItemDelegate::helpEvent( QHelpEvent*                 event,
 {
     if ( event && event->type() == QEvent::ToolTip )
     {
-        const PdmUiTreeViewItemAttribute::Tag* tag = nullptr;
+        const PdmUiTreeViewItemTag* tag = nullptr;
         if ( tagClicked( event->pos(), option.rect, itemIndex, &tag ) && tag && !tag->toolTip.isEmpty() )
         {
             QToolTip::showText( event->globalPos(), tag->toolTip, view );
@@ -306,10 +307,10 @@ bool PdmUiTreeViewItemDelegate::helpEvent( QHelpEvent*                 event,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeViewItemDelegate::tagClicked( const QPoint&                           pos,
-                                            const QRect&                            itemRect,
-                                            const QModelIndex&                      itemIndex,
-                                            const PdmUiTreeViewItemAttribute::Tag** tag ) const
+bool PdmUiTreeViewItemDelegate::tagClicked( const QPoint&                pos,
+                                            const QRect&                 itemRect,
+                                            const QModelIndex&           itemIndex,
+                                            const PdmUiTreeViewItemTag** tag ) const
 {
     if ( itemIndex.isValid() )
     {

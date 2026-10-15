@@ -52,32 +52,6 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiFilePathEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiFilePathEditorAttribute()
-    {
-        m_selectSaveFileName           = false;
-        m_fileSelectionFilter          = "All files (*)";
-        m_defaultPath                  = QString();
-        m_selectDirectory              = false;
-        m_appendUiSelectedFolderToText = false;
-        m_multipleItemSeparator        = ';';
-    }
-
-public:
-    bool    m_selectSaveFileName;
-    QString m_fileSelectionFilter;
-
-    QString m_defaultPath;
-    bool    m_selectDirectory;
-    bool    m_appendUiSelectedFolderToText;
-    QChar   m_multipleItemSeparator;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class PdmUiFilePathEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
@@ -121,7 +95,12 @@ private:
     QPointer<QToolButton> m_button;
     QPointer<QToolButton> m_copyToClipboardButton;
 
-    PdmUiFilePathEditorAttribute m_attributes;
+    bool    m_selectSaveFileName  = false;
+    QString m_fileSelectionFilter = "All files (*)";
+    QString m_defaultPath;
+    bool    m_selectDirectory              = false;
+    bool    m_appendUiSelectedFolderToText = false;
+    QChar   m_multipleItemSeparator        = ';';
 };
 
 } // end namespace caf

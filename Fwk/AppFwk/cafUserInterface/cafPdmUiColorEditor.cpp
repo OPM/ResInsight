@@ -86,30 +86,11 @@ void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    m_showAlpha = uiField()->attribute<bool>( Keys::SHOW_ALPHA, uiConfigName ).value_or( false );
+    m_showLabel = uiField()->attribute<bool>( Keys::SHOW_LABEL, uiConfigName ).value_or( true );
+    uiField()->validateAttributes( "PdmUiColorEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_ALPHA, uiConfigName ) )
-        {
-            m_attributes.showAlpha = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_LABEL, uiConfigName ) )
-        {
-            m_attributes.showLabel = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiColorEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    if ( m_attributes.showLabel )
+    if ( m_showLabel )
     {
         m_colorTextLabel->show();
     }
@@ -194,7 +175,7 @@ void PdmUiColorEditor::colorSelectionClicked()
     flags = QColorDialog::DontUseNativeDialog;
 #endif
 
-    if ( m_attributes.showAlpha )
+    if ( m_showAlpha )
     {
         flags |= QColorDialog::ShowAlphaChannel;
     }
@@ -237,12 +218,12 @@ void PdmUiColorEditor::setColorOnWidget( const QColor& color )
                               .arg( QString::number( color.green() ) )
                               .arg( QString::number( color.blue() ) );
 
-            if ( m_attributes.showAlpha )
+            if ( m_showAlpha )
             {
                 colorString += QString( " (%4)" ).arg( QString::number( color.alpha() ) );
             }
         }
-        if ( m_attributes.showLabel )
+        if ( m_showLabel )
         {
             m_colorTextLabel->setText( colorString );
         }

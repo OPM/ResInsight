@@ -168,42 +168,20 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_isEditOperationsAvailable = true;
     }
 
-    PdmUiListEditorAttribute attributes;
-    caf::PdmUiObjectHandle*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    uiField()->validateAttributes( "PdmUiListEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
-        {
-            attributes.heightHint = val.value();
-        }
+    const int     heightHint = uiField()->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ).value_or( 2000 );
+    const QString qssState   = uiField()->attribute<QString>( Keys::QSS_STATE, uiConfigName ).value_or( QString() );
+    const bool    allowHorizontalScrollBar =
+        uiField()->attribute<bool>( Keys::ALLOW_HORIZONTAL_SCROLL_BAR, uiConfigName ).value_or( true );
 
-        if ( auto qssState = uiItem->attribute<QString>( Keys::QSS_STATE, uiConfigName ) )
-        {
-            attributes.qssState = qssState.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::ALLOW_HORIZONTAL_SCROLL_BAR, uiConfigName ) )
-        {
-            attributes.allowHorizontalScrollBar = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiListEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    m_listView->setHeightHint( attributes.heightHint );
-    if ( !attributes.allowHorizontalScrollBar )
+    m_listView->setHeightHint( heightHint );
+    if ( !allowHorizontalScrollBar )
     {
         m_listView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
     }
 
-    m_listView->setProperty( "state", attributes.qssState );
+    m_listView->setProperty( "state", qssState );
     m_listView->style()->unpolish( m_listView );
     m_listView->style()->polish( m_listView );
 
@@ -535,18 +513,6 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 bool PdmUiListEditor::isMultiRowEditor() const
 {
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmUiListEditorAttribute::PdmUiListEditorAttribute()
-    : heightHint( 2000 )
-    , allowHorizontalScrollBar( true )
-{
-    QPalette myPalette;
-
-    baseColor = myPalette.color( QPalette::Active, QPalette::Base );
 }
 
 } // end namespace caf

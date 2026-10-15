@@ -68,14 +68,8 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
-    // Handle attributes
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    m_attributes = Attributes();
 
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
         if ( auto val = uiItem->attribute<bool>( Keys::ADJUST_WIDTH_TO_CONTENTS, uiConfigName ) )

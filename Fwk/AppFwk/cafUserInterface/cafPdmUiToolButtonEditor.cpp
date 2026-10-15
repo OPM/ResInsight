@@ -65,35 +65,14 @@ void PdmUiToolButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_toolButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_toolButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    PdmUiToolButtonEditorAttribute attributes;
+    uiField()->validateAttributes( "PdmUiToolButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    PdmUiObjectHandle* pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( pdmUiOjectHandle )
-    {
-        pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    const bool        isCheckable = uiField()->attribute<bool>( Keys::CHECKABLE, uiConfigName ).value_or( true );
+    const QSizePolicy sizePolicy =
+        uiField()->attribute<QSizePolicy>( Keys::SIZE_POLICY, uiConfigName ).value_or( QSizePolicy() );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<bool>( Keys::CHECKABLE, uiConfigName ) )
-        {
-            attributes.m_checkable = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<QSizePolicy>( Keys::SIZE_POLICY, uiConfigName ) )
-        {
-            attributes.m_sizePolicy = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiToolButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    bool isCheckable = attributes.m_checkable;
     m_toolButton->setCheckable( isCheckable );
-    m_toolButton->setSizePolicy( attributes.m_sizePolicy );
-
+    m_toolButton->setSizePolicy( sizePolicy );
     QVariant variantFieldValue = uiField()->uiValue();
     if ( isCheckable )
     {

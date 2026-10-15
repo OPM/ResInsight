@@ -57,39 +57,6 @@ class QTreeViewHeightHint;
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    bool showTextFilter;
-    bool showToggleAllCheckbox;
-    bool singleSelectionMode;
-    bool showCheckBoxes;
-    bool showContextMenu;
-    int  heightHint;
-
-    /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
-    /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
-    /// the current item in the tree view
-    /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
-    caf::PdmFieldHandle* currentIndexFieldHandle;
-
-public:
-    PdmUiTreeSelectionEditorAttribute()
-    {
-        showTextFilter        = true;
-        showToggleAllCheckbox = true;
-        singleSelectionMode   = false;
-        showCheckBoxes        = true;
-        showContextMenu       = true;
-        heightHint            = -1;
-
-        currentIndexFieldHandle = nullptr;
-    }
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class PdmUiTreeSelectionEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
@@ -108,6 +75,11 @@ public:
         static inline const QString SHOW_CHECK_BOXES         = QStringLiteral( "showCheckBoxes" );
         static inline const QString SHOW_CONTEXT_MENU        = QStringLiteral( "showContextMenu" );
         static inline const QString HEIGHT_HINT              = QStringLiteral( "heightHint" );
+
+        // caf::PdmFieldHandle*. Used to communicate the value of the current item in the tree view. This is useful when
+        // displaying a list of appEnums, and a dependent view is displaying content based on the current item.
+        // The type of the receiving field must be the same as the field used in PdmUiTreeSelectionEditor
+        static inline const QString CURRENT_INDEX_FIELD_HANDLE = QStringLiteral( "currentIndexFieldHandle" );
     };
 
     // Set of all supported attributes for validation
@@ -116,7 +88,8 @@ public:
                                                                    Keys::SINGLE_SELECTION_MODE,
                                                                    Keys::SHOW_CHECK_BOXES,
                                                                    Keys::SHOW_CONTEXT_MENU,
-                                                                   Keys::HEIGHT_HINT };
+                                                                   Keys::HEIGHT_HINT,
+                                                                   Keys::CURRENT_INDEX_FIELD_HANDLE };
 
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
@@ -164,7 +137,13 @@ private:
     PdmUiTreeSelectionQModel* m_model;
     QSortFilterProxyModel*    m_proxyModel;
 
-    PdmUiTreeSelectionEditorAttribute m_attributes;
+    bool                 m_showTextFilter          = true;
+    bool                 m_showToggleAllCheckbox   = true;
+    bool                 m_singleSelectionMode     = false;
+    bool                 m_showCheckBoxes          = true;
+    bool                 m_showContextMenu         = true;
+    int                  m_heightHint              = -1;
+    caf::PdmFieldHandle* m_currentIndexFieldHandle = nullptr;
 
     bool m_useSingleSelectionMode;
 };

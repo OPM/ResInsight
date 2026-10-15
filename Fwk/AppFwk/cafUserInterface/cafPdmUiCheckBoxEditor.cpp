@@ -56,14 +56,12 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiCheckBoxEditorAttribute attributes = defaultAttributes();
-    caf::PdmUiObjectHandle*      uiObject   = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    uiField()->validateAttributes( "PdmUiCheckBoxEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    if ( attributes.useNativeCheckBox() )
+    const bool useNative =
+        uiField()->attribute<bool>( Keys::USE_NATIVE_CHECKBOX, uiConfigName ).value_or( useNativeCheckBoxByDefault() );
+
+    if ( useNative )
     {
         m_checkBox->setText( uiField()->uiName( uiConfigName ) );
 
@@ -96,15 +94,10 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxEditor::createLabelWidget( QWidget* parent )
 {
-    PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle*      uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        const QString uiConfigName;
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    const QString uiConfigName;
+    const bool    useWordWrap = uiField()->attribute<bool>( Keys::WORD_WRAP, uiConfigName ).value_or( false );
 
-    if ( attributes.useWordWrap() )
+    if ( useWordWrap )
     {
         m_label = new QLabel( parent );
         m_label->setWordWrap( true );
@@ -130,9 +123,9 @@ void PdmUiCheckBoxEditor::slotClicked( bool checked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiCheckBoxEditorAttribute PdmUiCheckBoxEditor::defaultAttributes() const
+bool PdmUiCheckBoxEditor::useNativeCheckBoxByDefault() const
 {
-    return {};
+    return false;
 }
 
 //==================================================================================================
@@ -164,49 +157,9 @@ void PdmUiNativeCheckBoxEditor::configureFieldForEditor( caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiCheckBoxEditorAttribute PdmUiNativeCheckBoxEditor::defaultAttributes() const
+bool PdmUiNativeCheckBoxEditor::useNativeCheckBoxByDefault() const
 {
-    PdmUiCheckBoxEditorAttribute attributes;
-
-    attributes.setNativeCheckBox( true );
-
-    return attributes;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxEditorAttribute::setNativeCheckBox( bool enable )
-{
-    CAF_ASSERT( enable && !m_useWordWrap && "Native checkbox is not compatible with use of word wrap" );
-
-    m_useNativeCheckBoxLabel = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxEditorAttribute::setWordWrap( bool enable )
-{
-    CAF_ASSERT( enable && !m_useNativeCheckBoxLabel && "Native checkbox is not compatible with use of word wrap" );
-
-    m_useWordWrap = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmUiCheckBoxEditorAttribute::useNativeCheckBox() const
-{
-    return m_useNativeCheckBoxLabel;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmUiCheckBoxEditorAttribute::useWordWrap() const
-{
-    return m_useWordWrap;
+    return true;
 }
 
 } // end namespace caf

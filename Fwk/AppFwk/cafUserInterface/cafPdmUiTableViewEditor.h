@@ -70,64 +70,6 @@ private:
     int m_heightHint;
 };
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class PdmUiTableViewPushButtonEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    void registerPushButtonTextForFieldKeyword( const QString& keyword, const QString& text );
-
-    bool    showPushButtonForFieldKeyword( const QString& keyword ) const;
-    QString pushButtonText( const QString& keyword ) const;
-
-private:
-    std::map<QString, QString> m_fieldKeywordAndPushButtonText;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    enum ResizePolicy
-    {
-        NO_AUTOMATIC_RESIZE,
-        RESIZE_TO_FIT_CONTENT,
-        RESIZE_TO_FILL_CONTAINER
-    };
-
-    PdmUiTableViewEditorAttribute()
-        : tableSelectionLevel( 0 )
-        , rowSelectionLevel( 1 )
-        , enableHeaderText( true )
-        , minimumHeight( -1 )
-        , heightHint( -1 )
-        , alwaysEnforceResizePolicy( false )
-        , resizePolicy( NO_AUTOMATIC_RESIZE )
-        , enableDropTarget( false )
-        , editOnSingleClick( false )
-    {
-    }
-
-    int              tableSelectionLevel;
-    int              rowSelectionLevel;
-    bool             enableHeaderText;
-    std::vector<int> columnWidths;
-    int              minimumHeight; ///< Not used if If < 0
-    int              heightHint; ///< Not used if If < 0
-    QColor           baseColor;
-    bool             alwaysEnforceResizePolicy;
-    ResizePolicy     resizePolicy;
-    bool             enableDropTarget;
-    bool             editOnSingleClick; ///< Start editing on a single click and open combo box popups immediately
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-
 class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
@@ -136,6 +78,13 @@ class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChan
 public:
     PdmUiTableViewEditor();
     ~PdmUiTableViewEditor() override;
+
+    enum ResizePolicy
+    {
+        NO_AUTOMATIC_RESIZE,
+        RESIZE_TO_FIT_CONTENT,
+        RESIZE_TO_FILL_CONTAINER
+    };
 
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
@@ -151,6 +100,13 @@ public:
         static inline const QString BASE_COLOR                   = QStringLiteral( "baseColor" );
         static inline const QString ENABLE_DROP_TARGET           = QStringLiteral( "enableDropTarget" );
         static inline const QString EDIT_ON_SINGLE_CLICK         = QStringLiteral( "editOnSingleClick" );
+    };
+
+    // Attribute keys set on the fields of the objects shown as rows in the table
+    struct CellKeys
+    {
+        // QString. Show a push button with this text in the cells of the field
+        static inline const QString PUSH_BUTTON_TEXT = QStringLiteral( "tableViewPushButtonText" );
     };
 
     // Set of all supported attributes for validation
