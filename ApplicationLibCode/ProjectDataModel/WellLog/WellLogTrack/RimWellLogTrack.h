@@ -104,6 +104,7 @@ public:
     QWidget*                                         viewWidget() override;
     RiuQwtPlotWidget*                                viewer();
     std::map<QString, cvf::Color3ub>                 formationZoneColors() const;
+    QStringList                                      wellPickZoneOrder() const;
     std::vector<std::tuple<QString, double, double>> formationZoneDisplayRanges() const;
     int                                              formationShadingAlpha() const;
     RiuPlotWidget*                                   plotWidget() override;
