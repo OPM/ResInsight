@@ -88,7 +88,6 @@ protected:
     // PdmObject overrides
     void fieldChangedByUi( const PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute ) override;
 
     // Protected member - derived classes can access for advanced operations
     PdmChildArrayField<T*> m_items;

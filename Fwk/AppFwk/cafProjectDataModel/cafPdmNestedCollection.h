@@ -90,7 +90,6 @@ protected:
 
     void fieldChangedByUi( const PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute ) override;
     void onChildDeleted( PdmChildArrayFieldHandle* childArray, std::vector<PdmObjectHandle*>& referringObjects ) override;
 
     PdmChildArrayField<SelfT*> m_subCollections;
