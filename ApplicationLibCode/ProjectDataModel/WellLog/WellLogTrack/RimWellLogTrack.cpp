@@ -48,6 +48,7 @@
 #include "Well/RigWellPathFormations.h"
 
 #include "Formations/RimFormationNames.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -67,7 +68,6 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellFlowRateCurve.h"
-#include "Formations/RimWellFormationsFile.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
