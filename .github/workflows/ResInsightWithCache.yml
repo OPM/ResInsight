@@ -258,11 +258,14 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
+        # Restore only. The cache is saved by the "Save vcpkg cache" step after a
+        # successful Configure, so failed or cancelled jobs never write partial
+        # caches.
+        uses: actions/cache/restore@v6
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          prefix: vcpkg-${{ matrix.config.cxx}}/
-          
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+
       - name: Print CMake version
         shell: bash
         run: |
@@ -278,7 +281,7 @@ jobs:
         shell: bash
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite"
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
@@ -298,6 +301,14 @@ jobs:
           -DRESINSIGHT_ENABLE_HDF5=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
+
+      - name: Save vcpkg cache
+        # Only after a fully successful Configure (all ports built)
+        if: success() && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: |
