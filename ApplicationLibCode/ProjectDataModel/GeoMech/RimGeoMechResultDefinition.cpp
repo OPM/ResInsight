@@ -48,6 +48,8 @@
 #include "RimViewLinker.h"
 #include "RimWellPath.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -77,15 +79,15 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechResultDefinition::RimGeoMechResultDefinition()
 {
-    CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Color Result", ":/CellResult.png", "", "", "GeoMechResult", "A geomechanical result definition" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultPositionType, "ResultPositionType", "Result Position" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultPositionType, "ResultPositionType", "Result Position" );
     m_resultPositionType.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultFieldName, "ResultFieldName", QString( "" ), "Field Name" );
+    CAF_PDM_InitScriptableField( &m_resultFieldName, "ResultFieldName", QString( "" ), "Field Name" );
     m_resultFieldName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultComponentName, "ResultComponentName", QString( "" ), "Component" );
+    CAF_PDM_InitScriptableField( &m_resultComponentName, "ResultComponentName", QString( "" ), "Component" );
     m_resultComponentName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigFemResultAddress::noTimeLapseValue(), "Base Time Step" );
@@ -541,11 +543,19 @@ void RimGeoMechResultDefinition::initAfterRead()
 {
     if ( m_resultComponentName() == "STM" || m_resultComponentName() == "SEM" ) m_resultComponentName = "SM";
 
+    updateUiFieldsFromActiveResult();
+
+    m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( resultPositionType() == RIG_WELLPATH_DERIVED );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sync the UI fields after the result fields are set directly, e.g. from scripting
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::updateUiFieldsFromActiveResult()
+{
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
-
-    m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( resultPositionType() == RIG_WELLPATH_DERIVED );
 }
 
 //--------------------------------------------------------------------------------------------------

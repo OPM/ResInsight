@@ -55,6 +55,7 @@ public:
     RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
     void                loadResult();
+    void                updateUiFieldsFromActiveResult();
     void                setAddWellPathDerivedResults( bool addWellPathDerivedResults );
 
     RigFemResultAddress              resultAddress() const;
