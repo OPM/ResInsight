@@ -181,6 +181,8 @@ public:
         return std::nullopt;
     }
 
+    void removeAttribute( const QString& key, const QString& uiConfigName = "" );
+
     std::list<QString> attributeNames( const QString& uiConfigName = "" ) const;
 
     // Helper function to validate attributes against a supported set
