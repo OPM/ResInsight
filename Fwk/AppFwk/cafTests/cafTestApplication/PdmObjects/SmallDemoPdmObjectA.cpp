@@ -43,6 +43,7 @@ SmallDemoPdmObjectA::SmallDemoPdmObjectA()
                        " Toggle Field whatsthis" );
 
     CAF_PDM_InitField( &m_pushButtonField, "Push", false, "Button Field", "", "", " " );
+    m_pushButtonField.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::CellKeys::PUSH_BUTTON_TEXT, "Edit" );
     CAF_PDM_InitField( &m_doubleField,
                        "BigNumber",
                        0.0,
@@ -70,6 +71,8 @@ SmallDemoPdmObjectA::SmallDemoPdmObjectA()
     CAF_PDM_InitFieldNoDefault( &m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "" );
     m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_multipleAppEnum.uiCapability()->setAttribute<caf::PdmFieldHandle*>( caf::PdmUiTreeSelectionEditor::Keys::CURRENT_INDEX_FIELD_HANDLE,
+                                                                          &m_highlightedEnum );
     CAF_PDM_InitFieldNoDefault( &m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "" );
     m_highlightedEnum.uiCapability()->setUiHidden( true );
 }
@@ -232,34 +235,4 @@ QList<caf::PdmOptionItemInfo> SmallDemoPdmObjectA::calculateValueOptions( const 
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SmallDemoPdmObjectA::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_multipleAppEnum )
-    {
-        caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->currentIndexFieldHandle = &m_highlightedEnum;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SmallDemoPdmObjectA::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiTableViewPushButtonEditorAttribute* attr =
-        dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
-    if ( attr )
-    {
-        attr->registerPushButtonTextForFieldKeyword( m_pushButtonField.keyword(), "Edit" );
-    }
 }
