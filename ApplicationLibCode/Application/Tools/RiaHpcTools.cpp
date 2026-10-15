@@ -28,22 +28,11 @@ namespace
 
 QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
 {
-    QStringList cmdList;
-
-    if ( RiaPreferencesOpm::current()->useWsl() )
-    {
-        cmdList.append( RiaWslTools::wslCommand() );
-        cmdList.append( RiaPreferencesOpm::current()->wslOptions() );
-    }
-
-    cmdList.append( cmdStr );
-    cmdList.append( arguments );
-
     RimProcess proc( false /*no logging*/ );
+    proc.setUseWsl( RiaPreferencesOpm::current()->useWsl() );
 
-    QString cmd = cmdList.takeFirst();
-    proc.setCommand( cmd );
-    if ( !cmdList.isEmpty() ) proc.addParameters( cmdList );
+    proc.setCommand( cmdStr );
+    if ( !arguments.isEmpty() ) proc.addParameters( arguments );
 
     if ( proc.execute() )
     {

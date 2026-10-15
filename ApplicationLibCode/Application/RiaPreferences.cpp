@@ -25,10 +25,10 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesBatch.h"
 #include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
-#include "RiaPreferencesHpc.h"
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaPreferencesOsdu.h"
@@ -279,8 +279,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_opmPreferences, "opmPreferences", "opmPreferences" );
     m_opmPreferences = new RiaPreferencesOpm();
 
-    CAF_PDM_InitFieldNoDefault( &m_hpcPreferences, "hpcPreferences", "hpcPreferences" );
-    m_hpcPreferences = new RiaPreferencesHpc();
+    CAF_PDM_InitFieldNoDefault( &m_batchPreferences, "batchPreferences", "batchPreferences" );
+    m_batchPreferences = new RiaPreferencesBatch();
 
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
@@ -501,7 +501,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNameBatchScheduler() )
     {
-        m_hpcPreferences()->appendItems( uiOrdering );
+        m_batchPreferences()->appendItems( uiOrdering );
     }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
@@ -1098,9 +1098,9 @@ RiaPreferencesOpm* RiaPreferences::opmPreferences() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferencesHpc* RiaPreferences::hpcPreferences() const
+RiaPreferencesBatch* RiaPreferences::batchPreferences() const
 {
-    return m_hpcPreferences();
+    return m_batchPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

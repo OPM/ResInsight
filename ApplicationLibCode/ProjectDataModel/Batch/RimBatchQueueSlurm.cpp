@@ -20,7 +20,7 @@
 
 #include "RiaHpcTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferencesHpc.h"
+#include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
@@ -56,7 +56,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     auto useWsl = RiaPreferencesOpm::current()->useWsl();
 
     // get settings
-    auto prefs = RiaPreferencesHpc::current();
+    auto prefs = RiaPreferencesBatch::current();
 
     QString workDir = m_process->workingDirectory();
 

@@ -49,7 +49,7 @@ class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
 class RiaPreferencesCloudApi;
-class RiaPreferencesHpc;
+class RiaPreferencesBatch;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -135,7 +135,7 @@ public:
     RiaPreferencesOpm*           opmPreferences() const;
     RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
     RiaPreferencesCloudApi*      cloudApiPreferences() const;
-    RiaPreferencesHpc*           hpcPreferences() const;
+    RiaPreferencesBatch*         batchPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -255,7 +255,7 @@ private:
     caf::PdmChildField<RiaPreferencesCloudApi*> m_cloudApiPreferences;
 
     // HPC settings
-    caf::PdmChildField<RiaPreferencesHpc*> m_hpcPreferences;
+    caf::PdmChildField<RiaPreferencesBatch*> m_batchPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

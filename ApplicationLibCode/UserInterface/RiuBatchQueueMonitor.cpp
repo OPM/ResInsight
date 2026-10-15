@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferencesHpc.h"
+#include "RiaPreferencesBatch.h"
 
 #include "RiuBatchMonitorWorker.h"
 #include "RiuMessagePanel.h"
@@ -31,6 +31,7 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QPushButton>
 #include <QTableWidget>
 #include <QThread>
@@ -135,7 +136,7 @@ void RiuBatchQueueMonitor::toggleUpdates()
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        auto schedulerType = RiaPreferencesHpc::current()->batchScheduler();
+        auto schedulerType = RiaPreferencesBatch::current()->batchScheduler();
 
         int interval = m_refreshInterval->currentData().toInt();
         if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds

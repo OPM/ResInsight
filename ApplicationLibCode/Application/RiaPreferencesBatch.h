@@ -26,14 +26,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaPreferencesHpc : public caf::PdmObject
+class RiaPreferencesBatch : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RiaPreferencesHpc();
+    RiaPreferencesBatch();
 
-    static RiaPreferencesHpc* current();
+    static RiaPreferencesBatch* current();
 
     void appendItems( caf::PdmUiOrdering& uiOrdering );
 

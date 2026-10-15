@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaPreferencesHpc.h"
+#include "RiaPreferencesBatch.h"
 
 #include "RiaApplication.h"
 #include "RiaHpcTools.h"
@@ -28,12 +28,12 @@
 
 #include <QInputDialog>
 
-CAF_PDM_SOURCE_INIT( RiaPreferencesHpc, "RiaPreferencesHpc" );
+CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferencesHpc::RiaPreferencesHpc()
+RiaPreferencesBatch::RiaPreferencesBatch()
 {
     CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel on local machine" );
     m_maxParallelJobs = 1;
@@ -54,15 +54,15 @@ RiaPreferencesHpc::RiaPreferencesHpc()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferencesHpc* RiaPreferencesHpc::current()
+RiaPreferencesBatch* RiaPreferencesBatch::current()
 {
-    return RiaApplication::instance()->preferences()->hpcPreferences();
+    return RiaApplication::instance()->preferences()->batchPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
+void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* genGrp = uiOrdering.addNewGroup( "General Settings" );
     genGrp->add( &m_batchScheduler );
@@ -80,7 +80,7 @@ void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
         hpcGrp->addNewButton( "Browse",
                               [this]()
                               {
-                                  auto newName = RiaPreferencesHpc::selectQueue( m_batchScheduler(), m_queueName() );
+                                  auto newName = RiaPreferencesBatch::selectQueue( m_batchScheduler(), m_queueName() );
                                   m_queueName.setValueWithFieldChanged( newName );
                               },
                               { .newRow = false, .totalColumnSpan = 1 } );
@@ -101,7 +101,7 @@ void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesHpc::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RiaPreferencesBatch::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_queueName )
     {
@@ -119,7 +119,7 @@ void RiaPreferencesHpc::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RiaPreferencesHpc::maxParallelJobs() const
+size_t RiaPreferencesBatch::maxParallelJobs() const
 {
     return m_maxParallelJobs();
 }
@@ -127,7 +127,7 @@ size_t RiaPreferencesHpc::maxParallelJobs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::BatchSchedulerType RiaPreferencesHpc::batchScheduler() const
+RiaDefines::BatchSchedulerType RiaPreferencesBatch::batchScheduler() const
 {
     return m_batchScheduler();
 }
@@ -135,7 +135,7 @@ RiaDefines::BatchSchedulerType RiaPreferencesHpc::batchScheduler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferencesHpc::queueName() const
+QString RiaPreferencesBatch::queueName() const
 {
     return m_queueName();
 }
@@ -143,7 +143,7 @@ QString RiaPreferencesHpc::queueName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferencesHpc::batchSchedulerOptions() const
+QString RiaPreferencesBatch::batchSchedulerOptions() const
 {
     if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
     {
@@ -159,7 +159,7 @@ QString RiaPreferencesHpc::batchSchedulerOptions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesHpc::exclusiveJob() const
+bool RiaPreferencesBatch::exclusiveJob() const
 {
     return m_exclusive();
 }
@@ -167,7 +167,7 @@ bool RiaPreferencesHpc::exclusiveJob() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferencesHpc::selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue )
+QString RiaPreferencesBatch::selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue )
 {
     QStringList queues    = RiaHpcTools::availableQueues( scheduler );
     QString     labelText = "Available Queues/Partitions:";

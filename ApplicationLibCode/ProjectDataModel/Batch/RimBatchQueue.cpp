@@ -18,7 +18,7 @@
 
 #include "RimBatchQueue.h"
 
-#include "RiaPreferencesHpc.h"
+#include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaWslTools.h"
 
@@ -45,7 +45,7 @@ RimBatchQueue::RimBatchQueue( RiaDefines::BatchSchedulerType schedulerType )
 //--------------------------------------------------------------------------------------------------
 RimBatchQueue* RimBatchQueue::createBatchQueue()
 {
-    switch ( RiaPreferencesHpc::current()->batchScheduler() )
+    switch ( RiaPreferencesBatch::current()->batchScheduler() )
     {
         case RiaDefines::BatchSchedulerType::LSF:
             return new RimBatchQueueLsf();
@@ -107,7 +107,7 @@ std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
 
     out << "#!/bin/sh\n";
 
-    auto additionalOptions = RiaPreferencesHpc::current()->batchSchedulerOptions();
+    auto additionalOptions = RiaPreferencesBatch::current()->batchSchedulerOptions();
     if ( !additionalOptions.isEmpty() )
     {
         out << launchScriptDirective() << " " << additionalOptions << "\n\n";

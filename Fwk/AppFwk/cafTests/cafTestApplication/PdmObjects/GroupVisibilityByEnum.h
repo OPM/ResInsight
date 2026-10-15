@@ -6,7 +6,7 @@
 //==================================================================================================
 /// Reproduction of https://github.com/OPM/ResInsight/issues/14884
 ///
-/// Modeled directly after RiaPreferencesHpc::appendItems() (branch origin/hpc_interface), which
+/// Modeled directly after RiaPreferencesBatch::appendItems() (branch origin/hpc_interface), which
 /// crashed in caf::PdmUiCheckBoxEditor::configureAndUpdateUi() when switching the "Batch Scheduler"
 /// enum directly between SLURM and LSF: both options share the exact same three fields
 /// (queue name, exclusive checkbox, scheduler options) inside two *differently named* ui groups.
