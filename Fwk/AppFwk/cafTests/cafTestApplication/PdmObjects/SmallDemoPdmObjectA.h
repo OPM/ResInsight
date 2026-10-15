@@ -41,13 +41,6 @@ public:
     void setAutoValueForDouble( double value );
     void setAutoValueForInt( double value );
 
-protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
 private:
     caf::PdmField<double>                     m_doubleField;
     caf::PdmField<int>                        m_intField;
