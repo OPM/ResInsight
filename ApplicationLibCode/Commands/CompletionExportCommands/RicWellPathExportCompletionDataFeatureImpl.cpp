@@ -66,6 +66,7 @@
 #include <QDir>
 
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <optional>
 #include <set>
@@ -769,30 +770,47 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclips
 
     // See similar logic in RiaGrpcWellPathService::GetCompletionData()
 
+    // A well must be defined only once. Use the LGR the well path enters first.
     for ( const auto& [wellPath, gridNames] : wellPathToLgrNameMap )
     {
+        QString    firstLgrName;
+        double     firstMeasuredDepth = std::numeric_limits<double>::max();
+        cvf::Vec2i firstIJ;
+        bool       isFound = false;
+
         for ( const auto& lgrName : gridNames )
         {
             const auto& [measuredDepth, ijIntersection] = wellPathUpperGridIntersectionIJ( gridCase, wellPath, lgrName );
 
-            auto completionSettings = wellPath->completionSettings();
-
-            formatter.add( completionSettings->wellNameForExport() )
-                .add( completionSettings->groupNameForExport() )
-                .add( lgrName )
-                .add( ijIntersection.x() + 1 )
-                .add( ijIntersection.y() + 1 )
-                .add( completionSettings->referenceDepthForExport() )
-                .add( completionSettings->wellTypeNameForExport() )
-                .add( completionSettings->drainageRadiusForExport() )
-                .add( completionSettings->gasInflowEquationForExport() )
-                .add( completionSettings->automaticWellShutInForExport() )
-                .add( completionSettings->allowWellCrossFlowForExport() )
-                .add( completionSettings->wellBoreFluidPVTForExport() )
-                .add( completionSettings->hydrostaticDensityForExport() )
-                .add( completionSettings->fluidInPlaceRegionForExport() )
-                .rowCompleted();
+            const bool isValid = measuredDepth != cvf::UNDEFINED_DOUBLE;
+            if ( !isFound || ( isValid && measuredDepth < firstMeasuredDepth ) )
+            {
+                firstLgrName       = lgrName;
+                firstMeasuredDepth = isValid ? measuredDepth : std::numeric_limits<double>::max();
+                firstIJ            = ijIntersection;
+                isFound            = true;
+            }
         }
+
+        if ( !isFound ) continue;
+
+        auto completionSettings = wellPath->completionSettings();
+
+        formatter.add( completionSettings->wellNameForExport() )
+            .add( completionSettings->groupNameForExport() )
+            .add( firstLgrName )
+            .add( firstIJ.x() + 1 )
+            .add( firstIJ.y() + 1 )
+            .add( completionSettings->referenceDepthForExport() )
+            .add( completionSettings->wellTypeNameForExport() )
+            .add( completionSettings->drainageRadiusForExport() )
+            .add( completionSettings->gasInflowEquationForExport() )
+            .add( completionSettings->automaticWellShutInForExport() )
+            .add( completionSettings->allowWellCrossFlowForExport() )
+            .add( completionSettings->wellBoreFluidPVTForExport() )
+            .add( completionSettings->hydrostaticDensityForExport() )
+            .add( completionSettings->fluidInPlaceRegionForExport() )
+            .rowCompleted();
     }
     formatter.tableCompleted();
 }
