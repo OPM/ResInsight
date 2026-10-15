@@ -20,6 +20,8 @@ set(PROJECT_FILES
     cafPdmUiTreeSelectionQModelTest.cpp
     cafPdmUiTableViewQModelTest.cpp
     cafPdmUiNumberFormatTest.cpp
+    cafPdmUiAttributeToolsTest.cpp
+    cafPdmUiEditorAttributesTest.cpp
     cafPdmUiCheckBoxAndTextEditorTest.cpp
     cafPdmUiPropertyViewDialogTest.cpp
     cafPdmUiEditorHandleTest.cpp
@@ -33,6 +35,19 @@ qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_FILES})
 target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafUserInterface ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )
+
+# Make the executable runnable from its own folder when built stand-alone
+if(WIN32 AND TARGET Qt6::windeployqt)
+  add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND Qt6::windeployqt --no-translations $<TARGET_FILE:${PROJECT_NAME}>
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      "$<TARGET_FILE_DIR:Qt6::Core>/../plugins/platforms/qoffscreen$<$<CONFIG:Debug>:d>.dll"
+      "$<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms/"
+  )
+endif()
 
 # Install
 install(
