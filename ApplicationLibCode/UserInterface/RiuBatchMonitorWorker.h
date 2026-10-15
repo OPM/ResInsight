@@ -34,7 +34,7 @@ class RiuBatchMonitorWorker : public QObject
     Q_OBJECT
 
 public:
-    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, QObject* parent = nullptr );
+    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, int interval, QObject* parent = nullptr );
 
     void stopMonitoring();
 

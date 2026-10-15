@@ -23,6 +23,7 @@
 
 class QTableWidget;
 class QCheckBox;
+class QComboBox;
 
 class RiuBatchMonitorWorker;
 
@@ -42,9 +43,12 @@ public:
 private slots:
     void slotUpdateView( const QStringList& information );
     void toggleUpdates();
+    void updateInterval();
 
 private:
     QCheckBox*             m_checkBoxAutoUpdate;
+    QCheckBox*             m_onlyResInsightJobs;
+    QComboBox*             m_refreshInterval;
     QTableWidget*          m_jobView;
     RiuBatchMonitorWorker* m_monitorWorker;
 };

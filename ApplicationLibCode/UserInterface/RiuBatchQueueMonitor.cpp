@@ -28,6 +28,7 @@
 #include "RiuPlotMainWindow.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
@@ -45,8 +46,25 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     m_checkBoxAutoUpdate = new QCheckBox( "Enable Job Monitor", this );
     m_checkBoxAutoUpdate->setChecked( false );
 
+    m_onlyResInsightJobs = new QCheckBox( "Only Show ResInsight Jobs", this );
+    m_onlyResInsightJobs->setChecked( true );
+
+    QLabel* label = new QLabel( "Refresh Interval:", this );
+
+    m_refreshInterval = new QComboBox( this );
+    m_refreshInterval->addItem( "5 seconds", QVariant( 5 ) );
+    m_refreshInterval->addItem( "10 seconds", QVariant( 10 ) );
+    m_refreshInterval->addItem( "30 seconds", QVariant( 30 ) );
+    m_refreshInterval->setCurrentIndex( 0 );
+    m_refreshInterval->setEditable( false );
+
     QHBoxLayout* pTopLayout = new QHBoxLayout;
     pTopLayout->addWidget( m_checkBoxAutoUpdate );
+    pTopLayout->addSpacing( 5 );
+    pTopLayout->addWidget( m_onlyResInsightJobs );
+    pTopLayout->addSpacing( 10 );
+    pTopLayout->addWidget( label );
+    pTopLayout->addWidget( m_refreshInterval );
     pTopLayout->addStretch();
 
     m_jobView = new QTableWidget( this );
@@ -70,6 +88,7 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     setLayout( pLayout );
 
     connect( m_checkBoxAutoUpdate, SIGNAL( clicked() ), this, SLOT( toggleUpdates() ) );
+    connect( m_refreshInterval, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateInterval() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +111,10 @@ void RiuBatchQueueMonitor::slotUpdateView( const QStringList& information )
 
         auto parts = line.split( ' ', Qt::SplitBehaviorFlags::SkipEmptyParts );
 
-        // only show jobs with ResInsight prefix
         if ( parts.count() < 2 ) continue;
-        if ( !parts[1].startsWith( "RI_" ) ) continue;
+
+        // only show jobs with ResInsight prefix?
+        if ( m_onlyResInsightJobs->isChecked() && !parts[1].startsWith( "RI_" ) ) continue;
 
         for ( int i = 0; i < parts.size(); ++i )
         {
@@ -117,7 +137,11 @@ void RiuBatchQueueMonitor::toggleUpdates()
     {
         auto schedulerType = RiaPreferencesHpc::current()->batchScheduler();
 
-        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType );
+        int interval = m_refreshInterval->currentData().toInt();
+        if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds
+        if ( interval > 60 ) interval = 60; // maximum interval of 60 seconds
+
+        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType, interval );
         auto thread     = new QThread( this );
 
         m_monitorWorker->moveToThread( thread );
@@ -145,5 +169,21 @@ void RiuBatchQueueMonitor::stopMonitoring()
     {
         m_monitorWorker->stopMonitoring();
         m_monitorWorker = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchQueueMonitor::updateInterval()
+{
+    if ( m_monitorWorker != nullptr )
+    {
+        m_monitorWorker->stopMonitoring();
+        m_monitorWorker = nullptr;
+    }
+    if ( m_checkBoxAutoUpdate->isChecked() )
+    {
+        toggleUpdates();
     }
 }
