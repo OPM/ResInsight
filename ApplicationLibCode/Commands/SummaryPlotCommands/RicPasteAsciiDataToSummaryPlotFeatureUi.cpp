@@ -185,6 +185,9 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitFieldNoDefault( &m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column" );
 
     CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text" );
+    m_previewText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_previewText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::FONT, QFont( "Monospace", 7 ) );
+    m_previewText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
     m_previewText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_previewText.uiCapability()->setUiReadOnly( true );
@@ -443,27 +446,6 @@ QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculate
         }
     }
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                                     QString                    uiConfigName,
-                                                                     caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_previewText )
-    {
-        caf::PdmUiTextEditorAttribute* attrib = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-
-            QFont font( "Monospace", 7 );
-            attrib->font     = font;
-            attrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

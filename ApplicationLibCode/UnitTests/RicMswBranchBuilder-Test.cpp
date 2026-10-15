@@ -160,34 +160,30 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_NoRuleKeepsCellCentres )
 {
     const auto candidates = centres( exampleCells );
     expectNodes( candidates, RicMswTableDataTools::placeSegmentNodes( 0.0, candidates, {} ) );
-    expectNodes( candidates,
-                 RicMswTableDataTools::placeSegmentNodes( 0.0, candidates, { { 0.0, 60.0, std::nullopt, std::nullopt, std::nullopt } } ) );
+    expectNodes( candidates, RicMswTableDataTools::placeSegmentNodes( 0.0, candidates, { { 0.0, 60.0, std::nullopt, std::nullopt } } ) );
 }
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MinLength )
 {
-    const auto nodes =
-        RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 12.0, std::nullopt, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 12.0, std::nullopt } } );
     expectNodes( { 12.0, 31.5, 46.5 }, nodes );
 }
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLength )
 {
-    const auto nodes =
-        RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, std::nullopt, 10.0, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, std::nullopt, 10.0 } } );
     expectNodes( { 5.0, 12.0, 22.0, 31.5, 39.0, 46.5 }, nodes );
 }
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLengthInsertsSeveralNodes )
 {
-    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 5.0, 35.0 }, { { 0.0, 60.0, std::nullopt, 10.0, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 5.0, 35.0 }, { { 0.0, 60.0, std::nullopt, 10.0 } } );
     expectNodes( { 5.0, 15.0, 25.0, 35.0 }, nodes );
 }
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MinLengthLargerThanIntervalKeepsOneNode )
 {
-    const auto nodes =
-        RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 100.0, std::nullopt, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 100.0, std::nullopt } } );
     expectNodes( { 46.5 }, nodes );
 }
 
@@ -197,7 +193,7 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_IntervalStartingMidCell )
     const std::vector<std::pair<double, double>> pieces =
         { { 0.0, 10.0 }, { 10.0, 14.0 }, { 14.0, 20.0 }, { 20.0, 30.0 }, { 30.0, 33.0 }, { 33.0, 60.0 } };
 
-    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( pieces ), { { 20.0, 60.0, 12.0, std::nullopt, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( pieces ), { { 20.0, 60.0, 12.0, std::nullopt } } );
 
     // The spacing inside the interval is measured from the last node before it, 17
     expectNodes( { 5.0, 12.0, 17.0, 31.5, 46.5 }, nodes );
@@ -205,8 +201,7 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_IntervalStartingMidCell )
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_BackToBackIntervals )
 {
-    const std::vector<SegmentationInterval> intervals = { { 0.0, 14.0, 12.0, std::nullopt, std::nullopt },
-                                                          { 14.0, 60.0, std::nullopt, 10.0, std::nullopt } };
+    const std::vector<SegmentationInterval> intervals = { { 0.0, 14.0, 12.0, std::nullopt }, { 14.0, 60.0, std::nullopt, 10.0 } };
 
     const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), intervals );
     expectNodes( { 12.0, 22.0, 31.5, 39.0, 46.5 }, nodes );
@@ -215,14 +210,13 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_BackToBackIntervals )
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MeasuredFromOutletNode )
 {
     // The outlet node at 100 is the heel of the branch, the first candidate is too close to it
-    const auto nodes =
-        RicMswTableDataTools::placeSegmentNodes( 100.0, { 105.0, 115.0, 125.0 }, { { 100.0, 130.0, 12.0, std::nullopt, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 100.0, { 105.0, 115.0, 125.0 }, { { 100.0, 130.0, 12.0, std::nullopt } } );
     expectNodes( { 115.0 }, nodes );
 }
 
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MinAndMaxLengthCombined )
 {
-    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 12.0, 15.0, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 12.0, 15.0 } } );
     expectNodes( { 12.0, 21.75, 31.5, 46.5 }, nodes );
 }
 
@@ -244,7 +238,7 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_FixedLength )
 TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLengthNotBeforeIntervalStart )
 {
     // Heel at 0, interval [1000,1100], first candidate at 1050: no nodes are added before the interval
-    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 1050.0 }, { { 1000.0, 1100.0, std::nullopt, 25.0, std::nullopt } } );
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 1050.0 }, { { 1000.0, 1100.0, std::nullopt, 25.0 } } );
     expectNodes( { 1025.0, 1050.0 }, nodes );
 }
 

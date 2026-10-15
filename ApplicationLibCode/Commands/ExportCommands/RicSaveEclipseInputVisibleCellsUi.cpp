@@ -63,6 +63,9 @@ RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi()
 
     CAF_PDM_InitField( &exportFilename, "ExportFilename", QString(), "Export Filename" );
     exportFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    exportFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
+    exportFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                                 QString( "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)" ) );
     CAF_PDM_InitFieldNoDefault( &exportKeyword, "ExportKeyword", "Export Keyword" );
     CAF_PDM_InitField( &visibleActiveCellsValue, "VisibleActiveCellsValue", 1, "Visible Active Cells Value" );
     CAF_PDM_InitField( &hiddenActiveCellsValue, "HiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
@@ -81,24 +84,6 @@ RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi()
 //--------------------------------------------------------------------------------------------------
 RicSaveEclipseInputVisibleCellsUi::~RicSaveEclipseInputVisibleCellsUi()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSaveEclipseInputVisibleCellsUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &exportFilename )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName  = true;
-            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

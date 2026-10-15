@@ -39,6 +39,7 @@ RicHoloLensExportToFolderUi::RicHoloLensExportToFolderUi()
 
     CAF_PDM_InitField( &m_exportFolder, "ExportFolder", QString(), "Export Folder" );
     m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,21 +83,4 @@ QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicHoloLensExportToFolderUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_exportFolder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
 }

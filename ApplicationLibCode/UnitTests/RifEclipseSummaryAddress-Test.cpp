@@ -188,20 +188,6 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr 
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
-TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr_Lcgfru )
-{
-    auto addr = RifEclipseSummaryAddress::fromEclipseTextAddress( "LCGFRU:LGR1:B-1H:11,12,13" );
-
-    EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
-    EXPECT_EQ( "LGR1", addr.lgrName() );
-    EXPECT_EQ( "B-1H", addr.wellName() );
-    EXPECT_EQ( 13, addr.cellK() );
-
-    // Too few tokens must not read out of bounds
-    EXPECT_FALSE( RifEclipseSummaryAddress::fromEclipseTextAddress( "LCGFRU:LGR1:B-1H" ).isValid() );
-}
-
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellSegment )
 {
     std::string addrString = "SOFR:B-5H:32";

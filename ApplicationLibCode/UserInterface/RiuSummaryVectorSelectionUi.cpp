@@ -306,11 +306,15 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
 
     m_selectedSummaryCategories.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSummaryCategories.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedSummaryCategories.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
+    m_selectedSummaryCategories.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TOGGLE_ALL_CHECKBOX, false );
+    m_selectedSummaryCategories.uiCapability()->setAttribute<caf::PdmFieldHandle*>( caf::PdmUiTreeSelectionEditor::Keys::CURRENT_INDEX_FIELD_HANDLE,
+                                                                                    &m_currentSummaryCategory );
 
     m_currentSummaryCategory.uiCapability()->setUiHidden( true );
-    m_multiSelectionMode = false;
-    m_hideEnsembles      = false;
-    m_hideSummaryCases   = false;
+    setMultiSelectionMode( false );
+    m_hideEnsembles    = false;
+    m_hideSummaryCases = false;
 
     m_hideDifferenceVectors                 = false;
     m_hideHistoryVectors                    = false;
@@ -462,6 +466,20 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
 void RiuSummaryVectorSelectionUi::setMultiSelectionMode( bool multiSelectionMode )
 {
     m_multiSelectionMode = multiSelectionMode;
+
+    // All tree selection editors are set in specified selection mode
+    auto setSingleSelectionMode = [this]( caf::PdmFieldHandle* field )
+    { field->uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SINGLE_SELECTION_MODE, !m_multiSelectionMode ); };
+
+    for ( const auto& itemTypes : m_identifierFieldsMap )
+    {
+        for ( const auto& itemInputType : itemTypes.second )
+        {
+            setSingleSelectionMode( itemInputType->pdmField() );
+        }
+    }
+    setSingleSelectionMode( &m_selectedSources );
+    setSingleSelectionMode( &m_selectedSummaryCategories );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1337,28 +1355,6 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
                 identifierPath.pop_back();
             }
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-    if ( attrib )
-    {
-        if ( &m_selectedSummaryCategories == field )
-        {
-            attrib->currentIndexFieldHandle = &m_currentSummaryCategory;
-            attrib->showTextFilter          = false;
-            attrib->showToggleAllCheckbox   = false;
-        }
-
-        // All tree selection editors are set in specified selection mode
-        attrib->singleSelectionMode = !m_multiSelectionMode;
     }
 }
 

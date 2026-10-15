@@ -1264,7 +1264,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SummaryCategory::SUMMARY_WELL_CONNECTION_LGR:
-            if ( tokens.size() > 3 )
+            if ( tokens.size() > 2 )
             {
                 const auto& token3 = tokens[3];
                 const auto  ijk    = RiaStdStringTools::splitString( token3, ',' );

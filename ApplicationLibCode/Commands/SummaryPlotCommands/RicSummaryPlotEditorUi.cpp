@@ -87,6 +87,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     , m_closeButtonPressed( false )
 {
     CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot" );
+    m_targetPlot.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 
     m_previewPlot = std::make_unique<RimSummaryPlot>();
     m_previewPlot->setLegendPosition( RiuPlotWidget::Legend::TOP );
@@ -488,21 +489,6 @@ void RicSummaryPlotEditorUi::onSummaryDataLoaded( const caf::SignalEmitter* emit
     m_previewPlot->loadDataAndUpdate();
     m_previewPlot->zoomAll();
     m_previewPlot->scheduleReplotIfVisible();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_targetPlot == field )
-    {
-        caf::PdmUiComboBoxEditorAttribute* attrib = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->adjustWidthToContents = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
