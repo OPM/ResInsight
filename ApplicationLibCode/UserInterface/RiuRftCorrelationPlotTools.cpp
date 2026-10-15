@@ -94,8 +94,8 @@ protected:
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Thin gray translucent bar drawn in pixel width along the left edge (vertical depth axis) or
-/// bottom edge (horizontal depth axis) of the canvas, spanning a depth interval.
+/// Thin gray translucent bars drawn in pixel width along both side edges (vertical depth axis) or
+/// both top and bottom edges (horizontal depth axis) of the canvas, spanning a depth interval.
 //--------------------------------------------------------------------------------------------------
 class DepthIntervalBar : public QwtPlotItem
 {
@@ -110,23 +110,27 @@ public:
 
     void draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override
     {
-        constexpr double barWidth = 6.0;
+        constexpr double barWidth = 9.0;
+        const QColor     color( 90, 90, 90, 110 );
 
-        QRectF bar;
         if ( m_isDepthVertical )
         {
-            const double y0 = yMap.transform( m_top );
-            const double y1 = yMap.transform( m_base );
-            bar             = QRectF( canvasRect.left(), std::min( y0, y1 ), barWidth, std::abs( y1 - y0 ) );
+            const double y0     = yMap.transform( m_top );
+            const double y1     = yMap.transform( m_base );
+            const double yStart = std::min( y0, y1 );
+            const double height = std::abs( y1 - y0 );
+            painter->fillRect( QRectF( canvasRect.left(), yStart, barWidth, height ), color );
+            painter->fillRect( QRectF( canvasRect.right() - barWidth, yStart, barWidth, height ), color );
         }
         else
         {
-            const double x0 = xMap.transform( m_top );
-            const double x1 = xMap.transform( m_base );
-            bar             = QRectF( std::min( x0, x1 ), canvasRect.bottom() - barWidth, std::abs( x1 - x0 ), barWidth );
+            const double x0     = xMap.transform( m_top );
+            const double x1     = xMap.transform( m_base );
+            const double xStart = std::min( x0, x1 );
+            const double width  = std::abs( x1 - x0 );
+            painter->fillRect( QRectF( xStart, canvasRect.bottom() - barWidth, width, barWidth ), color );
+            painter->fillRect( QRectF( xStart, canvasRect.top(), width, barWidth ), color );
         }
-
-        painter->fillRect( bar, QColor( 90, 90, 90, 110 ) );
     }
 
 private:
