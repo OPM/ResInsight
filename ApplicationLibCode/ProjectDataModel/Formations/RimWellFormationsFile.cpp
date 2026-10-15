@@ -78,17 +78,28 @@ QString RimWellFormationsFile::shortName() const
 //--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RimWellFormationsFile::reload()
 {
-    auto result = RifWellPathFormationReader::readWellFormations( filePath() );
+    QStringList zoneOrder;
+    auto        result = RifWellPathFormationReader::readWellFormations( filePath(), &zoneOrder );
     if ( !result )
     {
         m_wellFormations.clear();
+        m_zoneOrder.clear();
         m_contentTable = "";
         return std::unexpected( result.error() );
     }
 
     m_wellFormations = std::move( *result );
+    m_zoneOrder      = zoneOrder;
     m_contentTable   = "";
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellFormationsFile::zoneOrder() const
+{
+    return m_zoneOrder;
 }
 
 //--------------------------------------------------------------------------------------------------
