@@ -57,9 +57,6 @@ RimFaultDistance::RimFaultDistance()
     CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "SelectedFaults", "Faults" );
     m_faults.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_generateButton, "Generate", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_generateButton );
-
     setDeletable( true );
 }
 
@@ -155,11 +152,6 @@ void RimFaultDistance::fieldChangedByUi( const caf::PdmFieldHandle* changedField
             removeGeneratedResult( previousName );
         }
     }
-    else if ( changedField == &m_generateButton )
-    {
-        m_generateButton = false;
-        compute();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,22 +193,8 @@ void RimFaultDistance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_resultName );
     uiOrdering.add( &m_faults );
-    uiOrdering.add( &m_generateButton );
+    uiOrdering.addNewButton( "Generate", [this]() { compute(); } );
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultDistance::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_generateButton )
-    {
-        if ( auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Generate";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

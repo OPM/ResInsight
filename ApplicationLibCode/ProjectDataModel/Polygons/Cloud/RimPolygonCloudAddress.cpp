@@ -31,6 +31,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QColor>
 
@@ -44,6 +45,9 @@ CAF_PDM_SOURCE_INIT( RimPolygonCloudAddress, "RimPolygonCloudAddress" );
 RimPolygonCloudAddress::RimPolygonCloudAddress()
     : objectChanged( this )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitObject( "Sumo Polygon Address", ":/CloudBlobs.svg" );
 
     // Inherited fields, redeclared here so this subclass gets its own ui/xml keyword.
@@ -319,26 +323,27 @@ void RimPolygonCloudAddress::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCloudAddress::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygonCloudAddress::treeItemTags()
 {
-    if ( hasBaseData() ) return;
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-    auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( !treeItemAttribute ) return;
+    if ( hasBaseData() ) return tags;
 
     // Clickable download icon -- fetches base data directly from the tree.
-    auto downloadTag     = caf::PdmUiTreeViewItemAttribute::createTag();
-    downloadTag->icon    = caf::IconProvider( ":/Download.svg" );
-    downloadTag->toolTip = "Fetch polygon data";
-    downloadTag->clicked.connect( this, &RimPolygonCloudAddress::onDownloadTagClicked );
-    treeItemAttribute->tags.push_back( std::move( downloadTag ) );
+    auto downloadTag    = caf::PdmUiTreeViewItemTag::create();
+    downloadTag.icon    = caf::IconProvider( ":/Download.svg" );
+    downloadTag.toolTip = "Fetch polygon data";
+    downloadTag.clicked = [this]( size_t index ) { this->onDownloadTagClicked( nullptr, index ); };
+    tags.push_back( downloadTag );
 
     // Plain "not fetched" marker, no colored pill.
-    auto textTag     = caf::PdmUiTreeViewItemAttribute::createTag();
-    textTag->text    = "[Not fetched]";
-    textTag->bgColor = QColor( Qt::white );
-    textTag->fgColor = QColor( Qt::darkGray );
-    treeItemAttribute->tags.push_back( std::move( textTag ) );
+    auto textTag    = caf::PdmUiTreeViewItemTag::create();
+    textTag.text    = "[Not fetched]";
+    textTag.bgColor = QColor( Qt::white );
+    textTag.fgColor = QColor( Qt::darkGray );
+    tags.push_back( textTag );
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

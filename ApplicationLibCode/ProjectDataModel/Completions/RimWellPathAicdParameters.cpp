@@ -21,7 +21,6 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
-#include "cafPdmDoubleStringValidator.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
@@ -174,26 +173,6 @@ void RimWellPathAicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
         m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly( readOnly );
     }
     additionalGroup->setCollapsedByDefault();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    const caf::PdmField<std::optional<double>>* optionalField  = dynamic_cast<const caf::PdmField<std::optional<double>>*>( field );
-    caf::PdmUiLineEditorAttribute*              lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-    if ( optionalField && lineEditorAttr )
-    {
-        if ( optionalFieldsWithNoValidDefault().count( optionalField ) )
-        {
-            lineEditorAttr->validator = new caf::PdmDoubleStringValidator( "" );
-        }
-        else
-        {
-            lineEditorAttr->validator = new caf::PdmDoubleStringValidator( "1*" );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

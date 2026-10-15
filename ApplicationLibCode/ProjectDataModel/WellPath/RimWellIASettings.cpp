@@ -91,6 +91,7 @@ RimWellIASettings::RimWellIASettings()
     CAF_PDM_InitField( &m_showBox, "showBox", false, "Show model box" );
 
     CAF_PDM_InitFieldNoDefault( &m_geostaticDate, "startDate", "Start Date (geostatic):" );
+    m_geostaticDate.uiCapability()->setAttribute( caf::PdmUiDateEditor::Keys::DATE_FORMAT, "dd MMM yyyy" );
 
     CAF_PDM_InitField( &m_boxValid, "boxValid", false, "Model box is valid" );
     m_boxValid.uiCapability()->setUiHidden( true );
@@ -172,6 +173,11 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
+        m_startMD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, wellPath->uniqueStartMD() );
+        m_startMD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, wellPath->uniqueEndMD() );
+        m_endMD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, wellPath->uniqueStartMD() );
+        m_endMD.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, wellPath->uniqueEndMD() );
+
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             m_startMD.uiCapability()->setUiName( "Start MD [m]" );
@@ -199,34 +205,6 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     modelGroup->add( &m_showBox );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_startMD || field == &m_endMD )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr )
-        {
-            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
-            if ( !wellPath ) return;
-
-            myAttr->m_minimum = wellPath->uniqueStartMD();
-            myAttr->m_maximum = wellPath->uniqueEndMD();
-        }
-    }
-    else if ( field == &m_geostaticDate )
-    {
-        caf::PdmUiDateEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->dateFormat = "dd MMM yyyy";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

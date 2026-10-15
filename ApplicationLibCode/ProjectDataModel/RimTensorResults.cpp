@@ -93,6 +93,7 @@ RimTensorResults::RimTensorResults()
 
     m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_resultFieldNameUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_resultFieldNameUiField.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::HEIGHT_HINT, 50 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,21 +345,6 @@ void RimTensorResults::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 void RimTensorResults::initAfterRead()
 {
     m_resultFieldNameUiField = uiFieldName( m_resultFieldName() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimTensorResults::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_resultFieldNameUiField )
-    {
-        auto attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->heightHint = 50;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

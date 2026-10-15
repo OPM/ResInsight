@@ -31,6 +31,7 @@
 #include "RiuDockWidgetTools.h"
 
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -50,6 +51,9 @@ RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
     , m_isActiveViewer( false )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
@@ -415,20 +419,22 @@ void RimViewWindow::dockInWindow( int mainWindowID )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimViewWindow::treeItemTags()
 {
-    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
+    if ( RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
     {
-        treeItemAttribute->tags.clear();
-        auto tag                   = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->text                  = QString( "%1" ).arg( id() );
+        auto tag                   = caf::PdmUiTreeViewItemTag::create();
+        tag.text                   = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
-        tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
-        tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
-        treeItemAttribute->tags.push_back( std::move( tag ) );
+        tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
+        tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

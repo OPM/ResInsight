@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimGenericJob.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
@@ -71,8 +72,8 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     std::vector<RealizationInfo> setUpSelectedRealizations() const;
     std::string                  outputIteration() const;

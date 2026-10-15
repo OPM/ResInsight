@@ -60,7 +60,6 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void migrateFieldContent( QString& fieldContent, caf::PdmFieldHandle* fieldHandle ) override;
 
 private:

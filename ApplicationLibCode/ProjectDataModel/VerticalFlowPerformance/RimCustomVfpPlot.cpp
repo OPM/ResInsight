@@ -77,9 +77,11 @@ RimCustomVfpPlot::RimCustomVfpPlot()
     m_plotTitle.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_mainDataSource, "MainDataSouce", "Main VFP Data Source" );
+    RiuTools::enableUpDownArrowsForComboBox( &m_mainDataSource );
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonTables, "ComparisonTables", "Comparison Tables" );
     m_comparisonTables.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_comparisonTables.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_curveValueOptions, "CurveValueOptions", "Curve Value Options" );
     CAF_PDM_InitFieldNoDefault( &m_curveMatchingType, "CurveMatchingType", "Curve Matching Type" );
@@ -115,18 +117,23 @@ RimCustomVfpPlot::RimCustomVfpPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_flowRate, "LiquidFlowRate", "Flow Rate" );
     m_flowRate.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_flowRate.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_thp, "THP", "THP" );
     m_thp.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_thp.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_artificialLiftQuantity, "ArtificialLiftQuantity", "Artificial Lift Quantity" );
     m_artificialLiftQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_artificialLiftQuantity.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_waterCut, "WaterCut", "Water Cut" );
     m_waterCut.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_waterCut.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_gasLiquidRatio, "GasLiquidRatio", "Gas Liquid Ratio" );
     m_gasLiquidRatio.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_gasLiquidRatio.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
 
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
     m_xAxisProperties = new RimPlotAxisProperties;
@@ -1310,22 +1317,6 @@ QList<caf::PdmOptionItemInfo> RimCustomVfpPlot::calculateValueOptions( const caf
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCustomVfpPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( auto attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
-    {
-        attrib->showTextFilter = false;
-    }
-
-    if ( field == &m_mainDataSource )
-    {
-        RiuTools::enableUpDownArrowsForComboBox( attribute );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -117,10 +117,14 @@ RimFracture::RimFracture()
 
     CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azimuth" );
     m_azimuth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_azimuth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_azimuth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 360.0 );
 
     CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
     CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency" );
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_perforationEfficiency.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_perforationEfficiency.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
 
     CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture" );
     CAF_PDM_InitField( &m_dip, "Dip", 0.0, "Dip" );
@@ -727,6 +731,14 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 
         m_wellPathDepthAtFracture.uiCapability()->setUiName( fractureTemplate()->wellPathDepthAtFractureUiName() );
 
+        {
+            auto [minimum, maximum] = fractureTemplate()->wellPathDepthAtFractureRange();
+            m_wellPathDepthAtFracture.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                                                    static_cast<double>( minimum ) );
+            m_wellPathDepthAtFracture.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                                                    static_cast<double>( maximum ) );
+        }
+
         if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
              fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH )
         {
@@ -775,46 +787,6 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     else
     {
         m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( true );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_azimuth )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 360;
-        }
-    }
-
-    if ( field == &m_perforationEfficiency )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 1.0;
-        }
-    }
-
-    if ( field == &m_wellPathDepthAtFracture )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            if ( fractureTemplate() )
-            {
-                auto [minimum, maximum] = fractureTemplate()->wellPathDepthAtFractureRange();
-                myAttr->m_minimum       = minimum;
-                myAttr->m_maximum       = maximum;
-            }
-        }
     }
 }
 

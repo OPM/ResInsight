@@ -34,6 +34,7 @@ RimFractureExportSettings::RimFractureExportSettings()
 
     CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename" );
     fileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    fileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
 
     CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply" );
 }
@@ -50,19 +51,4 @@ QList<caf::PdmOptionItemInfo> RimFractureExportSettings::calculateValueOptions( 
         RimTools::caseOptionItems( &options );
     }
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureExportSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &fileName )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
-    }
 }

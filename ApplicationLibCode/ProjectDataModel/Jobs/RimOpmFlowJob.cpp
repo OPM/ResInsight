@@ -106,6 +106,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     m_deckFileName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+    m_workDir.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case for Well Data", "", "Eclipse Case to use for Well Data" );
     CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
@@ -122,6 +123,9 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "WellGroupName", "Well Group Name" );
     m_wellGroupName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 
     CAF_PDM_InitField( &m_wellOpenType,
                        "WellOpenType",
@@ -249,31 +253,6 @@ bool RimOpmFlowJob::matchesKeyValue( const QString& key, const QString& value ) 
         return ( m_deckFileName() == value );
     }
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_workDir )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
-    else if ( field == &m_wellGroupName )
-    {
-        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->enableEditableContent  = true;
-            attr->enableAutoComplete     = false;
-            attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = false;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

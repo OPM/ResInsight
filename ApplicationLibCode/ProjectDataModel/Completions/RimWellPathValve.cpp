@@ -641,6 +641,27 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
                         m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                     }
                 }
+
+                {
+                    double minimumValue = 0.0, maximumValue = 0.0;
+
+                    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
+                    if ( perforationInterval )
+                    {
+                        minimumValue = perforationInterval->startMD();
+                        maximumValue = perforationInterval->endMD();
+                    }
+                    else
+                    {
+                        auto parentWellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
+
+                        minimumValue = parentWellPath->startMD();
+                        maximumValue = parentWellPath->endMD();
+                    }
+                    m_measuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, minimumValue );
+                    m_measuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, maximumValue );
+                }
+
                 uiOrdering.add( &m_measuredDepth, { .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
             }
         }
@@ -661,38 +682,6 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_measuredDepth )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr )
-        {
-            double minimumValue = 0.0, maximumValue = 0.0;
-
-            auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
-            if ( perforationInterval )
-            {
-                minimumValue = perforationInterval->startMD();
-                maximumValue = perforationInterval->endMD();
-            }
-            else
-            {
-                auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
-
-                minimumValue = wellPath->startMD();
-                maximumValue = wellPath->endMD();
-            }
-            myAttr->m_minimum = minimumValue;
-            myAttr->m_maximum = maximumValue;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

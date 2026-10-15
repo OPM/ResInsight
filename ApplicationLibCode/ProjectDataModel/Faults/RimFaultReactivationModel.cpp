@@ -81,6 +81,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
     CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeoMechCase", "Global GeoMech Model" );
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
+    m_baseDir.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
     CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
@@ -137,6 +138,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                            static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FIT_CONTENT ) );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
@@ -460,6 +463,20 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
 
     auto faultGrp = modelGrp->addNewGroup( "Fault Extension" );
+    {
+        double maxExtension = 1000.0;
+        if ( auto eclCase = eclipseCase() )
+        {
+            auto bb      = eclCase->allCellsBoundingBox();
+            maxExtension = bb.max().z() - bb.min().z();
+        }
+
+        for ( auto* field : { &m_faultExtendUpwards, &m_faultExtendDownwards } )
+        {
+            field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+            field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, maxExtension );
+        }
+    }
     faultGrp->add( &m_faultExtendUpwards );
     faultGrp->add( &m_faultExtendDownwards );
 
@@ -551,46 +568,6 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
         }
 
         updateVisualization();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_targets )
-    {
-        if ( auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute ) )
-        {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
-        }
-    }
-    else if ( field == &m_baseDir )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
-    else if ( ( field == &m_faultExtendUpwards ) || ( field == &m_faultExtendDownwards ) )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            auto eclCase = eclipseCase();
-            if ( eclCase )
-            {
-                auto   bb       = eclCase->allCellsBoundingBox();
-                double diff     = bb.max().z() - bb.min().z();
-                attr->m_minimum = 0;
-                attr->m_maximum = diff;
-            }
-            else
-            {
-                attr->m_minimum = 0;
-                attr->m_maximum = 1000;
-            }
-        }
     }
 }
 

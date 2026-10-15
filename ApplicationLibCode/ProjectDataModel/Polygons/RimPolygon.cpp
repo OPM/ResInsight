@@ -38,6 +38,7 @@
 #include "cafPdmUiButton.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "Polygon", "RimPolygon" );
 
@@ -48,6 +49,9 @@ RimPolygon::RimPolygon()
     : objectChanged( this )
     , coordinatesChanged( this )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
@@ -315,21 +319,22 @@ void RimPolygon::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygon::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygon::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( color() ),
-                                                               RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
-                                                               "---" );
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-        tag->clicked.connect( this, &RimPolygon::onColorTagClicked );
+    auto tag = caf::PdmUiTreeViewItemTag::create( RiaColorTools::toQColor( color() ),
+                                                  RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                  "---" );
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
-    }
+    tag.clicked = [this]( size_t index ) { this->onColorTagClicked( nullptr, index ); };
+
+    tags.push_back( tag );
 
     if ( m_isReadOnly )
     {
-        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        tags.push_back( caf::PdmUiTreeViewItemTag::createWithIcon( ":/padlock.svg" ) );
     }
+
+    return tags;
 }

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimPolygonContainer.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafFilePath.h"
 #include "cafSignal.h"
@@ -48,7 +49,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
 private:
     static std::vector<RimPolygon*> importDataFromFile( const QString& fileName );

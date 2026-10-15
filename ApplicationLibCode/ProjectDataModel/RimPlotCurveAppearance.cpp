@@ -92,12 +92,18 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
     CAF_PDM_InitField( &m_curveColorOpacity, "CurveColorOpacity", 1.0f, "Opacity" );
     m_curveColorOpacity.registerKeywordAlias( "CurveColorTransparency" );
     m_curveColorOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_curveColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_curveColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_curveColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
 
     CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color" );
 
     CAF_PDM_InitField( &m_fillColorOpacity, "FillColorOpacity", 1.0f, "Fill Color Opacity" );
     m_fillColorOpacity.registerKeywordAlias( "FillColorTransparency" );
     m_fillColorOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_fillColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_fillColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_fillColorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
 
     CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness" );
     m_curveThickness.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -151,22 +157,6 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     appearanceChanged.send();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurveAppearance ::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_curveColorOpacity || field == &m_fillColorOpacity )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum  = 0.0;
-            myAttr->m_maximum  = 1.0;
-            myAttr->m_decimals = 2;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

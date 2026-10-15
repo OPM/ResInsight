@@ -102,6 +102,9 @@ Rim3dView::Rim3dView()
     , m_animationIntervalMillisec( 50 )
     , m_animationTimerUsers( 0 )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     RiaPreferences* preferences = RiaPreferences::current();
     CAF_ASSERT( preferences );
 
@@ -138,6 +141,8 @@ Rim3dView::Rim3dView()
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
     CAF_PDM_InitScriptableField( &m_scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
+    m_scaleZ.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_scaleZ.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
     m_scaleZ.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
@@ -1989,30 +1994,16 @@ void Rim3dView::dockInPlotWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> Rim3dView::treeItemTags()
 {
-    RimViewWindow::defineObjectEditorAttribute( uiConfigName, attribute );
+    std::vector<caf::PdmUiTreeViewItemTag> tags = RimViewWindow::treeItemTags();
 
-    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && isDockedInPlotView() )
+    if ( isDockedInPlotView() )
     {
-        auto iconTag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        iconTag->icon = caf::IconProvider( ":/PlotWindow.svg" );
-        treeItemAttribute->tags.push_back( std::move( iconTag ) );
+        auto iconTag = caf::PdmUiTreeViewItemTag::create();
+        iconTag.icon = caf::IconProvider( ":/PlotWindow.svg" );
+        tags.push_back( iconTag );
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_scaleZ )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute ) )
-        {
-            attr->enableEditableContent = true;
-            attr->enableAutoComplete    = false;
-        }
-    }
+    return tags;
 }

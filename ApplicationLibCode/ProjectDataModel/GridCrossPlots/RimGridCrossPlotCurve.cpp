@@ -24,6 +24,7 @@
 #include "RiuPlotWidget.h"
 
 #include "cafAssert.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
@@ -35,6 +36,9 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     , m_groupIndex( 0 )
 {
     CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png" );
+
+    // The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
+    uiCapability()->removeAttribute( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS );
 
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
@@ -159,13 +163,4 @@ void RimGridCrossPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     nameGroup->add( &m_curveName );
     nameGroup->add( &m_showLegend );
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    // Implement an empty method to avoid the base class implementation in RimPlotCurve
-    // The color tag is not used for Grid Cross Plot Curves
 }

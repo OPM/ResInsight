@@ -47,7 +47,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QValidator>
 
 #include <algorithm>
 #include <cmath>
@@ -264,21 +263,6 @@ void RimSeismicDifferenceData::defineUiOrdering( QString uiConfigName, caf::PdmU
 void RimSeismicDifferenceData::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     uiTreeOrdering.skipRemainingChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicDifferenceData::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_userClipValue )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 6 );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

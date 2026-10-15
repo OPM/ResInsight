@@ -224,17 +224,6 @@ void RimWellFormationsFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellFormationsFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_contentTable )
-    {
-        RimCsvPreviewTools::setPreviewEditorAttribute( attribute );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Parses the file right after the project is loaded, so the data is available without requiring a
 /// manual reload.
 //--------------------------------------------------------------------------------------------------

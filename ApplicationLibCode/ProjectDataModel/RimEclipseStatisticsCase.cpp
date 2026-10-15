@@ -81,6 +81,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
     CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );
+    m_selectionSummary.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
     m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -880,21 +881,6 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
     }
 
     m_selectionSummary = html;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_selectionSummary == field )
-    {
-        caf::PdmUiTextEditorAttribute* textEditAttrib = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( textEditAttrib )
-        {
-            textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

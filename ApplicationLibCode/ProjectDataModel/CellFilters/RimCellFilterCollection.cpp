@@ -72,6 +72,7 @@ RimCellFilterCollection::RimCellFilterCollection()
 
     CAF_PDM_InitField( &m_combineModeLabel, "CombineModeLabel", QString( "" ), "Combine Polygon and Range Filters Using Operation" );
     m_combineModeLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_combineModeLabel.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET, true );
     m_combineModeLabel.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters" );
@@ -270,18 +271,6 @@ void RimCellFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
     }
 
     updateIconState();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCellFilterCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiLabelEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
-    if ( myAttr )
-    {
-        myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

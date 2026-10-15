@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafFontTools.h"
 #include "cafPdmChildField.h"
@@ -106,7 +107,7 @@ protected:
     caf::PdmFieldHandle* objectToggleField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     static QImage internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWidget* widget, int width, int height );
 

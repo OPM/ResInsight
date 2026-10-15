@@ -56,7 +56,6 @@ private:
     void setFolderPath( const QString& path );
     void createSubFolderItemsFromFolderPaths( const QStringList& folderPaths, int levelsLeft );
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     static void appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,

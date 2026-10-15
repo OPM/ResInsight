@@ -37,9 +37,6 @@ const int defaultMaxRowCount = 1000;
 // Configures the field as a read-only, non-persistent HTML text editor without label
 void initPreviewField( caf::PdmField<QString>& field );
 
-// Call from defineEditorAttribute() for the preview field
-void setPreviewEditorAttribute( caf::PdmUiEditorAttribute* attribute );
-
 // Returns the HTML table, or the error message if the content could not be parsed
 QString htmlTableFromText( const QString& csvText, int maxRowCount = defaultMaxRowCount );
 QString htmlTableFromFile( const QString& filePath, int maxRowCount = defaultMaxRowCount );

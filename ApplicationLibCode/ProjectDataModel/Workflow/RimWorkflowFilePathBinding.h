@@ -35,10 +35,6 @@ public:
 
     caf::PdmFieldHandle* valueField() override { return &m_value; }
 
-protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
 private:
     caf::PdmField<caf::FilePath> m_value;
-    bool                         m_selectDirectory;
 };

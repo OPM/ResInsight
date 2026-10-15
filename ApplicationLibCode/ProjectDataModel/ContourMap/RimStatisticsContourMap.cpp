@@ -198,6 +198,10 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, true );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Gas Given By" );
     caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
@@ -206,6 +210,10 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -524,23 +532,6 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum                       = 0.0;
-            myAttr->m_maximum                       = 1.0;
-            myAttr->m_sliderTickCount               = 20;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

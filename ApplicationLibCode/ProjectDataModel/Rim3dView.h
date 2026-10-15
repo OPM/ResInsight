@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
@@ -290,8 +291,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     void setupBeforeSave() override;
 

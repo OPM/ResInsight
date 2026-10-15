@@ -57,7 +57,6 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RimSumoDataSource*> addDataSources();
     void                            addEnsembles();
@@ -75,18 +74,11 @@ private:
     void clearCachedEnsembleNames();
 
 private:
-    caf::PdmField<bool>                 m_authenticate;
     caf::PdmField<QString>              m_sumoFieldName;
     caf::PdmField<QString>              m_sumoCaseId;
     caf::PdmField<std::vector<QString>> m_sumoEnsembleNames;
 
-    caf::PdmField<bool>                         m_addDataSources;
-    caf::PdmField<bool>                         m_addEnsembles;
     caf::PdmChildArrayField<RimSumoDataSource*> m_sumoDataSources;
-
-    caf::PdmField<bool> m_startServer;
-    caf::PdmField<bool> m_stopServer;
-    caf::PdmField<bool> m_restartServer;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
 

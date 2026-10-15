@@ -43,6 +43,8 @@ RimElasticProperties::RimElasticProperties()
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
+    m_propertiesTable.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_propertiesTable.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
@@ -133,22 +135,6 @@ void RimElasticProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_filePath );
     uiOrdering.add( &m_showScaledProperties );
     uiOrdering.add( &m_propertiesTable );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimElasticProperties::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_propertiesTable )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

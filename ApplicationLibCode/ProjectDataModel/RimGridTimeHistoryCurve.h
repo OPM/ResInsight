@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimStackablePlotCurve.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaDefines.h"
 
@@ -82,7 +83,7 @@ protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
 private:
     RigMainGrid*                     mainGrid();

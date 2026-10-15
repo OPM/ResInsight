@@ -84,10 +84,8 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_enablePicking );
-
-    CAF_PDM_InitField( &m_showImage, "ShowImage", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_showImage );
+    m_enablePicking.xmlCapability()->disableIO();
+    m_enablePicking.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -158,6 +156,37 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     initSliceRanges();
 
+    if ( ( m_seismicData != nullptr ) && m_seismicData->boundingBox()->isValid() )
+    {
+        auto setSliderAttributes = [&]( caf::PdmFieldHandle& field, int minVal, int maxVal, int stepVal )
+        {
+            field.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, minVal );
+            field.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, maxVal );
+            field.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::STEP, stepVal );
+        };
+
+        for ( auto* field : { &m_inlineIndex, &m_xlineIndex, &m_depthIndex } )
+        {
+            field->uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, true );
+        }
+
+        setSliderAttributes( m_inlineIndex, m_seismicData->inlineMin(), m_seismicData->inlineMax(), m_seismicData->inlineStep() );
+        setSliderAttributes( m_xlineIndex, m_seismicData->xlineMin(), m_seismicData->xlineMax(), m_seismicData->xlineStep() );
+        setSliderAttributes( m_depthIndex,
+                             static_cast<int>( m_seismicData->zMin() ),
+                             static_cast<int>( m_seismicData->zMax() ),
+                             static_cast<int>( m_seismicData->zStep() ) );
+
+        auto bb = m_seismicData->boundingBox();
+        for ( auto* field : { &m_zUpperThreshold, &m_zLowerThreshold } )
+        {
+            setSliderAttributes( *field,
+                                 static_cast<int>( -1 * bb->max().z() ),
+                                 static_cast<int>( -1 * bb->min().z() ),
+                                 static_cast<int>( m_seismicData->zStep() ) );
+        }
+    }
+
     auto genGrp = uiOrdering.addNewGroup( "General" );
 
     genGrp->add( &m_userDescription );
@@ -171,7 +200,13 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         {
             auto polyGrp = uiOrdering.addNewGroup( "Polyline Definition" );
             polyGrp->add( &m_targets );
-            polyGrp->add( &m_enablePicking );
+            m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                                    static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FIT_CONTENT ) );
+            m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, (bool)m_enablePicking );
+            m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::BASE_COLOR,
+                                                    m_enablePicking ? QColor( 255, 220, 255 ) : QColor() );
+            polyGrp->addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points",
+                                   [this]() { enablePicking( !m_enablePicking ); } );
         }
         else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
         {
@@ -235,7 +270,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
     if ( ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) && ( m_type() != RiaDefines::SeismicSectionType::SS_WELLPATH ) )
     {
-        uiOrdering.add( &m_showImage );
+        uiOrdering.addNewButton( "Show Image", [this]() { showImageDialog(); } );
     }
 
     uiOrdering.skipRemainingFields();
@@ -247,94 +282,6 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 void RimSeismicSection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     uiTreeOrdering.skipRemainingChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_enablePicking )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            if ( !m_enablePicking )
-            {
-                pbAttribute->m_buttonText = "Start Picking Points";
-            }
-            else
-            {
-                pbAttribute->m_buttonText = "Stop Picking Points";
-            }
-        }
-    }
-    else if ( field == &m_showImage )
-    {
-        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( pbAttribute )
-        {
-            pbAttribute->m_buttonText = "Show Image";
-        }
-    }
-    else if ( field == &m_targets )
-    {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
-        {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
-
-            if ( m_enablePicking )
-            {
-                tvAttribute->baseColor.setRgb( 255, 220, 255 );
-                tvAttribute->alwaysEnforceResizePolicy = true;
-            }
-        }
-    }
-    else if ( ( field == &m_depthIndex ) || ( field == &m_inlineIndex ) || ( field == &m_xlineIndex ) )
-    {
-        if ( ( m_seismicData != nullptr ) && m_seismicData->boundingBox()->isValid() )
-        {
-            auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-            if ( sliderAttrib != nullptr )
-            {
-                sliderAttrib->m_showSpinBox = true;
-                int minVal                  = m_seismicData->inlineMin();
-                int maxVal                  = m_seismicData->inlineMax();
-                int stepVal                 = m_seismicData->inlineStep();
-
-                if ( field == &m_xlineIndex )
-                {
-                    minVal  = m_seismicData->xlineMin();
-                    maxVal  = m_seismicData->xlineMax();
-                    stepVal = m_seismicData->xlineStep();
-                }
-                else if ( field == &m_depthIndex )
-                {
-                    minVal  = m_seismicData->zMin();
-                    maxVal  = m_seismicData->zMax();
-                    stepVal = m_seismicData->zStep();
-                }
-                sliderAttrib->m_maximum = maxVal;
-                sliderAttrib->m_minimum = minVal;
-                sliderAttrib->m_step    = stepVal;
-            }
-        }
-    }
-    else if ( ( field == &m_zUpperThreshold ) || ( field == &m_zLowerThreshold ) )
-    {
-        auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( ( sliderAttrib ) && ( m_seismicData != nullptr ) )
-        {
-            auto bb = m_seismicData->boundingBox();
-            if ( bb->isValid() )
-            {
-                sliderAttrib->m_minimum = -1 * bb->max().z();
-                sliderAttrib->m_maximum = -1 * bb->min().z();
-                sliderAttrib->m_step    = (int)m_seismicData->zStep();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,29 +661,27 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSection::showImageDialog()
+{
+    if ( m_seismicData == nullptr ) return;
+
+    QDialog     w;
+    QLabel      l;
+    QHBoxLayout layout;
+    layout.addWidget( &l );
+    w.setLayout( &layout );
+    QPixmap i = getImage();
+    l.setPixmap( i );
+
+    w.exec();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_enablePicking )
-    {
-        updateConnectedEditors();
-    }
-    else if ( changedField == &m_showImage )
-    {
-        if ( m_seismicData == nullptr ) return;
-
-        QDialog     w;
-        QLabel      l;
-        QHBoxLayout layout;
-        layout.addWidget( &l );
-        w.setLayout( &layout );
-        QPixmap i = getImage();
-        l.setPixmap( i );
-
-        w.exec();
-
-        m_showImage = false;
-    }
-    else if ( changedField != &m_userDescription )
+    if ( changedField != &m_userDescription )
     {
         RigTexturedSection::WhatToUpdateEnum updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_NONE;
 

@@ -39,6 +39,7 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotRegressionCurve, "GridCrossPlotRegressionCurve" );
 
@@ -64,6 +65,9 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
     , m_groupIndex( 0 )
 {
     CAF_PDM_InitObject( "Cross Plot Regression Curve", ":/WellLogCurve16x16.png" );
+
+    // The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
+    uiCapability()->removeAttribute( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS );
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
 
@@ -101,6 +105,8 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
     m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
+    m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
 
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     setSymbol( RiuPlotCurveSymbol::SYMBOL_RECT );
@@ -334,12 +340,32 @@ void RimGridCrossPlotRegressionCurve::defineUiOrdering( QString uiConfigName, ca
 
     regressionCurveGroup->add( &m_expressionText );
 
+    {
+        QFont font;
+        font.setPointSize( font.pointSize() + 2 );
+        m_expressionText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::FONT, font );
+    }
+
     caf::PdmUiGroup* dataSelectionGroup = uiOrdering.addNewGroup( "Data Selection" );
     dataSelectionGroup->add( &m_minRangeX );
     dataSelectionGroup->add( &m_maxRangeX );
     dataSelectionGroup->add( &m_minRangeY );
     dataSelectionGroup->add( &m_maxRangeY );
     dataSelectionGroup->add( &m_showDataSelectionInPlot );
+
+    auto setSliderRange = []( auto& field, const std::pair<double, double>& range )
+    {
+        auto [min, max] = range;
+        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                            RiaNumericalTools::roundToNumSignificantDigitsFloor( min, 2 ) );
+        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                            RiaNumericalTools::roundToNumSignificantDigitsCeil( max, 2 ) );
+        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 3 );
+    };
+    setSliderRange( m_minRangeX, m_dataRangeX );
+    setSliderRange( m_maxRangeX, m_dataRangeX );
+    setSliderRange( m_minRangeY, m_dataRangeY );
+    setSliderRange( m_maxRangeY, m_dataRangeY );
 
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Extrapolation" );
     forecastingGroup->add( &m_minExtrapolationRangeX );
@@ -349,58 +375,6 @@ void RimGridCrossPlotRegressionCurve::defineUiOrdering( QString uiConfigName, ca
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotRegressionCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    // Implement an empty method to avoid the base class implementation in RimPlotCurve
-    // The color tag is not used for Grid Cross Plot Curves
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                             QString                    uiConfigName,
-                                                             caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_minRangeX || field == &m_maxRangeX )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            auto [min, max]    = m_dataRangeX;
-            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigitsFloor( min, 2 );
-            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigitsCeil( max, 2 );
-            myAttr->m_decimals = 3;
-        }
-    }
-    else if ( field == &m_minRangeY || field == &m_maxRangeY )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            auto [min, max]    = m_dataRangeY;
-            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigitsFloor( min, 2 );
-            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigitsCeil( max, 2 );
-            myAttr->m_decimals = 3;
-        }
-    }
-    else if ( field == &m_expressionText )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-
-            QFont font;
-            auto  pointSize = font.pointSize();
-            font.setPointSize( pointSize + 2 );
-            myAttr->font = font;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

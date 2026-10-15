@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimReservoirGridEnsemble.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
@@ -77,8 +78,8 @@ public:
     void setDoComputeMobileVolumeWeightedMean( bool enable ) override;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     void createCaseObjects() override;
     bool detectGridDimensionEquality() override;

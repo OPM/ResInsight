@@ -103,6 +103,12 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.svg", "", "", "WellPath", "A ResInsight Well Path" );
 
+    // The nodes for well paths are created by the well path collection object. When a well path object is asked to
+    // be updated in the project tree, always rebuild the tree from the well path collection object.
+    uiCapability()->setAttribute<std::function<caf::PdmObjectHandle*()>>( caf::PdmUiTreeViewEditor::Keys::OBJECT_FOR_UPDATE_OF_UI_TREE,
+                                                                          []() -> caf::PdmObjectHandle*
+                                                                          { return RimWellPathCollection::instance(); } );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerKeywordAlias( "WellPathName" );
 
@@ -877,21 +883,6 @@ void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
     else
     {
         *( to->m_completionSettings() ) = *( from->m_completionSettings() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    auto myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
-    if ( myAttr )
-    {
-        // The nodes for well paths are created by the well path collection object. When a well path object is asked to
-        // be updated in the project tree, always rebuild the tree from the well path collection object.
-
-        myAttr->objectForUpdateOfUiTree = RimWellPathCollection::instance();
     }
 }
 
