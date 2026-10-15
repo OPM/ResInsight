@@ -174,7 +174,7 @@ def test_export_completion_well_entering_lgr_twice(rips_instance, initialize_tes
     assert len(case.grids()) == 2
 
     rips_instance.project.import_well_paths(
-        [case_root_path + "/wellpath_lgr_twice.dev"]
+        [case_root_path + "/lgr_twice/wellpath_lgr_twice.dev"]
     )
     well_path = rips_instance.project.well_path_by_name("LgrWell")
     assert well_path is not None
@@ -220,7 +220,9 @@ def test_export_completion_well_entering_lgr_twice(rips_instance, initialize_tes
     compdatl_start = lines.index("COMPDATL")
     compdatl_end = lines.index("/", compdatl_start)
     rows = [
-        line for line in lines[compdatl_start:compdatl_end] if line.startswith("LgrWell")
+        line
+        for line in lines[compdatl_start:compdatl_end]
+        if line.startswith("LgrWell")
     ]
     assert len(rows) > 2
     assert all(row.split()[1] == "LGR1" for row in rows)
