@@ -64,6 +64,7 @@ RimFileSummaryCase::RimFileSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath, "AdditionalSummaryFilePath", "Additional File Path (set invisible when ready)" );
     m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
+    m_additionalSummaryFilePath.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
 
     CAF_PDM_InitFieldNoDefault( &m_rftCase, "RftCase", "RFT Data" );
     m_rftCase = new RimRftCase;
@@ -257,21 +258,6 @@ std::unique_ptr<RifReaderOpmRft> RimFileSummaryCase::createOpmRftReader( const Q
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_additionalSummaryFilePath )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

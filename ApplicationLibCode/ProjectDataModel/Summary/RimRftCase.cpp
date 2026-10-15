@@ -96,14 +96,7 @@ void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimRftCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( field == &m_dataDeckFilePath )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_defaultPath = rftFilePath();
-        }
-    }
+    m_dataDeckFilePath.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::DEFAULT_PATH, rftFilePath() );
 }

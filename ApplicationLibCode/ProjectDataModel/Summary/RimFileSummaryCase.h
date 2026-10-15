@@ -72,8 +72,6 @@ public:
                                                                                        RiaThreadSafeLogger*    threadSafeLogger );
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:

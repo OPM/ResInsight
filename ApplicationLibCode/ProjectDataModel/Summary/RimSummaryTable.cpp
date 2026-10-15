@@ -118,6 +118,22 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
     CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
 
+    const auto dateFormatCallback = [this]() -> QString
+    {
+        if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::DECADE || m_resamplingSelection() == RiaDefines::DateTimePeriod::YEAR )
+        {
+            return "yyyy";
+        }
+        if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::MONTH || m_resamplingSelection() == RiaDefines::DateTimePeriod::QUARTER ||
+             m_resamplingSelection() == RiaDefines::DateTimePeriod::HALFYEAR )
+        {
+            return "yyyy-MM";
+        }
+        return "yyyy-MM-dd";
+    };
+    m_startDate.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
+    m_endDate.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
+
     setLegendsVisible( true );
     dockAsPlotWindow();
     setShowWindow( true );
@@ -359,32 +375,6 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     fontGroup->add( &m_maxTimeLabelCount );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryTable::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_startDate || field == &m_endDate )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
-        {
-            QString dateFormat = "yyyy-MM-dd";
-            if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::DECADE || m_resamplingSelection() == RiaDefines::DateTimePeriod::YEAR )
-            {
-                dateFormat = "yyyy";
-            }
-            else if ( m_resamplingSelection() == RiaDefines::DateTimePeriod::MONTH ||
-                      m_resamplingSelection() == RiaDefines::DateTimePeriod::QUARTER ||
-                      m_resamplingSelection() == RiaDefines::DateTimePeriod::HALFYEAR )
-            {
-                dateFormat = "yyyy-MM";
-            }
-
-            myAttr->dateFormat = dateFormat;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

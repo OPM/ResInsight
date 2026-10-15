@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaHashTools.h"
 
@@ -97,8 +98,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    caf::PdmFieldHandle*                   userDescriptionField() override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
 
     void updateTreeItemName();
 

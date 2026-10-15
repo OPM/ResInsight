@@ -49,6 +49,7 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
 
@@ -64,6 +65,9 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
+    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
+                                                                                  [this]() { return treeItemTags(); } );
+
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Summary Case Group",
                                                     ":/SummaryGroup16x16.png",
                                                     "",
@@ -81,6 +85,9 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
     QString tooltipText = QString( "Variables in template is supported, and will be replaced to create name. Example '%1'" ).arg( defaultText );
     CAF_PDM_InitField( &m_nameTemplateString, "NameTemplateString", defaultText, "Name Template", "", tooltipText );
+    m_nameTemplateString.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT,
+                                                       RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName() );
+    m_nameTemplateString.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
@@ -1082,32 +1089,18 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimSummaryEnsemble::treeItemTags()
 {
-    if ( field == &m_nameTemplateString )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            attr->placeholderText        = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
-            attr->notifyWhenTextIsEdited = true;
-        }
-    }
-}
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    if ( m_includeInAutoReload() )
     {
-        if ( m_includeInAutoReload() )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/TimedRefresh.png" );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/TimedRefresh.png" );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

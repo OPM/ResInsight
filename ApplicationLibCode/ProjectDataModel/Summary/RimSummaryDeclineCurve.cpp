@@ -83,27 +83,44 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
     CAF_PDM_InitField( &m_predictionYears, "PredictionYears", 5, "Years" );
     m_predictionYears.setRange( 1, 50 );
     m_predictionYears.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_predictionYears.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 1 );
+    m_predictionYears.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 50 );
 
     CAF_PDM_InitField( &m_hyperbolicDeclineConstant, "HyperbolicDeclineConstant", 0.5, "Decline Constant" );
     m_hyperbolicDeclineConstant.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    // Hyperbolic decline constant must be larger than 0 to avoid calculation issues.
+    m_hyperbolicDeclineConstant.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.001 );
+    m_hyperbolicDeclineConstant.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_hyperbolicDeclineConstant.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
 
     CAF_PDM_InitField( &m_minTimeSliderPosition, "MinTimeSliderPosition", 75, "From" );
     m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_minTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
     CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "To" );
     m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MINIMUM, 0 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::MAXIMUM, 100 );
+    m_maxTimeSliderPosition.uiCapability()->setAttribute( caf::PdmUiSliderEditor::Keys::SHOW_SPIN_BOX, false );
 
     const QString dateFormat = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
 
+    const auto dateFormatCallback = []() { return RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() ); };
+
     CAF_PDM_InitFieldNoDefault( &m_minDate, "MinDate", "From", "", dateFormat );
     m_minDate.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+    m_minDate.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
 
     CAF_PDM_InitFieldNoDefault( &m_maxDate, "MaxDate", "To", "", dateFormat );
     m_maxDate.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+    m_maxDate.uiCapability()->setAttribute<std::function<QString()>>( caf::PdmUiDateEditor::Keys::DATE_FORMAT, dateFormatCallback );
 
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", true, "Show In Plot" );
 
     CAF_PDM_InitFieldNoDefault( &m_equationText, "EquationText", "Equation" );
+    m_equationText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::HEIGHT_HINT, -1 );
     m_equationText.registerGetMethod( this, &RimSummaryDeclineCurve::equationTextProxy );
     m_equationText.uiCapability()->setUiReadOnly( true );
     m_equationText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -414,56 +431,6 @@ void RimSummaryDeclineCurve::fieldChangedByUi( const caf::PdmFieldHandle* change
         loadAndUpdateDataAndPlot();
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         if ( plot ) plot->zoomAll();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimSummaryCurve::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_hyperbolicDeclineConstant )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            // Hyperbolic decline constant must be larger than 0 to avoid calculation issues.
-            myAttr->m_minimum  = 0.001;
-            myAttr->m_maximum  = 1.0;
-            myAttr->m_decimals = 2;
-        }
-    }
-    else if ( field == &m_predictionYears )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = 50;
-        }
-    }
-    else if ( field == &m_equationText )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
-        {
-            myAttr->heightHint = -1;
-        }
-    }
-    else if ( field == &m_minDate || field == &m_maxDate )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
-        {
-            myAttr->dateFormat = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
-        }
-    }
-    else if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum     = 0;
-            myAttr->m_maximum     = 100;
-            myAttr->m_showSpinBox = false;
-        }
     }
 }
 

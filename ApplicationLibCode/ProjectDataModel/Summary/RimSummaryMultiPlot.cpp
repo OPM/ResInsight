@@ -153,6 +153,19 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_goToCommonSettings, "GoToCommonSettings", "" );
     m_goToCommonSettings.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_goToCommonSettings.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::USE_WORD_WRAP, true );
+    m_goToCommonSettings.uiCapability()->setAttribute( caf::PdmUiLabelEditor::Keys::LINK_TEXT,
+                                                       "Select <a href=\"dummy\">Summary Plots</a> to edit Common Readout Settings." );
+    m_goToCommonSettings.uiCapability()
+        ->setAttribute<std::function<void( const QString& )>>( caf::PdmUiLabelEditor::Keys::LINK_ACTIVATED_CALLBACK,
+                                                               []( const QString& link )
+                                                               {
+                                                                   if ( auto plotCollection =
+                                                                            RimMainPlotCollection::current()->summaryMultiPlotCollection() )
+                                                                   {
+                                                                       RiuPlotMainWindowTools::selectAsCurrentItem( plotCollection );
+                                                                   }
+                                                               } );
     m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
@@ -540,28 +553,6 @@ void RimSummaryMultiPlot::childFieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( changedChildField == &m_readOutSettings )
     {
         updateReadOutSettings();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_goToCommonSettings )
-    {
-        if ( auto labelEditorAttribute = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute ) )
-        {
-            labelEditorAttribute->m_useWordWrap           = true;
-            labelEditorAttribute->m_linkText              = "Select <a href=\"dummy\">Summary Plots</a> to edit Common Readout Settings.";
-            labelEditorAttribute->m_linkActivatedCallback = []( const QString& link )
-            {
-                if ( auto plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection() )
-                {
-                    RiuPlotMainWindowTools::selectAsCurrentItem( plotCollection );
-                }
-            };
-        }
     }
 }
 
