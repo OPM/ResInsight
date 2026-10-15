@@ -872,7 +872,15 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     formatter.setColumnSpacing( 3 );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    for ( const auto& gridCompletions : completionsPerGrid )
+    // All LGRs share one set of tables (COMPDATL, WPIMULTL, COMPLMPL) where each row carries its own LGR name
+    std::map<QString, std::vector<RigCompletionData>> completionsPerTable;
+    for ( const auto& [gridName, gridCompletions] : completionsPerGrid )
+    {
+        auto& tableCompletions = completionsPerTable[gridName.isEmpty() ? QString() : QString( "LGR" )];
+        tableCompletions.insert( tableCompletions.end(), gridCompletions.begin(), gridCompletions.end() );
+    }
+
+    for ( const auto& gridCompletions : completionsPerTable )
     {
         std::vector<RigCompletionData> completions = gridCompletions.second;
 
@@ -983,7 +991,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( data.completionDataGridCell().lgrName() );
         }
 
         formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
@@ -1064,7 +1072,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportComplumpTableUsingFormatt
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( data.completionDataGridCell().lgrName() );
         }
 
         formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
@@ -1123,7 +1131,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( completion.completionDataGridCell().lgrName() );
         }
 
         formatter.add( completion.wpimult() );
