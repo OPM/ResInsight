@@ -36,74 +36,41 @@
 
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafSignal.h"
+#include "cafIconProvider.h"
 
+#include <QColor>
 #include <QRect>
-#include <memory>
+#include <QString>
+
+#include <functional>
 
 namespace caf
 {
-class PdmObjectHandle;
-class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
+// A tag shown next to an item in the tree view. Provide tags by setting a
+// std::function<std::vector<PdmUiTreeViewItemTag>()> on an object using PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS
+struct PdmUiTreeViewItemTag
 {
-public:
-    struct Tag : public SignalEmitter
+    enum class Position
     {
-        enum class Position
-        {
-            IN_FRONT,
-            AT_END
-        };
-        Tag()
-            : position( Position::AT_END )
-            , bgColor( Qt::red )
-            , fgColor( Qt::white )
-            , selectedOnly( false )
-            , clicked( this )
-        {
-        }
-        QString      text;
-        IconProvider icon;
-        Position     position;
-        QColor       bgColor;
-        QColor       fgColor;
-        bool         selectedOnly;
-        QRect        rect;
-        QString      toolTip;
-
-        caf::Signal<size_t> clicked;
-
-    private:
-        Tag& operator=( const Tag& rhs ) { return *this; }
+        IN_FRONT,
+        AT_END
     };
 
-    static std::unique_ptr<Tag> createTag();
-    static std::unique_ptr<Tag> createTag( const QColor& color, const QColor& backgroundColor, const QString& text );
-    static void appendTagToTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
+    QString      text;
+    IconProvider icon;
+    Position     position     = Position::AT_END;
+    QColor       bgColor      = Qt::red;
+    QColor       fgColor      = Qt::white;
+    bool         selectedOnly = false;
+    QRect        rect;
+    QString      toolTip;
 
-    std::vector<std::unique_ptr<Tag>> tags;
-};
+    // Called with the index of the clicked object in its parent container
+    std::function<void( size_t )> clicked;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiTreeViewEditorAttribute()
-        : currentObject( nullptr )
-        , objectForUpdateOfUiTree( nullptr )
-    {
-    }
-
-public:
-    QStringList columnHeaders;
-
-    /// This object is set as current item in the tree view in configureAndUpdateUi()
-    caf::PdmObjectHandle* currentObject;
-
-    caf::PdmObjectHandle* objectForUpdateOfUiTree;
+    static PdmUiTreeViewItemTag create();
+    static PdmUiTreeViewItemTag create( const QColor& color, const QColor& backgroundColor, const QString& text );
+    static PdmUiTreeViewItemTag createWithIcon( const QString& iconResourceString );
 };
 
 } // namespace caf

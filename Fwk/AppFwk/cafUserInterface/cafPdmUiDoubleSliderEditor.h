@@ -80,6 +80,10 @@ public:
                                                                    Keys::SLIDER_TICK_COUNT,
                                                                    Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE };
 
+    // Clearing restores the editor defaults, use when the range is unknown to avoid keeping a stale range
+    static void setRange( PdmUiItem* uiItem, double minimum, double maximum );
+    static void clearRange( PdmUiItem* uiItem );
+
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -97,7 +101,11 @@ private:
     QPointer<QSlider>   m_slider;
     double              m_sliderValue;
 
-    PdmUiDoubleSliderEditorAttribute m_attributes;
+    double m_minimum;
+    double m_maximum;
+    int    m_decimals;
+    int    m_sliderTickCount;
+    bool   m_delaySliderUpdateUntilRelease;
 };
 
 } // end namespace caf

@@ -49,9 +49,9 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 {
-    if ( m_attribute.pickEventHandler )
+    if ( m_pickEventHandler )
     {
-        m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+        m_pickEventHandler->unregisterAsPickEventHandler();
     }
 }
 
@@ -62,33 +62,23 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
 {
     PdmUiLineEditor::configureAndUpdateUi( uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
+    m_enablePicking = uiField()->attribute<bool>( Keys::ENABLE_PICKING, uiConfigName ).value_or( false );
+    if ( auto handler = uiField()->attribute<std::shared_ptr<PickEventHandler>>( Keys::PICK_EVENT_HANDLER, uiConfigName ) )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );
+        m_pickEventHandler = handler.value();
     }
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_PICKING, uiConfigName ) )
-        {
-            m_attribute.enablePicking = val.value();
-        }
+    uiField()->validateAttributes( "PdmUiPickableLineEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiPickableLineEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    if ( m_attribute.pickEventHandler )
+    if ( m_pickEventHandler )
     {
-        if ( m_attribute.enablePicking )
+        if ( m_enablePicking )
         {
-            m_attribute.pickEventHandler->registerAsPickEventHandler();
+            m_pickEventHandler->registerAsPickEventHandler();
         }
         else
         {
-            m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+            m_pickEventHandler->unregisterAsPickEventHandler();
         }
     }
 

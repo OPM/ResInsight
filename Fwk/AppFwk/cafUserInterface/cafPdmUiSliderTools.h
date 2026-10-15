@@ -56,36 +56,12 @@ public:
     void fixup( QString& stringValue ) const override;
 };
 
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiDoubleSliderEditorAttribute()
-    {
-        m_minimum                       = 0;
-        m_maximum                       = 10;
-        m_decimals                      = 6;
-        m_sliderTickCount               = 2000;
-        m_delaySliderUpdateUntilRelease = false;
-    }
-
-public:
-    double m_minimum;
-    double m_maximum;
-    int    m_decimals;
-    int    m_sliderTickCount;
-    bool   m_delaySliderUpdateUntilRelease;
-};
-
 class PdmUiSliderTools
 {
 public:
-    static void updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
-    static int convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
-    static double
-        convertFromSliderValue( QSlider* slider, int sliderValue, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static void   updateSliderPosition( QSlider* slider, double value, double minimum, double maximum );
+    static int    convertToSliderValue( QSlider* slider, double value, double minimum, double maximum );
+    static double convertFromSliderValue( QSlider* slider, int sliderValue, double minimum, double maximum );
 };
 
 } //namespace caf

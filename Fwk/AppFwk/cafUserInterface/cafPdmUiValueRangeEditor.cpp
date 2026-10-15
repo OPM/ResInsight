@@ -39,6 +39,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -61,10 +62,22 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_lineEditMax->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_sliderMax->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
+    m_minimum                       = 0.0;
+    m_maximum                       = 10.0;
+    m_decimals                      = 6;
+    m_sliderTickCount               = 2000;
+    m_delaySliderUpdateUntilRelease = false;
+
+    if ( auto uiItem = uiField() )
     {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        m_minimum = uiItem->attribute<double>( PdmUiDoubleSliderEditor::Keys::MINIMUM, uiConfigName ).value_or( m_minimum );
+        m_maximum = uiItem->attribute<double>( PdmUiDoubleSliderEditor::Keys::MAXIMUM, uiConfigName ).value_or( m_maximum );
+        m_decimals = uiItem->attribute<int>( PdmUiDoubleSliderEditor::Keys::DECIMALS, uiConfigName ).value_or( m_decimals );
+        m_sliderTickCount = uiItem->attribute<int>( PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, uiConfigName )
+                                .value_or( m_sliderTickCount );
+        m_delaySliderUpdateUntilRelease =
+            uiItem->attribute<bool>( PdmUiDoubleSliderEditor::Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, uiConfigName )
+                .value_or( m_delaySliderUpdateUntilRelease );
     }
 
     // A pair is represented as a list of QVariant by pdmToVariant(const std::pair<T,U>&)
@@ -90,23 +103,22 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
     auto [minimum, maximum] = getTwoDoublesFromVariant();
 
     m_sliderMin->blockSignals( true );
-    m_sliderMin->setMaximum( m_attributes.m_sliderTickCount );
+    m_sliderMin->setMaximum( m_sliderTickCount );
     m_sliderMin->blockSignals( false );
 
     QString textValueMin = QString( "%1" ).arg( minimum );
 
-    PdmDoubleValidator* pdmValidator =
-        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
+    PdmDoubleValidator* pdmValidator = new PdmDoubleValidator( m_minimum, m_maximum, m_decimals, this );
     pdmValidator->fixup( textValueMin );
 
     m_lineEditMin->setValidator( pdmValidator );
     m_lineEditMin->setText( textValueMin );
 
     m_sliderValueMin = minimum;
-    PdmUiSliderTools::updateSliderPosition( m_sliderMin, minimum, m_attributes );
+    PdmUiSliderTools::updateSliderPosition( m_sliderMin, minimum, m_minimum, m_maximum );
 
     m_sliderMax->blockSignals( true );
-    m_sliderMax->setMaximum( m_attributes.m_sliderTickCount );
+    m_sliderMax->setMaximum( m_sliderTickCount );
     m_sliderMax->blockSignals( false );
 
     QString textValueMax = QString( "%1" ).arg( maximum );
@@ -117,7 +129,7 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_lineEditMax->setText( textValueMax );
 
     m_sliderValueMax = maximum;
-    PdmUiSliderTools::updateSliderPosition( m_sliderMax, maximum, m_attributes );
+    PdmUiSliderTools::updateSliderPosition( m_sliderMax, maximum, m_minimum, m_maximum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,10 +165,10 @@ void PdmUiValueRangeEditor::slotMaxEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiValueRangeEditor::slotMinSliderValueChanged( int value )
 {
-    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_sliderMin, value, m_attributes );
+    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_sliderMin, value, m_minimum, m_maximum );
     m_sliderValueMin      = newDoubleValue;
 
-    if ( m_attributes.m_delaySliderUpdateUntilRelease )
+    if ( m_delaySliderUpdateUntilRelease )
     {
         m_lineEditMin->setText( QString( "%1" ).arg( m_sliderValueMin ) );
     }
@@ -171,10 +183,10 @@ void PdmUiValueRangeEditor::slotMinSliderValueChanged( int value )
 //--------------------------------------------------------------------------------------------------
 void PdmUiValueRangeEditor::slotMaxSliderValueChanged( int value )
 {
-    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_sliderMax, value, m_attributes );
+    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_sliderMax, value, m_minimum, m_maximum );
     m_sliderValueMax      = newDoubleValue;
 
-    if ( m_attributes.m_delaySliderUpdateUntilRelease )
+    if ( m_delaySliderUpdateUntilRelease )
     {
         m_lineEditMax->setText( QString( "%1" ).arg( m_sliderValueMax ) );
     }
@@ -214,8 +226,8 @@ void PdmUiValueRangeEditor::clampAndWriteValues( double valueMin, double valueMa
         valueMin = valueMax;
     }
 
-    valueMin         = qBound( m_attributes.m_minimum, valueMin, m_attributes.m_maximum );
-    valueMax         = qBound( m_attributes.m_minimum, valueMax, m_attributes.m_maximum );
+    valueMin         = qBound( m_minimum, valueMin, m_maximum );
+    valueMax         = qBound( m_minimum, valueMax, m_maximum );
     m_sliderValueMin = valueMin;
     m_sliderValueMax = valueMax;
 

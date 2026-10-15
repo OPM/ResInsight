@@ -48,23 +48,6 @@
 namespace caf
 {
 //==================================================================================================
-///
-//==================================================================================================
-class PdmUiColorEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    bool showAlpha;
-    bool showLabel;
-
-public:
-    PdmUiColorEditorAttribute()
-    {
-        showAlpha = false;
-        showLabel = true;
-    }
-};
-
-//==================================================================================================
 /// See cafPdmFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
 class PdmUiColorEditor : public PdmUiFieldLabelEditorHandle
@@ -107,7 +90,8 @@ private:
     QPointer<QToolButton> m_colorSelectionButton;
     QPointer<QLabel>      m_colorPreviewLabel;
 
-    PdmUiColorEditorAttribute m_attributes;
+    bool m_showAlpha = false;
+    bool m_showLabel = true;
 };
 
 } // end namespace caf

@@ -209,61 +209,32 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     m_useSingleSelectionMode = PdmUiTreeSelectionQModel::isSingleValueField( fieldValue );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
-
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_TEXT_FILTER, uiConfigName ) )
-        {
-            m_attributes.showTextFilter = val.value();
-        }
+        m_showTextFilter = uiItem->attribute<bool>( Keys::SHOW_TEXT_FILTER, uiConfigName ).value_or( true );
+        m_showToggleAllCheckbox = uiItem->attribute<bool>( Keys::SHOW_TOGGLE_ALL_CHECKBOX, uiConfigName ).value_or( true );
+        m_singleSelectionMode = uiItem->attribute<bool>( Keys::SINGLE_SELECTION_MODE, uiConfigName ).value_or( false );
+        m_showCheckBoxes      = uiItem->attribute<bool>( Keys::SHOW_CHECK_BOXES, uiConfigName ).value_or( true );
+        m_showContextMenu     = uiItem->attribute<bool>( Keys::SHOW_CONTEXT_MENU, uiConfigName ).value_or( true );
+        m_heightHint          = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ).value_or( -1 );
+        m_currentIndexFieldHandle =
+            uiItem->attribute<caf::PdmFieldHandle*>( Keys::CURRENT_INDEX_FIELD_HANDLE, uiConfigName ).value_or( nullptr );
 
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_TOGGLE_ALL_CHECKBOX, uiConfigName ) )
-        {
-            m_attributes.showToggleAllCheckbox = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SINGLE_SELECTION_MODE, uiConfigName ) )
-        {
-            m_attributes.singleSelectionMode = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_CHECK_BOXES, uiConfigName ) )
-        {
-            m_attributes.showCheckBoxes = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_CONTEXT_MENU, uiConfigName ) )
-        {
-            m_attributes.showContextMenu = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
-        {
-            m_attributes.heightHint = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
         uiItem->validateAttributes( "PdmUiTreeSelectionEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
-    m_model->showCheckBoxes( m_attributes.showCheckBoxes );
+    m_model->showCheckBoxes( m_showCheckBoxes );
 
     if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
-        m_useSingleSelectionMode = m_attributes.singleSelectionMode;
+        m_useSingleSelectionMode = m_singleSelectionMode;
 
-        if ( !m_attributes.showTextFilter )
+        if ( !m_showTextFilter )
         {
             m_textFilterLineEdit->hide();
         }
 
-        if ( m_attributes.singleSelectionMode || !m_attributes.showToggleAllCheckbox )
+        if ( m_singleSelectionMode || !m_showToggleAllCheckbox )
         {
             m_toggleAllCheckBox->hide();
         }
@@ -303,7 +274,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
         m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
 
-        m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
+        m_model->enableSingleSelectionMode( m_singleSelectionMode );
 
         m_toggleAllCheckBox->hide();
     }
@@ -312,9 +283,9 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->setSelectionMode( QAbstractItemView::ExtendedSelection );
     }
 
-    if ( m_attributes.heightHint > 0 )
+    if ( m_heightHint > 0 )
     {
-        m_treeView->setHeightHint( m_attributes.heightHint );
+        m_treeView->setHeightHint( m_heightHint );
 
         // The tree selection editor is a multi-row editor, so its row is given a stretch factor in the
         // property layout. Without an upper bound the tree view would expand to fill all available vertical
@@ -326,7 +297,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         }
         else
         {
-            m_treeView->setMaximumHeight( m_attributes.heightHint );
+            m_treeView->setMaximumHeight( m_heightHint );
         }
     }
     else
@@ -339,9 +310,9 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     m_model->resetUiValueCache();
 
-    if ( m_attributes.currentIndexFieldHandle )
+    if ( m_currentIndexFieldHandle )
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_currentIndexFieldHandle->uiCapability();
         if ( uiFieldHandle )
         {
             QModelIndexList indices          = allVisibleSourceModelIndices();
@@ -463,7 +434,7 @@ bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 {
-    if ( !m_attributes.showContextMenu ) return;
+    if ( !m_showContextMenu ) return;
 
     QMenu menu;
 
@@ -835,9 +806,9 @@ void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
         m_proxyModel->setData( current, true, Qt::CheckStateRole );
     }
 
-    if ( m_attributes.currentIndexFieldHandle )
+    if ( m_currentIndexFieldHandle )
     {
-        PdmUiFieldHandle* uiFieldHandle = m_attributes.currentIndexFieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = m_currentIndexFieldHandle->uiCapability();
         if ( uiFieldHandle )
         {
             QVariant v = m_proxyModel->data( current, PdmUiTreeSelectionQModel::optionItemValueRole() );

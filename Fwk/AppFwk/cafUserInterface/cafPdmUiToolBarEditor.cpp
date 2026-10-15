@@ -283,21 +283,23 @@ void PdmUiToolBarEditor::setFocusWidgetFromKeyword( const QString& fieldKeyword 
         {
             widget->setFocus( Qt::ActiveWindowFocusReason );
 
-            PdmUiLineEditorAttribute attributes;
+            bool selectAllOnFocusEvent = false;
 
             for ( auto field : m_fields )
             {
                 if ( field->keyword() == fieldKeyword )
                 {
-                    caf::PdmUiObjectHandle* uiObject = uiObj( field->ownerObject() );
-                    if ( uiObject )
+                    if ( auto uiField = field->uiCapability() )
                     {
-                        uiObject->editorAttribute( field, uiEditorConfigName(), &attributes );
+                        selectAllOnFocusEvent = uiField
+                                                    ->attribute<bool>( PdmUiLineEditor::Keys::SELECT_ALL_ON_FOCUS_EVENT,
+                                                                       uiEditorConfigName() )
+                                                    .value_or( false );
                     }
                 }
             }
 
-            if ( attributes.selectAllOnFocusEvent )
+            if ( selectAllOnFocusEvent )
             {
                 auto lineEdit = dynamic_cast<QLineEdit*>( widget );
                 if ( lineEdit )

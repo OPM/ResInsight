@@ -67,58 +67,35 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiLabelEditorAttribute attributes;
-    if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    const bool    useWordWrap = uiField()->attribute<bool>( Keys::USE_WORD_WRAP, uiConfigName ).value_or( false );
+    const QString linkText    = uiField()->attribute<QString>( Keys::LINK_TEXT, uiConfigName ).value_or( QString() );
+    const auto    linkActivatedCallback =
+        uiField()->attribute<std::function<void( const QString& )>>( Keys::LINK_ACTIVATED_CALLBACK, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<bool>( Keys::USE_WORD_WRAP, uiConfigName ) )
-        {
-            attributes.m_useWordWrap = val.value();
-        }
+    uiField()->validateAttributes( "PdmUiLabelEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-        if ( auto val = uiItem->attribute<bool>( Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET, uiConfigName ) )
-        {
-            attributes.m_useSingleWidgetInsteadOfLabelAndEditorWidget = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<QString>( Keys::LINK_TEXT, uiConfigName ) )
-        {
-            attributes.m_linkText = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<std::function<void( const QString& )>>( Keys::LINK_ACTIVATED_CALLBACK,
-                                                                                  uiConfigName ) )
-        {
-            attributes.m_linkActivatedCallback = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiLabelEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    if ( !attributes.m_linkText.isEmpty() )
+    if ( !linkText.isEmpty() )
     {
         // Configure rich text and hyper link support
         m_label->setTextFormat( Qt::RichText );
         m_label->setTextInteractionFlags( Qt::TextBrowserInteraction );
 
-        caf::setLabelText( m_label, attributes.m_linkText );
+        caf::setLabelText( m_label, linkText );
     }
     else
     {
         PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
-    if ( attributes.m_linkActivatedCallback )
+    // Called on every UI update, so drop the previous connection to avoid invoking the callback multiple times
+    disconnect( m_label, &QLabel::linkActivated, this, nullptr );
+
+    if ( linkActivatedCallback && linkActivatedCallback.value() )
     {
         connect( m_label,
                  &QLabel::linkActivated,
-                 [attributes]( const QString& link ) { attributes.m_linkActivatedCallback( link ); } );
+                 this,
+                 [callback = linkActivatedCallback.value()]( const QString& link ) { callback( link ); } );
     }
 }
 
@@ -127,16 +104,10 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLabelEditor::createCombinedWidget( QWidget* parent )
 {
-    if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
+    const QString uiConfigName;
+    if ( uiField()->attribute<bool>( Keys::USE_SINGLE_WIDGET_INSTEAD_OF_LABEL_AND_EDITOR_WIDGET, uiConfigName ).value_or( false ) )
     {
-        const QString             uiConfigName;
-        PdmUiLabelEditorAttribute attributes;
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-
-        if ( attributes.m_useSingleWidgetInsteadOfLabelAndEditorWidget )
-        {
-            return createLabelWidget( parent );
-        }
+        return createLabelWidget( parent );
     }
 
     return nullptr;
@@ -157,14 +128,10 @@ QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
 {
     if ( m_label.isNull() )
     {
-        PdmUiLabelEditorAttribute attributes;
-        if ( auto uiObject = uiObj( uiField()->fieldHandle()->ownerObject() ) )
-        {
-            const QString uiConfigName;
-            uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-        }
+        const QString uiConfigName;
+        const bool    useWordWrap = uiField()->attribute<bool>( Keys::USE_WORD_WRAP, uiConfigName ).value_or( false );
 
-        if ( attributes.m_useWordWrap )
+        if ( useWordWrap )
         {
             m_label = new QLabel( parent );
             m_label->setWordWrap( true );

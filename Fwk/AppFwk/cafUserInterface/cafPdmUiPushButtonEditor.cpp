@@ -67,40 +67,21 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_pushButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    PdmUiPushButtonEditorAttribute attributes;
-    caf::PdmUiObjectHandle*        uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    uiField()->validateAttributes( "PdmUiPushButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<QString>( Keys::BUTTON_TEXT, uiConfigName ) )
-        {
-            attributes.m_buttonText = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<QIcon>( Keys::BUTTON_ICON, uiConfigName ) )
-        {
-            attributes.m_buttonIcon = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiPushButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
+    const QString buttonText = uiField()->attribute<QString>( Keys::BUTTON_TEXT, uiConfigName ).value_or( QString() );
+    const QIcon   buttonIcon = uiField()->attribute<QIcon>( Keys::BUTTON_ICON, uiConfigName ).value_or( QIcon() );
 
     QVariant variantFieldValue = uiField()->uiValue();
 
-    if ( !attributes.m_buttonIcon.isNull() )
+    if ( !buttonIcon.isNull() )
     {
-        m_pushButton->setIcon( attributes.m_buttonIcon );
+        m_pushButton->setIcon( buttonIcon );
     }
 
-    if ( !attributes.m_buttonText.isEmpty() )
+    if ( !buttonText.isEmpty() )
     {
-        m_pushButton->setText( attributes.m_buttonText );
+        m_pushButton->setText( buttonText );
     }
     else
     {

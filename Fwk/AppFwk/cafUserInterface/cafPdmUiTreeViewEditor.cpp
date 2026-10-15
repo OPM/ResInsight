@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrArrayFieldHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
@@ -222,26 +223,22 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    PdmUiTreeViewEditorAttribute editorAttributes;
-
-    {
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() );
-        if ( uiObjectHandle )
-        {
-            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
-        }
-    }
-
-    m_treeViewModel->setColumnHeaders( editorAttributes.columnHeaders );
     m_treeViewModel->setUiConfigName( uiConfigName );
     m_treeViewModel->setPdmItemRoot( this->pdmItemRoot() );
 
-    if ( editorAttributes.currentObject )
+    if ( auto uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() ) )
     {
-        PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->uiCapability();
-        if ( uiObjectHandle )
+        if ( auto currentObjectFunction =
+                 uiObjectHandle->attribute<std::function<PdmObjectHandle*()>>( Keys::CURRENT_OBJECT, uiConfigName );
+             currentObjectFunction && currentObjectFunction.value() )
         {
-            selectAsCurrentItem( uiObjectHandle );
+            if ( PdmObjectHandle* currentObject = currentObjectFunction.value()() )
+            {
+                if ( PdmUiObjectHandle* currentUiObject = currentObject->uiCapability() )
+                {
+                    selectAsCurrentItem( currentUiObject );
+                }
+            }
         }
     }
 
@@ -320,12 +317,14 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors
         PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
         if ( uiObjectHandle )
         {
-            PdmUiTreeViewEditorAttribute editorAttributes;
-            QString                      uiConfigName;
-            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
-            if ( editorAttributes.objectForUpdateOfUiTree )
+            auto updateObjectFunction =
+                uiObjectHandle->attribute<std::function<PdmObjectHandle*()>>( Keys::OBJECT_FOR_UPDATE_OF_UI_TREE );
+            if ( updateObjectFunction && updateObjectFunction.value() )
             {
-                itemToUpdate = editorAttributes.objectForUpdateOfUiTree->uiCapability();
+                if ( PdmObjectHandle* objectForUpdate = updateObjectFunction.value()() )
+                {
+                    itemToUpdate = objectForUpdate->uiCapability();
+                }
             }
         }
 
@@ -596,6 +595,21 @@ bool PdmUiTreeViewEditor::updateSelectionManager()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The delegate keeps tags until the next rebuild, so the owner may be deleted before a click
+//--------------------------------------------------------------------------------------------------
+static PdmUiTreeViewItemTag guardedTag( PdmUiTreeViewItemTag tag, PdmObjectHandle* owner )
+{
+    if ( tag.clicked )
+    {
+        tag.clicked = [owner = PdmPointer<PdmObjectHandle>( owner ), clicked = std::move( tag.clicked )]( size_t index )
+        {
+            if ( owner.notNull() ) clicked( index );
+        };
+    }
+    return tag;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRootIndex /* = QModelIndex() */ )
@@ -628,44 +642,46 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                 {
                     size_t indexInParentField = reorderability->indexOf( pdmObject );
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
-                        tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
-                        tag->selectedOnly = true;
+                        auto tag         = PdmUiTreeViewItemTag::create();
+                        tag.icon         = caf::IconProvider( ":/caf/Up16x16.png" );
+                        tag.selectedOnly = true;
                         if ( reorderability->canItemBeMovedUp( indexInParentField ) )
                         {
-                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
+                            tag.clicked = [reorderability]( size_t index ) { reorderability->moveItemUp( index ); };
                         }
                         else
                         {
-                            tag->icon.setActive( false );
+                            tag.icon.setActive( false );
                         }
 
-                        m_delegate->addTag( filterIndex, std::move( tag ) );
+                        m_delegate->addTag( filterIndex, guardedTag( tag, pdmObject ) );
                     }
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
-                        tag->icon         = IconProvider( ":/caf/Down16x16.png" );
-                        tag->selectedOnly = true;
+                        auto tag         = PdmUiTreeViewItemTag::create();
+                        tag.icon         = IconProvider( ":/caf/Down16x16.png" );
+                        tag.selectedOnly = true;
                         if ( reorderability->canItemBeMovedDown( indexInParentField ) )
                         {
-                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
+                            tag.clicked = [reorderability]( size_t index ) { reorderability->moveItemDown( index ); };
                         }
                         else
                         {
-                            tag->icon.setActive( false );
+                            tag.icon.setActive( false );
                         }
-                        m_delegate->addTag( filterIndex, std::move( tag ) );
+                        m_delegate->addTag( filterIndex, guardedTag( tag, pdmObject ) );
                     }
                 }
             }
 
-            PdmUiTreeViewItemAttribute attribute;
-            uiObjectHandle->objectEditorAttribute( "", &attribute );
-            for ( auto& tag : attribute.tags )
+            if ( auto tagsFunction = uiObjectHandle->attribute<TreeItemTagsFunction>( Keys::TREE_ITEM_TAGS );
+                 tagsFunction && tagsFunction.value() )
             {
-                if ( !tag->text.isEmpty() || tag->icon.valid() )
+                for ( const auto& tag : tagsFunction.value()() )
                 {
-                    m_delegate->addTag( filterIndex, std::move( tag ) );
+                    if ( !tag.text.isEmpty() || tag.icon.valid() )
+                    {
+                        m_delegate->addTag( filterIndex, guardedTag( tag, uiObjectHandle->objectHandle() ) );
+                    }
                 }
             }
         }

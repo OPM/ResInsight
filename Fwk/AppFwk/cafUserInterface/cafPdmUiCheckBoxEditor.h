@@ -43,31 +43,10 @@
 #include <QPointer>
 #include <QWidget>
 
+#include <set>
+
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiCheckBoxEditorAttribute()
-        : m_useNativeCheckBoxLabel( false )
-        , m_useWordWrap( false )
-    {
-    }
-
-    void setNativeCheckBox( bool enable );
-    void setWordWrap( bool enable );
-
-    bool useNativeCheckBox() const;
-    bool useWordWrap() const;
-
-private:
-    bool m_useNativeCheckBoxLabel;
-    bool m_useWordWrap;
-};
-
 //==================================================================================================
 //
 // Checkbox editor used to display default Qt checkbox
@@ -85,6 +64,16 @@ public:
     PdmUiCheckBoxEditor() {}
     ~PdmUiCheckBoxEditor() override {}
 
+    struct Keys
+    {
+        // bool. Show the label as text on the checkbox itself. Not compatible with WORD_WRAP.
+        static inline const QString USE_NATIVE_CHECKBOX = QStringLiteral( "useNativeCheckBox" );
+        // bool. Wrap the label text. Not compatible with USE_NATIVE_CHECKBOX.
+        static inline const QString WORD_WRAP = QStringLiteral( "wordWrap" );
+    };
+
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::USE_NATIVE_CHECKBOX, Keys::WORD_WRAP };
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
@@ -93,7 +82,7 @@ protected:
 protected slots:
     void slotClicked( bool checked );
 
-    virtual PdmUiCheckBoxEditorAttribute defaultAttributes() const;
+    virtual bool useNativeCheckBoxByDefault() const;
 
 private:
     QPointer<QCheckBox> m_checkBox;
@@ -120,7 +109,7 @@ public:
     static void configureFieldForEditor( caf::PdmFieldHandle* fieldHandle );
 
 protected:
-    PdmUiCheckBoxEditorAttribute defaultAttributes() const override;
+    bool useNativeCheckBoxByDefault() const override;
 };
 
 } // end namespace caf

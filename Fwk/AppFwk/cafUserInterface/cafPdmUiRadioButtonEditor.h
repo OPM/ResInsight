@@ -52,18 +52,6 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiRadioButtonEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiRadioButtonEditorAttribute() { orientation = Qt::Vertical; }
-
-public:
-    Qt::Orientation orientation; // Vertical or horizontal layout of radio buttons
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class PdmUiRadioButtonEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
@@ -72,6 +60,16 @@ class PdmUiRadioButtonEditor : public PdmUiFieldLabelEditorHandle
 public:
     PdmUiRadioButtonEditor();
     ~PdmUiRadioButtonEditor() override;
+
+    // Attribute key constants for compile-time safety and discoverability
+    struct Keys
+    {
+        // Qt::Orientation. Vertical (default) or horizontal layout of radio buttons
+        static inline const QString ORIENTATION = QStringLiteral( "orientation" );
+    };
+
+    // Set of all supported attributes for validation
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::ORIENTATION };
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -91,8 +89,8 @@ private:
     QPointer<QHBoxLayout>  m_horizontalLayout;
     QPointer<QButtonGroup> m_buttonGroup;
 
-    QList<QPointer<QRadioButton>>   m_radioButtons;
-    PdmUiRadioButtonEditorAttribute m_attributes;
+    QList<QPointer<QRadioButton>> m_radioButtons;
+    Qt::Orientation               m_orientation = Qt::Vertical;
 };
 
 } // end namespace caf

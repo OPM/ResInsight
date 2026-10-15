@@ -80,7 +80,11 @@ private:
     double m_sliderValueMin;
     double m_sliderValueMax;
 
-    PdmUiDoubleSliderEditorAttribute m_attributes;
+    double m_minimum;
+    double m_maximum;
+    int    m_decimals;
+    int    m_sliderTickCount;
+    bool   m_delaySliderUpdateUntilRelease;
 };
 
 } // end namespace caf

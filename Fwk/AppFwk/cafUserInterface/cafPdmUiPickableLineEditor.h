@@ -43,22 +43,6 @@ namespace caf
 {
 class PickEventHandler;
 
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiPickableLineEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiPickableLineEditorAttribute()
-        : enablePicking( false )
-    {
-    }
-
-public:
-    bool                              enablePicking;
-    std::shared_ptr<PickEventHandler> pickEventHandler;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -74,17 +58,23 @@ public:
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
     {
+        // bool. Register the pick event handler when true
         static inline const QString ENABLE_PICKING = QStringLiteral( "enablePicking" );
+        // std::shared_ptr<PickEventHandler>. Handler receiving pick events for the field
+        static inline const QString PICK_EVENT_HANDLER = QStringLiteral( "pickEventHandler" );
     };
 
     // Set of all supported attributes for validation
-    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::ENABLE_PICKING };
+    inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::ENABLE_PICKING, Keys::PICK_EVENT_HANDLER };
 
 protected:
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
-    PdmUiPickableLineEditorAttribute m_attribute;
+    bool                              m_enablePicking = false;
+    std::shared_ptr<PickEventHandler> m_pickEventHandler;
 };
 
 } // end namespace caf
+
+Q_DECLARE_METATYPE( std::shared_ptr<caf::PickEventHandler> )

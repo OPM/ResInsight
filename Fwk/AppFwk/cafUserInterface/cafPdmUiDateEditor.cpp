@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmLogging.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiAttributeTools.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSelectionManager.h"
@@ -70,27 +71,13 @@ void PdmUiDateEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    uiField()->validateAttributes( "PdmUiDateEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
+    QString dateFormat =
+        PdmUiAttributeTools::stringAttribute( uiField(), Keys::DATE_FORMAT, uiConfigName ).value_or( QString() );
+    if ( !dateFormat.isEmpty() )
     {
-        if ( auto val = uiItem->attribute<QString>( Keys::DATE_FORMAT, uiConfigName ) )
-        {
-            m_attributes.dateFormat = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiDateEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    if ( !m_attributes.dateFormat.isEmpty() )
-    {
-        m_dateEdit->setDisplayFormat( m_attributes.dateFormat );
+        m_dateEdit->setDisplayFormat( dateFormat );
     }
 
     m_dateEdit->setDate( uiField()->uiValue().toDate() );

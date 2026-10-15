@@ -44,16 +44,6 @@
 
 namespace caf
 {
-class PdmUiToolButtonEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiToolButtonEditorAttribute() { m_checkable = true; }
-
-public:
-    bool        m_checkable;
-    QSizePolicy m_sizePolicy;
-};
-
 class PdmUiToolButtonEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
