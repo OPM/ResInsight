@@ -22,6 +22,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
+#include "RiaTimer.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "JobCommands/RicRunJobFeature.h"
@@ -29,20 +30,13 @@
 
 #include "RifOpmDeckFileTools.h"
 
-#include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimJobWellSettings.h"
-#include "RimOilField.h"
 #include "RimOpmFlowJob.h"
 #include "RimOpmFlowJobSettings.h"
-#include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryEnsemble.h"
-#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
 
 #include "RiuGuiTheme.h"
@@ -51,6 +45,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSignal.h"
 
 #include <QFile>
 
@@ -62,12 +57,16 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
     , m_subJobsStarted( 0 )
+    , m_refreshTimer( std::make_unique<RiaTimer>() )
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_inputEnsemble, "Ensemble", "Input Ensemble" );
     m_inputEnsemble = nullptr;
     m_inputEnsemble.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_outputEnsembleName, "OutputEnsembleName", QString( "wp-0" ), "Output Ensemble Name" );
+    m_outputEnsembleName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
     m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -101,6 +100,8 @@ RimEnsembleJob::RimEnsembleJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createGridEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSummaryEnsemble );
 
+    m_refreshTimer->tick.connect( this, &RimEnsembleJob::onRefreshTriggered );
+
     setDeletable( true );
 }
 
@@ -122,6 +123,14 @@ QString RimEnsembleJob::jobInputFileKey()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::initAfterRead()
+{
+    m_outputEnsembleName = QString( "wp-%1" ).arg( m_outputIterationNumber.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::initAfterCopy()
 {
     m_outputEnsembleFileSet = nullptr;
@@ -133,15 +142,15 @@ void RimEnsembleJob::initAfterCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::stop()
+void RimEnsembleJob::stop()
 {
-    if ( !isRunning() ) return false;
-
-    for ( auto& subJob : m_subJobs() )
+    if ( isRunning() )
     {
-        subJob->stop();
+        for ( auto& subJob : m_subJobs() )
+        {
+            subJob->stop();
+        }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,6 +265,8 @@ bool RimEnsembleJob::execute()
         return false;
     }
 
+    m_refreshTimer->start();
+
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
     m_subJobsCompleted = 0;
@@ -307,7 +318,17 @@ bool RimEnsembleJob::execute()
     setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
+    if ( anyJobsStarted ) setStarted();
+
     return anyJobsStarted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::onRefreshTriggered( const caf::SignalEmitter* emitter )
+{
+    if ( isRunning() ) updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,9 +355,11 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
+    RimGenericJob::setFinished( runOk );
     setDeletable( true );
-    setState( RimGenericJob::Completed );
     updateConnectedEditors();
+
+    m_refreshTimer->stop();
 
     if ( runOk )
     {
@@ -431,6 +454,7 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_inputEnsemble );
+    genGrp->add( &m_outputEnsembleName );
     genGrp->add( &m_createSummaryEnsemble );
     genGrp->add( &m_createGridEnsemble );
 
@@ -504,6 +528,25 @@ void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::Pdm
             tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
             tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
             treeItemAttribute->tags.push_back( std::move( tag ) );
+
+            if ( state() == JobState::Running )
+            {
+                auto timeTag = caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::black ),
+                                                                           QColor( Qt::white ),
+                                                                           runTimeString().toUtf8().constData() );
+                treeItemAttribute->tags.push_back( std::move( timeTag ) );
+            }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_outputIterationNumber )
+    {
+        m_outputEnsembleName = QString::fromStdString( outputIteration() );
     }
 }

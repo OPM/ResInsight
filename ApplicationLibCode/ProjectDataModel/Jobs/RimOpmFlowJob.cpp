@@ -98,7 +98,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     , m_fileDeckIsRestart( false )
     , m_startStepForProgress( -1 )
     , jobCompleted( this )
-    , progressUpdate( this )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -154,9 +153,6 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitField( &m_autoLoadResults, "AutoLoadResults", true, "Automatic loading of results from job" );
     m_autoLoadResults.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
-    m_isChildJob.uiCapability()->setUiHidden( true );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
@@ -293,7 +289,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         return;
     }
 
-    if ( m_isChildJob() )
+    if ( isChildJob() )
     {
         m_workDir.uiCapability()->setUiReadOnly( true );
         uiOrdering.add( &m_workDir );
@@ -722,6 +718,15 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimOpmFlowJob::numberOfProcesses()
+{
+    if ( !RiaPreferencesOpm::current()->useMpi() ) return 1;
+    return m_jobSettings()->mpiProcesses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -735,9 +740,6 @@ QStringList RimOpmFlowJob::command()
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
     {
-        cmd.append( RiaWslTools::wslCommand() );
-        cmd.append( opmPref->wslOptions() );
-
         workDir  = RiaWslTools::convertToWslPath( workDir );
         dataFile = RiaWslTools::convertToWslPath( dataFile );
     }
@@ -746,7 +748,7 @@ QStringList RimOpmFlowJob::command()
     {
         cmd.append( opmPref->mpirunCommand() );
         cmd.append( QString( "-np" ) );
-        cmd.append( QString( "%1" ).arg( m_jobSettings->mpiProcesses() ) );
+        cmd.append( QString( "%1" ).arg( numberOfProcesses() ) );
     }
 
     cmd.append( opmPref->opmFlowCommand() );
@@ -942,7 +944,14 @@ void RimOpmFlowJob::onProgress( double percentageDone )
 {
     m_percentageDone = percentageDone;
     updateConnectedEditors();
-    progressUpdate.send( percentageDone );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::shouldUseWsl()
+{
+    return RiaPreferencesOpm::current()->useWsl();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1360,12 +1369,4 @@ void RimOpmFlowJob::setJobWellSettings( RimJobWellSettings* jobWellSettings )
 void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
 {
     m_autoLoadResults = autoLoadResults;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::setIsChildJob( bool isChildJob )
-{
-    m_isChildJob = isChildJob;
 }

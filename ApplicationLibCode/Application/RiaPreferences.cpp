@@ -25,6 +25,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesBatch.h"
 #include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
@@ -278,6 +279,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_opmPreferences, "opmPreferences", "opmPreferences" );
     m_opmPreferences = new RiaPreferencesOpm();
 
+    CAF_PDM_InitFieldNoDefault( &m_batchPreferences, "batchPreferences", "batchPreferences" );
+    m_batchPreferences = new RiaPreferencesBatch();
+
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 
@@ -495,6 +499,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         m_opmPreferences()->appendItems( uiOrdering );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameBatchScheduler() )
+    {
+        m_batchPreferences()->appendItems( uiOrdering );
+    }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
     {
@@ -675,6 +683,14 @@ QString RiaPreferences::tabNameOpmFlow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameBatchScheduler()
+{
+    return "Batch Scheduler";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameSystem()
 {
     return "System";
@@ -726,6 +742,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameScripting();
     names << tabNameCloudApi();
     names << tabNameOpmFlow();
+    names << tabNameBatchScheduler();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
@@ -1076,6 +1093,14 @@ RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
 RiaPreferencesOpm* RiaPreferences::opmPreferences() const
 {
     return m_opmPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesBatch* RiaPreferences::batchPreferences() const
+{
+    return m_batchPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

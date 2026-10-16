@@ -4,6 +4,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaHpcDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.cpp
@@ -13,6 +14,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaExperimentalFeatures.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOpm.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesBatch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesCloudApi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
@@ -26,6 +28,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringPool.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaTimer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.cpp
