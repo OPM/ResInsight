@@ -478,7 +478,8 @@ void RimFileSummaryCase::setAdditionalSummaryFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::onProjectBeingSaved()
 {
-    // If additional data is stored in temp folder, copy to project folder and remove file in temp folder. The project file is not written
+    // If additional data is stored in temp folder, copy to project folder and remove file in temp folder. Files in other folders are
+    // copied and kept, so a project saved with Save As does not lose the data of the original project. The project file is not written
     // yet, so additionalSummaryDataFilePath() would still point to the temp folder on the first save.
     const QString projectFileName = RimProject::current() ? RimProject::current()->fileName() : QString();
     if ( projectFileName.isEmpty() ) return;
@@ -493,7 +494,8 @@ void RimFileSummaryCase::onProjectBeingSaved()
 
             if ( QFile::copy( existingFilePath, currentFilePath ) )
             {
-                QFile::remove( existingFilePath );
+                const bool isInTempFolder = QFileInfo( existingFilePath ).absoluteDir() == QDir( QDir::tempPath() );
+                if ( isInTempFolder ) QFile::remove( existingFilePath );
                 m_additionalSummaryFilePath = currentFilePath;
             }
             else

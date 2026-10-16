@@ -175,6 +175,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryEnsemble::
 
     auto ensemble = mainCollection->addEnsemble( newCases, m_ensembleName(), true );
 
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        summaryCase->updateAutoShortName();
+    }
+
     // The name template is only used when auto naming is disabled
     if ( !m_ensembleName().isEmpty() ) ensemble->setAutoName( false );
     RiaSummaryTools::updateSummaryEnsembleNames();

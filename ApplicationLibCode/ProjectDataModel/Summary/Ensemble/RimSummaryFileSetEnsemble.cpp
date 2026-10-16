@@ -63,6 +63,35 @@ QString commonHeaderFolder( const std::vector<RimFileSummaryCase*>& fileCases )
 
     return folder;
 }
+
+// Path of a summary header file relative to the common folder. A single realization has no distinguishing folder, so the parent folder
+// name is included to allow a unique suffix match if realizations are added to the file set later.
+QString headerStorageKey( const QString& header, const QString& commonFolder )
+{
+    QString key = header.mid( commonFolder.size() );
+    if ( !key.contains( '/' ) )
+    {
+        const int lastSeparator = header.lastIndexOf( '/' );
+        const int prevSeparator = lastSeparator > 0 ? header.lastIndexOf( '/', lastSeparator - 1 ) : -1;
+        if ( prevSeparator >= 0 ) key = header.mid( prevSeparator + 1 );
+    }
+    return key;
+}
+
+std::map<QString, QString> parseAdditionalSummaryFiles( const QString& text )
+{
+    std::map<QString, QString> additionalFileForHeader;
+    for ( const auto& line : text.split( '\n', Qt::SkipEmptyParts ) )
+    {
+        // The additional file name is generated and does not contain separator characters
+        auto separatorIndex = line.lastIndexOf( '|' );
+        if ( separatorIndex > 0 )
+        {
+            additionalFileForHeader[line.left( separatorIndex )] = line.mid( separatorIndex + 1 );
+        }
+    }
+    return additionalFileForHeader;
+}
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -250,13 +279,21 @@ void RimSummaryFileSetEnsemble::storeAdditionalSummaryFiles()
 
     const QString commonFolder = internal::commonHeaderFolder( fileCases );
 
-    QStringList lines;
+    // Keep entries that could not be restored (for example when the additional files were not copied with the project), so the mapping
+    // is not lost on the next save
+    auto entries = internal::parseAdditionalSummaryFiles( m_additionalSummaryFiles() );
     for ( auto fileSummaryCase : fileCases )
     {
         QString additionalFile = fileSummaryCase->additionalSummaryFilePath();
         if ( additionalFile.isEmpty() ) continue;
 
-        lines.push_back( fileSummaryCase->summaryHeaderFilename().mid( commonFolder.size() ) + "|" + QFileInfo( additionalFile ).fileName() );
+        entries[internal::headerStorageKey( fileSummaryCase->summaryHeaderFilename(), commonFolder )] = QFileInfo( additionalFile ).fileName();
+    }
+
+    QStringList lines;
+    for ( const auto& [key, additionalFileName] : entries )
+    {
+        lines.push_back( key + "|" + additionalFileName );
     }
 
     m_additionalSummaryFiles = lines.join( '\n' );
@@ -269,16 +306,7 @@ void RimSummaryFileSetEnsemble::restoreAdditionalSummaryFiles( const std::vector
 {
     if ( m_additionalSummaryFiles().isEmpty() ) return;
 
-    std::map<QString, QString> additionalFileForHeader;
-    for ( const auto& line : m_additionalSummaryFiles().split( '\n', Qt::SkipEmptyParts ) )
-    {
-        // The additional file name is generated and does not contain separator characters
-        auto separatorIndex = line.lastIndexOf( '|' );
-        if ( separatorIndex > 0 )
-        {
-            additionalFileForHeader[line.left( separatorIndex )] = line.mid( separatorIndex + 1 );
-        }
-    }
+    const auto additionalFileForHeader = internal::parseAdditionalSummaryFiles( m_additionalSummaryFiles() );
 
     std::vector<RimFileSummaryCase*> fileCases;
     for ( auto summaryCase : summaryCases )
@@ -302,7 +330,7 @@ void RimSummaryFileSetEnsemble::restoreAdditionalSummaryFiles( const std::vector
     // stored path to avoid losing the user-defined vectors.
     auto findAdditionalFile = [&]( const QString& header ) -> QString
     {
-        auto it = additionalFileForHeader.find( header.mid( commonFolder.size() ) );
+        auto it = additionalFileForHeader.find( internal::headerStorageKey( header, commonFolder ) );
         if ( it != additionalFileForHeader.end() ) return it->second;
 
         QString match;
