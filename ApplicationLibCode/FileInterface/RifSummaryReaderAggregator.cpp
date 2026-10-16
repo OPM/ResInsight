@@ -52,9 +52,11 @@ std::pair<bool, std::vector<double>> RifSummaryReaderAggregator::values( const R
     {
         auto [isOk, readerValues] = reader->values( resultAddress );
 
-        if ( !readerValues.empty() ) anyReaderHasValues = true;
-
-        if ( readerValues.empty() )
+        if ( !readerValues.empty() )
+        {
+            anyReaderHasValues = true;
+        }
+        else
         {
             // When a well is introduced, no data is present before the time step the well is introduced
             // Add values of zero for this interval

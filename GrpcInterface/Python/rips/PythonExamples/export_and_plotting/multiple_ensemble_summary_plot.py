@@ -23,7 +23,7 @@ summary_plot_collection = project.summary_plot_collection()
 plot = summary_plot_collection.new_summary_plot(ensembles=ensembles, address="FOPT")
 
 # Append more subplots to the multi plot containing the first subplot
-multi_plot = project.descendants(rips.MultiSummaryPlot)[-1]
+multi_plot = plot.ancestor(rips.MultiSummaryPlot)
 multi_plot.append_subplot(ensembles=ensembles, address="FWPT")
 multi_plot.append_subplot(ensembles=ensembles, address="FGPT")
 

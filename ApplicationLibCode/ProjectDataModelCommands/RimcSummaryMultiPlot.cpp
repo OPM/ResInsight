@@ -55,6 +55,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryMultiPlot_appendSubplot
 
     auto multiPlot = self<RimSummaryMultiPlot>();
 
+    if ( !m_summaryCases().empty() && !m_ensembles().empty() )
+    {
+        return std::unexpected( "Specify either summary cases or ensembles, not both." );
+    }
+
     RimSummaryPlot* newPlot = RimcSummaryPlotCollection_newSummaryPlot::createSummaryPlot( m_summaryCases.ptrReferencedObjectsByType(),
                                                                                            m_ensembles.ptrReferencedObjectsByType(),
                                                                                            m_addressString() );

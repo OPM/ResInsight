@@ -62,8 +62,13 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSummaryPlot::execute()
 {
-    RimSummaryPlot* newPlot =
-        createSummaryPlot( m_summaryCases.ptrReferencedObjectsByType(), allEnsembles( m_ensemble(), m_ensembles ), m_addressString() );
+    auto ensembles = allEnsembles( m_ensemble(), m_ensembles );
+    if ( !m_summaryCases().empty() && !ensembles.empty() )
+    {
+        return std::unexpected( "Specify either summary cases or ensembles, not both." );
+    }
+
+    RimSummaryPlot* newPlot = createSummaryPlot( m_summaryCases.ptrReferencedObjectsByType(), ensembles, m_addressString() );
 
     // Plots created without an address are already added to a multi plot
     if ( newPlot && !newPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
@@ -172,6 +177,11 @@ RimcSummaryPlotCollection_newSummaryMultiPlot::RimcSummaryPlotCollection_newSumm
 std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSummaryMultiPlot::execute()
 {
     if ( m_addressStrings().empty() ) return std::unexpected( "Specify at least one address." );
+
+    if ( !m_summaryCases().empty() && !m_ensembles().empty() )
+    {
+        return std::unexpected( "Specify either summary cases or ensembles, not both." );
+    }
 
     // A subplot without an address is created in a separate multi plot
     for ( const QString& address : m_addressStrings() )
