@@ -22,6 +22,7 @@
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
@@ -29,6 +30,7 @@
 #include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "EclipseCommands/RicImportEclipseCaseFeature.h"
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "RicImportFormationNamesFeature.h"
@@ -48,6 +50,8 @@
 #include "RimFileSummaryCase.h"
 #include "RimGeneric3dView.h"
 #include "RimGenericViewCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -644,7 +648,13 @@ RimProject_loadCase::RimProject_loadCase( caf::PdmObjectHandle* self )
 {
     CAF_PDM_InitObject( "Load Case", "", "", "Load a grid case from file and add it to the project" );
 
-    CAF_PDM_InitScriptableField( &m_path, "Path", QString(), "Path", "", "", "Path to the grid file (EGRID, GRID, GRDECL or ROFF)" );
+    CAF_PDM_InitScriptableField( &m_path,
+                                 "Path",
+                                 QString(),
+                                 "Path",
+                                 "",
+                                 "",
+                                 "Path to the grid file (EGRID, GRID, GRDECL or ROFF) or geomechanical case (ODB, INP or PVD)" );
     CAF_PDM_InitScriptableField( &m_gridOnly, "GridOnly", false, "Grid Only", "", "", "Load the grid geometry only, without results" );
 }
 
@@ -682,8 +692,24 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path() );
     }
 
+    if ( RiaDefines::isGeoMechFileType( RiaDefines::obtainFileTypeFromFileName( absolutePath ) ) )
+    {
+        if ( !RiaApplication::instance()->openOdbCaseFromFile( absolutePath ) )
+        {
+            return std::unexpected( QString( "Unable to load geomechanical case from %1" ).arg( absolutePath ) );
+        }
+        auto geoMechCases = project->activeOilField()->geoMechModels()->cases();
+        if ( geoMechCases.empty() )
+        {
+            return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+        }
+        return geoMechCases.back();
+    }
+
     RifReaderSettings readerSettings = m_gridOnly() ? RiaPreferencesGrid::gridOnlyReaderSettings()
                                                     : RiaPreferencesGrid::current()->readerSettings();
+
+    auto viewsBefore = RicImportEclipseCaseFeature::allEclipseViews( project );
 
     const bool createPlot = false;
     const bool createView = false;
@@ -694,6 +720,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
     {
         return std::unexpected( QString( "Unable to load case from %1" ).arg( absolutePath ) );
     }
+
+    // Surfaces beside the grid (e.g. fractures), as the GUI import does
+    RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( QStringList{ absolutePath }, viewsBefore );
 
     const int caseId = fileOpenMetaData.createdCaseIds.front();
     for ( RimCase* rimCase : project->allGridCases() )
