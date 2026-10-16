@@ -25,8 +25,8 @@
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
+#include "RimWellEventSegment.h"
 #include "RimWellEventState.h"
-#include "RimWellEventTubing.h"
 #include "RimWellEventType.h"
 #include "RimWellEventValve.h"
 #include "RimWellEventWellSpec.h"
@@ -247,9 +247,9 @@ RimWellEventValve* RimWellEventTimeline::addValveEvent( RimWellPath* wellPath, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventTubing* RimWellEventTimeline::addTubingEvent( RimWellPath* wellPath, const QDateTime& date )
+RimWellEventSegment* RimWellEventTimeline::addSegmentEvent( RimWellPath* wellPath, const QDateTime& date )
 {
-    auto* event = new RimWellEventTubing();
+    auto* event = new RimWellEventSegment();
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
@@ -483,11 +483,11 @@ bool RimWellEventTimeline::applyEvent( RimWellPathCollection* wellPathCollection
                 }
                 break;
             }
-            case RimWellEvent::EventType::TUBING:
+            case RimWellEvent::EventType::SEGMENT:
             {
-                if ( auto* tubingEvent = dynamic_cast<RimWellEventTubing*>( event ) )
+                if ( auto* segmentEvent = dynamic_cast<RimWellEventSegment*>( event ) )
                 {
-                    return applyTubingEvent( *tubingEvent, *wellPath );
+                    return applySegmentEvent( *segmentEvent, *wellPath );
                 }
                 break;
             }
@@ -538,7 +538,7 @@ bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellEventTimeline::applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath )
+bool RimWellEventTimeline::applySegmentEvent( const RimWellEventSegment& event, RimWellPath& wellPath )
 {
     auto* segmentCollection = wellPath.segmentCollection();
     if ( !segmentCollection )

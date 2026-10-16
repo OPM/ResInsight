@@ -42,7 +42,7 @@ public:
     {
         PERF,
         VALVE,
-        TUBING,
+        SEGMENT,
         WSTATE,
         WTYPE,
         WELLSPEC,

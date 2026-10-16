@@ -189,7 +189,7 @@ class FakeTimeline:
         self.perf_calls = []
         self.perf_events = []
         self.keyword_calls = []
-        self.tubing_calls = []
+        self.segment_calls = []
         self.valve_calls = []
         self.state_calls = []
         self.wellspec_calls = []
@@ -213,8 +213,8 @@ class FakeTimeline:
         self.keyword_calls.append(kwargs)
         return self._new_event()
 
-    def add_tubing_event(self, **kwargs):
-        self.tubing_calls.append(kwargs)
+    def add_segment_event(self, **kwargs):
+        self.segment_calls.append(kwargs)
         return self._new_event()
 
     def add_valve_event(self, **kwargs):
@@ -1913,7 +1913,7 @@ class TestApplying:
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
-        call = timeline.tubing_calls[0]
+        call = timeline.segment_calls[0]
         assert call["start_md"] == 0.0
         assert call["end_md"] == 2500.0
         assert call["inner_diameter"] == 0.15
@@ -1942,7 +1942,7 @@ class TestApplying:
         assert report.events_applied == 0
         assert report.events_skipped == 1
         assert "PRESSURE_COMPONENTS must be H--, HF-, or HFA" in report.errors[0]
-        assert timeline.tubing_calls == []
+        assert timeline.segment_calls == []
 
     def test_tubing_is_reported_as_renamed_event(self):
         text = (

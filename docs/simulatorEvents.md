@@ -205,16 +205,16 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 | `COMPLETION_NUMBER` | no | `completion_number` (COMPLUMP grouping) |
 | `FILTER` | no | case-level combined data filter attached to the perforation: a declared `FILTER` variable (`FILTER=POROPERM`) or an inline quoted expression (`FILTER="PORO > 0.4"`) — see [Filter expressions](#filter-expressions) |
 
-**SEGMENT** → `add_tubing_event` and `add_segment_interval`
+**SEGMENT** → `add_segment_event` and `add_segment_interval`
 
-Each event adds the underlying tubing timeline event and a corresponding **Segment Interval** with the same measured-depth range, diameter, and roughness.
+Each event adds the underlying segment timeline event and a corresponding **Segment Interval** with the same measured-depth range, diameter, and roughness.
 
 | Attribute | Required | Maps to |
 |---|---|---|
-| `MDSTART` | yes | tubing and segment interval `start_md` |
-| `MDEND` | yes | tubing and segment interval `end_md` |
-| `INNER_DIAMETER` | no | tubing `inner_diameter` [m] |
-| `ROUGHNESS` | no | tubing `roughness` [m] |
+| `MDSTART` | yes | segment event and segment interval `start_md` |
+| `MDEND` | yes | segment event and segment interval `end_md` |
+| `INNER_DIAMETER` | no | segment event `inner_diameter` [m] |
+| `ROUGHNESS` | no | segment event `roughness` [m] |
 | `PRESSURE_COMPONENTS` | no | MSW `pressure_drop`: `H--`, `HF-` or `HFA` |
 
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)

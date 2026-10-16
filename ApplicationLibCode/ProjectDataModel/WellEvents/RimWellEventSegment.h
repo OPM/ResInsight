@@ -24,16 +24,16 @@
 
 //==================================================================================================
 ///
-/// Tubing event - defines changes to tubing/liner diameter and roughness
+/// Segment event - defines changes to segment (tubing/liner) diameter and roughness
 ///
 //==================================================================================================
-class RimWellEventTubing : public RimWellEvent
+class RimWellEventSegment : public RimWellEvent
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellEventTubing();
-    ~RimWellEventTubing() override;
+    RimWellEventSegment();
+    ~RimWellEventSegment() override;
 
     // Getters
     double startMD() const;

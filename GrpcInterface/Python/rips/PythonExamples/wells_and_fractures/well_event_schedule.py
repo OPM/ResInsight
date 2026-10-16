@@ -4,7 +4,7 @@
 Example demonstrating how to use well event timeline and schedule data generation.
 
 This example shows:
-1. Creating well events (perforations, tubing, valves) on a timeline
+1. Creating well events (perforations, segment, valves) on a timeline
 2. Applying events up to a specific date using set_timestamp()
 3. Viewing the created completions after applying events
 4. Generating Eclipse schedule text from the event timeline
@@ -41,8 +41,8 @@ def main():
     well_path_coll = project.descendants(rips.WellPathCollection)[0]
     timeline = well_path_coll.event_timeline()
 
-    # Add tubing event (installed early)
-    _tubing_event = timeline.add_tubing_event(
+    # Add segment event (installed early)
+    _segment_event = timeline.add_segment_event(
         event_date="2024-01-01",
         well_path=well_path,
         start_md=0.0,
@@ -50,7 +50,7 @@ def main():
         inner_diameter=0.15,
         roughness=1.0e-5,
     )
-    print("   Added tubing event on 2024-01-01 (MD 0-2500m)")
+    print("   Added segment event on 2024-01-01 (MD 0-2500m)")
 
     # Add first perforation event.
     # completion_number assigns the perforation to a completion group, which makes
@@ -213,7 +213,7 @@ def main():
 
     # Apply events up to March 15, 2024
     # This should create:
-    # - Tubing interval (Jan 1)
+    # - Segment interval (Jan 1)
     # - First perforation (Feb 1)
     # - Valve in first perforation (Mar 1)
     # But NOT the second perforation (Apr 1)
@@ -235,7 +235,7 @@ def main():
         if valves:
             print(f"        Valves: {len(valves)}")
 
-    # Check MSW settings (tubing intervals)
+    # Check MSW settings (segment intervals)
     msw_settings = well_path.segment_collection()
     if msw_settings:
         print(f"   MSW diameter/roughness mode: {msw_settings.diameter_roughness_mode}")
@@ -382,7 +382,7 @@ def main():
     print("- timeline = well_path.event_timeline()")
     print("- timeline.add_perf_event(event_date='2024-01-01', well_name='WellA', ...)")
     print(
-        "- timeline.add_tubing_event(event_date='2024-01-01', well_name='WellA', ...)"
+        "- timeline.add_segment_event(event_date='2024-01-01', well_name='WellA', ...)"
     )
     print("- timeline.add_valve_event(event_date='2024-01-01', well_name='WellA', ...)")
     print("- timeline.add_well_keyword_event(  # Well-specific Eclipse keywords:")
