@@ -55,6 +55,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
+    std::pair<double, double> computePolygonPlaneDepthLimits() const;
+
     caf::PdmField<bool>         m_isClosed;
     caf::PdmField<bool>         m_showLines;
     caf::PdmField<int>          m_lineThickness;

@@ -156,6 +156,31 @@ void RimPolygonAppearance::setSphereColor( const cvf::Color3f& color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimPolygonAppearance::computePolygonPlaneDepthLimits() const
+{
+    auto allCases = RimProject::current()->allGridCases();
+    if ( allCases.empty() ) return { 0.0, 10000.0 };
+
+    double min = std::numeric_limits<double>::max();
+    double max = -std::numeric_limits<double>::max();
+
+    for ( auto gridCase : allCases )
+    {
+        auto bb = gridCase->allCellsBoundingBox();
+
+        min = std::min( min, bb.min().z() );
+        max = std::max( max, bb.max().z() );
+    }
+
+    auto adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( -min, 2 );
+    auto adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( -max, 2 );
+
+    return { adjustedMax, adjustedMin };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showLines );
@@ -177,31 +202,8 @@ void RimPolygonAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     {
         uiOrdering.add( &m_polygonPlaneDepth );
 
-        auto allCases = RimProject::current()->allGridCases();
-        if ( allCases.empty() )
-        {
-            m_polygonPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
-            m_polygonPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 10000.0 );
-        }
-        else
-        {
-            double min = std::numeric_limits<double>::max();
-            double max = -std::numeric_limits<double>::max();
-
-            for ( auto gridCase : allCases )
-            {
-                auto bb = gridCase->allCellsBoundingBox();
-
-                min = std::min( min, bb.min().z() );
-                max = std::max( max, bb.max().z() );
-            }
-
-            auto adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( -min, 2 );
-            auto adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( -max, 2 );
-
-            m_polygonPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, adjustedMax );
-            m_polygonPlaneDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, adjustedMin );
-        }
+        auto [minDepth, maxDepth] = computePolygonPlaneDepthLimits();
+        caf::PdmUiDoubleSliderEditor::setRange( m_polygonPlaneDepth.uiCapability(), minDepth, maxDepth );
     }
 
     uiOrdering.add( &m_isClosed );
