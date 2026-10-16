@@ -23,6 +23,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <vector>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -30,12 +32,15 @@ namespace RiaHpcTools
 {
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
 
-void        stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
-QString     findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
-QStringList listJobs( RiaDefines::BatchSchedulerType scheduler );
+void                              stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
+QString                           findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
+std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler );
 
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );
+
+const std::vector<std::vector<QString>> decodeSlurmJobs( QStringList stdOut );
+const std::vector<std::vector<QString>> decodeLsfJobs( QStringList stdOut );
 
 } // namespace RiaHpcTools

@@ -21,6 +21,7 @@
 #include "RiaHpcDefines.h"
 
 #include <atomic>
+#include <vector>
 
 #include <QMutex>
 #include <QObject>
@@ -42,7 +43,7 @@ public slots:
     void gatherInformation();
 
 signals:
-    void informationGathered( const QStringList& jobInfo );
+    void informationGathered( const std::vector<std::vector<QString>> jobInfo );
     void finished();
 
 private:

@@ -76,7 +76,7 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     m_jobView->verticalHeader()->setVisible( false );
 
     QStringList headerNames;
-    headerNames << "Job ID" << "Job Name" << "Time" << "State" << "Queue/Partition" << "Where";
+    headerNames << "Job ID" << "Job Name" << "Run Time" << "State" << "Queue/Partition" << "Where";
 
     m_jobView->setHorizontalHeaderLabels( headerNames );
 
@@ -102,7 +102,7 @@ RiuBatchQueueMonitor::~RiuBatchQueueMonitor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::slotUpdateView( const QStringList& information )
+void RiuBatchQueueMonitor::slotUpdateView( const std::vector<std::vector<QString>> information )
 {
     m_jobView->setRowCount( 0 );
     for ( auto& line : information )
@@ -110,16 +110,14 @@ void RiuBatchQueueMonitor::slotUpdateView( const QStringList& information )
         int newRowIndex = m_jobView->rowCount();
         m_jobView->insertRow( newRowIndex );
 
-        auto parts = line.split( ' ', Qt::SplitBehaviorFlags::SkipEmptyParts );
-
-        if ( parts.count() < 2 ) continue;
+        if ( line.size() < 2 ) continue;
 
         // only show jobs with ResInsight prefix?
-        if ( m_onlyResInsightJobs->isChecked() && !parts[1].startsWith( "RI_" ) ) continue;
+        if ( m_onlyResInsightJobs->isChecked() && !line[1].startsWith( "RI_" ) ) continue;
 
-        for ( int i = 0; i < parts.size(); ++i )
+        for ( int i = 0; i < line.size(); i++ )
         {
-            auto item = new QTableWidgetItem( parts.at( i ) );
+            auto item = new QTableWidgetItem( line[i] );
             if ( i == 2 ) // time should be right-aligned
             {
                 item->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter );
@@ -178,11 +176,8 @@ void RiuBatchQueueMonitor::stopMonitoring()
 //--------------------------------------------------------------------------------------------------
 void RiuBatchQueueMonitor::updateInterval()
 {
-    if ( m_monitorWorker != nullptr )
-    {
-        m_monitorWorker->stopMonitoring();
-        m_monitorWorker = nullptr;
-    }
+    stopMonitoring();
+
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
         toggleUpdates();

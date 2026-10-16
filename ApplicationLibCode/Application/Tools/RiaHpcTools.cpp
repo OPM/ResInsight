@@ -106,7 +106,7 @@ QStringList listSlurmJobs()
 {
     QStringList arguments;
     arguments << "--format";
-    arguments << "%i %j %M %T %P %B"; // id name time state partition nodes
+    arguments << "%i %j %M %T %P %B"; // id name runtime state partition nodes
     arguments << "--me";
     arguments << "--noheader";
 
@@ -119,34 +119,11 @@ QStringList listSlurmJobs()
 QStringList listLsfJobs()
 {
     QStringList arguments;
-    arguments << "-w";
+    arguments << "-o";
+    arguments << "jobid:10 job_name:25 run_time:12 stat:8 queue:15 exec_host:20"; // id name runtime state partition nodes
+    arguments << "-noheader";
 
-    auto output = runUtilityCommand( "bjobs", arguments );
-
-    QStringList jobInfo;
-
-    bool foundStart = false;
-
-    for ( auto& line : output )
-    {
-        auto parts = line.split( ' ', Qt::SkipEmptyParts );
-        if ( parts.size() < 8 ) continue;
-        if ( !foundStart && parts[0] == "JOBID" )
-        {
-            foundStart = true;
-            continue;
-        }
-
-        if ( foundStart )
-        {
-            // output was jobid user stat queue from_host exec_host job_name submit_time
-            // convert to jobid job_name submit_time state queue exec_host
-            QString newLine;
-            newLine = parts[0] + " " + parts[6] + " " + parts[7] + " " + parts[2] + " " + parts[3] + " " + parts[5];
-            jobInfo << newLine;
-        }
-    }
-    return jobInfo;
+    return runUtilityCommand( "bjobs", arguments );
 }
 
 } // namespace
@@ -176,15 +153,17 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList listJobs( RiaDefines::BatchSchedulerType scheduler )
+std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
-        return listSlurmJobs();
+        QStringList jobLines = listSlurmJobs();
+        return decodeSlurmJobs( jobLines );
     }
     else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
     {
-        return listLsfJobs();
+        QStringList jobLines = listLsfJobs();
+        return decodeLsfJobs( jobLines );
     }
     return {};
 }
@@ -291,6 +270,58 @@ QStringList decodeLsfQueues( QStringList stdOut )
     }
 
     return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::vector<QString>> decodeSlurmJobs( QStringList stdOut )
+{
+    std::vector<std::vector<QString>> jobs;
+    for ( auto& line : stdOut )
+    {
+        std::vector<QString> statusLine;
+        auto                 parts = line.split( ' ', Qt::SkipEmptyParts );
+        if ( parts.size() < 6 ) continue;
+        for ( auto& part : parts )
+        {
+            statusLine.push_back( part.trimmed() );
+        }
+        jobs.push_back( statusLine );
+    }
+    return jobs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::vector<QString>> decodeLsfJobs( QStringList stdOut )
+{
+    std::vector<std::vector<QString>> jobs;
+
+    for ( auto line : stdOut )
+    {
+        line = line.trimmed();
+
+        auto jobId   = line.mid( 0, 10 ).trimmed();
+        auto jobName = line.mid( 11, 25 ).trimmed();
+        auto runTime = line.mid( 37, 12 ).trimmed();
+        auto status  = line.mid( 50, 8 ).trimmed();
+        auto queue   = line.mid( 59, 15 ).trimmed();
+        auto where   = line.mid( 75, -1 ).trimmed();
+
+        std::vector<QString> statusLine;
+        statusLine.push_back( jobId );
+        statusLine.push_back( jobName );
+        statusLine.push_back( runTime );
+        statusLine.push_back( status );
+        statusLine.push_back( queue );
+        statusLine.push_back( where );
+
+        jobs.push_back( statusLine );
+    }
+
+    return jobs;
 }
 
 } // namespace RiaHpcTools

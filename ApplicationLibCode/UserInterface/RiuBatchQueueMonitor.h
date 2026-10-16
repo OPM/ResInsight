@@ -41,7 +41,7 @@ public:
     void stopMonitoring();
 
 private slots:
-    void slotUpdateView( const QStringList& information );
+    void slotUpdateView( const std::vector<std::vector<QString>> information );
     void toggleUpdates();
     void updateInterval();
 

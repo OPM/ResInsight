@@ -70,3 +70,65 @@ TEST( RiaHpcTools, decodeLsfQueues )
     ASSERT_TRUE( queueNames.contains( "wait" ) );
     ASSERT_TRUE( queueNames.contains( "urgent" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaHpcTools, decodeSlurmJobs )
+{
+    QStringList input;
+
+    input.append( "80 RI_DROGON-2 0:51 RUNNING simulations compute_node" );
+    input.append( "79 RI_DROGON-1 0:54 RUNNING simulations compute_node" );
+    input.append( "78 RI_DROGON-0 0:57 RUNNING simulations compute_node" );
+    input.append( "77 RI_DROGON-3 1:00 RUNNING normal compute_node" );
+
+    auto jobs = RiaHpcTools::decodeSlurmJobs( input );
+
+    ASSERT_TRUE( jobs.size() == 4 );
+    ASSERT_TRUE( jobs[0].size() == 6 );
+    ASSERT_TRUE( jobs[1].size() == 6 );
+    ASSERT_TRUE( jobs[2].size() == 6 );
+    ASSERT_TRUE( jobs[3].size() == 6 );
+
+    ASSERT_TRUE( jobs[0][0] == "80" );
+    ASSERT_TRUE( jobs[1][0] == "79" );
+    ASSERT_TRUE( jobs[2][0] == "78" );
+    ASSERT_TRUE( jobs[3][0] == "77" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaHpcTools, decodeLsfJobs )
+{
+    QStringList input;
+
+    input.append( "612950     flow TEST-B               22 second(s) RUN      mr              3*st-rsb04-04-01         " );
+    input.append( "612949     flow TEST-A               30 second(s) RUN      mr              5*st-rsb03-03-08  " );
+    input.append( "612952     flow TEST-C               12 second(s) RUN      jr              7*st-rsv17-17-16" );
+    input.append( "612951     flow TEST-D               15 second(s) RUN      mr              6*st-rsb04-04-02         " );
+
+    auto jobs = RiaHpcTools::decodeLsfJobs( input );
+
+    ASSERT_TRUE( jobs.size() == 4 );
+    ASSERT_TRUE( jobs[0].size() == 6 );
+    ASSERT_TRUE( jobs[1].size() == 6 );
+    ASSERT_TRUE( jobs[2].size() == 6 );
+    ASSERT_TRUE( jobs[3].size() == 6 );
+
+    ASSERT_TRUE( jobs[0][0] == "612950" );
+    ASSERT_TRUE( jobs[1][0] == "612949" );
+    ASSERT_TRUE( jobs[2][0] == "612952" );
+    ASSERT_TRUE( jobs[3][0] == "612951" );
+
+    ASSERT_TRUE( jobs[0][1] == "flow TEST-B" );
+    ASSERT_TRUE( jobs[1][1] == "flow TEST-A" );
+    ASSERT_TRUE( jobs[2][1] == "flow TEST-C" );
+    ASSERT_TRUE( jobs[3][1] == "flow TEST-D" );
+
+    ASSERT_TRUE( jobs[0][4] == "mr" );
+    ASSERT_TRUE( jobs[1][4] == "mr" );
+    ASSERT_TRUE( jobs[2][4] == "jr" );
+    ASSERT_TRUE( jobs[3][4] == "mr" );
+}
