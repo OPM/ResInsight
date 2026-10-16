@@ -226,6 +226,8 @@ Each event adds the underlying segment timeline event and a corresponding **Segm
 
 The segment lengths control the MSW segmentation of the interval. Lengths must be positive. `FIXED_SEGMENT_LENGTH` cannot be combined with `MIN_SEGMENT_LENGTH` or `MAX_SEGMENT_LENGTH`, and `MIN_SEGMENT_LENGTH` cannot exceed `MAX_SEGMENT_LENGTH`. Violations are reported as parse errors.
 
+Applying a SEGMENT event also sets the well's segment *Reference MD Type* to *User Defined*, with *User Defined Reference MD* set to the start MD of the first (shallowest) segment interval. This value is written as `TOP_LENGTH` in `WELSEGS`.
+
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 
 | Attribute | Required | Maps to |
