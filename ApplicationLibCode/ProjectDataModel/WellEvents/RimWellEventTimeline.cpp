@@ -569,6 +569,14 @@ bool RimWellEventTimeline::applySegmentEvent( const RimWellEventSegment& event, 
         interval->enableCustomStartDate( true );
         interval->setCustomStartDate( event.eventDate().date() );
 
+        // The event defines the complete segmentation of the interval
+        interval->setFixedSegmentLength( std::nullopt );
+        interval->setMinSegmentLength( std::nullopt );
+        interval->setMaxSegmentLength( std::nullopt );
+        interval->setMinSegmentLength( event.minSegmentLength() );
+        interval->setMaxSegmentLength( event.maxSegmentLength() );
+        interval->setFixedSegmentLength( event.fixedSegmentLength() );
+
         segmentCollection->updateConnectedEditors();
         return true;
     }

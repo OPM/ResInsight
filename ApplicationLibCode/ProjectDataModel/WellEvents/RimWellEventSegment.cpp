@@ -20,6 +20,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimWellEventSegment, "WellEventSegment" );
 
@@ -34,6 +35,13 @@ RimWellEventSegment::RimWellEventSegment()
     CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "End MD" );
     CAF_PDM_InitScriptableField( &m_innerDiameter, "InnerDiameter", 0.15, "Inner Diameter [m]" );
     CAF_PDM_InitScriptableField( &m_roughness, "Roughness", 1.0e-5, "Roughness [m]" );
+
+    CAF_PDM_InitScriptableField( &m_fixedSegmentLength, "FixedSegmentLength", std::make_pair( false, 50.0 ), "Fixed Segment Length" );
+    m_fixedSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_minSegmentLength, "MinSegmentLength", std::make_pair( false, 10.0 ), "Min Segment Length" );
+    m_minSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", std::make_pair( false, 100.0 ), "Max Segment Length" );
+    m_maxSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -112,6 +120,57 @@ void RimWellEventSegment::setRoughness( double roughness )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellEventSegment::fixedSegmentLength() const
+{
+    if ( m_fixedSegmentLength().first ) return m_fixedSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellEventSegment::minSegmentLength() const
+{
+    if ( m_minSegmentLength().first ) return m_minSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellEventSegment::maxSegmentLength() const
+{
+    if ( m_maxSegmentLength().first ) return m_maxSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventSegment::setFixedSegmentLength( std::optional<double> length )
+{
+    m_fixedSegmentLength = std::make_pair( length.has_value(), length.value_or( m_fixedSegmentLength().second ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventSegment::setMinSegmentLength( std::optional<double> length )
+{
+    m_minSegmentLength = std::make_pair( length.has_value(), length.value_or( m_minSegmentLength().second ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventSegment::setMaxSegmentLength( std::optional<double> length )
+{
+    m_maxSegmentLength = std::make_pair( length.has_value(), length.value_or( m_maxSegmentLength().second ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEvent::EventType RimWellEventSegment::eventType() const
 {
     return EventType::SEGMENT;
@@ -131,6 +190,16 @@ QString RimWellEventSegment::generateScheduleKeyword( const QString& wellName ) 
                        .arg( m_innerDiameter(), 0, 'f', 4 )
                        .arg( m_roughness(), 0, 'e', 3 );
 
+    QStringList lengths;
+    if ( auto length = fixedSegmentLength() ) lengths.push_back( QString( "Fixed seg len: %1 m" ).arg( *length, 0, 'f', 2 ) );
+    if ( auto length = minSegmentLength() ) lengths.push_back( QString( "Min seg len: %1 m" ).arg( *length, 0, 'f', 2 ) );
+    if ( auto length = maxSegmentLength() ) lengths.push_back( QString( "Max seg len: %1 m" ).arg( *length, 0, 'f', 2 ) );
+    if ( !lengths.isEmpty() )
+    {
+        line.chop( 1 );
+        line += ", " + lengths.join( ", " ) + "\n";
+    }
+
     return line;
 }
 
@@ -145,6 +214,9 @@ void RimWellEventSegment::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_endMD );
     uiOrdering.add( &m_innerDiameter );
     uiOrdering.add( &m_roughness );
+    uiOrdering.add( &m_fixedSegmentLength );
+    uiOrdering.add( &m_minSegmentLength );
+    uiOrdering.add( &m_maxSegmentLength );
 
     uiOrdering.skipRemainingFields();
 }

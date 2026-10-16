@@ -80,7 +80,8 @@ event_line          = "@" , date_expr , event_type , { attribute } ;
 event_type          = completion_event_type | eclipse_keyword ;
 completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELSPECS" ;
 segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
-                    | "COMMENT" ;
+                    | "FIXED_SEGMENT_LENGTH" | "MIN_SEGMENT_LENGTH"
+                    | "MAX_SEGMENT_LENGTH" | "COMMENT" ;
                     (* accepted attribute names when event_type is "SEGMENT" *)
 wellspec_attribute  = "GROUP" | "CROSSFLOW" | "REFDEPTH" | "PHASE"
                     | "PRESSURE_COMPONENTS" | "COMMENT" ;
@@ -219,6 +220,11 @@ Each event adds the underlying segment timeline event and a corresponding **Segm
 | `MDEND` | yes | segment event and segment interval `end_md` |
 | `INNER_DIAMETER` | no | segment event `inner_diameter` [m] |
 | `ROUGHNESS` | no | segment event `roughness` [m] |
+| `FIXED_SEGMENT_LENGTH` | no | segment event `fixed_segment_length` and segment interval fixed segment length [m] |
+| `MIN_SEGMENT_LENGTH` | no | segment event `min_segment_length` and segment interval min segment length [m] |
+| `MAX_SEGMENT_LENGTH` | no | segment event `max_segment_length` and segment interval max segment length [m] |
+
+The segment lengths control the MSW segmentation of the interval. Lengths must be positive. `FIXED_SEGMENT_LENGTH` cannot be combined with `MIN_SEGMENT_LENGTH` or `MAX_SEGMENT_LENGTH`, and `MIN_SEGMENT_LENGTH` cannot exceed `MAX_SEGMENT_LENGTH`. Violations are reported as parse errors.
 
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 

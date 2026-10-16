@@ -70,13 +70,34 @@ class FakeCompletionSettings:
         self.pressure_drop = "HF-"
 
 
+class FakeSegmentInterval:
+    def __init__(self):
+        self.segment_length_calls = []
+
+    def set_fixed_segment_length(self, length):
+        self.segment_length_calls.append(("fixed", length))
+        return self
+
+    def set_min_segment_length(self, length):
+        self.segment_length_calls.append(("min", length))
+        return self
+
+    def set_max_segment_length(self, length):
+        self.segment_length_calls.append(("max", length))
+        return self
+
+
 class FakeSegmentCollection:
     def __init__(self):
         self.segment_interval_calls = []
+        self.intervals = []
         self.update_calls = 0
 
     def add_segment_interval(self, **kwargs):
         self.segment_interval_calls.append(kwargs)
+        interval = FakeSegmentInterval()
+        self.intervals.append(interval)
+        return interval
 
     def update(self):
         self.update_calls += 1
@@ -1445,6 +1466,64 @@ class TestDiagnostics:
         with pytest.raises(SimulatorEventsParseError, match="did you mean 'DURATION'"):
             parse_simulator_events("SIMEVENTS 1.2\nDURATON X = 5\n")
 
+    @pytest.mark.parametrize(
+        "lengths, expected",
+        [
+            (
+                "FIXED_SEGMENT_LENGTH=20 MIN_SEGMENT_LENGTH=5",
+                "FIXED_SEGMENT_LENGTH cannot be combined",
+            ),
+            (
+                "FIXED_SEGMENT_LENGTH=20 MAX_SEGMENT_LENGTH=50",
+                "FIXED_SEGMENT_LENGTH cannot be combined",
+            ),
+            (
+                "MIN_SEGMENT_LENGTH=60 MAX_SEGMENT_LENGTH=50",
+                "MIN_SEGMENT_LENGTH \\(60\\) exceeds MAX_SEGMENT_LENGTH \\(50\\)",
+            ),
+            ("MIN_SEGMENT_LENGTH=0", "MIN_SEGMENT_LENGTH must be greater than zero"),
+            ("MAX_SEGMENT_LENGTH=-5", "MAX_SEGMENT_LENGTH must be greater than zero"),
+            ("FIXED_SEGMENT_LENGTH=long", "FIXED_SEGMENT_LENGTH must be a number"),
+        ],
+    )
+    def test_invalid_segment_lengths_are_parse_errors(self, lengths, expected):
+        text = (
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            f"  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 {lengths}\n"  # line 4
+        )
+        with pytest.raises(SimulatorEventsParseError, match=expected) as excinfo:
+            parse_simulator_events(text)
+        assert [issue.loc.line for issue in excinfo.value.errors] == [4]
+
+    def test_invalid_segment_lengths_are_rejected_when_merging(self):
+        first = parse_simulator_events(
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 FIXED_SEGMENT_LENGTH=10\n"
+        )
+        first.wells[0].events[0].attributes.update(
+            parse_simulator_events(
+                'SIMEVENTS 1.2\nWELL "W"\n'
+                "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 MIN_SEGMENT_LENGTH=5\n"
+            )
+            .wells[0]
+            .events[0]
+            .attributes
+        )
+        with pytest.raises(
+            SimulatorEventsParseError, match="FIXED_SEGMENT_LENGTH cannot be combined"
+        ):
+            merge_simulator_events_documents([first])
+
+    def test_valid_segment_lengths_parse(self):
+        document = parse_simulator_events(
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=5\n"
+            "  2024-01-01 SEGMENT MDSTART=100 MDEND=200 FIXED_SEGMENT_LENGTH=12.5\n"
+        )
+        assert len(document.wells[0].events) == 2
+
 
 class TestValidatorCli:
     def _write(self, tmp_path, text):
@@ -1949,6 +2028,38 @@ class TestApplying:
                 "roughness_factor": pytest.approx(1.0e-5),
             }
         ]
+
+    def test_segment_min_max_lengths_are_mapped(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=50\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.errors == []
+        assert report.events_applied == 1
+        call = timeline.segment_calls[0]
+        assert call["min_segment_length"] == 5.0
+        assert call["max_segment_length"] == 50.0
+        assert "fixed_segment_length" not in call
+
+        interval = call["well_path"].segment_collection().intervals[0]
+        assert interval.segment_length_calls == [("min", 5.0), ("max", 50.0)]
+
+    def test_segment_fixed_length_is_mapped(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 FIXED_SEGMENT_LENGTH=12\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 1
+        call = timeline.segment_calls[0]
+        assert call["fixed_segment_length"] == 12.0
+        assert "min_segment_length" not in call
+        assert "max_segment_length" not in call
+
+        interval = call["well_path"].segment_collection().intervals[0]
+        assert interval.segment_length_calls == [("fixed", 12.0)]
 
     def test_segment_rejects_pressure_components(self):
         text = (
@@ -3015,6 +3126,44 @@ class TestSimulatorEventsIntegration:
         assert "1 'JUL' 2024" in schedule, (
             "INSERT_DATE date should be emitted as a DATES entry"
         )
+
+    def test_segment_lengths_are_applied_to_interval(self, project_with_case_and_wells):
+        project, _case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=1000 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=50\n"
+            "  2024-01-01 SEGMENT MDSTART=1000 MDEND=2500 FIXED_SEGMENT_LENGTH=25\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+        assert report.events_applied == 2
+
+        events = timeline.descendants(rips.WellEventSegment)
+        min_max_event = next(e for e in events if e.end_md == 1000.0)
+        assert min_max_event.min_segment_length == (True, 5.0)
+        assert min_max_event.max_segment_length == (True, 50.0)
+        assert min_max_event.fixed_segment_length[0] is False
+
+        def check_intervals():
+            intervals = {
+                (i.start_md, i.end_md): i for i in well.segment_collection().intervals()
+            }
+            min_max = intervals[(0.0, 1000.0)]
+            assert min_max.min_segment_length == (True, 5.0)
+            assert min_max.max_segment_length == (True, 50.0)
+            assert min_max.fixed_segment_length[0] is False
+            fixed = intervals[(1000.0, 2500.0)]
+            assert fixed.fixed_segment_length == (True, 25.0)
+            assert fixed.min_segment_length[0] is False
+            assert fixed.max_segment_length[0] is False
+
+        check_intervals()
+        timeline.set_timestamp(timestamp="2024-12-24")
+        check_intervals()
 
     def test_apply_full_event_coverage_and_schedule(self, project_with_case_and_wells):
         """All event kinds from well_event_schedule.py expressed as SIMEVENTS."""
