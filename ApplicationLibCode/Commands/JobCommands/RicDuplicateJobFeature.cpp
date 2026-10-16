@@ -21,6 +21,7 @@
 #include "RicNewOpmFlowJobFeature.h"
 
 #include "Jobs/RimEnsembleJob.h"
+#include "Jobs/RimGenericJob.h"
 #include "Jobs/RimJobCollection.h"
 #include "Jobs/RimOpmFlowJob.h"
 #include "RimTools.h"
@@ -40,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicDuplicateJobFeature, "RicDuplicateJobFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicDuplicateJobFeature::isCommandEnabled() const
 {
-    if ( auto job = dynamic_cast<RimOpmFlowJob*>( caf::SelectionManager::instance()->selectedItem() ) )
+    if ( auto job = dynamic_cast<RimGenericJob*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
         if ( job->isChildJob() )
         {

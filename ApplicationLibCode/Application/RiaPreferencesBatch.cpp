@@ -24,7 +24,6 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiFilePathEditor.h"
 
 #include <QInputDialog>
 
@@ -77,7 +76,7 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
         auto hpcGrp = uiOrdering.addNewGroup( "Batch Scheduler Options" );
         hpcGrp->add( &m_queueName );
 
-        hpcGrp->addNewButton( "Browse",
+        hpcGrp->addNewButton( "Select...",
                               [this]()
                               {
                                   auto newName = RiaPreferencesBatch::selectQueue( m_batchScheduler(), m_queueName() );

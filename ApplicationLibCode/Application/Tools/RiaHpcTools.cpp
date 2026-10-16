@@ -19,7 +19,6 @@
 #include "RiaHpcTools.h"
 
 #include "RiaPreferencesOpm.h"
-#include "RiaWslTools.h"
 
 #include "RimProcess.h"
 
@@ -128,7 +127,7 @@ QStringList listLsfJobs()
 
     bool foundStart = false;
 
-    for ( auto line : output )
+    for ( auto& line : output )
     {
         auto parts = line.split( ' ', Qt::SkipEmptyParts );
         if ( parts.size() < 8 ) continue;

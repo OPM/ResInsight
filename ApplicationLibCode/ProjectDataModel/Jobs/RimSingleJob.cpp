@@ -156,7 +156,7 @@ void RimSingleJob::setFinished( bool runOk )
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
-    setDeletable( true );
+    setDeletable( !isChildJob() );
 
     onCompleted( runOk );
 }
@@ -229,6 +229,14 @@ void RimSingleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
             tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
             tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
             treeItemAttribute->tags.push_back( std::move( tag ) );
+
+            if ( ( state() == JobState::Running ) && !isChildJob() )
+            {
+                auto timeTag = caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::black ),
+                                                                           QColor( Qt::white ),
+                                                                           runTimeString().toUtf8().constData() );
+                treeItemAttribute->tags.push_back( std::move( timeTag ) );
+            }
         }
         if ( m_warningsDetected > 0 )
         {

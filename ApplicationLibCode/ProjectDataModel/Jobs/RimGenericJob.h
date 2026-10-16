@@ -61,6 +61,9 @@ public:
     virtual void setFinished( bool runOk );
     virtual void setStarted();
 
+    void setIsChildJob( bool isChildJob );
+    bool isChildJob() const;
+
     bool     isRunning() const;
     JobState state() const;
     void     setState( JobState state );
@@ -71,6 +74,8 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
+    caf::PdmField<bool> m_isChildJob;
+
     JobState  m_jobState;
     QDateTime m_startTime;
     QDateTime m_stopTime;

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <QString>
-
 namespace RiaDefines
 {
 enum class BatchSchedulerType

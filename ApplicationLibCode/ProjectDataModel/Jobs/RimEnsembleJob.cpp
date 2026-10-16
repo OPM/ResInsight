@@ -20,7 +20,6 @@
 
 #include "RiaColorTools.h"
 #include "RiaFilePathTools.h"
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaTimer.h"
@@ -31,24 +30,16 @@
 
 #include "RifOpmDeckFileTools.h"
 
-#include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimJobWellSettings.h"
-#include "RimOilField.h"
 #include "RimOpmFlowJob.h"
 #include "RimOpmFlowJobSettings.h"
-#include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryEnsemble.h"
-#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
 
 #include "RiuGuiTheme.h"
-#include "RiuMainWindowBase.h"
 
 #include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"

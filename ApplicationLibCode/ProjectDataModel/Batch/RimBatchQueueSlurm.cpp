@@ -25,7 +25,6 @@
 #include "RiaWslTools.h"
 
 #include "ProcessControl/RimProcess.h"
-#include "ProcessControl/RimProcessMonitor.h"
 #include "RimBatchProcessMonitor.h"
 
 CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
@@ -50,13 +49,13 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask )
 {
+    if ( process == nullptr ) return;
+
     m_process = process;
     m_monitor = std::make_shared<RimBatchProcessMonitor>( this );
 
     auto useWsl = RiaPreferencesOpm::current()->useWsl();
-
-    // get settings
-    auto prefs = RiaPreferencesBatch::current();
+    auto prefs  = RiaPreferencesBatch::current();
 
     QString workDir = m_process->workingDirectory();
 
@@ -97,7 +96,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     }
     else
     {
-        m_process->monitor()->started();
+        if ( m_process->monitor() ) m_process->monitor()->started();
         m_batchProcess = std::move( batchProcess );
     }
 }

@@ -254,7 +254,7 @@ private:
     // RI Cloud API settings
     caf::PdmChildField<RiaPreferencesCloudApi*> m_cloudApiPreferences;
 
-    // HPC settings
+    // Batch Scheduler settings
     caf::PdmChildField<RiaPreferencesBatch*> m_batchPreferences;
 
     // 3d view

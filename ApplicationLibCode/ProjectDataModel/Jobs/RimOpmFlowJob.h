@@ -62,8 +62,6 @@ public:
     void setInputDataFile( QString filename );
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
     void setJobWellSettings( RimJobWellSettings* jobWellSettings );
-    void setIsChildJob( bool isChildJob );
-    bool isChildJob() const;
 
     void initAfterCopy();
 
@@ -128,7 +126,6 @@ private:
     caf::PdmField<bool> m_addToEnsemble;
     caf::PdmField<int>  m_currentRunId;
     caf::PdmField<bool> m_useRestart;
-    caf::PdmField<bool> m_isChildJob;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;

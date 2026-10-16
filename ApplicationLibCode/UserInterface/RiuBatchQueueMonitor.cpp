@@ -56,7 +56,7 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     m_refreshInterval->addItem( "5 seconds", QVariant( 5 ) );
     m_refreshInterval->addItem( "10 seconds", QVariant( 10 ) );
     m_refreshInterval->addItem( "30 seconds", QVariant( 30 ) );
-    m_refreshInterval->setCurrentIndex( 0 );
+    m_refreshInterval->setCurrentIndex( 1 );
     m_refreshInterval->setEditable( false );
 
     QHBoxLayout* pTopLayout = new QHBoxLayout;

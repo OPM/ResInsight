@@ -29,6 +29,9 @@ RimGenericJob::RimGenericJob()
     : m_jobState( JobState::Idle )
 {
     CAF_PDM_InitObject( "Generic Job" );
+
+    CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
+    m_isChildJob.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,5 +134,23 @@ QString RimGenericJob::runTimeString()
     int    h       = static_cast<int>( seconds / 3600 );
     int    m       = static_cast<int>( ( seconds - h * 3600 ) / 60 );
     int    s       = static_cast<int>( seconds - h * 3600 - m * 60 );
+
     return QString( "%1:%2:%3" ).arg( h, 2, 10, QChar( '0' ) ).arg( m, 2, 10, QChar( '0' ) ).arg( s, 2, 10, QChar( '0' ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGenericJob::isChildJob() const
+{
+    return m_isChildJob();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setIsChildJob( bool isChildJob )
+{
+    m_isChildJob = isChildJob;
+    if ( isChildJob ) setDeletable( false );
 }

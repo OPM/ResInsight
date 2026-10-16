@@ -154,9 +154,6 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_autoLoadResults, "AutoLoadResults", true, "Automatic loading of results from job" );
     m_autoLoadResults.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
-    m_isChildJob.uiCapability()->setUiHidden( true );
-
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
@@ -292,7 +289,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         return;
     }
 
-    if ( m_isChildJob() )
+    if ( isChildJob() )
     {
         m_workDir.uiCapability()->setUiReadOnly( true );
         uiOrdering.add( &m_workDir );
@@ -1372,20 +1369,4 @@ void RimOpmFlowJob::setJobWellSettings( RimJobWellSettings* jobWellSettings )
 void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
 {
     m_autoLoadResults = autoLoadResults;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::setIsChildJob( bool isChildJob )
-{
-    m_isChildJob = isChildJob;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimOpmFlowJob::isChildJob() const
-{
-    return m_isChildJob();
 }
