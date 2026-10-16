@@ -151,8 +151,9 @@ Notes on the grammar:
   Eclipse well keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``,
   ...), which
   is passed through generically with the well name injected as WELL. Event
-  ``WELSPECS`` accepts partial updates to ``GROUP``, ``CROSSFLOW``, ``REFDEPTH``
-  and ``PHASE`` (OIL/GAS/WATER/LIQUID). Omitted values inherit the previous
+  ``WELSPECS`` accepts partial updates to ``GROUP``, ``CROSSFLOW``, ``REFDEPTH``,
+  ``PHASE`` (OIL/GAS/WATER/LIQUID) and ``PRESSURE_COMPONENTS`` (H--/HF-/HFA,
+  the WELSEGS pressure drop components). Omitted values inherit the previous
   WELSPECS state, initially using the well's completion export settings. There
   may be multiple WELSPECS events for a well, but not at the same timestamp.
   Each emits a WELSPECS record with the cumulative state. Event values are
@@ -426,6 +427,7 @@ class WellSpecState:
     crossflow: bool
     refdepth: Optional[float]
     phase: str
+    pressure_components: str
 
 
 @dataclass
@@ -1786,7 +1788,6 @@ _SEGMENT_KNOWN = {
     "MDEND",
     "INNER_DIAMETER",
     "ROUGHNESS",
-    "PRESSURE_COMPONENTS",
     "COMMENT",
 }
 _PRESSURE_COMPONENTS = {"H--", "HF-", "HFA"}
@@ -1800,7 +1801,14 @@ _VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA", "COMMENT"} | {
 }
 _STATE_REQUIRED = ("STATE",)
 _STATE_KNOWN = {"STATE", "COMMENT"}
-_WELLSPEC_KNOWN = {"GROUP", "CROSSFLOW", "REFDEPTH", "PHASE", "COMMENT"}
+_WELLSPEC_KNOWN = {
+    "GROUP",
+    "CROSSFLOW",
+    "REFDEPTH",
+    "PHASE",
+    "PRESSURE_COMPONENTS",
+    "COMMENT",
+}
 _WELLSPEC_PHASES = {"OIL", "GAS", "WATER", "LIQUID"}
 _COMPLETION_IGNORED = {"FILTER"}
 _PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
@@ -2007,6 +2015,7 @@ def _prepare_wellspec_events(
         crossflow=bool(completion_settings.allow_well_cross_flow),
         refdepth=completion_settings.reference_depth_for_export,
         phase=_enum_text(completion_settings.well_type_for_export),
+        pressure_components=_enum_text(completion_settings.pressure_drop),
     )
 
     wellspecs = sorted(
@@ -2059,6 +2068,13 @@ def _prepare_wellspec_events(
                 errors.append("PHASE must be OIL, GAS, WATER, or LIQUID")
             else:
                 next_state.phase = phase
+        if "PRESSURE_COMPONENTS" in attrs:
+            value = attrs["PRESSURE_COMPONENTS"].value
+            components = value.upper() if isinstance(value, str) else ""
+            if components not in _PRESSURE_COMPONENTS:
+                errors.append("PRESSURE_COMPONENTS must be H--, HF-, or HFA")
+            else:
+                next_state.pressure_components = components
 
         if errors:
             report.errors.extend(_event_message(event, error) for error in errors)
@@ -2543,13 +2559,6 @@ def _apply_segment(
             )
         if "ROUGHNESS" in attrs:
             kwargs["roughness"] = float(_as_number(attrs["ROUGHNESS"], event.loc))
-        pressure_components = None
-        if "PRESSURE_COMPONENTS" in attrs:
-            pressure_components = str(attrs["PRESSURE_COMPONENTS"].value).upper()
-            if pressure_components not in _PRESSURE_COMPONENTS:
-                raise SimulatorEventsParseError(
-                    "PRESSURE_COMPONENTS must be H--, HF-, or HFA", event.loc
-                )
     except SimulatorEventsParseError as exc:
         _record_event_parse_error(event, exc, report)
         return
@@ -2561,10 +2570,6 @@ def _apply_segment(
         diameter=kwargs.get("inner_diameter", 0.152),
         roughness_factor=kwargs.get("roughness", 1.0e-5),
     )
-    if pressure_components is not None:
-        msw_settings = well_path.segment_collection()
-        msw_settings.pressure_drop = pressure_components
-        msw_settings.update()
     _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
@@ -2654,6 +2659,7 @@ def _apply_wellspec(
         allow_cross_flow=state.crossflow,
         reference_depth=state.refdepth,
         well_type=state.phase,
+        pressure_drop=state.pressure_components,
     )
     _apply_event_comment(event, timeline_event)
     report.events_applied += 1

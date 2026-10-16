@@ -34,7 +34,8 @@ FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 WELL A1 = "55_33-A-1"            # alias declaration (has '=')
 
 WELL A1                          # opens an event block via the alias
-  @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA
+  @STARTUP         WELSPECS     GROUP="OP"  PRESSURE_COMPONENTS=HFA
+  @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1  FILTER=POROPERM
   @2024-05-15T14:45:30  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
@@ -79,8 +80,11 @@ event_line          = "@" , date_expr , event_type , { attribute } ;
 event_type          = completion_event_type | eclipse_keyword ;
 completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELSPECS" ;
 segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
-                    | "PRESSURE_COMPONENTS" | "COMMENT" ;
+                    | "COMMENT" ;
                     (* accepted attribute names when event_type is "SEGMENT" *)
+wellspec_attribute  = "GROUP" | "CROSSFLOW" | "REFDEPTH" | "PHASE"
+                    | "PRESSURE_COMPONENTS" | "COMMENT" ;
+                    (* accepted attribute names when event_type is "WELSPECS" *)
 
 date_expr       = ( iso_datetime | date_ident ) , { sign , term } ;
 duration_expr   = term , { sign , term } ;
@@ -215,7 +219,6 @@ Each event adds the underlying segment timeline event and a corresponding **Segm
 | `MDEND` | yes | segment event and segment interval `end_md` |
 | `INNER_DIAMETER` | no | segment event `inner_diameter` [m] |
 | `ROUGHNESS` | no | segment event `roughness` [m] |
-| `PRESSURE_COMPONENTS` | no | MSW `pressure_drop`: `H--`, `HF-` or `HFA` |
 
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 
@@ -233,6 +236,18 @@ Each event adds the underlying segment timeline event and a corresponding **Segm
 | Attribute | Required | Maps to |
 |---|---|---|
 | `STATE` | yes | `well_state`: `OPEN`, `SHUT` or `STOP` |
+
+**WELSPECS** → `add_wellspec_event`
+
+Well-level settings. At least one setting attribute is required; omitted values inherit the previous WELSPECS event for the well, initially the well's completion settings. Only one WELSPECS event per well and timestamp is allowed. `timeline.set_timestamp()` writes the values in effect back to the completion settings.
+
+| Attribute | Required | Maps to |
+|---|---|---|
+| `GROUP` | no | `group_name` |
+| `CROSSFLOW` | no | `allow_cross_flow`: `True` or `False` |
+| `REFDEPTH` | no | `reference_depth` [m] |
+| `PHASE` | no | `well_type`: `OIL`, `GAS`, `WATER` or `LIQUID` |
+| `PRESSURE_COMPONENTS` | no | `pressure_drop`: `H--`, `HF-` or `HFA`. Written to the WELSEGS header of the MSW keywords exported at or after the event date |
 
 Unknown attributes on a completion event are an error and skip the event. On completion events other than `PERFORATION`, `FILTER` is ignored with a warning.
 

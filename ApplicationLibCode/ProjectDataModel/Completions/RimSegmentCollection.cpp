@@ -54,29 +54,6 @@ void RimSegmentCollection::ReferenceMDEnum::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void RimSegmentCollection::PressureDropEnum::setUp()
-{
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
-    setDefault( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-void RimSegmentCollection::LengthAndDepthEnum::setUp()
-{
-    addItem( RimSegmentCollection::LengthAndDepthType::INC, "INC", "Incremental" );
-    addItem( RimSegmentCollection::LengthAndDepthType::ABS, "ABS", "Absolute" );
-    setDefault( RimSegmentCollection::LengthAndDepthType::ABS );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
 void RimSegmentCollection::CompsegsSegmentNumberEnum::setUp()
 {
     addItem( RimSegmentCollection::CompsegsSegmentNumberType::ASSIGNED_BY_SIMULATOR, "AssignedBySimulator", "Assigned by Simulator (1*)" );
@@ -104,8 +81,6 @@ RimSegmentCollection::RimSegmentCollection()
     CAF_PDM_InitScriptableField( &m_roughnessFactor, "RoughnessFactor", defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_segmentIntervals, "Intervals", "Segment Intervals" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
     CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
     CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
@@ -203,22 +178,6 @@ double RimSegmentCollection::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSegmentCollection::PressureDropEnum RimSegmentCollection::pressureDrop() const
-{
-    return m_pressureDrop();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSegmentCollection::LengthAndDepthEnum RimSegmentCollection::lengthAndDepth() const
-{
-    return m_lengthAndDepth();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimSegmentCollection::maxSegmentLength() const
 {
     return m_enforceMaxSegmentLength() ? m_maxSegmentLength() : std::numeric_limits<double>::infinity();
@@ -302,22 +261,6 @@ void RimSegmentCollection::setLinerDiameter( double diameter )
 void RimSegmentCollection::setRoughnessFactor( double roughnessFactor )
 {
     m_roughnessFactor = roughnessFactor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSegmentCollection::setPressureDrop( PressureDropType pressureDropType )
-{
-    m_pressureDrop = pressureDropType;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSegmentCollection::setLengthAndDepth( LengthAndDepthType lengthAndDepthType )
-{
-    m_lengthAndDepth = lengthAndDepthType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,8 +444,6 @@ void RimSegmentCollection::updateFromTopLevelWell( const RimSegmentCollection* t
 {
     m_refMDType                           = topLevelWellParameters->m_refMDType();
     m_refMD                               = topLevelWellParameters->m_refMD();
-    m_pressureDrop                        = topLevelWellParameters->m_pressureDrop();
-    m_lengthAndDepth                      = topLevelWellParameters->m_lengthAndDepth();
     m_enforceMaxSegmentLength             = topLevelWellParameters->m_enforceMaxSegmentLength();
     m_maxSegmentLength                    = topLevelWellParameters->m_maxSegmentLength();
     m_compsegsSegmentNumber               = topLevelWellParameters->m_compsegsSegmentNumber();
@@ -522,22 +463,16 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
                                legacyParameters->linerDiameter() != defaultLinerDiameter( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->roughnessFactor() != defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->diameterRoughnessMode() != RimMswCompletionParameters::DiameterRoughnessMode::UNIFORM ||
-                               legacyParameters->pressureDrop() != RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION ||
-                               legacyParameters->lengthAndDepth() != RimMswCompletionParameters::LengthAndDepthType::ABS ||
                                legacyParameters->enforceMaxSegmentLength() || legacyParameters->storedMaxSegmentLength() != 200.0 ||
                                !legacyParameters->diameterRoughnessIntervals()->intervals().empty() ||
                                !legacyParameters->customSegmentIntervals()->intervals().empty();
     if ( !hasLegacyData ) return;
 
-    m_refMDType              = static_cast<ReferenceMDType>( static_cast<int>( legacyParameters->referenceMDType() ) );
-    m_refMD                  = legacyParameters->storedReferenceMD();
-    m_customValuesForLateral = legacyParameters->customValuesForLateral();
-    m_linerDiameter          = legacyParameters->linerDiameter();
-    m_roughnessFactor        = legacyParameters->roughnessFactor();
-    m_pressureDrop           = static_cast<PressureDropType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::PressureDropType>( legacyParameters->pressureDrop() ) ) );
-    m_lengthAndDepth = static_cast<LengthAndDepthType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::LengthAndDepthType>( legacyParameters->lengthAndDepth() ) ) );
+    m_refMDType               = static_cast<ReferenceMDType>( static_cast<int>( legacyParameters->referenceMDType() ) );
+    m_refMD                   = legacyParameters->storedReferenceMD();
+    m_customValuesForLateral  = legacyParameters->customValuesForLateral();
+    m_linerDiameter           = legacyParameters->linerDiameter();
+    m_roughnessFactor         = legacyParameters->roughnessFactor();
     m_enforceMaxSegmentLength = legacyParameters->enforceMaxSegmentLength();
     m_maxSegmentLength        = legacyParameters->storedMaxSegmentLength();
 
@@ -636,8 +571,6 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     if ( wellPath->isTopLevelWellPath() )
     {
-        uiOrdering.add( &m_pressureDrop );
-        uiOrdering.add( &m_lengthAndDepth );
         uiOrdering.add( &m_compsegsSegmentNumber );
 
         auto* segmentationGroup = uiOrdering.addNewGroup( "Segmentation" );
