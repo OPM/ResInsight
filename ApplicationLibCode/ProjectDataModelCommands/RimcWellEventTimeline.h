@@ -155,6 +155,9 @@ private:
     caf::PdmField<double>          m_endMd;
     caf::PdmField<double>          m_innerDiameter;
     caf::PdmField<double>          m_roughness;
+    caf::PdmField<double>          m_fixedSegmentLength;
+    caf::PdmField<double>          m_minSegmentLength;
+    caf::PdmField<double>          m_maxSegmentLength;
 };
 
 //==================================================================================================

@@ -115,6 +115,39 @@ class TestWellEventTimeline:
 
         assert event is not None, "Segment event should be created"
 
+    def test_add_segment_event_segment_lengths(self, test_well_path):
+        """Segment lengths are stored on the event; 0 means not set."""
+        wellpath, timeline = test_well_path
+
+        event = timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=wellpath,
+            start_md=500.0,
+            end_md=1000.0,
+            min_segment_length=5.0,
+            max_segment_length=50.0,
+        )
+        assert event.min_segment_length == (True, 5.0)
+        assert event.max_segment_length == (True, 50.0)
+        assert event.fixed_segment_length[0] is False
+
+        with pytest.raises(rips.RipsError, match="cannot be combined"):
+            timeline.add_segment_event(
+                well_path=wellpath,
+                start_md=500.0,
+                end_md=1000.0,
+                fixed_segment_length=10.0,
+                min_segment_length=5.0,
+            )
+        with pytest.raises(rips.RipsError, match="cannot exceed"):
+            timeline.add_segment_event(
+                well_path=wellpath,
+                start_md=500.0,
+                end_md=1000.0,
+                min_segment_length=60.0,
+                max_segment_length=50.0,
+            )
+
 
 class TestWellEventScheduleApplication:
     """Tests for applying well events to create completions."""

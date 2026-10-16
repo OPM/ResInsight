@@ -744,6 +744,7 @@ def merge_simulator_events_documents(
         result.wells, result.groups, result.schedule_events
     )
     errors.extend(_wellspec_validation_issues(result.wells))
+    errors.extend(_segment_validation_issues(result.wells))
     if errors:
         raise SimulatorEventsParseError(errors=errors)
     return result
@@ -849,6 +850,7 @@ def parse_simulator_events(
     _set_event_scopes(wells, groups, schedule_events)
     errors.extend(_restart_validation_issues(wells, groups, schedule_events))
     errors.extend(_wellspec_validation_issues(wells))
+    errors.extend(_segment_validation_issues(wells))
     insert_date_events, report_errors = _expand_report_specs(
         report_specs, wells, groups, schedule_events
     )
@@ -1013,6 +1015,70 @@ def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
                 )
             else:
                 seen[key] = event
+    return issues
+
+
+def _segment_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
+    """Validate the segment-length attributes of SEGMENT events.
+
+    Lengths must be positive numbers, a fixed length cannot be combined with
+    min/max lengths, and the min length cannot exceed the max length.
+    """
+    issues: List[ParseIssue] = []
+    for well in wells:
+        for event in well.events:
+            if event.event_type.upper() != "SEGMENT":
+                continue
+            lengths: Dict[str, float] = {}
+            for name in _SEGMENT_LENGTH_KWARGS:
+                attr = event.attributes.get(name)
+                if attr is None:
+                    continue
+                value = attr.value
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    issues.append(
+                        ParseIssue(
+                            f"{_event_context(event)}: {name} must be a number, "
+                            f"got {attr.raw!r}",
+                            event.loc,
+                        )
+                    )
+                elif value <= 0:
+                    issues.append(
+                        ParseIssue(
+                            f"{_event_context(event)}: {name} must be greater "
+                            f"than zero, got {attr.raw}",
+                            event.loc,
+                        )
+                    )
+                else:
+                    lengths[name] = float(value)
+
+            present = [
+                name for name in _SEGMENT_LENGTH_KWARGS if name in event.attributes
+            ]
+            if "FIXED_SEGMENT_LENGTH" in present and len(present) > 1:
+                issues.append(
+                    ParseIssue(
+                        f"{_event_context(event)}: FIXED_SEGMENT_LENGTH cannot be "
+                        "combined with MIN_SEGMENT_LENGTH or MAX_SEGMENT_LENGTH",
+                        event.loc,
+                    )
+                )
+            min_length = lengths.get("MIN_SEGMENT_LENGTH")
+            max_length = lengths.get("MAX_SEGMENT_LENGTH")
+            if (
+                min_length is not None
+                and max_length is not None
+                and min_length > max_length
+            ):
+                issues.append(
+                    ParseIssue(
+                        f"{_event_context(event)}: MIN_SEGMENT_LENGTH ({min_length:g}) "
+                        f"exceeds MAX_SEGMENT_LENGTH ({max_length:g})",
+                        event.loc,
+                    )
+                )
     return issues
 
 
@@ -1788,7 +1854,16 @@ _SEGMENT_KNOWN = {
     "MDEND",
     "INNER_DIAMETER",
     "ROUGHNESS",
+    "FIXED_SEGMENT_LENGTH",
+    "MIN_SEGMENT_LENGTH",
+    "MAX_SEGMENT_LENGTH",
     "COMMENT",
+}
+# SEGMENT length attribute -> add_segment_event keyword-argument name.
+_SEGMENT_LENGTH_KWARGS = {
+    "FIXED_SEGMENT_LENGTH": "fixed_segment_length",
+    "MIN_SEGMENT_LENGTH": "min_segment_length",
+    "MAX_SEGMENT_LENGTH": "max_segment_length",
 }
 _PRESSURE_COMPONENTS = {"H--", "HF-", "HFA"}
 _VALVE_REQUIRED = ("MD", "TYPE")
@@ -2559,17 +2634,27 @@ def _apply_segment(
             )
         if "ROUGHNESS" in attrs:
             kwargs["roughness"] = float(_as_number(attrs["ROUGHNESS"], event.loc))
+        lengths: Dict[str, float] = {}
+        for name, kwarg in _SEGMENT_LENGTH_KWARGS.items():
+            if name in attrs:
+                lengths[kwarg] = float(_as_number(attrs[name], event.loc))
     except SimulatorEventsParseError as exc:
         _record_event_parse_error(event, exc, report)
         return
 
-    timeline_event = timeline.add_segment_event(**kwargs)
-    well_path.segment_collection().add_segment_interval(
+    timeline_event = timeline.add_segment_event(**kwargs, **lengths)
+    interval = well_path.segment_collection().add_segment_interval(
         start_md=start_md,
         end_md=end_md,
         diameter=kwargs.get("inner_diameter", 0.152),
         roughness_factor=kwargs.get("roughness", 1.0e-5),
     )
+    if "min_segment_length" in lengths:
+        interval.set_min_segment_length(length=lengths["min_segment_length"])
+    if "max_segment_length" in lengths:
+        interval.set_max_segment_length(length=lengths["max_segment_length"])
+    if "fixed_segment_length" in lengths:
+        interval.set_fixed_segment_length(length=lengths["fixed_segment_length"])
     _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 

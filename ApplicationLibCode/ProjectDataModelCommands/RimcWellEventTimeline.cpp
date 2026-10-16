@@ -335,6 +335,9 @@ RimcWellEventTimeline_addSegmentEvent::RimcWellEventTimeline_addSegmentEvent( ca
     CAF_PDM_InitScriptableField( &m_endMd, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_innerDiameter, "InnerDiameter", 0.15, "", "", "", "Inner Diameter [m]" );
     CAF_PDM_InitScriptableField( &m_roughness, "Roughness", 1.0e-5, "", "", "", "Roughness [m]" );
+    CAF_PDM_InitScriptableField( &m_fixedSegmentLength, "FixedSegmentLength", 0.0, "", "", "", "Fixed Segment Length [m] (0 = not set)" );
+    CAF_PDM_InitScriptableField( &m_minSegmentLength, "MinSegmentLength", 0.0, "", "", "", "Min Segment Length [m] (0 = not set)" );
+    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 0.0, "", "", "", "Max Segment Length [m] (0 = not set)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,11 +358,34 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addSegmentEv
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
+    if ( m_fixedSegmentLength() < 0.0 || m_minSegmentLength() < 0.0 || m_maxSegmentLength() < 0.0 )
+    {
+        return std::unexpected( QString( "Segment lengths must be positive (0 = not set)" ) );
+    }
+
+    auto toOptional = []( double length ) { return length > 0.0 ? std::optional<double>( length ) : std::nullopt; };
+
+    const auto fixedLength = toOptional( m_fixedSegmentLength() );
+    const auto minLength   = toOptional( m_minSegmentLength() );
+    const auto maxLength   = toOptional( m_maxSegmentLength() );
+
+    if ( fixedLength && ( minLength || maxLength ) )
+    {
+        return std::unexpected( QString( "Fixed segment length cannot be combined with min/max segment length" ) );
+    }
+    if ( minLength && maxLength && *minLength > *maxLength )
+    {
+        return std::unexpected( QString( "Min segment length cannot exceed max segment length" ) );
+    }
+
     auto* event = timeline->addSegmentEvent( m_wellPath(), date );
     event->setStartMD( m_startMd() );
     event->setEndMD( m_endMd() );
     event->setInnerDiameter( m_innerDiameter() );
     event->setRoughness( m_roughness() );
+    event->setFixedSegmentLength( fixedLength );
+    event->setMinSegmentLength( minLength );
+    event->setMaxSegmentLength( maxLength );
 
     return event;
 }

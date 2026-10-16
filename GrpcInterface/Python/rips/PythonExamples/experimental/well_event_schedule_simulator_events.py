@@ -68,7 +68,7 @@ WELL W1
   2024-04-15      WELSPECS                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
   # COMMENT is stored on the event and safely emitted as a schedule comment.
-  STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  COMMENT="Install production segment"
+  STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  MIN_SEGMENT_LENGTH=5  MAX_SEGMENT_LENGTH=50  COMMENT="Install production segment"
 
   # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP. Same-date
   # perforations are kept as separate events during normalization.{filter_comment}
