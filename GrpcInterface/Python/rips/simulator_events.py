@@ -2554,7 +2554,7 @@ def _apply_segment(
         _record_event_parse_error(event, exc, report)
         return
 
-    timeline_event = timeline.add_tubing_event(**kwargs)
+    timeline_event = timeline.add_segment_event(**kwargs)
     well_path.segment_collection().add_segment_interval(
         start_md=start_md,
         end_md=end_md,

@@ -27,9 +27,9 @@
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
+#include "RimWellEventSegment.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
-#include "RimWellEventTubing.h"
 #include "RimWellEventValve.h"
 #include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
@@ -319,15 +319,15 @@ QString RimcWellEventTimeline_addControlEvent::classKeywordReturnedType() const
     return RimWellEventControl::classKeywordStatic();
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addTubingEvent, "AddTubingEvent" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addSegmentEvent, "AddSegmentEvent" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellEventTimeline_addTubingEvent::RimcWellEventTimeline_addTubingEvent( caf::PdmObjectHandle* self )
+RimcWellEventTimeline_addSegmentEvent::RimcWellEventTimeline_addSegmentEvent( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Add Tubing Event", "", "", "Add a tubing event to the timeline" );
+    CAF_PDM_InitObject( "Add Segment Event", "", "", "Add a segment event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
@@ -340,7 +340,7 @@ RimcWellEventTimeline_addTubingEvent::RimcWellEventTimeline_addTubingEvent( caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEvent::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addSegmentEvent::execute()
 {
     auto timeline = self<RimWellEventTimeline>();
 
@@ -355,7 +355,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addTubingEvent( m_wellPath(), date );
+    auto* event = timeline->addSegmentEvent( m_wellPath(), date );
     event->setStartMD( m_startMd() );
     event->setEndMD( m_endMd() );
     event->setInnerDiameter( m_innerDiameter() );
@@ -367,9 +367,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcWellEventTimeline_addTubingEvent::classKeywordReturnedType() const
+QString RimcWellEventTimeline_addSegmentEvent::classKeywordReturnedType() const
 {
-    return RimWellEventTubing::classKeywordStatic();
+    return RimWellEventSegment::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addWellSpecEvent, "AddWellspecEvent" );

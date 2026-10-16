@@ -4,7 +4,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventRawText.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventInsertDate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventValve.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellEventTubing.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellEventSegment.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventState.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventType.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventWellSpec.cpp

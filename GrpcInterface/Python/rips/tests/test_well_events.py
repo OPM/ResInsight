@@ -100,11 +100,11 @@ class TestWellEventTimeline:
 
         assert event is not None, "Control event should be created"
 
-    def test_add_tubing_event(self, test_well_path):
-        """Test adding a tubing event to the timeline."""
+    def test_add_segment_event(self, test_well_path):
+        """Test adding a segment event to the timeline."""
         wellpath, timeline = test_well_path
 
-        event = timeline.add_tubing_event(
+        event = timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=wellpath,
             start_md=500.0,
@@ -113,7 +113,7 @@ class TestWellEventTimeline:
             roughness=1.0e-5,
         )
 
-        assert event is not None, "Tubing event should be created"
+        assert event is not None, "Segment event should be created"
 
 
 class TestWellEventScheduleApplication:
@@ -172,14 +172,14 @@ class TestWellEventScheduleApplication:
             "Perforation end MD should match"
         )
 
-    def test_set_timestamp_creates_tubing_intervals(self, project_with_wells):
-        """Test that set_timestamp creates tubing intervals from tubing events."""
+    def test_set_timestamp_creates_segment_intervals(self, project_with_wells):
+        """Test that set_timestamp creates segment intervals from segment events."""
         # Get Well Path B (end MD 2112)
         well_paths, timeline = project_with_wells
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add a tubing event at a valid MD range for Well Path B
-        timeline.add_tubing_event(
+        # Add a segment event at a valid MD range for Well Path B
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_b,
             start_md=1000.0,
@@ -191,7 +191,7 @@ class TestWellEventScheduleApplication:
         # Apply events up to the date
         timeline.set_timestamp(timestamp="2024-01-15")
 
-        # Verify a segment interval was created from the tubing event
+        # Verify a segment interval was created from the segment event
         segment_collection = well_path_b.segment_collection()
         assert segment_collection is not None, "Segment collection should be available"
 
@@ -272,15 +272,15 @@ class TestScheduleGeneration:
         return project, case, well_path_coll.event_timeline()
 
     def test_generate_schedule_text_basic(self, project_with_case_and_well):
-        """Test basic schedule text generation with MSW (tubing + perforation) events."""
+        """Test basic schedule text generation with MSW (segment + perforation) events."""
         project, case, timeline = project_with_case_and_well
 
         # Get well path
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing to enable MSW
-        timeline.add_tubing_event(
+        # Add segment to enable MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -358,7 +358,7 @@ class TestScheduleGeneration:
         assert cells and len(cells) == len(set(cells))
 
     @staticmethod
-    def _two_wells_sharing_export_name(project, timeline, with_tubing=False):
+    def _two_wells_sharing_export_name(project, timeline, with_segment=False):
         """Import a second copy of well path A (renamed) and perforate both copies identically."""
         well_path_coll = project.descendants(rips.WellPathCollection)[0]
         well_path_coll.import_well_path(
@@ -371,8 +371,8 @@ class TestScheduleGeneration:
             well_path.name = f"Well Path A{index + 1}"
             well_path.update()
         for well_path in well_paths:
-            if with_tubing:
-                timeline.add_tubing_event(
+            if with_segment:
+                timeline.add_segment_event(
                     event_date="2024-01-01",
                     well_path=well_path,
                     start_md=1500.0,
@@ -438,7 +438,7 @@ class TestScheduleGeneration:
         """MSW for a well name is exported once when any member is selected, not only the first (issue #14870)."""
         project, case, timeline = project_with_case_and_well
         well_paths = self._two_wells_sharing_export_name(
-            project, timeline, with_tubing=True
+            project, timeline, with_segment=True
         )
         well_paths[0].append_lateral_from_geometry(well_path_lateral=well_paths[1])
         self._set_export_names(well_paths, ["OP5", "OP5"])
@@ -460,7 +460,7 @@ class TestScheduleGeneration:
         project, case, timeline = project_with_case_and_well
         well_paths = project.well_paths()
         for well_path in well_paths:
-            timeline.add_tubing_event(
+            timeline.add_segment_event(
                 event_date="2024-01-01",
                 well_path=well_path,
                 start_md=1500.0,
@@ -533,8 +533,8 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing for MSW
-        timeline.add_tubing_event(
+        # Add segment for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -824,8 +824,8 @@ class TestScheduleGeneration:
         """Test that only wells with events before timestamp appear in schedule output.
 
         Scenario:
-        - Add tubing event for well A at 2024-01-01
-        - Add tubing event for well B at 2024-03-01
+        - Add segment event for well A at 2024-01-01
+        - Add segment event for well B at 2024-03-01
         - Set timestamp to 2024-02-01 (between the two dates)
         - Verify schedule contains well A but not well B
         """
@@ -836,8 +836,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add tubing event for well A on 2024-01-01 (before timestamp)
-        timeline.add_tubing_event(
+        # Add segment event for well A on 2024-01-01 (before timestamp)
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -868,8 +868,8 @@ class TestScheduleGeneration:
             },
         )
 
-        # Add tubing event for well B on 2024-03-01 (after timestamp)
-        timeline.add_tubing_event(
+        # Add segment event for well B on 2024-03-01 (after timestamp)
+        timeline.add_segment_event(
             event_date="2024-03-01",
             well_path=well_path_b,
             start_md=0.0,
@@ -938,9 +938,9 @@ class TestScheduleGeneration:
         """Test that wells only appear in schedule sections at their event dates, not earlier.
 
         Scenario:
-        - Add tubing + perf + ICV valve for well A at 2024-01-01 (depth 2000-2200, valve at 2100)
-        - Add tubing + perf + ICD valve for well B at 2024-03-01 (depth 1500-1700, valve at 1600)
-        - Add tubing + perf + ICV valve + perf + AICD valve for well A at 2024-04-01
+        - Add segment + perf + ICV valve for well A at 2024-01-01 (depth 2000-2200, valve at 2100)
+        - Add segment + perf + ICD valve for well B at 2024-03-01 (depth 1500-1700, valve at 1600)
+        - Add segment + perf + ICV valve + perf + AICD valve for well A at 2024-04-01
           (perf 1800-2000 with ICV at 1900, perf 2250-2400 with AICD at 2300)
         - Set timestamp to 2024-12-31 (after all events)
         - Verify well A appears in January and April sections with different COMPSEGS
@@ -958,8 +958,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add tubing + perforation for well A at 2024-01-01 (depth 2000-2200)
-        timeline.add_tubing_event(
+        # Add segment + perforation for well A at 2024-01-01 (depth 2000-2200)
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=1500.0,
@@ -986,8 +986,8 @@ class TestScheduleGeneration:
             area=0.0001,
         )
 
-        # Add tubing + perforation for well B at 2024-03-01 (depth 1500-1700)
-        timeline.add_tubing_event(
+        # Add segment + perforation for well B at 2024-03-01 (depth 1500-1700)
+        timeline.add_segment_event(
             event_date="2024-03-01",
             well_path=well_path_b,
             start_md=1400.0,
@@ -1014,8 +1014,8 @@ class TestScheduleGeneration:
             area=0.00012,
         )
 
-        # Add another tubing + perforation for well A at 2024-04-01 at a different depth (1800-2000)
-        timeline.add_tubing_event(
+        # Add another segment + perforation for well A at 2024-04-01 at a different depth (1800-2000)
+        timeline.add_segment_event(
             event_date="2024-04-01",
             well_path=well_path_a,
             start_md=600.0,
@@ -1178,27 +1178,27 @@ class TestScheduleGeneration:
             "April COMPSEGS should contain ICV valve depth 1900"
         )
 
-        # Verify WELSEGS sections exist for tubing events
+        # Verify WELSEGS sections exist for segment events
         assert "WELSEGS" in january_section, (
-            "January section should contain WELSEGS for well A (tubing event)"
+            "January section should contain WELSEGS for well A (segment event)"
         )
         assert "WELSEGS" in april_section, (
-            "April section should contain WELSEGS for well A (second tubing event)"
+            "April section should contain WELSEGS for well A (second segment event)"
         )
 
-        # Verify that the April tubing event values do NOT leak into January WELSEGS.
-        # January tubing: inner_diameter=0.15, roughness=9e-05
-        # April tubing: inner_diameter=0.20, roughness=3e-05
-        # The roughness value 3e-05 is unique to the April tubing event,
+        # Verify that the April segment event values do NOT leak into January WELSEGS.
+        # January segment: inner_diameter=0.15, roughness=9e-05
+        # April segment: inner_diameter=0.20, roughness=3e-05
+        # The roughness value 3e-05 is unique to the April segment event,
         # so it must NOT appear in the January section.
         assert "3e-05" not in january_section, (
-            "January WELSEGS should NOT contain roughness 3e-05 from April tubing event. "
-            "Tubing events should only appear at their event date, not earlier."
+            "January WELSEGS should NOT contain roughness 3e-05 from April segment event. "
+            "Segment events should only appear at their event date, not earlier."
         )
 
-        # Verify April section contains the April tubing roughness
+        # Verify April section contains the April segment roughness
         assert "3e-05" in april_section, (
-            "April WELSEGS should contain roughness 3e-05 from April tubing event"
+            "April WELSEGS should contain roughness 3e-05 from April segment event"
         )
 
         # Verify distinct perf diameter/skin values appear in COMPDAT sections
@@ -1281,9 +1281,9 @@ class TestScheduleGeneration:
         print("✓ Verified: Well A appears in April section (event at 1800-2000)")
         print("✓ Verified: COMPSEGS for well A is different in January vs April")
         print(
-            "✓ Verified: WELSEGS present in both January and April (two tubing events)"
+            "✓ Verified: WELSEGS present in both January and April (two segment events)"
         )
-        print("✓ Verified: April tubing values do NOT leak into January section")
+        print("✓ Verified: April segment values do NOT leak into January section")
         print("✓ Verified: Distinct perf diameters/skin values in COMPDAT sections")
         print("✓ Verified: WSEGVALV present in January section (ICV, 1 valve entry)")
         print("✓ Verified: WSEGVALV present in March section (ICD valve)")
@@ -1306,8 +1306,8 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing event (installed early) - should generate WELSEGS
-        timeline.add_tubing_event(
+        # Add segment event (installed early) - should generate WELSEGS
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1428,13 +1428,13 @@ class TestScheduleGeneration:
             or "APR" in schedule_text
         ), "Schedule should contain month abbreviations"
 
-        # Verify MSW keywords from tubing events
+        # Verify MSW keywords from segment events
         assert "WELSEGS" in schedule_text, (
-            "Schedule should contain WELSEGS keyword from tubing events"
+            "Schedule should contain WELSEGS keyword from segment events"
         )
 
         # Verify completion keywords from perforation events
-        # With MSW (tubing), should generate COMPSEGS
+        # With MSW (segment), should generate COMPSEGS
         assert "COMPSEGS" in schedule_text, (
             "Schedule should contain COMPSEGS keyword from perforation events with MSW"
         )
@@ -1488,11 +1488,11 @@ class TestScheduleGeneration:
         )
 
     def test_schedule_contains_welsegs_keyword(self, project_with_case_and_well):
-        """Verify WELSEGS keyword is generated for tubing events."""
+        """Verify WELSEGS keyword is generated for segment events."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        timeline.add_tubing_event(
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1509,7 +1509,7 @@ class TestScheduleGeneration:
         print(f"\nSchedule text for WELSEGS test:\n{schedule_text}")
 
         assert "WELSEGS" in schedule_text, (
-            "Schedule should contain WELSEGS keyword for tubing events"
+            "Schedule should contain WELSEGS keyword for segment events"
         )
         # Eclipse well names typically don't have spaces
         well_name_no_spaces = well_path.name.replace(" ", "")
@@ -1526,7 +1526,7 @@ class TestScheduleGeneration:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        timeline.add_tubing_event(
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=1500.0,
@@ -1577,8 +1577,8 @@ class TestScheduleGeneration:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and valve on same date to simplify test
-        timeline.add_tubing_event(
+        # Add segment and valve on same date to simplify test
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1977,7 +1977,7 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        timeline.add_tubing_event(
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -2039,8 +2039,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Well A: tubing + perforation + AICD valve -> WSEGAICD.
-        timeline.add_tubing_event(
+        # Well A: segment + perforation + AICD valve -> WSEGAICD.
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -2071,8 +2071,8 @@ class TestScheduleGeneration:
             aicd_visc_func_exp=0.5,
         )
 
-        # Well B: tubing + perforation + ICD valve -> WSEGVALV.
-        timeline.add_tubing_event(
+        # Well B: segment + perforation + ICD valve -> WSEGVALV.
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_b,
             start_md=0.0,
@@ -2242,7 +2242,7 @@ class TestScheduleGeneration:
         )
 
         for wp in well_paths[:2]:
-            timeline.add_tubing_event(
+            timeline.add_segment_event(
                 event_date="2024-01-01",
                 well_path=wp,
                 start_md=0.0,
@@ -2554,8 +2554,8 @@ class TestKeywordEvents:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and perforation for MSW
-        timeline.add_tubing_event(
+        # Add segment and perforation for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -2585,7 +2585,7 @@ class TestKeywordEvents:
             },
         )
 
-        # Apply tubing/perf events
+        # Apply segment/perf events
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
@@ -2906,8 +2906,8 @@ class TestScheduleKeywordEvents:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and perforation for MSW
-        timeline.add_tubing_event(
+        # Add segment and perforation for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -2934,7 +2934,7 @@ class TestScheduleKeywordEvents:
             },
         )
 
-        # Apply tubing/perf events
+        # Apply segment/perf events
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text

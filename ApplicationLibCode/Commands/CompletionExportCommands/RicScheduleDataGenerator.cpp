@@ -420,7 +420,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
             {
                 isRelevant = keywordName == "COMPDAT";
             }
-            else if ( event->eventType() == RimWellEvent::EventType::TUBING )
+            else if ( event->eventType() == RimWellEvent::EventType::SEGMENT )
             {
                 isRelevant = keywordName == "WELSEGS";
             }
@@ -550,7 +550,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     bool hasEvents = false;
     for ( auto* event : eventsAtDate )
     {
-        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::TUBING ||
+        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::SEGMENT ||
                event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
              eventBelongsToWell( *event, well ) )
         {
@@ -653,9 +653,9 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
         return;
     }
 
-    // MSW is generated only when there are valve/tubing/perforation events at this exact date.
+    // MSW is generated only when there are valve/segment/perforation events at this exact date.
     bool hasValveEvents    = false;
-    bool hasGeometryEvents = false; // tubing or perforation changes require WELSEGS/COMPSEGS to be redefined
+    bool hasGeometryEvents = false; // segment or perforation changes require WELSEGS/COMPSEGS to be redefined
     for ( auto* event : eventsAtDate )
     {
         if ( !eventBelongsToWell( *event, wellPath ) ) continue;
@@ -664,7 +664,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
         {
             hasValveEvents = true;
         }
-        else if ( event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::PERF )
+        else if ( event->eventType() == RimWellEvent::EventType::SEGMENT || event->eventType() == RimWellEvent::EventType::PERF )
         {
             hasGeometryEvents = true;
         }
@@ -699,7 +699,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
     auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswData );
 
-    // Tubing and perforation changes always redefine the segments. A valve event usually only updates
+    // Segment and perforation changes always redefine the segments. A valve event usually only updates
     // WSEGVALV/WSEGAICD, but a valve becoming active adds valve segments and remaps connections, so the
     // segments are also redefined when the layout differs from the one last written for this well.
     const QString segmentLayout = RimKeywordFactory::deckKeywordToString( welsegsKw ) + RimKeywordFactory::deckKeywordToString( compsegsKw );

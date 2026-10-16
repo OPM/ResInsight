@@ -138,12 +138,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellEventTimeline_addTubingEvent : public caf::PdmObjectCreationMethod
+class RimcWellEventTimeline_addSegmentEvent : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellEventTimeline_addTubingEvent( caf::PdmObjectHandle* self );
+    RimcWellEventTimeline_addSegmentEvent( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
