@@ -67,11 +67,11 @@ class FakeCompletionSettings:
         self.allow_well_cross_flow = True
         self.reference_depth_for_export = None
         self.well_type_for_export = "OIL"
+        self.pressure_drop = "HF-"
 
 
 class FakeSegmentCollection:
     def __init__(self):
-        self.pressure_drop = "HF-"
         self.segment_interval_calls = []
         self.update_calls = 0
 
@@ -1880,10 +1880,27 @@ class TestApplying:
             "allow_cross_flow": False,
             "reference_depth": 1002.0,
             "well_type": "GAS",
+            "pressure_drop": "HF-",
         }
         assert timeline.wellspec_calls[1]["group_name"] == "my_group"
         assert timeline.wellspec_calls[1]["allow_cross_flow"] is True
         assert timeline.wellspec_calls[1]["well_type"] == "WATER"
+
+    def test_wellspec_pressure_components_are_cumulative(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2018-01-01 WELSPECS PRESSURE_COMPONENTS=hfa\n"
+            "  2019-01-01 WELSPECS GROUP=G1\n"
+            "  2020-01-01 WELSPECS PRESSURE_COMPONENTS=H--\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.errors == []
+        assert [call["pressure_drop"] for call in timeline.wellspec_calls] == [
+            "HFA",
+            "HFA",
+            "H--",
+        ]
 
     @pytest.mark.parametrize(
         "attributes,expected_error",
@@ -1891,6 +1908,10 @@ class TestApplying:
             ("CROSSFLOW=YES", "CROSSFLOW must be True or False"),
             ("REFDEPTH=deep", "REFDEPTH must be numeric"),
             ("PHASE=steam", "PHASE must be OIL, GAS, WATER, or LIQUID"),
+            (
+                "PRESSURE_COMPONENTS=INVALID",
+                "PRESSURE_COMPONENTS must be H--, HF-, or HFA",
+            ),
             ("GROUP=1", "GROUP must be a non-empty string"),
             ("UNKNOWN=1", "unknown WELSPECS attribute"),
             ("COMMENT=empty", "needs at least one setting attribute"),
@@ -1905,11 +1926,11 @@ class TestApplying:
         assert expected_error in report.errors[0]
         assert timeline.wellspec_calls == []
 
-    def test_segment_mapping_creates_custom_interval_and_sets_pressure_drop(self):
+    def test_segment_mapping_creates_custom_interval(self):
         text = (
             'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 "
-            "ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
+            "ROUGHNESS=1.0e-5\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
@@ -1928,20 +1949,17 @@ class TestApplying:
                 "roughness_factor": pytest.approx(1.0e-5),
             }
         ]
-        assert well.segment_collection().pressure_drop == "HFA"
-        assert well.segment_collection().update_calls == 1
 
-    def test_segment_rejects_invalid_pressure_components(self):
+    def test_segment_rejects_pressure_components(self):
         text = (
             'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
-            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 "
-            "PRESSURE_COMPONENTS=INVALID\n"
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 PRESSURE_COMPONENTS=HFA\n"
         )
         timeline, report = self._apply(text)
 
         assert report.events_applied == 0
         assert report.events_skipped == 1
-        assert "PRESSURE_COMPONENTS must be H--, HF-, or HFA" in report.errors[0]
+        assert "unknown SEGMENT attribute(s): PRESSURE_COMPONENTS" in report.errors[0]
         assert timeline.segment_calls == []
 
     def test_tubing_is_reported_as_renamed_event(self):
@@ -3009,7 +3027,8 @@ class TestSimulatorEventsIntegration:
             "DATE STARTUP = 2024-01-01\n"
             "DURATION RAMP = 31d\n"
             f'WELL "{well.name}"\n'
-            "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
+            "  STARTUP         WELSPECS     PRESSURE_COMPONENTS=HFA\n"
+            "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5\n"
             "  STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  DIAMETER=0.1  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  2024-05-15T14:45:30.700  PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=2\n"
             "  2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
@@ -3026,16 +3045,16 @@ class TestSimulatorEventsIntegration:
         report = apply_simulator_events_document(document, timeline, project)
         assert report.errors == []
         assert report.warnings == []
-        assert report.events_applied == 11
+        assert report.events_applied == 12
 
         segment_intervals = well.descendants(rips.SegmentInterval)
         assert any(
             segment.start_md == 0.0 and segment.end_md == 2500.0
             for segment in segment_intervals
         )
-        assert well.segment_collection().pressure_drop == "HFA"
 
         timeline.set_timestamp(timestamp="2024-12-24")
+        assert well.completion_settings().pressure_drop == "HFA"
         schedule = timeline.generate_schedule_text(
             eclipse_case=case, export_msw_for_wells=[well]
         )
@@ -3052,6 +3071,32 @@ class TestSimulatorEventsIntegration:
             assert keyword in schedule, f"{keyword} missing from schedule"
         # The datetime perforation must surface as a DATES entry with TIME.
         assert "14:45:31" in schedule
+        assert "'HFA'" in schedule.split("WELSEGS", 1)[1].split("/", 1)[0]
+
+    def test_welsegs_uses_pressure_components_from_wellspec_at_date(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 WELSPECS     PRESSURE_COMPONENTS=HFA\n"
+            "  2024-01-01 SEGMENT      MDSTART=0  MDEND=2500\n"
+            "  2024-01-01 PERFORATION  MDSTART=2000  MDEND=2200\n"
+            "  2024-06-01 WELSPECS     PRESSURE_COMPONENTS=H--\n"
+            "  2024-06-01 PERFORATION  MDSTART=2300  MDEND=2350\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well]
+        )
+        headers = [block.split("/", 1)[0] for block in schedule.split("WELSEGS\n")[1:]]
+        assert len(headers) == 2
+        assert "'HFA'" in headers[0]
+        assert "'H--'" in headers[1]
 
     def test_apply_unknown_well_warns_and_applies_nothing(
         self, project_with_case_and_wells

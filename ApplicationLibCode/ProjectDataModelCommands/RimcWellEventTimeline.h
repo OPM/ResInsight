@@ -177,6 +177,7 @@ private:
     caf::PdmField<bool>                                                  m_allowCrossFlow;
     caf::PdmField<std::optional<double>>                                 m_referenceDepth;
     caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_wellType;
+    caf::PdmField<QString>                                               m_pressureDrop;
 };
 
 //==================================================================================================

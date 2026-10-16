@@ -83,7 +83,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
     auto                      mswParameters = wellPath->segmentCollection();
     if ( !mswParameters ) return result;
 
-    const std::string                            infoType         = mswParameters->lengthAndDepth().text().toStdString();
+    const std::string                            infoType         = wellPath->completionSettings()->lengthAndDepth().text().toStdString();
     const std::vector<std::pair<double, double>> segmentIntervals = mswParameters->getSegmentIntervals();
     const double                                 tieInMD          = wellPath->wellPathTieIn()->tieInMeasuredDepth();
     const double                                 tieInTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( tieInMD ).z();
@@ -313,7 +313,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
 
     const RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
     const RigMainGrid*                  mainGrid   = eclipseCase->mainGrid();
-    const std::string                   infoType   = mswParameters->lengthAndDepth().text().toStdString();
+    const std::string                   infoType   = wellPath->completionSettings()->lengthAndDepth().text().toStdString();
 
     auto cellIntersections = RicWellPathExportMswTableData::generateCellSegments( eclipseCase, wellPath );
     double initialMD = RicWellPathExportMswTableData::computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
@@ -327,7 +327,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     header.topLength          = initialMD;
     header.topDepth           = initialTVD;
     header.infoType           = infoType;
-    header.pressureComponents = mswParameters->pressureDrop().text().toStdString();
+    header.pressureComponents = wellPath->completionSettings()->pressureDrop().text().toStdString();
 
     const bool includePerforations = ( completionType & CompletionType::PERFORATIONS ) == CompletionType::PERFORATIONS;
     const std::vector<const RimPerforationInterval*> perforationIntervals =

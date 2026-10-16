@@ -394,6 +394,13 @@ RimcWellEventTimeline_addWellSpecEvent::RimcWellEventTimeline_addWellSpecEvent( 
                                  "",
                                  "",
                                  "Preferred Fluid Phase" );
+    CAF_PDM_InitScriptableField( &m_pressureDrop,
+                                 "PressureDrop",
+                                 QString(),
+                                 "",
+                                 "",
+                                 "",
+                                 "WELSEGS pressure drop components (H--, HF- or HFA). Empty keeps the current completion setting" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,8 +426,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellSpecE
         }
     }
 
+    auto pressureDrop = m_wellPath()->completionSettings()->pressureDrop();
+    if ( !m_pressureDrop().isEmpty() )
+    {
+        if ( !RimWellPathCompletionSettings::PressureDropEnum::isValid( m_pressureDrop() ) )
+        {
+            return std::unexpected( QString( "Invalid pressure drop: %1. Expected H--, HF- or HFA" ).arg( m_pressureDrop() ) );
+        }
+        pressureDrop = RimWellPathCompletionSettings::PressureDropEnum::fromText( m_pressureDrop() );
+    }
+
     auto* event = timeline->addWellSpecEvent( m_wellPath(), date );
-    event->setWellSpecData( { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType() } );
+    event->setWellSpecData( { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType(), pressureDrop } );
     return event;
 }
 

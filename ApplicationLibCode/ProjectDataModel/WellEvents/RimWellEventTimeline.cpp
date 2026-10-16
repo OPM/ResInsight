@@ -295,7 +295,8 @@ RimWellEventWellSpec* RimWellEventTimeline::addWellSpecEvent( RimWellPath* wellP
     if ( wellPath && wellPath->completionSettings() )
     {
         auto* settings = wellPath->completionSettings();
-        event->setBaselineData( { settings->groupName(), settings->allowWellCrossFlow(), settings->referenceDepth(), settings->wellType() } );
+        event->setBaselineData(
+            { settings->groupName(), settings->allowWellCrossFlow(), settings->referenceDepth(), settings->wellType(), settings->pressureDrop() } );
     }
 
     m_events.push_back( event );
@@ -531,6 +532,7 @@ bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event
     settings->setAllowWellCrossFlow( data.allowCrossFlow );
     settings->setReferenceDepth( data.referenceDepth );
     settings->setWellType( data.wellType );
+    settings->setPressureDrop( data.pressureDrop );
     settings->updateConnectedEditors();
     return true;
 }

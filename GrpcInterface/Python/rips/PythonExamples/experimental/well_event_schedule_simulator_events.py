@@ -63,11 +63,12 @@ WELL W1 = "{well_name}"
 WELL W1
   # WELSPECS updates completion export settings and emits WELSPECS. Attributes
   # are optional: the second event inherits GROUP from the first event.
-  2024-01-05      WELSPECS     GROUP="SIMULATOR_EVENTS_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
+  # PRESSURE_COMPONENTS sets the WELSEGS pressure drop components for the well.
+  2024-01-05      WELSPECS     GROUP="SIMULATOR_EVENTS_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER  PRESSURE_COMPONENTS=HFA
   2024-04-15      WELSPECS                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
   # COMMENT is stored on the event and safely emitted as a schedule comment.
-  STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA  COMMENT="Install production segment"
+  STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  COMMENT="Install production segment"
 
   # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP. Same-date
   # perforations are kept as separate events during normalization.{filter_comment}
