@@ -2643,7 +2643,8 @@ def _apply_segment(
         return
 
     timeline_event = timeline.add_segment_event(**kwargs, **lengths)
-    interval = well_path.segment_collection().add_segment_interval(
+    segment_collection = well_path.segment_collection()
+    interval = segment_collection.add_segment_interval(
         start_md=start_md,
         end_md=end_md,
         diameter=kwargs.get("inner_diameter", 0.152),
@@ -2655,6 +2656,12 @@ def _apply_segment(
         interval.set_max_segment_length(length=lengths["max_segment_length"])
     if "fixed_segment_length" in lengths:
         interval.set_fixed_segment_length(length=lengths["fixed_segment_length"])
+    # WELSEGS TOP_LENGTH is the reference MD: use the start of the first segment.
+    segment_collection.reference_md_type = "UserDefined"
+    segment_collection.user_defined_reference_md = min(
+        i.start_md for i in segment_collection.intervals()
+    )
+    segment_collection.update()
     _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 

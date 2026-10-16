@@ -53,6 +53,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimWellEventTimeline, "WellEventTimeline" );
@@ -576,6 +577,15 @@ bool RimWellEventTimeline::applySegmentEvent( const RimWellEventSegment& event, 
         interval->setMinSegmentLength( event.minSegmentLength() );
         interval->setMaxSegmentLength( event.maxSegmentLength() );
         interval->setFixedSegmentLength( event.fixedSegmentLength() );
+
+        // WELSEGS TOP_LENGTH is the reference MD, which must be the start of the first segment
+        double firstSegmentMD = std::numeric_limits<double>::infinity();
+        for ( auto* existingInterval : segmentCollection->intervals() )
+        {
+            firstSegmentMD = std::min( firstSegmentMD, existingInterval->startMD() );
+        }
+        segmentCollection->setReferenceMDType( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD );
+        segmentCollection->setManualReferenceMD( firstSegmentMD );
 
         segmentCollection->updateConnectedEditors();
         return true;

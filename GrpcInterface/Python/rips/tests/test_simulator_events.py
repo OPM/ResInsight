@@ -71,7 +71,8 @@ class FakeCompletionSettings:
 
 
 class FakeSegmentInterval:
-    def __init__(self):
+    def __init__(self, start_md=0.0):
+        self.start_md = start_md
         self.segment_length_calls = []
 
     def set_fixed_segment_length(self, length):
@@ -90,14 +91,19 @@ class FakeSegmentInterval:
 class FakeSegmentCollection:
     def __init__(self):
         self.segment_interval_calls = []
-        self.intervals = []
+        self._intervals = []
         self.update_calls = 0
+        self.reference_md_type = "GridEntryPoint"
+        self.user_defined_reference_md = 0.0
 
     def add_segment_interval(self, **kwargs):
         self.segment_interval_calls.append(kwargs)
-        interval = FakeSegmentInterval()
-        self.intervals.append(interval)
+        interval = FakeSegmentInterval(kwargs["start_md"])
+        self._intervals.append(interval)
         return interval
+
+    def intervals(self):
+        return self._intervals
 
     def update(self):
         self.update_calls += 1
@@ -2029,6 +2035,18 @@ class TestApplying:
             }
         ]
 
+    def test_segment_mapping_sets_reference_md_to_first_segment(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=1500 MDEND=2500\n"
+            "  2024-01-01 SEGMENT MDSTART=1200 MDEND=1500\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.errors == []
+        segment_collection = timeline.segment_calls[0]["well_path"].segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
+
     def test_segment_min_max_lengths_are_mapped(self):
         text = (
             'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
@@ -2043,7 +2061,7 @@ class TestApplying:
         assert call["max_segment_length"] == 50.0
         assert "fixed_segment_length" not in call
 
-        interval = call["well_path"].segment_collection().intervals[0]
+        interval = call["well_path"].segment_collection().intervals()[0]
         assert interval.segment_length_calls == [("min", 5.0), ("max", 50.0)]
 
     def test_segment_fixed_length_is_mapped(self):
@@ -2058,7 +2076,7 @@ class TestApplying:
         assert "min_segment_length" not in call
         assert "max_segment_length" not in call
 
-        interval = call["well_path"].segment_collection().intervals[0]
+        interval = call["well_path"].segment_collection().intervals()[0]
         assert interval.segment_length_calls == [("fixed", 12.0)]
 
     def test_segment_rejects_pressure_components(self):
@@ -3246,6 +3264,44 @@ class TestSimulatorEventsIntegration:
         assert len(headers) == 2
         assert "'HFA'" in headers[0]
         assert "'H--'" in headers[1]
+
+    def test_segment_events_set_user_defined_reference_md(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 SEGMENT      MDSTART=1500  MDEND=2500\n"
+            "  2024-01-01 SEGMENT      MDSTART=1200  MDEND=1500\n"
+            "  2024-01-01 PERFORATION  MDSTART=2000  MDEND=2200\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+
+        segment_collection = well.segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well]
+        )
+        header = schedule.split("WELSEGS\n", 1)[1].split("/", 1)[0]
+        header_values = [
+            line.split()
+            for line in header.splitlines()
+            if line.strip() and not line.strip().startswith("--")
+        ][0]
+        top_length = float(header_values[2])
+        assert top_length == pytest.approx(1200.0)
+
+        segment_collection.reference_md_type = "GridEntryPoint"
+        segment_collection.update()
+        timeline.set_timestamp(timestamp="2024-12-24")
+        segment_collection = well.segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
 
     def test_apply_unknown_well_warns_and_applies_nothing(
         self, project_with_case_and_wells
