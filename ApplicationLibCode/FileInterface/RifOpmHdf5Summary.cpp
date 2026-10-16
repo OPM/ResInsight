@@ -98,6 +98,8 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
 
     createAndSetAddresses();
 
+    m_headerFileName = headerFileName;
+
     return true;
 }
 
@@ -158,8 +160,11 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RifOpmHdf5Summary::unitSystem() const
 {
-    // TODO: Not implemented
-    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    if ( !m_unitSystem )
+    {
+        m_unitSystem = RifOpmSummaryTools::readUnitSystem( RifOpmSummaryTools::smspecSummaryFilename( m_headerFileName ) );
+    }
+    return *m_unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

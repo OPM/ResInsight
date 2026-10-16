@@ -23,11 +23,14 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQStringFormatter.h"
 
+#include "RifEclipseOutputFileTools.h"
+
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
 #pragma warning( disable : 4267 )
 #endif
 #include "opm/io/eclipse/ESmry.hpp"
+#include "opm/io/eclipse/EclFile.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
 #include <QFile>
@@ -220,6 +223,32 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The unit system is stored in INTEHEAD[0] of the SMSPEC file
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RifOpmSummaryTools::readUnitSystem( const QString& smspecFileName )
+{
+    if ( !QFile::exists( smspecFileName ) ) return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+
+    try
+    {
+        Opm::EclIO::EclFile smspecFile( smspecFileName.toStdString() );
+        if ( smspecFile.hasKey( "INTEHEAD" ) )
+        {
+            const auto& intehead = smspecFile.get<int>( "INTEHEAD" );
+            if ( !intehead.empty() )
+            {
+                return RifEclipseOutputFileTools::unitValueToEnum( intehead[0] ).value_or( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
+            }
+        }
+    }
+    catch ( const std::exception& )
+    {
+    }
+
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -146,6 +146,13 @@ std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnit
         systems.push_back( m_eclCase->eclipseCaseData()->unitsType() );
     }
 
+    auto addIfKnown = [&systems]( RiaDefines::EclipseUnitSystem system )
+    {
+        if ( system != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ) systems.push_back( system );
+    };
+    if ( m_summaryCase ) addIfKnown( m_summaryCase->unitsSystem() );
+    if ( m_ensemble ) addIfKnown( m_ensemble->unitSystem() );
+
     if ( m_wellLogFile && m_wellLogFile->wellLogData() )
     {
         auto eclipseUnit = RiaDefines::fromDepthUnit( m_wellLogFile->wellLogData()->depthUnit() );

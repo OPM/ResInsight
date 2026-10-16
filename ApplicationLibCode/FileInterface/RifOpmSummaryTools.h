@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include <QString>
@@ -50,6 +52,8 @@ SummaryCategory categoryFromKeyword( const std::string& keyword );
 QString enhancedSummaryFilename( const QString& fileName );
 QString smspecSummaryFilename( const QString& fileName );
 bool    isEsmryConversionRequired( const QString& fileName );
+
+RiaDefines::EclipseUnitSystem readUnitSystem( const QString& smspecFileName );
 
 std::expected<int, QString> extractRealizationNumber( const QString& path );
 
