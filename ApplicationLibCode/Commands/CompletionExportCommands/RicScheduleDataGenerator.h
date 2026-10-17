@@ -109,9 +109,11 @@ private:
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
     // wells and are appended as separate per-well blocks in unmergedBlocks.
     // The caller decides which wells get MSW keywords (see mswWells in generateSchedule).
-    // WELSEGS / COMPSEGS are written for tubing/perforation events, and for valve events when the
+    // WELSEGS / COMPSEGS are written for segment/perforation events, and for valve events when the
     // segment layout differs from the one last written for the well (tracked in emittedSegmentLayouts).
-    static void generateMswForWell( RimEclipseCase&                                   eclipseCase,
+    // The WELSEGS pressure drop components come from the WELSPECS event in effect at the date.
+    static void generateMswForWell( const RimWellEventTimeline&                       timeline,
+                                    RimEclipseCase&                                   eclipseCase,
                                     RimWellPath&                                      well,
                                     const QDateTime&                                  date,
                                     const std::vector<RimWellEvent*>&                 eventsAtDate,

@@ -9,8 +9,8 @@ written as SIMEVENTS 1.2 text (see rips/simulator_events.py for the grammar) and
 applied in one go with rips.simulator_events.apply_simulator_events_document().
 
 It demonstrates the full event coverage of the format:
-1. SEGMENT, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
-   events on a well
+1. SEGMENT (with min/max or fixed segment lengths), PERFORATION (incl. a
+   time-of-day date), VALVE and STATE completion events on a well
 2. Partial WELSPECS updates that cumulatively change completion export settings
    and generate dated WELSPECS records
 3. A FILTER declaration (qualified result name) referenced by a perforation,
@@ -63,11 +63,16 @@ WELL W1 = "{well_name}"
 WELL W1
   # WELSPECS updates completion export settings and emits WELSPECS. Attributes
   # are optional: the second event inherits GROUP from the first event.
-  2024-01-05      WELSPECS     GROUP="SIMULATOR_EVENTS_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
+  # PRESSURE_COMPONENTS sets the WELSEGS pressure drop components for the well.
+  2024-01-05      WELSPECS     GROUP="SIMULATOR_EVENTS_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER  PRESSURE_COMPONENTS=HFA
   2024-04-15      WELSPECS                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
+  # SEGMENT creates a segment interval controlling the MSW segmentation.
+  # MIN_SEGMENT_LENGTH and MAX_SEGMENT_LENGTH can be combined; a
+  # FIXED_SEGMENT_LENGTH cannot be combined with them (a parse error).
   # COMMENT is stored on the event and safely emitted as a schedule comment.
-  STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA  COMMENT="Install production segment"
+  STARTUP         SEGMENT      MDSTART=0        MDEND=2000  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  MIN_SEGMENT_LENGTH=5  MAX_SEGMENT_LENGTH=50  COMMENT="Install production segment"
+  STARTUP         SEGMENT      MDSTART=2000     MDEND=2600  INNER_DIAMETER=0.12  ROUGHNESS=1.0e-5  FIXED_SEGMENT_LENGTH=10
 
   # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP. Same-date
   # perforations are kept as separate events during normalization.{filter_comment}
@@ -196,6 +201,20 @@ def main() -> None:
     print(f"      Cross-flow:  {completion_settings.allow_well_cross_flow}")
     print(f"      Ref. depth:  {completion_settings.reference_depth_for_export}")
     print(f"      Phase:       {completion_settings.well_type_for_export}")
+
+    def length_text(length) -> str:
+        enabled, value = length
+        return f"{value:g}m" if enabled else "-"
+
+    segment_intervals = well_path.segment_collection().intervals()
+    print(f"   Segment intervals: {len(segment_intervals)}")
+    for interval in segment_intervals:
+        print(
+            f"      - MD {interval.start_md:.0f} to {interval.end_md:.0f}m: "
+            f"fixed {length_text(interval.fixed_segment_length)}, "
+            f"min {length_text(interval.min_segment_length)}, "
+            f"max {length_text(interval.max_segment_length)}"
+        )
 
     perforations = well_path.completions().perforations().perforations()
     print(f"   Perforations created: {len(perforations)}")

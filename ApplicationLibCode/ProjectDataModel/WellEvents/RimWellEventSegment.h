@@ -22,18 +22,21 @@
 
 #include "cafPdmField.h"
 
+#include <optional>
+#include <utility>
+
 //==================================================================================================
 ///
-/// Tubing event - defines changes to tubing/liner diameter and roughness
+/// Segment event - defines changes to segment (tubing/liner) diameter and roughness
 ///
 //==================================================================================================
-class RimWellEventTubing : public RimWellEvent
+class RimWellEventSegment : public RimWellEvent
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellEventTubing();
-    ~RimWellEventTubing() override;
+    RimWellEventSegment();
+    ~RimWellEventSegment() override;
 
     // Getters
     double startMD() const;
@@ -46,6 +49,14 @@ public:
     void setEndMD( double md );
     void setInnerDiameter( double diameter );
     void setRoughness( double roughness );
+
+    // Segmentation. Fixed length cannot be combined with min/max length.
+    std::optional<double> fixedSegmentLength() const;
+    std::optional<double> minSegmentLength() const;
+    std::optional<double> maxSegmentLength() const;
+    void                  setFixedSegmentLength( std::optional<double> length );
+    void                  setMinSegmentLength( std::optional<double> length );
+    void                  setMaxSegmentLength( std::optional<double> length );
 
     // Override from RimWellEvent
     EventType eventType() const override;
@@ -60,4 +71,8 @@ private:
     caf::PdmField<double> m_endMD;
     caf::PdmField<double> m_innerDiameter;
     caf::PdmField<double> m_roughness;
+
+    caf::PdmField<std::pair<bool, double>> m_fixedSegmentLength;
+    caf::PdmField<std::pair<bool, double>> m_minSegmentLength;
+    caf::PdmField<std::pair<bool, double>> m_maxSegmentLength;
 };

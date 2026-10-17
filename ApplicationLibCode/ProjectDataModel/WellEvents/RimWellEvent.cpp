@@ -32,7 +32,7 @@ void AppEnum<RimWellEvent::EventType>::setUp()
 {
     addItem( RimWellEvent::EventType::PERF, "PERF", "Perforation" );
     addItem( RimWellEvent::EventType::VALVE, "VALVE", "Valve" );
-    addItem( RimWellEvent::EventType::TUBING, "TUBING", "Tubing" );
+    addItem( RimWellEvent::EventType::SEGMENT, "SEGMENT", "Segment" );
     addItem( RimWellEvent::EventType::WSTATE, "WSTATE", "Well State" );
     addItem( RimWellEvent::EventType::WTYPE, "WTYPE", "Well Type" );
     addItem( RimWellEvent::EventType::WELLSPEC, "WELLSPEC", "Well Specification" );

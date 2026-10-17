@@ -3,7 +3,7 @@ Well Events module for managing time-dependent well events.
 
 This module provides functionality for creating and managing well events
 in a timeline-based event system. Events can be perforation events, valve events,
-tubing changes, well state changes, and production/injection control changes.
+segment changes, well state changes, and production/injection control changes.
 """
 
 from typing import Any, Dict, List

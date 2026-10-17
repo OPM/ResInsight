@@ -66,6 +66,37 @@ bool eventBelongsToWell( const RimWellEvent& event, const RimWellPath& well )
     const RimWellPath* eventWell = event.wellPath();
     return eventWell && exportNameForWell( *eventWell ) == exportNameForWell( well );
 }
+
+// WELSPECS settings in effect for a well at a date: the latest WELSPECS event at or before the date, otherwise the
+// baseline captured by the first event. Returns nullopt when the well has no WELSPECS events.
+std::optional<RimWellSpecData> wellSpecDataAtDate( const RimWellEventTimeline& timeline, const RimWellPath& well, const QDateTime& date )
+{
+    const RimWellEventWellSpec* firstWellSpec  = nullptr;
+    const RimWellEventWellSpec* latestWellSpec = nullptr;
+    for ( auto* event : timeline.events() )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::WELLSPEC || !eventBelongsToWell( *event, well ) ) continue;
+
+        auto* wellSpec = dynamic_cast<RimWellEventWellSpec*>( event );
+        if ( !wellSpec ) continue;
+        if ( !firstWellSpec || wellSpec->eventDate() < firstWellSpec->eventDate() ) firstWellSpec = wellSpec;
+        if ( wellSpec->eventDate() <= date && ( !latestWellSpec || wellSpec->eventDate() > latestWellSpec->eventDate() ) )
+        {
+            latestWellSpec = wellSpec;
+        }
+    }
+
+    std::optional<RimWellSpecData> wellSpecData;
+    if ( latestWellSpec )
+    {
+        wellSpecData = latestWellSpec->wellSpecData();
+    }
+    else if ( firstWellSpec )
+    {
+        wellSpecData = firstWellSpec->baselineData();
+    }
+    return wellSpecData;
+}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -388,7 +419,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
         // MSW keywords describe the shared well tree, including all its laterals.
         if ( mswIt != group.end() )
         {
-            generateMswForWell( eclipseCase, *( *mswIt )->topLevelWellPath(), date, events, keywordBlocks, unmergedBlocks, emittedSegmentLayouts );
+            generateMswForWell( timeline, eclipseCase, *( *mswIt )->topLevelWellPath(), date, events, keywordBlocks, unmergedBlocks, emittedSegmentLayouts );
         }
 
         for ( auto* well : group )
@@ -420,7 +451,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
             {
                 isRelevant = keywordName == "COMPDAT";
             }
-            else if ( event->eventType() == RimWellEvent::EventType::TUBING )
+            else if ( event->eventType() == RimWellEvent::EventType::SEGMENT )
             {
                 isRelevant = keywordName == "WELSEGS";
             }
@@ -550,7 +581,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     bool hasEvents = false;
     for ( auto* event : eventsAtDate )
     {
-        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::TUBING ||
+        if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::SEGMENT ||
                event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
              eventBelongsToWell( *event, well ) )
         {
@@ -561,30 +592,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 
     if ( !hasEvents ) return std::nullopt;
 
-    const RimWellEventWellSpec* firstWellSpec  = nullptr;
-    const RimWellEventWellSpec* latestWellSpec = nullptr;
-    for ( auto* event : timeline.events() )
-    {
-        if ( event->eventType() != RimWellEvent::EventType::WELLSPEC || !eventBelongsToWell( *event, well ) ) continue;
-
-        auto* wellSpec = dynamic_cast<RimWellEventWellSpec*>( event );
-        if ( !wellSpec ) continue;
-        if ( !firstWellSpec || wellSpec->eventDate() < firstWellSpec->eventDate() ) firstWellSpec = wellSpec;
-        if ( wellSpec->eventDate() <= date && ( !latestWellSpec || wellSpec->eventDate() > latestWellSpec->eventDate() ) )
-        {
-            latestWellSpec = wellSpec;
-        }
-    }
-
-    std::optional<RimWellSpecData> wellSpecData;
-    if ( latestWellSpec )
-    {
-        wellSpecData = latestWellSpec->wellSpecData();
-    }
-    else if ( firstWellSpec )
-    {
-        wellSpecData = firstWellSpec->baselineData();
-    }
+    const auto wellSpecData = wellSpecDataAtDate( timeline, well, date );
 
     std::string wellGroupName = well.completionSettings()->groupNameForExport().toStdString();
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( wellGroupName, &eclipseCase, &well, wellSpecData ? &wellSpecData.value() : nullptr );
@@ -639,7 +647,8 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&                                   eclipseCase,
+void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                       timeline,
+                                                   RimEclipseCase&                                   eclipseCase,
                                                    RimWellPath&                                      wellPath,
                                                    const QDateTime&                                  date,
                                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
@@ -653,9 +662,9 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
         return;
     }
 
-    // MSW is generated only when there are valve/tubing/perforation events at this exact date.
+    // MSW is generated only when there are valve/segment/perforation events at this exact date.
     bool hasValveEvents    = false;
-    bool hasGeometryEvents = false; // tubing or perforation changes require WELSEGS/COMPSEGS to be redefined
+    bool hasGeometryEvents = false; // segment or perforation changes require WELSEGS/COMPSEGS to be redefined
     for ( auto* event : eventsAtDate )
     {
         if ( !eventBelongsToWell( *event, wellPath ) ) continue;
@@ -664,7 +673,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
         {
             hasValveEvents = true;
         }
-        else if ( event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::PERF )
+        else if ( event->eventType() == RimWellEvent::EventType::SEGMENT || event->eventType() == RimWellEvent::EventType::PERF )
         {
             hasGeometryEvents = true;
         }
@@ -684,7 +693,15 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
 
     if ( !mswDataResult.has_value() ) return;
 
-    const auto& mswData = mswDataResult.value();
+    auto& mswData = mswDataResult.value();
+
+    // The pressure drop components are a WELSPECS event setting, so they can change over time.
+    if ( const auto wellSpecData = wellSpecDataAtDate( timeline, wellPath, date ) )
+    {
+        auto header               = mswData.welsegsHeader();
+        header.pressureComponents = RimWellPathCompletionSettings::PressureDropEnum( wellSpecData->pressureDrop ).text().toStdString();
+        mswData.setWelsegsHeader( header );
+    }
 
     // WELSEGS and COMPSEGS are not merged across wells (see generateDateSection): each well keeps
     // its own block, appended in well order.
@@ -699,7 +716,7 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
     auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
     auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswData );
 
-    // Tubing and perforation changes always redefine the segments. A valve event usually only updates
+    // Segment and perforation changes always redefine the segments. A valve event usually only updates
     // WSEGVALV/WSEGAICD, but a valve becoming active adds valve segments and remaps connections, so the
     // segments are also redefined when the layout differs from the one last written for this well.
     const QString segmentLayout = RimKeywordFactory::deckKeywordToString( welsegsKw ) + RimKeywordFactory::deckKeywordToString( compsegsKw );

@@ -38,6 +38,7 @@ RimWellEventWellSpec::RimWellEventWellSpec()
                                  "WellType",
                                  caf::AppEnum<RimWellPathCompletionSettings::WellType>( RimWellPathCompletionSettings::OIL ),
                                  "Preferred Fluid Phase" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
 
     CAF_PDM_InitField( &m_baselineGroupName, "BaselineGroupName", QString(), "Baseline Group Name" );
     CAF_PDM_InitField( &m_baselineAllowCrossFlow, "BaselineAllowCrossFlow", true, "Baseline Allow Cross-Flow" );
@@ -46,6 +47,7 @@ RimWellEventWellSpec::RimWellEventWellSpec()
                        "BaselineWellType",
                        caf::AppEnum<RimWellPathCompletionSettings::WellType>( RimWellPathCompletionSettings::OIL ),
                        "Baseline Preferred Fluid Phase" );
+    CAF_PDM_InitFieldNoDefault( &m_baselinePressureDrop, "BaselinePressureDrop", "Baseline Pressure Drop" );
 
     setDeletable( true );
 }
@@ -62,7 +64,7 @@ RimWellEventWellSpec::~RimWellEventWellSpec()
 //--------------------------------------------------------------------------------------------------
 RimWellSpecData RimWellEventWellSpec::wellSpecData() const
 {
-    return { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType() };
+    return { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType(), m_pressureDrop() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ RimWellSpecData RimWellEventWellSpec::wellSpecData() const
 //--------------------------------------------------------------------------------------------------
 RimWellSpecData RimWellEventWellSpec::baselineData() const
 {
-    return { m_baselineGroupName(), m_baselineAllowCrossFlow(), m_baselineReferenceDepth(), m_baselineWellType() };
+    return { m_baselineGroupName(), m_baselineAllowCrossFlow(), m_baselineReferenceDepth(), m_baselineWellType(), m_baselinePressureDrop() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +84,7 @@ void RimWellEventWellSpec::setWellSpecData( const RimWellSpecData& data )
     m_allowCrossFlow = data.allowCrossFlow;
     m_referenceDepth = data.referenceDepth;
     m_wellType       = data.wellType;
+    m_pressureDrop   = data.pressureDrop;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +96,7 @@ void RimWellEventWellSpec::setBaselineData( const RimWellSpecData& data )
     m_baselineAllowCrossFlow = data.allowCrossFlow;
     m_baselineReferenceDepth = data.referenceDepth;
     m_baselineWellType       = data.wellType;
+    m_baselinePressureDrop   = data.pressureDrop;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +125,7 @@ void RimWellEventWellSpec::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_allowCrossFlow );
     uiOrdering.add( &m_referenceDepth );
     uiOrdering.add( &m_wellType );
+    uiOrdering.add( &m_pressureDrop );
     uiOrdering.skipRemainingFields();
 }
 

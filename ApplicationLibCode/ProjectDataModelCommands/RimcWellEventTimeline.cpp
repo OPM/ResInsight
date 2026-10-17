@@ -27,9 +27,9 @@
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
+#include "RimWellEventSegment.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
-#include "RimWellEventTubing.h"
 #include "RimWellEventValve.h"
 #include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
@@ -319,15 +319,15 @@ QString RimcWellEventTimeline_addControlEvent::classKeywordReturnedType() const
     return RimWellEventControl::classKeywordStatic();
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addTubingEvent, "AddTubingEvent" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addSegmentEvent, "AddSegmentEvent" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellEventTimeline_addTubingEvent::RimcWellEventTimeline_addTubingEvent( caf::PdmObjectHandle* self )
+RimcWellEventTimeline_addSegmentEvent::RimcWellEventTimeline_addSegmentEvent( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Add Tubing Event", "", "", "Add a tubing event to the timeline" );
+    CAF_PDM_InitObject( "Add Segment Event", "", "", "Add a segment event to the timeline" );
 
     CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
@@ -335,12 +335,15 @@ RimcWellEventTimeline_addTubingEvent::RimcWellEventTimeline_addTubingEvent( caf:
     CAF_PDM_InitScriptableField( &m_endMd, "EndMd", 0.0, "", "", "", "End Measured Depth" );
     CAF_PDM_InitScriptableField( &m_innerDiameter, "InnerDiameter", 0.15, "", "", "", "Inner Diameter [m]" );
     CAF_PDM_InitScriptableField( &m_roughness, "Roughness", 1.0e-5, "", "", "", "Roughness [m]" );
+    CAF_PDM_InitScriptableField( &m_fixedSegmentLength, "FixedSegmentLength", 0.0, "", "", "", "Fixed Segment Length [m] (0 = not set)" );
+    CAF_PDM_InitScriptableField( &m_minSegmentLength, "MinSegmentLength", 0.0, "", "", "", "Min Segment Length [m] (0 = not set)" );
+    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 0.0, "", "", "", "Max Segment Length [m] (0 = not set)" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEvent::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addSegmentEvent::execute()
 {
     auto timeline = self<RimWellEventTimeline>();
 
@@ -355,11 +358,34 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
     }
 
-    auto* event = timeline->addTubingEvent( m_wellPath(), date );
+    if ( m_fixedSegmentLength() < 0.0 || m_minSegmentLength() < 0.0 || m_maxSegmentLength() < 0.0 )
+    {
+        return std::unexpected( QString( "Segment lengths must be positive (0 = not set)" ) );
+    }
+
+    auto toOptional = []( double length ) { return length > 0.0 ? std::optional<double>( length ) : std::nullopt; };
+
+    const auto fixedLength = toOptional( m_fixedSegmentLength() );
+    const auto minLength   = toOptional( m_minSegmentLength() );
+    const auto maxLength   = toOptional( m_maxSegmentLength() );
+
+    if ( fixedLength && ( minLength || maxLength ) )
+    {
+        return std::unexpected( QString( "Fixed segment length cannot be combined with min/max segment length" ) );
+    }
+    if ( minLength && maxLength && *minLength > *maxLength )
+    {
+        return std::unexpected( QString( "Min segment length cannot exceed max segment length" ) );
+    }
+
+    auto* event = timeline->addSegmentEvent( m_wellPath(), date );
     event->setStartMD( m_startMd() );
     event->setEndMD( m_endMd() );
     event->setInnerDiameter( m_innerDiameter() );
     event->setRoughness( m_roughness() );
+    event->setFixedSegmentLength( fixedLength );
+    event->setMinSegmentLength( minLength );
+    event->setMaxSegmentLength( maxLength );
 
     return event;
 }
@@ -367,9 +393,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcWellEventTimeline_addTubingEvent::classKeywordReturnedType() const
+QString RimcWellEventTimeline_addSegmentEvent::classKeywordReturnedType() const
 {
-    return RimWellEventTubing::classKeywordStatic();
+    return RimWellEventSegment::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addWellSpecEvent, "AddWellspecEvent" );
@@ -394,6 +420,13 @@ RimcWellEventTimeline_addWellSpecEvent::RimcWellEventTimeline_addWellSpecEvent( 
                                  "",
                                  "",
                                  "Preferred Fluid Phase" );
+    CAF_PDM_InitScriptableField( &m_pressureDrop,
+                                 "PressureDrop",
+                                 QString(),
+                                 "",
+                                 "",
+                                 "",
+                                 "WELSEGS pressure drop components (H--, HF- or HFA). Empty keeps the current completion setting" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,8 +452,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellSpecE
         }
     }
 
+    auto pressureDrop = m_wellPath()->completionSettings()->pressureDrop();
+    if ( !m_pressureDrop().isEmpty() )
+    {
+        if ( !RimWellPathCompletionSettings::PressureDropEnum::isValid( m_pressureDrop() ) )
+        {
+            return std::unexpected( QString( "Invalid pressure drop: %1. Expected H--, HF- or HFA" ).arg( m_pressureDrop() ) );
+        }
+        pressureDrop = RimWellPathCompletionSettings::PressureDropEnum::fromText( m_pressureDrop() );
+    }
+
     auto* event = timeline->addWellSpecEvent( m_wellPath(), date );
-    event->setWellSpecData( { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType() } );
+    event->setWellSpecData( { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType(), pressureDrop } );
     return event;
 }
 

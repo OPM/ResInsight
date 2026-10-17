@@ -7,6 +7,7 @@
 #include "RimSegmentCollection.h"
 #include "RimSegmentInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimWellPathCompletions.h"
 
 #include "cafPdmDefaultObjectFactory.h"
@@ -178,6 +179,8 @@ TEST( RimWellPathCompletions, LegacyMigrationPreservesDisabledSettings )
 
     RimSegmentCollection segments;
     segments.importLegacyData( &legacyParameters );
+    RimWellPathCompletionSettings completionSettings;
+    completionSettings.importLegacyMswData( &legacyParameters );
 
     EXPECT_EQ( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD, segments.referenceMDType() );
     auto* migratedMaxLength    = dynamic_cast<caf::PdmField<double>*>( segments.findField( "MaxSegmentLength" ) );
@@ -189,8 +192,8 @@ TEST( RimWellPathCompletions, LegacyMigrationPreservesDisabledSettings )
     EXPECT_DOUBLE_EQ( 345.0, migratedMaxLength->value() );
     EXPECT_TRUE( migratedCustomValues->value() );
     EXPECT_FALSE( enforceMaxLength->value() );
-    EXPECT_EQ( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, segments.pressureDrop() );
-    EXPECT_EQ( RimSegmentCollection::LengthAndDepthType::INC, segments.lengthAndDepth() );
+    EXPECT_EQ( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, completionSettings.pressureDrop() );
+    EXPECT_EQ( RimWellPathCompletionSettings::LengthAndDepthType::INC, completionSettings.lengthAndDepth() );
 
     segments.setReferenceMDType( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD );
     EXPECT_DOUBLE_EQ( 123.0, segments.manualReferenceMD() );

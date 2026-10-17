@@ -583,6 +583,7 @@ void RimWellPath::initAfterRead()
     }
 
     m_completions->segmentCollection()->importLegacyData( m_completionSettings->mswCompletionParameters() );
+    m_completionSettings->importLegacyMswData( m_completionSettings->mswCompletionParameters() );
 
     // Migrate an old direct file path reference into the project-level well formations collection.
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2026.09.2" ) && !m_wellFormationsFile() &&

@@ -138,12 +138,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellEventTimeline_addTubingEvent : public caf::PdmObjectCreationMethod
+class RimcWellEventTimeline_addSegmentEvent : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellEventTimeline_addTubingEvent( caf::PdmObjectHandle* self );
+    RimcWellEventTimeline_addSegmentEvent( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
@@ -155,6 +155,9 @@ private:
     caf::PdmField<double>          m_endMd;
     caf::PdmField<double>          m_innerDiameter;
     caf::PdmField<double>          m_roughness;
+    caf::PdmField<double>          m_fixedSegmentLength;
+    caf::PdmField<double>          m_minSegmentLength;
+    caf::PdmField<double>          m_maxSegmentLength;
 };
 
 //==================================================================================================
@@ -177,6 +180,7 @@ private:
     caf::PdmField<bool>                                                  m_allowCrossFlow;
     caf::PdmField<std::optional<double>>                                 m_referenceDepth;
     caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_wellType;
+    caf::PdmField<QString>                                               m_pressureDrop;
 };
 
 //==================================================================================================
