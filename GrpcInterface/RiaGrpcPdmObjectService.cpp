@@ -25,6 +25,7 @@
 #include "RiaOpenTelemetryManager.h"
 
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
@@ -457,6 +458,11 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
     {
         resultDefinition->updateUiFieldsFromActiveResult();
         resultDefinition->loadResult();
+    }
+    if ( auto geoMechResultDefinition = dynamic_cast<RimGeoMechResultDefinition*>( matchingObject ) )
+    {
+        geoMechResultDefinition->updateUiFieldsFromActiveResult();
+        geoMechResultDefinition->loadResult();
     }
 
     matchingObject->updateAllRequiredEditors();
