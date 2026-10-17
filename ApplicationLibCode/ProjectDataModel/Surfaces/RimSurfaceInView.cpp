@@ -288,8 +288,6 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     bool scheduleRedraw = false;
 
     if ( changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
@@ -355,12 +353,4 @@ RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResult
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }

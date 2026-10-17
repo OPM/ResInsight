@@ -54,7 +54,6 @@ public:
     caf::PdmFieldHandle* objectToggleField() override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void initAfterRead() override;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 

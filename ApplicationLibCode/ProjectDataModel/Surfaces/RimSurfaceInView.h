@@ -77,8 +77,6 @@ public:
     bool isMeshLinesEnabled() const;
 
 protected:
-    void initAfterRead() override;
-
 private:
     RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
 

@@ -480,7 +480,6 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
     if ( changedField == &m_isActive )
     {
-        updateUiIconFromToggleField();
         rebuildView = true;
     }
     else if ( changedField == &m_depthThresholdOverridden )

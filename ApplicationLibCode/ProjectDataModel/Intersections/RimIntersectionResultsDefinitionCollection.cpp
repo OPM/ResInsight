@@ -111,19 +111,9 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
                                                                    const QVariant&            oldValue,
                                                                    const QVariant&            newValue )
 {
-    updateUiIconFromToggleField();
-
     auto gridView = firstAncestorOrThisOfType<RimGridView>();
     if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
     if ( !intersectionResultsDefinitions().empty() ) intersectionResultsDefinitions()[0]->update2dIntersectionViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersectionResultsDefinitionCollection::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

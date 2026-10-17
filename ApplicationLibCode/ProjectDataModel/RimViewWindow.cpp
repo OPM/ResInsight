@@ -348,7 +348,6 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         {
             updateDockWindowVisibility();
         }
-        uiCapability()->updateUiIconFromToggleField();
     }
 }
 

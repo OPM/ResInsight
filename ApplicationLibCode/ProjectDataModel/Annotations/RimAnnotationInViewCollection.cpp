@@ -226,10 +226,6 @@ void RimAnnotationInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == objectToggleField() )
-    {
-        updateUiIconFromToggleField();
-    }
     scheduleRedrawOfRelevantViews();
 }
 

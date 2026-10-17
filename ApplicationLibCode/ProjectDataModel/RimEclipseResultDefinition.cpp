@@ -1259,8 +1259,6 @@ void RimEclipseResultDefinition::initAfterRead()
 
     m_flowSolutionUiField            = m_flowSolution();
     m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

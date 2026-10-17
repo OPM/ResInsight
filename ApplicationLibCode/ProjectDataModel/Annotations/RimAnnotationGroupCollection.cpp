@@ -110,7 +110,6 @@ void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 {
     if ( changedField == objectToggleField() )
     {
-        updateUiIconFromToggleField();
         updateViews();
     }
 }
