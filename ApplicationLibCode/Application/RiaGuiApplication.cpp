@@ -1876,6 +1876,13 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
         return QApplication::notify( receiver, event );
     }
 
+    // The crash handler pumps the event loop to send the crash report. Repainting a widget there can re-enter the
+    // faulting code and crash again, replacing the original report with one blaming the crash handler.
+    if ( RiaOpenTelemetryManager::instance().isReportingCrash() && ( receiver->isWidgetType() || receiver->isWindowType() ) )
+    {
+        return false;
+    }
+
     bool done = false;
     try
     {

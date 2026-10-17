@@ -27,6 +27,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigReservoirBuilder.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDir>
@@ -726,4 +727,27 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
     EXPECT_TRUE( hasNonZeroCoord ) << "COORD array is all zeros";
     EXPECT_TRUE( hasNonZeroZcorn ) << "ZCORN array is all zeros";
     EXPECT_TRUE( hasActiveCell ) << "No active cells found";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An inverted box (min > max), e.g. the visible cell range of a view with no visible cells,
+/// underflowed the sector size and threw std::length_error when allocating the export arrays
+//--------------------------------------------------------------------------------------------------
+TEST( RigResdataGridConverterTest, ExportGridWithInvertedBoxFails )
+{
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( 3, 3, 3 ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 3.0, 3.0, -3.0 ) );
+
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
+    builder.createGridsAndCells( eclipseCase.p() );
+    eclipseCase->mainGrid()->computeCachedData();
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    QString fileName = tempDir.filePath( "GRID.GRDECL" );
+
+    cvf::Vec3st min( 2, 2, 2 );
+    cvf::Vec3st max( 0, 0, 0 );
+    EXPECT_FALSE( RigResdataGridConverter::exportGrid( fileName, eclipseCase.p(), false, nullptr, min, max, cvf::Vec3st( 1, 1, 1 ) ) );
 }
