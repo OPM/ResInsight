@@ -165,3 +165,36 @@ TEST( RifVtkReaderTest, ReadNodeFieldDisplacement )
         EXPECT_NEAR( u3[i], -0.3f, 1e-5f );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// stress[0..2] are the rows of a symmetric tensor; xz and yz change sign with the negated z
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadElementFieldStressTensorRows )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "model.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+
+    auto elementFields = reader.scalarElementFieldAndComponentNames();
+    ASSERT_TRUE( elementFields.count( "S_VTK" ) > 0 );
+    const std::vector<std::string> expectedComponents = { "S11", "S22", "S33", "S12", "S13", "S23" };
+    EXPECT_EQ( elementFields["S_VTK"], expectedComponents );
+
+    std::vector<std::vector<float>>  values( 6 );
+    std::vector<std::vector<float>*> resultValues;
+    for ( auto& v : values )
+        resultValues.push_back( &v );
+
+    reader.readElementField( "S_VTK", 0, 1, 0, &resultValues );
+
+    const std::vector<float> expectedCell0 = { 11, 22, 33, 12, -13, -23 };
+    const std::vector<float> expectedCell1 = { 111, 122, 133, 112, -113, -123 };
+    for ( size_t c = 0; c < 6; c++ )
+    {
+        ASSERT_EQ( values[c].size(), 2u );
+        EXPECT_FLOAT_EQ( values[c][0], expectedCell0[c] );
+        EXPECT_FLOAT_EQ( values[c][1], expectedCell1[c] );
+    }
+}
