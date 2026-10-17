@@ -71,8 +71,8 @@ std::vector<cvf::Vec3f> RifVtkImportUtil::readDisplacements( const pugi::xml_nod
     auto pointData = piece.child( "PointData" );
     if ( !pointData ) return {};
 
-    auto dataArray = pointData.child( "DataArray" );
-    if ( !dataArray || std::string( dataArray.attribute( "Name" ).value() ) != "disp" ) return {};
+    auto dataArray = pointData.find_child_by_attribute( "DataArray", "Name", "disp" );
+    if ( !dataArray ) return {};
 
     std::string_view        text          = dataArray.text().get();
     std::vector<cvf::Vec3f> displacements = parseVec3fs( text );
@@ -119,12 +119,27 @@ std::vector<unsigned> RifVtkImportUtil::readConnectivity( const pugi::xml_node& 
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<float>> RifVtkImportUtil::readProperties( const pugi::xml_node& piece )
 {
-    auto cellData = piece.child( "CellData" );
-    if ( !cellData ) return {};
+    return readDataArrays( piece.child( "CellData" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<float>> RifVtkImportUtil::readPointProperties( const pugi::xml_node& piece )
+{
+    return readDataArrays( piece.child( "PointData" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<float>> RifVtkImportUtil::readDataArrays( const pugi::xml_node& data )
+{
+    if ( !data ) return {};
 
     std::map<std::string, std::vector<float>> properties;
 
-    for ( const auto& dataArray : cellData.children( "DataArray" ) )
+    for ( const auto& dataArray : data.children( "DataArray" ) )
     {
         const char* name = dataArray.attribute( "Name" ).value();
         if ( name && *name )

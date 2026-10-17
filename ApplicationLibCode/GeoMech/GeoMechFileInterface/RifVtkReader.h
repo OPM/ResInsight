@@ -95,16 +95,21 @@ private:
                          const std::map<int, std::vector<std::map<std::string, std::vector<float>>>>& properties,
                          size_t                                                                       numElements );
 
+    void readNodalData( RigFemPartCollection*                                                        femParts,
+                        const std::map<int, std::vector<std::map<std::string, std::vector<float>>>>& pointProperties );
+
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType );
 
-    static std::expected<RigElementType, std::string> read( const std::filesystem::path&                                  filePath,
-                                                            std::map<int, std::string>&                                   parts,
-                                                            std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&       nodes,
-                                                            std::map<int, std::vector<std::pair<int, std::vector<int>>>>& elements,
-                                                            std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
-                                                            std::map<int, std::vector<std::map<std::string, std::vector<float>>>>& properties,
-                                                            std::map<int, std::vector<std::vector<cvf::Vec3f>>>& displacements,
-                                                            std::vector<std::string>&                            stepNames );
+    static std::expected<RigElementType, std::string>
+        read( const std::filesystem::path&                                             filePath,
+              std::map<int, std::string>&                                              parts,
+              std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
+              std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
+              std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
+              std::map<int, std::vector<std::map<std::string, std::vector<float>>>>&   properties,
+              std::map<int, std::vector<std::map<std::string, std::vector<float>>>>&   pointProperties,
+              std::map<int, std::vector<std::vector<cvf::Vec3f>>>&                     displacements,
+              std::vector<std::string>&                                                stepNames );
 
 private:
     std::map<int, std::vector<std::string>>                                  m_partElementSetNames;
@@ -113,4 +118,5 @@ private:
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataNodes;
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataElements;
     std::map<int, std::vector<std::vector<cvf::Vec3f>>>                      m_displacements;
+    std::map<int, std::vector<int>>                                          m_elementNodes; // Node index per element corner, by part
 };
