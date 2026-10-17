@@ -85,7 +85,11 @@ message CoarseningInfo {
   Vec3i max = 2;
 }
 
-message TimeStepDates { repeated TimeStepDate dates = 1; }
+// dates is empty unless every step is a date; names has the step names of geomechanical cases
+message TimeStepDates {
+  repeated TimeStepDate dates = 1;
+  repeated string names = 2;
+}
 
 message TimeStepDate {
   int32 year = 1;

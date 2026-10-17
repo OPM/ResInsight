@@ -304,6 +304,16 @@ def time_steps(self) -> List[Case_pb2.TimeStepDate]:
 
 
 @add_method(Case)
+def time_step_names(self) -> List[str]:
+    """Names of the time steps of a geomechanical case, whose steps need not be dates
+
+    Returns:
+        A list of strings, empty for grid cases
+    """
+    return list(self.__case_stub.GetTimeSteps(self.__request()).names)
+
+
+@add_method(Case)
 def reservoir_boundingbox(self) -> Case_pb2.BoundingBox:
     """Get the reservoir bounding box
 

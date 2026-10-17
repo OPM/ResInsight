@@ -66,4 +66,5 @@ protected:
     RigActiveCellInfo*            m_activeCellInfo;
     std::vector<size_t>           m_globalCoarseningBoxIndexStart;
     size_t                        m_currentCellIdx;
+    std::vector<rips::CellInfo>   m_geoMechCellInfos; // Elements of a geomechanical case, parts after each other
 };
