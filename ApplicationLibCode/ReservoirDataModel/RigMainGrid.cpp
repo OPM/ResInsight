@@ -294,7 +294,7 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
 RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex )
 {
     if ( localGridIndex == 0 ) return this;
-    CAF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
+    if ( localGridIndex - 1 >= m_localGrids.size() ) return nullptr;
     return m_localGrids[localGridIndex - 1].p();
 }
 
@@ -304,7 +304,7 @@ RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex )
 const RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex ) const
 {
     if ( localGridIndex == 0 ) return this;
-    CAF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
+    if ( localGridIndex - 1 >= m_localGrids.size() ) return nullptr;
     return m_localGrids[localGridIndex - 1].p();
 }
 
