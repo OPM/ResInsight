@@ -37,9 +37,6 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 {
     CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png" );
 
-    // The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
-    uiCapability()->removeAttribute( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS );
-
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     setSymbolSize( 4 );
@@ -163,4 +160,13 @@ void RimGridCrossPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     nameGroup->add( &m_curveName );
     nameGroup->add( &m_showLegend );
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+// The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
+std::vector<caf::PdmUiTreeViewItemTag> RimGridCrossPlotCurve::treeItemTags()
+{
+    return {};
 }

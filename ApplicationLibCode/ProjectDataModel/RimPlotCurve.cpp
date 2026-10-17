@@ -50,9 +50,6 @@ RimPlotCurve::RimPlotCurve()
     , dataChanged( this )
     , nameChanged( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );

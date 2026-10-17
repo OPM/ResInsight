@@ -55,9 +55,6 @@ CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 //--------------------------------------------------------------------------------------------------
 RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );

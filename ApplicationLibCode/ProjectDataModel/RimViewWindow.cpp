@@ -51,9 +51,6 @@ RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
     , m_isActiveViewer( false )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );

@@ -49,9 +49,6 @@ RimPolygon::RimPolygon()
     : objectChanged( this )
     , coordinatesChanged( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );

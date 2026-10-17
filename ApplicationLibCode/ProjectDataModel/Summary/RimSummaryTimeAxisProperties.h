@@ -172,7 +172,7 @@ protected:
     caf::FontTools::FontSize plotFontSize() const;
 
 private:
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
     void                                   onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:

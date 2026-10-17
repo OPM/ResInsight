@@ -39,9 +39,6 @@ CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 RimPolygonFile::RimPolygonFile()
     : objectChanged( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "PolygonFile", ":/Folder.png" );
 
     // Inherited fields. The polygon items keep the original "Polygons" keyword so

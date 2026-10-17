@@ -42,9 +42,6 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 RimSummaryCase::RimSummaryCase()
     : nameChanged( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );

@@ -102,9 +102,6 @@ Rim3dView::Rim3dView()
     , m_animationIntervalMillisec( 50 )
     , m_animationTimerUsers( 0 )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     RiaPreferences* preferences = RiaPreferences::current();
     CAF_ASSERT( preferences );
 

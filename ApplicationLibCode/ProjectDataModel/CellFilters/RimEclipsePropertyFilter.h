@@ -72,7 +72,7 @@ public:
 private:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                                   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     int  upperBound() const;
     void setUpperBound( const int& upperBound );

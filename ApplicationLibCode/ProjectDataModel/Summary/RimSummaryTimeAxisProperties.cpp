@@ -92,9 +92,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties" )
 RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     : requestLoadDataAndUpdate( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Time Axis", ":/BottomAxis16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );

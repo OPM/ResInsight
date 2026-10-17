@@ -81,9 +81,6 @@ void caf::AppEnum<RimReservoirGridEnsembleBase::GridModeType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimReservoirGridEnsemble::RimReservoirGridEnsemble()
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir Grid Ensemble",
                                                     ":/GridCaseGroup16x16.png",
                                                     "",

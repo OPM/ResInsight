@@ -291,7 +291,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     void setupBeforeSave() override;
 

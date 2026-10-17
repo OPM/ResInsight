@@ -65,9 +65,6 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Summary Case Group",
                                                     ":/SummaryGroup16x16.png",
                                                     "",

@@ -45,9 +45,6 @@ CAF_PDM_SOURCE_INIT( RimPolygonCloudAddress, "RimPolygonCloudAddress" );
 RimPolygonCloudAddress::RimPolygonCloudAddress()
     : objectChanged( this )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Sumo Polygon Address", ":/CloudBlobs.svg" );
 
     // Inherited fields, redeclared here so this subclass gets its own ui/xml keyword.

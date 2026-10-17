@@ -64,9 +64,6 @@ RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
     , m_subJobsStarted( 0 )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_inputEnsemble, "Ensemble", "Input Ensemble" );

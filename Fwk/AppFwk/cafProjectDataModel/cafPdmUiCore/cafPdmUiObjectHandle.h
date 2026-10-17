@@ -3,6 +3,9 @@
 #include "cafPdmObjectCapability.h"
 #include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmUiTreeAttributes.h"
+
+#include <vector>
 
 class QMenu;
 
@@ -55,6 +58,9 @@ public: // Virtual
 
     /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
     virtual caf::PdmFieldHandle* objectToggleField() { return nullptr; }
+
+    /// Tags shown next to the item in the tree view. Evaluated each time the tags are updated
+    virtual std::vector<PdmUiTreeViewItemTag> treeItemTags() { return {}; }
 
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void

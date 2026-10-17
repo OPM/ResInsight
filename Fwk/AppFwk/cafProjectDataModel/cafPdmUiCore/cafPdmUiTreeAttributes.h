@@ -46,8 +46,7 @@
 
 namespace caf
 {
-// A tag shown next to an item in the tree view. Provide tags by setting a
-// std::function<std::vector<PdmUiTreeViewItemTag>()> on an object using PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS
+// A tag shown next to an item in the tree view. Provide tags by overriding PdmUiObjectHandle::treeItemTags()
 struct PdmUiTreeViewItemTag
 {
     enum class Position

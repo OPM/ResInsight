@@ -52,7 +52,7 @@ public:
     void setStarted() override;
 
 protected:
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     virtual QStringList                command()                           = 0;
     virtual std::map<QString, QString> environment()                       = 0;

@@ -79,7 +79,7 @@ public:
 
 protected:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     void createCaseObjects() override;
     bool detectGridDimensionEquality() override;

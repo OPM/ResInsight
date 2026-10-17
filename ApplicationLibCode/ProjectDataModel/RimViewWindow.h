@@ -107,7 +107,7 @@ protected:
     caf::PdmFieldHandle* objectToggleField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     static QImage internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWidget* widget, int width, int height );
 

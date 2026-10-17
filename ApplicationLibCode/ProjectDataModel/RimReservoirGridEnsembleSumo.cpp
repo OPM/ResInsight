@@ -45,9 +45,6 @@ CAF_PDM_SOURCE_INIT( RimReservoirGridEnsembleSumo, "RimReservoirGridEnsembleSumo
 //--------------------------------------------------------------------------------------------------
 RimReservoirGridEnsembleSumo::RimReservoirGridEnsembleSumo()
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Sumo Reservoir Grid Ensemble", ":/GridCaseGroup16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoDataSource, "SumoDataSource", "Sumo Data Source" );
