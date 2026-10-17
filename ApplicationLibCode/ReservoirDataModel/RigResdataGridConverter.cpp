@@ -54,6 +54,10 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
     cvf::Vec3st        resolvedMax =
         max.isUndefined() ? cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 ) : max;
+
+    // An inverted box, e.g. the visible cell range of a view without visible cells, underflows the sector size
+    if ( resolvedMax.x() < min.x() || resolvedMax.y() < min.y() || resolvedMax.z() < min.z() ) return false;
+
     cvf::Vec3st sectorSize( resolvedMax.x() - min.x() + 1, resolvedMax.y() - min.y() + 1, resolvedMax.z() - min.z() + 1 );
     RigGridExportAdapter gridAdapter( eclipseCase, min, resolvedMax, RigUniformRefinement( refinement, sectorSize ), cellVisibilityOverrideForActnum );
 
