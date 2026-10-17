@@ -108,6 +108,19 @@ TEST( RigEclipseCaseDataTest, WellCellsInGridIsRecomputedWhenGridSizeChanges )
     EXPECT_EQ( mainGrid->cellCount(), wellCells->size() );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// A pick on an intersection can report a grid index from another case than the one in the view
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridTest, GridByIndexOutOfRangeReturnsNull )
+{
+    cvf::ref<RigMainGrid> mainGrid = new RigMainGrid;
+    mainGrid->setCellCounts( cvf::Vec3st( 2, 2, 2 ) );
+
+    EXPECT_EQ( mainGrid.p(), mainGrid->gridByIndex( 0 ) );
+    EXPECT_EQ( nullptr, mainGrid->gridByIndex( 1 ) );
+    EXPECT_EQ( nullptr, mainGrid->gridByIndex( cvf::UNDEFINED_SIZE_T ) );
+}
+
 /*
 
 //--------------------------------------------------------------------------------------------------
