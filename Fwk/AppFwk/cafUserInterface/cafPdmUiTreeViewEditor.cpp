@@ -673,15 +673,11 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                 }
             }
 
-            if ( auto tagsFunction = uiObjectHandle->attribute<TreeItemTagsFunction>( Keys::TREE_ITEM_TAGS );
-                 tagsFunction && tagsFunction.value() )
+            for ( const auto& tag : uiObjectHandle->treeItemTags() )
             {
-                for ( const auto& tag : tagsFunction.value()() )
+                if ( !tag.text.isEmpty() || tag.icon.valid() )
                 {
-                    if ( !tag.text.isEmpty() || tag.icon.valid() )
-                    {
-                        m_delegate->addTag( filterIndex, guardedTag( tag, uiObjectHandle->objectHandle() ) );
-                    }
+                    m_delegate->addTag( filterIndex, guardedTag( tag, uiObjectHandle->objectHandle() ) );
                 }
             }
         }

@@ -54,9 +54,6 @@ CAF_PDM_SOURCE_INIT( RimPolygonInView, "RimPolygonInView" );
 RimPolygonInView::RimPolygonInView()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygon, "Polygon", "Polygon" );

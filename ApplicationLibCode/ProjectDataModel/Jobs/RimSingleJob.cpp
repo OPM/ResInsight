@@ -46,9 +46,6 @@ RimSingleJob::RimSingleJob()
     , m_warningsDetected( 0 )
     , m_process( nullptr )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Generic Single Job" );
 }
 

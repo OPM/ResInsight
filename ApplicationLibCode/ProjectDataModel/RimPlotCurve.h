@@ -193,7 +193,7 @@ protected:
     void updateYAxisInPlot( RiuPlotAxis plotAxis );
     void updateXAxisInPlot( RiuPlotAxis plotAxis );
 
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 

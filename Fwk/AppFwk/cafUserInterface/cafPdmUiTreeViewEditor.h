@@ -115,8 +115,6 @@ public:
     PdmUiTreeViewEditor();
     ~PdmUiTreeViewEditor() override;
 
-    using TreeItemTagsFunction = std::function<std::vector<PdmUiTreeViewItemTag>()>;
-
     // Attribute keys set on the root object of the tree, or on an object whose subtree is updated
     struct Keys
     {
@@ -124,9 +122,6 @@ public:
         static inline const QString CURRENT_OBJECT = QStringLiteral( "currentObject" );
         // std::function<PdmObjectHandle*()>. The returned object is updated in the tree instead of the object itself
         static inline const QString OBJECT_FOR_UPDATE_OF_UI_TREE = QStringLiteral( "objectForUpdateOfUiTree" );
-        // std::function<std::vector<PdmUiTreeViewItemTag>()>. Tags shown next to the item in the tree. Evaluated each
-        // time the tags are updated
-        static inline const QString TREE_ITEM_TAGS = QStringLiteral( "treeItemTags" );
     };
 
     void enableDefaultContextMenu( bool enable );

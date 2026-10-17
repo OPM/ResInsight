@@ -157,7 +157,7 @@ protected:
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     QString nameAndItemCount() const;
     void    updateIcon();

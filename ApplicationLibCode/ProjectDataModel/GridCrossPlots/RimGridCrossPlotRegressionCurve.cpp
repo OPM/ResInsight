@@ -66,9 +66,6 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
 {
     CAF_PDM_InitObject( "Cross Plot Regression Curve", ":/WellLogCurve16x16.png" );
 
-    // The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
-    uiCapability()->removeAttribute( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS );
-
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_minExtrapolationRangeX, "MinExtrapolationRangeX", "Min" );
@@ -512,4 +509,13 @@ void RimGridCrossPlotRegressionCurve::updateRectAnnotation()
             annotation->setText( textLines );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+// The color tag from RimPlotCurve is not used for Grid Cross Plot Curves
+std::vector<caf::PdmUiTreeViewItemTag> RimGridCrossPlotRegressionCurve::treeItemTags()
+{
+    return {};
 }

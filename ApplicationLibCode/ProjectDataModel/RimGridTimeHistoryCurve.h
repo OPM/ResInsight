@@ -83,7 +83,7 @@ protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
 private:
     RigMainGrid*                     mainGrid();

@@ -57,12 +57,13 @@ public:
     void swapAxis();
 
 protected:
-    void    updateZoomInParentPlot() override;
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
-    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void    updateRectAnnotation();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+    void                                   updateZoomInParentPlot() override;
+    QString                                createCurveAutoName() override;
+    void                                   onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void updateRectAnnotation();
 
     std::tuple<std::vector<double>, std::vector<double>, QString>
         calculateRegression( RimGridCrossPlotRegressionCurve::RegressionType regressionType,

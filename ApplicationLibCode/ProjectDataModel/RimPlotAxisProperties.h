@@ -160,7 +160,7 @@ protected:
 private:
     void                                   updateOptionSensitivity();
     caf::FontTools::FontSize               plotFontSize() const;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
     void                                   onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:

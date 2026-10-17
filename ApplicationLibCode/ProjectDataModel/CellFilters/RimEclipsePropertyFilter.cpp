@@ -67,9 +67,6 @@ CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObject( "Cell Property Filter", ":/CellFilter_Values.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );

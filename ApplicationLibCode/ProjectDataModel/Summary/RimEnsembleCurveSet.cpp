@@ -109,9 +109,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     , m_realizationHash( 0 )
 
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Ensemble Curve Set",
                                                     ":/EnsembleCurveSet16x16.png",
                                                     "",

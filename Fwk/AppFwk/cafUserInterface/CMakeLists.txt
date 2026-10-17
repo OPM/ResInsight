@@ -129,8 +129,6 @@ set(PROJECT_FILES
     cafPdmUiTabbedPropertyViewDialog.cpp
     cafPdmUiTreeViewItemDelegate.h
     cafPdmUiTreeViewItemDelegate.cpp
-    cafPdmUiTreeAttributes.h
-    cafPdmUiTreeAttributes.cpp
     cafUiAppearanceSettings.cpp
     cafUiIconFactory.cpp
     cafPdmUiSliderTools.h

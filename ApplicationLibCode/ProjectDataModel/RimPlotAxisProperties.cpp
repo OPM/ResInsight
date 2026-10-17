@@ -60,9 +60,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     , m_isRangeSettingsEnabled( true )
     , m_isAlwaysRequired( false )
 {
-    uiCapability()->setAttribute<caf::PdmUiTreeViewEditor::TreeItemTagsFunction>( caf::PdmUiTreeViewEditor::Keys::TREE_ITEM_TAGS,
-                                                                                  [this]() { return treeItemTags(); } );
-
     CAF_PDM_InitObject( "Axis Properties", ":/LeftAxis16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );

@@ -89,7 +89,7 @@ public:
 protected:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                                   appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
 private:
     RiaSumoConnector* sumoConnector();

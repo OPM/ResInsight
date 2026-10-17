@@ -77,7 +77,7 @@ public:
 
 private:
     void                                   appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags();
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;

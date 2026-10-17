@@ -68,6 +68,8 @@ set(PROJECT_FILES
     cafQShortenedLabel.h
     cafIconProvider.cpp
     cafIconProvider.h
+    cafPdmUiTreeAttributes.h
+    cafPdmUiTreeAttributes.cpp
     cafFontTools.cpp
     cafFontTools.h
     caf.h
