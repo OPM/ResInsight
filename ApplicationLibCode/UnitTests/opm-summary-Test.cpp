@@ -163,6 +163,44 @@ TEST( OpmSummaryTests, ReadRegionToRegionValuesWithoutPrebuiltAddressMap )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadUnitSystem )
+{
+    {
+        RifOpmCommonEclipseSummary reader;
+        reader.useEnhancedSummaryFiles( false );
+        reader.createEnhancedSummaryFiles( false );
+        ASSERT_TRUE( reader.open( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC", false, nullptr ) );
+        EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_METRIC, reader.unitSystem() );
+    }
+
+    {
+        // ESMRY without SMSPEC, the unit system is derived from the vector units. Create the ESMRY file in a temporary folder, as the
+        // ESMRY file in the test data folder is rewritten by other tests.
+        QTemporaryDir tempDir;
+        ASSERT_TRUE( tempDir.isValid() );
+        const QString smspecFilePath = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.SMSPEC" );
+        const QString unsmryFilePath = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.UNSMRY" );
+        const QString esmryFilePath  = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.ESMRY" );
+        ASSERT_TRUE( QFile::copy( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC", smspecFilePath ) );
+        ASSERT_TRUE( QFile::copy( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.UNSMRY", unsmryFilePath ) );
+        {
+            Opm::EclIO::ESmry eSmry( smspecFilePath.toStdString() );
+            ASSERT_TRUE( eSmry.make_esmry_file() );
+        }
+        ASSERT_TRUE( QFile::remove( smspecFilePath ) );
+        ASSERT_TRUE( QFile::remove( unsmryFilePath ) );
+
+        RifOpmCommonEclipseSummary reader;
+        reader.useEnhancedSummaryFiles( true );
+        reader.createEnhancedSummaryFiles( false );
+        ASSERT_TRUE( reader.open( esmryFilePath, false, nullptr ) );
+        EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_METRIC, reader.unitSystem() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
 {
     std::vector<std::string> esmryKeywords;

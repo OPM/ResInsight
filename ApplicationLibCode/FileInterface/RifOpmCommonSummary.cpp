@@ -179,6 +179,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
     populateTimeSteps();
     if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Completed populateTimeSteps", timeBeforeTimeSteps );
 
+    m_fileName = fileName;
+
     return true;
 }
 
@@ -251,8 +253,55 @@ std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 {
-    // TODO: Not implemented
+    if ( !m_unitSystem ) m_unitSystem = detectUnitSystem();
+    return *m_unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::detectUnitSystem() const
+{
+    auto smspecFileName = RifOpmSummaryTools::smspecSummaryFilename( m_fileName );
+    if ( QFile::exists( smspecFileName ) ) return RifOpmSummaryTools::readUnitSystem( smspecFileName );
+
+    // ESMRY files can be imported without SMSPEC, and ESMRY has no unit system flag
+    if ( m_enhancedReader ) return unitSystemFromVectorUnits();
+
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Units from different systems can be mixed (PVT-M, user defined vectors), so only accept a single match
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystemFromVectorUnits() const
+{
+    static const std::map<std::string, RiaDefines::EclipseUnitSystem> unitToSystem = {
+        { "PSIA", RiaDefines::EclipseUnitSystem::UNITS_FIELD },
+        { "STB", RiaDefines::EclipseUnitSystem::UNITS_FIELD },
+        { "STB/DAY", RiaDefines::EclipseUnitSystem::UNITS_FIELD },
+        { "MSCF/DAY", RiaDefines::EclipseUnitSystem::UNITS_FIELD },
+        { "BARSA", RiaDefines::EclipseUnitSystem::UNITS_METRIC },
+        { "SM3", RiaDefines::EclipseUnitSystem::UNITS_METRIC },
+        { "SM3/DAY", RiaDefines::EclipseUnitSystem::UNITS_METRIC },
+        { "ATMA", RiaDefines::EclipseUnitSystem::UNITS_LAB },
+        { "SCC", RiaDefines::EclipseUnitSystem::UNITS_LAB },
+    };
+
+    auto detected = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    for ( const auto& keyword : m_enhancedReader->keywordList() )
+    {
+        const auto unit = std::string( RiaStdStringTools::trimString( m_enhancedReader->get_unit( keyword ) ) );
+        auto       it   = unitToSystem.find( unit );
+        if ( it == unitToSystem.end() ) continue;
+
+        if ( detected == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
+            detected = it->second;
+        else if ( detected != it->second )
+            return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    }
+
+    return detected;
 }
 
 //--------------------------------------------------------------------------------------------------
