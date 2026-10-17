@@ -899,8 +899,6 @@ void RimGeoMechView::initAfterRead()
 {
     RimGridView::initAfterRead();
     cellResult()->setGeoMechCase( m_geomechCase );
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

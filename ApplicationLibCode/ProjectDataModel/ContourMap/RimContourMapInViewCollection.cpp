@@ -263,8 +263,6 @@ void RimContourMapInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 {
     RimCheckableNamedObject::fieldChangedByUi( changedField, oldValue, newValue );
 
-    updateUiIconFromToggleField();
-
     if ( changedField == &m_isChecked )
     {
         if ( auto view = firstAncestorOfType<Rim3dView>() )
@@ -272,12 +270,4 @@ void RimContourMapInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
             view->scheduleCreateDisplayModelAndRedraw();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapInViewCollection::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }

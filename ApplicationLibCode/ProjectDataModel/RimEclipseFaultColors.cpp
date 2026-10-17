@@ -68,8 +68,6 @@ void RimEclipseFaultColors::setReservoirView( RimEclipseView* ownerReservoirView
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -79,8 +77,6 @@ void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimEclipseFaultColors::initAfterRead()
 {
     m_customFaultResultColors->initAfterRead();
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -78,7 +78,6 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void initAfterRead() override;
 
 private:
     RimContourMapInView* findContourMapInViewForSource( const RimEclipseContourMapView* contourMapView ) const;

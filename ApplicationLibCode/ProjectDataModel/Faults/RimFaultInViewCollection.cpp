@@ -196,8 +196,6 @@ int RimFaultInViewCollection::meshLineThickness() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( &m_faultLabelColor == changedField )
     {
         parentView()->scheduleReservoirGridGeometryRegen();

@@ -186,8 +186,6 @@ void RimCellEdgeColors::loadResult()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::initAfterRead()
 {
-    updateUiIconFromToggleField();
-
     if ( m_singleVarEdgeResultColors_OBSOLETE->resultVariableUiName() != RiaResultNames::undefinedResultName() )
     {
         m_selectedKeywords.v().push_back( m_singleVarEdgeResultColors_OBSOLETE->resultVariableUiName() );
@@ -202,11 +200,6 @@ void RimCellEdgeColors::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     loadResult();
 
     if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-
-    if ( changedField == objectToggleField() )
-    {
-        updateUiIconFromToggleField();
-    }
 }
 
 namespace caf

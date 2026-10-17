@@ -192,11 +192,6 @@ void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         sourceView->scheduleCreateDisplayModelAndRedraw();
     }
 
-    if ( changedField == objectToggleField() )
-    {
-        updateUiIconFromToggleField();
-    }
-
     if ( changedField == &m_resultNameAndUnit )
     {
         updateStimPlanTemplates();

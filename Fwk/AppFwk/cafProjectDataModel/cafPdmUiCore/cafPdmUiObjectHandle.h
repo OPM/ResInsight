@@ -47,7 +47,11 @@ public:
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool useUndoRedoForFieldChanged() { return true; }
 
-    void updateUiIconFromToggleField();
+    // Updates the icon active state from the object toggle field. Done automatically when the toggle field is changed
+    // and after the object is read. Call explicitly when the toggle field is set without notification
+    void updateUiIconFromToggleField( const QString& uiConfigName = "" );
+
+    void onAfterRead() override;
 
     /// Append actions to menu builder
     virtual void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const {}

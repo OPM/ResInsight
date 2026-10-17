@@ -98,8 +98,6 @@ void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* 
 {
     if ( changedField == &m_isActive )
     {
-        updateUiIconFromToggleField();
-
         loadData();
     }
 
@@ -125,12 +123,4 @@ void RimVirtualPerforationResults::defineUiOrdering( QString uiConfigName, caf::
     uiOrdering.add( &m_showClosedConnections );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVirtualPerforationResults::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }

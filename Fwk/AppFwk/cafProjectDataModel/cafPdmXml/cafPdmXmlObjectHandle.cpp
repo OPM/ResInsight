@@ -401,6 +401,11 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
         initAfterReadRecursively( children[cIdx] );
     }
 
+    for ( auto& [capability, takeOwnership] : object->m_capabilities )
+    {
+        capability->onAfterRead();
+    }
+
     PdmXmlObjectHandle* xmlObject = xmlObj( object );
     if ( xmlObject )
     {

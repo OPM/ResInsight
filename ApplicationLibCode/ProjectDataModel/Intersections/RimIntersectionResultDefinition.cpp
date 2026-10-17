@@ -349,8 +349,6 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 
         update2dIntersectionViews();
     }
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,8 +455,6 @@ void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrderi
 void RimIntersectionResultDefinition::initAfterRead()
 {
     updateCaseInResultDefinitions();
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -505,8 +505,6 @@ void RimContourMapInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 void RimContourMapInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( changedField == &m_mapPosition || changedField == &m_projectSurfaceOnGeometry || changedField == &m_projectLinesOnGeometry ||
          changedField == &m_lineColorMode || changedField == &m_showContourLines || changedField == &m_showMapSurface ||
          changedField == &m_showContourLabels )
@@ -518,12 +516,4 @@ void RimContourMapInView::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         view->scheduleCreateDisplayModelAndRedraw();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapInView::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }
