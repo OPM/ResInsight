@@ -19,7 +19,10 @@
 #include "RimWorkflowCaseBinding.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimTools.h"
+
+#include <QJsonObject>
 
 CAF_PDM_SOURCE_INIT( RimWorkflowCaseBinding, "WorkflowCaseBinding" );
 
@@ -42,10 +45,10 @@ QString RimWorkflowCaseBinding::displayValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowCaseBinding::toYamlValue() const
+QJsonValue RimWorkflowCaseBinding::toJsonValue() const
 {
-    if ( m_case() == nullptr ) return "null";
-    return QString( "{__resinsight_ref__: EclipseCase, case_id: %1}" ).arg( m_case()->caseId() );
+    if ( m_case() == nullptr ) return QJsonValue::Null;
+    return QJsonObject{ { "__resinsight_ref__", "EclipseCase" }, { "case_id", m_case()->caseId() } };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,4 +59,28 @@ QList<caf::PdmOptionItemInfo> RimWorkflowCaseBinding::calculateValueOptions( con
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_case ) RimTools::eclipseCaseOptionItems( &options );
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowCaseBinding::isObjectReference() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowCaseBinding::applySchema( const QJsonObject& fieldSchema )
+{
+    RimWorkflowFieldBinding::applySchema( fieldSchema );
+    const QJsonObject reference = fieldSchema.value( "default" ).toObject();
+    if ( reference.value( "__resinsight_ref__" ).toString() != "EclipseCase" || !reference.contains( "case_id" ) ) return;
+
+    const int caseId = reference.value( "case_id" ).toInt( -1 );
+    for ( RimEclipseCase* eclipseCase : RimEclipseCaseTools::eclipseCases() )
+    {
+        if ( eclipseCase && eclipseCase->caseId() == caseId ) m_case = eclipseCase;
+    }
 }

@@ -121,10 +121,9 @@ bool RimWorkflowFieldBinding::hasValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowFieldBinding::yamlQuotedScalar( const QString& value )
+bool RimWorkflowFieldBinding::isObjectReference() const
 {
-    const QByteArray encoded = QJsonDocument( QJsonArray{ value } ).toJson( QJsonDocument::Compact );
-    return QString::fromUtf8( encoded.mid( 1, encoded.size() - 2 ) );
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

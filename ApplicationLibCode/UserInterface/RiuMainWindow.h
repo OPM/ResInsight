@@ -57,7 +57,7 @@ class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
-class RiuWorkflowGraphView;
+class RiuWorkflowEditorWidget;
 
 class RicGridCalculatorDialog;
 
@@ -131,8 +131,11 @@ public:
 
     RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
 
-    void workflowBindingChanged( const RimWorkflowFieldBinding* binding );
-    void workflowJobStateChanged( const RimWorkflowJob* job );
+    void                     workflowBindingChanged( const RimWorkflowFieldBinding* binding );
+    void                     workflowJobStateChanged( const RimWorkflowJob* job );
+    void                     workflowDefinitionChanged( RimWorkflow* workflow );
+    RimWorkflow*             displayedWorkflow() const;
+    RiuWorkflowEditorWidget* workflowEditor() const;
 
 protected:
     void        closeEvent( QCloseEvent* event ) override;
@@ -147,6 +150,8 @@ private:
     void createToolBars();
     void createDockPanels();
     void showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job );
+    void showWorkflowTaskProperties( const QString& taskName );
+    void updateWorkflowDockTitle();
 
     void restoreTreeViewState();
 
@@ -287,6 +292,5 @@ private:
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
     QPointer<ads::CDockWidget>              m_workflowGraphDock;
-    QPointer<RiuWorkflowGraphView>          m_workflowGraphView;
-    caf::PdmPointer<RimWorkflowJob>         m_displayedWorkflowJob;
+    QPointer<RiuWorkflowEditorWidget>       m_workflowEditor;
 };

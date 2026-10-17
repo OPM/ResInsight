@@ -82,6 +82,8 @@ TEST( RimWorkflowDescribeTools, configFieldTypesAndValues )
     EXPECT_EQ( "Person to greet", name.value( "description" ).toString() );
     EXPECT_FALSE( name.value( "required" ).toBool() );
     EXPECT_EQ( "world", fieldByName( greetB, "name" ).value( "default" ).toString() );
+    EXPECT_EQ( "str", greetA.value( "input_types" ).toObject().value( "name" ).toString() );
+    EXPECT_EQ( "int", greetA.value( "input_types" ).toObject().value( "times" ).toString() );
 
     const QJsonObject times = fieldByName( greetA, "times" );
     EXPECT_EQ( "integer", times.value( "type" ).toString() );

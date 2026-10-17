@@ -26,8 +26,14 @@ from .refs import REF_MARKER
 PROGRESS_PREFIX = "@@RI_WORKFLOW_EVENT@@"
 
 
-def _emit_progress(run_id: str, task: str, state: str, error: str = "") -> None:
+def _emit_progress(
+    run_id: str, task: str, state: str, error: str = "", item: str | None = None
+) -> None:
     payload = {"event": "task_state", "run_id": run_id, "task": task, "state": state}
+    if item is not None:
+        # One item of a mapped task (`map:`); the task itself reports its own states
+        payload["event"] = "map_item_state"
+        payload["item"] = item
     if error:
         payload["error"] = error
     sys.stdout.write(PROGRESS_PREFIX + json.dumps(payload) + "\n")
@@ -48,6 +54,15 @@ class ProgressHook:
 
     def on_task_fail(self, job: Any, task: Any, error: Exception) -> None:
         _emit_progress(self.run_id, task.name, "failed", str(error))
+
+    def on_map_item_start(self, job: Any, task: Any, key: str) -> None:
+        _emit_progress(self.run_id, task.name, "running", item=key)
+
+    def on_map_item_complete(self, job: Any, task: Any, key: str, output: Any) -> None:
+        _emit_progress(self.run_id, task.name, "completed", item=key)
+
+    def on_map_item_fail(self, job: Any, task: Any, key: str, error: Exception) -> None:
+        _emit_progress(self.run_id, task.name, "failed", str(error), item=key)
 
 
 def _emit(event: str, **fields: Any) -> None:
@@ -91,12 +106,31 @@ def make_rips_resolver(rips_instance: Any) -> Callable[[str, dict[str, Any]], An
     return resolve
 
 
+def _load_workflow(workflow_dir: Path | None, registered_id: str | None) -> Any:
+    if registered_id is not None:
+        from taskmaestro.discovery import get_registered_workflow
+
+        return get_registered_workflow(registered_id)
+
+    from taskmaestro.yaml_config import _load_workflow_only
+
+    assert workflow_dir is not None
+    workflow, _ = _load_workflow_only(workflow_dir / "workflow.yaml")
+    return workflow
+
+
 def run_workflow(
-    workflow_dir: Path, input_path: Path, grpc_port: int, run_id: str = ""
+    workflow_dir: Path | None,
+    input_path: Path,
+    grpc_port: int,
+    run_id: str = "",
+    registered_id: str | None = None,
 ) -> int:
-    workflow_dir_str = str(workflow_dir)
-    if workflow_dir_str not in sys.path:
-        sys.path.insert(0, workflow_dir_str)
+    """Run a YAML workflow folder, or a registered workflow by its id."""
+    if workflow_dir is not None:
+        workflow_dir_str = str(workflow_dir)
+        if workflow_dir_str not in sys.path:
+            sys.path.insert(0, workflow_dir_str)
 
     import rips
 
@@ -119,10 +153,12 @@ def run_workflow(
         return 1
 
     from taskmaestro import EmptyConfig, ExecutionContext, Job, JobConfiguration, Runner
-    from taskmaestro.yaml_config import _load_workflow_only
 
-    workflow_yaml = workflow_dir / "workflow.yaml"
-    workflow, _ = _load_workflow_only(workflow_yaml)
+    try:
+        workflow = _load_workflow(workflow_dir, registered_id)
+    except Exception as exc:
+        _emit("error", message=f"Failed to load workflow: {exc}")
+        return 1
 
     job_config = JobConfiguration(resolved)
     job: Job[Any] = Job(
@@ -146,11 +182,20 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="run", description="Run a taskmaestro workflow."
     )
-    parser.add_argument("workflow_dir", type=Path)
+    parser.add_argument("workflow_dir", type=Path, nargs="?")
+    parser.add_argument(
+        "--registered", metavar="ID", help="Run a registered workflow by its id"
+    )
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--grpc-port", type=int, required=True)
     parser.add_argument("--run-id", default="")
     args = parser.parse_args(argv)
+    if (args.workflow_dir is None) == (args.registered is None):
+        parser.error("specify either a workflow folder or --registered <id>")
     return run_workflow(
-        args.workflow_dir.resolve(), args.input.resolve(), args.grpc_port, args.run_id
+        args.workflow_dir.resolve() if args.workflow_dir is not None else None,
+        args.input.resolve(),
+        args.grpc_port,
+        args.run_id,
+        registered_id=args.registered,
     )

@@ -1,0 +1,22 @@
+# Per-task input data for the ResInsight Completions Pipeline
+#
+# Each top-level key is a task name, with its configuration values.
+# `case` (select_eclipse_case) and `well_path` (select_well_path_*) are
+# runtime-picker fields supplied by the caller — not literal values here.
+
+connect_to_resinsight: {}
+select_eclipse_case: {}
+select_well_path_1: {}
+select_well_path_2: {}
+add_perf_1:
+  event_date: "2024-01-01"
+  start_md: 3000.0
+  end_md: 3500.0
+add_perf_2:
+  event_date: "2024-02-01"
+  start_md: 2400.0
+  end_md: 2600.0
+
+export_completions:
+  event_date: "2024-05-01"
+  export_path: "/tmp/completions.txt"

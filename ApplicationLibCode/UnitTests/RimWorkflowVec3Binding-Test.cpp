@@ -18,16 +18,17 @@ TEST( RimWorkflowVec3Binding, AppliesObjectDefault )
                               { "default", QJsonObject{ { "x", 457196.0 }, { "y", 7322270.0 }, { "z", 2742.0 } } } };
     binding.applySchema( schema );
 
-    EXPECT_EQ( "{x: 457196, y: 7322270, z: 2742}", binding.toYamlValue() );
+    const QJsonObject expected{ { "x", 457196.0 }, { "y", 7322270.0 }, { "z", 2742.0 } };
+    EXPECT_EQ( QJsonValue( expected ), binding.toJsonValue() );
 }
 
 //--------------------------------------------------------------------------------------------------
-TEST( RimWorkflowVec3Binding, NoDefaultYieldsNullYaml )
+TEST( RimWorkflowVec3Binding, NoDefaultYieldsNull )
 {
     RimWorkflowVec3Binding binding;
 
     const QJsonObject schema{ { "name", "reference_point" }, { "required", true } };
     binding.applySchema( schema );
 
-    EXPECT_EQ( "null", binding.toYamlValue() );
+    EXPECT_TRUE( binding.toJsonValue().isNull() );
 }

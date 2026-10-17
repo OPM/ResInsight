@@ -50,13 +50,10 @@ void RimWorkflowVec3Binding::applySchema( const QJsonObject& fieldSchema )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowVec3Binding::toYamlValue() const
+QJsonValue RimWorkflowVec3Binding::toJsonValue() const
 {
-    if ( !hasValue() ) return "null";
+    if ( !hasValue() ) return QJsonValue::Null;
 
     const cvf::Vec3d& v = m_value();
-    return QString( "{x: %1, y: %2, z: %3}" )
-        .arg( QString::number( v.x(), 'g', 17 ) )
-        .arg( QString::number( v.y(), 'g', 17 ) )
-        .arg( QString::number( v.z(), 'g', 17 ) );
+    return QJsonObject{ { "x", v.x() }, { "y", v.y() }, { "z", v.z() } };
 }
