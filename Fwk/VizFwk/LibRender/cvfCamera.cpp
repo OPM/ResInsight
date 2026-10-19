@@ -43,9 +43,22 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryUtils.h"
 
+#include <limits>
+
 namespace cvf {
 
 namespace {
+
+//--------------------------------------------------------------------------------------------------
+/// A zero, undefined or non-finite view direction cannot define a view; fall back to looking along the Y axis
+//--------------------------------------------------------------------------------------------------
+Vec3d validViewDirection(const Vec3d& dir)
+{
+    const double length = dir.length();
+    if (!dir.isUndefined() && length > 0.0 && length < std::numeric_limits<double>::max()) return dir;
+
+    return Vec3d::Y_AXIS;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Returns an up vector guaranteed to be non-parallel to dir. If the passed up vector is already
@@ -310,8 +323,10 @@ void Camera::setProjectionAsPixelExact2D()
 /// the view to. The relativeDistance parameter specifies the distance from the camera to the 
 /// center of the bounding box
 //--------------------------------------------------------------------------------------------------
-void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor)
+void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dirIn, const Vec3d& up, double coverageFactor)
 {
+    const cvf::Vec3d dir = validViewDirection(dirIn);
+
     // dir and up may be parallel (degenerate camera orientation); derive a corrected, non-parallel
     // up vector so both the eye computation and the final look-at matrix use a consistent basis.
     cvf::Vec3d correctedUp = nonParallelUpVector(dir, up);
@@ -327,8 +342,10 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
+Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dirIn, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
 {
+    const cvf::Vec3d dir = validViewDirection(dirIn);
+
     cvf::Vec3d corners[8];
     boundingBox.cornerVertices(corners);
 

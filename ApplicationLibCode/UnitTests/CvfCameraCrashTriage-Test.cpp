@@ -85,3 +85,44 @@ TEST( CvfCameraCrashTriageTest, FitViewWithParallelDirAndUpProducesValidViewMatr
     EXPECT_NEAR( c.direction() * c.right(), 0.0, 1e-6 );
     EXPECT_NEAR( c.up() * c.right(), 0.0, 1e-6 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A zero view direction (eye == view reference point, as in caf::Viewer::zoomAll()) gave a zero up
+/// vector and a zero-normal plane, which asserted in Plane::distanceToOrigin().
+//--------------------------------------------------------------------------------------------------
+TEST( CvfCameraCrashTriageTest, FitViewEyePositionWithZeroDirDoesNotCrash )
+{
+    Camera c;
+
+    BoundingBox bb;
+    bb.add( Vec3d( 0, 0, 0 ) );
+    bb.add( Vec3d( 1, 1, 1 ) );
+
+    for ( const auto& dir : { Vec3d::ZERO, Vec3d::UNDEFINED } )
+    {
+        Vec3d eye = Camera::computeFitViewEyePosition( bb, dir, Vec3d( 0, 0, 1 ), 0.9, c.fieldOfViewYDeg(), 1.0 );
+
+        EXPECT_FALSE( eye.isUndefined() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// fitView() must derive the up vector from the same valid direction as the eye position
+//--------------------------------------------------------------------------------------------------
+TEST( CvfCameraCrashTriageTest, FitViewWithZeroOrUndefinedDirProducesValidViewMatrix )
+{
+    BoundingBox bb;
+    bb.add( Vec3d( 0, 0, 0 ) );
+    bb.add( Vec3d( 1, 1, 1 ) );
+
+    for ( const auto& dir : { Vec3d::ZERO, Vec3d::UNDEFINED } )
+    {
+        Camera c;
+        c.setViewport( 0, 0, 100, 100 );
+        c.fitView( bb, dir, Vec3d( 0, 0, 1 ), 0.9 );
+
+        EXPECT_NEAR( c.direction().length(), 1.0, 1e-6 );
+        EXPECT_NEAR( c.up().length(), 1.0, 1e-6 );
+        EXPECT_NEAR( c.right().length(), 1.0, 1e-6 );
+    }
+}
