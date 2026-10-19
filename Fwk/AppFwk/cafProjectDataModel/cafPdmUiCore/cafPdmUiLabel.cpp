@@ -62,4 +62,20 @@ bool PdmUiLabel::isUiGroup() const
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiLabel::setLinkActivatedCallback( const std::function<void( const QString& )>& callback )
+{
+    m_linkActivatedCallback = callback;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::function<void( const QString& )>& PdmUiLabel::linkActivatedCallback() const
+{
+    return m_linkActivatedCallback;
+}
+
 } // End of namespace caf
