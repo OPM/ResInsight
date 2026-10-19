@@ -178,6 +178,14 @@ QString RiuDockWidgetTools::plotMainWindowPlotManagerName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowCurveAppearanceName()
+{
+    return "dockCurveAppearance";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotWindowQuickAccessName()
 {
     return "dockQuickAccess_plotWindow";
@@ -419,6 +427,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/undo-stack.svg" );
     else if ( dockWidgetName == plotMainWindowPlotManagerName() )
         return QIcon( ":/plot-manager.svg" );
+    else if ( dockWidgetName == plotMainWindowCurveAppearanceName() )
+        return QIcon( ":/property-editor.svg" );
     else if ( dockWidgetName == mainWindowPropertyEditorName() )
         return QIcon( ":/property-editor.svg" );
     else if ( dockWidgetName == mainWindowResultInfoName() )
