@@ -116,9 +116,7 @@ def test_add_well_path_completions(rips_instance, initialize_test):
 
     segment_collection = well_path.segment_collection()
     segment_collection.custom_values_for_lateral = True
-    segment_collection.enforce_max_segment_length = True
     segment_collection.liner_diameter = 20.0
-    segment_collection.max_segment_length = 123.05
     segment_collection.reference_md_type = "UserDefined"
     segment_collection.roughness_factor = 1.3
     segment_collection.user_defined_reference_md = 1234.56
@@ -126,9 +124,7 @@ def test_add_well_path_completions(rips_instance, initialize_test):
 
     segment_collection_updated = well_path.segment_collection()
     assert segment_collection_updated.custom_values_for_lateral
-    assert segment_collection_updated.enforce_max_segment_length
     assert segment_collection_updated.liner_diameter == 20.0
-    assert segment_collection_updated.max_segment_length == 123.05
     assert segment_collection_updated.reference_md_type == "UserDefined"
     assert segment_collection_updated.roughness_factor == 1.3
     assert segment_collection_updated.user_defined_reference_md == 1234.56

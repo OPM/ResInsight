@@ -64,7 +64,6 @@ public:
     double          linerDiameter() const;
     double          roughnessFactor() const;
     double          roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    double          maxSegmentLength() const;
     bool            singleSegmentBeforeFirstPerforation() const;
     bool            singleSegmentAfterLastPerforation() const;
     bool            exportCompsegsSegmentNumber() const;
@@ -123,10 +122,8 @@ private:
 
     caf::PdmChildArrayField<RimSegmentInterval*> m_segmentIntervals;
 
-    caf::PdmField<bool>   m_enforceMaxSegmentLength;
-    caf::PdmField<double> m_maxSegmentLength;
-    caf::PdmField<bool>   m_singleSegmentBeforeFirstPerforation;
-    caf::PdmField<bool>   m_singleSegmentAfterLastPerforation;
+    caf::PdmField<bool> m_singleSegmentBeforeFirstPerforation;
+    caf::PdmField<bool> m_singleSegmentAfterLastPerforation;
 
     caf::PdmField<CompsegsSegmentNumberEnum> m_compsegsSegmentNumber;
 };

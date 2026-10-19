@@ -78,7 +78,7 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     const std::vector<std::pair<double, double>> customSegmentIntervals = segmentCollection->getSegmentIntervals();
     auto                                         wellExportData = RicWellPathExportMswGeometryPath::buildMswWellExportData( eclipseCase,
                                                                                     wellPath,
-                                                                                    segmentCollection->maxSegmentLength(),
+                                                                                    std::numeric_limits<double>::infinity(),
                                                                                     customSegmentIntervals,
                                                                                     completionType,
                                                                                     exportDate );

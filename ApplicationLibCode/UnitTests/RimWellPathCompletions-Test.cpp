@@ -168,11 +168,8 @@ TEST( RimWellPathCompletions, LegacyMigrationPreservesDisabledSettings )
 {
     RimMswCompletionParameters legacyParameters;
     legacyParameters.setManualReferenceMD( 123.0 );
-    auto* maxLength    = dynamic_cast<caf::PdmField<double>*>( legacyParameters.findField( "MaxSegmentLength" ) );
     auto* customValues = dynamic_cast<caf::PdmField<bool>*>( legacyParameters.findField( "CustomValuesForLateral" ) );
-    ASSERT_NE( nullptr, maxLength );
     ASSERT_NE( nullptr, customValues );
-    maxLength->setValue( 345.0 );
     customValues->setValue( true );
     legacyParameters.setPressureDrop( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION );
     legacyParameters.setLengthAndDepth( RimMswCompletionParameters::LengthAndDepthType::INC );
@@ -183,22 +180,14 @@ TEST( RimWellPathCompletions, LegacyMigrationPreservesDisabledSettings )
     completionSettings.importLegacyMswData( &legacyParameters );
 
     EXPECT_EQ( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD, segments.referenceMDType() );
-    auto* migratedMaxLength    = dynamic_cast<caf::PdmField<double>*>( segments.findField( "MaxSegmentLength" ) );
     auto* migratedCustomValues = dynamic_cast<caf::PdmField<bool>*>( segments.findField( "CustomValuesForLateral" ) );
-    auto* enforceMaxLength     = dynamic_cast<caf::PdmField<bool>*>( segments.findField( "EnforceMaxSegmentLength" ) );
-    ASSERT_NE( nullptr, migratedMaxLength );
     ASSERT_NE( nullptr, migratedCustomValues );
-    ASSERT_NE( nullptr, enforceMaxLength );
-    EXPECT_DOUBLE_EQ( 345.0, migratedMaxLength->value() );
     EXPECT_TRUE( migratedCustomValues->value() );
-    EXPECT_FALSE( enforceMaxLength->value() );
     EXPECT_EQ( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, completionSettings.pressureDrop() );
     EXPECT_EQ( RimWellPathCompletionSettings::LengthAndDepthType::INC, completionSettings.lengthAndDepth() );
 
     segments.setReferenceMDType( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD );
     EXPECT_DOUBLE_EQ( 123.0, segments.manualReferenceMD() );
-    enforceMaxLength->setValue( true );
-    EXPECT_DOUBLE_EQ( 345.0, segments.maxSegmentLength() );
 }
 
 TEST( RimWellPathCompletions, DefaultLegacySettingsDoNotOverwriteSegments )
