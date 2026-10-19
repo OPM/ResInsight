@@ -24,7 +24,7 @@
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurveAppearance, "PlotCurveAppearance" );
+CAF_PDM_XML_SOURCE_INIT( RimPlotCurveAppearance, "PlotCurveAppearance" );
 
 namespace caf
 {
@@ -236,7 +236,41 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_curveInterpolation );
     m_curveInterpolation.uiCapability()->setUiHidden( !m_interpolationVisible );
 
+    for ( auto field : std::vector<caf::PdmFieldHandle*>{ &m_curveColor,
+                                                          &m_curveColorOpacity,
+                                                          &m_pointSymbol,
+                                                          &m_symbolEdgeColor,
+                                                          &m_symbolSize,
+                                                          &m_symbolSkipPixelDistance,
+                                                          &m_lineStyle,
+                                                          &m_curveThickness,
+                                                          &m_fillStyle,
+                                                          &m_fillColor,
+                                                          &m_fillColorOpacity,
+                                                          &m_curveInterpolation } )
+    {
+        field->uiCapability()->setUiReadOnly( m_uiLocked );
+    }
+
+    // Keep the fields that are irrelevant for the current symbol and line style read-only
+    const bool noSymbol = m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE;
+    const bool noLine   = m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE;
+    m_symbolSize.uiCapability()->setUiReadOnly( m_uiLocked || noSymbol );
+    m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_uiLocked || noSymbol );
+    m_curveThickness.uiCapability()->setUiReadOnly( m_uiLocked || noLine );
+    m_curveInterpolation.uiCapability()->setUiReadOnly( m_uiLocked || noLine );
+
+    if ( m_curveFittingToleranceVisible && m_uiLocked ) m_curveFittingTolerance.uiCapability()->setUiReadOnly( true );
+
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setUiLocked( bool isLocked )
+{
+    m_uiLocked = isLocked;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,6 +433,30 @@ void RimPlotCurveAppearance::setLineThickness( int thickness )
 int RimPlotCurveAppearance::lineThickness() const
 {
     return m_curveThickness;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::copyFrom( const RimPlotCurveAppearance& other )
+{
+    // Fields are assigned directly, as this runs per curve on every restyle. XML based copies like copyObject() or
+    // readObjectFromXmlString( other.writeObjectToXmlString() ) are too slow for many curves. New fields must be added here.
+    m_symbolLabel             = other.m_symbolLabel();
+    m_symbolSize              = other.m_symbolSize();
+    m_curveColor              = other.m_curveColor();
+    m_curveColorOpacity       = other.m_curveColorOpacity();
+    m_curveThickness          = other.m_curveThickness();
+    m_symbolSkipPixelDistance = other.m_symbolSkipPixelDistance();
+    m_curveFittingTolerance   = other.m_curveFittingTolerance();
+    m_pointSymbol             = other.m_pointSymbol();
+    m_lineStyle               = other.m_lineStyle();
+    m_fillStyle               = other.m_fillStyle();
+    m_fillColor               = other.m_fillColor();
+    m_fillColorOpacity        = other.m_fillColorOpacity();
+    m_curveInterpolation      = other.m_curveInterpolation();
+    m_symbolLabelPosition     = other.m_symbolLabelPosition();
+    m_symbolEdgeColor         = other.m_symbolEdgeColor();
 }
 
 //--------------------------------------------------------------------------------------------------
