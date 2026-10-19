@@ -36,6 +36,7 @@
 
 #include <QPointer>
 
+#include <map>
 #include <memory>
 #include <set>
 #include <vector>
@@ -66,6 +67,7 @@ class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
 class RiaSummaryCurveAddress;
 class RimStackablePlotCurve;
+class RimPlotCurve;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -187,6 +189,8 @@ public:
     void   applyDefaultCurveAppearances();
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
     void   applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate );
+    bool   useGlobalCurveAppearance() const;
+    void   updateCurveAppearanceFromGlobalSettings();
 
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();

@@ -32,6 +32,7 @@
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
+#include "RimCurveStyleRules.h"
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimDeltaSummaryEnsemble.h"
@@ -331,6 +332,23 @@ void RimEnsembleCurveSet::setColor( cvf::Color3f color )
     m_mainEnsembleColor = color;
 
     computeRealizationColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setColorAndUpdateCurves( cvf::Color3f color )
+{
+    setColor( color );
+    updateCurveColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEnsembleCurveSet::color() const
+{
+    return m_mainEnsembleColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1415,7 +1433,13 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
+        auto       plot          = firstAncestorOrThisOfType<RimSummaryPlot>();
+        const bool isColorGlobal = plot && plot->useGlobalCurveAppearance();
+        m_mainEnsembleColor.uiCapability()->setUiReadOnly( isColorGlobal );
         colorsGroup->add( &m_mainEnsembleColor );
+        if ( isColorGlobal )
+            RimCurveStyleRules::addGlobalAppearanceLink( *colorsGroup,
+                                                         "The color is controlled by the <a href=\"dummy\">global curve appearance</a>." );
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
