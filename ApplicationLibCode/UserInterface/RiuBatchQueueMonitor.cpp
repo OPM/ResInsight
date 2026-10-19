@@ -115,7 +115,7 @@ void RiuBatchQueueMonitor::slotUpdateView( const std::vector<std::vector<QString
         // only show jobs with ResInsight prefix?
         if ( m_onlyResInsightJobs->isChecked() && !line[1].startsWith( "RI_" ) ) continue;
 
-        for ( int i = 0; i < line.size(); i++ )
+        for ( int i = 0; i < (int)line.size(); i++ )
         {
             auto item = new QTableWidgetItem( line[i] );
             if ( i == 2 ) // time should be right-aligned
