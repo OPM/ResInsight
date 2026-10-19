@@ -273,7 +273,6 @@ bool RimEnsembleJob::execute()
     m_jobLog.clear();
 
     setDeletable( false );
-    setStarted();
 
     updateAllRequiredEditors();
 
@@ -318,7 +317,11 @@ bool RimEnsembleJob::execute()
     setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
-    m_refreshTimer->start();
+    if ( anyJobsStarted )
+    {
+        setStarted();
+        m_refreshTimer->start();
+    }
 
     return anyJobsStarted;
 }
@@ -519,16 +522,12 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
         tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
         tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
         tags.push_back( tag );
-    }
 
-    if ( state() == JobState::Running )
-    {
-        auto tag    = caf::PdmUiTreeViewItemTag::create();
-        tag.text    = runTimeString();
-        tag.bgColor = QColor( Qt::lightGray );
-        tag.fgColor = QColor( Qt::black );
-
-        tags.push_back( tag );
+        if ( state() == JobState::Running )
+        {
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString().toUtf8().constData() );
+            tags.push_back( timeTag );
+        }
     }
 
     return tags;
@@ -550,5 +549,5 @@ void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::onRefreshTimer( const SignalEmitter* emitter )
 {
-    updateConnectedEditors();
+    if ( isRunning() ) updateConnectedEditors();
 }
