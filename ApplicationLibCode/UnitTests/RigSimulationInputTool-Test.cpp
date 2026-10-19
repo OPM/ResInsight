@@ -32,6 +32,7 @@
 #include "RigNonUniformRefinement.h"
 #include "RigSimulationInputSettings.h"
 #include "RigSimulationInputTool.h"
+#include "RigTransmissibilityEquations.h"
 #include "RigUniformRefinement.h"
 #include "RimEclipseResultCase.h"
 
@@ -46,6 +47,7 @@
 #include <QString>
 #include <QTemporaryDir>
 
+#include <cmath>
 #include <limits>
 #include <set>
 #include <vector>
@@ -3219,4 +3221,65 @@ TEST( RigSimulationInputTool, ProcessCompsegsRecord_SplitAcrossKSubcells )
     EXPECT_DOUBLE_EQ( 110.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
     EXPECT_DOUBLE_EQ( 110.0, result->at( 1 ).getItem( 4 ).get<double>( 0 ) );
     EXPECT_DOUBLE_EQ( 120.0, result->at( 1 ).getItem( 5 ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Refinement perpendicular to a Z well reduces the Peaceman radius given by PR, so CF increases
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_LateralRefinementCorrectsCFUsingPR )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 10, 10, 1 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 10.0 0.216 100.0 1.0 1* 'Z' 20.0 /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+
+    const auto& rec = result->at( 0 );
+    EXPECT_EQ( 26, rec.getItem( "I" ).get<int>( 0 ) );
+    EXPECT_EQ( 36, rec.getItem( "J" ).get<int>( 0 ) );
+
+    const double rw       = 0.108;
+    const double expected = 10.0 * ( std::log( 20.0 / rw ) + 1.0 ) / ( std::log( 2.0 / rw ) + 1.0 );
+    EXPECT_NEAR( expected, rec.getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ), 1e-9 );
+    EXPECT_NEAR( 2.0, rec.getItem( "PR" ).get<double>( 0 ), 1e-9 );
+    EXPECT_DOUBLE_EQ( 100.0, rec.getItem( "Kh" ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Without PR the Peaceman radii are computed from the cell sizes and permeabilities, also for
+/// refinement in only one of the perpendicular directions
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_LateralRefinementCorrectsCFUsingCellProperties )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 4, 1, 1 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 10.0 0.216 /\n/\n", "COMPDAT" );
+
+    RigSimulationInputTool::ConnectionCellProperties properties{ cvf::Vec3d( 100.0, 50.0, 5.0 ), cvf::Vec3d( 200.0, 50.0, 10.0 ) };
+    auto provider = [&]( const caf::VecIjk0& ) -> std::optional<RigSimulationInputTool::ConnectionCellProperties> { return properties; };
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings, provider );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+
+    const double rw       = 0.108;
+    const double r0Coarse = RigTransmissibilityEquations::peacemanRadius( 200.0, 50.0, 100.0, 50.0 );
+    const double r0Fine   = RigTransmissibilityEquations::peacemanRadius( 200.0, 50.0, 25.0, 50.0 );
+    const double expected = 10.0 * std::log( r0Coarse / rw ) / std::log( r0Fine / rw );
+    EXPECT_NEAR( expected, result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ), 1e-9 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The correction is skipped when the refined Peaceman radius gets smaller than the well radius
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_LateralRefinementTooSmallRadiusKeepsCF )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 10, 10, 1 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 10.0 0.216 4* 0.5 /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+    EXPECT_DOUBLE_EQ( 10.0, result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 0.5, result->at( 0 ).getItem( "PR" ).get<double>( 0 ) );
 }

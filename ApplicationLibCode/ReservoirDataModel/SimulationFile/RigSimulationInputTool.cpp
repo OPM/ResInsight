@@ -29,8 +29,11 @@
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigBoundingBoxIjk.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
@@ -39,6 +42,7 @@
 #include "RigRefinement.h"
 #include "RigResdataGridConverter.h"
 #include "RigSimulationInputSettings.h"
+#include "RigTransmissibilityEquations.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
@@ -59,6 +63,8 @@
 #include "cafAssert.h"
 
 #include <QFileInfo>
+
+#include <cmath>
 
 #include <set>
 
@@ -154,7 +160,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
 
     auto validWellNames = wellNamesToInclude( &eclipseCase, settings );
 
-    if ( auto result = filterAndUpdateWellKeywords( validWellNames, settings, deckFile ); !result )
+    if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, validWellNames, settings, deckFile ); !result )
     {
         return result;
     }
@@ -1332,6 +1338,177 @@ static bool hasExplicitDoubleValue( const Opm::DeckRecord& record, const std::st
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Length fraction of the center sub-cell of an original (sector-relative) cell index
+//--------------------------------------------------------------------------------------------------
+static double centerSubcellFraction( const RigRefinement& refinement, RigRefinement::Dimension dim, size_t sectorIndex )
+{
+    const auto&  cumulative = refinement.cumulativeFractions( dim, sectorIndex );
+    const size_t center     = refinement.subcellCount( dim, sectorIndex ) / 2;
+    if ( center >= cumulative.size() ) return 1.0;
+    return cumulative[center] - ( center > 0 ? cumulative[center - 1] : 0.0 );
+}
+
+namespace
+{
+struct LateralRefinementCorrection
+{
+    double connectionFactorMultiplier = 1.0;
+    double pressureEquivalentRadius   = 0.0;
+};
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Correction of an explicit connection factor when the cell is refined perpendicular to the well.
+/// Peaceman: CF = c * theta * K * h / ( ln( r0 / rw ) + S ). Lateral refinement keeps K * h, but reduces
+/// the pressure equivalent radius r0, so CF_new = CF_old * ( ln( r0_old / rw ) + S ) / ( ln( r0_new / rw ) + S ).
+/// r0_old is taken from the PR item if given, otherwise computed from the original cell.
+//--------------------------------------------------------------------------------------------------
+static std::optional<LateralRefinementCorrection>
+    lateralRefinementCorrection( const Opm::DeckRecord&                                                 record,
+                                 const std::string&                                                     wellName,
+                                 RigRefinement::Dimension                                               penetrationDim,
+                                 double                                                                 fraction1,
+                                 double                                                                 fraction2,
+                                 const std::optional<RigSimulationInputTool::ConnectionCellProperties>& cellProperties )
+{
+    using C = Opm::ParserKeywords::COMPDAT;
+
+    if ( fraction1 >= 1.0 && fraction2 >= 1.0 ) return std::nullopt;
+    if ( !hasExplicitDoubleValue( record, C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName ) ) return std::nullopt;
+
+    auto warning = [&]( const std::string& reason )
+    {
+        RiaLogging::warning(
+            std::format( "COMPDAT for well {}: connection factor not corrected for refinement perpendicular to the well ({})", wellName, reason ) );
+    };
+
+    if ( !hasExplicitDoubleValue( record, C::DIAMETER::itemName ) )
+    {
+        warning( "no well diameter" );
+        return std::nullopt;
+    }
+    const double wellRadius = 0.5 * record.getItem( C::DIAMETER::itemName ).get<double>( 0 );
+
+    double skin = 0.0;
+    if ( record.hasItem( C::SKIN::itemName ) && record.getItem( C::SKIN::itemName ).hasValue( 0 ) )
+    {
+        skin = record.getItem( C::SKIN::itemName ).get<double>( 0 );
+    }
+
+    // Peaceman radius of the original and refined cell, using the cell sizes and permeabilities perpendicular to the well
+    std::optional<std::pair<double, double>> computedRadii;
+    if ( cellProperties )
+    {
+        const int d1 = ( penetrationDim == RigRefinement::DimI ) ? 1 : 0;
+        const int d2 = ( penetrationDim == RigRefinement::DimK ) ? 1 : 2;
+
+        const double size1 = cellProperties->cellSize[d1];
+        const double size2 = cellProperties->cellSize[d2];
+        double       perm1 = cellProperties->permeability[d1];
+        double       perm2 = cellProperties->permeability[d2];
+        if ( !( perm1 > 0.0 && perm2 > 0.0 ) )
+        {
+            perm1 = 1.0;
+            perm2 = 1.0;
+        }
+
+        if ( size1 > 0.0 && size2 > 0.0 )
+        {
+            const double coarse = RigTransmissibilityEquations::peacemanRadius( perm1, perm2, size1, size2 );
+            const double fine   = RigTransmissibilityEquations::peacemanRadius( perm1, perm2, fraction1 * size1, fraction2 * size2 );
+            computedRadii       = std::make_pair( coarse, fine );
+        }
+    }
+
+    double originalRadius = 0.0;
+    if ( hasExplicitDoubleValue( record, C::PR::itemName ) )
+    {
+        originalRadius = record.getItem( C::PR::itemName ).get<double>( 0 );
+    }
+    else if ( computedRadii )
+    {
+        originalRadius = computedRadii->first;
+    }
+    else
+    {
+        warning( "no pressure equivalent radius or cell geometry" );
+        return std::nullopt;
+    }
+
+    // Peaceman radius is homogeneous in the cell sizes, so the ratio is exact when both directions are refined equally
+    const double radiusRatio   = computedRadii ? computedRadii->second / computedRadii->first
+                                               : std::sqrt( 0.5 * ( fraction1 * fraction1 + fraction2 * fraction2 ) );
+    const double refinedRadius = originalRadius * radiusRatio;
+
+    const double originalDenominator = std::log( originalRadius / wellRadius ) + skin;
+    const double refinedDenominator  = std::log( refinedRadius / wellRadius ) + skin;
+    if ( !( wellRadius > 0.0 && originalDenominator > 0.0 && refinedDenominator > 0.0 ) )
+    {
+        warning(
+            std::format( "refined pressure equivalent radius {:.4g} is too small compared to well radius {:.4g}", refinedRadius, wellRadius ) );
+        return std::nullopt;
+    }
+
+    return LateralRefinementCorrection{ originalDenominator / refinedDenominator, refinedRadius };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigSimulationInputTool::ConnectionCellPropertiesProvider RigSimulationInputTool::connectionCellPropertiesProvider( RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() || !eclipseCase->eclipseCaseData()->mainGrid() ) return {};
+
+    auto* caseData       = eclipseCase->eclipseCaseData();
+    auto* results        = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto* activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    std::array<const std::vector<double>*, 3> permeabilities = { nullptr, nullptr, nullptr };
+    if ( results && activeCellInfo )
+    {
+        const std::array<QString, 3> permNames = { "PERMX", "PERMY", "PERMZ" };
+        for ( size_t i = 0; i < 3; ++i )
+        {
+            RigEclipseResultAddress address( RiaDefines::ResultCatType::STATIC_NATIVE, permNames[i] );
+            if ( results->ensureKnownResultLoaded( address ) && !results->cellScalarResults( address ).empty() )
+            {
+                permeabilities[i] = &results->cellScalarResults( address, 0 );
+            }
+        }
+    }
+
+    const RigMainGrid* mainGrid = caseData->mainGrid();
+
+    return [mainGrid, activeCellInfo, permeabilities]( const caf::VecIjk0& ijk ) -> std::optional<ConnectionCellProperties>
+    {
+        if ( !mainGrid->isCellValid( ijk.i(), ijk.j(), ijk.k() ) ) return std::nullopt;
+
+        const size_t   cellIndex = mainGrid->cellIndexFromIJK( ijk.i(), ijk.j(), ijk.k() );
+        const RigCell& cell      = mainGrid->cell( cellIndex );
+        if ( cell.isInvalid() ) return std::nullopt;
+
+        using F = cvf::StructGridInterface;
+        ConnectionCellProperties properties;
+        properties.cellSize = cvf::Vec3d( ( cell.faceCenter( F::NEG_I ) - cell.faceCenter( F::POS_I ) ).length(),
+                                          ( cell.faceCenter( F::NEG_J ) - cell.faceCenter( F::POS_J ) ).length(),
+                                          ( cell.faceCenter( F::NEG_K ) - cell.faceCenter( F::POS_K ) ).length() );
+
+        properties.permeability = cvf::Vec3d( 1.0, 1.0, 1.0 );
+        if ( activeCellInfo && permeabilities[0] && permeabilities[1] && permeabilities[2] )
+        {
+            const size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( cellIndex ) ).value();
+            if ( resultIndex < permeabilities[0]->size() && resultIndex < permeabilities[1]->size() && resultIndex < permeabilities[2]->size() )
+            {
+                properties.permeability =
+                    cvf::Vec3d( ( *permeabilities[0] )[resultIndex], ( *permeabilities[1] )[resultIndex], ( *permeabilities[2] )[resultIndex] );
+            }
+        }
+
+        return properties;
+    };
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigSimulationInputTool::ConnectionDirectionMap RigSimulationInputTool::connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords )
@@ -1369,9 +1546,11 @@ RigSimulationInputTool::ConnectionDirectionMap RigSimulationInputTool::connectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord& record,
-                                                                                                   const std::string&     wellName,
-                                                                                                   const RigSimulationInputSettings& settings )
+std::expected<std::vector<Opm::DeckRecord>, QString>
+    RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord&                  record,
+                                                  const std::string&                      wellName,
+                                                  const RigSimulationInputSettings&       settings,
+                                                  const ConnectionCellPropertiesProvider& cellProperties )
 {
     // COMPDAT format: WELL I J K1 K2 STATE ...
     // Items: 0=WELL, 1=I, 2=J, 3=K1, 4=K2
@@ -1439,6 +1618,7 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         size_t k1       = 0;
         size_t k2       = 0;
         double fraction = 1.0;
+        size_t sectorK  = 0; // Original (sector-relative) K, used for the lateral refinement correction
     };
 
     std::vector<KSpan> kSpans;
@@ -1446,14 +1626,16 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
     {
         kSpans.push_back( { refinement.cumulativeOffset( RigRefinement::DimK, sectorK1 ),
                             refinement.cumulativeOffset( RigRefinement::DimK, sectorK2 ),
-                            1.0 } );
+                            1.0,
+                            sectorK1 } );
     }
     else if ( dim == RigRefinement::DimK && !hasExplicitFactors )
     {
         // The simulator computes the connection factors, so the full refined range can be given in one record
         kSpans.push_back( { refinement.cumulativeOffset( RigRefinement::DimK, sectorK1 ),
                             refinement.cumulativeOffset( RigRefinement::DimK, sectorK2 + 1 ) - 1,
-                            1.0 } );
+                            1.0,
+                            sectorK1 } );
     }
     else if ( dim == RigRefinement::DimK )
     {
@@ -1461,7 +1643,7 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         {
             for ( const auto& subcell : allSubcells( refinement, RigRefinement::DimK, k ) )
             {
-                kSpans.push_back( { subcell.index, subcell.index, subcell.fraction } );
+                kSpans.push_back( { subcell.index, subcell.index, subcell.fraction, k } );
             }
         }
     }
@@ -1470,7 +1652,7 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         for ( size_t k = sectorK1; k <= sectorK2; ++k )
         {
             const size_t centerK = centerSubcellIndex( refinement, RigRefinement::DimK, k );
-            kSpans.push_back( { centerK, centerK, 1.0 } );
+            kSpans.push_back( { centerK, centerK, 1.0, k } );
         }
     }
 
@@ -1483,7 +1665,34 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
             ? allSubcells( refinement, RigRefinement::DimJ, sectorJ )
             : std::vector<RefinedSubcell>{ { centerSubcellIndex( refinement, RigRefinement::DimJ, sectorJ ), 1.0 } };
 
-    auto createRecord = [&]( size_t i, size_t j, size_t k1, size_t k2, double fraction )
+    // Refinement perpendicular to the well, applies to the center sub-cell
+    auto lateralCorrection = [&]( size_t sectorK ) -> std::optional<LateralRefinementCorrection>
+    {
+        double fraction1 = 1.0;
+        double fraction2 = 1.0;
+        if ( dim == RigRefinement::DimK )
+        {
+            fraction1 = centerSubcellFraction( refinement, RigRefinement::DimI, sectorI );
+            fraction2 = centerSubcellFraction( refinement, RigRefinement::DimJ, sectorJ );
+        }
+        else
+        {
+            fraction1 = ( dim == RigRefinement::DimI ) ? centerSubcellFraction( refinement, RigRefinement::DimJ, sectorJ )
+                                                       : centerSubcellFraction( refinement, RigRefinement::DimI, sectorI );
+            fraction2 = centerSubcellFraction( refinement, RigRefinement::DimK, sectorK );
+        }
+        if ( fraction1 >= 1.0 && fraction2 >= 1.0 ) return std::nullopt;
+
+        std::optional<ConnectionCellProperties> properties;
+        if ( cellProperties )
+        {
+            properties = cellProperties( caf::VecIjk0( origI, origJ, sectorK + settings.min().z() ) );
+        }
+        return lateralRefinementCorrection( record, wellName, dim, fraction1, fraction2, properties );
+    };
+
+    auto createRecord =
+        [&]( size_t i, size_t j, size_t k1, size_t k2, double fraction, const std::optional<LateralRefinementCorrection>& correction )
     {
         std::vector<Opm::DeckItem> items;
         items.push_back( record.getItem( 0 ) );
@@ -1495,8 +1704,19 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         for ( size_t idx = 5; idx < record.size(); ++idx )
         {
             const auto& item       = record.getItem( idx );
-            const bool  isScalable = item.name() == C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName || item.name() == C::Kh::itemName;
-            if ( fraction != 1.0 && isScalable && hasExplicitDoubleValue( record, item.name() ) )
+            const bool  isCF       = item.name() == C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName;
+            const bool  isScalable = isCF || item.name() == C::Kh::itemName;
+            const bool  isExplicit = hasExplicitDoubleValue( record, item.name() );
+            if ( isCF && isExplicit && correction )
+            {
+                items.push_back(
+                    RifOpmDeckTools::item( item.name(), item.get<double>( 0 ) * fraction * correction->connectionFactorMultiplier ) );
+            }
+            else if ( item.name() == C::PR::itemName && isExplicit && correction )
+            {
+                items.push_back( RifOpmDeckTools::item( item.name(), correction->pressureEquivalentRadius ) );
+            }
+            else if ( fraction != 1.0 && isScalable && isExplicit )
             {
                 items.push_back( RifOpmDeckTools::item( item.name(), item.get<double>( 0 ) * fraction ) );
             }
@@ -1512,12 +1732,17 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
     std::vector<Opm::DeckRecord> records;
     for ( const auto& kSpan : kSpans )
     {
+        const auto correction = lateralCorrection( kSpan.sectorK );
         for ( const auto& iSubcell : iSubcells )
         {
             for ( const auto& jSubcell : jSubcells )
             {
-                records.push_back(
-                    createRecord( iSubcell.index, jSubcell.index, kSpan.k1, kSpan.k2, kSpan.fraction * iSubcell.fraction * jSubcell.fraction ) );
+                records.push_back( createRecord( iSubcell.index,
+                                                 jSubcell.index,
+                                                 kSpan.k1,
+                                                 kSpan.k2,
+                                                 kSpan.fraction * iSubcell.fraction * jSubcell.fraction,
+                                                 correction ) );
             }
         }
     }
@@ -2350,7 +2575,8 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
+                                                                                  std::set<std::string>&            validWellNames,
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
@@ -2363,6 +2589,8 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
 
     // Collect connection directions from the original COMPDAT before it is transformed, used to split COMPSEGS
     const auto directions = connectionDirections( deckFile.findAllKeywords( "COMPDAT" ) );
+
+    const auto cellProperties = connectionCellPropertiesProvider( eclipseCase );
 
     // Process each type of well keyword
     // Use findAllKeywordsWithIndices to get all occurrences with their positions
@@ -2441,7 +2669,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         }
                         else if ( keywordName == "COMPDAT" )
                         {
-                            auto result = processCompdatRecord( record, wellName, settings );
+                            auto result = processCompdatRecord( record, wellName, settings, cellProperties );
                             if ( result )
                             {
                                 for ( auto& rec : result.value() )

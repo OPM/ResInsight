@@ -22,12 +22,14 @@
 
 #include "cafVecIjk.h"
 #include "cvfArray.h"
+#include "cvfVector3.h"
 
 #include <QString>
 
 #include <expected>
 #include <functional>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
@@ -108,10 +110,24 @@ public:
 
     static ConnectionDirectionMap connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords );
 
+    // Size and permeability of an original grid cell, ordered I/X, J/Y, K/Z
+    struct ConnectionCellProperties
+    {
+        cvf::Vec3d cellSize;
+        cvf::Vec3d permeability;
+    };
+    using ConnectionCellPropertiesProvider = std::function<std::optional<ConnectionCellProperties>( const caf::VecIjk0& originalIjk )>;
+
+    static ConnectionCellPropertiesProvider connectionCellPropertiesProvider( RimEclipseCase* eclipseCase );
+
     // Refined connections along the penetration direction are split into one record per sub-cell with
-    // explicit CF and KH scaled by the sub-cell length fraction. Perpendicular directions use the center sub-cell.
+    // explicit CF and KH scaled by the sub-cell length fraction. Perpendicular directions use the center sub-cell,
+    // and explicit CF is corrected for the smaller Peaceman pressure equivalent radius of the refined cell.
     static std::expected<std::vector<Opm::DeckRecord>, QString>
-        processCompdatRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
+        processCompdatRecord( const Opm::DeckRecord&                  record,
+                              const std::string&                      wellName,
+                              const RigSimulationInputSettings&       settings,
+                              const ConnectionCellPropertiesProvider& cellProperties = {} );
 
     // Segment records are split into one record per sub-cell along the connection penetration direction,
     // with the MD interval divided by the sub-cell length fractions
@@ -183,7 +199,8 @@ private:
     static std::expected<void, QString>
         addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    static std::expected<void, QString> filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+    static std::expected<void, QString> filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
+                                                                     std::set<std::string>&            validWellNames,
                                                                      const RigSimulationInputSettings& settings,
                                                                      RifOpmFlowDeckFile&               deckFile );
 
