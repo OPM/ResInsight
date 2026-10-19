@@ -41,7 +41,6 @@
 #include "cafAssert.h"
 
 #include <algorithm>
-#include <limits>
 #include <numeric>
 #include <set>
 #include <tuple>
@@ -189,7 +188,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    lateralBranchNum,
                                                                    segmentNumber,
                                                                    childOutletSeg,
-                                                                   std::numeric_limits<double>::infinity(),
                                                                    segmentIntervals,
                                                                    RicMswTableDataTools::segmentationSettings( mswParameters, exportDate ),
                                                                    exportDate,
@@ -238,7 +236,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                   wellNameForExport,
                                                                   segmentNumber,
                                                                   completionBranchNumber,
-                                                                  std::numeric_limits<double>::infinity(),
                                                                   segmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
@@ -267,7 +264,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          completionBranchNumber,
-                                                                         std::numeric_limits<double>::infinity(),
                                                                          segmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );
@@ -304,7 +300,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 //--------------------------------------------------------------------------------------------------
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
-                                             double                                        maxSegmentLength,
                                              const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                              CompletionType                                completionType,
                                              const std::optional<QDateTime>&               exportDate )
@@ -382,7 +377,6 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                     lateralBranchNumber,
                                                                     segmentNumber,
                                                                     1, // outlet = heel (segment 1)
-                                                                    maxSegmentLength,
                                                                     customSegmentIntervals,
                                                                     RicMswTableDataTools::segmentationSettings( mswParameters, exportDate ),
                                                                     exportDate,
@@ -425,7 +419,6 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                   wellNameForExport,
                                                                   segmentNumber,
                                                                   completionBranchNumber,
-                                                                  maxSegmentLength,
                                                                   customSegmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
@@ -451,7 +444,6 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          completionBranchNumber,
-                                                                         maxSegmentLength,
                                                                          customSegmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );

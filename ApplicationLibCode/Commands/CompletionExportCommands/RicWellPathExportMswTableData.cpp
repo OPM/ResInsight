@@ -76,12 +76,8 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     if ( !segmentCollection ) return std::unexpected( "Missing MSW completion parameters" );
 
     const std::vector<std::pair<double, double>> customSegmentIntervals = segmentCollection->getSegmentIntervals();
-    auto                                         wellExportData = RicWellPathExportMswGeometryPath::buildMswWellExportData( eclipseCase,
-                                                                                    wellPath,
-                                                                                    std::numeric_limits<double>::infinity(),
-                                                                                    customSegmentIntervals,
-                                                                                    completionType,
-                                                                                    exportDate );
+    auto                                         wellExportData =
+        RicWellPathExportMswGeometryPath::buildMswWellExportData( eclipseCase, wellPath, customSegmentIntervals, completionType, exportDate );
 
     auto unitSystem = eclipseCase->eclipseCaseData()->unitsType();
     return RicWellPathExportMswGeometryPath::collectTableData( wellExportData, unitSystem, segmentCollection->exportCompsegsSegmentNumber() );
