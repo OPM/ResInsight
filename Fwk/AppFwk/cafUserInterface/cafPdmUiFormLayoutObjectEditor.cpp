@@ -488,6 +488,13 @@ QLabel* caf::PdmUiFormLayoutObjectEditor::createLabel( QWidget* parent, const Pd
     qLabel->setText( label.uiName( uiConfigName ) );
     qLabel->setWordWrap( true );
 
+    if ( auto callback = label.linkActivatedCallback() )
+    {
+        qLabel->setTextFormat( Qt::RichText );
+        qLabel->setTextInteractionFlags( Qt::LinksAccessibleByMouse );
+        QObject::connect( qLabel, &QLabel::linkActivated, qLabel, [callback]( const QString& link ) { callback( link ); } );
+    }
+
     m_labels.push_back( qLabel );
     return qLabel;
 }
@@ -561,6 +568,14 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
+
+    // The editor's field was deleted and a new field was allocated at the same address
+    if ( it != m_fieldViews.end() && it->second->uiField() != field )
+    {
+        delete it->second;
+        m_fieldViews.erase( it );
+        it = m_fieldViews.end();
+    }
 
     if ( it == m_fieldViews.end() )
     {

@@ -66,13 +66,15 @@ public:
         static inline const QString BASE_COLOR                  = QStringLiteral( "baseColor" );
         static inline const QString QSS_STATE                   = QStringLiteral( "qssState" );
         static inline const QString ALLOW_HORIZONTAL_SCROLL_BAR = QStringLiteral( "allowHorizontalScrollBar" );
+        static inline const QString ICON_SIZE                   = QStringLiteral( "iconSize" ); // QSize
     };
 
     // Set of all supported attributes for validation
     inline static const std::set<QString> SUPPORTED_ATTRIBUTES = { Keys::HEIGHT_HINT,
                                                                    Keys::BASE_COLOR,
                                                                    Keys::QSS_STATE,
-                                                                   Keys::ALLOW_HORIZONTAL_SCROLL_BAR };
+                                                                   Keys::ALLOW_HORIZONTAL_SCROLL_BAR,
+                                                                   Keys::ICON_SIZE };
 
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
