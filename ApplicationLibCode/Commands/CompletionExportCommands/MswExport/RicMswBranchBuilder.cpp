@@ -388,7 +388,6 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                                   int                                               branchNumber,
                                   int&                                              segmentNumber,
                                   int                                               outletSegmentNumber,
-                                  double                                            maxSegmentLength,
                                   const std::vector<std::pair<double, double>>&     customSegmentIntervals,
                                   const RicMswTableDataTools::SegmentationSettings& segmentationSettings,
                                   const std::optional<QDateTime>&                   exportDate,
@@ -475,8 +474,7 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
 
         compsegsPerCell.push_back( collectCellCompsegs( cellInfo, compsegsContext ) );
 
-        const auto subSegs =
-            RicMswTableDataTools::createSubSegmentMDPairs( cellInfo.startMD, cellInfo.endMD, maxSegmentLength, customSegmentIntervals );
+        const auto subSegs = RicMswTableDataTools::createSubSegmentMDPairs( cellInfo.startMD, cellInfo.endMD, customSegmentIntervals );
         for ( const auto& [subStartMD, subEndMD] : subSegs )
         {
             cellPieces.push_back( { subStartMD, subEndMD } );
@@ -621,7 +619,6 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                                               const std::string&                                wellNameForExport,
                                               int&                                              segmentNumber,
                                               int&                                              branchNumber,
-                                              double                                            maxSegmentLength,
                                               const std::vector<std::pair<double, double>>&     customSegmentIntervals,
                                               const std::optional<QDateTime>&                   exportDate,
                                               RiaDefines::EclipseUnitSystem                     unitSystem )
@@ -1032,7 +1029,6 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
-                                                  double                                           maxSegmentLength,
                                                   const std::vector<std::pair<double, double>>&    customSegmentIntervals,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
                                                   FishbonesExportContext&                          fishbonesContext )
@@ -1207,8 +1203,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                         lateralSegmentContext.globalCellIndex    = cellIntInfo.globCellIndex;
                         lateralSegmentContext.equivalentDiameter = subs->equivalentDiameter( unitSystem );
 
-                        const auto subSegs =
-                            RicMswTableDataTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+                        const auto subSegs = RicMswTableDataTools::createSubSegmentMDPairs( startMD, endMD, customSegmentIntervals );
 
                         bool firstSubSeg = true;
                         for ( const auto& [subStartMD, subEndMD] : subSegs )

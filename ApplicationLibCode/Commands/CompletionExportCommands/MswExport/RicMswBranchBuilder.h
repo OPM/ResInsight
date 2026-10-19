@@ -177,7 +177,6 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                                   int                                               branchNumber,
                                   int&                                              segmentNumber,
                                   int                                               outletSegmentNumber,
-                                  double                                            maxSegmentLength,
                                   const std::vector<std::pair<double, double>>&     customSegmentIntervals,
                                   const RicMswTableDataTools::SegmentationSettings& segmentationSettings,
                                   const std::optional<QDateTime>&                   exportDate,
@@ -198,7 +197,6 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                                               const std::string&                                wellNameForExport,
                                               int&                                              segmentNumber,
                                               int&                                              branchNumber,
-                                              double                                            maxSegmentLength,
                                               const std::vector<std::pair<double, double>>&     customSegmentIntervals,
                                               const std::optional<QDateTime>&                   exportDate,
                                               RiaDefines::EclipseUnitSystem                     unitSystem );
@@ -226,7 +224,6 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
-                                                  double                                           maxSegmentLength,
                                                   const std::vector<std::pair<double, double>>&    customSegmentIntervals,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
                                                   FishbonesExportContext&                          fishbonesContext );
