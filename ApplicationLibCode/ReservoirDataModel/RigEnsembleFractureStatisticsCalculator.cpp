@@ -285,25 +285,27 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
     // TODO: heuristic to find conductivity name?
     QString conductivityResultName = fractureDefinitions[0]->conductivityResultNames()[0];
 
-    std::vector<cvf::cref<RigFractureGrid>> grids =
-        RimEnsembleFractureStatistics::createFractureGrids( fractureDefinitions,
-                                                            RiaDefines::EclipseUnitSystem::UNITS_METRIC,
-                                                            conductivityResultName,
-                                                            RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
-
     auto [widthResultName, widthResultUnit] = RimStimPlanFractureTemplate::widthParameterNameAndUnit( fractureDefinitions[0] );
-    std::vector<cvf::cref<RigFractureGrid>> widthGrids =
-        RimEnsembleFractureStatistics::createFractureGrids( fractureDefinitions,
-                                                            RiaDefines::EclipseUnitSystem::UNITS_METRIC,
-                                                            widthResultName,
-                                                            RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
 
-    CAF_ASSERT( grids.size() == widthGrids.size() );
-
-    for ( size_t i = 0; i < grids.size(); i++ )
+    // Create the grids one definition at a time, as a definition can lack conductivity or width data. This keeps the two grids paired.
+    for ( const auto& definition : fractureDefinitions )
     {
-        double result = func( grids[i], widthGrids[i], RiaDefines::EclipseUnitSystem::UNITS_METRIC, widthResultUnit );
-        samples.push_back( result );
+        std::vector<cvf::ref<RigStimPlanFractureDefinition>> singleDefinition = { definition };
+
+        auto grids = RimEnsembleFractureStatistics::createFractureGrids( singleDefinition,
+                                                                         RiaDefines::EclipseUnitSystem::UNITS_METRIC,
+                                                                         conductivityResultName,
+                                                                         RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
+
+        auto widthGrids =
+            RimEnsembleFractureStatistics::createFractureGrids( singleDefinition,
+                                                                RiaDefines::EclipseUnitSystem::UNITS_METRIC,
+                                                                widthResultName,
+                                                                RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
+
+        if ( grids.empty() || widthGrids.empty() ) continue;
+
+        samples.push_back( func( grids.front(), widthGrids.front(), RiaDefines::EclipseUnitSystem::UNITS_METRIC, widthResultUnit ) );
     }
 
     return samples;
