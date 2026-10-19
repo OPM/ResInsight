@@ -60,7 +60,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
-                                             double                                        maxSegmentLength,
                                              const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                              RicWellPathExportMswTableData::CompletionType completionType,
                                              const std::optional<QDateTime>&               exportDate );

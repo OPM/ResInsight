@@ -58,10 +58,8 @@ struct SegmentationSettings
     bool                              singleSegmentAfterLastPerforation   = false;
 };
 
-std::vector<std::pair<double, double>> createSubSegmentMDPairs( double                                        startMD,
-                                                                double                                        endMD,
-                                                                double                                        maxSegmentLength,
-                                                                const std::vector<std::pair<double, double>>& customSegmentIntervals = {} );
+std::vector<std::pair<double, double>>
+    createSubSegmentMDPairs( double startMD, double endMD, const std::vector<std::pair<double, double>>& customSegmentIntervals = {} );
 
 std::vector<SegmentationInterval> segmentationIntervals( const RimSegmentCollection*     segmentCollection,
                                                          const std::optional<QDateTime>& exportDate );

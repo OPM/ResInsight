@@ -249,6 +249,55 @@ TEST( RicMswBranchBuilder, PlaceSegmentNodes_FixedLengthNotBeforeFirstCell )
     expectNodes( { 1050.0, 1070.0, 1090.0 }, nodes );
 }
 
+TEST( RicMswBranchBuilder, CreateSubSegmentMDPairs_NoIntervalsKeepsWholeCell )
+{
+    const auto pairs = RicMswTableDataTools::createSubSegmentMDPairs( 10.0, 30.0, {} );
+    ASSERT_EQ( 1u, pairs.size() );
+    EXPECT_DOUBLE_EQ( 10.0, pairs[0].first );
+    EXPECT_DOUBLE_EQ( 30.0, pairs[0].second );
+}
+
+TEST( RicMswBranchBuilder, CreateSubSegmentMDPairs_IntervalInsideCellSplitsInThree )
+{
+    const auto pairs = RicMswTableDataTools::createSubSegmentMDPairs( 10.0, 30.0, { { 15.0, 25.0 } } );
+    ASSERT_EQ( 3u, pairs.size() );
+    EXPECT_DOUBLE_EQ( 10.0, pairs[0].first );
+    EXPECT_DOUBLE_EQ( 15.0, pairs[0].second );
+    EXPECT_DOUBLE_EQ( 15.0, pairs[1].first );
+    EXPECT_DOUBLE_EQ( 25.0, pairs[1].second );
+    EXPECT_DOUBLE_EQ( 25.0, pairs[2].first );
+    EXPECT_DOUBLE_EQ( 30.0, pairs[2].second );
+}
+
+TEST( RicMswBranchBuilder, CreateSubSegmentMDPairs_IntervalOverlappingCellIsClipped )
+{
+    const auto pairs = RicMswTableDataTools::createSubSegmentMDPairs( 10.0, 30.0, { { 0.0, 20.0 } } );
+    ASSERT_EQ( 2u, pairs.size() );
+    EXPECT_DOUBLE_EQ( 10.0, pairs[0].first );
+    EXPECT_DOUBLE_EQ( 20.0, pairs[0].second );
+    EXPECT_DOUBLE_EQ( 20.0, pairs[1].first );
+    EXPECT_DOUBLE_EQ( 30.0, pairs[1].second );
+}
+
+TEST( RicMswBranchBuilder, CreateSubSegmentMDPairs_IntervalOutsideOrTouchingCellIsIgnored )
+{
+    for ( const auto& interval : { std::pair( 30.0, 40.0 ), std::pair( 0.0, 10.0 ), std::pair( 40.0, 50.0 ) } )
+    {
+        const auto pairs = RicMswTableDataTools::createSubSegmentMDPairs( 10.0, 30.0, { interval } );
+        ASSERT_EQ( 1u, pairs.size() );
+        EXPECT_DOUBLE_EQ( 10.0, pairs[0].first );
+        EXPECT_DOUBLE_EQ( 30.0, pairs[0].second );
+    }
+}
+
+TEST( RicMswBranchBuilder, CreateSubSegmentMDPairs_AdjacentIntervalsShareBoundary )
+{
+    const auto pairs = RicMswTableDataTools::createSubSegmentMDPairs( 10.0, 30.0, { { 10.0, 20.0 }, { 20.0, 30.0 } } );
+    ASSERT_EQ( 2u, pairs.size() );
+    EXPECT_DOUBLE_EQ( 20.0, pairs[0].second );
+    EXPECT_DOUBLE_EQ( 20.0, pairs[1].first );
+}
+
 TEST( RicMswBranchBuilder, CollapseNodesOutsidePerforations )
 {
     const std::vector<double> nodes = { 5.0, 12.0, 22.0, 31.5, 46.5, 55.0 };
