@@ -20,9 +20,9 @@
 
 #include "RimGenericJob.h"
 
-#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include <QDateTime>
 
@@ -72,7 +72,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
