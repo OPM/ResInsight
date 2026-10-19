@@ -22,36 +22,21 @@
 #include "RiaColorTools.h"
 #include "RiaPreferencesSummary.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "RiuQwtPlotCurve.h"
 
+#include "RifSummaryReaderInterface.h"
+#include "RimCurveStyleRules.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
-
-#include "RifSummaryReaderInterface.h"
 
 #include "cvfVector3.h"
 
 #include "cafAssert.h"
 
 #include <cmath>
-
-namespace caf
-{
-template <>
-void caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>::setUp()
-{
-    addItem( RimSummaryCurveAppearanceCalculator::NONE, "NONE", "None" );
-    addItem( RimSummaryCurveAppearanceCalculator::COLOR, "COLOR", "Color" );
-    addItem( RimSummaryCurveAppearanceCalculator::SYMBOL, "SYMBOL", "Symbols" );
-    addItem( RimSummaryCurveAppearanceCalculator::LINE_STYLE, "LINE_STYLE", "Line Style" );
-    addItem( RimSummaryCurveAppearanceCalculator::GRADIENT, "GRADIENT", "Gradient" );
-    addItem( RimSummaryCurveAppearanceCalculator::LINE_THICKNESS, "LINE_THICKNESS", "Line Thickness" );
-
-    setDefault( RimSummaryCurveAppearanceCalculator::NONE );
-}
-} // namespace caf
 
 namespace internal
 {
@@ -97,32 +82,6 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator( const 
     }
 
     init( curveDefVector );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAppearanceCalculator::assignDimensions( CurveAppearanceType caseAppearance,
-                                                            CurveAppearanceType variAppearance,
-                                                            CurveAppearanceType wellAppearance,
-                                                            CurveAppearanceType gropAppearance,
-                                                            CurveAppearanceType regiAppearance )
-{
-    m_caseAppearanceType   = caseAppearance;
-    m_varAppearanceType    = variAppearance;
-    m_wellAppearanceType   = wellAppearance;
-    m_groupAppearanceType  = gropAppearance;
-    m_regionAppearanceType = regiAppearance;
-
-    // Update the dimensionCount
-    m_dimensionCount = 0;
-    if ( m_caseAppearanceType != NONE ) ++m_dimensionCount;
-    if ( m_varAppearanceType != NONE ) ++m_dimensionCount;
-    if ( m_wellAppearanceType != NONE ) ++m_dimensionCount;
-    if ( m_groupAppearanceType != NONE ) ++m_dimensionCount;
-    if ( m_regionAppearanceType != NONE ) ++m_dimensionCount;
-
-    updateApperanceIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,22 +216,6 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
     }
 
     return nameToIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAppearanceCalculator::getDimensions( CurveAppearanceType* caseAppearance,
-                                                         CurveAppearanceType* variAppearance,
-                                                         CurveAppearanceType* wellAppearance,
-                                                         CurveAppearanceType* gropAppearance,
-                                                         CurveAppearanceType* regiAppearance ) const
-{
-    *caseAppearance = m_caseAppearanceType;
-    *variAppearance = m_varAppearanceType;
-    *wellAppearance = m_wellAppearanceType;
-    *gropAppearance = m_groupAppearanceType;
-    *regiAppearance = m_regionAppearanceType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,8 +368,8 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddr
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_allSummaryCaseNames = getAllSummaryCaseNames();
-    m_allSummaryWellNames = getAllSummaryWellNames();
+    m_allSummaryCaseNames = RiaSummaryTools::allSummaryCaseNames();
+    m_allSummaryWellNames = RiaSummaryTools::allSummaryWellNames();
 
     for ( const RiaSummaryCurveDefinition& curveDef : curveDefinitions )
     {
@@ -549,6 +492,16 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor( int colorI
 {
     if ( colorIndex < 0 ) return cvf::Color3f::BLACK;
 
+    // The palette selected for the global appearance is only used by plots using it
+    if ( auto project = RimProject::current() )
+    {
+        auto rules = project->curveStyleRules();
+        if ( rules && rules->useGlobalAppearance() )
+        {
+            if ( auto legendColor = rules->autoLegendColor( colorIndex ) ) return *legendColor;
+        }
+    }
+
     return RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex );
 }
 
@@ -660,54 +613,4 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::gradeColor( const cvf::Color3f
     cvf::Vec3f newColor = ( (float)fabs( factor ) ) * ( targetC - orgC ) + orgC;
 
     return cvf::Color3f( newColor[0], newColor[1], newColor[2] );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryCaseNames()
-{
-    std::set<std::string> summaryCaseHashes;
-    RimProject*           proj = RimProject::current();
-
-    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-    for ( RimSummaryCase* rimCase : cases )
-    {
-        summaryCaseHashes.insert( rimCase->summaryHeaderFilename().toUtf8().constData() );
-    }
-
-    return summaryCaseHashes;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryWellNames()
-{
-    std::set<std::string> summaryWellNames;
-    RimProject*           proj = RimProject::current();
-
-    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-    for ( RimSummaryCase* rimCase : cases )
-    {
-        RifSummaryReaderInterface* reader = nullptr;
-        if ( rimCase )
-        {
-            reader = rimCase->summaryReader();
-        }
-
-        if ( reader )
-        {
-            const std::set<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-
-            for ( auto& address : allAddresses )
-            {
-                if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
-                {
-                    summaryWellNames.insert( address.wellName() );
-                }
-            }
-        }
-    }
-    return summaryWellNames;
 }

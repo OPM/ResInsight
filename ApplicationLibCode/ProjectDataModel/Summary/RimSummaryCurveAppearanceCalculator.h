@@ -36,6 +36,7 @@ class RimSummaryCurveAppearanceCalculator
 public:
     explicit RimSummaryCurveAppearanceCalculator( const std::set<RiaSummaryCurveDefinition>& curveDefinitions );
     explicit RimSummaryCurveAppearanceCalculator( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+
     enum CurveAppearanceType
     {
         NONE,
@@ -45,17 +46,6 @@ public:
         GRADIENT,
         LINE_THICKNESS
     };
-
-    void assignDimensions( CurveAppearanceType caseAppearance,
-                           CurveAppearanceType variAppearance,
-                           CurveAppearanceType wellAppearance,
-                           CurveAppearanceType gropAppearance,
-                           CurveAppearanceType regiAppearance );
-    void getDimensions( CurveAppearanceType* caseAppearance,
-                        CurveAppearanceType* variAppearance,
-                        CurveAppearanceType* wellAppearance,
-                        CurveAppearanceType* gropAppearance,
-                        CurveAppearanceType* regiAppearance ) const;
 
     void setupCurveLook( RimSummaryCurve* curve );
 
@@ -81,9 +71,6 @@ private:
 
     cvf::Color3f gradeColor( const cvf::Color3f& color, float factor );
     void         assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
-
-    static std::set<std::string> getAllSummaryCaseNames();
-    static std::set<std::string> getAllSummaryWellNames();
 
     cvf::Color3f m_currentCurveBaseColor;
     float        m_currentCurveGradient;

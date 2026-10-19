@@ -112,6 +112,9 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addCurveSet( RimSumma
     filter->setActive( false );
 
     plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+
+    if ( plot->useGlobalCurveAppearance() ) plot->applyDefaultCurveAppearances( { curveSet } );
+
     return curveSet;
 }
 
