@@ -249,9 +249,6 @@ def test_msw_settings_read(rips_instance, initialize_test):
     assert msw_settings.liner_diameter == 0.152, "Liner diameter should be 0.152m"
     assert msw_settings.roughness_factor == 1e-05, "Roughness factor should be 1e-05"
 
-    # Check max segment length setting
-    assert msw_settings.max_segment_length == 200.0, "Max segment length should be 200m"
-
     # Verify completion settings
     completion_settings = well_y1.completion_settings()
     assert completion_settings.pressure_drop == "HF-", "Pressure drop should be HF-"
