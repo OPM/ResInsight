@@ -45,9 +45,6 @@ public:
 
     static QString selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue );
 
-protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
-
 private:
     caf::PdmField<size_t>                                       m_maxParallelJobs;
     caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>> m_batchScheduler;
