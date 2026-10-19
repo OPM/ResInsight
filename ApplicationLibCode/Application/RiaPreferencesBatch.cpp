@@ -43,6 +43,10 @@ RiaPreferencesBatch::RiaPreferencesBatch()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_exclusive );
 
     CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue/partition name" );
+    m_queueName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_queueName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_queueName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
+    m_queueName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );
     CAF_PDM_InitFieldNoDefault( &m_additionalSlurmOptions, "additionalSlurmOptions", "" );
@@ -93,24 +97,6 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
         {
             hpcGrp->addNewLabel( "Additional Slurm options can be specified here. For example: --mem=1G" );
             hpcGrp->add( &m_additionalSlurmOptions );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferencesBatch::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_queueName )
-    {
-        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->enableEditableContent  = true;
-            attr->enableAutoComplete     = false;
-            attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = false;
         }
     }
 }
