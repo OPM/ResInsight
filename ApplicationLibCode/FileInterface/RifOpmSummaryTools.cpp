@@ -244,8 +244,9 @@ RiaDefines::EclipseUnitSystem RifOpmSummaryTools::readUnitSystem( const QString&
             }
         }
     }
-    catch ( const std::exception& )
+    catch ( const std::exception& e )
     {
+        RiaLogging::debug( QString( "Failed to read unit system from %1: %2" ).arg( smspecFileName, e.what() ).toStdString() );
     }
 
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;

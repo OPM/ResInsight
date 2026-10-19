@@ -179,7 +179,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
     populateTimeSteps();
     if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Completed populateTimeSteps", timeBeforeTimeSteps );
 
-    m_fileName = fileName;
+    m_fileName   = fileName;
+    m_unitSystem = std::nullopt;
 
     return true;
 }
@@ -263,12 +264,12 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::detectUnitSystem() const
 {
     auto smspecFileName = RifOpmSummaryTools::smspecSummaryFilename( m_fileName );
-    if ( QFile::exists( smspecFileName ) ) return RifOpmSummaryTools::readUnitSystem( smspecFileName );
+    auto unitSystem     = RifOpmSummaryTools::readUnitSystem( smspecFileName );
 
     // ESMRY files can be imported without SMSPEC, and ESMRY has no unit system flag
-    if ( m_enhancedReader ) return unitSystemFromVectorUnits();
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN && m_enhancedReader ) return unitSystemFromVectorUnits();
 
-    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    return unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

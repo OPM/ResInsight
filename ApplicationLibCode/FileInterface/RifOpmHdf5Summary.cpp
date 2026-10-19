@@ -99,6 +99,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
     createAndSetAddresses();
 
     m_headerFileName = headerFileName;
+    m_unitSystem     = std::nullopt;
 
     return true;
 }

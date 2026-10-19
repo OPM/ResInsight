@@ -746,10 +746,11 @@ bool RimSummaryEnsemble::operator<( const RimSummaryEnsemble& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimSummaryEnsemble::unitSystem() const
 {
-    // Read meta data from a single realization, as done for the ensemble addresses. The first realization can be missing data.
-    if ( auto caseWithMostKeywords = RimSummaryEnsembleTools::caseWithMostDataObjects( m_cases.childrenByType() ) )
+    // The first realization can be missing data, use the first realization with a known unit system
+    for ( auto* summaryCase : m_cases.childrenByType() )
     {
-        return caseWithMostKeywords->unitsSystem();
+        auto unitSystem = summaryCase->unitsSystem();
+        if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ) return unitSystem;
     }
 
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
