@@ -1917,6 +1917,21 @@ void RimWellRftPlot::initializeDataSources( RimWellRftPlot* source )
     {
         // If no source is provided, initialize with empty sources
         setOrInitializeDataSources( {} );
+
+        // Use the depth unit of the data in a new plot, with the unit of the grid model in the project as fallback
+        auto depthUnit = RiaDefines::DepthUnitType::UNIT_NONE;
+        for ( const auto& dataSource : m_selectedSources() )
+        {
+            for ( auto unitSystem : dataSource.availableUnitSystems() )
+            {
+                depthUnit = RiaDefines::fromEclipseUnit( unitSystem );
+                if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) break;
+            }
+            if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) break;
+        }
+
+        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_NONE ) depthUnit = caseDepthUnit();
+        if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) setDepthUnit( depthUnit );
     }
 }
 

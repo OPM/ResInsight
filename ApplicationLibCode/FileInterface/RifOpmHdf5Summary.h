@@ -28,6 +28,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -73,4 +74,8 @@ private:
     std::vector<time_t>                             m_timeSteps;
 
     std::unique_ptr<RifHdf5SummaryReader> m_hdf5Reader;
+
+    // Detected on first request, as reading the SMSPEC file is not needed for summary import
+    QString                                              m_headerFileName;
+    mutable std::optional<RiaDefines::EclipseUnitSystem> m_unitSystem;
 };

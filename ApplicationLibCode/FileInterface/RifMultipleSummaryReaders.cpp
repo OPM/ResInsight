@@ -132,7 +132,20 @@ RiaDefines::EclipseUnitSystem RifMultipleSummaryReaders::unitSystem() const
 {
     CAF_ASSERT( !m_readers.empty() );
 
-    return m_readers.at( 0 )->unitSystem();
+    // Readers without unit information are ignored, conflicting readers give an unknown unit system
+    auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    for ( const auto& reader : m_readers )
+    {
+        auto readerUnitSystem = reader->unitSystem();
+        if ( readerUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ) continue;
+
+        if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
+            unitSystem = readerUnitSystem;
+        else if ( unitSystem != readerUnitSystem )
+            return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    }
+
+    return unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

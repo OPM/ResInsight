@@ -750,11 +750,14 @@ bool RimSummaryEnsemble::operator<( const RimSummaryEnsemble& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimSummaryEnsemble::unitSystem() const
 {
-    if ( m_cases.empty() )
+    // The first realization can be missing data, use the first realization with a known unit system
+    for ( auto* summaryCase : m_cases.childrenByType() )
     {
-        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+        auto unitSystem = summaryCase->unitsSystem();
+        if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ) return unitSystem;
     }
-    return m_cases[0]->unitsSystem();
+
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
