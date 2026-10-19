@@ -76,8 +76,24 @@ public:
 
     void setItemsEditable( bool isEditable ) { m_isItemsEditable = isEditable; }
 
+    void setIcons( const QList<QIcon>& icons ) { m_icons = icons; }
+
+    QVariant data( const QModelIndex& index, int role ) const override
+    {
+        if ( role == Qt::DecorationRole )
+        {
+            if ( index.isValid() && index.row() < m_icons.size() && !m_icons[index.row()].isNull() )
+            {
+                return m_icons[index.row()];
+            }
+            return QVariant();
+        }
+        return QStringListModel::data( index, role );
+    }
+
 private:
-    bool m_isItemsEditable;
+    bool         m_isItemsEditable;
+    QList<QIcon> m_icons;
 };
 
 //==================================================================================================
@@ -194,6 +210,24 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         strListModel->setItemsEditable( false );
         QModelIndex currentItem = m_listView->selectionModel()->currentIndex();
         QStringList texts       = PdmOptionItemInfo::extractUiTexts( options );
+
+        QList<QIcon> icons;
+        for ( const auto& option : options )
+        {
+            auto icon = option.icon();
+            icons.push_back( icon ? *icon : QIcon() );
+        }
+        strListModel->setIcons( icons );
+
+        QSize iconSize( 16, 16 );
+        for ( const auto& icon : icons )
+        {
+            for ( const auto& size : icon.availableSizes() )
+            {
+                iconSize = iconSize.expandedTo( size );
+            }
+        }
+        m_listView->setIconSize( iconSize );
         strListModel->setStringList( texts );
 
         QVariant fieldValue = uiField()->uiValue();
@@ -247,6 +281,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         QVariant       fieldValue  = uiField()->uiValue();
         QStringList    texts       = fieldValue.toStringList();
         texts.push_back( "" );
+        strListModel->setIcons( {} );
         strListModel->setStringList( texts );
 
         strListModel->setItemsEditable( true );
