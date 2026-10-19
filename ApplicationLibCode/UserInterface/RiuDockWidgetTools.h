@@ -83,6 +83,7 @@ public:
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
     static QString plotMainWindowPlotManagerName();
+    static QString plotMainWindowCurveAppearanceName();
     static QString plotWindowQuickAccessName();
 
     static QString dockState3DEclipseName();
