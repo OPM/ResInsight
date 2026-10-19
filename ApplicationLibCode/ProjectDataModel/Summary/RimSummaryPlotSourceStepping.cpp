@@ -549,6 +549,24 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( triggerLoadDataAndUpdate )
     {
+        // Plots using global curve appearance must be restyled after the stepped addresses and cases are updated
+        std::set<RimSummaryPlot*> plotsToRestyle;
+        for ( auto curve : curves )
+        {
+            if ( auto plot = curve->firstAncestorOfType<RimSummaryPlot>() ) plotsToRestyle.insert( plot );
+        }
+        if ( dataSourceSteppingObject() )
+        {
+            for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
+            {
+                if ( auto plot = curveSet->firstAncestorOfType<RimSummaryPlot>() ) plotsToRestyle.insert( plot );
+            }
+        }
+        for ( auto plot : plotsToRestyle )
+        {
+            plot->applyGlobalCurveAppearance();
+        }
+
         RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
         if ( summaryMultiPlot )
         {

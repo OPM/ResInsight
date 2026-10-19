@@ -187,6 +187,9 @@ public:
     void   applyDefaultCurveAppearances();
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
     void   applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate );
+    bool   useGlobalCurveAppearance() const;
+    void   updateCurveAppearanceFromGlobalSettings();
+    void   applyGlobalCurveAppearance();
 
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
