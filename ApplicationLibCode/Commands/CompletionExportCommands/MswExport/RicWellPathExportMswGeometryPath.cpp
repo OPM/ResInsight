@@ -41,6 +41,7 @@
 #include "cafAssert.h"
 
 #include <algorithm>
+#include <limits>
 #include <numeric>
 #include <set>
 #include <tuple>
@@ -188,7 +189,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    lateralBranchNum,
                                                                    segmentNumber,
                                                                    childOutletSeg,
-                                                                   mswParameters->maxSegmentLength(),
+                                                                   std::numeric_limits<double>::infinity(),
                                                                    segmentIntervals,
                                                                    RicMswTableDataTools::segmentationSettings( mswParameters, exportDate ),
                                                                    exportDate,
@@ -237,7 +238,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                   wellNameForExport,
                                                                   segmentNumber,
                                                                   completionBranchNumber,
-                                                                  mswParameters->maxSegmentLength(),
+                                                                  std::numeric_limits<double>::infinity(),
                                                                   segmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
@@ -266,7 +267,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          completionBranchNumber,
-                                                                         mswParameters->maxSegmentLength(),
+                                                                         std::numeric_limits<double>::infinity(),
                                                                          segmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );

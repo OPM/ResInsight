@@ -81,9 +81,7 @@ print(
 # Optionally update the segment settings
 msw_settings = well_path.segment_collection()
 msw_settings.custom_values_for_lateral = False
-msw_settings.enforce_max_segment_length = False
 msw_settings.liner_diameter = 0.152
-msw_settings.max_segment_length = 200
 msw_settings.reference_md_type = "GridEntryPoint"
 msw_settings.roughness_factor = 1e-05
 msw_settings.user_defined_reference_md = 0

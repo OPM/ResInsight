@@ -82,9 +82,6 @@ RimSegmentCollection::RimSegmentCollection()
     CAF_PDM_InitScriptableField( &m_roughnessFactor, "RoughnessFactor", defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_segmentIntervals, "Intervals", "Segment Intervals" );
 
-    CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
-    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
-    m_maxSegmentLength.uiCapability()->setUiHidden( true );
     CAF_PDM_InitScriptableField( &m_singleSegmentBeforeFirstPerforation,
                                  "SingleSegmentBeforeFirstPerforation",
                                  false,
@@ -174,14 +171,6 @@ double RimSegmentCollection::roughnessFactor( RiaDefines::EclipseUnitSystem unit
 double RimSegmentCollection::roughnessFactor() const
 {
     return m_roughnessFactor();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSegmentCollection::maxSegmentLength() const
-{
-    return m_enforceMaxSegmentLength() ? m_maxSegmentLength() : std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,8 +434,6 @@ void RimSegmentCollection::updateFromTopLevelWell( const RimSegmentCollection* t
 {
     m_refMDType                           = topLevelWellParameters->m_refMDType();
     m_refMD                               = topLevelWellParameters->m_refMD();
-    m_enforceMaxSegmentLength             = topLevelWellParameters->m_enforceMaxSegmentLength();
-    m_maxSegmentLength                    = topLevelWellParameters->m_maxSegmentLength();
     m_compsegsSegmentNumber               = topLevelWellParameters->m_compsegsSegmentNumber();
     m_singleSegmentBeforeFirstPerforation = topLevelWellParameters->m_singleSegmentBeforeFirstPerforation();
     m_singleSegmentAfterLastPerforation   = topLevelWellParameters->m_singleSegmentAfterLastPerforation();
@@ -464,18 +451,15 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
                                legacyParameters->linerDiameter() != defaultLinerDiameter( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->roughnessFactor() != defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->diameterRoughnessMode() != RimMswCompletionParameters::DiameterRoughnessMode::UNIFORM ||
-                               legacyParameters->enforceMaxSegmentLength() || legacyParameters->storedMaxSegmentLength() != 200.0 ||
                                !legacyParameters->diameterRoughnessIntervals()->intervals().empty() ||
                                !legacyParameters->customSegmentIntervals()->intervals().empty();
     if ( !hasLegacyData ) return;
 
-    m_refMDType               = static_cast<ReferenceMDType>( static_cast<int>( legacyParameters->referenceMDType() ) );
-    m_refMD                   = legacyParameters->storedReferenceMD();
-    m_customValuesForLateral  = legacyParameters->customValuesForLateral();
-    m_linerDiameter           = legacyParameters->linerDiameter();
-    m_roughnessFactor         = legacyParameters->roughnessFactor();
-    m_enforceMaxSegmentLength = legacyParameters->enforceMaxSegmentLength();
-    m_maxSegmentLength        = legacyParameters->storedMaxSegmentLength();
+    m_refMDType              = static_cast<ReferenceMDType>( static_cast<int>( legacyParameters->referenceMDType() ) );
+    m_refMD                  = legacyParameters->storedReferenceMD();
+    m_customValuesForLateral = legacyParameters->customValuesForLateral();
+    m_linerDiameter          = legacyParameters->linerDiameter();
+    m_roughnessFactor        = legacyParameters->roughnessFactor();
 
     removeAllIntervals();
     if ( legacyParameters->diameterRoughnessMode() == RimMswCompletionParameters::DiameterRoughnessMode::INTERVALS )
@@ -529,11 +513,6 @@ double RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSyst
 void RimSegmentCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_refMDType ) updateAllRequiredEditors();
-    if ( changedField == &m_enforceMaxSegmentLength )
-    {
-        m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
-        caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
-    }
 
     updateMswSegments();
 }
@@ -596,8 +575,6 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         uiOrdering.add( &m_compsegsSegmentNumber );
 
         auto* segmentationGroup = uiOrdering.addNewGroup( "Segmentation" );
-        segmentationGroup->add( &m_enforceMaxSegmentLength );
-        segmentationGroup->add( &m_maxSegmentLength );
         segmentationGroup->add( &m_singleSegmentBeforeFirstPerforation );
         segmentationGroup->add( &m_singleSegmentAfterLastPerforation );
     }
