@@ -51,8 +51,7 @@ public:
         ADD_MONTHS
     };
 
-    caf::Signal<bool>   jobCompleted;
-    caf::Signal<double> progressUpdate;
+    caf::Signal<bool> jobCompleted;
 
 public:
     RimOpmFlowJob();
