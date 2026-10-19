@@ -300,3 +300,42 @@ private:
     caf::PdmField<bool>                 m_firstDateAsComment;
     caf::PdmField<bool>                 m_alignColumns;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_eventDates : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_eventDates( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>              m_startDate;
+    caf::PdmField<QString>              m_endDate;
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<std::vector<QString>> m_eventTypes;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_wellsWithEvents : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_wellsWithEvents( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>              m_startDate;
+    caf::PdmField<QString>              m_endDate;
+    caf::PdmField<std::vector<QString>> m_eventTypes;
+};

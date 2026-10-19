@@ -502,6 +502,138 @@ class SimulatorEventsDocument:
         """The dates of the expanded ``INSERT_DATE`` events, in document order."""
         return [event.event_date for event in self.insert_date_events]
 
+    def events(
+        self,
+        start_date: Optional[datetime.datetime] = None,
+        end_date: Optional[datetime.datetime] = None,
+        wells: Optional[List[str]] = None,
+        groups: Optional[List[str]] = None,
+        event_types: Optional[List[str]] = None,
+    ) -> List[SimulatorEvent]:
+        """Return events for the selected owners, filtered by date and type.
+
+        Events are sorted by date. Equal dates keep their document order (WELL
+        blocks, GROUP blocks, SCHEDULE events, then INSERT_DATE events).
+        When both ``wells`` and ``groups`` are given, matching WELL and GROUP
+        events are combined (union). Date and type filters apply to that union.
+
+        Arguments:
+            start_date: Earliest event date to include (inclusive). ``None``
+                leaves the range open.
+            end_date: Latest event date to include (inclusive). ``None``
+                leaves the range open.
+            wells: Well names. Only events in matching WELL blocks are
+                included.
+            groups: Group names. Only events in matching GROUP blocks are
+                included. When ``wells`` and/or ``groups`` is given, SCHEDULE
+                and INSERT_DATE events are excluded.
+            event_types: Event types (``SEGMENT``, ``PERFORATION``,
+                ``INSERT_DATE``, ...) or keyword names (``WCONHIST``,
+                ``RPTRST``, ...), matched case-insensitively.
+
+        An empty list or ``None`` disables the corresponding filter.
+        """
+        well_names = set(wells or [])
+        group_names = set(groups or [])
+        type_names = {name.upper() for name in event_types or []}
+
+        candidates: List[SimulatorEvent] = []
+        if not group_names or well_names:
+            for well in self.wells:
+                if not well_names or well.well_name in well_names:
+                    candidates.extend(well.events)
+        if not well_names or group_names:
+            for group in self.groups:
+                if not group_names or group.group_name in group_names:
+                    candidates.extend(group.events)
+        if not well_names and not group_names:
+            candidates.extend(self.schedule_events)
+            candidates.extend(self.insert_date_events)
+
+        selected = [
+            event
+            for event in candidates
+            if (start_date is None or event.event_date >= start_date)
+            and (end_date is None or event.event_date <= end_date)
+            and (not type_names or event.event_type.upper() in type_names)
+        ]
+        return sorted(selected, key=lambda event: event.event_date)
+
+    def event_dates(self, **filters: Any) -> List[datetime.datetime]:
+        """Return the sorted, unique dates of the events matching ``filters``.
+
+        Accepts the same keyword arguments as :meth:`events`.
+        """
+        return sorted({event.event_date for event in self.events(**filters)})
+
+    def earliest_event_date(self, **filters: Any) -> Optional[datetime.datetime]:
+        """Return the earliest date of the events matching ``filters``, or
+        ``None`` when no event matches. Accepts the arguments of :meth:`events`.
+        """
+        dates = self.event_dates(**filters)
+        return dates[0] if dates else None
+
+    def latest_event_date(self, **filters: Any) -> Optional[datetime.datetime]:
+        """Return the latest date of the events matching ``filters``, or
+        ``None`` when no event matches. Accepts the arguments of :meth:`events`.
+        """
+        dates = self.event_dates(**filters)
+        return dates[-1] if dates else None
+
+    def wells_with_events(
+        self,
+        start_date: Optional[datetime.datetime] = None,
+        end_date: Optional[datetime.datetime] = None,
+        event_types: Optional[List[str]] = None,
+    ) -> List[str]:
+        """Return the sorted names of the wells with events matching the filters.
+
+        See :meth:`events` for the filter semantics.
+        """
+        return sorted(
+            {
+                well.well_name
+                for well in self.wells
+                if self.events(
+                    start_date=start_date,
+                    end_date=end_date,
+                    wells=[well.well_name],
+                    event_types=event_types,
+                )
+            }
+        )
+
+    def wells_with_msw_events(self) -> List[str]:
+        """Return the sorted names of wells with ``SEGMENT`` or ``VALVE`` events.
+
+        Use these names to build ``export_msw_for_wells``. Wells with only
+        ``PERFORATION`` events are not included, even if segments were configured
+        directly on their well paths; add such MSW wells explicitly.
+        """
+        return self.wells_with_events(event_types=["SEGMENT", "VALVE"])
+
+    def groups_with_events(
+        self,
+        start_date: Optional[datetime.datetime] = None,
+        end_date: Optional[datetime.datetime] = None,
+        event_types: Optional[List[str]] = None,
+    ) -> List[str]:
+        """Return the sorted names of the groups with events matching the
+        filters. See :meth:`events` for the filter semantics.
+        """
+        return sorted(
+            {
+                group.group_name
+                for group in self.groups
+                if self.events(
+                    start_date=start_date,
+                    end_date=end_date,
+                    groups=[group.group_name],
+                    event_types=event_types,
+                )
+            }
+        )
+
 
 def _iso_event_date(event_date: datetime.datetime) -> str:
     """Format an event date for the timeline API.

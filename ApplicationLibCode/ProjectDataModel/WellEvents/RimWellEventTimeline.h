@@ -26,6 +26,9 @@
 #include "cafPdmPtrArrayField.h"
 
 #include <QDateTime>
+#include <QString>
+
+#include <set>
 #include <vector>
 
 class RimWellEventPerf;
@@ -59,6 +62,16 @@ public:
         TYPE
     };
 
+    // Filter for queryEvents(). Invalid dates leave the range open, empty sets disable the filter.
+    struct EventQuery
+    {
+        QDateTime                         startDate;
+        QDateTime                         endDate;
+        std::set<const RimWellPath*>      wellPaths;
+        std::set<RimWellEvent::EventType> eventTypes;
+        std::set<QString>                 keywords; // Upper case keyword names
+    };
+
     RimWellEventTimeline();
     ~RimWellEventTimeline() override;
 
@@ -72,6 +85,9 @@ public:
     std::vector<RimWellEvent*> getEventsUpToDate( const QDateTime& date ) const;
     std::vector<RimWellPath*>  getWellPathsWithEvents() const;
     std::vector<RimWellPath*>  getWellPathsWithEventsUpToDate( const QDateTime& date ) const;
+
+    // Events matching all filters in the query, sorted by date. Ignores the applied timestamp.
+    std::vector<RimWellEvent*> queryEvents( const EventQuery& query ) const;
 
     // Add event methods (return the created event for further configuration)
     RimWellEventPerf*       addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );

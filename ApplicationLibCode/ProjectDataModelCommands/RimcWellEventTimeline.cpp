@@ -48,6 +48,52 @@
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+/// Builds a timeline query from the scripting arguments. Empty dates leave the range open. Each event
+/// type is either an event type name (SEGMENT, PERF, ...) or a keyword name (WCONHIST, ...).
+//--------------------------------------------------------------------------------------------------
+std::expected<RimWellEventTimeline::EventQuery, QString> createEventQuery( const QString&                   startDate,
+                                                                           const QString&                   endDate,
+                                                                           const std::vector<RimWellPath*>& wellPaths,
+                                                                           const std::vector<QString>&      eventTypes )
+{
+    RimWellEventTimeline::EventQuery query;
+
+    auto parseDate = []( const QString& text, QDateTime& date ) -> std::expected<void, QString>
+    {
+        if ( text.trimmed().isEmpty() ) return {};
+
+        date = QDateTime::fromString( text.trimmed(), Qt::ISODate );
+        if ( !date.isValid() ) return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( text ) );
+        return {};
+    };
+
+    if ( auto result = parseDate( startDate, query.startDate ); !result ) return std::unexpected( result.error() );
+    if ( auto result = parseDate( endDate, query.endDate ); !result ) return std::unexpected( result.error() );
+
+    for ( auto wellPath : wellPaths )
+    {
+        if ( wellPath ) query.wellPaths.insert( wellPath );
+    }
+
+    for ( const auto& eventType : eventTypes )
+    {
+        const QString name = eventType.trimmed().toUpper();
+        if ( name.isEmpty() ) continue;
+
+        if ( caf::AppEnum<RimWellEvent::EventType>::isValid( name ) )
+        {
+            query.eventTypes.insert( caf::AppEnum<RimWellEvent::EventType>::fromText( name ) );
+        }
+        else
+        {
+            query.keywords.insert( name );
+        }
+    }
+
+    return query;
+}
+
 std::expected<void, QString> validateKeywordItems( const QString& keywordName, const std::vector<QString>& itemNames )
 {
     auto keywordInfo = RiaOpmKeywordTools::keywordInfo( keywordName );
@@ -895,6 +941,137 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimcWellEventTimeline_generateSchedule::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_eventDates, "QueryEventDates" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_eventDates::RimcWellEventTimeline_eventDates( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Event Dates", "", "", "Sorted, unique dates of the events matching the filters, as ISO date-time strings" );
+
+    CAF_PDM_InitScriptableField( &m_startDate, "StartDate", QString(), "", "", "", "Earliest date to include (inclusive). Empty: no limit" );
+    CAF_PDM_InitScriptableField( &m_endDate,
+                                 "EndDate",
+                                 QString(),
+                                 "",
+                                 "",
+                                 "",
+                                 "Latest date to include (inclusive). A date-only value means midnight, excluding events later that day. "
+                                 "Empty: no limit" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths,
+                                          "WellPaths",
+                                          "",
+                                          "",
+                                          "",
+                                          "Only include events for these wells. Empty: events for all wells and schedule events" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eventTypes,
+                                          "EventTypes",
+                                          "",
+                                          "",
+                                          "",
+                                          "Event types (SEGMENT, PERF, VALVE, ...) or keyword names (WCONHIST, ...). Empty: all events" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_eventDates::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    auto query = createEventQuery( m_startDate(), m_endDate(), m_wellPaths.ptrReferencedObjectsByType(), m_eventTypes() );
+    if ( !query ) return std::unexpected( query.error() );
+
+    std::set<QDateTime> dates;
+    for ( auto event : timeline->queryEvents( *query ) )
+    {
+        dates.insert( event->eventDate() );
+    }
+
+    // Explicit format without a time zone suffix, as the event dates are stored in local time
+    std::vector<QString> dateTexts;
+    for ( const auto& date : dates )
+    {
+        dateTexts.push_back( date.toString( "yyyy-MM-ddTHH:mm:ss" ) );
+    }
+
+    auto* dataObject           = new RimcDataContainerString();
+    dataObject->m_stringValues = dateTexts;
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_eventDates::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_wellsWithEvents, "QueryWellsWithEvents" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_wellsWithEvents::RimcWellEventTimeline_wellsWithEvents( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Wells With Events",
+                        "",
+                        "",
+                        "Sorted names of the well paths with events matching the filters. "
+                        "Well path names must be unique within the well path collection" );
+
+    CAF_PDM_InitScriptableField( &m_startDate, "StartDate", QString(), "", "", "", "Earliest date to include (inclusive). Empty: no limit" );
+    CAF_PDM_InitScriptableField( &m_endDate,
+                                 "EndDate",
+                                 QString(),
+                                 "",
+                                 "",
+                                 "",
+                                 "Latest date to include (inclusive). A date-only value means midnight, excluding events later that day. "
+                                 "Empty: no limit" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eventTypes,
+                                          "EventTypes",
+                                          "",
+                                          "",
+                                          "",
+                                          "Event types (SEGMENT, PERF, VALVE, ...) or keyword names (WCONHIST, ...). Empty: all events" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_wellsWithEvents::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    auto query = createEventQuery( m_startDate(), m_endDate(), {}, m_eventTypes() );
+    if ( !query ) return std::unexpected( query.error() );
+
+    std::set<QString> wellNames;
+    for ( auto event : timeline->queryEvents( *query ) )
+    {
+        if ( event->wellPath() ) wellNames.insert( event->wellPath()->name() );
+    }
+
+    auto* dataObject           = new RimcDataContainerString();
+    dataObject->m_stringValues = std::vector<QString>( wellNames.begin(), wellNames.end() );
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_wellsWithEvents::classKeywordReturnedType() const
 {
     return RimcDataContainerString::classKeywordStatic();
 }

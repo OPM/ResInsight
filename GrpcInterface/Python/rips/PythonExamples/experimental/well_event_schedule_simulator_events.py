@@ -237,7 +237,7 @@ def main() -> None:
     # user, and each generated WELSPECS record has a matching COMPORD INPUT record.
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case,
-        export_msw_for_wells=[well_path],
+        export_msw_for_wells=timeline.wells_with_msw_events(),
         align_columns=True,
     )
     if schedule_text:

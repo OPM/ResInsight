@@ -348,7 +348,7 @@ print(report.events_applied, report.events_skipped, report.warnings, report.erro
 
 timeline.set_timestamp(timestamp="2024-12-24")  # materialize completions up to a date
 schedule_text = timeline.generate_schedule_text(
-    eclipse_case=case, export_msw_for_wells=[well_path]
+    eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
 )
 ```
 
@@ -362,6 +362,56 @@ They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 | `on_unknown_event` | An event type that looks like a misspelled built-in |
 
 The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings` and `errors`.
+
+### Querying events
+
+Both the parsed document and the timeline can answer common questions directly, so clients do not
+need to walk wells, groups and schedule events themselves. The filters are the same in both layers:
+
+| Filter | Meaning |
+|---|---|
+| `start_date`, `end_date` | Inclusive date range. `None` leaves the bound open. A date without time of day is midnight. |
+| `wells` | Only events for these wells. When given, schedule-level and `INSERT_DATE` events are excluded. |
+| `event_types` | Event types or keyword names (`WCONHIST`, `RPTRST`, ...), case-insensitive. |
+
+An empty list or `None` disables a filter. The filters are combined with AND.
+
+On a `SimulatorEventsDocument` (pure Python, no ResInsight needed), wells and groups are given by name and
+event types use the SIMEVENTS names (`SEGMENT`, `PERFORATION`, `INSERT_DATE`, ...). `groups` is an additional
+owner filter. When both `wells` and `groups` are supplied, matching WELL and GROUP events are combined
+(union), then filtered by date and event type:
+
+```python
+document = rips.simulator_events.parse_simulator_events_file("simulator_events.events")
+document.events(wells=["OP_1"], event_types=["WCONHIST"])  # List[SimulatorEvent], sorted by date
+document.event_dates(start_date=datetime.datetime(2024, 1, 1))
+document.latest_event_date()  # or earliest_event_date(); None when nothing matches
+document.wells_with_events(event_types=["PERFORATION"])  # well names
+document.wells_with_msw_events()  # wells with SEGMENT or VALVE events
+document.groups_with_events()
+```
+
+On a `WellEventTimeline`, wells are `WellPath` objects. Event types use the timeline names `SEGMENT`, `PERF`,
+`VALVE`, `WSTATE`, `WTYPE`, `WELLSPEC`, `WCONTROL`, `KEYWORD`, `SCHEDULE_KEYWORD`, `RAW_TEXT` and `INSERT_DATE`.
+Any other name is matched against keyword names. The queries always use the full timeline. `set_timestamp()` does
+not limit them:
+
+```python
+timeline.event_dates(wells=[well_path])  # List[datetime]
+timeline.set_timestamp(timestamp=timeline.latest_event_date().isoformat())
+timeline.wells_with_events(start_date="2025-01-01")  # List[WellPath]
+schedule_text = timeline.generate_schedule_text(
+    eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
+)
+```
+
+`wells_with_msw_events()` includes wells with `SEGMENT` or `VALVE` events. It does not inspect
+segment configuration on well paths: add MSW wells with only `PERFORATION` (`PERF` on the timeline)
+events explicitly to `export_msw_for_wells`.
+
+Timeline well queries resolve names within the well path collection. Matching names must be unique;
+`wells_with_events()` and `wells_with_msw_events()` raise `ValueError` rather than choose between
+well paths sharing a name.
 
 ### Generating a schedule without a grid
 

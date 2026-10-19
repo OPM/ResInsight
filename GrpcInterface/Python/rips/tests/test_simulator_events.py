@@ -1107,6 +1107,90 @@ class TestParsing:
         assert value == datetime.datetime(2018, 1, 1, 0, 0, 0)
 
 
+class TestDocumentQueries:
+    """Query event dates, wells and groups from a parsed document (#14688)."""
+
+    TEXT = (
+        "SIMEVENTS 1.2\n"
+        'WELL "OP_1"\n'
+        "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500\n"
+        "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200\n"
+        "  2024-06-01 WCONHIST STATUS=OPEN\n"
+        'WELL "OP_2"\n'
+        "  2024-03-01 PERFORATION MDSTART=2000 MDEND=2200\n"
+        'GROUP "FIELD"\n'
+        "  2024-02-01 GCONPROD CMODE=LRAT LRAT=1000\n"
+        "SCHEDULE\n"
+        "  2025-01-01 RPTRST BASIC=2\n"
+        "  2030-01-01 INSERT_DATE\n"
+    )
+
+    @pytest.fixture
+    def doc(self):
+        return parse_simulator_events(self.TEXT)
+
+    def test_event_dates_cover_all_blocks(self, doc):
+        D = datetime.datetime
+        assert doc.event_dates() == [
+            D(2024, 1, 1),
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+            D(2024, 6, 1),
+            D(2025, 1, 1),
+            D(2030, 1, 1),
+        ]
+        assert doc.latest_event_date() == D(2030, 1, 1)
+        assert doc.earliest_event_date() == D(2024, 1, 1)
+        assert doc.latest_event_date(event_types=["INSERT_DATE"]) == D(2030, 1, 1)
+        assert doc.latest_event_date(event_types=["NOSUCH"]) is None
+
+    def test_date_bounds_are_inclusive(self, doc):
+        D = datetime.datetime
+        assert doc.event_dates(start_date=D(2024, 2, 1), end_date=D(2024, 6, 1)) == [
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+            D(2024, 6, 1),
+        ]
+
+    def test_owner_and_type_filters(self, doc):
+        D = datetime.datetime
+        assert [e.event_type for e in doc.events(wells=["OP_1"])] == [
+            "SEGMENT",
+            "PERFORATION",
+            "WCONHIST",
+        ]
+        assert [e.event_type for e in doc.events(groups=["FIELD"])] == ["GCONPROD"]
+        # Owner filters exclude SCHEDULE and INSERT_DATE events
+        assert doc.event_dates(wells=["OP_2"], groups=["FIELD"]) == [
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+        ]
+        assert doc.event_dates(event_types=["perforation", "rptrst"]) == [
+            D(2024, 1, 1),
+            D(2024, 3, 1),
+            D(2025, 1, 1),
+        ]
+
+    def test_wells_and_groups_with_events(self, doc):
+        assert doc.wells_with_events() == ["OP_1", "OP_2"]
+        assert doc.wells_with_events(start_date=datetime.datetime(2024, 2, 1)) == [
+            "OP_1",
+            "OP_2",
+        ]
+        assert doc.wells_with_events(event_types=["WCONHIST"]) == ["OP_1"]
+        assert doc.wells_with_msw_events() == ["OP_1"]
+        assert doc.groups_with_events() == ["FIELD"]
+        assert doc.groups_with_events(event_types=["GCONINJE"]) == []
+
+    def test_msw_wells_include_valves_without_segment_events(self):
+        doc = parse_simulator_events(
+            self.TEXT
+            + 'WELL "VALVE_ONLY"\n'
+            + "  2024-03-01 VALVE MD=2100 TYPE=ICV STATE=OPEN CV=0.7 AREA=0.0001\n"
+        )
+        assert doc.wells_with_msw_events() == ["OP_1", "VALVE_ONLY"]
+
+
 class TestDurations:
     """Go-style duration literals (issue #14651)."""
 

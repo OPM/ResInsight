@@ -125,9 +125,15 @@ def main() -> None:
     if report.events_applied == 0:
         print("   No events found - skipping schedule generation.")
         return
+    # Export multi-segment-well keywords only for the wells with SEGMENT events.
+    msw_wells = timeline.wells_with_msw_events()
+    print(
+        f"   Event dates: {timeline.earliest_event_date()} to {timeline.latest_event_date()}"
+    )
+    print(f"   MSW wells: {[well.name for well in msw_wells]}")
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case,
-        export_msw_for_wells=project.well_paths(),
+        export_msw_for_wells=msw_wells,
         align_columns=True,
     )
     if schedule_text:

@@ -222,6 +222,50 @@ QDateTime RimWellEventTimeline::lastAppliedTimestamp() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellEvent*> RimWellEventTimeline::queryEvents( const EventQuery& query ) const
+{
+    auto keywordName = []( const RimWellEvent* event ) -> QString
+    {
+        if ( auto keywordEvent = dynamic_cast<const RimWellEventKeyword*>( event ) ) return keywordEvent->keywordName().toUpper();
+        if ( auto scheduleKeywordEvent = dynamic_cast<const RimKeywordEvent*>( event ) )
+            return scheduleKeywordEvent->keywordName().toUpper();
+        return {};
+    };
+
+    auto matchesType = [&]( const RimWellEvent* event )
+    {
+        if ( query.eventTypes.empty() && query.keywords.empty() ) return true;
+        if ( query.eventTypes.contains( event->eventType() ) ) return true;
+        if ( query.keywords.empty() ) return false;
+
+        const QString keyword = keywordName( event );
+        return !keyword.isEmpty() && query.keywords.contains( keyword );
+    };
+
+    std::vector<RimWellEvent*> result;
+    for ( auto& event : m_events )
+    {
+        if ( !event || !event->eventDate().isValid() ) continue;
+
+        const QDateTime date = event->eventDate();
+        if ( query.startDate.isValid() && date < query.startDate ) continue;
+        if ( query.endDate.isValid() && date > query.endDate ) continue;
+        if ( !query.wellPaths.empty() && !query.wellPaths.contains( event->wellPath() ) ) continue;
+        if ( !matchesType( event ) ) continue;
+
+        result.push_back( event );
+    }
+
+    std::stable_sort( result.begin(),
+                      result.end(),
+                      []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventPerf();
