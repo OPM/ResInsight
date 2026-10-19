@@ -838,7 +838,14 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
 {
     CAF_PDM_InitObject( "Generate Schedule", "", "", "Generate Eclipse schedule text for all wells in the collection" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase,
+                                          "EclipseCase",
+                                          "",
+                                          "",
+                                          "",
+                                          "Optional grid case (Eclipse, Roff or corner point). Without a case, the grid-dependent keywords "
+                                          "(WELSPECS, COMPORD, COMPDAT, COMPLUMP, WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD) are skipped and "
+                                          "reported as WARNING comments in the schedule header" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_exportMswForWells,
                                           "ExportMswForWells",
                                           "",
@@ -869,18 +876,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
 {
     auto timeline = self<RimWellEventTimeline>();
 
-    RimEclipseCase* eclipseCase = m_eclipseCase();
-    if ( !eclipseCase )
-    {
-        return std::unexpected( QString( "Eclipse case is required" ) );
-    }
-
     // The dates and wells are collected from the timeline, honoring any set_timestamp() call.
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
     auto scheduleText =
-        RicScheduleDataGenerator::generateScheduleForTimeline( *timeline, *eclipseCase, mswWells, m_firstDateAsComment(), m_alignColumns() );
+        RicScheduleDataGenerator::generateScheduleForTimeline( *timeline, m_eclipseCase(), mswWells, m_firstDateAsComment(), m_alignColumns() );
     if ( !scheduleText ) return std::unexpected( scheduleText.error() );
 
     // Return the schedule text in a data container

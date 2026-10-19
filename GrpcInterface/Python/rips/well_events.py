@@ -6,7 +6,7 @@ in a timeline-based event system. Events can be perforation events, valve events
 segment changes, well state changes, and production/injection control changes.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from datetime import date, datetime
 
 from .pdmobject import add_method
@@ -330,7 +330,7 @@ def add_insert_date_event(
 @add_method(WellEventTimeline)
 def generate_schedule_text(
     self: WellEventTimeline,
-    eclipse_case: EclipseCase,
+    eclipse_case: Optional[EclipseCase] = None,
     export_msw_for_wells: List[WellPath] = [],
     first_date_as_comment: bool = True,
     align_columns: bool = False,
@@ -345,7 +345,14 @@ def generate_schedule_text(
     text directly instead of a DataContainerString.
 
     Arguments:
-        eclipse_case (EclipseCase): Eclipse case to use for schedule generation.
+        eclipse_case (Optional[EclipseCase]): Grid case used for the
+            grid-dependent keywords. Any Eclipse-type case works, including
+            Roff and corner point cases. When None (the default), the
+            keywords that need grid geometry (WELSPECS, COMPORD, COMPDAT,
+            COMPLUMP, WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD) are skipped. Each
+            well with skipped keywords gets a "-- WARNING:" comment line in the
+            schedule header. DATES, well controls (WCONHIST, WCONINJH, WELTARG,
+            ...), schedule keywords and raw text are still emitted.
         export_msw_for_wells (List[WellPath]): Wells for which the
             multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD)
             are exported. Wells not in the list get no MSW keywords. An empty

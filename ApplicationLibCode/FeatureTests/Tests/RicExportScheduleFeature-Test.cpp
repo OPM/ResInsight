@@ -96,7 +96,7 @@ TEST_F( RicExportScheduleFeatureTest, ExportWritesScheduleForTimelineEvents )
     ASSERT_TRUE( temporaryDir.isValid() );
     const QString fileName = temporaryDir.filePath( "schedule.SCH" );
 
-    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, *model.eclipseCase, fileName );
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, fileName );
     ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
     EXPECT_EQ( fileName.toStdString(), exportedFile->toStdString() );
 
@@ -150,7 +150,7 @@ TEST_F( RicExportScheduleFeatureTest, ExportKeepsKeywordPriorityOrderRegardlessO
     ASSERT_TRUE( temporaryDir.isValid() );
     const QString fileName = temporaryDir.filePath( "schedule_order.SCH" );
 
-    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, *model.eclipseCase, fileName );
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, fileName );
     ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
 
     QFile file( fileName );
@@ -209,7 +209,61 @@ TEST_F( RicExportScheduleFeatureTest, ExportOfEmptyTimelineFails )
     QTemporaryDir temporaryDir;
     ASSERT_TRUE( temporaryDir.isValid() );
 
-    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, *model.eclipseCase, temporaryDir.filePath( "empty.SCH" ) );
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, temporaryDir.filePath( "empty.SCH" ) );
     ASSERT_FALSE( exportedFile.has_value() );
     EXPECT_EQ( std::string( "No events found in timeline" ), exportedFile.error().toStdString() );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportWithoutCaseWritesGridIndependentKeywords )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+
+    RimWellEventTimeline* timeline = timelineWithEvents();
+    ASSERT_TRUE( timeline != nullptr );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "no_case.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, nullptr, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    EXPECT_TRUE( content.contains( "-- Date: 1 JAN 2024" ) );
+    EXPECT_TRUE( content.contains( "RPTRST" ) );
+    EXPECT_TRUE( content.contains( "'JUL'" ) );
+    // No grid-dependent keywords were requested, so nothing is skipped.
+    EXPECT_FALSE( content.contains( "WARNING" ) );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportWithoutCaseWarnsForPerforationEvents )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::wellPath();
+    ASSERT_TRUE( model.wellPath != nullptr );
+
+    RimWellEventTimeline* timeline = timelineWithEvents();
+    ASSERT_TRUE( timeline != nullptr );
+    timeline->addPerforationEvent( model.wellPath, QDateTime( QDate( 2024, 1, 1 ), QTime( 0, 0, 0 ) ) );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "no_case_perforation.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, nullptr, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    EXPECT_TRUE( content.contains( "-- WARNING: No grid case: WELSPECS/COMPORD skipped for well '" ) );
+    EXPECT_TRUE( content.contains( "-- WARNING: No grid case: COMPDAT/COMPLUMP skipped for well '" ) );
+    EXPECT_FALSE( content.contains( "\nWELSPECS\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPORD\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPDAT\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPLUMP\n" ) );
+    EXPECT_TRUE( content.contains( "\nRPTRST\n" ) );
 }
