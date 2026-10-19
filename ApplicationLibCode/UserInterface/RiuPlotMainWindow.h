@@ -84,6 +84,7 @@ public:
     RiuMessagePanel* messagePanel();
 
     void showAndSetKeyboardFocusToSummaryPlotManager();
+    void showCurveAppearance();
 
 protected:
     void closeEvent( QCloseEvent* event ) override;
@@ -130,6 +131,7 @@ private:
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotLayoutToolBarEditor;
 
     std::unique_ptr<caf::PdmUiPropertyView> m_summaryPlotManagerView;
+    std::unique_ptr<caf::PdmUiPropertyView> m_curveStyleRulesView;
 
     std::unique_ptr<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
     std::unique_ptr<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
