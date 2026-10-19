@@ -17,6 +17,7 @@ from .generated.generated_classes import (
     WellEventKeyword,
     WellEventTimeline,
     WellPath,
+    WellPathCollection,
 )
 
 
@@ -419,3 +420,147 @@ def generate_schedule_text(
     if container and container.values:
         return "".join(container.values)
     return ""
+
+
+def _format_query_date(query_date: Optional[str | date | datetime]) -> str:
+    """Convert an optional query bound to an ISO string. None gives an empty
+    string (no limit). A datetime keeps its time of day."""
+    if query_date is None:
+        return ""
+    if isinstance(query_date, datetime):
+        return query_date.isoformat(timespec="seconds")
+    return _format_date(query_date)
+
+
+@add_method(WellEventTimeline)
+def event_dates(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> List[datetime]:
+    """Return the sorted, unique dates of the timeline events matching all filters.
+
+    The full timeline is queried; set_timestamp() does not limit the result.
+
+    Arguments:
+        start_date: Earliest event date to include (inclusive). None: no limit.
+        end_date: Latest event date to include (inclusive). None: no limit. A
+            date without time of day means midnight, so events later that day
+            are excluded.
+        wells (Optional[List[WellPath]]): Only include events for these wells.
+            When given, schedule keyword, raw text and insert-date events are
+            excluded. None or empty: no well filter.
+        event_types (Optional[List[str]]): Timeline event types (SEGMENT, PERF,
+            VALVE, WSTATE, WTYPE, WELLSPEC, WCONTROL, KEYWORD,
+            SCHEDULE_KEYWORD, RAW_TEXT, INSERT_DATE) or keyword names
+            (WCONHIST, RPTRST, ...), case-insensitive. None or empty: all
+            events.
+
+    Returns:
+        List[datetime]: The event dates.
+
+    Example:
+        .. code-block:: python
+
+            last_date = timeline.latest_event_date()
+            timeline.set_timestamp(timestamp=last_date.isoformat())
+    """
+    container = self.query_event_dates(
+        start_date=_format_query_date(start_date),
+        end_date=_format_query_date(end_date),
+        well_paths=wells or [],
+        event_types=event_types or [],
+    )
+    values = container.values if container and container.values else []
+    return [datetime.fromisoformat(value) for value in values]
+
+
+@add_method(WellEventTimeline)
+def earliest_event_date(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> Optional[datetime]:
+    """Return the earliest date of the timeline events matching all filters,
+    or None when no event matches. See event_dates() for the arguments."""
+    dates = event_dates(self, start_date, end_date, wells, event_types)
+    return dates[0] if dates else None
+
+
+@add_method(WellEventTimeline)
+def latest_event_date(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> Optional[datetime]:
+    """Return the latest date of the timeline events matching all filters, or
+    None when no event matches. See event_dates() for the arguments."""
+    dates = event_dates(self, start_date, end_date, wells, event_types)
+    return dates[-1] if dates else None
+
+
+@add_method(WellEventTimeline)
+def wells_with_events(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    event_types: Optional[List[str]] = None,
+) -> List[WellPath]:
+    """Return the well paths with timeline events matching all filters, sorted
+    by name. See event_dates() for the arguments.
+
+    Matching well names must be unique within the well path collection.
+    Raises ValueError if a name is ambiguous or cannot be resolved.
+
+    Returns:
+        List[WellPath]: The well paths.
+    """
+    container = self.query_wells_with_events(
+        start_date=_format_query_date(start_date),
+        end_date=_format_query_date(end_date),
+        event_types=event_types or [],
+    )
+    names = container.values if container and container.values else []
+    if not names:
+        return []
+
+    collection = self.ancestor(WellPathCollection)
+    if collection is None:
+        raise ValueError("Cannot resolve event wells without a well path collection")
+    matching_names = set(names)
+    well_paths_by_name: Dict[str, WellPath] = {}
+    for well_path in collection.descendants(WellPath):
+        if well_path.name not in matching_names:
+            continue
+        if well_path.name in well_paths_by_name:
+            raise ValueError(f"Ambiguous well path name: {well_path.name!r}")
+        well_paths_by_name[well_path.name] = well_path
+    missing_names = matching_names - well_paths_by_name.keys()
+    if missing_names:
+        raise ValueError(f"Cannot resolve event well names: {sorted(missing_names)!r}")
+    return [well_paths_by_name[name] for name in names]
+
+
+@add_method(WellEventTimeline)
+def wells_with_msw_events(self: WellEventTimeline) -> List[WellPath]:
+    """Return the well paths with SEGMENT or VALVE events, sorted by name.
+
+    Wells with only PERF events are not included, even if segments were
+    configured directly on their well paths; add such MSW wells explicitly
+    to export_msw_for_wells.
+
+    Example:
+        .. code-block:: python
+
+            schedule_text = timeline.generate_schedule_text(
+                eclipse_case=case,
+                export_msw_for_wells=timeline.wells_with_msw_events(),
+            )
+    """
+    return wells_with_events(self, event_types=["SEGMENT", "VALVE"])

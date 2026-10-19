@@ -3178,3 +3178,210 @@ class TestScheduleGenerationWithoutCase:
         assert any("COMPDAT" in w and export_name in w for w in warnings)
         assert any("WELSPECS" in w for w in warnings)
         assert any("WELSEGS" in w for w in warnings)
+
+
+class TestTimelineQueries:
+    """#14688: query event dates and wells from the timeline."""
+
+    @pytest.fixture
+    def populated_timeline(self, rips_instance, initialize_test):
+        """Timeline with a SEGMENT well (A), a perforation-only well (B), a
+        schedule keyword and an insert date."""
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        case = project.load_case(path=case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+        project.import_well_paths(
+            well_path_files=[
+                case_root + "/wellpath_a.dev",
+                case_root + "/wellpath_b.dev",
+            ]
+        )
+        timeline = project.descendants(rips.WellPathCollection)[0].event_timeline()
+        well_paths = project.well_paths()
+        well_a = [wp for wp in well_paths if "A" in wp.name][0]
+        well_b = [wp for wp in well_paths if "B" in wp.name][0]
+
+        timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=well_a,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_a,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_perf_event(
+            event_date="2024-03-01",
+            well_path=well_b,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_well_keyword_event(
+            event_date="2024-06-01",
+            well_path=well_b,
+            keyword_name="WCONHIST",
+            keyword_data={"WELL": well_b.name, "STATUS": "OPEN"},
+        )
+        timeline.add_keyword_event(
+            event_date="2025-01-01",
+            keyword_name="RPTRST",
+            keyword_data={"BASIC": 2},
+        )
+        timeline.add_insert_date_event(event_date="2030-01-01")
+        return case, timeline, well_a, well_b
+
+    def test_event_dates_and_bounds(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, _ = populated_timeline
+
+        assert timeline.event_dates() == [
+            datetime(2024, 1, 1),
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+            datetime(2025, 1, 1),
+            datetime(2030, 1, 1),
+        ]
+        assert timeline.latest_event_date() == datetime(2030, 1, 1)
+        assert timeline.earliest_event_date() == datetime(2024, 1, 1)
+        assert timeline.latest_event_date(event_types=["INSERT_DATE"]) == datetime(
+            2030, 1, 1
+        )
+
+        # Inclusive bounds
+        assert timeline.event_dates(start_date="2024-03-01", end_date="2024-06-01") == [
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+        ]
+        assert timeline.latest_event_date(end_date=datetime(2024, 12, 31)) == datetime(
+            2024, 6, 1
+        )
+        assert timeline.latest_event_date(start_date="2031-01-01") is None
+
+    def test_event_dates_filters(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, well_a, well_b = populated_timeline
+
+        assert timeline.event_dates(wells=[well_b]) == [
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+        ]
+        assert timeline.event_dates(event_types=["segment"]) == [datetime(2024, 1, 1)]
+        # Keyword names match well and schedule keyword events
+        assert timeline.event_dates(event_types=["WCONHIST", "rptrst"]) == [
+            datetime(2024, 6, 1),
+            datetime(2025, 1, 1),
+        ]
+        assert timeline.event_dates(wells=[well_a], event_types=["WCONHIST"]) == []
+
+    def test_set_timestamp_does_not_limit_queries(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, _ = populated_timeline
+        timeline.set_timestamp(timestamp="2024-02-01")
+        assert timeline.latest_event_date() == datetime(2030, 1, 1)
+
+    def test_wells_with_events(self, populated_timeline):
+        _, timeline, well_a, well_b = populated_timeline
+
+        assert [wp.name for wp in timeline.wells_with_events()] == sorted(
+            [well_a.name, well_b.name]
+        )
+        assert [
+            wp.name for wp in timeline.wells_with_events(start_date="2024-02-01")
+        ] == [well_b.name]
+        assert [wp.name for wp in timeline.wells_with_msw_events()] == [well_a.name]
+
+    def test_msw_wells_drive_schedule_export(self, populated_timeline):
+        case, timeline, well_a, well_b = populated_timeline
+        timeline.set_timestamp(timestamp="2030-01-01")
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
+        )
+        lines = schedule.splitlines()
+        welsegs_wells = [
+            lines[i + 1].split()[0].strip("'")
+            for i, line in enumerate(lines)
+            if line == "WELSEGS"
+        ]
+        assert welsegs_wells == [well_a.completion_settings().well_name_for_export]
+        assert well_b.completion_settings().well_name_for_export in schedule
+
+    @pytest.mark.parametrize(
+        "valve_type, keyword", [("ICD", "WSEGVALV"), ("AICD", "WSEGAICD")]
+    )
+    def test_msw_wells_include_valves_without_segment_events(
+        self, populated_timeline, valve_type, keyword
+    ):
+        case, timeline, well_a, well_b = populated_timeline
+        well_b.segment_collection().add_segment_interval(
+            start_md=0.0, end_md=2500.0, diameter=0.15, roughness_factor=1.0e-5
+        )
+        timeline.add_valve_event(
+            event_date="2024-03-01",
+            well_path=well_b,
+            measured_depth=2100.0,
+            valve_type=valve_type,
+            state="OPEN",
+        )
+        assert timeline.event_dates(wells=[well_b], event_types=["SEGMENT"]) == []
+        msw_wells = timeline.wells_with_msw_events()
+        assert [wp.name for wp in msw_wells] == sorted([well_a.name, well_b.name])
+
+        timeline.set_timestamp(timestamp="2030-01-01")
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=msw_wells
+        )
+        assert f"\n{keyword}\n" in schedule
+
+    @pytest.mark.parametrize("event_types", [None, ["SEGMENT"]])
+    def test_wells_with_events_rejects_ambiguous_names(
+        self, populated_timeline, event_types
+    ):
+        _, timeline, well_a, well_b = populated_timeline
+        well_b.name = well_a.name
+        well_b.update()
+        assert well_a.address() != well_b.address()
+        with pytest.raises(ValueError, match="Ambiguous well path name"):
+            timeline.wells_with_events(event_types=event_types)
+
+    def test_date_only_end_excludes_later_events(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, well_b = populated_timeline
+        timeline.add_valve_event(
+            event_date="2024-03-01T12:30:00", well_path=well_b, measured_depth=2100.0
+        )
+        assert timeline.event_dates(wells=[well_b], end_date="2024-03-01") == [
+            datetime(2024, 3, 1)
+        ]
+        assert timeline.event_dates(wells=[well_b], end_date="2024-03-01T12:30:00") == [
+            datetime(2024, 3, 1),
+            datetime(2024, 3, 1, 12, 30),
+        ]
+        assert (
+            timeline.wells_with_events(end_date="2024-03-01", event_types=["VALVE"])
+            == []
+        )
+        assert [
+            wp.name
+            for wp in timeline.wells_with_events(
+                end_date="2024-03-01T12:30:00", event_types=["VALVE"]
+            )
+        ] == [well_b.name]
+
+    def test_invalid_date_raises(self, populated_timeline):
+        _, timeline, _, _ = populated_timeline
+        with pytest.raises(rips.RipsError):
+            timeline.event_dates(start_date="not-a-date")
