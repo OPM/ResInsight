@@ -327,8 +327,11 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
+Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dirIn, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
 {
+    // A zero or undefined view direction cannot define a view; fall back to looking along the Y axis
+    cvf::Vec3d dir = (dirIn.length() > 0.0) ? dirIn : cvf::Vec3d::Y_AXIS;
+
     cvf::Vec3d corners[8];
     boundingBox.cornerVertices(corners);
 
