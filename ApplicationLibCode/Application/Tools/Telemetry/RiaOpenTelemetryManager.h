@@ -109,11 +109,11 @@ public:
 #endif
 
     // Configuration
-    bool isEnabled() const;
+    bool        isEnabled() const;
     bool        isInitialized() const;
     static bool isReportingCrash();
-    void setErrorCallback( ErrorCallback callback );
-    void setUsername( const std::string& username );
+    void        setErrorCallback( ErrorCallback callback );
+    void        setUsername( const std::string& username );
 
     // Performance and memory management
     void   setMaxQueueSize( size_t maxEvents );
@@ -177,10 +177,10 @@ private:
     std::queue<Event>  m_eventQueue;
 
     // State
-    std::atomic<bool> m_initialized{ false };
-    std::atomic<bool> m_enabled{ false };
-    std::atomic<bool> m_isShuttingDown{ false };
-    std::atomic<bool> m_circuitBreakerOpen{ false };
+    std::atomic<bool>               m_initialized{ false };
+    std::atomic<bool>               m_enabled{ false };
+    std::atomic<bool>               m_isShuttingDown{ false };
+    std::atomic<bool>               m_circuitBreakerOpen{ false };
     static inline std::atomic<bool> m_isReportingCrash{ false };
 
     // Qt networking and timer
