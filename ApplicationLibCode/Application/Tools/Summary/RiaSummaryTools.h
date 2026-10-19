@@ -27,6 +27,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <set>
+#include <string>
 #include <vector>
 
 class RifEclipseSummaryAddress;
@@ -60,7 +62,9 @@ public:
 
     static std::vector<RimSummaryCase*> singleTopLevelSummaryCases();
 
-    static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
+    static std::set<std::string> allSummaryCaseNames();
+    static std::set<std::string> allSummaryWellNames();
+    static void                  notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
     static RimSummaryPlot*                parentSummaryPlot( caf::PdmObject* object );
     static RimSummaryMultiPlot*           parentSummaryMultiPlot( caf::PdmObject* object );
