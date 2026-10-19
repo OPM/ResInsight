@@ -101,6 +101,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellTargetMapping.h"
+#include "Summary/RimCurveStyleRules.h"
 #include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
@@ -147,6 +148,9 @@ RimProject::RimProject()
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
     CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
+
+    CAF_PDM_InitFieldNoDefault( &m_curveStyleRules, "CurveStyleRules", "Curve Style Rules" );
+    m_curveStyleRules = new RimCurveStyleRules;
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection = new RimViewLinkerCollection;
@@ -344,6 +348,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 RimQuickAccessCollection* RimProject::pinnedFieldCollection() const
 {
     return m_pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCurveStyleRules* RimProject::curveStyleRules() const
+{
+    return m_curveStyleRules();
 }
 
 //--------------------------------------------------------------------------------------------------

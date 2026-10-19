@@ -147,6 +147,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/opm-summary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveStyleSettings-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveStyleRules-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaVariableMapper-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPressureDepthTextFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader-Test.cpp
