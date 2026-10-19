@@ -70,7 +70,7 @@ double RimSingleJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::stop()
 {
-    if ( m_queue != nullptr )
+    if ( isRunning() && m_queue != nullptr )
     {
         m_queue->stopProcess();
         RiaLogging::info( std::format( "Stop job \"{}\" requested by user.", name() ) );
