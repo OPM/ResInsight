@@ -24,6 +24,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaTimer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp

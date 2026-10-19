@@ -26,9 +26,11 @@
 
 #include <QDateTime>
 
+#include <memory>
 #include <string>
 #include <vector>
 
+class RiaTimer;
 class RimReservoirGridEnsemble;
 class RimEclipseCase;
 class RimOpmFlowJob;
@@ -86,6 +88,7 @@ protected:
 
 private:
     std::vector<std::string> selectedRealizationFileNames() const;
+    void                     onRefreshTimer( const SignalEmitter* emitter );
 
 private:
     caf::PdmPtrField<RimReservoirGridEnsemble*> m_inputEnsemble;
@@ -108,4 +111,6 @@ private:
     std::vector<std::string> m_jobLog;
     int                      m_subJobsCompleted;
     int                      m_subJobsStarted;
+
+    std::unique_ptr<RiaTimer> m_refreshTimer;
 };
