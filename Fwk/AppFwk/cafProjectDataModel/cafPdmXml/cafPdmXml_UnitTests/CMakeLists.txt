@@ -20,9 +20,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set(PROJECT_FILES
-    cafPdmXml_UnitTests.cpp gtest/gtest-all.cpp cafPdmXmlBasicTest.cpp
-    cafPdmAdvancedTemplateTest.cpp cafPdmXmlNumberTest.cpp
-    cafPdmPtrArrayTest.cpp cafPdmSettingsTest.cpp
+    cafPdmXml_UnitTests.cpp
+    gtest/gtest-all.cpp
+    cafPdmXmlBasicTest.cpp
+    cafPdmAdvancedTemplateTest.cpp
+    cafPdmXmlNumberTest.cpp
+    cafPdmPtrArrayTest.cpp
+    cafPdmSettingsTest.cpp
 )
 
 qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_FILES})
