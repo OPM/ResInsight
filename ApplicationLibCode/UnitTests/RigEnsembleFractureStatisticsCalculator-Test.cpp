@@ -51,3 +51,24 @@ TEST( RigEnsembleFractureStatisticsCalculatorTest, EmptyDefinitionsProduceInvali
         EXPECT_FALSE( histogramData.isHistogramVectorValid() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A definition with conductivity data but no width data must not produce mismatched grid lists
+//--------------------------------------------------------------------------------------------------
+TEST( RigEnsembleFractureStatisticsCalculatorTest, MissingWidthDataDoesNotCrash )
+{
+    cvf::ref<RigStimPlanFractureDefinition> definition = new RigStimPlanFractureDefinition;
+    definition->addTimeStep( 1.0 );
+    definition->setDataAtTimeValue( "Conductivity", "md-m", { { 1.0, 1.0 }, { 1.0, 1.0 } }, 1.0 );
+
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> definitions = { definition };
+
+    auto width = RigEnsembleFractureStatisticsCalculator::calculateProperty( definitions,
+                                                                             RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH );
+    EXPECT_TRUE( width.empty() );
+
+    auto permeability =
+        RigEnsembleFractureStatisticsCalculator::calculateProperty( definitions,
+                                                                    RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY );
+    EXPECT_TRUE( permeability.empty() );
+}
