@@ -117,14 +117,11 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
             caf::PdmObjectHandle* child = children[childIdx];
             if ( !child ) continue;
 
-            QString subContext;
-            if ( context.isEmpty() )
-            {
-                caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
-                if ( !xmlObjHandle ) continue;
+            caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
+            if ( !xmlObjHandle ) continue;
 
-                subContext = xmlObjHandle->classKeyword() + "/";
-            }
+            // Use the same nested context as when reading, to support children of children
+            const QString subContext = context + xmlObjHandle->classKeyword() + "/";
 
             writeFieldsToApplicationStore( child, subContext );
         }

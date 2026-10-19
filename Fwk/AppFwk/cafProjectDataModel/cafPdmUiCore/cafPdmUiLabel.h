@@ -38,6 +38,8 @@
 
 #include "cafPdmUiItem.h"
 
+#include <functional>
+
 namespace caf
 {
 //==================================================================================================
@@ -51,6 +53,13 @@ public:
     explicit PdmUiLabel( const QString& labelText );
 
     bool isUiGroup() const override;
+
+    // Called with the href when a hyperlink in a rich text label is clicked
+    void setLinkActivatedCallback( const std::function<void( const QString& )>& callback );
+    const std::function<void( const QString& )>& linkActivatedCallback() const;
+
+private:
+    std::function<void( const QString& )> m_linkActivatedCallback;
 };
 
 } // End of namespace caf

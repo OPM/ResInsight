@@ -50,6 +50,7 @@
 #include <QPainter>
 #include <QPalette>
 #include <QSortFilterProxyModel>
+#include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
 #include <QTreeView>
@@ -201,6 +202,22 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     // TODO: If the count is different between incoming and current list of items,
     // use cafQTreeViewStateSerializer to restore collapsed state
     m_model->setOptions( this, options );
+
+    // Allow option icons larger than the default icon size
+    const int smallIcon = m_treeView->style()->pixelMetric( QStyle::PM_SmallIconSize );
+    QSize     iconSize( smallIcon, smallIcon );
+    for ( const auto& option : options )
+    {
+        if ( auto icon = option.icon() )
+        {
+            const auto sizes = icon->availableSizes();
+            for ( const auto& size : sizes )
+            {
+                iconSize = iconSize.expandedTo( size );
+            }
+        }
+    }
+    m_treeView->setIconSize( iconSize );
 
     if ( itemCountHasChaged )
     {
