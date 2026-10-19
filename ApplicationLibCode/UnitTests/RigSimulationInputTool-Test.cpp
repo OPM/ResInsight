@@ -29,6 +29,7 @@
 #include "RigMainGrid.h"
 #include "RigModelPaddingSettings.h"
 #include "RigNoRefinement.h"
+#include "RigNonUniformRefinement.h"
 #include "RigSimulationInputSettings.h"
 #include "RigSimulationInputTool.h"
 #include "RigUniformRefinement.h"
@@ -1297,9 +1298,9 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
         }
     }
 
-    // Verify specific COMPDAT coordinates are centered correctly
+    // Verify COMPDAT K ranges cover all refined sub-cells
     // For refinement (1, 3, 5):
-    // - K dimension: refinement=5, center offset = (5+1)/2 = 3
+    // - K dimension: refinement=5, original layer k maps to refined layers (k-1)*5+1 .. k*5
     auto checkCompdatCoordinates = [&compdatKeywords]( const std::string& wellName, int expectedK1, int expectedK2 ) -> bool
     {
         return std::any_of( compdatKeywords.begin(),
@@ -1319,13 +1320,13 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
                             } );
     };
 
-    // B-1H: original K1=1, K2=5, sector_min K=0
-    //   K1: (1-0)*5 + 3 = 3, K2: (5-0)*5 + 3 = 23
-    EXPECT_TRUE( checkCompdatCoordinates( "B-1H", 3, 23 ) ) << "B-1H COMPDAT K coordinates not centered correctly";
+    // B-1H: original K1=1, K2=5 (defaulted CF), sector_min K=0
+    //   All sub-cells of the original range: K1 = 1, K2 = 5*5 = 25
+    EXPECT_TRUE( checkCompdatCoordinates( "B-1H", 1, 25 ) ) << "B-1H COMPDAT K range does not cover all refined sub-cells";
 
     // B-2H: original K1=1, K2=6
-    //   K1: (1-0)*5 + 3 = 3, K2: (6-0)*5 + 3 = 28
-    EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 3, 28 ) ) << "B-2H COMPDAT K coordinates not centered correctly";
+    //   K1 = 1, K2 = 6*5 = 30
+    EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 1, 30 ) ) << "B-2H COMPDAT K range does not cover all refined sub-cells";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3056,4 +3057,166 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcpropAndPadding )
     ASSERT_LT( 0, maxKForNegZ ) << "Expected at least one Z-negative direction face in BCCON";
     EXPECT_EQ( 1, minKForNegZ ) << "\"Z-\" exterior face must remain at K=1 (top of padded grid)";
     EXPECT_EQ( 1, maxKForNegZ ) << "\"Z-\" exterior face must remain at K=1 (top of padded grid)";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper: parse a keyword from deck text and return all its records
+//--------------------------------------------------------------------------------------------------
+static std::vector<Opm::DeckRecord> parseKeywordRecords( const std::string& deckText, const std::string& keywordName )
+{
+    Opm::Parser parser;
+    auto        deck    = parser.parseString( deckText );
+    const auto& keyword = deck[keywordName].back();
+
+    std::vector<Opm::DeckRecord> records;
+    for ( size_t i = 0; i < keyword.size(); ++i )
+    {
+        records.push_back( keyword.getRecord( i ) );
+    }
+    return records;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static RigSimulationInputSettings createSectorSettings( const cvf::Vec3st& refCounts )
+{
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 9, 9, 9 ) );
+    setSettingsRefinement( settings, refCounts );
+    return settings;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A Z-direction connection in a K-refined layer must be completed in every sub-cell, with explicit
+/// CF and KH split between the sub-cells (regression: only every other refined layer was completed)
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_ZDirectionSplitAcrossKSubcells )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 10.0 0.216 100.0 2* 'Z' /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+
+    for ( size_t s = 0; s < 2; ++s )
+    {
+        const auto& rec = result->at( s );
+        EXPECT_EQ( 3, rec.getItem( "I" ).get<int>( 0 ) );
+        EXPECT_EQ( 4, rec.getItem( "J" ).get<int>( 0 ) );
+        EXPECT_EQ( 3 + static_cast<int>( s ), rec.getItem( "K1" ).get<int>( 0 ) );
+        EXPECT_EQ( 3 + static_cast<int>( s ), rec.getItem( "K2" ).get<int>( 0 ) );
+        EXPECT_DOUBLE_EQ( 5.0, rec.getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+        EXPECT_DOUBLE_EQ( 50.0, rec.getItem( "Kh" ).get<double>( 0 ) );
+        EXPECT_DOUBLE_EQ( 0.216, rec.getItem( "DIAMETER" ).get<double>( 0 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// With defaulted CF and KH the simulator computes the factors, so the full refined K range is kept in one record
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_DefaultedFactorsKeepsSingleRecord )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 3 'OPEN' 2* 0.216 /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+    EXPECT_EQ( 3, result->at( 0 ).getItem( "K1" ).get<int>( 0 ) );
+    EXPECT_EQ( 6, result->at( 0 ).getItem( "K2" ).get<int>( 0 ) );
+    EXPECT_FALSE( result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).hasValue( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An X-direction connection is split across the I sub-cells; J and K use the center sub-cell
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_XDirectionSplitAcrossISubcells )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 3, 2, 2 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 2 1 1 1 'OPEN' 1* 9.0 0.216 90.0 2* 'X' /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 3u, result->size() );
+
+    for ( size_t s = 0; s < 3; ++s )
+    {
+        const auto& rec = result->at( s );
+        EXPECT_EQ( 4 + static_cast<int>( s ), rec.getItem( "I" ).get<int>( 0 ) );
+        EXPECT_EQ( 2, rec.getItem( "J" ).get<int>( 0 ) );
+        EXPECT_EQ( 2, rec.getItem( "K1" ).get<int>( 0 ) );
+        EXPECT_EQ( 2, rec.getItem( "K2" ).get<int>( 0 ) );
+        EXPECT_DOUBLE_EQ( 3.0, rec.getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+        EXPECT_DOUBLE_EQ( 30.0, rec.getItem( "Kh" ).get<double>( 0 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Non-uniform K refinement splits the CF by the sub-cell thickness fractions
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_NonUniformKRefinementScalesByFraction )
+{
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 9, 9, 9 ) );
+    auto refinement = std::make_unique<RigNonUniformRefinement>( cvf::Vec3st( 10, 10, 10 ) );
+    refinement->setCumulativeFractions( RigRefinement::DimK, 1, { 0.25, 1.0 } );
+    settings.setRefinement( std::move( refinement ) );
+
+    auto records = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 8.0 0.216 /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    EXPECT_EQ( 2, result->at( 0 ).getItem( "K1" ).get<int>( 0 ) );
+    EXPECT_EQ( 3, result->at( 1 ).getItem( "K1" ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 2.0, result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 6.0, result->at( 1 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+    EXPECT_TRUE( result->at( 0 ).getItem( "Kh" ).defaultApplied( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Without refinement the record is passed through unchanged
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompdatRecord_NoRefinementUnchanged )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 1 ) );
+    auto records  = parseKeywordRecords( "COMPDAT\n 'W' 3 4 2 5 'OPEN' 1* 10.0 0.216 100.0 2* 'Z' /\n/\n", "COMPDAT" );
+
+    auto result = RigSimulationInputTool::processCompdatRecord( records[0], "W", settings );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+    EXPECT_EQ( 2, result->at( 0 ).getItem( "K1" ).get<int>( 0 ) );
+    EXPECT_EQ( 5, result->at( 0 ).getItem( "K2" ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 10.0, result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// COMPSEGS cells are split along the connection direction with the MD interval divided between sub-cells
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_SplitAcrossKSubcells )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPDAT\n 'W' 3 4 2 2 'OPEN' 1* 10.0 0.216 /\n/\n"
+                                           "COMPSEGS\n 'W' /\n 3 4 2 1 100.0 120.0 /\n/\n" );
+
+    std::vector<Opm::DeckKeyword> compdatKeywords = { deck["COMPDAT"].back() };
+    auto                          directions      = RigSimulationInputTool::connectionDirections( compdatKeywords );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+    auto        result   = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, directions );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+
+    EXPECT_EQ( 3, result->at( 0 ).getItem( 2 ).get<int>( 0 ) );
+    EXPECT_EQ( 4, result->at( 1 ).getItem( 2 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 100.0, result->at( 0 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 1 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 120.0, result->at( 1 ).getItem( 5 ).get<double>( 0 ) );
 }

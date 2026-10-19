@@ -1265,11 +1265,113 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Refined sub-cell index and its length fraction of the original cell
+//--------------------------------------------------------------------------------------------------
+namespace
+{
+struct RefinedSubcell
+{
+    size_t index    = 0;
+    double fraction = 1.0;
+};
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord&            record,
-                                                                                      const std::string&                wellName,
-                                                                                      const RigSimulationInputSettings& settings )
+static size_t centerSubcellIndex( const RigRefinement& refinement, RigRefinement::Dimension dim, size_t sectorIndex )
+{
+    return refinement.cumulativeOffset( dim, sectorIndex ) + refinement.subcellCount( dim, sectorIndex ) / 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// All refined sub-cells of an original (sector-relative) cell index, with length fractions
+//--------------------------------------------------------------------------------------------------
+static std::vector<RefinedSubcell> allSubcells( const RigRefinement& refinement, RigRefinement::Dimension dim, size_t sectorIndex )
+{
+    const size_t offset     = refinement.cumulativeOffset( dim, sectorIndex );
+    const auto&  cumulative = refinement.cumulativeFractions( dim, sectorIndex );
+
+    std::vector<RefinedSubcell> subcells;
+    double                      previous = 0.0;
+    for ( size_t s = 0; s < cumulative.size(); ++s )
+    {
+        subcells.push_back( { offset + s, cumulative[s] - previous } );
+        previous = cumulative[s];
+    }
+    return subcells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Penetration direction from COMPDAT DIR item (X -> I, Y -> J, Z or default -> K)
+//--------------------------------------------------------------------------------------------------
+static RigRefinement::Dimension compdatPenetrationDimension( const Opm::DeckRecord& record )
+{
+    using C = Opm::ParserKeywords::COMPDAT;
+    if ( record.hasItem( C::DIR::itemName ) )
+    {
+        const auto& item = record.getItem( C::DIR::itemName );
+        if ( item.hasValue( 0 ) )
+        {
+            const auto dir = item.get<std::string>( 0 );
+            if ( !dir.empty() && ( dir[0] == 'X' || dir[0] == 'x' ) ) return RigRefinement::DimI;
+            if ( !dir.empty() && ( dir[0] == 'Y' || dir[0] == 'y' ) ) return RigRefinement::DimJ;
+        }
+    }
+    return RigRefinement::DimK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static bool hasExplicitDoubleValue( const Opm::DeckRecord& record, const std::string& itemName )
+{
+    if ( !record.hasItem( itemName ) ) return false;
+    const auto& item = record.getItem( itemName );
+    return item.hasValue( 0 ) && !item.defaultApplied( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigSimulationInputTool::ConnectionDirectionMap RigSimulationInputTool::connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords )
+{
+    ConnectionDirectionMap directions;
+
+    for ( const auto& keyword : compdatKeywords )
+    {
+        for ( size_t r = 0; r < keyword.size(); ++r )
+        {
+            const auto& record = keyword.getRecord( r );
+            if ( record.size() < 5 ) continue;
+
+            const auto& wellItem = record.getItem( 0 );
+            if ( !wellItem.hasValue( 0 ) || wellItem.getType() != Opm::type_tag::string ) continue;
+
+            const auto wellName = wellItem.get<std::string>( 0 );
+            const int  i        = record.getItem( 1 ).get<int>( 0 ) - 1;
+            const int  j        = record.getItem( 2 ).get<int>( 0 ) - 1;
+            const int  k1       = record.getItem( 3 ).get<int>( 0 ) - 1;
+            const int  k2       = record.getItem( 4 ).get<int>( 0 ) - 1;
+            if ( i < 0 || j < 0 || k1 < 0 || k2 < k1 ) continue;
+
+            const auto dim = compdatPenetrationDimension( record );
+            for ( int k = k1; k <= k2; ++k )
+            {
+                directions[{ wellName, static_cast<size_t>( i ), static_cast<size_t>( j ), static_cast<size_t>( k ) }] = dim;
+            }
+        }
+    }
+
+    return directions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord& record,
+                                                                                                   const std::string&     wellName,
+                                                                                                   const RigSimulationInputSettings& settings )
 {
     // COMPDAT format: WELL I J K1 K2 STATE ...
     // Items: 0=WELL, 1=I, 2=J, 3=K1, 4=K2
@@ -1280,71 +1382,167 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRe
                                     .arg( record.size() ) );
     }
 
-    std::vector<Opm::DeckItem> items;
-
-    // Copy well name
-    items.push_back( record.getItem( 0 ) );
-
-    // Transform I, J, K1, K2
     int origI  = record.getItem( 1 ).get<int>( 0 ) - 1; // Convert to 0-based
     int origJ  = record.getItem( 2 ).get<int>( 0 ) - 1;
     int origK1 = record.getItem( 3 ).get<int>( 0 ) - 1;
     int origK2 = record.getItem( 4 ).get<int>( 0 ) - 1;
 
-    // Transform K1
-    caf::VecIjk0 origIjkK1( origI, origJ, origK1 );
-    auto         transformResultK1 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.refinement(), true );
+    const auto& refinement = settings.refinement();
 
-    // Transform K2
-    caf::VecIjk0 origIjkK2( origI, origJ, origK2 );
-    auto         transformResultK2 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.refinement(), true );
-
+    auto transformResultK1 = RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( origI, origJ, origK1 ),
+                                                                                    settings.min(),
+                                                                                    settings.max(),
+                                                                                    refinement,
+                                                                                    true );
     if ( !transformResultK1 )
     {
         return std::unexpected(
             QString( "COMPDAT K1 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK1.error() ) );
     }
 
+    auto transformResultK2 = RigGridExportAdapter::transformIjkToSectorCoordinates( caf::VecIjk0( origI, origJ, origK2 ),
+                                                                                    settings.min(),
+                                                                                    settings.max(),
+                                                                                    refinement,
+                                                                                    true );
     if ( !transformResultK2 )
     {
         return std::unexpected(
             QString( "COMPDAT K2 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK2.error() ) );
     }
 
-    using C = Opm::ParserKeywords::COMPDAT;
-    items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( transformResultK1->toOneBased().x() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( transformResultK1->toOneBased().y() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( transformResultK1->toOneBased().z() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( transformResultK2->toOneBased().z() ) ) );
-
-    // Copy remaining items
-    for ( size_t i = 5; i < record.size(); ++i )
+    if ( origK2 < origK1 )
     {
-        items.push_back( record.getItem( i ) );
+        return std::unexpected(
+            QString( "COMPDAT record for well %1 has K2 (%2) < K1 (%3)" ).arg( wellName.c_str() ).arg( origK2 + 1 ).arg( origK1 + 1 ) );
     }
 
-    return Opm::DeckRecord{ std::move( items ) };
+    using C = Opm::ParserKeywords::COMPDAT;
+
+    const auto   dim      = compdatPenetrationDimension( record );
+    const size_t sectorI  = origI - settings.min().x();
+    const size_t sectorJ  = origJ - settings.min().y();
+    const size_t sectorK1 = origK1 - settings.min().z();
+    const size_t sectorK2 = origK2 - settings.min().z();
+
+    const bool hasExplicitFactors = hasExplicitDoubleValue( record, C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName ) ||
+                                    hasExplicitDoubleValue( record, C::Kh::itemName );
+
+    bool isKRefinedInRange = false;
+    for ( size_t k = sectorK1; k <= sectorK2; ++k )
+    {
+        if ( refinement.subcellCount( RigRefinement::DimK, k ) > 1 ) isKRefinedInRange = true;
+    }
+
+    struct KSpan
+    {
+        size_t k1       = 0;
+        size_t k2       = 0;
+        double fraction = 1.0;
+    };
+
+    std::vector<KSpan> kSpans;
+    if ( !isKRefinedInRange )
+    {
+        kSpans.push_back( { refinement.cumulativeOffset( RigRefinement::DimK, sectorK1 ),
+                            refinement.cumulativeOffset( RigRefinement::DimK, sectorK2 ),
+                            1.0 } );
+    }
+    else if ( dim == RigRefinement::DimK && !hasExplicitFactors )
+    {
+        // The simulator computes the connection factors, so the full refined range can be given in one record
+        kSpans.push_back( { refinement.cumulativeOffset( RigRefinement::DimK, sectorK1 ),
+                            refinement.cumulativeOffset( RigRefinement::DimK, sectorK2 + 1 ) - 1,
+                            1.0 } );
+    }
+    else if ( dim == RigRefinement::DimK )
+    {
+        for ( size_t k = sectorK1; k <= sectorK2; ++k )
+        {
+            for ( const auto& subcell : allSubcells( refinement, RigRefinement::DimK, k ) )
+            {
+                kSpans.push_back( { subcell.index, subcell.index, subcell.fraction } );
+            }
+        }
+    }
+    else
+    {
+        for ( size_t k = sectorK1; k <= sectorK2; ++k )
+        {
+            const size_t centerK = centerSubcellIndex( refinement, RigRefinement::DimK, k );
+            kSpans.push_back( { centerK, centerK, 1.0 } );
+        }
+    }
+
+    const std::vector<RefinedSubcell> iSubcells =
+        ( dim == RigRefinement::DimI )
+            ? allSubcells( refinement, RigRefinement::DimI, sectorI )
+            : std::vector<RefinedSubcell>{ { centerSubcellIndex( refinement, RigRefinement::DimI, sectorI ), 1.0 } };
+    const std::vector<RefinedSubcell> jSubcells =
+        ( dim == RigRefinement::DimJ )
+            ? allSubcells( refinement, RigRefinement::DimJ, sectorJ )
+            : std::vector<RefinedSubcell>{ { centerSubcellIndex( refinement, RigRefinement::DimJ, sectorJ ), 1.0 } };
+
+    auto createRecord = [&]( size_t i, size_t j, size_t k1, size_t k2, double fraction )
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( record.getItem( 0 ) );
+        items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( i + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( j + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( k1 + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( k2 + 1 ) ) );
+
+        for ( size_t idx = 5; idx < record.size(); ++idx )
+        {
+            const auto& item       = record.getItem( idx );
+            const bool  isScalable = item.name() == C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName || item.name() == C::Kh::itemName;
+            if ( fraction != 1.0 && isScalable && hasExplicitDoubleValue( record, item.name() ) )
+            {
+                items.push_back( RifOpmDeckTools::item( item.name(), item.get<double>( 0 ) * fraction ) );
+            }
+            else
+            {
+                items.push_back( item );
+            }
+        }
+
+        return Opm::DeckRecord{ std::move( items ) };
+    };
+
+    std::vector<Opm::DeckRecord> records;
+    for ( const auto& kSpan : kSpans )
+    {
+        for ( const auto& iSubcell : iSubcells )
+        {
+            for ( const auto& jSubcell : jSubcells )
+            {
+                records.push_back(
+                    createRecord( iSubcell.index, jSubcell.index, kSpan.k1, kSpan.k2, kSpan.fraction * iSubcell.fraction * jSubcell.fraction ) );
+            }
+        }
+    }
+
+    return records;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsRecord( const Opm::DeckRecord&            record,
-                                                                                       const std::string&                wellName,
-                                                                                       bool                              isWellNameRecord,
-                                                                                       const RigSimulationInputSettings& settings )
+std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::processCompsegsRecord( const Opm::DeckRecord& record,
+                                                                                                    const std::string&     wellName,
+                                                                                                    bool                   isWellNameRecord,
+                                                                                                    const RigSimulationInputSettings& settings,
+                                                                                                    const ConnectionDirectionMap& directions )
 {
     // COMPSEGS format: first record is well name, subsequent records are segment data
     // Well name record: just copy as-is
     if ( isWellNameRecord )
     {
-        return Opm::DeckRecord( record );
+        return std::vector<Opm::DeckRecord>{ Opm::DeckRecord( record ) };
     }
 
-    // Segment record format: I J K BRANCH START_MD END_MD ...
-    // Items: 0=I, 1=J, 2=K
+    // Segment record format: I J K BRANCH START_MD END_MD DIRECTION END_IJK ...
+    // Items: 0=I, 1=J, 2=K, 4=START_MD, 5=END_MD, 6=DIRECTION
     if ( record.size() < 3 )
     {
         return std::unexpected( QString( "COMPSEGS segment record for well %1 has insufficient items (expected at least 3, got %2)" )
@@ -1352,13 +1550,11 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
                                     .arg( record.size() ) );
     }
 
-    std::vector<Opm::DeckItem> items;
+    caf::VecIjk0 origIjk = extractIjk( record, 0, 1, 2 ).toZeroBased();
 
-    // Transform I, J, K (first three items)
-    caf::VecIjk1 origIjk = extractIjk( record, 0, 1, 2 );
+    const auto& refinement = settings.refinement();
 
-    auto transformResult =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(), settings.min(), settings.max(), settings.refinement(), true );
+    auto transformResult = RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk, settings.min(), settings.max(), refinement, true );
 
     if ( !transformResult )
     {
@@ -1366,18 +1562,69 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsR
             QString( "COMPSEGS segment coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResult.error() ) );
     }
 
-    // Add transformed I, J, K
-    items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( transformResult->toOneBased().x() ) ) );
-    items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( transformResult->toOneBased().y() ) ) );
-    items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( transformResult->toOneBased().z() ) ) );
-
-    // Copy remaining items
-    for ( size_t i = 3; i < record.size(); ++i )
+    auto dim = RigRefinement::DimK;
+    if ( auto it = directions.find( { wellName, origIjk.x(), origIjk.y(), origIjk.z() } ); it != directions.end() )
     {
-        items.push_back( record.getItem( i ) );
+        dim = it->second;
     }
 
-    return Opm::DeckRecord{ std::move( items ) };
+    const size_t sectorIndex = origIjk[dim] - settings.min()[dim];
+
+    std::vector<RefinedSubcell> subcells = { { ( *transformResult )[dim], 1.0 } };
+
+    const bool hasMdInterval = record.size() > 5 && record.getItem( 4 ).hasValue( 0 ) && record.getItem( 5 ).hasValue( 0 );
+    const bool isCellRange   = record.size() > 6 && record.getItem( 6 ).hasValue( 0 );
+    if ( refinement.subcellCount( dim, sectorIndex ) > 1 )
+    {
+        if ( hasMdInterval && !isCellRange )
+        {
+            subcells = allSubcells( refinement, dim, sectorIndex );
+        }
+        else
+        {
+            RiaLogging::warning( std::format( "COMPSEGS record for well {} at ({}, {}, {}) has no MD interval or uses a cell range. "
+                                              "Only the center refined sub-cell is assigned to the segment.",
+                                              wellName,
+                                              origIjk.x() + 1,
+                                              origIjk.y() + 1,
+                                              origIjk.z() + 1 ) );
+        }
+    }
+
+    std::vector<Opm::DeckRecord> records;
+
+    double startFraction = 0.0;
+    for ( const auto& subcell : subcells )
+    {
+        caf::VecIjk0 refinedIjk = *transformResult;
+        refinedIjk[dim]         = subcell.index;
+
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( refinedIjk.x() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( refinedIjk.y() + 1 ) ) );
+        items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( refinedIjk.z() + 1 ) ) );
+
+        const double endFraction = startFraction + subcell.fraction;
+        for ( size_t i = 3; i < record.size(); ++i )
+        {
+            if ( subcells.size() > 1 && ( i == 4 || i == 5 ) )
+            {
+                const double startMd  = record.getItem( 4 ).get<double>( 0 );
+                const double endMd    = record.getItem( 5 ).get<double>( 0 );
+                const double fraction = ( i == 4 ) ? startFraction : endFraction;
+                items.push_back( RifOpmDeckTools::item( record.getItem( i ).name(), startMd + ( endMd - startMd ) * fraction ) );
+            }
+            else
+            {
+                items.push_back( record.getItem( i ) );
+            }
+        }
+        startFraction = endFraction;
+
+        records.push_back( Opm::DeckRecord{ std::move( items ) } );
+    }
+
+    return records;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2114,6 +2361,9 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                                               "WINJCLN",  "WINJMULT", "WINJTEMP", "WLIFTOPT", "WPAVEDEP", "WRFTPLT",
                                               "WTEMP",    "WTEST",    "WTRACER",  "WSEGVALV", "WSEGAICD", "WSEGSICD" };
 
+    // Collect connection directions from the original COMPDAT before it is transformed, used to split COMPSEGS
+    const auto directions = connectionDirections( deckFile.findAllKeywords( "COMPDAT" ) );
+
     // Process each type of well keyword
     // Use findAllKeywordsWithIndices to get all occurrences with their positions
     for ( const auto& keywordName : wellKeywords )
@@ -2194,7 +2444,10 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             auto result = processCompdatRecord( record, wellName, settings );
                             if ( result )
                             {
-                                filteredKeyword.addRecord( std::move( result.value() ) );
+                                for ( auto& rec : result.value() )
+                                {
+                                    filteredKeyword.addRecord( std::move( rec ) );
+                                }
                             }
                             else
                             {
@@ -2204,10 +2457,13 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         }
                         else if ( keywordName == "COMPSEGS" )
                         {
-                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, settings );
+                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, settings, directions );
                             if ( result )
                             {
-                                filteredKeyword.addRecord( std::move( result.value() ) );
+                                for ( auto& rec : result.value() )
+                                {
+                                    filteredKeyword.addRecord( std::move( rec ) );
+                                }
                             }
                             else
                             {
