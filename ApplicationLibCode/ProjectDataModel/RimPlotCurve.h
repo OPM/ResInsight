@@ -75,11 +75,13 @@ public:
     void                                setSymbolSize( int sizeInPixels );
     void                                setLineThickness( int thickness );
     void                                resetAppearance();
-    virtual Qt::BrushStyle              fillStyle() const;
-    void                                setFillStyle( Qt::BrushStyle brushStyle );
-    void                                setFillColor( const cvf::Color3f& fillColor );
-    void                                setFillColorOpacity( float opacity );
-    void                                setCurveColorOpacity( float opacity );
+
+    RimPlotCurveAppearance* curveAppearance() const { return m_curveAppearance(); }
+    virtual Qt::BrushStyle  fillStyle() const;
+    void                    setFillStyle( Qt::BrushStyle brushStyle );
+    void                    setFillColor( const cvf::Color3f& fillColor );
+    void                    setFillColorOpacity( float opacity );
+    void                    setCurveColorOpacity( float opacity );
 
     bool isChecked() const;
     void setCheckState( bool isChecked );

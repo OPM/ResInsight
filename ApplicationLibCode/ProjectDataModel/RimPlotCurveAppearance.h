@@ -79,7 +79,10 @@ public:
     void                              setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition );
     RiuPlotCurveSymbol::LabelPosition symbolLabelPosition() const;
 
-    void           resetAppearance();
+    void resetAppearance();
+
+    // Copies the visual settings from another appearance without emitting signals
+    void           copyFrom( const RimPlotCurveAppearance& other );
     Qt::BrushStyle fillStyle() const;
     void           setFillStyle( Qt::BrushStyle brushStyle );
 
@@ -101,6 +104,9 @@ public:
     void setColorVisible( bool isVisible );
     void setFillOptionsVisible( bool isVisible );
     void setCurveFittingToleranceVisible( bool isVisible );
+
+    // Shows all fields as read-only, used when the appearance is controlled elsewhere
+    void setUiLocked( bool isLocked );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -135,4 +141,5 @@ protected:
     bool m_interpolationVisible;
     bool m_fillOptionsVisible;
     bool m_curveFittingToleranceVisible;
+    bool m_uiLocked = false;
 };
