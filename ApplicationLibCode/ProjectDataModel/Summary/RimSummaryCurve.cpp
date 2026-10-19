@@ -31,6 +31,7 @@
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "RimCurveStyleRules.h"
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -893,7 +894,14 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
+    const auto plot               = firstAncestorOrThisOfType<RimSummaryPlot>();
+    const bool isAppearanceGlobal = plot && plot->useGlobalCurveAppearance() && firstAncestorOrThisOfType<RimSummaryCurveCollection>();
+    m_curveAppearance->setUiLocked( isAppearanceGlobal );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    if ( isAppearanceGlobal )
+        RimCurveStyleRules::addGlobalAppearanceLink( *appearanceGroup,
+                                                     "The appearance is controlled by the <a href=\"dummy\">global curve appearance</a>." );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
