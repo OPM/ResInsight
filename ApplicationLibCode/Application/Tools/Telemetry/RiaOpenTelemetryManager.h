@@ -110,8 +110,8 @@ public:
 
     // Configuration
     bool isEnabled() const;
-    bool isInitialized() const;
-    bool isReportingCrash() const;
+    bool        isInitialized() const;
+    static bool isReportingCrash();
     void setErrorCallback( ErrorCallback callback );
     void setUsername( const std::string& username );
 
@@ -181,7 +181,7 @@ private:
     std::atomic<bool> m_enabled{ false };
     std::atomic<bool> m_isShuttingDown{ false };
     std::atomic<bool> m_circuitBreakerOpen{ false };
-    std::atomic<bool> m_isReportingCrash{ false };
+    static inline std::atomic<bool> m_isReportingCrash{ false };
 
     // Qt networking and timer
     QNetworkAccessManager* m_networkAccessManager{ nullptr };

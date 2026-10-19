@@ -456,7 +456,7 @@ bool RiaOpenTelemetryManager::isInitialized() const
 //--------------------------------------------------------------------------------------------------
 /// True while the crash handler sends a crash report. Never reset, the process exits afterwards.
 //--------------------------------------------------------------------------------------------------
-bool RiaOpenTelemetryManager::isReportingCrash() const
+bool RiaOpenTelemetryManager::isReportingCrash()
 {
     return m_isReportingCrash.load();
 }
