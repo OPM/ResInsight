@@ -30,6 +30,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class RimEclipseView;
@@ -101,6 +102,24 @@ public:
 
     static std::expected<Opm::DeckRecord, QString>
         processAqunumRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
+
+    // Penetration direction of well connections, keyed on (well name, original 0-based I, J, K)
+    using ConnectionDirectionMap = std::map<std::tuple<std::string, size_t, size_t, size_t>, RigRefinement::Dimension>;
+
+    static ConnectionDirectionMap connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords );
+
+    // Refined connections along the penetration direction are split into one record per sub-cell with
+    // explicit CF and KH scaled by the sub-cell length fraction. Perpendicular directions use the center sub-cell.
+    static std::expected<std::vector<Opm::DeckRecord>, QString>
+        processCompdatRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
+
+    // Segment records are split into one record per sub-cell along the connection penetration direction,
+    // with the MD interval divided by the sub-cell length fractions
+    static std::expected<std::vector<Opm::DeckRecord>, QString> processCompsegsRecord( const Opm::DeckRecord&            record,
+                                                                                       const std::string&                wellName,
+                                                                                       bool                              isWellNameRecord,
+                                                                                       const RigSimulationInputSettings& settings,
+                                                                                       const ConnectionDirectionMap&     directions );
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
@@ -192,14 +211,6 @@ private:
 
     static std::expected<Opm::DeckRecord, QString>
         processWelspecsRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
-
-    static std::expected<Opm::DeckRecord, QString>
-        processCompdatRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
-
-    static std::expected<Opm::DeckRecord, QString> processCompsegsRecord( const Opm::DeckRecord&            record,
-                                                                          const std::string&                wellName,
-                                                                          bool                              isWellNameRecord,
-                                                                          const RigSimulationInputSettings& settings );
 
     static std::expected<void, QString> replaceKeywordWithBoxIndices( const std::string&                keywordName,
                                                                       RimEclipseCase*                   eclipseCase,
