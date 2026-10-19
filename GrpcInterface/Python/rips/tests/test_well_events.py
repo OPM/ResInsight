@@ -3107,3 +3107,74 @@ class TestScheduleKeywordEvents:
             ), f"flag {flag!r} missing from RPTRST output: {rptrst_block!r}"
         # False-valued flag must be omitted entirely.
         assert "OBSOLETE" not in rptrst_block
+
+
+class TestScheduleGenerationWithoutCase:
+    """Schedule generation without a grid case emits only grid-independent keywords."""
+
+    @pytest.fixture
+    def project_with_well(self, rips_instance, initialize_test):
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        project.import_well_paths(well_path_files=[case_root + "/wellpath_a.dev"])
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+        return project, project.well_paths()[0], well_path_coll.event_timeline()
+
+    def test_wconhist_without_case(self, project_with_well):
+        project, well_path, timeline = project_with_well
+        assert not project.cases()
+
+        for event_date, rate in (("2024-01-01", 1000.0), ("2024-02-01", 2000.0)):
+            timeline.add_well_keyword_event(
+                event_date=event_date,
+                well_path=well_path,
+                keyword_name="WCONHIST",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "STATUS": "OPEN",
+                    "CMODE": "ORAT",
+                    "ORAT": rate,
+                },
+            )
+
+        schedule = timeline.generate_schedule_text()
+
+        assert schedule.count("WCONHIST") == 2
+        assert "DATES" in schedule
+        assert "WELSPECS" not in schedule
+        assert "COMPDAT" not in schedule
+        assert "WARNING" not in schedule
+
+    def test_perforation_without_case_is_skipped_with_warning(self, project_with_well):
+        project, well_path, timeline = project_with_well
+
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_well_keyword_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            keyword_name="WCONHIST",
+            keyword_data={"WELL": well_path.name, "STATUS": "OPEN"},
+        )
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=None, export_msw_for_wells=[well_path]
+        )
+
+        assert "WCONHIST" in schedule
+        for keyword in ("WELSPECS", "COMPDAT", "WELSEGS", "COMPSEGS"):
+            assert f"\n{keyword}\n" not in schedule
+        warnings = [
+            line for line in schedule.splitlines() if line.startswith("-- WARNING:")
+        ]
+        export_name = well_path.completion_settings().well_name_for_export
+        assert any("COMPDAT" in w and export_name in w for w in warnings)
+        assert any("WELSPECS" in w for w in warnings)
+        assert any("WELSEGS" in w for w in warnings)

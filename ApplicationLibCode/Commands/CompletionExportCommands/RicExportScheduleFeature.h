@@ -41,9 +41,10 @@ public:
     // Generate the schedule for the timeline and write it to fileName. MSW keywords are exported
     // for every well with events, the first (simulation start) date is written as a comment
     // instead of a DATES keyword, and keywords are emitted with aligned columns.
+    // eclipseCase may be null; the grid-dependent keywords are then skipped (see RicScheduleDataGenerator).
     // Returns the written file name, or an error message.
     static std::expected<QString, QString>
-        exportScheduleToFile( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, const QString& fileName );
+        exportScheduleToFile( const RimWellEventTimeline& timeline, RimEclipseCase* eclipseCase, const QString& fileName );
 
 protected:
     bool isCommandEnabled() const override;
@@ -57,6 +58,6 @@ private:
     // events.
     static RimWellEventTimeline* timelineToExport();
 
-    // The Eclipse case of the active view, or the first Eclipse case of the project.
+    // The Eclipse case of the active view, or the first Eclipse case of the project, or nullptr.
     static RimEclipseCase* defaultEclipseCase();
 };

@@ -363,6 +363,23 @@ They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 
 The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings` and `errors`.
 
+### Generating a schedule without a grid
+
+`eclipse_case` is optional in `generate_schedule_text()`. It accepts any Eclipse-type case, including Roff and
+corner point cases. Without a case, the keywords that need grid geometry are skipped: `WELSPECS`, `COMPORD`,
+`COMPDAT`, `COMPLUMP`, `WELSEGS`, `COMPSEGS`, `WSEGVALV` and `WSEGAICD`. `DATES`, well controls (`WCONHIST`,
+`WCONINJH`, `WELTARG`, ...), schedule keywords and raw text are still emitted. This supports setups driven only by
+production data, or by a simple event file that controls reporting and production constraints. A well that has
+skipped keywords gets one `-- WARNING:` comment line in the schedule header, for example:
+
+```text
+-- WARNING: No grid case: COMPDAT/COMPLUMP skipped for well 'OP_1'
+```
+
+```python
+schedule_text = timeline.generate_schedule_text()  # no grid case
+```
+
 ## Exporting a schedule from the GUI
 
 The schedule generated from the well event timeline can be written to file without scripting.
@@ -380,15 +397,15 @@ Everything else uses fixed defaults:
 
 | Setting | Value |
 |---|---|
-| Eclipse case | the case of the active 3D view, else the first Eclipse case of the project |
+| Eclipse case | the case of the active 3D view, else the first Eclipse case of the project, else none (grid-dependent keywords are skipped, see above) |
 | Multi-segment-well keywords | exported for every well with events |
 | First date | written as a `-- Date: ...` comment instead of a `DATES` keyword |
 | Formatting | aligned columns with a `--`-prefixed column header per keyword |
 
 As in `generate_schedule_text()`, a `set_timestamp()`/*Apply events up to date* timestamp limits the
 export to the events up to that date, while inserted dates (`INSERT_DATE`) are always emitted.
-The written file name and the event count are logged to the message panel; an export without events
-or without a loaded Eclipse case reports the reason in a dialog.
+The written file name and the event count are logged to the message panel. An export without events
+reports the reason in a dialog.
 
 ## Version history
 

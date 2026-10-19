@@ -57,7 +57,7 @@ const QString featureTitle     = "Export Schedule";
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<QString, QString>
-    RicExportScheduleFeature::exportScheduleToFile( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, const QString& fileName )
+    RicExportScheduleFeature::exportScheduleToFile( const RimWellEventTimeline& timeline, RimEclipseCase* eclipseCase, const QString& fileName )
 {
     if ( fileName.isEmpty() ) return std::unexpected( QString( "No file name specified" ) );
 
@@ -138,7 +138,7 @@ RimEclipseCase* RicExportScheduleFeature::defaultEclipseCase()
 //--------------------------------------------------------------------------------------------------
 bool RicExportScheduleFeature::isCommandEnabled() const
 {
-    return timelineToExport() != nullptr && defaultEclipseCase() != nullptr;
+    return timelineToExport() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,12 +155,8 @@ void RicExportScheduleFeature::onActionTriggered( bool isChecked )
         return;
     }
 
+    // Without a case, the grid-dependent keywords are skipped and reported as warnings in the file header.
     RimEclipseCase* eclipseCase = defaultEclipseCase();
-    if ( !eclipseCase )
-    {
-        RiuMessageDialog::showError( parentWidget, featureTitle, "Schedule export requires a loaded Eclipse case." );
-        return;
-    }
 
     RiaApplication* app         = RiaApplication::instance();
     QString         defaultDir  = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( exportDialogName );
@@ -174,7 +170,7 @@ void RicExportScheduleFeature::onActionTriggered( bool isChecked )
 
     app->setLastUsedDialogDirectory( exportDialogName, QFileInfo( fileName ).absolutePath() );
 
-    auto exportedFile = exportScheduleToFile( *timeline, *eclipseCase, fileName );
+    auto exportedFile = exportScheduleToFile( *timeline, eclipseCase, fileName );
     if ( !exportedFile )
     {
         RiaLogging::error( std::format( "Schedule export failed: {}", exportedFile.error() ) );

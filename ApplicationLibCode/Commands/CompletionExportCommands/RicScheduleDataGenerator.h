@@ -56,8 +56,11 @@ public:
     // equals the simulation start date. Later dates are always emitted as DATES keywords.
     // When alignColumns is true, keywords are serialised with a "--"-prefixed column-header comment
     // and right-aligned, fixed-width columns instead of the compact default form.
+    // eclipseCase may be null. The grid-dependent keywords (WELSPECS, COMPORD, COMPDAT, COMPLUMP, WELSEGS,
+    // COMPSEGS, WSEGVALV, WSEGAICD) are then skipped, and a "-- WARNING:" comment line is written to the
+    // schedule header (and logged) for each well that had such keywords skipped.
     static std::expected<QString, QString> generateSchedule( const RimWellEventTimeline&         timeline,
-                                                             RimEclipseCase&                     eclipseCase,
+                                                             RimEclipseCase*                     eclipseCase,
                                                              const std::vector<RimWellPath*>&    wellPaths,
                                                              const std::vector<QDateTime>&       dates,
                                                              const std::set<const RimWellPath*>& mswWells,
@@ -73,7 +76,7 @@ public:
     // events only force a DATES keyword and are therefore never filtered by that timestamp.
     // The remaining arguments are passed on to generateSchedule().
     static std::expected<QString, QString> generateScheduleForTimeline( const RimWellEventTimeline&         timeline,
-                                                                        RimEclipseCase&                     eclipseCase,
+                                                                        RimEclipseCase*                     eclipseCase,
                                                                         const std::set<const RimWellPath*>& mswWells,
                                                                         bool                                firstDateAsComment = true,
                                                                         bool                                alignColumns       = false );
@@ -82,28 +85,31 @@ private:
     // Generate schedule section for a single date. When dateAsComment is true, the date is
     // written as a comment line instead of a DATES keyword.
     static std::expected<QString, QString> generateDateSection( const RimWellEventTimeline&         timeline,
-                                                                RimEclipseCase&                     eclipseCase,
+                                                                RimEclipseCase*                     eclipseCase,
                                                                 const std::vector<RimWellPath*>&    wellPaths,
                                                                 const QDateTime&                    date,
                                                                 const std::set<const RimWellPath*>& mswWells,
                                                                 std::map<QString, QString>&         emittedSegmentLayouts,
+                                                                std::set<QString>&                  warnings,
                                                                 bool                                dateAsComment = false,
                                                                 bool                                alignColumns  = false );
 
     static std::optional<Opm::DeckKeyword> generateWelspecsForWell( const RimWellEventTimeline&       timeline,
-                                                                    RimEclipseCase&                   eclipseCase,
+                                                                    RimEclipseCase*                   eclipseCase,
                                                                     RimWellPath&                      well,
                                                                     const QDateTime&                  date,
-                                                                    const std::vector<RimWellEvent*>& eventsAtDate );
+                                                                    const std::vector<RimWellEvent*>& eventsAtDate,
+                                                                    std::set<QString>&                warnings );
 
     // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a group of well paths sharing
     // one export name at a specific date based on events, merging both into the accumulator. Connections in cells
     // shared by several well paths in the group are combined into one record.
-    static void generateCompletionsForWellGroup( RimEclipseCase&                      eclipseCase,
+    static void generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
                                                  const std::vector<RimWellPath*>&     wellGroup,
                                                  const QDateTime&                     date,
                                                  const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                 std::map<QString, Opm::DeckKeyword>& keywordBlocks );
+                                                 std::map<QString, Opm::DeckKeyword>& keywordBlocks,
+                                                 std::set<QString>&                   warnings );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
@@ -113,13 +119,14 @@ private:
     // segment layout differs from the one last written for the well (tracked in emittedSegmentLayouts).
     // The WELSEGS pressure drop components come from the WELSPECS event in effect at the date.
     static void generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                    RimEclipseCase&                                   eclipseCase,
+                                    RimEclipseCase*                                   eclipseCase,
                                     RimWellPath&                                      well,
                                     const QDateTime&                                  date,
                                     const std::vector<RimWellEvent*>&                 eventsAtDate,
                                     std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                     std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                    std::map<QString, QString>&                       emittedSegmentLayouts );
+                                    std::map<QString, QString>&                       emittedSegmentLayouts,
+                                    std::set<QString>&                                warnings );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
     static void generateWellControlForWell( const RimWellPath&                   well,

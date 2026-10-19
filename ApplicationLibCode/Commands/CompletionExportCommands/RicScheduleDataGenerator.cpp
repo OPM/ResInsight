@@ -23,6 +23,8 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 #include "RicWellPathExportMswTableData.h"
 
+#include "RiaLogging.h"
+
 #include "RifEventKeywordFormatter.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
@@ -48,6 +50,11 @@
 
 namespace
 {
+QString missingGridWarning( const QString& keywords, const QString& wellName )
+{
+    return QString( "No grid case: %1 skipped for well '%2'" ).arg( keywords, wellName );
+}
+
 bool shouldEmitKeyword( const Opm::DeckKeyword& keyword )
 {
     return keyword.size() > 0 || keyword.isDataKeyword() || RifEventKeywordFormatter::isRecordlessKeyword( keyword );
@@ -103,7 +110,7 @@ std::optional<RimWellSpecData> wellSpecDataAtDate( const RimWellEventTimeline& t
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline&         timeline,
-                                                                            RimEclipseCase&                     eclipseCase,
+                                                                            RimEclipseCase*                     eclipseCase,
                                                                             const std::vector<RimWellPath*>&    wellPaths,
                                                                             const std::vector<QDateTime>&       dates,
                                                                             const std::set<const RimWellPath*>& mswWells,
@@ -127,6 +134,9 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( cons
     result += QString( "-- User: %1\n" ).arg( userName );
     result += "-- Schedule data based on well events\n";
     result += "--\n";
+
+    std::set<QString> warnings;
+    QString           body;
 
     // The incoming well list is ordered by pointer (it originates from a std::set), which makes the
     // per-well keyword records appear in a non-deterministic order. Sort once by the deck export
@@ -171,14 +181,22 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( cons
                                                 date,
                                                 mswWells,
                                                 emittedSegmentLayouts,
+                                                warnings,
                                                 isFirstDate && firstDateAsComment,
                                                 alignColumns );
         if ( !dateSection ) return std::unexpected( dateSection.error() );
-        result += *dateSection;
+        body += *dateSection;
         isFirstDate = false;
     }
 
-    return result;
+    for ( const auto& warning : warnings )
+    {
+        RiaLogging::warning( ( "Schedule generation: " + warning ).toStdString() );
+        result += QString( "-- WARNING: %1\n" ).arg( warning );
+    }
+    if ( !warnings.empty() ) result += "--\n";
+
+    return result + body;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +226,7 @@ std::vector<QDateTime> RicScheduleDataGenerator::collectAllDates( const RimWellE
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<QString, QString> RicScheduleDataGenerator::generateScheduleForTimeline( const RimWellEventTimeline&         timeline,
-                                                                                       RimEclipseCase&                     eclipseCase,
+                                                                                       RimEclipseCase*                     eclipseCase,
                                                                                        const std::set<const RimWellPath*>& mswWells,
                                                                                        bool firstDateAsComment,
                                                                                        bool alignColumns )
@@ -275,11 +293,12 @@ void RicScheduleDataGenerator::mergeKeyword( std::map<QString, Opm::DeckKeyword>
 ///
 //--------------------------------------------------------------------------------------------------
 std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( const RimWellEventTimeline&         timeline,
-                                                                               RimEclipseCase&                     eclipseCase,
+                                                                               RimEclipseCase*                     eclipseCase,
                                                                                const std::vector<RimWellPath*>&    wellPaths,
                                                                                const QDateTime&                    date,
                                                                                const std::set<const RimWellPath*>& mswWells,
                                                                                std::map<QString, QString>&         emittedSegmentLayouts,
+                                                                               std::set<QString>&                  warnings,
                                                                                bool                                dateAsComment,
                                                                                bool                                alignColumns )
 {
@@ -406,7 +425,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
         for ( auto* well : group )
         {
-            if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events ) )
+            if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events, warnings ) )
             {
                 mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
                 mergeKeyword( keywordBlocks, "COMPORD", RimKeywordFactory::compordKeyword( exportNameForWell( *well ).toStdString() ) );
@@ -414,12 +433,20 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
             }
         }
 
-        generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks );
+        generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks, warnings );
 
         // MSW keywords describe the shared well tree, including all its laterals.
         if ( mswIt != group.end() )
         {
-            generateMswForWell( timeline, eclipseCase, *( *mswIt )->topLevelWellPath(), date, events, keywordBlocks, unmergedBlocks, emittedSegmentLayouts );
+            generateMswForWell( timeline,
+                                eclipseCase,
+                                *( *mswIt )->topLevelWellPath(),
+                                date,
+                                events,
+                                keywordBlocks,
+                                unmergedBlocks,
+                                emittedSegmentLayouts,
+                                warnings );
         }
 
         for ( auto* well : group )
@@ -573,10 +600,11 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 ///
 //--------------------------------------------------------------------------------------------------
 std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWell( const RimWellEventTimeline&       timeline,
-                                                                                   RimEclipseCase&                   eclipseCase,
+                                                                                   RimEclipseCase*                   eclipseCase,
                                                                                    RimWellPath&                      well,
                                                                                    const QDateTime&                  date,
-                                                                                   const std::vector<RimWellEvent*>& eventsAtDate )
+                                                                                   const std::vector<RimWellEvent*>& eventsAtDate,
+                                                                                   std::set<QString>&                warnings )
 {
     bool hasEvents = false;
     for ( auto* event : eventsAtDate )
@@ -592,10 +620,17 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 
     if ( !hasEvents ) return std::nullopt;
 
+    // The well head location (HEAD_I/HEAD_J) is computed from the grid.
+    if ( !eclipseCase )
+    {
+        warnings.insert( missingGridWarning( "WELSPECS/COMPORD", exportNameForWell( well ) ) );
+        return std::nullopt;
+    }
+
     const auto wellSpecData = wellSpecDataAtDate( timeline, well, date );
 
     std::string wellGroupName = well.completionSettings()->groupNameForExport().toStdString();
-    auto welspecsKw = RimKeywordFactory::welspecsKeyword( wellGroupName, &eclipseCase, &well, wellSpecData ? &wellSpecData.value() : nullptr );
+    auto welspecsKw = RimKeywordFactory::welspecsKeyword( wellGroupName, eclipseCase, &well, wellSpecData ? &wellSpecData.value() : nullptr );
     if ( welspecsKw.name().empty() ) return std::nullopt;
     return welspecsKw;
 }
@@ -603,11 +638,12 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase&                      eclipseCase,
+void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
                                                                 const std::vector<RimWellPath*>&     wellGroup,
                                                                 const QDateTime&                     date,
                                                                 const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                                std::map<QString, Opm::DeckKeyword>& keywordBlocks )
+                                                                std::map<QString, Opm::DeckKeyword>& keywordBlocks,
+                                                                std::set<QString>&                   warnings )
 {
     if ( wellGroup.empty() ) return;
 
@@ -625,6 +661,12 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase& 
 
     if ( !hasPerfEvents ) return;
 
+    if ( !eclipseCase )
+    {
+        warnings.insert( missingGridWarning( "COMPDAT/COMPLUMP", exportNameForWell( representative ) ) );
+        return;
+    }
+
     // A connection must be exported once per well name. Completion data is computed for every distinct well tree
     // in the group (a top-level well includes its laterals) and combined per cell, so connections shared by several
     // well paths get their contributions combined instead of being duplicated or dropped.
@@ -637,7 +679,7 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase& 
 
     // Completion data feeds both COMPDAT and COMPLUMP (the latter only emits records whose perforation has a
     // completion number assigned). Both keywords merge across wells.
-    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, &eclipseCase, date );
+    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, eclipseCase, date );
     auto wellName = exportNameForWell( representative ).toStdString();
 
     mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
@@ -648,13 +690,14 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase& 
 ///
 //--------------------------------------------------------------------------------------------------
 void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                                   RimEclipseCase&                                   eclipseCase,
+                                                   RimEclipseCase*                                   eclipseCase,
                                                    RimWellPath&                                      wellPath,
                                                    const QDateTime&                                  date,
                                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
                                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                                   std::map<QString, QString>&                       emittedSegmentLayouts )
+                                                   std::map<QString, QString>&                       emittedSegmentLayouts,
+                                                   std::set<QString>&                                warnings )
 {
     auto* segmentCollection = wellPath.segmentCollection();
     if ( !segmentCollection )
@@ -684,8 +727,14 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
         return;
     }
 
+    if ( !eclipseCase )
+    {
+        warnings.insert( missingGridWarning( "WELSEGS/COMPSEGS/WSEGVALV/WSEGAICD", exportNameForWell( wellPath ) ) );
+        return;
+    }
+
     bool exportAfterMainBore = true;
-    auto mswDataResult       = RicWellPathExportMswTableData::extractSingleWellMswData( &eclipseCase,
+    auto mswDataResult       = RicWellPathExportMswTableData::extractSingleWellMswData( eclipseCase,
                                                                                   &wellPath,
                                                                                   exportAfterMainBore,
                                                                                   RicWellPathExportMswTableData::CompletionType::ALL,
