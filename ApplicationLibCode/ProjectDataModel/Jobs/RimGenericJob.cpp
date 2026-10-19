@@ -88,6 +88,7 @@ void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) c
 void RimGenericJob::setStarted()
 {
     m_startTime = QDateTime::currentDateTime();
+    m_stopTime  = QDateTime();
 }
 
 //--------------------------------------------------------------------------------------------------

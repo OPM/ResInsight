@@ -525,7 +525,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
     {
         auto tag    = caf::PdmUiTreeViewItemTag::create();
         tag.text    = runTimeString();
-        tag.bgColor = QColor( Qt::white );
+        tag.bgColor = QColor( Qt::lightGray );
         tag.fgColor = QColor( Qt::black );
 
         tags.push_back( tag );
