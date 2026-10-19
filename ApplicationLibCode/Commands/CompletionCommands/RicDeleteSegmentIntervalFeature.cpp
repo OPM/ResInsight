@@ -48,6 +48,7 @@ void RicDeleteSegmentIntervalFeature::onActionTriggered( bool isChecked )
 
     if ( !collection ) return;
     collection->updateConnectedEditors();
+    collection->updateMswSegments();
     Riu3DMainWindowTools::selectAsCurrentItem( collection );
     if ( auto* project = RimProject::current() ) project->scheduleCreateDisplayModelAndRedrawAllViews();
 }

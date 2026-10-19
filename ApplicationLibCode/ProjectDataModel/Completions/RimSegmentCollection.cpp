@@ -26,6 +26,7 @@
 #include "RimMswCompletionParameters.h"
 #include "RimSegmentInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -532,6 +533,27 @@ void RimSegmentCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+    }
+
+    updateMswSegments();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    updateMswSegments();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::updateMswSegments()
+{
+    if ( auto* wellPathCollection = RimWellPathCollection::instance() )
+    {
+        wellPathCollection->updateMswSegmentsForObject( this );
     }
 }
 
