@@ -35,6 +35,7 @@ void RicCreateSegmentIntervalFeature::onActionTriggered( bool isChecked )
 
     auto* interval = collection->createInterval( 0.0, 2000.0, collection->linerDiameter(), collection->roughnessFactor() );
     collection->updateConnectedEditors();
+    collection->updateMswSegments();
     Riu3DMainWindowTools::selectAsCurrentItem( interval );
 
     if ( auto* project = RimProject::current() ) project->scheduleCreateDisplayModelAndRedrawAllViews();
