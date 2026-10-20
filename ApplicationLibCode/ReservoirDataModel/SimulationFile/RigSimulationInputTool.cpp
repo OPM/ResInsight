@@ -64,6 +64,7 @@
 
 #include <QFileInfo>
 
+#include <algorithm>
 #include <cmath>
 
 #include <set>
@@ -1511,6 +1512,15 @@ RigSimulationInputTool::ConnectionCellPropertiesProvider RigSimulationInputTool:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigSimulationInputTool::ConnectionKey::operator<( const ConnectionKey& other ) const
+{
+    return std::make_tuple( wellName, ijk.x(), ijk.y(), ijk.z() ) <
+           std::make_tuple( other.wellName, other.ijk.x(), other.ijk.y(), other.ijk.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigSimulationInputTool::ConnectionDirectionMap RigSimulationInputTool::connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords )
 {
     ConnectionDirectionMap directions;
@@ -1535,12 +1545,83 @@ RigSimulationInputTool::ConnectionDirectionMap RigSimulationInputTool::connectio
             const auto dim = compdatPenetrationDimension( record );
             for ( int k = k1; k <= k2; ++k )
             {
-                directions[{ wellName, static_cast<size_t>( i ), static_cast<size_t>( j ), static_cast<size_t>( k ) }] = dim;
+                directions[{ wellName, caf::VecIjk0( i, j, k ) }] = dim;
             }
         }
     }
 
     return directions;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Cells where the well travels towards decreasing index along the connection penetration direction,
+/// determined from the neighbouring COMPSEGS cells on the same branch sorted by measured depth
+//--------------------------------------------------------------------------------------------------
+RigSimulationInputTool::ConnectionKeySet RigSimulationInputTool::reversedSegmentCells( const std::vector<Opm::DeckKeyword>& compsegsKeywords,
+                                                                                       const ConnectionDirectionMap& directions )
+{
+    struct SegmentCell
+    {
+        double       startMd = 0.0;
+        caf::VecIjk0 ijk;
+    };
+
+    ConnectionKeySet reversed;
+
+    for ( const auto& keyword : compsegsKeywords )
+    {
+        if ( keyword.size() < 2 ) continue;
+
+        const auto& wellItem = keyword.getRecord( 0 ).getItem( 0 );
+        if ( !wellItem.hasValue( 0 ) || wellItem.getType() != Opm::type_tag::string ) continue;
+        const auto wellName = wellItem.get<std::string>( 0 );
+
+        std::map<int, std::vector<SegmentCell>> cellsPerBranch;
+        for ( size_t r = 1; r < keyword.size(); ++r )
+        {
+            const auto& record = keyword.getRecord( r );
+            if ( record.size() < 6 ) continue;
+            if ( !record.getItem( 0 ).hasValue( 0 ) || !record.getItem( 1 ).hasValue( 0 ) || !record.getItem( 2 ).hasValue( 0 ) ) continue;
+            if ( !record.getItem( 4 ).hasValue( 0 ) ) continue;
+
+            const int i = record.getItem( 0 ).get<int>( 0 ) - 1;
+            const int j = record.getItem( 1 ).get<int>( 0 ) - 1;
+            const int k = record.getItem( 2 ).get<int>( 0 ) - 1;
+            if ( i < 0 || j < 0 || k < 0 ) continue;
+
+            const int branch = record.getItem( 3 ).hasValue( 0 ) ? record.getItem( 3 ).get<int>( 0 ) : 0;
+            cellsPerBranch[branch].push_back( { record.getItem( 4 ).get<double>( 0 ), caf::VecIjk0( i, j, k ) } );
+        }
+
+        for ( auto& [branch, cells] : cellsPerBranch )
+        {
+            std::stable_sort( cells.begin(), cells.end(), []( const SegmentCell& a, const SegmentCell& b ) { return a.startMd < b.startMd; } );
+
+            for ( size_t c = 0; c < cells.size(); ++c )
+            {
+                const auto& ijk = cells[c].ijk;
+                const auto  key = ConnectionKey{ wellName, ijk };
+
+                auto dim = RigRefinement::DimK;
+                if ( auto it = directions.find( key ); it != directions.end() ) dim = it->second;
+
+                // Prefer the next cell along the well, fall back to the previous cell
+                std::optional<bool> isReversed;
+                if ( c + 1 < cells.size() && cells[c + 1].ijk[dim] != ijk[dim] )
+                {
+                    isReversed = cells[c + 1].ijk[dim] < ijk[dim];
+                }
+                else if ( c > 0 && cells[c - 1].ijk[dim] != ijk[dim] )
+                {
+                    isReversed = ijk[dim] < cells[c - 1].ijk[dim];
+                }
+
+                if ( isReversed.value_or( false ) ) reversed.insert( key );
+            }
+        }
+    }
+
+    return reversed;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1757,7 +1838,8 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
                                                                                                     const std::string&     wellName,
                                                                                                     bool                   isWellNameRecord,
                                                                                                     const RigSimulationInputSettings& settings,
-                                                                                                    const ConnectionDirectionMap& directions )
+                                                                                                    const ConnectionDirectionMap& directions,
+                                                                                                    const ConnectionKeySet& reversedCells )
 {
     // COMPSEGS format: first record is well name, subsequent records are segment data
     // Well name record: just copy as-is
@@ -1788,7 +1870,7 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
     }
 
     auto dim = RigRefinement::DimK;
-    if ( auto it = directions.find( { wellName, origIjk.x(), origIjk.y(), origIjk.z() } ); it != directions.end() )
+    if ( auto it = directions.find( { wellName, origIjk } ); it != directions.end() )
     {
         dim = it->second;
     }
@@ -1804,6 +1886,12 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         if ( hasMdInterval && !isCellRange )
         {
             subcells = allSubcells( refinement, dim, sectorIndex );
+
+            // Assign the MD interval in the order the well travels through the sub-cells
+            if ( reversedCells.contains( { wellName, origIjk } ) )
+            {
+                std::reverse( subcells.begin(), subcells.end() );
+            }
         }
         else
         {
@@ -2588,7 +2676,8 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                                               "WTEMP",    "WTEST",    "WTRACER",  "WSEGVALV", "WSEGAICD", "WSEGSICD" };
 
     // Collect connection directions from the original COMPDAT before it is transformed, used to split COMPSEGS
-    const auto directions = connectionDirections( deckFile.findAllKeywords( "COMPDAT" ) );
+    const auto directions    = connectionDirections( deckFile.findAllKeywords( "COMPDAT" ) );
+    const auto reversedCells = reversedSegmentCells( deckFile.findAllKeywords( "COMPSEGS" ), directions );
 
     const auto cellProperties = connectionCellPropertiesProvider( eclipseCase );
 
@@ -2685,7 +2774,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         }
                         else if ( keywordName == "COMPSEGS" )
                         {
-                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, settings, directions );
+                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, settings, directions, reversedCells );
                             if ( result )
                             {
                                 for ( auto& rec : result.value() )
