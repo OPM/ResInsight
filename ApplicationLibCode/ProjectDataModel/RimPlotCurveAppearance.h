@@ -102,6 +102,8 @@ public:
 
     void setInterpolationVisible( bool isVisible );
     void setColorVisible( bool isVisible );
+    void setSymbolVisible( bool isVisible );
+    void setLineVisible( bool isVisible );
     void setFillOptionsVisible( bool isVisible );
     void setCurveFittingToleranceVisible( bool isVisible );
 
@@ -138,6 +140,8 @@ protected:
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
 
     bool m_colorVisible;
+    bool m_symbolVisible = true;
+    bool m_lineVisible   = true;
     bool m_interpolationVisible;
     bool m_fillOptionsVisible;
     bool m_curveFittingToleranceVisible;

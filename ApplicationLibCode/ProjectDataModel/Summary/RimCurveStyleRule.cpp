@@ -113,16 +113,23 @@ void RimCurveStyleRule::applyToCurve( RimPlotCurve* curve, bool applyColor, bool
     auto*       curveAppearance = curve->curveAppearance();
     const auto& rule            = *m_curveAppearance;
 
-    // Only the explicit overrides are applied. Line stepping, fill, labels and curve fitting are never controlled by the rule
-    if ( applyColor ) curveAppearance->setColor( rule.color() );
-    if ( applySymbol ) curveAppearance->setSymbol( rule.symbol() );
+    // Only the explicit overrides are applied. Line stepping, fill, labels and curve fitting are never controlled by the rule.
+    // Color settings are only edited for color rules, and symbol settings for symbol rules.
+    if ( applyColor )
+    {
+        curveAppearance->setColor( rule.color() );
+        curveAppearance->setCurveColorOpacity( rule.curveColorOpacity() );
+        curveAppearance->setSymbolEdgeColor( rule.symbolEdgeColor() );
+        curveAppearance->setLineStyle( rule.lineStyle() );
+        curveAppearance->setLineThickness( rule.lineThickness() );
+    }
 
-    curveAppearance->setLineStyle( rule.lineStyle() );
-    curveAppearance->setLineThickness( rule.lineThickness() );
-    curveAppearance->setCurveColorOpacity( rule.curveColorOpacity() );
-    curveAppearance->setSymbolSize( rule.symbolSize() );
-    curveAppearance->setSymbolEdgeColor( rule.symbolEdgeColor() );
-    curveAppearance->setSymbolSkipDistance( rule.symbolSkipDistance() );
+    if ( applySymbol )
+    {
+        curveAppearance->setSymbol( rule.symbol() );
+        curveAppearance->setSymbolSize( rule.symbolSize() );
+        curveAppearance->setSymbolSkipDistance( rule.symbolSkipDistance() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,9 +406,13 @@ void RimCurveStyleRule::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRule::appendFieldsToUiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimCurveStyleRule::appendFieldsToUiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showColor, bool showSymbol )
 {
     uiOrdering.add( &m_mode );
+
+    m_curveAppearance->setColorVisible( showColor );
+    m_curveAppearance->setSymbolVisible( showSymbol );
+    m_curveAppearance->setLineVisible( showColor );
 
     auto appearanceGroup = uiOrdering.addNewGroup( "Curve Style" );
     m_curveAppearance->uiOrdering( "AppearanceOrdering", *appearanceGroup );

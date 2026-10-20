@@ -53,8 +53,21 @@ public:
         REALIZATIONS
     };
 
+    // The curve properties assigned by the global curve appearance
+    enum class GlobalAppearance
+    {
+        NONE,
+        COLOR,
+        SYMBOL,
+        COLOR_AND_SYMBOL
+    };
+
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
+
+    GlobalAppearance globalAppearance() const;
+    bool             useGlobalColor() const;
+    bool             useGlobalSymbol() const;
 
     const RimSummaryNameHelper* nameHelper() const;
 
@@ -183,6 +196,7 @@ private:
     caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_defaultStepDimension;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
+    caf::PdmField<caf::AppEnum<GlobalAppearance>>     m_globalAppearance;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 

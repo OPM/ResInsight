@@ -895,13 +895,12 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
     const auto plot     = firstAncestorOrThisOfType<RimSummaryPlot>();
-    const auto rules    = RimProject::current() ? RimProject::current()->curveStyleRules() : nullptr;
     const auto caseName = RimCurveStyleSettings::caseName( summaryCaseY() );
 
     // Curves without a value for the selected dimensions are not changed by the global appearance
     const bool isAppearanceGlobal =
-        plot && plot->useGlobalCurveAppearance() && firstAncestorOrThisOfType<RimSummaryCurveCollection>() && rules &&
-        ( rules->controlsColor( summaryAddressY(), caseName ) || rules->controlsSymbol( summaryAddressY(), caseName ) );
+        plot && firstAncestorOrThisOfType<RimSummaryCurveCollection>() &&
+        ( plot->controlsGlobalColor( summaryAddressY(), caseName ) || plot->controlsGlobalSymbol( summaryAddressY(), caseName ) );
     m_curveAppearance->setUiLocked( isAppearanceGlobal );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );

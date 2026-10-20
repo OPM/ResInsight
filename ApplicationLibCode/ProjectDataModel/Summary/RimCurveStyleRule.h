@@ -108,8 +108,9 @@ public:
     // The custom symbol, if the rule is custom
     std::optional<RiuPlotCurveSymbol::PointSymbolEnum> overriddenSymbol() const;
 
-    // Adds the mode, color and symbol fields, to be edited for the object selected in the collection
-    void appendFieldsToUiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    // Adds the mode and the curve style fields, to be edited for the object selected in the collection. Only the
+    // color or the symbol fields are shown, depending on the appearance property being edited.
+    void appendFieldsToUiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showColor, bool showSymbol );
 
     // The properties currently assigned automatically by the global appearance, shown while the item is Auto
     void setAutoAssigned( const std::optional<cvf::Color3f>& color, const std::optional<RiuPlotCurveSymbol::PointSymbolEnum>& symbol );

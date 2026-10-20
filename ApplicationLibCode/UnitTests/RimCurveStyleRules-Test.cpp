@@ -75,10 +75,6 @@ TEST( RimCurveStyleRulesTest, ControlsOnlyCurvesWithValueForDimension )
     const auto wellAddress  = RifEclipseSummaryAddress::wellAddress( "WOPR", "A-1" );
     const auto fieldAddress = RifEclipseSummaryAddress::fieldAddress( "FOPT" );
 
-    EXPECT_FALSE( rules.controlsColor( wellAddress, "case" ) );
-
-    rules.setUseGlobalAppearance( true );
-
     EXPECT_TRUE( rules.controlsColor( wellAddress, "case" ) );
     EXPECT_FALSE( rules.controlsColor( fieldAddress, "case" ) );
     EXPECT_FALSE( rules.controlsSymbol( wellAddress, "case" ) );

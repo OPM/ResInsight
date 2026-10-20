@@ -206,16 +206,20 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_curveColor.uiCapability()->setUiHidden( !m_colorVisible );
     m_curveColorOpacity.uiCapability()->setUiHidden( !m_colorVisible );
 
-    uiOrdering.add( &m_pointSymbol );
-    if ( RiuPlotCurveSymbol::isFilledSymbol( m_pointSymbol() ) )
+    if ( m_symbolVisible )
     {
-        uiOrdering.add( &m_symbolEdgeColor );
+        uiOrdering.add( &m_pointSymbol );
+        if ( m_colorVisible && RiuPlotCurveSymbol::isFilledSymbol( m_pointSymbol() ) )
+        {
+            uiOrdering.add( &m_symbolEdgeColor );
+        }
+        uiOrdering.add( &m_symbolSize );
+        uiOrdering.add( &m_symbolSkipPixelDistance );
     }
-    uiOrdering.add( &m_symbolSize );
-    uiOrdering.add( &m_symbolSkipPixelDistance );
     uiOrdering.add( &m_lineStyle );
     uiOrdering.add( &m_curveThickness );
-
+    m_lineStyle.uiCapability()->setUiHidden( !m_lineVisible );
+    m_curveThickness.uiCapability()->setUiHidden( !m_lineVisible );
     if ( m_curveFittingToleranceVisible )
     {
         uiOrdering.add( &m_curveFittingTolerance );
@@ -535,6 +539,22 @@ float RimPlotCurveAppearance::curveFittingTolerance() const
 void RimPlotCurveAppearance::setColorVisible( bool isVisible )
 {
     m_colorVisible = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setSymbolVisible( bool isVisible )
+{
+    m_symbolVisible = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setLineVisible( bool isVisible )
+{
+    m_lineVisible = isVisible;
 }
 
 //--------------------------------------------------------------------------------------------------

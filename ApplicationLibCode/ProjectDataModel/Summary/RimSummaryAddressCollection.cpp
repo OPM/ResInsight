@@ -22,6 +22,9 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimCurveStyleRules.h"
+#include "RimCurveStyleSettings.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -540,6 +543,60 @@ int RimSummaryAddressCollection::ensembleId() const
 std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolders() const
 {
     return m_subfolders.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tags showing the global color and symbol assigned to the well, group, region etc. of the collection
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiTreeViewItemTag> RimSummaryAddressCollection::treeItemTags()
+{
+    using Dimension = RimCurveStyleSettings::Dimension;
+
+    auto project = RimProject::current();
+    if ( !project || !project->curveStyleRules() || m_adresses.empty() ) return {};
+
+    Dimension dimension = Dimension::NONE;
+    switch ( m_contentType() )
+    {
+        case CollectionContentType::WELL:
+            dimension = Dimension::WELL;
+            break;
+        case CollectionContentType::GROUP:
+            dimension = Dimension::GROUP;
+            break;
+        case CollectionContentType::NETWORK:
+            dimension = Dimension::NETWORK;
+            break;
+        case CollectionContentType::REGION:
+            dimension = Dimension::REGION;
+            break;
+        case CollectionContentType::REGION_2_REGION:
+            dimension = Dimension::REGION_2_REGION;
+            break;
+        case CollectionContentType::AQUIFER:
+            dimension = Dimension::AQUIFER;
+            break;
+        case CollectionContentType::WELL_LGR:
+            dimension = Dimension::LGR;
+            break;
+        case CollectionContentType::BLOCK:
+        case CollectionContentType::BLOCK_LGR:
+            dimension = Dimension::BLOCK;
+            break;
+        case CollectionContentType::WELL_COMPLETION:
+        case CollectionContentType::WELL_CONNECTION:
+        case CollectionContentType::WELL_CONNECTION_LGR:
+            dimension = Dimension::CONNECTION;
+            break;
+        case CollectionContentType::WELL_SEGMENT:
+            dimension = Dimension::SEGMENT;
+            break;
+        default:
+            return {};
+    }
+
+    const auto value = RimCurveStyleSettings::dimensionValue( dimension, m_adresses.childrenByType().front()->address(), "" );
+    return project->curveStyleRules()->treeItemTags( dimension, QString::fromStdString( value ) );
 }
 
 //--------------------------------------------------------------------------------------------------

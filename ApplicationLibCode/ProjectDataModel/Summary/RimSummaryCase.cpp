@@ -22,7 +22,9 @@
 
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
-
+#include "RimCurveStyleRule.h"
+#include "RimCurveStyleRules.h"
+#include "RimCurveStyleSettings.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryEnsemble.h"
@@ -294,6 +296,13 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSummaryCase::treeItemTags()
         auto tag = caf::PdmUiTreeViewItemTag::create();
         tag.icon = caf::IconProvider( ":/TimedRefresh.png" );
         tags.push_back( tag );
+    }
+
+    if ( auto project = RimProject::current(); project && project->curveStyleRules() )
+    {
+        const auto globalTags = project->curveStyleRules()->treeItemTags( RimCurveStyleRule::Dimension::CASE,
+                                                                          QString::fromStdString( RimCurveStyleSettings::caseName( this ) ) );
+        tags.insert( tags.end(), globalTags.begin(), globalTags.end() );
     }
 
     return tags;

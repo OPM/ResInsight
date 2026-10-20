@@ -38,11 +38,13 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimAnnotationLineAppearance.h"
+#include "RimCurveStyleRules.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimPlotAxisProperties.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
@@ -89,9 +91,43 @@ void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::REALIZATIONS, "REALIZATIONS", "All Realizations" );
     setDefault( RimSummaryMultiPlot::AxisRangeAggregation::NONE );
 }
+
+template <>
+void AppEnum<RimSummaryMultiPlot::GlobalAppearance>::setUp()
+{
+    addItem( RimSummaryMultiPlot::GlobalAppearance::NONE, "NONE", "Local" );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::COLOR, "COLOR", "Use Global Color" );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::SYMBOL, "SYMBOL", "Use Global Symbol" );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::COLOR_AND_SYMBOL, "COLOR_AND_SYMBOL", "Use Global Color and Symbol" );
+    setDefault( RimSummaryMultiPlot::GlobalAppearance::NONE );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot::GlobalAppearance RimSummaryMultiPlot::globalAppearance() const
+{
+    return m_globalAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::useGlobalColor() const
+{
+    return m_globalAppearance() == GlobalAppearance::COLOR || m_globalAppearance() == GlobalAppearance::COLOR_AND_SYMBOL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::useGlobalSymbol() const
+{
+    return m_globalAppearance() == GlobalAppearance::SYMBOL || m_globalAppearance() == GlobalAppearance::COLOR_AND_SYMBOL;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -169,6 +205,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
+
+    CAF_PDM_InitFieldNoDefault( &m_globalAppearance, "GlobalAppearance", "Curve Appearance" );
 
     CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Filter Threshold" );
 
@@ -442,6 +480,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
     subPlotSettingsGroup->add( &m_subTitleFontSize );
 
+    auto appearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
+    appearanceGroup->add( &m_globalAppearance );
+
     auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
     legendsGroup->setCollapsedByDefault();
     legendsGroup->add( &m_showPlotLegends );
@@ -497,6 +538,13 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         syncAxisRanges();
         analyzePlotsAndAdjustAppearanceSettings();
         zoomAll();
+    }
+    else if ( changedField == &m_globalAppearance )
+    {
+        if ( auto rules = RimProject::current() ? RimProject::current()->curveStyleRules() : nullptr )
+        {
+            rules->applyGlobalAppearance( summaryPlots() );
+        }
     }
     else if ( changedField == &m_createPlotDuplicate )
     {

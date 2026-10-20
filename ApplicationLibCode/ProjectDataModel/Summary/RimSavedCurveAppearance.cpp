@@ -58,6 +58,15 @@ void RimSavedCurveAppearance::setEnsembleCurveSet( RimEnsembleCurveSet* curveSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmObject* RimSavedCurveAppearance::object() const
+{
+    if ( m_curve() ) return m_curve();
+    return m_ensembleCurveSet();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmObject* RimSavedCurveAppearance::restore() const
 {
     if ( m_curve() && m_appearance() )

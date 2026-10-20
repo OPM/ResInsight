@@ -496,7 +496,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor( int colorI
     if ( auto project = RimProject::current() )
     {
         auto rules = project->curveStyleRules();
-        if ( rules && rules->useGlobalAppearance() )
+        if ( rules && rules->isGlobalColorUsed() )
         {
             if ( auto legendColor = rules->autoLegendColor( colorIndex ) ) return *legendColor;
         }
