@@ -126,7 +126,7 @@ def case(self):
     return None
 
 
-@add_method(GeoMechView)
+@add_method(GeoMechView)  # type: ignore[no-redef]
 def case(self):  # noqa: F811
     """Get the case the view belongs to"""
     # Geomechanical views are children of their case
