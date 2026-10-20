@@ -1582,15 +1582,15 @@ RigSimulationInputTool::ConnectionKeySet RigSimulationInputTool::reversedSegment
             const auto& record = keyword.getRecord( r );
             if ( record.size() < 6 ) continue;
             if ( !record.getItem( 0 ).hasValue( 0 ) || !record.getItem( 1 ).hasValue( 0 ) || !record.getItem( 2 ).hasValue( 0 ) ) continue;
-            if ( !record.getItem( 4 ).hasValue( 0 ) ) continue;
 
             const int i = record.getItem( 0 ).get<int>( 0 ) - 1;
             const int j = record.getItem( 1 ).get<int>( 0 ) - 1;
             const int k = record.getItem( 2 ).get<int>( 0 ) - 1;
             if ( i < 0 || j < 0 || k < 0 ) continue;
 
-            const int branch = record.getItem( 3 ).hasValue( 0 ) ? record.getItem( 3 ).get<int>( 0 ) : 0;
-            cellsPerBranch[branch].push_back( { record.getItem( 4 ).get<double>( 0 ), caf::VecIjk0( i, j, k ) } );
+            const int    branch  = record.getItem( 3 ).hasValue( 0 ) ? record.getItem( 3 ).get<int>( 0 ) : 0;
+            const double startMd = record.getItem( 4 ).hasValue( 0 ) ? record.getItem( 4 ).get<double>( 0 ) : 0.0;
+            cellsPerBranch[branch].push_back( { startMd, caf::VecIjk0( i, j, k ) } );
         }
 
         for ( auto& [branch, cells] : cellsPerBranch )
@@ -1879,12 +1879,37 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
 
     std::vector<RefinedSubcell> subcells = { { ( *transformResult )[dim], 1.0 } };
 
-    const bool hasMdInterval = record.size() > 5 && record.getItem( 4 ).hasValue( 0 ) && record.getItem( 5 ).hasValue( 0 );
-    const bool isCellRange   = record.size() > 6 && record.getItem( 6 ).hasValue( 0 );
+    using C = Opm::ParserKeywords::COMPSEGS;
+
+    auto hasItemValue = [&record]( const std::string& itemName )
+    { return record.hasItem( itemName ) && record.getItem( itemName ).hasValue( 0 ); };
+
+    // A cell range is given by END_IJK. DIRECTION alone (with an MD interval) describes a single cell.
+    const bool isCellRange = hasItemValue( C::END_IJK::itemName );
+    const bool hasEndMd    = hasItemValue( C::DISTANCE_END::itemName );
+
+    // A defaulted start MD is zero (only allowed for the first segment record)
+    const double startMd = hasItemValue( C::DISTANCE_START::itemName ) ? record.getItem( C::DISTANCE_START::itemName ).get<double>( 0 ) : 0.0;
+    const double endMd = hasEndMd ? record.getItem( C::DISTANCE_END::itemName ).get<double>( 0 ) : 0.0;
+
+    // Whether the MD interval is divided between the sub-cells, otherwise the record is copied unchanged to each sub-cell
+    bool splitMdInterval = false;
+
     if ( refinement.subcellCount( dim, sectorIndex ) > 1 )
     {
-        if ( hasMdInterval && !isCellRange )
+        if ( isCellRange )
         {
+            RiaLogging::warning(
+                std::format( "COMPSEGS record for well {} at ({}, {}, {}) uses a cell range (END_IJK), which is not supported "
+                             "for refined sector export. Only the center refined sub-cell is assigned to the segment.",
+                             wellName,
+                             origIjk.x() + 1,
+                             origIjk.y() + 1,
+                             origIjk.z() + 1 ) );
+        }
+        else
+        {
+            // All refined sub-cells along the connection are completed by COMPDAT, so all must be assigned to a segment
             subcells = allSubcells( refinement, dim, sectorIndex );
 
             // Assign the MD interval in the order the well travels through the sub-cells
@@ -1892,15 +1917,17 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
             {
                 std::reverse( subcells.begin(), subcells.end() );
             }
-        }
-        else
-        {
-            RiaLogging::warning( std::format( "COMPSEGS record for well {} at ({}, {}, {}) has no MD interval or uses a cell range. "
-                                              "Only the center refined sub-cell is assigned to the segment.",
-                                              wellName,
-                                              origIjk.x() + 1,
-                                              origIjk.y() + 1,
-                                              origIjk.z() + 1 ) );
+
+            splitMdInterval = hasEndMd;
+            if ( !hasEndMd )
+            {
+                RiaLogging::warning( std::format( "COMPSEGS record for well {} at ({}, {}, {}) has no end MD. "
+                                                  "The record is copied unchanged to each refined sub-cell.",
+                                                  wellName,
+                                                  origIjk.x() + 1,
+                                                  origIjk.y() + 1,
+                                                  origIjk.z() + 1 ) );
+            }
         }
     }
 
@@ -1920,11 +1947,10 @@ std::expected<std::vector<Opm::DeckRecord>, QString> RigSimulationInputTool::pro
         const double endFraction = startFraction + subcell.fraction;
         for ( size_t i = 3; i < record.size(); ++i )
         {
-            if ( subcells.size() > 1 && ( i == 4 || i == 5 ) )
+            const auto& itemName = record.getItem( i ).name();
+            if ( splitMdInterval && ( itemName == C::DISTANCE_START::itemName || itemName == C::DISTANCE_END::itemName ) )
             {
-                const double startMd  = record.getItem( 4 ).get<double>( 0 );
-                const double endMd    = record.getItem( 5 ).get<double>( 0 );
-                const double fraction = ( i == 4 ) ? startFraction : endFraction;
+                const double fraction = ( itemName == C::DISTANCE_START::itemName ) ? startFraction : endFraction;
                 items.push_back( RifOpmDeckTools::item( record.getItem( i ).name(), startMd + ( endMd - startMd ) * fraction ) );
             }
             else
