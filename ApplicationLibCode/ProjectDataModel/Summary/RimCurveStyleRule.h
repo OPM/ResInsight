@@ -126,7 +126,7 @@ protected:
 
 private:
     void copyAppearanceFromCurves();
-    void connectAppearanceSignal();
+    void setUpAppearance();
     void onAppearanceChanged( const caf::SignalEmitter* emitter );
 
 private:

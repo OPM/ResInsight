@@ -106,6 +106,7 @@ private:
     RimCurveStyleRule* findRule( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
     QString            currentItemName() const;
     bool               updateSelectedItem();
+    void               resetAllRules();
 
     // The dimension controlling the selected appearance type, as stored in the global settings
     caf::AppEnum<RimCurveStyleRule::Dimension> currentDimension() const;

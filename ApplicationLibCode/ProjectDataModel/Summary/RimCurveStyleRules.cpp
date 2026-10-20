@@ -655,5 +655,20 @@ void RimCurveStyleRules::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         m_selectedItem->appendFieldsToUiOrdering( uiConfigName, *appearanceGroup );
     }
 
+    uiOrdering.addNewButton( "Reset All", [this]() { resetAllRules(); } );
+
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Rules are only stored for items with custom settings, so deleting them resets all items to Auto
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::resetAllRules()
+{
+    RimCurveStyleRule::AvailableNamesCache namesCache;
+
+    m_rules.deleteChildren();
+
+    rulesChanged();
+    updateConnectedEditors();
 }

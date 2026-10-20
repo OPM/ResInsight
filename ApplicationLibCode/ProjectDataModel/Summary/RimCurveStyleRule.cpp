@@ -67,15 +67,22 @@ RimCurveStyleRule::RimCurveStyleRule()
     CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "CurveAppearance", "Curve Appearance" );
     m_curveAppearance = new RimPlotCurveAppearance;
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );
-    connectAppearanceSignal();
+    setUpAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRule::connectAppearanceSignal()
+void RimCurveStyleRule::setUpAppearance()
 {
-    if ( m_curveAppearance() ) m_curveAppearance->appearanceChanged.connect( this, &RimCurveStyleRule::onAppearanceChanged );
+    if ( !m_curveAppearance() ) return;
+
+    m_curveAppearance->appearanceChanged.connect( this, &RimCurveStyleRule::onAppearanceChanged );
+
+    // Only show the properties applied by applyToCurve()
+    m_curveAppearance->setInterpolationVisible( false );
+    m_curveAppearance->setFillOptionsVisible( false );
+    m_curveAppearance->setCurveFittingToleranceVisible( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +90,7 @@ void RimCurveStyleRule::connectAppearanceSignal()
 //--------------------------------------------------------------------------------------------------
 void RimCurveStyleRule::initAfterRead()
 {
-    connectAppearanceSignal();
+    setUpAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,21 +110,19 @@ void RimCurveStyleRule::applyToCurve( RimPlotCurve* curve, bool applyColor, bool
 {
     if ( m_mode() != Mode::CUSTOM ) return;
 
-    auto       curveAppearance = curve->curveAppearance();
-    const auto color           = curveAppearance->color();
-    const auto symbol          = curveAppearance->symbol();
-    const auto label           = curveAppearance->symbolLabel();
-    const auto labelPosition   = curveAppearance->symbolLabelPosition();
+    auto*       curveAppearance = curve->curveAppearance();
+    const auto& rule            = *m_curveAppearance;
 
-    curveAppearance->copyFrom( *m_curveAppearance );
+    // Only the explicit overrides are applied. Line stepping, fill, labels and curve fitting are never controlled by the rule
+    if ( applyColor ) curveAppearance->setColor( rule.color() );
+    if ( applySymbol ) curveAppearance->setSymbol( rule.symbol() );
 
-    // Color and symbol are only controlled by the rule when its dimension is the one selected for them
-    if ( !applyColor ) curveAppearance->setColor( color );
-    if ( !applySymbol ) curveAppearance->setSymbol( symbol );
-
-    // Labels are specific to each curve
-    curveAppearance->setSymbolLabel( label );
-    curveAppearance->setSymbolLabelPosition( labelPosition );
+    curveAppearance->setLineStyle( rule.lineStyle() );
+    curveAppearance->setLineThickness( rule.lineThickness() );
+    curveAppearance->setCurveColorOpacity( rule.curveColorOpacity() );
+    curveAppearance->setSymbolSize( rule.symbolSize() );
+    curveAppearance->setSymbolEdgeColor( rule.symbolEdgeColor() );
+    curveAppearance->setSymbolSkipDistance( rule.symbolSkipDistance() );
 }
 
 //--------------------------------------------------------------------------------------------------
