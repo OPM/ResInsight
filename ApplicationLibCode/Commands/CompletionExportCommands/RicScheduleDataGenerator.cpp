@@ -23,6 +23,8 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 #include "RicWellPathExportMswTableData.h"
 
+#include "RigCompletionData.h"
+
 #include "RiaLogging.h"
 
 #include "RifEventKeywordFormatter.h"
@@ -45,6 +47,7 @@
 #include <QStringList>
 
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <set>
 
@@ -680,10 +683,46 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
     // Completion data feeds both COMPDAT and COMPLUMP (the latter only emits records whose perforation has a
     // completion number assigned). Both keywords merge across wells.
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, eclipseCase, date );
+    sortCompletionsMainBoreFirst( topLevelWells, compdata );
+
     auto wellName = exportNameForWell( representative ).toStdString();
 
     mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
     mergeKeyword( keywordBlocks, "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicScheduleDataGenerator::sortCompletionsMainBoreFirst( const std::vector<RimWellPath*>& topLevelWells,
+                                                             std::vector<RigCompletionData>&  compdata )
+{
+    // Rank wells in traversal order: each top-level well (mainbore) first, then its laterals depth-first
+    // (RimWellPath::allWellPathLaterals() already returns that order).
+    std::map<const RimWellPath*, int> wellRank;
+    for ( auto* topLevel : topLevelWells )
+    {
+        for ( auto* lateral : topLevel->allWellPathLaterals() )
+        {
+            wellRank.try_emplace( lateral, static_cast<int>( wellRank.size() ) );
+        }
+    }
+
+    auto rankOf = [&wellRank]( const RigCompletionData& completion ) -> int
+    {
+        const caf::PdmObject* sourceObject = completion.sourcePdmObject();
+        const RimWellPath*    well         = sourceObject ? sourceObject->firstAncestorOrThisOfType<RimWellPath>() : nullptr;
+        if ( !well ) return std::numeric_limits<int>::max();
+
+        auto it = wellRank.find( well );
+        return it != wellRank.end() ? it->second : std::numeric_limits<int>::max();
+    };
+
+    // Stable sort: connections whose well cannot be determined, or that belong to the same well, keep the
+    // relative order produced by completionDataForWellPaths() (e.g. measured depth along that well).
+    std::stable_sort( compdata.begin(),
+                      compdata.end(),
+                      [&rankOf]( const RigCompletionData& lhs, const RigCompletionData& rhs ) { return rankOf( lhs ) < rankOf( rhs ); } );
 }
 
 //--------------------------------------------------------------------------------------------------

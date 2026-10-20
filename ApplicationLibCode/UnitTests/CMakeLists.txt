@@ -209,6 +209,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicMswBranchBuilder-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMswTableData-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
