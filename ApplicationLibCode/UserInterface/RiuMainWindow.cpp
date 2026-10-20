@@ -634,15 +634,6 @@ void RiuMainWindow::createToolBars()
     }
 
     {
-        QToolBar* toolbar = addToolBar( tr( "Import" ) );
-        toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportGridModelFeature" ) );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
-        toolbar->hide();
-    }
-
-    {
         QToolBar* toolbar = addToolBar( tr( "Import GeoMech" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
