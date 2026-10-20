@@ -29,6 +29,7 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicScheduleDataGenerator.h"
 #include "RicTransmissibilityCalculator.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 #include "RicWellPathExportMswCompletionsImpl.h"
@@ -1519,7 +1520,11 @@ std::vector<RigCompletionData>
         completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
     }
 
-    std::sort( completions.begin(), completions.end() );
+    // Order completions with each well's mainbore connections first, followed by each lateral's
+    // (see https://github.com/OPM/ResInsight/issues/14963), instead of the plain well
+    // name/completion type/measured depth ordering from RigCompletionData::operator<(), since each
+    // lateral has its own independent MD scale.
+    RicScheduleDataGenerator::sortCompletionsMainBoreFirst( wellPaths, completions );
 
     // make sure we set per-connection D-factors, must be done after combining completions
     for ( auto& completion : completions )

@@ -23,6 +23,8 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 #include "RicWellPathExportMswTableData.h"
 
+#include "RigCompletionData.h"
+
 #include "RiaLogging.h"
 
 #include "RifEventKeywordFormatter.h"
@@ -36,6 +38,7 @@
 #include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
+#include "RimWellPathTieIn.h"
 
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
@@ -45,6 +48,7 @@
 #include <QStringList>
 
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <set>
 
@@ -678,12 +682,88 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
     }
 
     // Completion data feeds both COMPDAT and COMPLUMP (the latter only emits records whose perforation has a
-    // completion number assigned). Both keywords merge across wells.
+    // completion number assigned). Both keywords merge across wells. completionDataForWellPaths() already orders
+    // mainbore connections before each lateral's (see RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths()).
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, eclipseCase, date );
+
     auto wellName = exportNameForWell( representative ).toStdString();
 
     mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
     mergeKeyword( keywordBlocks, "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Appends the connections (if any) belonging to `well`, then recurses depth-first into its laterals.
+/// Sibling laterals are visited in tie-in measured depth order: RimWellPath::wellPathLaterals() orders
+/// siblings by an internal pointer-based multiset and does not guarantee a stable, well-tree-derived
+/// order between them.
+//--------------------------------------------------------------------------------------------------
+void appendCompletionsDepthFirst( const RimWellPath*                                            well,
+                                  std::map<const RimWellPath*, std::vector<RigCompletionData>>& completionsByWell,
+                                  std::vector<RigCompletionData>&                               sortedCompdata )
+{
+    auto it = completionsByWell.find( well );
+    if ( it != completionsByWell.end() )
+    {
+        for ( const auto& completion : it->second )
+            sortedCompdata.push_back( completion );
+        completionsByWell.erase( it );
+    }
+
+    std::vector<RimWellPath*> laterals = well->wellPathLaterals();
+    std::stable_sort( laterals.begin(),
+                      laterals.end(),
+                      []( const RimWellPath* a, const RimWellPath* b )
+                      {
+                          double mdA = a->wellPathTieIn() ? a->wellPathTieIn()->tieInMeasuredDepth() : 0.0;
+                          double mdB = b->wellPathTieIn() ? b->wellPathTieIn()->tieInMeasuredDepth() : 0.0;
+                          return mdA < mdB;
+                      } );
+
+    for ( auto* lateral : laterals )
+        appendCompletionsDepthFirst( lateral, completionsByWell, sortedCompdata );
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicScheduleDataGenerator::sortCompletionsMainBoreFirst( const std::vector<RimWellPath*>& topLevelWells,
+                                                             std::vector<RigCompletionData>&  compdata )
+{
+    auto wellOf = []( const RigCompletionData& completion ) -> const RimWellPath*
+    {
+        const caf::PdmObject* sourceObject = completion.sourcePdmObject();
+        return sourceObject ? sourceObject->firstAncestorOrThisOfType<RimWellPath>() : nullptr;
+    };
+
+    // Group connections by well, keeping each well's original relative order (e.g. measured depth along
+    // that well). Connections whose well cannot be determined end up under the nullptr key.
+    std::map<const RimWellPath*, std::vector<RigCompletionData>> completionsByWell;
+    for ( const auto& completion : compdata )
+    {
+        completionsByWell[wellOf( completion )].push_back( completion );
+    }
+
+    // Visit wells mainbore-first, depth-first: each top-level well, then its laterals in tie-in
+    // measured depth order.
+    std::vector<RigCompletionData> sortedCompdata;
+    sortedCompdata.reserve( compdata.size() );
+    for ( auto* topLevel : topLevelWells )
+    {
+        appendCompletionsDepthFirst( topLevel, completionsByWell, sortedCompdata );
+    }
+
+    // Append any remaining connections (unknown well) last, in their original relative order.
+    for ( const auto& [well, completions] : completionsByWell )
+    {
+        for ( const auto& completion : completions )
+            sortedCompdata.push_back( completion );
+    }
+
+    compdata = std::move( sortedCompdata );
 }
 
 //--------------------------------------------------------------------------------------------------

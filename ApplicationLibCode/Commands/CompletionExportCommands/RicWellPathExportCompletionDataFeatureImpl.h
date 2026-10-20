@@ -68,6 +68,9 @@ public:
         completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, const std::optional<QDateTime>& exportDate = std::nullopt );
 
     // Completion data for several well paths (including their laterals), combined per cell into one connection.
+    // Connections are ordered with each well path's mainbore connections first, followed by each lateral's
+    // (depth-first), matching ResInsight's internal completion ordering (see
+    // https://github.com/OPM/ResInsight/issues/14963).
     static std::vector<RigCompletionData> completionDataForWellPaths( const std::vector<RimWellPath*>& wellPaths,
                                                                       RimEclipseCase*                  eCase,
                                                                       const std::optional<QDateTime>&  exportDate = std::nullopt );

@@ -18,7 +18,7 @@
 
 #include "RimcWellEventTimeline.h"
 
-#include "CompletionExportCommands/RicScheduleDataGenerator.h"
+#include "Commands/CompletionExportCommands/RicScheduleDataGenerator.h"
 #include "RiaOpmKeywordTools.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
