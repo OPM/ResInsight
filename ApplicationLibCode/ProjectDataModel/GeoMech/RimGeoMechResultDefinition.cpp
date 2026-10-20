@@ -544,8 +544,6 @@ void RimGeoMechResultDefinition::initAfterRead()
     if ( m_resultComponentName() == "STM" || m_resultComponentName() == "SEM" ) m_resultComponentName = "SM";
 
     updateUiFieldsFromActiveResult();
-
-    m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( resultPositionType() == RIG_WELLPATH_DERIVED );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -556,6 +554,8 @@ void RimGeoMechResultDefinition::updateUiFieldsFromActiveResult()
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
+
+    m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( resultPositionType() == RIG_WELLPATH_DERIVED );
 }
 
 //--------------------------------------------------------------------------------------------------

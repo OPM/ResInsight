@@ -112,13 +112,9 @@ def extract_address(address) -> int:
     return int(parts[1])
 
 
-@add_method(View)
+@add_method(EclipseView)
 def case(self):
     """Get the case the view belongs to"""
-    # Geomechanical views are children of their case
-    if not hasattr(self, "eclipse_case"):
-        return self.ancestor(rips.case.Case)
-
     project = self.ancestor(rips.project.Project)
 
     eclipse_case_addr = extract_address(self.eclipse_case)
@@ -128,6 +124,13 @@ def case(self):
         if c.address() == eclipse_case_addr:
             return c
     return None
+
+
+@add_method(GeoMechView)
+def case(self):  # noqa: F811
+    """Get the case the view belongs to"""
+    # Geomechanical views are children of their case
+    return self.ancestor(rips.case.Case)
 
 
 @add_method(View)

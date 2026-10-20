@@ -2,6 +2,8 @@
 # This script applies a geomechanical cell result to the first view
 # of the first GeoMech case in the project
 ######################################################################
+import sys
+
 import rips
 
 resinsight = rips.Instance.find()
@@ -9,7 +11,7 @@ resinsight = rips.Instance.find()
 cases = resinsight.project.descendants(rips.GeoMechCase)
 if not cases:
     print("No GeoMech cases in project")
-    exit(1)
+    sys.exit(1)
 
 view = cases[0].views()[0]
 
