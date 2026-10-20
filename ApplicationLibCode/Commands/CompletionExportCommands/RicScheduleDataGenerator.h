@@ -86,8 +86,9 @@ public:
     // (laterals), matching ResInsight's internal completion ordering (see
     // https://github.com/OPM/ResInsight/issues/14963). Connections are otherwise left in the relative order
     // produced by RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths(), which already
-    // combines connections sharing a grid cell into a single record. A connection whose owning well path
-    // cannot be determined (e.g. unexpected source object) is left after all connections with a known well.
+    // combines connections sharing a grid cell into a single record and applies this ordering itself.
+    // A connection whose owning well path cannot be determined (e.g. unexpected source object) is left
+    // after all connections with a known well.
     static void sortCompletionsMainBoreFirst( const std::vector<RimWellPath*>& topLevelWells, std::vector<RigCompletionData>& compdata );
 
 private:
@@ -113,7 +114,7 @@ private:
     // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a group of well paths sharing
     // one export name at a specific date based on events, merging both into the accumulator. Connections in cells
     // shared by several well paths in the group are combined into one record. Records are ordered with the
-    // mainbore's connections first, followed by each lateral's (see sortCompletionsMainBoreFirst()).
+    // mainbore's connections first, followed by each lateral's (see completionDataForWellPaths()).
     static void generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
                                                  const std::vector<RimWellPath*>&     wellGroup,
                                                  const QDateTime&                     date,

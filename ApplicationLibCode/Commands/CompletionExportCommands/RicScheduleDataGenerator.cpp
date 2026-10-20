@@ -681,9 +681,9 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
     }
 
     // Completion data feeds both COMPDAT and COMPLUMP (the latter only emits records whose perforation has a
-    // completion number assigned). Both keywords merge across wells.
+    // completion number assigned). Both keywords merge across wells. completionDataForWellPaths() already orders
+    // mainbore connections before each lateral's (see RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths()).
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( topLevelWells, eclipseCase, date );
-    sortCompletionsMainBoreFirst( topLevelWells, compdata );
 
     auto wellName = exportNameForWell( representative ).toStdString();
 
