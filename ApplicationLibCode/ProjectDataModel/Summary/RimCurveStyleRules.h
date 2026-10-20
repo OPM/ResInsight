@@ -79,18 +79,12 @@ public:
     // Color from the project color legend used for auto colors, if one is selected
     std::optional<cvf::Color3f> autoLegendColor( int index ) const;
 
-    // The custom color of the item, otherwise the automatically assigned color. Empty if colors are not differentiated by the dimension
-    std::optional<cvf::Color3f> assignedColor( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
-
     // Configures a field as a label with a link that shows the global curve appearance
     static void addGlobalAppearanceLink( caf::PdmUiOrdering& uiOrdering, const QString& text );
 
     // Global appearance is selected per summary multi plot
     bool isGlobalColorUsed() const;
     bool isGlobalSymbolUsed() const;
-
-    // The custom symbol of the item, otherwise the automatically assigned symbol. Empty if symbols are not differentiated by the dimension
-    std::optional<RiuPlotCurveSymbol::PointSymbolEnum> assignedSymbol( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
 
     // Tags for the data source tree showing the global color and symbol assigned to an item
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
@@ -109,7 +103,8 @@ public:
     };
 
 private:
-    void               assignedAppearance( const QString&                                              name,
+    void               assignedAppearance( RimCurveStyleRule::Dimension                                dimension,
+                                           const QString&                                              name,
                                            int                                                         index,
                                            const std::map<QString, RimCurveStyleRule::PlotAppearance>& plotAppearances,
                                            std::optional<cvf::Color3f>&                                color,
@@ -145,4 +140,12 @@ private:
 
     // Edited in the dock window for the selected item. Not stored, custom settings are copied to a rule in m_rules.
     caf::PdmChildField<RimCurveStyleRule*> m_selectedItem;
+
+    // Colors and symbols shown as tags in the data source tree, built on demand and cleared when the rules change
+    struct TagAppearance
+    {
+        std::optional<cvf::Color3f>                        color;
+        std::optional<RiuPlotCurveSymbol::PointSymbolEnum> symbol;
+    };
+    mutable std::map<RimCurveStyleRule::Dimension, std::map<QString, TagAppearance>> m_tagCache;
 };
