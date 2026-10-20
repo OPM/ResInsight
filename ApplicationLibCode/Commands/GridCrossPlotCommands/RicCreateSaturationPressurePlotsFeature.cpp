@@ -22,7 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
-#include "RiuMessageDialog.h"
+#include "RiaResultNames.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -35,6 +35,7 @@
 #include "RimSaturationPressurePlot.h"
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "RiuMessageDialog.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
@@ -77,7 +78,7 @@ std::vector<RimSaturationPressurePlot*> RicCreateSaturationPressurePlotsFeature:
         {
             RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PRESSURE is not available " );
                 return plots;

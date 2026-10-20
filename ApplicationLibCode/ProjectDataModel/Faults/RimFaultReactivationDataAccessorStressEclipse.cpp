@@ -21,6 +21,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RiaWellLogUnitTools.h"
 
 #include "RigCaseCellResultsData.h"
@@ -84,7 +85,7 @@ void RimFaultReactivationDataAccessorStressEclipse::updateResultAccessor()
 {
     if ( !m_caseData ) return;
 
-    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() );
     m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
 
     m_resultAccessor =

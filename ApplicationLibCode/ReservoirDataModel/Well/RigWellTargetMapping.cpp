@@ -116,7 +116,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         }
     }
 
-    RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+    RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() );
     resultsData->ensureKnownResultLoaded( pressureAddress );
     data.pressure = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
 

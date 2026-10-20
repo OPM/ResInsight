@@ -840,32 +840,40 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
     auto isCandidateResult = []( const RigEclipseResultAddress& adr, RiaDefines::ResultCatType category )
     { return adr.resultCatType() == category && adr.resultName() != RiaResultNames::completionTypeResultName(); };
 
+    auto preferredResult = RiaPreferencesGrid::current()->preferredDynamicResult();
+    if ( preferredResult == RiaResultNames::undefinedResultName() )
+    {
+        return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::undefinedResultName() );
+    }
+
     if ( maxTimeStepCount() > 0 )
     {
-        auto prefs = RiaPreferencesGrid::current();
-        if ( prefs->loadAndShowSoil() && m_ownerCaseData )
+        if ( m_ownerCaseData )
         {
-            // Use the saturation result matching the available phases, but only if the result exists or can be
-            // computed, i.e. a result entry is present. See issue #10122.
+            // Check which results are available
             const auto phases = m_ownerCaseData->availablePhases();
 
             const RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
-            if ( phases.contains( RiaDefines::PhaseType::OIL_PHASE ) && hasResultEntry( soilAddress ) )
-            {
-                return soilAddress;
-            }
-
             const RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
-            if ( phases.contains( RiaDefines::PhaseType::GAS_PHASE ) && hasResultEntry( sgasAddress ) )
+
+            bool soilAvailable = phases.contains( RiaDefines::PhaseType::OIL_PHASE ) && hasResultEntry( soilAddress );
+            bool sgasAvailable = phases.contains( RiaDefines::PhaseType::GAS_PHASE ) && hasResultEntry( sgasAddress );
+
+            if ( preferredResult == RiaResultNames::soil() )
             {
-                return sgasAddress;
+                if ( soilAvailable ) return soilAddress;
+                if ( sgasAvailable ) return sgasAddress;
+            }
+            else if ( preferredResult == RiaResultNames::sgas() )
+            {
+                if ( sgasAvailable ) return sgasAddress;
+                if ( soilAvailable ) return soilAddress;
             }
 
-            const RigEclipseResultAddress swatAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
-            if ( hasResultEntry( swatAddress ) )
-            {
-                return swatAddress;
-            }
+            const RigEclipseResultAddress defaultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, preferredResult );
+            if ( hasResultEntry( defaultAddress ) ) return defaultAddress;
+
+            RiaLogging::warning( std::format( "Unable to find default dynamic result {}", preferredResult.toStdString() ) );
         }
 
         auto dynamicResult = std::find_if( allResults.begin(),
