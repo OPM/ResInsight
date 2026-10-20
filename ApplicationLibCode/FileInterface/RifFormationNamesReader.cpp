@@ -31,6 +31,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 
 #include "cvfColor3.h"
 
@@ -123,7 +124,9 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFormation
 {
     QFileInfo fileInfo( fileName );
 
-    if ( fileInfo.fileName() == layerZoneTableFileName )
+    const QString suffix = fileInfo.suffix().toLower();
+
+    if ( fileInfo.fileName() == layerZoneTableFileName || suffix == "yml" || suffix == "yaml" )
     {
         std::map<QString, cvf::Color3f> colors;
 
@@ -140,12 +143,101 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFormation
             }
         }
 
+        if ( suffix == "yml" || suffix == "yaml" )
+        {
+            return RifFormationNamesReader::readYamlFormationNameFile( fileName, colors );
+        }
         return RifFormationNamesReader::readFmuFormationNameFile( fileName, colors );
     }
     else
     {
         return RifFormationNamesReader::readLyrFormationNameFile( fileName );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reads the "zranges" section of a YAML file with one-based layer ranges per zone:
+///
+///   zranges:
+///     - Valysar: [1, 20]
+///     - Therys: [21, 54]
+//--------------------------------------------------------------------------------------------------
+std::expected<RigFormationNames, QString> RifFormationNamesReader::readYamlFormationNameFile( const QString& fileName,
+                                                                                              const std::map<QString, cvf::Color3f>& colors )
+{
+    QFile dataFile( fileName );
+    if ( !dataFile.open( QFile::ReadOnly ) )
+    {
+        return std::unexpected( "Could not open file: " + fileName );
+    }
+
+    static const QRegularExpression rangeExpression( R"re(^(?:-\s*)?(?:"([^"]+)"|'([^']+)'|([^:]+?))\s*:\s*\[\s*(\d+)\s*,\s*(\d+)\s*\]$)re" );
+
+    RigFormationNames formationNames;
+    QTextStream       stream( &dataFile );
+
+    bool isInZranges  = false;
+    bool foundZranges = false;
+    int  lineNumber   = 0;
+
+    while ( !stream.atEnd() )
+    {
+        QString line = stream.readLine();
+        ++lineNumber;
+
+        const int commentPos = line.indexOf( '#' );
+        if ( commentPos >= 0 ) line.truncate( commentPos );
+
+        const bool isIndented = line.startsWith( ' ' ) || line.startsWith( '\t' );
+        line                  = line.trimmed();
+        if ( line.isEmpty() ) continue;
+
+        if ( !isIndented && !line.startsWith( '-' ) )
+        {
+            // Top level key
+            isInZranges = line.startsWith( "zranges:" );
+            if ( isInZranges ) foundZranges = true;
+            continue;
+        }
+
+        if ( !isInZranges ) continue;
+
+        const QRegularExpressionMatch match = rangeExpression.match( line );
+        if ( !match.hasMatch() )
+        {
+            RiaLogging::warning( ( fileName + ": format error on line " + QString::number( lineNumber ) ).toStdString() );
+            continue;
+        }
+
+        QString name;
+        for ( int i = 1; i <= 3 && name.isEmpty(); i++ )
+            name = match.captured( i ).trimmed();
+
+        const int startK = match.captured( 4 ).toInt();
+        const int endK   = match.captured( 5 ).toInt();
+        if ( name.isEmpty() || startK < 1 || endK < startK )
+        {
+            RiaLogging::warning( ( fileName + ": invalid zone range on line " + QString::number( lineNumber ) ).toStdString() );
+            continue;
+        }
+
+        if ( auto it = colors.find( name ); it != colors.end() )
+            formationNames.appendFormationRange( name, it->second, startK - 1, endK - 1 );
+        else
+            formationNames.appendFormationRange( name, startK - 1, endK - 1 );
+    }
+
+    if ( !foundZranges )
+    {
+        return std::unexpected( QString( "No 'zranges' section found in '%1'" ).arg( fileName ) );
+    }
+
+    if ( formationNames.formationNames().empty() )
+    {
+        return std::unexpected( QString( "No valid zone ranges found in '%1'" ).arg( fileName ) );
+    }
+
+    return formationNames;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,0 +1,7 @@
+zranges:
+  - Valysar: [1, 20] # comment
+  - Therys: [21, 54]
+  - "Volon": [55, 69]
+  - broken
+other:
+  - Ignored: [1, 2]

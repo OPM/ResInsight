@@ -133,3 +133,32 @@ TEST( RifFormationNamesReader, ReadFmuFormationNamesIgnoresBadOrMissingStratigra
         baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu_malformed/stratigraphy.json" ) );
     EXPECT_FALSE( bad.has_value() );
 }
+
+TEST( RifFormationNamesReader, ReadYamlZoneRangesWithStratigraphyColors )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    auto fm = RifFormationNamesReader::readFormationNamesFile(
+        baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu/zonation_ecl_map.yml" ) );
+    ASSERT_TRUE( fm.has_value() );
+
+    EXPECT_EQ( 3u, fm->formationNames().size() );
+    EXPECT_EQ( "Valysar", fm->formationNameFromKLayerIdx( 0 ) );
+    EXPECT_EQ( "Valysar", fm->formationNameFromKLayerIdx( 19 ) );
+    EXPECT_EQ( "Therys", fm->formationNameFromKLayerIdx( 20 ) );
+    EXPECT_EQ( "Volon", fm->formationNameFromKLayerIdx( 68 ) );
+
+    cvf::Color3f color;
+    ASSERT_TRUE( fm->formationColorFromKLayerIdx( 0, &color ) );
+    EXPECT_EQ( 1.0f, color.r() );
+    EXPECT_FALSE( fm->formationColorFromKLayerIdx( 60, &color ) );
+}
+
+TEST( RifFormationNamesReader, ReadYamlWithoutZrangesFails )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    auto fm = RifFormationNamesReader::readFormationNamesFile(
+        baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu_malformed/zonation_ecl_map.yaml" ) );
+    EXPECT_FALSE( fm.has_value() );
+}

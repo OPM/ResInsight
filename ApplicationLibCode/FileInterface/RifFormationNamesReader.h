@@ -42,6 +42,8 @@ public:
 
 private:
     static std::expected<RigFormationNames, QString> readLyrFormationNameFile( const QString& fileName );
+    static std::expected<RigFormationNames, QString> readYamlFormationNameFile( const QString&                         fileName,
+                                                                                const std::map<QString, cvf::Color3f>& colors = {} );
     static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString&                         fileName,
                                                                                const std::map<QString, cvf::Color3f>& colors = {} );
 
