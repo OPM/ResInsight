@@ -217,6 +217,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     fishbones.lateral_tubing_diameter = 0.1
     fishbones.lateral_tubing_roghness_factor = 0.1
     fishbones.subs_orientation_mode = "FIXED"
+    fishbones.fixed_installation_rotation_angle = 12.3
     fishbones.update()
 
     fishbones_updated = fishbones_collection.fishbones()[0]
@@ -234,6 +235,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     assert fishbones_updated.lateral_tubing_diameter == 0.1
     assert fishbones_updated.lateral_tubing_roghness_factor == 0.1
     assert fishbones_updated.subs_orientation_mode == "FIXED"
+    assert fishbones_updated.fixed_installation_rotation_angle == 12.3
 
 
 # test perforations and perforations settings
