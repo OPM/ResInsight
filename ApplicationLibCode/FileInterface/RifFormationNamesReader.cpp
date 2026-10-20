@@ -18,17 +18,24 @@
 
 #include "RifFormationNamesReader.h"
 
+#include "RifFormationNamesFileParser.h"
+
 #include "RiaLogging.h"
-#include "RiaTextStringTools.h"
-#include "RigFormationNames.h"
 
-#include "cafAssert.h"
-#include "cafPdmUiFilePathEditor.h"
-
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 
-#include "cvfColor3.h"
+namespace
+{
+// Typical FMU location, relative to the folder of the grid case file (e.g. realization-0/iter-0/eclipse/model):
+//   ../../rms/output/zone/layer_zone_table.txt
+//   ../../rms/output/zone/stratigraphy.json
+// stratigraphy.json is read from the same folder as the layer_zone_table.txt that is imported.
+const QString layerZoneTableFileName = "layer_zone_table.txt";
+const QString stratigraphyFileName   = "stratigraphy.json";
+const QString zoneRangesYamlBaseName = "zonation_ecl_map";
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,219 +44,39 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFormation
 {
     QFileInfo fileInfo( fileName );
 
-    if ( fileInfo.fileName() == "layer_zone_table.txt" )
+    const QString suffix = fileInfo.suffix().toLower();
+
+    if ( ( suffix == "yml" || suffix == "yaml" ) && fileInfo.completeBaseName() != zoneRangesYamlBaseName )
     {
-        return RifFormationNamesReader::readFmuFormationNameFile( fileName );
+        // Other yaml files are ignored without reporting an error
+        return RigFormationNames();
+    }
+
+    if ( fileInfo.fileName() == layerZoneTableFileName || suffix == "yml" || suffix == "yaml" )
+    {
+        std::map<QString, cvf::Color3f> colors;
+
+        const QString colorFile = fileInfo.dir().absoluteFilePath( stratigraphyFileName );
+        if ( QFile::exists( colorFile ) )
+        {
+            if ( auto result = RifFormationNamesFileParser::readStratigraphyColors( colorFile ); result )
+            {
+                colors = std::move( *result );
+            }
+            else
+            {
+                RiaLogging::warning( "Ignoring zone colors: " + result.error().toStdString() );
+            }
+        }
+
+        if ( suffix == "yml" || suffix == "yaml" )
+        {
+            return RifFormationNamesFileParser::readYamlFormationNameFile( fileName, colors );
+        }
+        return RifFormationNamesFileParser::readFmuFormationNameFile( fileName, colors );
     }
     else
     {
-        return RifFormationNamesReader::readLyrFormationNameFile( fileName );
+        return RifFormationNamesFileParser::readLyrFormationNameFile( fileName );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<RigFormationNames, QString> RifFormationNamesReader::readLyrFormationNameFile( const QString& fileName )
-{
-    QFile dataFile( fileName );
-
-    if ( !dataFile.open( QFile::ReadOnly ) )
-    {
-        return std::unexpected( "Could not open file: " + fileName );
-    }
-
-    RigFormationNames formationNames;
-    QTextStream       stream( &dataFile );
-
-    int lineNumber = 1;
-    while ( !stream.atEnd() )
-    {
-        QString     line     = stream.readLine();
-        QStringList lineSegs = line.split( "'" );
-
-        if ( lineSegs.empty() ) continue; // Empty line
-        if ( lineSegs.size() == 1 ) continue; // No name present. Comment line ?
-        if ( lineSegs.size() == 2 )
-        {
-            RiaLogging::warning( ( fileName + ": missing quote on line " + QString::number( lineNumber ) ).toStdString() );
-            continue; // One quote present
-        }
-
-        if ( lineSegs.size() == 3 ) // Normal case
-        {
-            if ( lineSegs[0].contains( "--" ) ) continue; // Comment line
-            QString formationName  = lineSegs[1];
-            int     commentMarkPos = lineSegs[2].indexOf( "--" );
-            QString numberString   = lineSegs[2];
-            if ( commentMarkPos >= 0 ) numberString.truncate( commentMarkPos );
-
-            // extract last word which may contain formation color
-            QString colorWord = RiaTextStringTools::splitSkipEmptyParts( numberString ).last();
-
-            if ( QColor::isValidColorName( colorWord ) ) numberString.remove( colorWord ); // remove color if present as last word on line
-
-            // extract words containing formation number(s)
-            QStringList numberWords = RiaTextStringTools::splitSkipEmptyParts( numberString, QRegularExpression( "-" ) );
-
-            if ( numberWords.size() == 2 ) // formation range with or without color at end of line
-            {
-                bool isNumber1 = false;
-                bool isNumber2 = false;
-                int  startK    = numberWords[0].toInt( &isNumber1 );
-                int  endK      = numberWords[1].toInt( &isNumber2 );
-
-                if ( !( isNumber2 && isNumber1 ) )
-                {
-                    RiaLogging::warning( ( fileName + ": format error on line " + QString::number( lineNumber ) ).toStdString() );
-                    continue;
-                }
-
-                int tmp = startK;
-                startK  = tmp < endK ? tmp : endK;
-                endK    = tmp > endK ? tmp : endK;
-
-                if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
-                {
-                    cvf::Color3f formationColor;
-
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames.appendFormationRange( formationName, formationColor, startK - 1, endK - 1 );
-                }
-                else // no color present
-                {
-                    formationNames.appendFormationRange( formationName, startK - 1, endK - 1 );
-                }
-            }
-            else if ( numberWords.size() == 1 )
-            {
-                bool isNumber1   = false;
-                int  kLayerCount = numberWords[0].toInt( &isNumber1 );
-
-                if ( !isNumber1 )
-                {
-                    RiaLogging::warning( ( fileName + ": format error on line " + QString::number( lineNumber ) ).toStdString() );
-                    continue;
-                }
-
-                if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
-                {
-                    cvf::Color3f formationColor;
-
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames.appendFormationRangeHeight( formationName, formationColor, kLayerCount );
-                }
-                else // no color present
-                {
-                    formationNames.appendFormationRangeHeight( formationName, kLayerCount );
-                }
-            }
-            else
-            {
-                RiaLogging::warning( ( fileName + ": format error on line " + QString::number( lineNumber ) ).toStdString() );
-            }
-        }
-
-        ++lineNumber;
-    }
-
-    return formationNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormationNameFile( const QString& fileName )
-{
-    QFile dataFile( fileName );
-
-    if ( !dataFile.open( QFile::ReadOnly ) )
-    {
-        return std::unexpected( "Could not open file: " + fileName );
-    }
-
-    RigFormationNames formationNames;
-    QTextStream       stream( &dataFile );
-
-    int lineNumber = 1;
-
-    QString currentFormationName;
-    int     startK = -1;
-    int     endK   = -1;
-
-    while ( !stream.atEnd() )
-    {
-        QString line = stream.readLine();
-        if ( line.isNull() )
-        {
-            // Make sure we append the last formation
-            if ( !currentFormationName.isEmpty() )
-            {
-                formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
-            }
-            break;
-        }
-        else
-        {
-            QTextStream lineStream( &line );
-
-            double  kLayer;
-            QString formationName;
-
-            lineStream >> kLayer >> formationName;
-
-            if ( lineStream.status() != QTextStream::Ok )
-            {
-                return std::unexpected( QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber ).arg( fileName ) );
-            }
-
-            if ( formationName != currentFormationName )
-            {
-                // Append previous formation
-                if ( !currentFormationName.isEmpty() )
-                {
-                    formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
-                }
-
-                // Start new formation
-                currentFormationName = formationName;
-                startK               = kLayer;
-                endK                 = kLayer;
-            }
-            else
-            {
-                endK = kLayer;
-            }
-        }
-    }
-
-    // Append previous formation at the end of the stream
-    if ( !currentFormationName.isEmpty() )
-    {
-        formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
-    }
-
-    return formationNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Conversion of a color specification from string representation to Color3f.
-/// String can be in various formats according to QColor capabilities, notably
-/// SVG color keyword names, c.f. https://www.w3.org/TR/SVG11/types.html#ColorKeywords,
-/// or #RRGGBB used on a LYR formation data file.
-//--------------------------------------------------------------------------------------------------
-bool RifFormationNamesReader::convertStringToColor( const QString& word, cvf::Color3f* color )
-{
-    if ( word.isEmpty() ) return false;
-
-    QColor colorQ( word );
-
-    if ( colorQ.isValid() )
-    {
-        *color = cvf::Color3f::fromByteColor( colorQ.red(), colorQ.green(), colorQ.blue() );
-
-        return true;
-    }
-
-    return false;
 }
