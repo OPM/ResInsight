@@ -24,9 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaOpenTelemetryManager.h"
 
-#include "RimEclipseResultDefinition.h"
-#include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
+#include "RimResultDefinitionInterface.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmObject.h"
@@ -452,17 +451,10 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
     }
 
     // Validation succeeded - update UI and views
-    RimEclipseResultDefinition* resultDefinition = dynamic_cast<RimEclipseResultDefinition*>( matchingObject );
-    // TODO: Make this more general. Perhaps we need an interface method for updating UI fields
-    if ( resultDefinition )
+    if ( auto resultDefinition = dynamic_cast<RimResultDefinitionInterface*>( matchingObject ) )
     {
         resultDefinition->updateUiFieldsFromActiveResult();
         resultDefinition->loadResult();
-    }
-    if ( auto geoMechResultDefinition = dynamic_cast<RimGeoMechResultDefinition*>( matchingObject ) )
-    {
-        geoMechResultDefinition->updateUiFieldsFromActiveResult();
-        geoMechResultDefinition->loadResult();
     }
 
     matchingObject->updateAllRequiredEditors();

@@ -22,6 +22,7 @@
 
 #include "RimCheckableObject.h"
 #include "RimFemResultObserver.h"
+#include "RimResultDefinitionInterface.h"
 
 #include "RigFemResultPosEnum.h"
 
@@ -41,7 +42,7 @@ class RimRegularLegendConfig;
 ///
 ///
 //==================================================================================================
-class RimGeoMechResultDefinition : public RimFemResultObserver, public RimCheckableObject
+class RimGeoMechResultDefinition : public RimFemResultObserver, public RimCheckableObject, public RimResultDefinitionInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,8 +55,8 @@ public:
 
     RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
-    void                loadResult();
-    void                updateUiFieldsFromActiveResult();
+    void                loadResult() override;
+    void                updateUiFieldsFromActiveResult() override;
     void                setAddWellPathDerivedResults( bool addWellPathDerivedResults );
 
     RigFemResultAddress              resultAddress() const;
