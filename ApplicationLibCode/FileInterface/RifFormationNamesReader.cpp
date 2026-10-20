@@ -34,6 +34,7 @@ namespace
 // stratigraphy.json is read from the same folder as the layer_zone_table.txt that is imported.
 const QString layerZoneTableFileName = "layer_zone_table.txt";
 const QString stratigraphyFileName   = "stratigraphy.json";
+const QString zoneRangesYamlBaseName = "zonation_ecl_map";
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -44,6 +45,12 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFormation
     QFileInfo fileInfo( fileName );
 
     const QString suffix = fileInfo.suffix().toLower();
+
+    if ( ( suffix == "yml" || suffix == "yaml" ) && fileInfo.completeBaseName() != zoneRangesYamlBaseName )
+    {
+        // Other yaml files are ignored without reporting an error
+        return RigFormationNames();
+    }
 
     if ( fileInfo.fileName() == layerZoneTableFileName || suffix == "yml" || suffix == "yaml" )
     {

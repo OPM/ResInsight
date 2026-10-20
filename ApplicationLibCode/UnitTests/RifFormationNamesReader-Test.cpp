@@ -163,3 +163,12 @@ TEST( RifFormationNamesReader, ReadYamlWithoutZrangesFails )
         baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu_malformed/zonation_ecl_map.yaml" ) );
     EXPECT_FALSE( fm.has_value() );
 }
+
+TEST( RifFormationNamesReader, OtherYamlFilesAreNotRead )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    auto fm = RifFormationNamesReader::readFormationNamesFile( baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu/other.yml" ) );
+        ASSERT_TRUE( fm.has_value() );
+        EXPECT_TRUE( fm->formationNames().empty() );
+}
