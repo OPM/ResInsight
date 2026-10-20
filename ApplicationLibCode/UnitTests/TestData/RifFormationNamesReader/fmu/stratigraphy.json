@@ -1,0 +1,12 @@
+[
+  {
+    "name": "TopVolantis_BaseVolantis",
+    "color": "#00FF00",
+    "subzones": [
+      { "name": "Valysar", "color": "#FF0000" },
+      { "name": "Therys", "color": "#0000FF" },
+      { "name": "Volon" , "color": "not-a-color" }
+    ]
+  },
+  { "name": "Other", "color": "#808080", "extra": 1 }
+]
