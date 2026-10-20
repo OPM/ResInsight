@@ -47,5 +47,5 @@ private:
     static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString&                         fileName,
                                                                                const std::map<QString, cvf::Color3f>& colors = {} );
 
-    static bool convertStringToColor( const QString& word, cvf::Color3f* color );
+    static std::expected<cvf::Color3f, QString> convertStringToColor( const QString& word );
 };

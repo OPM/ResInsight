@@ -304,10 +304,10 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readLyrFormat
 
                 if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
                 {
-                    cvf::Color3f formationColor;
-
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames.appendFormationRange( formationName, formationColor, startK - 1, endK - 1 );
+                    if ( auto formationColor = convertStringToColor( colorWord ) )
+                        formationNames.appendFormationRange( formationName, *formationColor, startK - 1, endK - 1 );
+                    else
+                        formationNames.appendFormationRange( formationName, startK - 1, endK - 1 );
                 }
                 else // no color present
                 {
@@ -327,10 +327,10 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readLyrFormat
 
                 if ( QColor::isValidColorName( colorWord ) ) // formation color present at end of line
                 {
-                    cvf::Color3f formationColor;
-
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames.appendFormationRangeHeight( formationName, formationColor, kLayerCount );
+                    if ( auto formationColor = convertStringToColor( colorWord ) )
+                        formationNames.appendFormationRangeHeight( formationName, *formationColor, kLayerCount );
+                    else
+                        formationNames.appendFormationRangeHeight( formationName, kLayerCount );
                 }
                 else // no color present
                 {
@@ -439,18 +439,16 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormat
 /// SVG color keyword names, c.f. https://www.w3.org/TR/SVG11/types.html#ColorKeywords,
 /// or #RRGGBB used on a LYR formation data file.
 //--------------------------------------------------------------------------------------------------
-bool RifFormationNamesReader::convertStringToColor( const QString& word, cvf::Color3f* color )
+std::expected<cvf::Color3f, QString> RifFormationNamesReader::convertStringToColor( const QString& word )
 {
-    if ( word.isEmpty() ) return false;
+    if ( word.isEmpty() ) return std::unexpected( "Empty color string" );
 
     QColor colorQ( word );
 
     if ( colorQ.isValid() )
     {
-        *color = cvf::Color3f::fromByteColor( colorQ.red(), colorQ.green(), colorQ.blue() );
-
-        return true;
+        return cvf::Color3f::fromByteColor( colorQ.red(), colorQ.green(), colorQ.blue() );
     }
 
-    return false;
+    return std::unexpected( "Invalid color: " + word );
 }
