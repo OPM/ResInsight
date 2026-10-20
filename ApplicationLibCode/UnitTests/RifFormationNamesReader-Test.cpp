@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RiaTestDataDirectory.h"
+#include "RifFormationNamesFileParser.h"
 #include "RifFormationNamesReader.h"
 #include "RigFormationNames.h"
 
@@ -105,8 +106,8 @@ TEST( RifFormationNamesReader, ReadStratigraphyColorsParentFallback )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    auto colors =
-        RifFormationNamesReader::readStratigraphyColors( baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu/stratigraphy.json" ) );
+    auto colors = RifFormationNamesFileParser::readStratigraphyColors(
+        baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu/stratigraphy.json" ) );
     ASSERT_TRUE( colors.has_value() );
 
     ASSERT_EQ( 1u, colors->count( "TopVolantis_BaseVolantis" ) );
@@ -129,7 +130,7 @@ TEST( RifFormationNamesReader, ReadFmuFormationNamesIgnoresBadOrMissingStratigra
         EXPECT_FALSE( fm->formationColorFromKLayerIdx( 0, &color ) );
     }
 
-    auto bad = RifFormationNamesReader::readStratigraphyColors(
+    auto bad = RifFormationNamesFileParser::readStratigraphyColors(
         baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu_malformed/stratigraphy.json" ) );
     EXPECT_FALSE( bad.has_value() );
 }
