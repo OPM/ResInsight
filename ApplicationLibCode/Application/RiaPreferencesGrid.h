@@ -88,6 +88,4 @@ private:
     caf::PdmField<QString> m_preferredDynamicResult;
 
     caf::PdmField<caf::AppEnum<RiaGridDefines::RadialGridMode>> m_radialGridMode;
-
-    caf::PdmField<bool> m_loadAndShowSoil_OBSOLETE;
 };

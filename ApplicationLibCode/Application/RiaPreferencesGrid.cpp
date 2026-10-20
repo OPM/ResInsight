@@ -105,10 +105,6 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
     m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
     m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
-
-    CAF_PDM_InitField( &m_loadAndShowSoil_OBSOLETE, "loadAndShowSoil", true, "Load and Show SOIL" );
-    m_loadAndShowSoil_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_loadAndShowSoil_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
