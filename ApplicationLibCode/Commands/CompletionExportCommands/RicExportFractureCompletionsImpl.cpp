@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaQStringFormatter.h"
+#include "RiaResultNames.h"
 #include "RigEclipseResultAddress.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -160,7 +161,7 @@ std::vector<RigCompletionData>
     if ( pdParams.performScaling )
     {
         RigCaseCellResultsData* results = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) );
     }
 
     return generateCompdatValuesConst( caseToApply,
@@ -234,7 +235,8 @@ std::vector<RigCompletionData>
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if ( performPressureDepletionScaling )
     {
-        pressureResultVector = &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+        pressureResultVector =
+            &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) );
         CAF_ASSERT( !pressureResultVector->empty() );
 
         if ( pdParams.pressureScalingTimeStep < static_cast<int>( pressureResultVector->size() ) )

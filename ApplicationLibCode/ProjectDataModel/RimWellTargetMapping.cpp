@@ -309,15 +309,21 @@ void RimWellTargetMapping::updateAllBoundaries()
     };
 
     std::tie( m_minimumSaturationOil, m_maximumSaturationOil, m_defaultSaturationOil ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) },
+                              timeStepIdx );
     m_defaultSaturationOil = 0.3;
 
     std::tie( m_minimumSaturationGas, m_maximumSaturationGas, m_defaultSaturationGas ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) },
+                              timeStepIdx );
     m_defaultSaturationGas = 0.3;
 
     std::tie( m_minimumPressure, m_maximumPressure, m_defaultPressure ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) },
+                              timeStepIdx );
 
     std::tie( m_minimumPermeability, m_maximumPermeability, m_defaultPermeability ) =
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ) }, 0 );
