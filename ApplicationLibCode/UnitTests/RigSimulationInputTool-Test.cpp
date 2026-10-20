@@ -3346,3 +3346,85 @@ TEST( RigSimulationInputTool, ReversedSegmentCells_ForwardTraversalNotReversed )
 
     EXPECT_TRUE( reversedCells.empty() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// DIRECTION without END_IJK is a single cell, so the MD interval is still split between the sub-cells
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_DirectionWithoutRangeIsSplit )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPSEGS\n 'W' /\n 3 4 2 1 100.0 120.0 'K' /\n/\n" );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+    auto        result   = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, {} );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    EXPECT_EQ( 3, result->at( 0 ).getItem( 2 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
+    EXPECT_EQ( 4, result->at( 1 ).getItem( 2 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 1 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_EQ( "K", result->at( 1 ).getItem( 6 ).get<std::string>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A defaulted start MD is zero
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_DefaultedStartMdIsZero )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPSEGS\n 'W' /\n 3 4 2 1 1* 20.0 /\n/\n" );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+    auto        result   = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, {} );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    EXPECT_DOUBLE_EQ( 0.0, result->at( 0 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 10.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 10.0, result->at( 1 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 20.0, result->at( 1 ).getItem( 5 ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Without an end MD every sub-cell still gets a segment record, with the MD items unchanged
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_NoEndMdCopiedToAllSubcells )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPSEGS\n 'W' /\n 3 4 2 1 100.0 1* 'K' /\n/\n" );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+    auto        result   = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, {} );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    for ( size_t s = 0; s < 2; ++s )
+    {
+        EXPECT_EQ( 3 + static_cast<int>( s ), result->at( s ).getItem( 2 ).get<int>( 0 ) );
+        EXPECT_DOUBLE_EQ( 100.0, result->at( s ).getItem( 4 ).get<double>( 0 ) );
+        EXPECT_FALSE( result->at( s ).getItem( 5 ).hasValue( 0 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A cell range (END_IJK) is not split, only the center sub-cell is used
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_CellRangeUsesCenterSubcell )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 1, 1, 2 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPSEGS\n 'W' /\n 3 4 2 1 100.0 120.0 'K' 3 /\n/\n" );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+    auto        result   = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, {} );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 1u, result->size() );
+    EXPECT_EQ( 4, result->at( 0 ).getItem( 2 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 100.0, result->at( 0 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 120.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
+}

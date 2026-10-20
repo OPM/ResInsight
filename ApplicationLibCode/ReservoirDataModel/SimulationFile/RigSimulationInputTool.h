@@ -143,7 +143,8 @@ public:
                               const ConnectionCellPropertiesProvider& cellProperties = {} );
 
     // Segment records are split into one record per sub-cell along the connection penetration direction,
-    // with the MD interval divided by the sub-cell length fractions in the order the well travels through them
+    // with the MD interval divided by the sub-cell length fractions in the order the well travels through them.
+    // Without an end MD the record is copied unchanged to each sub-cell. Cell ranges (END_IJK) use the center sub-cell.
     static std::expected<std::vector<Opm::DeckRecord>, QString> processCompsegsRecord( const Opm::DeckRecord&            record,
                                                                                        const std::string&                wellName,
                                                                                        bool                              isWellNameRecord,
