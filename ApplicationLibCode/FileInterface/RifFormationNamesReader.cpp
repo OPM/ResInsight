@@ -36,6 +36,10 @@
 
 namespace
 {
+// Typical FMU location, relative to the folder of the grid case file (e.g. realization-0/iter-0/eclipse/model):
+//   ../../rms/output/zone/layer_zone_table.txt
+//   ../../rms/output/zone/stratigraphy.json
+// stratigraphy.json is read from the same folder as the layer_zone_table.txt that is imported.
 const QString layerZoneTableFileName = "layer_zone_table.txt";
 const QString stratigraphyFileName   = "stratigraphy.json";
 
