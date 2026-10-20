@@ -231,7 +231,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
 
         if ( ( state() == JobState::Running ) && !isChildJob() )
         {
-            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString().toUtf8().constData() );
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString() );
             tagsToReturn.push_back( std::move( timeTag ) );
         }
     }

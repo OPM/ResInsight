@@ -43,10 +43,7 @@ bool RicDuplicateJobFeature::isCommandEnabled() const
 {
     if ( auto job = dynamic_cast<RimGenericJob*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        if ( job->isChildJob() )
-        {
-            return false;
-        }
+        return !job->isChildJob();
     }
 
     return true;

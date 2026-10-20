@@ -500,8 +500,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
 
     if ( state() == JobState::Failed )
     {
-        auto txt = "Failed";
-        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
+        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), "Failed" );
         tags.push_back( tag );
     }
     else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
@@ -525,7 +524,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
 
         if ( state() == JobState::Running )
         {
-            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString().toUtf8().constData() );
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString() );
             tags.push_back( timeTag );
         }
     }
