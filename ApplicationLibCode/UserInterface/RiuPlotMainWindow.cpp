@@ -413,7 +413,6 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     {
         commandIds << "RicImportSummaryCaseFeature";
         commandIds << "RicImportGridAndSummaryEnsembleFeature";
-        commandIds << "RicImportEnsembleFeature";
         commandIds << "Separator";
         commandIds << "RicOpenProjectFeature";
         commandIds << "RicSaveProjectFeature";
