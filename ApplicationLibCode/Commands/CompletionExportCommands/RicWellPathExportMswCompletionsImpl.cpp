@@ -198,8 +198,11 @@ void exportSplitMswData( const RicExportCompletionDataSettingsUi& exportSettings
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
-                                                                               const std::vector<RimWellPath*>&         wellPaths )
+                                                                               const std::vector<RimWellPath*>&         allWellPaths )
 {
+    // Laterals are exported together with their top level well path
+    const auto wellPaths = RicWellPathExportCompletionsFileTools::uniqueTopLevelWellPaths( allWellPaths );
+
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
     {
         internal::exportSplitMswData( exportSettings, exportSettings.folder(), wellPaths );

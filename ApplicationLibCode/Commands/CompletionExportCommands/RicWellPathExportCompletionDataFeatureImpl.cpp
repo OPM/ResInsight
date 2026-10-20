@@ -73,9 +73,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         wellPaths,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         allWellPaths,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
+    // Laterals are exported together with their top level well path
+    const auto wellPaths = RicWellPathExportCompletionsFileTools::uniqueTopLevelWellPaths( allWellPaths );
+
     if ( exportSettings.caseToApply() == nullptr )
     {
         RiaLogging::error( "Export Completions Data: Cannot export completions data a valid Eclipse case" );

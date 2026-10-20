@@ -29,6 +29,8 @@
 
 #include "cafUtils.h"
 
+#include <algorithm>
+
 #include <QDateTime>
 #include <QDir>
 #include <QTextStream>
@@ -64,6 +66,23 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QS
         return nullptr;
     }
     return exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RicWellPathExportCompletionsFileTools::uniqueTopLevelWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    std::vector<RimWellPath*> result;
+    for ( auto* wellPath : wellPaths )
+    {
+        if ( !wellPath ) continue;
+
+        auto* topLevel = wellPath->topLevelWellPath();
+        if ( std::find( result.begin(), result.end(), topLevel ) == result.end() ) result.push_back( topLevel );
+    }
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------

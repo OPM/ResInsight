@@ -22,12 +22,16 @@
 #include <QString>
 
 #include <memory>
+#include <vector>
 
 class RimWellPath;
 
 class RicWellPathExportCompletionsFileTools
 {
 public:
+    // Replaces laterals by their top level well path and removes duplicates, keeping the original order
+    static std::vector<RimWellPath*> uniqueTopLevelWellPaths( const std::vector<RimWellPath*>& wellPaths );
+
     static const RimWellPath* findWellPathFromExportName( const QString& wellNameForExport );
 
     static std::shared_ptr<QFile>
