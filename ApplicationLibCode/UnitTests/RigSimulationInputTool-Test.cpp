@@ -3283,3 +3283,66 @@ TEST( RigSimulationInputTool, ProcessCompdatRecord_LateralRefinementTooSmallRadi
     EXPECT_DOUBLE_EQ( 10.0, result->at( 0 ).getItem( "CONNECTION_TRANSMISSIBILITY_FACTOR" ).get<double>( 0 ) );
     EXPECT_DOUBLE_EQ( 0.5, result->at( 0 ).getItem( "PR" ).get<double>( 0 ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A well travelling towards decreasing I assigns the MD interval from the highest to the lowest I sub-cell
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ProcessCompsegsRecord_ReversedTraversalAlongI )
+{
+    auto settings = createSectorSettings( cvf::Vec3st( 2, 1, 1 ) );
+
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPDAT\n 'W' 4 2 1 1 'OPEN' 1* 10.0 0.216 3* 'X' /\n"
+                                           " 'W' 3 2 1 1 'OPEN' 1* 10.0 0.216 3* 'X' /\n/\n"
+                                           "COMPSEGS\n 'W' /\n 4 2 1 1 100.0 120.0 /\n 3 2 1 1 120.0 140.0 /\n/\n" );
+
+    std::vector<Opm::DeckKeyword> compdatKeywords  = { deck["COMPDAT"].back() };
+    std::vector<Opm::DeckKeyword> compsegsKeywords = { deck["COMPSEGS"].back() };
+
+    auto directions    = RigSimulationInputTool::connectionDirections( compdatKeywords );
+    auto reversedCells = RigSimulationInputTool::reversedSegmentCells( compsegsKeywords, directions );
+
+    EXPECT_TRUE( reversedCells.contains( { "W", caf::VecIjk0( 3, 1, 0 ) } ) );
+    EXPECT_TRUE( reversedCells.contains( { "W", caf::VecIjk0( 2, 1, 0 ) } ) );
+
+    const auto& compsegs = deck["COMPSEGS"].back();
+
+    // Original I=4 -> refined I sub-cells 7 and 8, the well enters at 8
+    auto result = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 1 ), "W", false, settings, directions, reversedCells );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    EXPECT_EQ( 8, result->at( 0 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 100.0, result->at( 0 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 0 ).getItem( 5 ).get<double>( 0 ) );
+    EXPECT_EQ( 7, result->at( 1 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 110.0, result->at( 1 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_DOUBLE_EQ( 120.0, result->at( 1 ).getItem( 5 ).get<double>( 0 ) );
+
+    // Original I=3 is the last cell, direction taken from the previous cell
+    result = RigSimulationInputTool::processCompsegsRecord( compsegs.getRecord( 2 ), "W", false, settings, directions, reversedCells );
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+    ASSERT_EQ( 2u, result->size() );
+    EXPECT_EQ( 6, result->at( 0 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 120.0, result->at( 0 ).getItem( 4 ).get<double>( 0 ) );
+    EXPECT_EQ( 5, result->at( 1 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_DOUBLE_EQ( 140.0, result->at( 1 ).getItem( 5 ).get<double>( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A well travelling towards increasing I keeps the sub-cell order
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ReversedSegmentCells_ForwardTraversalNotReversed )
+{
+    Opm::Parser parser;
+    auto        deck = parser.parseString( "COMPDAT\n 'W' 3 2 1 1 'OPEN' 1* 10.0 0.216 3* 'X' /\n"
+                                           " 'W' 4 2 1 1 'OPEN' 1* 10.0 0.216 3* 'X' /\n/\n"
+                                           "COMPSEGS\n 'W' /\n 3 2 1 1 100.0 120.0 /\n 4 2 1 1 120.0 140.0 /\n/\n" );
+
+    std::vector<Opm::DeckKeyword> compdatKeywords  = { deck["COMPDAT"].back() };
+    std::vector<Opm::DeckKeyword> compsegsKeywords = { deck["COMPSEGS"].back() };
+
+    auto directions    = RigSimulationInputTool::connectionDirections( compdatKeywords );
+    auto reversedCells = RigSimulationInputTool::reversedSegmentCells( compsegsKeywords, directions );
+
+    EXPECT_TRUE( reversedCells.empty() );
+}

@@ -105,10 +105,23 @@ public:
     static std::expected<Opm::DeckRecord, QString>
         processAqunumRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
 
-    // Penetration direction of well connections, keyed on (well name, original 0-based I, J, K)
-    using ConnectionDirectionMap = std::map<std::tuple<std::string, size_t, size_t, size_t>, RigRefinement::Dimension>;
+    // Penetration direction of well connections, keyed on (well name, original 0-based IJK)
+    struct ConnectionKey
+    {
+        std::string  wellName;
+        caf::VecIjk0 ijk;
+
+        bool operator<( const ConnectionKey& other ) const;
+    };
+    using ConnectionKeySet       = std::set<ConnectionKey>;
+    using ConnectionDirectionMap = std::map<ConnectionKey, RigRefinement::Dimension>;
 
     static ConnectionDirectionMap connectionDirections( const std::vector<Opm::DeckKeyword>& compdatKeywords );
+
+    // Segment cells (well name, original 0-based IJK) where the well travels towards decreasing index along the
+    // connection penetration direction, derived from neighbouring COMPSEGS cells on the same branch ordered by MD
+    static ConnectionKeySet reversedSegmentCells( const std::vector<Opm::DeckKeyword>& compsegsKeywords,
+                                                  const ConnectionDirectionMap&        directions );
 
     // Size and permeability of an original grid cell, ordered I/X, J/Y, K/Z
     struct ConnectionCellProperties
@@ -130,12 +143,13 @@ public:
                               const ConnectionCellPropertiesProvider& cellProperties = {} );
 
     // Segment records are split into one record per sub-cell along the connection penetration direction,
-    // with the MD interval divided by the sub-cell length fractions
+    // with the MD interval divided by the sub-cell length fractions in the order the well travels through them
     static std::expected<std::vector<Opm::DeckRecord>, QString> processCompsegsRecord( const Opm::DeckRecord&            record,
                                                                                        const std::string&                wellName,
                                                                                        bool                              isWellNameRecord,
                                                                                        const RigSimulationInputSettings& settings,
-                                                                                       const ConnectionDirectionMap&     directions );
+                                                                                       const ConnectionDirectionMap&     directions,
+                                                                                       const ConnectionKeySet& reversedCells = {} );
 
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
