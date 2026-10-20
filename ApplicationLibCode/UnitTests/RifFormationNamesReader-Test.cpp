@@ -169,6 +169,6 @@ TEST( RifFormationNamesReader, OtherYamlFilesAreNotRead )
     QDir baseFolder( TEST_DATA_DIR );
 
     auto fm = RifFormationNamesReader::readFormationNamesFile( baseFolder.absoluteFilePath( "RifFormationNamesReader/fmu/other.yml" ) );
-        ASSERT_TRUE( fm.has_value() );
-        EXPECT_TRUE( fm->formationNames().empty() );
+    ASSERT_TRUE( fm.has_value() );
+    EXPECT_TRUE( fm->formationNames().empty() );
 }
