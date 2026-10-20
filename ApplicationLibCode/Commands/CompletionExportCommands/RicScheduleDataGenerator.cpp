@@ -697,32 +697,45 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
 void RicScheduleDataGenerator::sortCompletionsMainBoreFirst( const std::vector<RimWellPath*>& topLevelWells,
                                                              std::vector<RigCompletionData>&  compdata )
 {
-    // Rank wells in traversal order: each top-level well (mainbore) first, then its laterals depth-first
+    auto wellOf = []( const RigCompletionData& completion ) -> const RimWellPath*
+    {
+        const caf::PdmObject* sourceObject = completion.sourcePdmObject();
+        return sourceObject ? sourceObject->firstAncestorOrThisOfType<RimWellPath>() : nullptr;
+    };
+
+    // Group connections by well, keeping each well's original relative order (e.g. measured depth along
+    // that well). Connections whose well cannot be determined end up under the nullptr key.
+    std::map<const RimWellPath*, std::vector<RigCompletionData>> completionsByWell;
+    for ( const auto& completion : compdata )
+    {
+        completionsByWell[wellOf( completion )].push_back( completion );
+    }
+
+    // Visit wells mainbore-first, depth-first: each top-level well, then its laterals
     // (RimWellPath::allWellPathLaterals() already returns that order).
-    std::map<const RimWellPath*, int> wellRank;
+    std::vector<RigCompletionData> sortedCompdata;
+    sortedCompdata.reserve( compdata.size() );
     for ( auto* topLevel : topLevelWells )
     {
         for ( auto* lateral : topLevel->allWellPathLaterals() )
         {
-            wellRank.try_emplace( lateral, static_cast<int>( wellRank.size() ) );
+            auto it = completionsByWell.find( lateral );
+            if ( it == completionsByWell.end() ) continue;
+
+            for ( const auto& completion : it->second )
+                sortedCompdata.push_back( completion );
+            completionsByWell.erase( it );
         }
     }
 
-    auto rankOf = [&wellRank]( const RigCompletionData& completion ) -> int
+    // Append any remaining connections (unknown well) last, in their original relative order.
+    for ( const auto& [well, completions] : completionsByWell )
     {
-        const caf::PdmObject* sourceObject = completion.sourcePdmObject();
-        const RimWellPath*    well         = sourceObject ? sourceObject->firstAncestorOrThisOfType<RimWellPath>() : nullptr;
-        if ( !well ) return std::numeric_limits<int>::max();
+        for ( const auto& completion : completions )
+            sortedCompdata.push_back( completion );
+    }
 
-        auto it = wellRank.find( well );
-        return it != wellRank.end() ? it->second : std::numeric_limits<int>::max();
-    };
-
-    // Stable sort: connections whose well cannot be determined, or that belong to the same well, keep the
-    // relative order produced by completionDataForWellPaths() (e.g. measured depth along that well).
-    std::stable_sort( compdata.begin(),
-                      compdata.end(),
-                      [&rankOf]( const RigCompletionData& lhs, const RigCompletionData& rhs ) { return rankOf( lhs ) < rankOf( rhs ); } );
+    compdata = std::move( sortedCompdata );
 }
 
 //--------------------------------------------------------------------------------------------------
