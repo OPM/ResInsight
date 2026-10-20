@@ -22,14 +22,12 @@
 
 #include "RigFormationNames.h"
 
+#include "cvfColor3.h"
+
 #include <expected>
+#include <map>
 
 #include <QString>
-
-namespace cvf
-{
-class Color3f;
-}
 
 //==================================================================================================
 ///
@@ -39,9 +37,13 @@ class RifFormationNamesReader
 public:
     [[nodiscard]] static std::expected<RigFormationNames, QString> readFormationNamesFile( const QString& fileName );
 
+    // Reads zone/subzone colors from a stratigraphy.json file. Subzone colors take precedence over zone colors.
+    [[nodiscard]] static std::expected<std::map<QString, cvf::Color3f>, QString> readStratigraphyColors( const QString& fileName );
+
 private:
     static std::expected<RigFormationNames, QString> readLyrFormationNameFile( const QString& fileName );
-    static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString& fileName );
+    static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString&                         fileName,
+                                                                               const std::map<QString, cvf::Color3f>& colors = {} );
 
     static bool convertStringToColor( const QString& word, cvf::Color3f* color );
 };

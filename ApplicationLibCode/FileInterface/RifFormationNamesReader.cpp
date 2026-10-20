@@ -25,10 +25,92 @@
 #include "cafAssert.h"
 #include "cafPdmUiFilePathEditor.h"
 
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "cvfColor3.h"
+
+namespace
+{
+const QString layerZoneTableFileName = "layer_zone_table.txt";
+const QString stratigraphyFileName   = "stratigraphy.json";
+
+//--------------------------------------------------------------------------------------------------
+/// Entries with subzones are parents, all other entries are leaves. Within each group the first
+/// occurrence of a name wins. Invalid entries are skipped with a warning.
+//--------------------------------------------------------------------------------------------------
+void collectStratigraphyColors( const QJsonArray&                entries,
+                                const QString&                   fileName,
+                                std::map<QString, cvf::Color3f>& leafColors,
+                                std::map<QString, cvf::Color3f>& parentColors )
+{
+    for ( const QJsonValue& value : entries )
+    {
+        if ( !value.isObject() ) continue;
+
+        const QJsonObject obj  = value.toObject();
+        const QString     name = obj.value( "name" ).toString().trimmed();
+        if ( name.isEmpty() )
+        {
+            RiaLogging::warning( fileName.toStdString() + ": skipping stratigraphy entry without name" );
+            continue;
+        }
+
+        const QJsonArray subzones  = obj.value( "subzones" ).toArray();
+        const bool       isParent  = !subzones.isEmpty();
+        auto&            targetMap = isParent ? parentColors : leafColors;
+        const QString    colorText = obj.value( "color" ).toString().trimmed();
+        const QColor     color( colorText );
+
+        if ( !color.isValid() )
+        {
+            RiaLogging::warning( fileName.toStdString() + ": invalid color '" + colorText.toStdString() + "' for '" + name.toStdString() + "'" );
+        }
+        else
+        {
+            targetMap.emplace( name, cvf::Color3f::fromByteColor( color.red(), color.green(), color.blue() ) );
+        }
+
+        if ( isParent ) collectStratigraphyColors( subzones, fileName, leafColors, parentColors );
+    }
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<std::map<QString, cvf::Color3f>, QString> RifFormationNamesReader::readStratigraphyColors( const QString& fileName )
+{
+    QFile file( fileName );
+    if ( !file.open( QFile::ReadOnly ) )
+    {
+        return std::unexpected( "Could not open file: " + fileName );
+    }
+
+    QJsonParseError     parseError;
+    const QJsonDocument doc = QJsonDocument::fromJson( file.readAll(), &parseError );
+    if ( doc.isNull() )
+    {
+        return std::unexpected( QString( "Invalid JSON in '%1': %2" ).arg( fileName, parseError.errorString() ) );
+    }
+    if ( !doc.isArray() )
+    {
+        return std::unexpected( QString( "Expected a JSON array at the root of '%1'" ).arg( fileName ) );
+    }
+
+    std::map<QString, cvf::Color3f> leafColors;
+    std::map<QString, cvf::Color3f> parentColors;
+    collectStratigraphyColors( doc.array(), fileName, leafColors, parentColors );
+
+    // Zone colors are used only as fallback when no subzone has the same name
+    leafColors.insert( parentColors.begin(), parentColors.end() );
+
+    return leafColors;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,9 +119,24 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFormation
 {
     QFileInfo fileInfo( fileName );
 
-    if ( fileInfo.fileName() == "layer_zone_table.txt" )
+    if ( fileInfo.fileName() == layerZoneTableFileName )
     {
-        return RifFormationNamesReader::readFmuFormationNameFile( fileName );
+        std::map<QString, cvf::Color3f> colors;
+
+        const QString colorFile = fileInfo.dir().absoluteFilePath( stratigraphyFileName );
+        if ( QFile::exists( colorFile ) )
+        {
+            if ( auto result = readStratigraphyColors( colorFile ); result )
+            {
+                colors = std::move( *result );
+            }
+            else
+            {
+                RiaLogging::warning( "Ignoring zone colors: " + result.error().toStdString() );
+            }
+        }
+
+        return RifFormationNamesReader::readFmuFormationNameFile( fileName, colors );
     }
     else
     {
@@ -159,7 +256,8 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readLyrFormat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormationNameFile( const QString& fileName )
+std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormationNameFile( const QString& fileName,
+                                                                                             const std::map<QString, cvf::Color3f>& colors )
 {
     QFile dataFile( fileName );
 
@@ -171,6 +269,13 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormat
     RigFormationNames formationNames;
     QTextStream       stream( &dataFile );
 
+    auto appendRange = [&]( const QString& name, int start, int end )
+    {
+        if ( auto it = colors.find( name.trimmed() ); it != colors.end() )
+            formationNames.appendFormationRange( name, it->second, start, end );
+        else
+            formationNames.appendFormationRange( name, start, end );
+    };
     int lineNumber = 1;
 
     QString currentFormationName;
@@ -185,7 +290,7 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormat
             // Make sure we append the last formation
             if ( !currentFormationName.isEmpty() )
             {
-                formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+                appendRange( currentFormationName, startK - 1, endK - 1 );
             }
             break;
         }
@@ -208,7 +313,7 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormat
                 // Append previous formation
                 if ( !currentFormationName.isEmpty() )
                 {
-                    formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+                    appendRange( currentFormationName, startK - 1, endK - 1 );
                 }
 
                 // Start new formation
@@ -226,7 +331,7 @@ std::expected<RigFormationNames, QString> RifFormationNamesReader::readFmuFormat
     // Append previous formation at the end of the stream
     if ( !currentFormationName.isEmpty() )
     {
-        formationNames.appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+        appendRange( currentFormationName, startK - 1, endK - 1 );
     }
 
     return formationNames;
