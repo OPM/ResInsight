@@ -20,12 +20,17 @@
 
 #include "cafCmdFeature.h"
 
+class RimSummaryEnsemble;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicExportEnsembleParametersFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void exportParameters( RimSummaryEnsemble* ensemble, QString filename );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
