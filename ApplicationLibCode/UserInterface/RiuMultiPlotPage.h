@@ -82,6 +82,7 @@ public:
     void setPagePreviewModeEnabled( bool previewMode );
 
     void setAutoAlignAxes( bool autoAlignAxes );
+    void setHostsCommonLegend( bool hostsCommonLegend );
 
     void         scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
     void         scheduleReplotOfAllPlots();
@@ -181,6 +182,14 @@ protected:
     bool m_previewMode;
     bool m_showSubTitles;
     bool m_autoAlignAxes;
+    bool m_hostsCommonLegend = true;
+
+    bool showSubPlotLegends() const;
+    void updateCommonLegend();
+
+    // Owned by Qt as a child widget of this page; QPointer only observes it
+    QPointer<RiuQwtPlotLegend> m_commonLegend;
+    int                        m_commonLegendItemCount = 0;
 
     std::map<RiuQwtPlotLegend*, int> m_childCountForAdjustSizeOperation;
 

@@ -98,3 +98,11 @@ TEST( RicWellPathExportCompletionDataFeatureImpl, CompletionNumberIgnoresContrib
     EXPECT_EQ( 4, numberForAllOrders( { makeCompletion( 100.0, 110.0, std::nullopt ), makeCompletion( 110.0, 111.0, 4 ) } ) );
     EXPECT_EQ( std::nullopt, numberForAllOrders( { makeCompletion( 100.0, 110.0, std::nullopt ) } ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportCompletionDataFeatureImpl, CompletionNumberEmptyCompletionsGivesNoNumber )
+{
+    EXPECT_EQ( std::nullopt, RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( {} ) );
+}

@@ -96,6 +96,7 @@ RiuSummaryMultiPlotPage* RiuSummaryMultiPlotBook::createSummaryPage()
 {
     RimSummaryMultiPlot*     sumMultPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
     RiuSummaryMultiPlotPage* page        = new RiuSummaryMultiPlotPage( sumMultPlot, this );
+    page->setHostsCommonLegend( m_pages.isEmpty() );
 
     applyPageSettings( page );
 
