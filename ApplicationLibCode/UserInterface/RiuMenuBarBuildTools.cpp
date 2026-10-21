@@ -192,6 +192,8 @@ void RiuMenuBarBuildTools::addSaveProjectActions( QMenu* menu )
 
     menu->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
     menu->addAction( cmdFeatureMgr->action( "RicSaveProjectAsFeature" ) );
+    menu->addSeparator();
+    menu->addAction( cmdFeatureMgr->action( "RicRestoreProjectVersionsFeature" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

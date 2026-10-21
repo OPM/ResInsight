@@ -89,6 +89,24 @@ QString RiuRecentFileActionProvider::lastUsedProjectFileName()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns all recently used project files, most recently used first.
+//--------------------------------------------------------------------------------------------------
+QStringList RiuRecentFileActionProvider::recentProjectFiles()
+{
+    QStringList projectFiles;
+
+    const QStringList files = RiaStringListSerializer( registryKey() ).textStrings();
+    for ( const QString& file : files )
+    {
+        if ( file.endsWith( ".rsp", Qt::CaseInsensitive ) || file.endsWith( ".rip", Qt::CaseInsensitive ) )
+        {
+            projectFiles.push_back( file );
+        }
+    }
+    return projectFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuRecentFileActionProvider::updateActions()
