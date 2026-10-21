@@ -170,7 +170,9 @@ std::vector<RimWellEvent*> RimWellEventTimeline::getEventsUpToDate( const QDateT
     }
 
     // Sort by date
-    std::sort( result.begin(), result.end(), []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
+    std::stable_sort( result.begin(),
+                      result.end(),
+                      []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
 
     return result;
 }
