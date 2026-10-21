@@ -52,7 +52,7 @@ public:
     static cvf::Color3f assignColorByPhase( const RifEclipseSummaryAddress& address );
     static cvf::Color3f computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address, int colorIndex );
 
-    static cvf::Color3f                        cycledPaletteColor( int colorIndex );
+    static cvf::Color3f                        cycledPaletteColor( int colorIndex, bool forceGlobalPalette = false );
     static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
     static cvf::Color3f                        cycledGreenColor( int colorIndex );
     static cvf::Color3f                        cycledBlueColor( int colorIndex );

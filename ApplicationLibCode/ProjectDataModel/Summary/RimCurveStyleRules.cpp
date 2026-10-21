@@ -376,7 +376,8 @@ std::vector<caf::PdmUiTreeViewItemTag> RimCurveStyleRules::treeItemTags( RimCurv
     if ( !useColor && !useSymbol ) return tags;
 
     auto cacheIt = m_tagCache.find( dimension );
-    if ( cacheIt == m_tagCache.end() )
+    // Items added after the cache was built are not in the cache, rebuild to include them
+    if ( cacheIt == m_tagCache.end() || !cacheIt->second.contains( name ) )
     {
         RimCurveStyleRule::AvailableNamesCache namesCache;
 
@@ -401,7 +402,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimCurveStyleRules::treeItemTags( RimCurv
             appearances[itemName] = appearance;
         }
 
-        cacheIt = m_tagCache.emplace( dimension, std::move( appearances ) ).first;
+        cacheIt = m_tagCache.insert_or_assign( dimension, std::move( appearances ) ).first;
     }
 
     const auto appearanceIt = cacheIt->second.find( name );
@@ -643,9 +644,9 @@ void RimCurveStyleRules::assignedAppearance( RimCurveStyleRule::Dimension       
     const auto fromPlots = plotAppearances.find( name );
     const bool inPlots   = fromPlots != plotAppearances.end();
 
-    if ( projectWide ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index );
+    if ( projectWide ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index, true );
     if ( !color && inPlots ) color = fromPlots->second.color;
-    if ( !color ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index );
+    if ( !color ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index, true );
 
     if ( projectWide ) symbol = RimSummaryCurveAppearanceCalculator::cycledSymbol( index );
     if ( !symbol && inPlots ) symbol = fromPlots->second.symbol;
