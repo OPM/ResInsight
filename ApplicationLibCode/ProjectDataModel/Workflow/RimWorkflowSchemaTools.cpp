@@ -239,8 +239,8 @@ QJsonObject RimWorkflowSchemaTools::configFieldSchema( const QString&     fieldN
         return entry;
     }
 
-    const QJsonObject property   = properties.value( fieldName ).toObject();
-    const QJsonObject typeSchema = underlyingSchema( property, inputSchema );
+    const QJsonObject property       = properties.value( fieldName ).toObject();
+    const QJsonObject typeSchema     = underlyingSchema( property, inputSchema );
     QString           resinsightType = resinsightTypeFromPythonType( objectPythonType( typeSchema, inputSchema ) );
     if ( resinsightType.isEmpty() && isVec3Schema( typeSchema ) ) resinsightType = "Vec3";
 
