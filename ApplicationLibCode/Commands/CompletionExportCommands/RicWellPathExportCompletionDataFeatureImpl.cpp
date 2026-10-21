@@ -379,6 +379,39 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
     return completionsPerEclipseCell;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<int> RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( const std::vector<RigCompletionData>& completions )
+{
+    // One perforation interval can cross the same cell more than once, so lengths are summed per number
+    std::map<int, double> overlapPerNumber;
+    for ( const auto& completion : completions )
+    {
+        const auto number = completion.completionNumber();
+        if ( !number.has_value() ) continue;
+
+        double length = 0.0;
+        if ( completion.startMD().has_value() && completion.endMD().has_value() )
+        {
+            length = std::max( 0.0, completion.endMD().value() - completion.startMD().value() );
+        }
+        overlapPerNumber[number.value()] += length;
+    }
+
+    if ( overlapPerNumber.empty() ) return std::nullopt;
+
+    // Iterating in ascending number order and requiring a strictly larger length makes ties go to the lowest number
+    const double tolerance = 1.0e-6;
+
+    auto best = overlapPerNumber.begin();
+    for ( auto it = std::next( best ); it != overlapPerNumber.end(); ++it )
+    {
+        if ( it->second > best->second + tolerance ) best = it;
+    }
+    return best->first;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -409,9 +442,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     auto isValidTransmissibility = []( double transmissibility )
     { return RigStatisticsTools::isValidNumber<double>( transmissibility ) && transmissibility >= 0.0; };
 
-    auto startMD          = completions[0].startMD();
-    auto endMD            = completions[0].endMD();
-    auto completionNumber = completions[0].completionNumber();
+    auto startMD = completions[0].startMD();
+    auto endMD   = completions[0].endMD();
 
     for ( const RigCompletionData& completion : completions )
     {
@@ -436,14 +468,6 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             if ( completion.endMD().has_value() && ( completion.endMD().value() > endMD.value() ) )
             {
                 endMD = completion.endMD();
-            }
-        }
-
-        if ( !completionNumber.has_value() )
-        {
-            if ( completion.completionNumber().has_value() )
-            {
-                completionNumber = completion.completionNumber();
             }
         }
 
@@ -473,7 +497,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     {
         resultCompletion.setDepthRange( startMD.value(), endMD.value() );
     }
-    if ( completionNumber.has_value() ) resultCompletion.setCompletionNumber( completionNumber.value() );
+    if ( auto completionNumber = completionNumberForCell( completions ) ) resultCompletion.setCompletionNumber( completionNumber.value() );
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();

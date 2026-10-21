@@ -80,6 +80,10 @@ public:
 
     static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
+    // Completion number for a cell with several contributions: the number with the largest summed MD overlap
+    // (endMD - startMD) wins, ties go to the lowest number. Independent of contribution order.
+    static std::optional<int> completionNumberForCell( const std::vector<RigCompletionData>& completions );
+
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( const RimWellPath*                                wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
