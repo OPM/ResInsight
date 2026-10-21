@@ -75,6 +75,7 @@ public:
         static inline const QString SHOW_CHECK_BOXES         = QStringLiteral( "showCheckBoxes" );
         static inline const QString SHOW_CONTEXT_MENU        = QStringLiteral( "showContextMenu" );
         static inline const QString HEIGHT_HINT              = QStringLiteral( "heightHint" );
+        static inline const QString ICON_SIZE                = QStringLiteral( "iconSize" ); // QSize
 
         // caf::PdmFieldHandle*. Used to communicate the value of the current item in the tree view. This is useful when
         // displaying a list of appEnums, and a dependent view is displaying content based on the current item.
@@ -89,6 +90,7 @@ public:
                                                                    Keys::SHOW_CHECK_BOXES,
                                                                    Keys::SHOW_CONTEXT_MENU,
                                                                    Keys::HEIGHT_HINT,
+                                                                   Keys::ICON_SIZE,
                                                                    Keys::CURRENT_INDEX_FIELD_HANDLE };
 
 protected:
@@ -143,6 +145,7 @@ private:
     bool                 m_showCheckBoxes          = true;
     bool                 m_showContextMenu         = true;
     int                  m_heightHint              = -1;
+    QSize                m_iconSize;
     caf::PdmFieldHandle* m_currentIndexFieldHandle = nullptr;
 
     bool m_useSingleSelectionMode;

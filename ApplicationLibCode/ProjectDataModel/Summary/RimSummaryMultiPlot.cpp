@@ -19,6 +19,7 @@
 #include "RimSummaryMultiPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
@@ -58,6 +59,7 @@
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryMultiPlotBook.h"
@@ -95,11 +97,9 @@ void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
 template <>
 void AppEnum<RimSummaryMultiPlot::GlobalAppearance>::setUp()
 {
-    addItem( RimSummaryMultiPlot::GlobalAppearance::NONE, "NONE", "Local" );
-    addItem( RimSummaryMultiPlot::GlobalAppearance::COLOR, "COLOR", "Use Global Color" );
-    addItem( RimSummaryMultiPlot::GlobalAppearance::SYMBOL, "SYMBOL", "Use Global Symbol" );
-    addItem( RimSummaryMultiPlot::GlobalAppearance::COLOR_AND_SYMBOL, "COLOR_AND_SYMBOL", "Use Global Color and Symbol" );
-    setDefault( RimSummaryMultiPlot::GlobalAppearance::NONE );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::LOCAL, "LOCAL", "Local" );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::GLOBAL, "GLOBAL", "Global" );
+    setDefault( RimSummaryMultiPlot::GlobalAppearance::LOCAL );
 }
 } // namespace caf
 
@@ -126,7 +126,7 @@ RimSummaryMultiPlot::GlobalAppearance RimSummaryMultiPlot::globalAppearance() co
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::useGlobalColor() const
 {
-    return m_globalAppearance() == GlobalAppearance::COLOR || m_globalAppearance() == GlobalAppearance::COLOR_AND_SYMBOL;
+    return m_globalAppearance() == GlobalAppearance::GLOBAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ bool RimSummaryMultiPlot::useGlobalColor() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::useGlobalSymbol() const
 {
-    return m_globalAppearance() == GlobalAppearance::SYMBOL || m_globalAppearance() == GlobalAppearance::COLOR_AND_SYMBOL;
+    return m_globalAppearance() == GlobalAppearance::GLOBAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +166,9 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
     m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
+
+    CAF_PDM_InitField( &m_showCurveAppearance, "ShowCurveAppearance", false, "", "", "Show Curve Appearance" );
+    m_showCurveAppearance.uiCapability()->setUiIconFromResourceString( ":/Legend.png" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
@@ -554,6 +557,11 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             rules->applyGlobalAppearance( summaryPlots() );
         }
     }
+    else if ( changedField == &m_showCurveAppearance )
+    {
+        m_showCurveAppearance = false;
+        if ( auto window = RiaGuiApplication::instance()->mainPlotWindow() ) window->showCurveAppearance();
+    }
     else if ( changedField == &m_createPlotDuplicate )
     {
         m_createPlotDuplicate = false;
@@ -741,6 +749,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     toolBarFields.push_back( &m_appendNextCurve );
 
     toolBarFields.push_back( &m_createPlotDuplicate );
+    toolBarFields.push_back( &m_showCurveAppearance );
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );

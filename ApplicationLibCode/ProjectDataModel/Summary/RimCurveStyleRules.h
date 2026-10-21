@@ -94,6 +94,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
 
 public:
     enum class AppearanceType
@@ -110,11 +111,17 @@ private:
                                            std::optional<cvf::Color3f>&                                color,
                                            std::optional<RiuPlotCurveSymbol::PointSymbolEnum>&         symbol ) const;
     RimCurveStyleRule* findRule( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
-    QString            currentItemName() const;
-    bool               updateSelectedItem();
-    void               resetAllRules();
-    void               connectAllPlots( bool connect );
-    void               updateSummaryCaseTags();
+    void               setUpBaseStyles();
+
+    // The names of the highlighted items for the current dimension, as edited with checkboxes
+    std::vector<QString> highlightedItems() const;
+    void                 setHighlightedItems( const std::vector<QString>& names );
+
+    int  symbolSize() const;
+    void setSymbolSize( const int& size );
+    void resetAllRules();
+    void connectAllPlots( bool connect );
+    void updateSummaryCaseTags();
 
     // The dimension controlling the selected appearance type, as stored in the global settings
     caf::AppEnum<RimCurveStyleRule::Dimension> currentDimension() const;
@@ -137,10 +144,12 @@ private:
     caf::PdmProxyValueField<caf::AppEnum<RimCurveStyleRule::Dimension>> m_currentType;
     caf::PdmPtrField<RimColorLegend*>                                   m_autoColorLegend;
     caf::PdmField<int>                                                  m_symbolLegend;
-    caf::PdmField<int>                                                  m_currentItemIndex;
+    caf::PdmProxyValueField<std::vector<QString>>                       m_highlightedItems;
+    caf::PdmProxyValueField<int>                                        m_symbolSize;
 
-    // Edited in the dock window for the selected item. Not stored, custom settings are copied to a rule in m_rules.
-    caf::PdmChildField<RimCurveStyleRule*> m_selectedItem;
+    // The style shared by all items controlled by color, and the symbol size shared by all items controlled by symbol
+    caf::PdmChildField<RimCurveStyleRule*> m_colorBaseStyle;
+    caf::PdmChildField<RimCurveStyleRule*> m_symbolBaseStyle;
 
     // Colors and symbols shown as tags in the data source tree, built on demand and cleared when the rules change
     struct TagAppearance

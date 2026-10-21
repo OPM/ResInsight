@@ -929,11 +929,22 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
             // Curves without a value for the selected dimensions keep their own appearance and stay editable
             const bool controlsColor  = controlsGlobalColor( address, caseName );
             const bool controlsSymbol = controlsGlobalSymbol( address, caseName );
-            if ( !controlsColor && !controlsSymbol ) continue;
+            // A property without a global dimension is assigned locally, as when global appearance is off
+            const bool localColor  = useGlobalColor() && settings->colorDimension() == RimCurveStyleRule::Dimension::NONE;
+            const bool localSymbol = useGlobalSymbol() && settings->symbolDimension() == RimCurveStyleRule::Dimension::NONE;
+            if ( !controlsColor && !controlsSymbol && !localColor && !localSymbol ) continue;
 
-            const auto originalColor  = curve->color();
-            const auto originalSymbol = curve->symbol();
+            auto originalColor  = curve->color();
+            auto originalSymbol = curve->symbol();
             curve->resetAppearance();
+
+            if ( localColor || localSymbol )
+            {
+                RimSummaryCurveAppearanceCalculator( allCurveDefs ).setupCurveLook( curve );
+                if ( localColor ) originalColor = curve->color();
+                if ( localSymbol ) originalSymbol = curve->symbol();
+                curve->resetAppearance();
+            }
 
             // Properties not assigned globally keep their value
             if ( !controlsColor )
@@ -1046,7 +1057,9 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
     // Indices depend on all curve sets in the plot, so all must be updated to stay consistent
     RimCurveStyleRule::AvailableNamesCache namesCache;
     std::optional<DimensionIndexer>        globalColorIndexer;
-    if ( useGlobalColor() )
+    const bool colorDimensionIsSet = useGlobalColor() && RimProject::current()->curveStyleRules()->settings()->colorDimension() !=
+                                                             RimCurveStyleRule::Dimension::NONE;
+    if ( colorDimensionIsSet )
     {
         ensembleCurvesToUpdate = ensembleCurveSetCollection()->curveSets();
         globalColorIndexer.emplace( RimProject::current()->curveStyleRules()->settings()->colorDimension(),

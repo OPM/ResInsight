@@ -53,13 +53,10 @@ public:
         REALIZATIONS
     };
 
-    // The curve properties assigned by the global curve appearance
     enum class GlobalAppearance
     {
-        NONE,
-        COLOR,
-        SYMBOL,
-        COLOR_AND_SYMBOL
+        LOCAL,
+        GLOBAL
     };
 
     RimSummaryMultiPlot();
@@ -178,6 +175,7 @@ private:
     caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
+    caf::PdmField<bool> m_showCurveAppearance;
     caf::PdmField<bool> m_linkSubPlotAxes;
     caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
