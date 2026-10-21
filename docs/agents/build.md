@@ -74,7 +74,6 @@ ninja -C build
 
 # Build specific targets
 ninja -C build ResInsight
-ninja -C build extract-projectfile-versions
 ```
 
 ### Windows (Visual Studio 2022)
@@ -96,7 +95,6 @@ cmake --build --preset x64-relwithdebinfo
 
 # Build specific targets
 cmake --build --preset x64-relwithdebinfo --target ResInsight
-cmake --build --preset x64-relwithdebinfo --target extract-projectfile-versions
 ```
 
 **Important — use `cmake --build`, not `ninja` directly, when sharing `build/` with Visual Studio:**

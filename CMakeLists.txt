@@ -1285,11 +1285,6 @@ else(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
   endif(OCTAVE_MKOCTFILE)
 endif(RESINSIGHT_USE_EXTERNAL_OCTAVE_PLUGINS)
 
-add_subdirectory(ThirdParty/extract-projectfile-versions)
-install(TARGETS extract-projectfile-versions
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-)
-
 # ##############################################################################
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
 # https://stackoverflow.com/questions/75031903/how-to-enable-static-analysis-with-custom-ruleset-in-msvc-via-cmakelists-txt
