@@ -436,21 +436,22 @@ void RimCurveStyleRules::applyGlobalAppearance( const std::vector<RimSummaryPlot
 {
     RimCurveStyleRule::AvailableNamesCache namesCache;
 
+    // Restore saved appearances first, so properties no longer controlled globally (e.g. color when changing from color
+    // and symbol to symbol only) go back to their original values before the global appearance is applied again.
+    // Plots still using the global appearance keep curves without a saved appearance as they are.
+    std::vector<RimSummaryPlot*> enabledPlots;
     std::vector<RimSummaryPlot*> disabledPlots;
     for ( auto plot : plots )
-    {
-        if ( plot->useGlobalCurveAppearance() )
-        {
-            saveAppearance( plot );
-            plot->updateCurveAppearanceFromGlobalSettings();
-        }
-        else
-        {
-            disabledPlots.push_back( plot );
-        }
-    }
+        ( plot->useGlobalCurveAppearance() ? enabledPlots : disabledPlots ).push_back( plot );
 
-    restoreAppearances( disabledPlots );
+    restoreAppearances( enabledPlots, false );
+    restoreAppearances( disabledPlots, true );
+
+    for ( auto plot : enabledPlots )
+    {
+        saveAppearance( plot );
+        plot->updateCurveAppearanceFromGlobalSettings();
+    }
 
     updateSummaryCaseTags();
     updateConnectedEditors();
@@ -490,7 +491,7 @@ void RimCurveStyleRules::saveAppearance( RimSummaryPlot* plot )
 /// Curves without a saved appearance, typically created while the global appearance was enabled, get the
 /// calculated default appearance
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::restoreAppearances( const std::vector<RimSummaryPlot*>& plots )
+void RimCurveStyleRules::restoreAppearances( const std::vector<RimSummaryPlot*>& plots, bool applyDefaultsToUnsaved )
 {
     std::set<caf::PdmObject*> plotObjects;
     for ( auto plot : plots )
@@ -517,6 +518,8 @@ void RimCurveStyleRules::restoreAppearances( const std::vector<RimSummaryPlot*>&
         m_savedAppearances.removeChild( saved );
         delete saved;
     }
+
+    if ( !applyDefaultsToUnsaved ) return;
 
     for ( auto plot : plots )
     {

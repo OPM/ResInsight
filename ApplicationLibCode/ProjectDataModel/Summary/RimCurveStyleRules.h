@@ -123,7 +123,7 @@ private:
     const caf::PdmField<std::vector<QString>>* itemOrder( RimCurveStyleRule::Dimension dimension ) const;
 
     void saveAppearance( RimSummaryPlot* plot );
-    void restoreAppearances( const std::vector<RimSummaryPlot*>& plots );
+    void restoreAppearances( const std::vector<RimSummaryPlot*>& plots, bool applyDefaultsToUnsaved );
 
     // The curve appearance before the global appearance was enabled, restored when disabled
     caf::PdmChildArrayField<RimSavedCurveAppearance*> m_savedAppearances;
