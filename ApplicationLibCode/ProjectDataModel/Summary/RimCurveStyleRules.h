@@ -113,6 +113,7 @@ private:
     QString            currentItemName() const;
     bool               updateSelectedItem();
     void               resetAllRules();
+    void               connectAllPlots( bool connect );
     void               updateSummaryCaseTags();
 
     // The dimension controlling the selected appearance type, as stored in the global settings

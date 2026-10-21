@@ -787,9 +787,31 @@ void RimCurveStyleRules::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
                                                   m_appearanceType() == AppearanceType::SYMBOL );
     }
 
-    uiOrdering.addNewButton( "Reset All", [this]() { resetAllRules(); } );
+    uiOrdering.addNewButton( "Reset All to Auto", [this]() { resetAllRules(); } );
+    uiOrdering.addNewButton( "Connect All Plots to Global Color and Symbol", [this]() { connectAllPlots( true ); } );
+    uiOrdering.addNewButton( "Disconnect All Plots", [this]() { connectAllPlots( false ); } );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sets all summary multi plots to use global color and symbol, or to use local appearance
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::connectAllPlots( bool connect )
+{
+    const auto appearance = connect ? RimSummaryMultiPlot::GlobalAppearance::COLOR_AND_SYMBOL : RimSummaryMultiPlot::GlobalAppearance::NONE;
+
+    std::vector<RimSummaryPlot*> plots;
+    for ( auto multiPlot : summaryMultiPlots() )
+    {
+        multiPlot->setGlobalAppearance( appearance );
+        multiPlot->updateConnectedEditors();
+
+        for ( auto plot : multiPlot->summaryPlots() )
+            plots.push_back( plot );
+    }
+
+    applyGlobalAppearance( plots );
 }
 
 //--------------------------------------------------------------------------------------------------

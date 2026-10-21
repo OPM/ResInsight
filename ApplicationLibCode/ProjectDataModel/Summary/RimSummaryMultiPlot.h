@@ -66,6 +66,7 @@ public:
     ~RimSummaryMultiPlot() override;
 
     GlobalAppearance globalAppearance() const;
+    void             setGlobalAppearance( GlobalAppearance appearance );
     bool             useGlobalColor() const;
     bool             useGlobalSymbol() const;
 

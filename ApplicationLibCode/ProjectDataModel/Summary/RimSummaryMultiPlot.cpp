@@ -108,6 +108,14 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setGlobalAppearance( GlobalAppearance appearance )
+{
+    m_globalAppearance = appearance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::GlobalAppearance RimSummaryMultiPlot::globalAppearance() const
 {
     return m_globalAppearance();
