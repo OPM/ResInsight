@@ -142,6 +142,9 @@ jobs:
         run: echo "timestamp ${{ steps.current-time.outputs.formattedTime }}"
 
       - name: Restore Buildcache
+        # The nightly scheduled run starts from an empty cache and saves a
+        # freshly built one; all other runs restore the latest nightly cache.
+        if: github.event_name != 'schedule'
         id: cache-buildcache
         uses: actions/cache/restore@v6
         with:
