@@ -172,7 +172,7 @@ TEST( RimRftCrossPlotToolsTest, FilterPressuresByDepthIntervals_FiltersByMultipl
     std::vector<double> depths{ 1000.0, 1500.0, 2000.0, 2500.0, 3000.0 };
     std::vector<double> pressures{ 10.0, 15.0, 20.0, 25.0, 30.0 };
 
-    std::vector<RimRftCrossPlotTools::DepthInterval> intervals{ { 1000.0, 1500.0 }, { 2800.0, 3200.0 } };
+    std::vector<RimRftCrossPlotTools::DepthInterval> intervals{ { 1000.0, 1500.0, QString{} }, { 2800.0, 3200.0, QString{} } };
     auto filtered = RimRftCrossPlotTools::filterPressuresByDepthIntervals( depths, pressures, intervals );
 
     std::vector<double> expected{ 10.0, 15.0, 30.0 };
