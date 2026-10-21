@@ -71,6 +71,14 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
 
+    CAF_PDM_InitField( &m_useCommonLegend,
+                       "UseCommonLegend",
+                       false,
+                       "Use Common Legend",
+                       "",
+                       "Show one legend above the sub plots, merging identical entries. Useful when all sub plots share the same legend "
+                       "entries." );
+
     CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size" );
     m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
 
@@ -119,6 +127,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     m_rowsPerPage              = rhs.m_rowsPerPage;
     m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
     m_subTitleFontSize         = rhs.m_subTitleFontSize;
+    m_useCommonLegend          = rhs.m_useCommonLegend;
     m_pagePreviewMode          = rhs.m_pagePreviewMode;
 
     return *this;
@@ -530,6 +539,14 @@ bool RimMultiPlot::showPlotTitles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimMultiPlot::useCommonLegend() const
+{
+    return m_useCommonLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::zoomAll()
 {
     setAutoScaleXEnabled( true );
@@ -706,7 +723,7 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_showIndividualPlotTitles )
+    if ( changedField == &m_showIndividualPlotTitles || changedField == &m_useCommonLegend )
     {
         updateLayout();
     }

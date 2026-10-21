@@ -641,6 +641,7 @@ const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotBook::pages() const
 RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 {
     RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
+    page->setHostsCommonLegend( m_pages.isEmpty() );
 
     applyPageSettings( page );
 
