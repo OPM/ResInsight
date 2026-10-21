@@ -39,6 +39,7 @@ public:
     ~RiuBatchQueueMonitor() override;
 
     void stopMonitoring();
+    void restartMonitoring();
 
 private slots:
     void slotUpdateView( const std::vector<std::vector<QString>> information );

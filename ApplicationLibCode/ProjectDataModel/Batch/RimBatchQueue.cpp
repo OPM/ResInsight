@@ -69,7 +69,7 @@ std::pair<std::unique_ptr<RimProcess>, QString> RimBatchQueue::runCommand( QStri
     if ( RiaPreferencesOpm::current()->useWsl() )
     {
         cmdList.append( RiaWslTools::wslCommand() );
-        cmdList.append( RiaPreferencesOpm::current()->wslOptions() );
+        cmdList.append( RiaPreferencesOpm::current()->wslArguments() );
     }
 
     cmdList.append( command );

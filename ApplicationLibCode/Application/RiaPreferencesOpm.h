@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RiaWslTools.h"
+
 class RimOpmFlowJobSettings;
 
 //--------------------------------------------------------------------------------------------------
@@ -40,10 +42,12 @@ public:
     bool validateFlowSettings() const;
 
     QString     opmFlowCommand() const;
-    QStringList wslOptions() const;
+    QStringList wslArguments() const;
     bool        useWsl() const;
     bool        useMpi() const;
     QString     mpirunCommand() const;
+
+    RiaWslTools::WslOptions wslOptions() const;
 
     RimOpmFlowJobSettings* createDefaultJobSettings() const;
 

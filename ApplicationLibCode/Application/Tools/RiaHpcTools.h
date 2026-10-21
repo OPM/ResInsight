@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaHpcDefines.h"
+#include "RiaWslTools.h"
 
 #include <QString>
 #include <QStringList>
@@ -30,11 +31,12 @@
 //--------------------------------------------------------------------------------------------------
 namespace RiaHpcTools
 {
-QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
+QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
-void                              stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId );
-QString                           findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
-std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler );
+QString findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
+
+void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId, const RiaWslTools::WslOptions& wslOptions );
+std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );

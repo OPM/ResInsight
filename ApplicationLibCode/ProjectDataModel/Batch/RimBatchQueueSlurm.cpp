@@ -158,17 +158,15 @@ QString RimBatchQueueSlurm::jobId() const
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::stopProcess()
 {
-    if ( m_batchProcess && m_process && m_process->monitor() )
+    if ( m_batchProcess && m_batchProcess->isRunning() )
     {
         auto id = jobId();
 
         if ( !id.isEmpty() )
         {
             RiaLogging::info( QString( "Stopping batch job %1" ).arg( id ).toStdString() );
-            RiaHpcTools::stopJob( schedulerType(), id );
+            RiaHpcTools::stopJob( schedulerType(), id, RiaPreferencesOpm::current()->wslOptions() );
         }
-
-        m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
     }
 }
 

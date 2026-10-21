@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaWslTools.h"
+
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -25,6 +27,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <atomic>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -60,8 +63,8 @@ public:
     QString                            description() const;
     std::shared_ptr<RimProcessMonitor> monitor() const;
 
-    bool useWsl() const;
-    void setUseWsl( bool useWsl );
+    void                           setWslOptions( const RiaWslTools::WslOptions& wslOpt );
+    const RiaWslTools::WslOptions& wslOptions() const;
 
     // blocking run
     bool execute( bool enableStdOut = true, bool enableStdErr = true );
@@ -72,6 +75,7 @@ public:
     void terminate();
     void notifyErrorFinish();
     void writeToStdIn( QStringList stdIn );
+    bool isRunning();
 
     const QStringList& stdErr() const;
     const QStringList& stdOut() const;
@@ -94,13 +98,13 @@ private:
     caf::PdmField<QString>       m_description;
     caf::PdmField<size_t>        m_id;
     caf::PdmField<caf::FilePath> m_workDir;
-    caf::PdmField<bool>          m_useWsl;
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 
-    static size_t                      m_nextProcessId;
+    static std::atomic<size_t>         m_nextProcessId;
     std::shared_ptr<RimProcessMonitor> m_monitor;
     bool                               m_enableLogging;
     QPointer<QProcess>                 m_qProcess;
     QStringList                        m_emptyList;
+    RiaWslTools::WslOptions            m_wslOptions;
 };

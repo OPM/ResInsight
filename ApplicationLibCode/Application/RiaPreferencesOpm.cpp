@@ -130,7 +130,7 @@ QString RiaPreferencesOpm::mpirunCommand() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaPreferencesOpm::wslOptions() const
+QStringList RiaPreferencesOpm::wslArguments() const
 {
     QStringList options;
     if ( m_useWsl() )
@@ -140,6 +140,17 @@ QStringList RiaPreferencesOpm::wslOptions() const
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaWslTools::WslOptions RiaPreferencesOpm::wslOptions() const
+{
+    return RiaWslTools::WslOptions{ .useWsl         = useWsl(),
+                                    .wslCommand     = RiaWslTools::wslCommand(),
+                                    .wslArguments   = wslArguments(),
+                                    .wslEnvironment = RiaWslTools::wslEnvironmentVariables() };
 }
 
 //--------------------------------------------------------------------------------------------------

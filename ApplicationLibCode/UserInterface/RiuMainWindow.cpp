@@ -371,7 +371,7 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
         }
     }
 
-    m_batchMonitor->stopMonitoring();
+    if ( m_batchMonitor ) m_batchMonitor->stopMonitoring();
 
     if ( auto proj = RimProject::current() )
     {
@@ -2262,4 +2262,12 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
 RimViewWindow* RiuMainWindow::activeViewer()
 {
     return RiaApplication::instance()->activeReservoirView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::restartBatchMonitor()
+{
+    if ( m_batchMonitor ) m_batchMonitor->restartMonitoring();
 }

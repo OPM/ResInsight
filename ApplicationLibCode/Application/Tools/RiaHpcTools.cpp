@@ -18,19 +18,19 @@
 
 #include "RiaHpcTools.h"
 
-#include "RiaPreferencesOpm.h"
+#include "RiaWslTools.h"
 
 #include "RimProcess.h"
 
 namespace
 {
 
-QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
+QStringList runUtilityCommand( QString cmdStr, QStringList arguments, const RiaWslTools::WslOptions& wslOptions )
 {
     RimProcess proc( false /*no logging*/ );
-    proc.setUseWsl( RiaPreferencesOpm::current()->useWsl() );
-
+    proc.setWslOptions( wslOptions );
     proc.setCommand( cmdStr );
+
     if ( !arguments.isEmpty() ) proc.addParameters( arguments );
 
     if ( proc.execute() )
@@ -44,17 +44,17 @@ QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void stopLsfJob( QString jobId )
+void stopLsfJob( QString jobId, const RiaWslTools::WslOptions& wslOptions )
 {
-    runUtilityCommand( "bkill", { jobId } );
+    runUtilityCommand( "bkill", { jobId }, wslOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void stopSlurmJob( QString jobId )
+void stopSlurmJob( QString jobId, const RiaWslTools::WslOptions& wslOptions )
 {
-    runUtilityCommand( "scancel", { jobId } );
+    runUtilityCommand( "scancel", { jobId }, wslOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ QString decodeLsfJobId( QStringList stdOut )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList listSlurmJobs()
+QStringList listSlurmJobs( const RiaWslTools::WslOptions& wslOptions )
 {
     QStringList arguments;
     arguments << "--format";
@@ -110,20 +110,20 @@ QStringList listSlurmJobs()
     arguments << "--me";
     arguments << "--noheader";
 
-    return runUtilityCommand( "squeue", arguments );
+    return runUtilityCommand( "squeue", arguments, wslOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList listLsfJobs()
+QStringList listLsfJobs( const RiaWslTools::WslOptions& wslOptions )
 {
     QStringList arguments;
     arguments << "-o";
     arguments << "jobid:10 job_name:25 run_time:12 stat:8 queue:15 exec_host:20"; // id name runtime state partition nodes
     arguments << "-noheader";
 
-    return runUtilityCommand( "bjobs", arguments );
+    return runUtilityCommand( "bjobs", arguments, wslOptions );
 }
 
 } // namespace
@@ -134,16 +134,16 @@ namespace RiaHpcTools
 //--------------------------------------------------------------------------------------------------
 /// Returns available cluster queues for the given scheduler type
 //--------------------------------------------------------------------------------------------------
-QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler )
+QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
-        auto rawOutput = runUtilityCommand( "sinfo", { "-a" } );
+        auto rawOutput = runUtilityCommand( "sinfo", { "-a" }, wslOptions );
         return decodeSlurmQueues( rawOutput );
     }
     else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
     {
-        auto rawOutput = runUtilityCommand( "bqueues", { "-w" } );
+        auto rawOutput = runUtilityCommand( "bqueues", { "-w" }, wslOptions );
         return decodeLsfQueues( rawOutput );
     }
 
@@ -153,16 +153,16 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler )
+std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
-        QStringList jobLines = listSlurmJobs();
+        QStringList jobLines = listSlurmJobs( wslOptions );
         return decodeSlurmJobs( jobLines );
     }
     else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
     {
-        QStringList jobLines = listLsfJobs();
+        QStringList jobLines = listLsfJobs( wslOptions );
         return decodeLsfJobs( jobLines );
     }
     return {};
@@ -171,15 +171,15 @@ std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType sched
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId )
+void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId, const RiaWslTools::WslOptions& wslOptions )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
-        stopSlurmJob( jobId );
+        stopSlurmJob( jobId, wslOptions );
     }
     else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
     {
-        stopLsfJob( jobId );
+        stopLsfJob( jobId, wslOptions );
     }
 }
 

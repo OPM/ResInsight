@@ -27,8 +27,10 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RimProcess;
+class RiaTimer;
 
 //==================================================================================================
 ///
@@ -72,6 +74,7 @@ public:
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void onRefreshTimer( const SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool> m_isChildJob;
@@ -79,4 +82,6 @@ private:
     JobState  m_jobState;
     QDateTime m_startTime;
     QDateTime m_stopTime;
+
+    std::unique_ptr<RiaTimer> m_refreshTimer;
 };

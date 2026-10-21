@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaHpcTools.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesOpm.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -154,7 +155,7 @@ bool RiaPreferencesBatch::exclusiveJob() const
 //--------------------------------------------------------------------------------------------------
 QString RiaPreferencesBatch::selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue )
 {
-    QStringList queues    = RiaHpcTools::availableQueues( scheduler );
+    QStringList queues    = RiaHpcTools::availableQueues( scheduler, RiaPreferencesOpm::current()->wslOptions() );
     QString     labelText = "Available Queues/Partitions:";
     if ( queues.isEmpty() )
     {

@@ -28,11 +28,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, int interval, QObject* parent )
+RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
+                                              int                            interval,
+                                              const RiaWslTools::WslOptions& wslOpt,
+                                              QObject*                       parent )
     : QObject( parent )
     , m_keepRunning( true )
     , m_monitoringIntervalSeconds( interval )
     , m_scheduler( scheduler )
+    , m_wslOptions( wslOpt )
 {
 }
 
@@ -41,10 +45,10 @@ RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType sch
 //--------------------------------------------------------------------------------------------------
 void RiuBatchMonitorWorker::stopMonitoring()
 {
+    QMutexLocker locker( &m_mutex );
     // signal to worker thread it is time to stop
     m_keepRunning = false;
     // wait for thread to finish, but don't wait forever
-    QMutexLocker locker( &m_mutex );
     m_waitForStop.wait( &m_mutex, 8000 );
 }
 
@@ -55,7 +59,7 @@ void RiuBatchMonitorWorker::gatherInformation()
 {
     while ( m_keepRunning )
     {
-        auto jobInfo = RiaHpcTools::listJobs( m_scheduler );
+        auto jobInfo = RiaHpcTools::listJobs( m_scheduler, m_wslOptions );
         emit informationGathered( jobInfo );
 
         // poll exit flag 5 times per second to respond quickly to program exit

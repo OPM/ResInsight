@@ -56,15 +56,14 @@ public:
 protected:
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
-    virtual QStringList                command()                           = 0;
-    virtual std::map<QString, QString> environment()                       = 0;
-    virtual QString                    workingDirectory() const            = 0;
-    virtual bool                       onPrepare()                         = 0;
-    virtual bool                       onRun()                             = 0;
-    virtual void                       onCompleted( bool success )         = 0;
-    virtual void                       onProgress( double percentageDone ) = 0;
-    virtual bool                       shouldUseWsl()                      = 0;
-    virtual int                        numberOfProcesses()                 = 0;
+    virtual QStringList command()                           = 0;
+    virtual QString     workingDirectory() const            = 0;
+    virtual bool        onPrepare()                         = 0;
+    virtual bool        onRun()                             = 0;
+    virtual void        onCompleted( bool success )         = 0;
+    virtual void        onProgress( double percentageDone ) = 0;
+    virtual bool        shouldUseWsl()                      = 0;
+    virtual int         numberOfProcesses()                 = 0;
 
 protected:
     double m_percentageDone;

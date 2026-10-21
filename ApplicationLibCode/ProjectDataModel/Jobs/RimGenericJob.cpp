@@ -18,6 +18,8 @@
 
 #include "RimGenericJob.h"
 
+#include "RiaTimer.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. Abstract class
@@ -27,11 +29,15 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::RimGenericJob()
     : m_jobState( JobState::Idle )
+    , m_refreshTimer( std::make_unique<RiaTimer>() )
+
 {
     CAF_PDM_InitObject( "Generic Job" );
 
     CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
     m_isChildJob.uiCapability()->setUiHidden( true );
+
+    m_refreshTimer->tick.connect( this, &RimGenericJob::onRefreshTimer );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,6 +45,7 @@ RimGenericJob::RimGenericJob()
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::~RimGenericJob()
 {
+    m_refreshTimer->stop();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +96,7 @@ void RimGenericJob::setStarted()
 {
     m_startTime = QDateTime::currentDateTime();
     m_stopTime  = QDateTime();
+    m_refreshTimer->start();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +123,7 @@ double RimGenericJob::runTimeSeconds()
 //--------------------------------------------------------------------------------------------------
 void RimGenericJob::setFinished( bool runOk )
 {
+    m_refreshTimer->stop();
     m_stopTime = QDateTime::currentDateTime();
     if ( runOk )
     {
@@ -154,4 +163,12 @@ void RimGenericJob::setIsChildJob( bool isChildJob )
 {
     m_isChildJob = isChildJob;
     if ( isChildJob ) setDeletable( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::onRefreshTimer( const SignalEmitter* emitter )
+{
+    if ( isRunning() ) updateConnectedEditors();
 }

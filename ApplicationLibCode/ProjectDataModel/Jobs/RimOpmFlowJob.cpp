@@ -742,19 +742,6 @@ QStringList RimOpmFlowJob::command()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RimOpmFlowJob::environment()
-{
-    auto opmPref = RiaPreferencesOpm::current();
-    if ( opmPref->useWsl() )
-    {
-        return RiaWslTools::wslEnvironmentVariables();
-    }
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::onPrepare()
 {
     if ( name().isEmpty() )

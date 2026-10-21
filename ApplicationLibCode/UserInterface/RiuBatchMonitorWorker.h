@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaHpcDefines.h"
+#include "RiaWslTools.h"
 
 #include <atomic>
 #include <vector>
@@ -35,7 +36,10 @@ class RiuBatchMonitorWorker : public QObject
     Q_OBJECT
 
 public:
-    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler, int interval, QObject* parent = nullptr );
+    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
+                                    int                            interval,
+                                    const RiaWslTools::WslOptions& wslOpt,
+                                    QObject*                       parent = nullptr );
 
     void stopMonitoring();
 
@@ -52,4 +56,5 @@ private:
     QMutex                         m_mutex;
     QWaitCondition                 m_waitForStop;
     RiaDefines::BatchSchedulerType m_scheduler;
+    RiaWslTools::WslOptions        m_wslOptions;
 };

@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
 #include "RiaQStringFormatter.h"
 
 #include "Batch/RimBatchQueue.h"
@@ -124,7 +125,7 @@ bool RimSingleJob::execute()
     m_process = std::make_shared<RimProcess>( true /*log output*/, std::make_shared<RimJobMonitor>( this ) );
 
     // on windows, should run using wsl?
-    m_process->setUseWsl( shouldUseWsl() );
+    m_process->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
 
     m_process->setDescription( name() );
 
@@ -134,10 +135,6 @@ bool RimSingleJob::execute()
 
     if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
     m_process->setWorkingDirectory( workingDirectory() );
-    for ( const auto& [name, value] : environment() )
-    {
-        m_process->addEnvironmentVariable( name, value );
-    }
 
     m_queue.reset( RimBatchQueue::createBatchQueue() );
 

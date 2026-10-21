@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
+#include "RiaPreferencesOpm.h"
 
 #include "RiuBatchMonitorWorker.h"
 #include "RiuMessagePanel.h"
@@ -140,7 +141,7 @@ void RiuBatchQueueMonitor::toggleUpdates()
         if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds
         if ( interval > 60 ) interval = 60; // maximum interval of 60 seconds
 
-        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType, interval );
+        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType, interval, RiaPreferencesOpm::current()->wslOptions() );
         auto thread     = new QThread( this );
 
         m_monitorWorker->moveToThread( thread );
@@ -175,6 +176,14 @@ void RiuBatchQueueMonitor::stopMonitoring()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuBatchQueueMonitor::updateInterval()
+{
+    restartMonitoring();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchQueueMonitor::restartMonitoring()
 {
     stopMonitoring();
 

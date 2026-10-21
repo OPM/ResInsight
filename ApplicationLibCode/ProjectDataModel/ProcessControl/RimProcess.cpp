@@ -32,7 +32,7 @@
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
-size_t RimProcess::m_nextProcessId = 1;
+std::atomic<size_t> RimProcess::m_nextProcessId( 1 );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,7 +43,9 @@ RimProcess::RimProcess( bool logStdOutErr, std::shared_ptr<RimProcessMonitor> mo
 {
     size_t defId = m_nextProcessId++;
     if ( monitor == nullptr )
+    {
         m_monitor = std::make_shared<RimProcessMonitor>( defId, logStdOutErr );
+    }
     else
     {
         m_monitor = monitor;
@@ -63,9 +65,6 @@ RimProcess::RimProcess( bool logStdOutErr, std::shared_ptr<RimProcessMonitor> mo
 
     CAF_PDM_InitField( &m_id, "ID", defId, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitField( &m_useWsl, "UseWSL", false, "Use WSL to launch process" );
-    m_useWsl.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,7 +210,7 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
 
     if ( m_enableLogging )
     {
-        std::string wslTxt = m_useWsl() ? " using WSL" : "";
+        std::string wslTxt = m_wslOptions.useWsl ? " using WSL" : "";
         RiaLogging::info( std::format( "Start process {}{}: {}", m_id(), wslTxt, cmd ) );
     }
 
@@ -229,18 +228,23 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     {
         env.insert( key, val );
     }
-    m_qProcess->setProcessEnvironment( env );
+
     if ( !m_workDir().path().isEmpty() )
     {
         m_qProcess->setWorkingDirectory( m_workDir().path() );
     }
 
-    if ( m_useWsl() )
+    if ( m_wslOptions.useWsl )
     {
         m_arguments.prepend( m_command() );
-        m_arguments = RiaPreferencesOpm::current()->wslOptions() + m_arguments;
-        m_command   = RiaWslTools::wslCommand();
+        m_arguments = m_wslOptions.wslArguments + m_arguments;
+        m_command   = m_wslOptions.wslCommand;
+        for ( auto& [key, val] : m_wslOptions.wslEnvironment )
+        {
+            env.insert( key, val );
+        }
     }
+    m_qProcess->setProcessEnvironment( env );
 
     m_qProcess->start( m_command, m_arguments );
     if ( !m_qProcess->waitForStarted( -1 ) )
@@ -290,11 +294,25 @@ void RimProcess::terminate()
 {
     if ( m_qProcess != nullptr )
     {
-        if ( m_qProcess->state() == QProcess::Running )
+        if ( isRunning() )
         {
             m_qProcess->kill();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProcess::isRunning()
+{
+    if ( m_qProcess != nullptr )
+    {
+        auto state = m_qProcess->state();
+        return state == QProcess::Running || state == QProcess::Starting;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,15 +450,15 @@ QString RimProcess::workingDirectory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProcess::useWsl() const
+void RimProcess::setWslOptions( const RiaWslTools::WslOptions& wslOpt )
 {
-    return m_useWsl();
+    m_wslOptions = wslOpt;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcess::setUseWsl( bool useWsl )
+const RiaWslTools::WslOptions& RimProcess::wslOptions() const
 {
-    m_useWsl = useWsl;
+    return m_wslOptions;
 }

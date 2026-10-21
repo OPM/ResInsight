@@ -135,6 +135,8 @@ public:
     void workflowBindingChanged( const RimWorkflowFieldBinding* binding );
     void workflowJobStateChanged( const RimWorkflowJob* job );
 
+    void restartBatchMonitor();
+
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;

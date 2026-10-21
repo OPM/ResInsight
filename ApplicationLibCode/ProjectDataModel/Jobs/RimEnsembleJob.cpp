@@ -22,7 +22,6 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
-#include "RiaTimer.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "JobCommands/RicRunJobFeature.h"
@@ -57,7 +56,6 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
     , m_subJobsStarted( 0 )
-    , m_refreshTimer( std::make_unique<RiaTimer>() )
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
@@ -100,8 +98,6 @@ RimEnsembleJob::RimEnsembleJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createGridEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSummaryEnsemble );
 
-    m_refreshTimer->tick.connect( this, &RimEnsembleJob::onRefreshTimer );
-
     setDeletable( true );
 }
 
@@ -110,7 +106,6 @@ RimEnsembleJob::RimEnsembleJob()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleJob::~RimEnsembleJob()
 {
-    m_refreshTimer->stop();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +315,6 @@ bool RimEnsembleJob::execute()
     if ( anyJobsStarted )
     {
         setStarted();
-        m_refreshTimer->start();
     }
 
     return anyJobsStarted;
@@ -350,8 +344,6 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
-    m_refreshTimer->stop();
-
     RimGenericJob::setFinished( runOk );
     setDeletable( true );
     updateConnectedEditors();
@@ -541,12 +533,4 @@ void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         m_outputEnsembleName = QString::fromStdString( outputIteration() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleJob::onRefreshTimer( const SignalEmitter* emitter )
-{
-    if ( isRunning() ) updateConnectedEditors();
 }
