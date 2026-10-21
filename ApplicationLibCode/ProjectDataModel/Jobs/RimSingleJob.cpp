@@ -21,8 +21,10 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
 #include "RiaQStringFormatter.h"
 
+#include "Batch/RimBatchQueue.h"
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
 #include "RimProcessQueue.h"
@@ -30,7 +32,6 @@
 #include "RiuGuiTheme.h"
 
 #include "cafPdmUiTreeAttributes.h"
-#include "cafPdmUiTreeViewEditor.h"
 #include "cafProgressInfo.h"
 
 #include <QMessageBox>
@@ -45,6 +46,7 @@ RimSingleJob::RimSingleJob()
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
     , m_process( nullptr )
+    , m_queue( nullptr )
 {
     CAF_PDM_InitObject( "Generic Single Job" );
 }
@@ -67,15 +69,14 @@ double RimSingleJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSingleJob::stop()
+void RimSingleJob::stop()
 {
-    if ( !m_process.isNull() )
+    if ( isRunning() && m_queue != nullptr )
     {
-        RimProcessQueue::stopProcess( m_process->ID() );
-        RiaLogging::info( std::format( "Job \"{}\" stopped by user.", name() ) );
-        return true;
+        m_queue->stopProcess();
+        RiaLogging::info( std::format( "Stop job \"{}\" requested by user.", name() ) );
     }
-    return false;
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +90,7 @@ bool RimSingleJob::execute()
     m_warningsDetected = 0;
     m_percentageDone   = 0.0;
     m_process          = nullptr;
+
     setState( JobState::Idle );
 
     onProgress( m_percentageDone );
@@ -120,19 +122,23 @@ bool RimSingleJob::execute()
     setDeletable( false );
     setState( JobState::Queued );
 
-    m_process = new RimProcess( true, new RimJobMonitor( this ) );
+    m_process = std::make_shared<RimProcess>( true /*log output*/, std::make_shared<RimJobMonitor>( this ) );
+
+    // on windows, should run using wsl?
+    m_process->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
+
+    m_process->setDescription( name() );
 
     // build process to run
     QString cmd = cmdLine.takeFirst();
     m_process->setCommand( cmd );
+
     if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
     m_process->setWorkingDirectory( workingDirectory() );
-    for ( const auto& [name, value] : environment() )
-    {
-        m_process->addEnvironmentVariable( name, value );
-    }
 
-    RimProcessQueue::queueProcess( m_process );
+    m_queue.reset( RimBatchQueue::createBatchQueue() );
+
+    m_queue->queueProcess( m_process, numberOfProcesses() );
     onProgress( m_percentageDone );
 
     return true;
@@ -143,11 +149,11 @@ bool RimSingleJob::execute()
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::setFinished( bool runOk )
 {
-    setState( runOk ? JobState::Completed : JobState::Failed );
+    RimGenericJob::setFinished( runOk );
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
-    setDeletable( true );
+    setDeletable( !isChildJob() );
 
     onCompleted( runOk );
 }
@@ -159,6 +165,7 @@ void RimSingleJob::setStarted()
 {
     setState( RimSingleJob::JobState::Running );
     onProgress( m_percentageDone );
+    RimGenericJob::setStarted();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,7 +173,7 @@ void RimSingleJob::setStarted()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
 {
-    std::vector<caf::PdmUiTreeViewItemTag> tags;
+    std::vector<caf::PdmUiTreeViewItemTag> tagsToReturn;
 
     static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
     static auto contrastWarnColor =
@@ -180,7 +187,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
     {
         auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
         auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
-        tags.push_back( tag );
+        tagsToReturn.push_back( std::move( tag ) );
     }
     else if ( state() == JobState::Queued )
     {
@@ -188,7 +195,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
         tag.text    = "Waiting...";
         tag.bgColor = waitColor;
         tag.fgColor = contrastWaitColor;
-        tags.push_back( tag );
+        tagsToReturn.push_back( std::move( tag ) );
     }
     else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
     {
@@ -196,7 +203,14 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
 
         if ( state() == JobState::Running )
         {
-            tag.text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
+            if ( m_percentageDone == 0.0 )
+            {
+                tag.text = "Submitted";
+            }
+            else
+            {
+                tag.text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
+            }
         }
         else
         {
@@ -210,20 +224,26 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
         tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
         tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
-        tags.push_back( tag );
+        tagsToReturn.push_back( std::move( tag ) );
+
+        if ( ( state() == JobState::Running ) && !isChildJob() )
+        {
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString() );
+            tagsToReturn.push_back( std::move( timeTag ) );
+        }
     }
     if ( m_warningsDetected > 0 )
     {
         auto warnTxt = QString( "[%1]" ).arg( m_warningsDetected );
 
         auto warnTag = caf::PdmUiTreeViewItemTag::create( warnColor, contrastWarnColor, warnTxt );
-        tags.push_back( warnTag );
+        tagsToReturn.push_back( std::move( warnTag ) );
         auto iconTag = caf::PdmUiTreeViewItemTag::create();
         iconTag.icon = caf::IconProvider( ":/warning.png" );
-        tags.push_back( iconTag );
+        tagsToReturn.push_back( std::move( iconTag ) );
     }
 
-    return tags;
+    return tagsToReturn;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,6 +251,6 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
 //--------------------------------------------------------------------------------------------------
 const QStringList RimSingleJob::jobLog() const
 {
-    if ( m_process.isNull() ) return QStringList();
+    if ( m_process == nullptr ) return QStringList();
     return m_process->stdOut();
 }

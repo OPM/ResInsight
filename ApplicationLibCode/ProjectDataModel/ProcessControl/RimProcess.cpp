@@ -19,7 +19,9 @@
 #include "RimProcess.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
 #include "RiaQStringFormatter.h"
+#include "RiaWslTools.h"
 #include "RimProcessMonitor.h"
 
 #include "cafPdmFieldCapability.h"
@@ -30,18 +32,20 @@
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
-size_t RimProcess::m_nextProcessId = 1;
+std::atomic<size_t> RimProcess::m_nextProcessId( 1 );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
+RimProcess::RimProcess( bool logStdOutErr, std::shared_ptr<RimProcessMonitor> monitor )
     : m_enableLogging( logStdOutErr )
     , m_qProcess( nullptr )
 {
     size_t defId = m_nextProcessId++;
     if ( monitor == nullptr )
-        m_monitor = new RimProcessMonitor( defId, logStdOutErr );
+    {
+        m_monitor = std::make_shared<RimProcessMonitor>( defId, logStdOutErr );
+    }
     else
     {
         m_monitor = monitor;
@@ -68,11 +72,6 @@ RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
 //--------------------------------------------------------------------------------------------------
 RimProcess::~RimProcess()
 {
-    if ( m_monitor != nullptr )
-    {
-        delete m_monitor;
-        m_monitor = nullptr;
-    }
 }
 
 caf::PdmFieldHandle* RimProcess::userDescriptionField()
@@ -127,9 +126,25 @@ void RimProcess::setDescription( QString desc )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimProcess::description() const
+{
+    return m_description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimProcessMonitor> RimProcess::monitor() const
+{
+    return m_monitor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimProcess::command() const
 {
-    return m_command;
+    return m_command();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,19 +158,35 @@ QStringList RimProcess::parameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcess::stdOut() const
+const QStringList& RimProcess::stdOut() const
 {
     if ( m_monitor ) return m_monitor->stdOut();
-    return QStringList();
+    return m_emptyList;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcess::stdErr() const
+const QStringList& RimProcess::stdErr() const
 {
     if ( m_monitor ) return m_monitor->stdErr();
-    return QStringList();
+    return m_emptyList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::appendStdOut( QString line )
+{
+    if ( m_monitor ) m_monitor->appendStdOut( line );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::appendStdErr( QString line )
+{
+    if ( m_monitor ) m_monitor->appendStdErr( line );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,35 +208,71 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     m_qProcess  = new QProcess();
     QString cmd = commandLine();
 
-    if ( m_enableLogging ) RiaLogging::info( std::format( "Start process {}: {}", m_id(), cmd ) );
+    if ( m_enableLogging )
+    {
+        std::string wslTxt = m_wslOptions.useWsl ? " using WSL" : "";
+        RiaLogging::info( std::format( "Start process {}{}: {}", m_id(), wslTxt, cmd ) );
+    }
 
     m_monitor->clearStdOutErr();
 
-    QObject::connect( m_qProcess, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
-    if ( enableStdOut ) QObject::connect( m_qProcess, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
-    if ( enableStdErr ) QObject::connect( m_qProcess, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
-    QObject::connect( m_qProcess, SIGNAL( started() ), m_monitor, SLOT( started() ) );
+    QObject::connect( m_qProcess, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor.get(), SLOT( finished( int, QProcess::ExitStatus ) ) );
+    if ( enableStdOut )
+        QObject::connect( m_qProcess, SIGNAL( readyReadStandardOutput() ), m_monitor.get(), SLOT( readyReadStandardOutput() ) );
+    if ( enableStdErr )
+        QObject::connect( m_qProcess, SIGNAL( readyReadStandardError() ), m_monitor.get(), SLOT( readyReadStandardError() ) );
+    QObject::connect( m_qProcess, SIGNAL( started() ), m_monitor.get(), SLOT( started() ) );
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     for ( auto& [key, val] : m_environmentVariables )
     {
         env.insert( key, val );
     }
-    m_qProcess->setProcessEnvironment( env );
+
     if ( !m_workDir().path().isEmpty() )
     {
         m_qProcess->setWorkingDirectory( m_workDir().path() );
     }
 
+    if ( m_wslOptions.useWsl )
+    {
+        m_arguments.prepend( m_command() );
+        m_arguments = m_wslOptions.wslArguments + m_arguments;
+        m_command   = m_wslOptions.wslCommand;
+        for ( auto& [key, val] : m_wslOptions.wslEnvironment )
+        {
+            env.insert( key, val );
+        }
+    }
+    m_qProcess->setProcessEnvironment( env );
+
     m_qProcess->start( m_command, m_arguments );
     if ( !m_qProcess->waitForStarted( -1 ) )
     {
-        auto error = m_qProcess->errorString();
-        RiaLogging::error( std::format( "Failed to start process {}. {}.", m_id(), error ) );
+        if ( m_enableLogging )
+        {
+            auto error = m_qProcess->errorString();
+            RiaLogging::error( std::format( "Failed to start process {}. {}.", m_id(), error ) );
+        }
         return false;
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::writeToStdIn( QStringList text )
+{
+    if ( m_qProcess == nullptr ) return;
+
+    for ( auto& line : text )
+    {
+        m_qProcess->write( line.toUtf8() + "\n" );
+        m_qProcess->waitForBytesWritten();
+        m_qProcess->closeWriteChannel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,11 +294,25 @@ void RimProcess::terminate()
 {
     if ( m_qProcess != nullptr )
     {
-        if ( m_qProcess->state() == QProcess::Running )
+        if ( isRunning() )
         {
             m_qProcess->kill();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProcess::isRunning()
+{
+    if ( m_qProcess != nullptr )
+    {
+        auto state = m_qProcess->state();
+        return state == QProcess::Running || state == QProcess::Starting;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +426,39 @@ void RimProcess::addEnvironmentVariable( QString name, QString value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<QString, QString>>& RimProcess::environmentVariables() const
+{
+    return m_environmentVariables;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcess::setWorkingDirectory( QString workDir )
 {
     m_workDir = workDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProcess::workingDirectory() const
+{
+    return m_workDir().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::setWslOptions( const RiaWslTools::WslOptions& wslOpt )
+{
+    m_wslOptions = wslOpt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RiaWslTools::WslOptions& RimProcess::wslOptions() const
+{
+    return m_wslOptions;
 }

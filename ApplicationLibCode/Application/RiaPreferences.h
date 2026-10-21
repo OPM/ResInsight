@@ -50,6 +50,7 @@ class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
 class RiaPreferencesCloudApi;
+class RiaPreferencesBatch;
 
 class QValidator;
 
@@ -137,6 +138,7 @@ public:
     RiaPreferencesOpm*           opmPreferences() const;
     RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
     RiaPreferencesCloudApi*      cloudApiPreferences() const;
+    RiaPreferencesBatch*         batchPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -180,6 +182,7 @@ private:
     static QString tabNameImportExport();
     static QString tabNameOpmFlow();
     static QString tabNameExperimental();
+    static QString tabNameBatchScheduler();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -253,6 +256,9 @@ private:
 
     // RI Cloud API settings
     caf::PdmChildField<RiaPreferencesCloudApi*> m_cloudApiPreferences;
+
+    // Batch Scheduler settings
+    caf::PdmChildField<RiaPreferencesBatch*> m_batchPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

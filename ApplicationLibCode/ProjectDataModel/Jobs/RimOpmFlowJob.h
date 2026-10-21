@@ -51,8 +51,7 @@ public:
         ADD_MONTHS
     };
 
-    caf::Signal<bool>   jobCompleted;
-    caf::Signal<double> progressUpdate;
+    caf::Signal<bool> jobCompleted;
 
 public:
     RimOpmFlowJob();
@@ -63,7 +62,6 @@ public:
     void setInputDataFile( QString filename );
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
     void setJobWellSettings( RimJobWellSettings* jobWellSettings );
-    void setIsChildJob( bool isChildJob );
 
     void initAfterCopy();
 
@@ -83,13 +81,14 @@ protected:
     bool matchesKeyValue( const QString& key, const QString& value ) const override;
     void processLogOutput( const QString& logLine ) override;
 
-    QStringList                command() override;
-    std::map<QString, QString> environment() override;
-    QString                    workingDirectory() const override;
-    bool                       onPrepare() override;
-    bool                       onRun() override;
-    void                       onCompleted( bool success ) override;
-    void                       onProgress( double percentageDone ) override;
+    QStringList command() override;
+    QString     workingDirectory() const override;
+    bool        onPrepare() override;
+    bool        onRun() override;
+    void        onCompleted( bool success ) override;
+    void        onProgress( double percentageDone ) override;
+    bool        shouldUseWsl() override;
+    int         numberOfProcesses() override;
 
     bool openDeckFile();
     void closeDeckFile();
@@ -125,7 +124,6 @@ private:
     caf::PdmField<bool> m_addToEnsemble;
     caf::PdmField<int>  m_currentRunId;
     caf::PdmField<bool> m_useRestart;
-    caf::PdmField<bool> m_isChildJob;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;

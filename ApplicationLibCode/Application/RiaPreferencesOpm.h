@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RiaWslTools.h"
+
 class RimOpmFlowJobSettings;
 
 //--------------------------------------------------------------------------------------------------
@@ -40,11 +42,12 @@ public:
     bool validateFlowSettings() const;
 
     QString     opmFlowCommand() const;
-    QStringList wslOptions() const;
+    QStringList wslArguments() const;
     bool        useWsl() const;
     bool        useMpi() const;
     QString     mpirunCommand() const;
-    size_t      maxParallelJobs() const;
+
+    RiaWslTools::WslOptions wslOptions() const;
 
     RimOpmFlowJobSettings* createDefaultJobSettings() const;
 
@@ -58,7 +61,6 @@ private:
     caf::PdmField<bool>                        m_useMpi;
     caf::PdmField<QString>                     m_mpirunCommand;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
-    caf::PdmField<size_t>                      m_maxParallelJobs;
 
     QStringList m_availableWslDists;
 };

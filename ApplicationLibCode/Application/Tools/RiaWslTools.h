@@ -29,6 +29,14 @@
 namespace RiaWslTools
 {
 
+struct WslOptions
+{
+    bool                       useWsl = false;
+    QString                    wslCommand;
+    QStringList                wslArguments;
+    std::map<QString, QString> wslEnvironment;
+};
+
 QString                    wslCommand();
 QStringList                wslDistributionList();
 QString                    convertToWslPath( QString windowsPath );

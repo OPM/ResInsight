@@ -164,7 +164,7 @@ void RimProcessMonitor::clearStdOutErr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcessMonitor::stdOut() const
+const QStringList& RimProcessMonitor::stdOut() const
 {
     return m_stdOut;
 }
@@ -172,7 +172,7 @@ QStringList RimProcessMonitor::stdOut() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimProcessMonitor::stdErr() const
+const QStringList& RimProcessMonitor::stdErr() const
 {
     return m_stdErr;
 }
@@ -183,4 +183,28 @@ QStringList RimProcessMonitor::stdErr() const
 void RimProcessMonitor::setProcessId( size_t processId )
 {
     m_processId = processId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcessMonitor::appendStdOut( QString line )
+{
+    m_stdOut.append( line );
+    if ( m_logStdOutErr )
+    {
+        RiaLogging::info( addPrefix( line ).toStdString() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcessMonitor::appendStdErr( QString line )
+{
+    m_stdErr.append( line );
+    if ( m_logStdOutErr )
+    {
+        RiaLogging::error( addPrefix( line ).toStdString() );
+    }
 }

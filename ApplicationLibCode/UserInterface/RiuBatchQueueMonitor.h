@@ -1,0 +1,55 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include <QStringList>
+#include <QWidget>
+
+class QTableWidget;
+class QCheckBox;
+class QComboBox;
+
+class RiuBatchMonitorWorker;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiuBatchQueueMonitor : public QWidget
+{
+    Q_OBJECT
+
+public:
+    RiuBatchQueueMonitor( QWidget* parent );
+    ~RiuBatchQueueMonitor() override;
+
+    void stopMonitoring();
+    void restartMonitoring();
+
+private slots:
+    void slotUpdateView( const std::vector<std::vector<QString>> information );
+    void toggleUpdates();
+    void updateInterval();
+
+private:
+    QCheckBox*             m_checkBoxAutoUpdate;
+    QCheckBox*             m_onlyResInsightJobs;
+    QComboBox*             m_refreshInterval;
+    QTableWidget*          m_jobView;
+    RiuBatchMonitorWorker* m_monitorWorker;
+};

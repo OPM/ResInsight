@@ -38,10 +38,6 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     CAF_PDM_InitFieldNoDefault( &m_opmFlowCommand, "opmFlowCommand", "Path to OPM Flow executable" );
     m_opmFlowCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel" );
-    m_maxParallelJobs = 1;
-    m_maxParallelJobs.setRange( 1, 100 );
-
     CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run OPM Flow" );
     CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Enable MPI" );
 
@@ -93,8 +89,6 @@ void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
         opmGrp->add( &m_mpirunCommand );
     }
 
-    opmGrp->add( &m_maxParallelJobs );
-
     auto cmdGrp = uiOrdering.addNewGroup( "Default Command Line Settings" );
     m_jobSettings->uiOrdering( cmdGrp );
 }
@@ -136,7 +130,7 @@ QString RiaPreferencesOpm::mpirunCommand() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaPreferencesOpm::wslOptions() const
+QStringList RiaPreferencesOpm::wslArguments() const
 {
     QStringList options;
     if ( m_useWsl() )
@@ -146,6 +140,17 @@ QStringList RiaPreferencesOpm::wslOptions() const
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaWslTools::WslOptions RiaPreferencesOpm::wslOptions() const
+{
+    return RiaWslTools::WslOptions{ .useWsl         = useWsl(),
+                                    .wslCommand     = RiaWslTools::wslCommand(),
+                                    .wslArguments   = wslArguments(),
+                                    .wslEnvironment = RiaWslTools::wslEnvironmentVariables() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,12 +183,4 @@ bool RiaPreferencesOpm::useMpi() const
 RimOpmFlowJobSettings* RiaPreferencesOpm::createDefaultJobSettings() const
 {
     return m_jobSettings->clone();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RiaPreferencesOpm::maxParallelJobs() const
-{
-    return m_maxParallelJobs();
 }

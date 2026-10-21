@@ -19,10 +19,10 @@
 #pragma once
 
 #include "RimGenericJob.h"
-#include "cafPdmUiTreeAttributes.h"
 
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include <QDateTime>
 
@@ -50,7 +50,7 @@ public:
     void setInputEnsemble( RimReservoirGridEnsemble* ensemble );
 
     bool              execute() override;
-    bool              stop() override;
+    void              stop() override;
     double            percentageDone() const override;
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override;
@@ -64,7 +64,7 @@ public:
 protected:
     struct RealizationInfo
     {
-        RimEclipseCase* inputCase;
+        RimEclipseCase* inputCase = nullptr;
         std::string     realizationInputDeckName;
         std::string     realizationOutputDir;
         std::string     outputDeckName;
@@ -74,6 +74,8 @@ protected:
 
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
     std::vector<RealizationInfo> setUpSelectedRealizations() const;
     std::string                  outputIteration() const;
@@ -93,6 +95,7 @@ private:
     caf::PdmChildField<RimOpmFlowJobSettings*>  m_jobSettings;
     caf::PdmChildField<RimJobWellSettings*>     m_jobWellSettings;
     caf::PdmPtrField<RimEnsembleFileSet*>       m_outputEnsembleFileSet;
+    caf::PdmField<QString>                      m_outputEnsembleName;
 
     caf::PdmField<std::vector<QDateTime>> m_datesInInputDeck;
     caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;

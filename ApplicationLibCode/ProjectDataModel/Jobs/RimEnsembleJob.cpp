@@ -29,20 +29,13 @@
 
 #include "RifOpmDeckFileTools.h"
 
-#include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimJobWellSettings.h"
-#include "RimOilField.h"
 #include "RimOpmFlowJob.h"
 #include "RimOpmFlowJobSettings.h"
-#include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryEnsemble.h"
-#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
 
 #include "RiuGuiTheme.h"
@@ -69,6 +62,9 @@ RimEnsembleJob::RimEnsembleJob()
     CAF_PDM_InitFieldNoDefault( &m_inputEnsemble, "Ensemble", "Input Ensemble" );
     m_inputEnsemble = nullptr;
     m_inputEnsemble.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_outputEnsembleName, "OutputEnsembleName", QString( "wp-0" ), "Output Ensemble Name" );
+    m_outputEnsembleName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
     m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -123,6 +119,14 @@ QString RimEnsembleJob::jobInputFileKey()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::initAfterRead()
+{
+    m_outputEnsembleName = QString( "wp-%1" ).arg( m_outputIterationNumber.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::initAfterCopy()
 {
     m_outputEnsembleFileSet = nullptr;
@@ -134,15 +138,15 @@ void RimEnsembleJob::initAfterCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::stop()
+void RimEnsembleJob::stop()
 {
-    if ( !isRunning() ) return false;
-
-    for ( auto& subJob : m_subJobs() )
+    if ( isRunning() )
     {
-        subJob->stop();
+        for ( auto& subJob : m_subJobs() )
+        {
+            subJob->stop();
+        }
     }
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,6 +312,11 @@ bool RimEnsembleJob::execute()
     setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
+    if ( anyJobsStarted )
+    {
+        setStarted();
+    }
+
     return anyJobsStarted;
 }
 
@@ -335,8 +344,8 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
+    RimGenericJob::setFinished( runOk );
     setDeletable( true );
-    setState( RimGenericJob::Completed );
     updateConnectedEditors();
 
     if ( runOk )
@@ -432,6 +441,7 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_inputEnsemble );
+    genGrp->add( &m_outputEnsembleName );
     genGrp->add( &m_createSummaryEnsemble );
     genGrp->add( &m_createGridEnsemble );
 
@@ -482,8 +492,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
 
     if ( state() == JobState::Failed )
     {
-        auto txt = "Failed";
-        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
+        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), "Failed" );
         tags.push_back( tag );
     }
     else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
@@ -504,7 +513,24 @@ std::vector<caf::PdmUiTreeViewItemTag> RimEnsembleJob::treeItemTags()
         tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
         tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
         tags.push_back( tag );
+
+        if ( state() == JobState::Running )
+        {
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString() );
+            tags.push_back( timeTag );
+        }
     }
 
     return tags;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_outputIterationNumber )
+    {
+        m_outputEnsembleName = QString::fromStdString( outputIteration() );
+    }
 }

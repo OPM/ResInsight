@@ -49,6 +49,7 @@ class RimWorkflowFieldBinding;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
+class RiuBatchQueueMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuDepthQwtPlot;
@@ -134,6 +135,8 @@ public:
     void workflowBindingChanged( const RimWorkflowFieldBinding* binding );
     void workflowJobStateChanged( const RimWorkflowJob* job );
 
+    void restartBatchMonitor();
+
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
@@ -183,6 +186,7 @@ private:
 
     RiuResultInfoPanel*       m_resultInfoPanel;
     RiuProcessMonitor*        m_processMonitor;
+    RiuBatchQueueMonitor*     m_batchMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
     RiuResultQwtPlot*                 m_resultQwtPlot;

@@ -22,12 +22,15 @@
 
 #include "cafPdmPointer.h"
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RimProcess;
+class RiaTimer;
 
 //==================================================================================================
 ///
@@ -51,22 +54,34 @@ public:
     ~RimGenericJob() override;
 
     virtual bool              execute()                                                         = 0;
-    virtual bool              stop()                                                            = 0;
+    virtual void              stop()                                                            = 0;
     virtual double            percentageDone() const                                            = 0;
     virtual const QStringList jobLog() const                                                    = 0;
     virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
     virtual void              processLogOutput( const QString& logLine ) {};
 
-    virtual void setFinished( bool runOk ) = 0;
-    virtual void setStarted() {};
+    virtual void setFinished( bool runOk );
+    virtual void setStarted();
+
+    void setIsChildJob( bool isChildJob );
+    bool isChildJob() const;
 
     bool     isRunning() const;
     JobState state() const;
     void     setState( JobState state );
+    double   runTimeSeconds();
+    QString  runTimeString();
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void onRefreshTimer( const SignalEmitter* emitter );
 
 private:
-    JobState m_jobState;
+    caf::PdmField<bool> m_isChildJob;
+
+    JobState  m_jobState;
+    QDateTime m_startTime;
+    QDateTime m_stopTime;
+
+    std::unique_ptr<RiaTimer> m_refreshTimer;
 };

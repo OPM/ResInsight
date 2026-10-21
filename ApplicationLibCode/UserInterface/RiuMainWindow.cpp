@@ -56,6 +56,7 @@
 #include "Workflow/RimWorkflowJob.h"
 #include "Workflow/RimWorkflowTaskInput.h"
 
+#include "RiuBatchQueueMonitor.h"
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
@@ -369,6 +370,8 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
+
+    if ( m_batchMonitor ) m_batchMonitor->stopMonitoring();
 
     if ( auto proj = RimProject::current() )
     {
@@ -963,6 +966,15 @@ void RiuMainWindow::createDockPanels()
         m_processMonitor = new RiuProcessMonitor( dockWidget );
         dockWidget->setWidget( m_processMonitor );
         procAndMsgTabs = dockManager()->addDockWidget( ads::DockWidgetArea::RightDockWidgetArea, dockWidget, bottomArea );
+    }
+
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Batch Queue Monitor", RiuDockWidgetTools::mainWindowBatchQueueMonitorName(), dockManager() );
+
+        m_batchMonitor = new RiuBatchQueueMonitor( dockWidget );
+        dockWidget->setWidget( m_batchMonitor );
+        dockManager()->addDockWidgetTabToArea( dockWidget, procAndMsgTabs );
     }
 
     {
@@ -2241,4 +2253,12 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
 RimViewWindow* RiuMainWindow::activeViewer()
 {
     return RiaApplication::instance()->activeReservoirView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::restartBatchMonitor()
+{
+    if ( m_batchMonitor ) m_batchMonitor->restartMonitoring();
 }
