@@ -76,6 +76,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafOverlayScalarMapperLegend.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
@@ -96,7 +97,7 @@ RimGeoMechView::RimGeoMechView()
 {
     CAF_PDM_InitScriptableObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
-    CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &cellResult, "GridCellResult", "CellResult", "Color Result", ":/CellResult.png" );
     cellResult = new RimGeoMechCellColors();
 
     CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results" );

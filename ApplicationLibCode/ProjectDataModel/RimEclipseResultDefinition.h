@@ -27,6 +27,7 @@
 
 #include "RimCheckableObject.h"
 #include "RimFlowDiagSolution.h"
+#include "RimResultDefinitionInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -49,7 +50,7 @@ class RigEclipseResultAddress;
 ///
 ///
 //==================================================================================================
-class RimEclipseResultDefinition : public RimCheckableObject
+class RimEclipseResultDefinition : public RimCheckableObject, public RimResultDefinitionInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -102,7 +103,7 @@ public:
     int     caseDiffIndex() const;
     QString additionalResultText() const;
 
-    virtual void            loadResult();
+    void                    loadResult() override;
     void                    setEagerResultLoadingEnabled( bool enabled );
     RigEclipseResultAddress eclipseResultAddress() const;
     void                    setFromEclipseResultAddress( const RigEclipseResultAddress& resultAddress );
@@ -125,7 +126,7 @@ public:
     void setSelectedProducerTracers( const std::vector<QString>& selectedTracers );
     void setSelectedSouringTracers( const std::vector<QString>& selectedTracers );
 
-    void updateUiFieldsFromActiveResult();
+    void updateUiFieldsFromActiveResult() override;
 
     bool showDualPorosityLabel() const;
 
