@@ -20,6 +20,10 @@
 #include "RiaLogging.h"
 
 #include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
 #include <QVariant>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
@@ -135,6 +139,98 @@ bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCou
     if ( !insertContent( content ) ) return false;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Restore all previous revisions of a project file stored in the backup database to the destination folder.
+/// Each revision is written to a separate file named by its timestamp.
+//--------------------------------------------------------------------------------------------------
+bool extractVersionsToFolder( const QString& databaseFilePath, const QString& destinationFolder, int* numberOfFilesWritten, QString* errorMessage )
+{
+    if ( numberOfFilesWritten ) *numberOfFilesWritten = 0;
+
+    auto setError = [errorMessage]( const QString& message )
+    {
+        if ( errorMessage ) *errorMessage = message;
+        RiaLogging::error( message.toStdString() );
+    };
+
+    if ( !QFile::exists( databaseFilePath ) )
+    {
+        setError( "Backup database file does not exist: " + databaseFilePath );
+        return false;
+    }
+
+    QDir dir;
+    if ( !dir.mkpath( destinationFolder ) )
+    {
+        setError( "Not able to create destination folder: " + destinationFolder );
+        return false;
+    }
+
+    const QString databaseType = "QSQLITE";
+    if ( !QSqlDatabase::isDriverAvailable( databaseType ) )
+    {
+        setError( "sqlite database driver is not available." );
+        return false;
+    }
+
+    // Use a dedicated named connection to avoid interfering with the default connection used when writing backups.
+    const QString connectionName = "RiaProjectBackupToolsRestoreConnection";
+
+    bool success = true;
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase( databaseType, connectionName );
+        db.setDatabaseName( databaseFilePath );
+
+        if ( !db.open() )
+        {
+            setError( "Error opening backup database: " + db.lastError().text() );
+            QSqlDatabase::removeDatabase( connectionName );
+            return false;
+        }
+
+        QSqlQuery query( db );
+        query.prepare( "SELECT timestamp, content FROM file_versions ORDER BY timestamp ASC" );
+        if ( !query.exec() )
+        {
+            setError( "Error retrieving content from backup database: " + query.lastError().text() );
+            success = false;
+        }
+        else
+        {
+            const QString dateFormat = "yyyy-MM-dd_hh-mm-ss";
+            int           fileCount  = 0;
+
+            while ( query.next() )
+            {
+                QDateTime timestamp      = query.value( 0 ).toDateTime();
+                QString   projectContent = query.value( 1 ).toString();
+
+                QString filename = destinationFolder + "/" + timestamp.toString( dateFormat ) + ".rsp";
+                QFile   file( filename );
+                if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+                {
+                    setError( "Error opening file for writing: " + filename );
+                    success = false;
+                    break;
+                }
+
+                QTextStream out( &file );
+                out << projectContent;
+                file.close();
+
+                fileCount++;
+            }
+
+            if ( numberOfFilesWritten ) *numberOfFilesWritten = fileCount;
+        }
+
+        db.close();
+    }
+    QSqlDatabase::removeDatabase( connectionName );
+
+    return success;
 }
 
 } // namespace RiaProjectBackupTools

@@ -19,6 +19,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryReportFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSumoDataFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRestoreProjectVersionsUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRestoreProjectVersionsFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
