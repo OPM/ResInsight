@@ -217,7 +217,7 @@ QStringList decodeSlurmQueues( QStringList stdOut )
         {
             if ( firstPart.endsWith( '*' ) )
             {
-                firstPart = firstPart.removeAt( firstPart.length() - 1 );
+                firstPart.chop( 1 );
             }
             queues.insert( firstPart );
             continue;
