@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
@@ -105,15 +106,16 @@ def test_export_completion_files_unified(rips_instance, initialize_test):
 
         well_names_to_use = ["Well-1"]
 
-        case.export_well_path_completions(
-            time_step=0,  # Use time step 0 instead of 1
-            well_path_names=well_names_to_use,
-            file_split="UNIFIED_FILE",
-            include_perforations=True,
-            include_fishbones=True,
-            export_welspec=True,
-            export_comments=False,
-        )
+        with pytest.warns(DeprecationWarning):
+            case.export_well_path_completions(
+                time_step=0,  # Use time step 0 instead of 1
+                well_path_names=well_names_to_use,
+                file_split="UNIFIED_FILE",
+                include_perforations=True,
+                include_fishbones=True,
+                export_welspec=True,
+                export_comments=False,
+            )
 
         # Compare exported files with reference data
         reference_folder = (
@@ -145,14 +147,15 @@ def test_export_completion_files_split_by_well(rips_instance, initialize_test):
         # Use Well-1 for all tests
         test_wells = ["Well-1"]
 
-        case.export_well_path_completions(
-            time_step=0,  # Use time step 0 instead of 1
-            well_path_names=test_wells,
-            file_split="SPLIT_ON_WELL",
-            include_perforations=True,
-            include_fishbones=False,  # This matches the reference generation script
-            export_comments=False,
-        )
+        with pytest.warns(DeprecationWarning):
+            case.export_well_path_completions(
+                time_step=0,  # Use time step 0 instead of 1
+                well_path_names=test_wells,
+                file_split="SPLIT_ON_WELL",
+                include_perforations=True,
+                include_fishbones=False,  # This matches the reference generation script
+                export_comments=False,
+            )
 
         # Compare exported files with reference data
         reference_folder = case_root_path + "/completion_export_reference/split_by_well"
@@ -195,15 +198,16 @@ def test_export_completion_well_entering_lgr_twice(rips_instance, initialize_tes
         os.remove(os.path.join(export_folder, old_file))
 
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
-    case.export_well_path_completions(
-        time_step=0,
-        well_path_names=["LgrWell"],
-        file_split="UNIFIED_FILE",
-        include_perforations=True,
-        include_fishbones=False,
-        export_welspec=True,
-        export_comments=False,
-    )
+    with pytest.warns(DeprecationWarning):
+        case.export_well_path_completions(
+            time_step=0,
+            well_path_names=["LgrWell"],
+            file_split="UNIFIED_FILE",
+            include_perforations=True,
+            include_fishbones=False,
+            export_welspec=True,
+            export_comments=False,
+        )
 
     lgr_files = [
         f for f in os.listdir(export_folder) if f.endswith("_LGR") and "_MSW_" not in f
@@ -244,14 +248,15 @@ def test_export_completion_dual_porosity_model(rips_instance, initialize_test):
         # Use Well-1 for all tests
         test_wells = ["PH", "PV"]
 
-        case.export_well_path_completions(
-            time_step=0,  # Use time step 0 instead of 1
-            well_path_names=test_wells,
-            file_split="SPLIT_ON_WELL",
-            include_perforations=True,
-            include_fishbones=False,  # This matches the reference generation script
-            export_comments=False,
-        )
+        with pytest.warns(DeprecationWarning):
+            case.export_well_path_completions(
+                time_step=0,  # Use time step 0 instead of 1
+                well_path_names=test_wells,
+                file_split="SPLIT_ON_WELL",
+                include_perforations=True,
+                include_fishbones=False,  # This matches the reference generation script
+                export_comments=False,
+            )
 
         # Compare exported files with reference data
         reference_folder = case_root_path + "/completion_export_reference"

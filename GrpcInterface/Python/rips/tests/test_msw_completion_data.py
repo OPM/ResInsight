@@ -187,7 +187,8 @@ def test_msw_export(rips_instance, initialize_test):
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
 
     # Export MSW data
-    case.export_msw(well_path=well_y1.name)
+    with pytest.warns(DeprecationWarning):
+        case.export_msw(well_path=well_y1.name)
 
     # Note: The actual file creation validation would require checking
     # the export folder, which may be platform-dependent and require

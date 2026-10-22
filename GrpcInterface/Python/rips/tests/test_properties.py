@@ -252,7 +252,8 @@ def test_exportPropertyInView(rips_instance, initialize_test):
         rips_instance.set_export_folder(export_type="PROPERTIES", path=tmpdirname)
         case = rips_instance.project.cases()[0]
         view = case.views()[0]
-        view.export_property()
+        with pytest.warns(DeprecationWarning):
+            view.export_property()
         expected_file_name = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
         full_path = tmpdirname + "/" + expected_file_name
         assert os.path.exists(full_path)

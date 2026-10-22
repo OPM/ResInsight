@@ -164,7 +164,8 @@ def test_replaceCase(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
     assert len(cases) == 1
 
-    case.replace(new_grid_file=case_path)
+    with pytest.warns(DeprecationWarning):
+        case.replace(new_grid_file=case_path)
     # Check that the case object has been changed
     assert case.name == "BRUGGE_0000"
     assert case.id == 0
