@@ -226,8 +226,37 @@ void RimColorLegendCollection::createStandardColorLegends()
     }
 
     m_standardColorLegends.push_back( createRockTypeColorLegend() );
+    m_standardColorLegends.push_back( createSummaryCurveColorLegend() );
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimColorLegendCollection::summaryCurveColorLegendName()
+{
+    return "Summary Curve Colors";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Category legend with the colors of the default summary curve color palette, in palette order
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::createSummaryCurveColorLegend() const
+{
+    auto* colorLegend = new RimColorLegend;
+    colorLegend->setColorLegendName( summaryCurveColorLegendName() );
+    colorLegend->setReadOnly( true );
+
+    const auto colors = RiaColorTables::summaryCurveDefaultPaletteColors().color3ubArray();
+    for ( size_t i = 0; i < colors.size(); i++ )
+    {
+        auto* item = new RimColorLegendItem;
+        item->setValues( "", static_cast<int>( i ), cvf::Color3f( colors[i] ) );
+        colorLegend->appendColorLegendItem( item );
+    }
+
+    return colorLegend;
 }
 
 //--------------------------------------------------------------------------------------------------

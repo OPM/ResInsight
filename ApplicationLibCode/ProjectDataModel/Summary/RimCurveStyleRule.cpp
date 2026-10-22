@@ -497,7 +497,7 @@ caf::IconProvider RimCurveStyleRule::symbolIcon()
 
     QPainter painter( &pixmap );
     painter.setRenderHint( QPainter::Antialiasing );
-    painter.setPen( Qt::black );
+    painter.setPen( Qt::gray );
     painter.setBrush( Qt::NoBrush );
     painter.drawEllipse( 2, 2, 5, 5 );
     painter.drawRect( 9, 2, 5, 5 );
@@ -564,7 +564,7 @@ caf::IconProvider RimCurveStyleRule::dimensionColorIcon( Dimension              
     QPainter painter( &pixmap );
     painter.drawPixmap( 0, 0, QIcon( dimensionIconPath( dimension ) ).pixmap( 16, 16 ) );
 
-    const QColor qColor = color ? RiaColorTools::toQColor( *color ) : QColor( Qt::black );
+    const QColor qColor = color ? RiaColorTools::toQColor( *color ) : QColor( Qt::gray );
 
     int x = 19;
     if ( color )

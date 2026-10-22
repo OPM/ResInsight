@@ -516,7 +516,7 @@ std::vector<caf::PdmUiTreeViewItemTag> RimCurveStyleRules::treeItemTags( RimCurv
     if ( useSymbol && appearanceIt->second.symbol )
     {
         const auto image =
-            RiuPlotCurveSymbolImageCreator::createSymbolImage( *appearanceIt->second.symbol, QSize( 14, 14 ), QColor( Qt::black ) );
+            RiuPlotCurveSymbolImageCreator::createSymbolImage( *appearanceIt->second.symbol, QSize( 14, 14 ), QColor( Qt::gray ) );
 
         auto tag    = caf::PdmUiTreeViewItemTag::create();
         tag.icon    = caf::IconProvider( QPixmap::fromImage( image ) );
@@ -662,13 +662,26 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
 
     if ( fieldNeedingOptions == &m_autoColorLegend )
     {
-        options.push_back( caf::PdmOptionItemInfo( "Default Palette", nullptr ) );
         if ( auto project = RimProject::current() )
         {
-            for ( auto legend : project->colorLegendCollection()->allColorLegends() )
+            auto collection    = project->colorLegendCollection();
+            auto defaultLegend = collection->findByName( RimColorLegendCollection::summaryCurveColorLegendName() );
+
+            // Not set (null) means the default palette, which is shown with the icon of the standard summary curve legend
+            options.push_back( caf::PdmOptionItemInfo( "Default Palette",
+                                                       nullptr,
+                                                       false,
+                                                       defaultLegend ? defaultLegend->paletteIconProvider() : caf::IconProvider() ) );
+
+            for ( auto legend : collection->allColorLegends() )
             {
+                if ( legend == defaultLegend ) continue;
                 options.push_back( caf::PdmOptionItemInfo( legend->colorLegendName(), legend, false, legend->paletteIconProvider() ) );
             }
+        }
+        else
+        {
+            options.push_back( caf::PdmOptionItemInfo( "Default Palette", nullptr ) );
         }
     }
     else if ( fieldNeedingOptions == &m_symbolLegend )
@@ -677,7 +690,7 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
         for ( int i = 0; i < count; i++ )
         {
             const auto symbol = RimSummaryCurveAppearanceCalculator::cycledSymbol( i );
-            const auto image  = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, QSize( 14, 14 ), QColor( Qt::black ) );
+            const auto image  = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, QSize( 14, 14 ), QColor( Qt::gray ) );
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::uiText( symbol ),
                                                        i,
                                                        false,
