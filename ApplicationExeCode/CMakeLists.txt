@@ -225,6 +225,16 @@ endif()
 
 target_link_libraries(ResInsight PRIVATE ${LINK_LIBRARIES})
 
+# Arrow/Parquet/Thrift (vcpkg) link OpenSSL statically, independent of gRPC.
+# Keep those symbols out of the dynamic symbol table, otherwise they interpose
+# the system OpenSSL loaded by the Qt TLS plugin (and by libssh2/libldap via
+# libcurl), mixing two OpenSSL versions and crashing during the TLS handshake.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  target_link_options(
+    ResInsight PRIVATE "LINKER:--exclude-libs,libssl.a:libcrypto.a"
+  )
+endif()
+
 if(UNIX AND NOT APPLE)
   target_link_libraries(ResInsight PRIVATE xcb)
 endif()
