@@ -55,6 +55,7 @@ public:
 
         double         numericValue() const;
         const QString& textValue() const;
+        const QString  valueAsString() const;
 
     private:
         ValueType m_valueType;
