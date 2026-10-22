@@ -847,9 +847,10 @@ void RimCurveStyleRules::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         rulesGroup->add( &m_symbolLegend );
     rulesGroup->add( &m_highlightedItems );
 
-    uiOrdering.addNewButton( "Reset All to Auto", [this]() { resetAllRules(); } );
-    uiOrdering.addNewButton( "Connect All Plots to Global Color and Symbol", [this]() { connectAllPlots( true ); } );
-    uiOrdering.addNewButton( "Disconnect All Plots", [this]() { connectAllPlots( false ); } );
+    auto advancedGroup = uiOrdering.addNewGroup( "Advanced" );
+    advancedGroup->setCollapsedByDefault();
+    advancedGroup->addNewButton( "Connect All Plots to Global", [this]() { connectAllPlots( true ); } );
+    advancedGroup->addNewButton( "Disconnect All Plots", [this]() { connectAllPlots( false ); } );
 
     uiOrdering.skipRemainingFields();
 }
@@ -872,20 +873,4 @@ void RimCurveStyleRules::connectAllPlots( bool connect )
     }
 
     applyGlobalAppearance( plots );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Rules are only stored for items with custom settings, so deleting them resets all items to Auto
-//--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::resetAllRules()
-{
-    RimCurveStyleRule::AvailableNamesCache namesCache;
-
-    m_rules.deleteChildren();
-    m_colorBaseStyle  = new RimCurveStyleRule;
-    m_symbolBaseStyle = new RimCurveStyleRule;
-    setUpBaseStyles();
-
-    rulesChanged();
-    updateConnectedEditors();
 }

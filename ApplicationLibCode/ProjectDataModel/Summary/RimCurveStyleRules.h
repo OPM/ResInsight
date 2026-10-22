@@ -119,7 +119,6 @@ private:
 
     int  symbolSize() const;
     void setSymbolSize( const int& size );
-    void resetAllRules();
     void connectAllPlots( bool connect );
     void updateSummaryCaseTags();
 
