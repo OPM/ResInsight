@@ -30,7 +30,7 @@ class RimBatchQueueLocal : public RimBatchQueue
 
 public:
     RimBatchQueueLocal();
-    ~RimBatchQueueLocal();
+    ~RimBatchQueueLocal() override;
 
     void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) override;
     void stopProcess() override;
