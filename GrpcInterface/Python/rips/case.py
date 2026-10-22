@@ -368,10 +368,10 @@ def result_values(
             frame_index=frame_index,
             key=key,
         )
-        return project.key_values(key)
+        return project.key_values(key)  # type: ignore[attr-defined]
     finally:
         try:
-            project.remove_key_values(key)
+            project.remove_key_values(key)  # type: ignore[attr-defined]
         except Exception:
             pass
 

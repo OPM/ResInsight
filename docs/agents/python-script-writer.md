@@ -63,6 +63,7 @@ Browse `GrpcInterface/Python/rips/PythonExamples/` for reference scripts coverin
 | Directory | Topics covered |
 |-----------|---------------|
 | `case_and_grid_operations/` | Grid access, cell properties, polygon regions, bounding box |
+| `geomech/` | Geomechanical cases: time steps, result names and values, cell results |
 | `surfaces_and_visualization/` | Surfaces, polygons, view setup |
 | `well_operations/` | Well paths, well log data |
 | `simulation_and_results/` | Time-step iteration, dynamic properties |
