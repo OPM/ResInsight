@@ -132,6 +132,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     , m_showScaledCheckBox( nullptr )
     , m_fixedXAxisCheckBox( nullptr )
     , m_fixedLeftYAxisCheckBox( nullptr )
+    , m_plotOneMinusSgasCheckBox( nullptr )
     , m_trackerPlotMarker( nullptr )
 
 {
@@ -186,6 +187,10 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     m_showScaledCheckBox             = new QCheckBox( "Show Scaled" );
     m_fixedXAxisCheckBox             = new QCheckBox( "Fixed [0, 1] X-axis" );
     m_fixedLeftYAxisCheckBox         = new QCheckBox( "Fixed [0, 1] Kr-axis" );
+    m_plotOneMinusSgasCheckBox       = new QCheckBox( "Plot 1-SGAS" );
+    m_plotOneMinusSgasCheckBox->setToolTip(
+        "Plot gas curves (and PCGW) as a function of (1 - SGAS), aligning the gas saturation axis with the water saturation axis. "
+        "Only available for two-phase gas-water systems." );
 
     m_fixedXAxisCheckBox->setChecked( true );
     m_fixedLeftYAxisCheckBox->setChecked( true );
@@ -204,6 +209,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     leftLayout->addWidget( m_showUnscaledCheckBox );
     leftLayout->addWidget( m_fixedXAxisCheckBox );
     leftLayout->addWidget( m_fixedLeftYAxisCheckBox );
+    leftLayout->addWidget( m_plotOneMinusSgasCheckBox );
     leftLayout->addStretch( 1 );
 
     QHBoxLayout* mainLayout = new QHBoxLayout();
@@ -221,6 +227,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* par
     connect( m_showScaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedXAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedLeftYAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
+    connect( m_plotOneMinusSgasCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
 
     slotShowCurveSelectionWidgets( showCurveSelection->checkState() );
 
@@ -280,6 +287,7 @@ void RiuRelativePermeabilityPlotPanel::setPlotData( RiaDefines::EclipseUnitSyste
     m_availablePhases   = availablePhases;
 
     updateCheckboxTexts();
+    updatePlotOneMinusSgasCheckBoxState();
     plotUiSelectedCurves();
 }
 
@@ -330,6 +338,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
                      &m_myPlotMarkers,
                      false,
                      false,
+                     false,
                      m_availablePhases );
 }
 
@@ -371,6 +380,7 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
                      &m_myPlotMarkers,
                      m_showScaledCheckBox->isChecked(),
                      m_showUnscaledCheckBox->isChecked(),
+                     m_plotOneMinusSgasCheckBox->isChecked(),
                      m_availablePhases );
 }
 
@@ -436,6 +446,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
                                                         std::vector<QwtPlotMarker*>*                         myPlotMarkers,
                                                         bool                                                 showScaled,
                                                         bool                                                 showUnscaled,
+                                                        bool                                                 plotOneMinusSgas,
                                                         const std::set<RiaDefines::PhaseType>&               availablePhases )
 {
     bool skipUnscaledLegends = showScaled && showUnscaled;
@@ -458,11 +469,27 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     const QColor waterColor = RiuGuiTheme::getColorByVariableName( "curveColorWater" );
     const QColor gasColor   = RiuGuiTheme::getColorByVariableName( "curveColorGas" );
 
+    // Only apply the 1-SGAS transformation for two-phase gas-water systems
+    const bool applyOneMinusSgas = plotOneMinusSgas && RiaPhaseTools::isTwoPhaseGasWater( availablePhases );
+
     bool shouldEnableRightYAxis = false;
 
     for ( size_t i = 0; i < curveArr.size(); i++ )
     {
-        const RigFlowDiagDefines::RelPermCurve& curve = curveArr[i];
+        // Use a local, possibly saturation-transformed, copy of the curve for plotting
+        RigFlowDiagDefines::RelPermCurve curveCopy = curveArr[i];
+        if ( applyOneMinusSgas && curveCopy.isGasCurve() )
+        {
+            for ( double& saturationVal : curveCopy.saturationVals )
+            {
+                saturationVal = 1.0 - saturationVal;
+            }
+
+            // Keep x ascending, as required by the interpolation used for the intersection markers
+            std::reverse( curveCopy.saturationVals.begin(), curveCopy.saturationVals.end() );
+            std::reverse( curveCopy.yVals.begin(), curveCopy.yVals.end() );
+        }
+        const RigFlowDiagDefines::RelPermCurve& curve = curveCopy;
 
         const auto unscaledCurve = ( curve.epsMode == RigFlowDiagDefines::RelPermCurve::EPS_OFF );
 
@@ -546,7 +573,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
             if ( curve.ident == RigFlowDiagDefines::RelPermCurve::KRG || curve.ident == RigFlowDiagDefines::RelPermCurve::KROG ||
                  curve.ident == RigFlowDiagDefines::RelPermCurve::PCOG )
             {
-                addCurveConstSaturationIntersectionMarker( curve, sgas, gasColor, plotOnWhichYAxis, plot, myPlotMarkers, &points, &axes );
+                const double effectiveSgas = applyOneMinusSgas ? 1.0 - sgas : sgas;
+                addCurveConstSaturationIntersectionMarker( curve, effectiveSgas, gasColor, plotOnWhichYAxis, plot, myPlotMarkers, &points, &axes );
             }
         }
     }
@@ -571,7 +599,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     }
     if ( sgas != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( sgas, RiaResultNames::sgas(), gasColor, plot, myPlotMarkers );
+        const double  effectiveSgas = applyOneMinusSgas ? 1.0 - sgas : sgas;
+        const QString sgasLabel     = applyOneMinusSgas ? "1-" + RiaResultNames::sgas() : RiaResultNames::sgas();
+        addVerticalSaturationMarkerLine( effectiveSgas, sgasLabel, gasColor, plot, myPlotMarkers );
     }
 
     if ( logScaleLeftAxis )
@@ -635,7 +665,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     }
     plot->setTitle( titleStr );
 
-    plot->setAxisTitle( QwtAxis::XBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
+    plot->setAxisTitle( QwtAxis::XBottom, determineXAxisTitleFromCurveCollection( curveArr, applyOneMinusSgas ) );
     plot->setAxisTitle( QwtAxis::YLeft, "Kr" );
     plot->setAxisTitle( QwtAxis::YRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     plot->replot();
@@ -671,7 +701,8 @@ QwtPlotCurve* RiuRelativePermeabilityPlotPanel::getLegendCurve( QString title, b
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr )
+QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr,
+                                                                                  bool plotOneMinusSgas )
 {
     bool sawWater = false;
     bool sawGas   = false;
@@ -682,13 +713,15 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
         if ( curve.isGasCurve() ) sawGas = true;
     }
 
+    const QString gasAxisLabel = plotOneMinusSgas ? "1-SGAS" : "SGAS";
+
     QString title = "";
     if ( sawWater && sawGas )
-        title = "SWAT/SGAS";
+        title = "SWAT/" + gasAxisLabel;
     else if ( sawWater )
         title = "SWAT";
     else if ( sawGas )
-        title = "SGAS";
+        title = gasAxisLabel;
 
     return title;
 }
@@ -869,6 +902,19 @@ void RiuRelativePermeabilityPlotPanel::updateCheckboxTexts()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Only allow the "Plot 1-SGAS" option for two-phase gas-water systems
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::updatePlotOneMinusSgasCheckBoxState()
+{
+    const bool enable = RiaPhaseTools::isTwoPhaseGasWater( m_availablePhases );
+    if ( !enable )
+    {
+        m_plotOneMinusSgasCheckBox->setChecked( false );
+    }
+    m_plotOneMinusSgasCheckBox->setEnabled( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::contextMenuEvent( QContextMenuEvent* event )
@@ -910,6 +956,7 @@ void RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets( int state 
     m_logarithmicScaleKrAxisCheckBox->setVisible( setVisible );
     m_fixedXAxisCheckBox->setVisible( setVisible );
     m_fixedLeftYAxisCheckBox->setVisible( setVisible );
+    m_plotOneMinusSgasCheckBox->setVisible( setVisible );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -88,11 +88,15 @@ private:
                                  std::vector<QwtPlotMarker*>*                         myPlotMarkers,
                                  bool                                                 showScaled,
                                  bool                                                 showUnscaled,
+                                 bool                                                 plotOneMinusSgas,
                                  const std::set<RiaDefines::PhaseType>&               availablePhases );
 
     static QwtPlotCurve* getLegendCurve( QString title, bool scaled );
 
-    static QString determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr );
+    static QString determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr,
+                                                           bool                                                 plotOneMinusSgas );
+
+    void updatePlotOneMinusSgasCheckBoxState();
 
     static void addVerticalSaturationMarkerLine( double                       saturationValue,
                                                  QString                      label,
@@ -156,6 +160,7 @@ private:
     QCheckBox*    m_logarithmicScaleKrAxisCheckBox;
     QCheckBox*    m_fixedXAxisCheckBox;
     QCheckBox*    m_fixedLeftYAxisCheckBox;
+    QCheckBox*    m_plotOneMinusSgasCheckBox;
 
     std::unique_ptr<RiuRelativePermeabilityPlotUpdater> m_plotUpdater;
 };
