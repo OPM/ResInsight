@@ -2233,7 +2233,11 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         }
         else
         {
-            m_ensembleStatCaseY->calculate( statCases, summaryAddressY(), m_statistics->includeIncompleteCurves(), percentiles );
+            m_ensembleStatCaseY->calculate( statCases,
+                                            summaryAddressY(),
+                                            m_statistics->includeIncompleteCurves(),
+                                            percentiles,
+                                            m_statistics->includeZeroValues() );
         }
     }
 
