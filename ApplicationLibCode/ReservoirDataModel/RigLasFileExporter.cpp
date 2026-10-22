@@ -188,7 +188,24 @@ public:
 
         if ( !firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ).empty() )
         {
-            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+            {
+                lasFile->AddLog( "TVDMSL",
+                                 "M",
+                                 "True vertical depth in meters",
+                                 firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            }
+            else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
+            {
+                lasFile->AddLog( "TVDMSL",
+                                 "FT",
+                                 "True vertical depth in feet",
+                                 firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            }
+            else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
+            {
+                lasFile->AddLog( "TVDMSL", "", "True vertical depth", firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            }
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {
