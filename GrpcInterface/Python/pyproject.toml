@@ -52,6 +52,9 @@ Homepage = "http://www.resinsight.org"
 # setting is only discovered when uv runs from this directory.
 exclude-newer = "1 week"
 
+[tool.pytest.ini_options]
+filterwarnings = ["error"]
+
 [tool.setuptools.dynamic]
 version = {attr = "rips._version.__version__"}
 

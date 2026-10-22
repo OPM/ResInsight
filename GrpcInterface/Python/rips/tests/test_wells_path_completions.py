@@ -19,11 +19,12 @@ def test_10k(rips_instance, initialize_test):
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
 
     case = project.cases()[0]
-    case.export_well_path_completions(
-        time_step=1,
-        well_path_names=["Well-1"],
-        file_split="UNIFIED_FILE",
-    )
+    with pytest.warns(DeprecationWarning):
+        case.export_well_path_completions(
+            time_step=1,
+            well_path_names=["Well-1"],
+            file_split="UNIFIED_FILE",
+        )
 
 
 def test_export_completions(rips_instance, initialize_test):

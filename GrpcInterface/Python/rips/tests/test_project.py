@@ -285,7 +285,7 @@ def test_scale_fracture_template_and_set_containment(rips_instance, initialize_t
     assert after_scale.width_scale_factor == 1.5
     assert after_scale.conductivity_factor == 4.5
 
-    with pytest.raises(rips.RipsError):
+    with pytest.raises(rips.RipsError), pytest.warns(DeprecationWarning):
         project.scale_fracture_template(
             template_id=999, half_length=1, height=1, d_factor=1, conductivity=1
         )
