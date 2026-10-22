@@ -125,10 +125,9 @@ public:
     int  symbolSize() const;
     void setSymbolSize( int size );
 
-    // Highlighted items get a thicker line
-    bool       isHighlighted() const;
-    void       setHighlighted( bool highlighted );
-    static int highlightedLineThicknessIncrease();
+    // Highlighted items are highlighted in the plots
+    bool isHighlighted() const;
+    void setHighlighted( bool highlighted );
 
     // The custom color, if the rule is custom
     std::optional<cvf::Color3f> overriddenColor() const;

@@ -341,6 +341,18 @@ void RimCurveStyleRules::ruleChanged( RimCurveStyleRule* rule )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimCurveStyleRules::isHighlighted( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
+{
+    for ( auto rule : rulesFor( address, caseName ) )
+    {
+        if ( rule->isHighlighted() ) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimCurveStyleRules::controlsColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
 {
     const auto dimension = m_settings->colorDimension();
@@ -846,6 +858,7 @@ void RimCurveStyleRules::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
         rulesGroup->add( &m_symbolLegend );
     rulesGroup->add( &m_highlightedItems );
+    rulesGroup->addNewLabel( "Checked items are highlighted in the plots, while other curves are dimmed." );
 
     auto advancedGroup = uiOrdering.addNewGroup( "Advanced" );
     advancedGroup->setCollapsedByDefault();

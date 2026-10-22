@@ -68,6 +68,9 @@ public:
 
     // Whether the global appearance assigns the color or symbol of a curve with the given address and case
     bool controlsColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
+
+    // Whether the curve belongs to an item checked as highlighted for the color or symbol dimension
+    bool isHighlighted( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
     bool controlsSymbol( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
 
     // Index used to pick the palette color and symbol for a case or well name. Indices are kept in the project so that

@@ -130,12 +130,6 @@ void RimCurveStyleRule::applyToCurve( RimPlotCurve* curve, bool applyColor, bool
         return;
     }
 
-    // Highlighted items get a thicker line
-    if ( m_highlighted() && ( applyColor || applySymbol ) )
-    {
-        curveAppearance->setLineThickness( curveAppearance->lineThickness() + highlightedLineThicknessIncrease() );
-    }
-
     if ( m_mode() != Mode::CUSTOM ) return;
 
     // Only the explicit overrides are applied. Line stepping, fill, labels and curve fitting are never controlled by the rule.
@@ -412,14 +406,6 @@ bool RimCurveStyleRule::isHighlighted() const
 void RimCurveStyleRule::setHighlighted( bool highlighted )
 {
     m_highlighted = highlighted;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimCurveStyleRule::highlightedLineThicknessIncrease()
-{
-    return 2;
 }
 
 //--------------------------------------------------------------------------------------------------

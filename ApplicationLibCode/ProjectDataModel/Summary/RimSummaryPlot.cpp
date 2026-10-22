@@ -1032,6 +1032,23 @@ void RimSummaryPlot::updateCurveAppearanceFromGlobalSettings()
 
     applyGlobalCurveAppearance();
     loadDataAndUpdate();
+
+    auto* qwtWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
+    auto  project   = RimProject::current();
+    if ( !qwtWidget || !project || !project->curveStyleRules() ) return;
+
+    std::vector<RimPlotCurve*> highlightedCurves;
+    for ( auto curve : summaryCurves() )
+    {
+        if ( project->curveStyleRules()->isHighlighted( curve->summaryAddressY(), RimCurveStyleSettings::caseName( curve->summaryCaseY() ) ) )
+        {
+            highlightedCurves.push_back( curve );
+        }
+    }
+
+    qwtWidget->resetPlotItemHighlighting( false );
+    if ( !highlightedCurves.empty() ) qwtWidget->highlightCurvesUpdateOrder( highlightedCurves );
+    qwtWidget->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
