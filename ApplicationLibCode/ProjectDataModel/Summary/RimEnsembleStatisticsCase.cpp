@@ -168,9 +168,11 @@ RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& summaryCases,
                                            const RifEclipseSummaryAddress&     inputAddress,
                                            bool                                includeIncompleteCurves,
-                                           const std::vector<int>&             percentiles )
+                                           const std::vector<int>&             percentiles,
+                                           bool                                includeZeroValues )
 {
-    auto hash = RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves, percentiles );
+    auto hash =
+        RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves, percentiles, includeZeroValues );
     if ( hash == m_hash ) return;
 
     auto startTime = RiaLogging::currentTime();
@@ -264,6 +266,15 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); curveIdx++ )
         {
             valuesAtTimeStep.push_back( curveValues[curveIdx][timeStepIndex] );
+        }
+
+        if ( !includeZeroValues )
+        {
+            // Shut-in wells/groups report exact 0.0 for rate/ratio vectors (e.g. WCT, GOR, PI) from the simulator, and non-accumulated
+            // vectors use STEP_RIGHT interpolation above, which copies recorded values without introducing floating-point noise. An
+            // epsilon comparison is therefore not needed, and could incorrectly exclude small-but-valid values for low-magnitude
+            // vectors such as PI.
+            valuesAtTimeStep.erase( std::remove( valuesAtTimeStep.begin(), valuesAtTimeStep.end(), 0.0 ), valuesAtTimeStep.end() );
         }
 
         double mean = RigStatisticsMath::calculateMean( valuesAtTimeStep );

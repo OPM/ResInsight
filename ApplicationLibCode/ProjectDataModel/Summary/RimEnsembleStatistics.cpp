@@ -61,6 +61,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     m_customPercentiles.setCustomValidationCallback( [this]() -> QString { return validateCustomPercentiles(); } );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
+    CAF_PDM_InitField( &m_includeZeroValues, "IncludeZeroValues", true, "Include Zero Values" );
 
     CAF_PDM_InitField( &m_crossPlotCurvesBinCount, "CrossPlotCurvesBinCount", 100, "Bin Count" );
     CAF_PDM_InitField( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin,
@@ -244,6 +245,14 @@ bool RimEnsembleStatistics::includeIncompleteCurves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::includeZeroValues() const
+{
+    return m_includeZeroValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimEnsembleStatistics::crossPlotCurvesBinCount() const
 {
     return m_crossPlotCurvesBinCount;
@@ -302,6 +311,7 @@ void RimEnsembleStatistics::defaultUiOrdering( bool showCrossPlotGroup, caf::Pdm
     uiOrdering.add( &m_showEnsembleCurves );
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
+    uiOrdering.add( &m_includeZeroValues );
     uiOrdering.add( &m_showCurveLabels );
 
     if ( showCrossPlotGroup )

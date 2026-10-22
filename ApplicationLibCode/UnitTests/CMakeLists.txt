@@ -201,6 +201,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../TestModels/RimMockSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection-Test.cpp
