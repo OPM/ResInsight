@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RigFemResultPosEnum.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -53,4 +56,61 @@ private:
     caf::PdmField<int>             m_timeStep;
 
     const RimWbsParameters* m_parameters = nullptr;
+};
+
+//==================================================================================================
+/// Get the time step strings of this GeoMech case.
+//==================================================================================================
+class RimGeoMechCase_timeStepStrings : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGeoMechCase_timeStepStrings( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};
+
+//==================================================================================================
+/// Get the result names of this GeoMech case for a result position.
+///
+/// Names are returned as "FIELD:COMPONENT", or "FIELD" for results without components.
+//==================================================================================================
+class RimGeoMechCase_resultNames : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGeoMechCase_resultNames( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPosition;
+};
+
+//==================================================================================================
+/// Read the values of a GeoMech result into the key-value store.
+///
+/// A negative frame index selects the last frame of the time step. The values of all parts are
+/// stored as a float array under the given key.
+//==================================================================================================
+class RimGeoMechCase_readResultValuesInternal : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGeoMechCase_readResultValuesInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPosition;
+    caf::PdmField<QString>                           m_fieldName;
+    caf::PdmField<QString>                           m_componentName;
+    caf::PdmField<int>                               m_timeStep;
+    caf::PdmField<int>                               m_frameIndex;
+    caf::PdmField<QString>                           m_key;
 };
