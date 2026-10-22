@@ -1407,7 +1407,7 @@ static std::optional<LateralRefinementCorrection>
         const double size2 = cellProperties->cellSize[d2];
         double       perm1 = cellProperties->permeability[d1];
         double       perm2 = cellProperties->permeability[d2];
-        if ( !( perm1 > 0.0 && perm2 > 0.0 ) )
+        if ( perm1 <= 0.0 || perm2 <= 0.0 )
         {
             perm1 = 1.0;
             perm2 = 1.0;
@@ -1443,7 +1443,7 @@ static std::optional<LateralRefinementCorrection>
 
     const double originalDenominator = std::log( originalRadius / wellRadius ) + skin;
     const double refinedDenominator  = std::log( refinedRadius / wellRadius ) + skin;
-    if ( !( wellRadius > 0.0 && originalDenominator > 0.0 && refinedDenominator > 0.0 ) )
+    if ( wellRadius <= 0.0 || originalDenominator <= 0.0 || refinedDenominator <= 0.0 )
     {
         warning(
             std::format( "refined pressure equivalent radius {:.4g} is too small compared to well radius {:.4g}", refinedRadius, wellRadius ) );

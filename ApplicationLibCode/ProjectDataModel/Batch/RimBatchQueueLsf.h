@@ -30,7 +30,7 @@ class RimBatchQueueLsf : public RimBatchQueueSlurm
 
 public:
     RimBatchQueueLsf();
-    ~RimBatchQueueLsf();
+    ~RimBatchQueueLsf() override;
 
     QStringList generateCommand( QString script,
                                  QString jobName,

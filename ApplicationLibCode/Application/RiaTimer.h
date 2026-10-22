@@ -36,7 +36,7 @@ class RiaTimer : public QObject, public caf::SignalEmitter
 
 public:
     RiaTimer();
-    ~RiaTimer();
+    ~RiaTimer() override;
 
     void start( int intervalMs = 1000 );
     void stop();
