@@ -309,7 +309,8 @@ def time_step_strings(self: GeoMechCase) -> List[str]:
     """Get the time step strings of this geomechanical case
 
     Returns:
-        A list of time step strings, one per time step.
+        A list of time step strings, one per time step. The list index
+        matches the time_step argument of result_values().
     """
     return self.time_step_strings_internal().values
 
@@ -370,10 +371,7 @@ def result_values(
         )
         return project.key_values(key)  # type: ignore[attr-defined]
     finally:
-        try:
-            project.remove_key_values(key)  # type: ignore[attr-defined]
-        except Exception:
-            pass
+        project.remove_key_values(key)  # type: ignore[attr-defined]
 
 
 @add_method(Case)

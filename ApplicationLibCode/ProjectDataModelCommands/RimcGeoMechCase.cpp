@@ -35,6 +35,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmScriptEnumNameRegistry.h"
 
+#include <algorithm>
+
 namespace
 {
 struct RegisterScriptEnumNames
@@ -136,8 +138,16 @@ std::expected<caf::PdmObjectHandle*, QString> RimGeoMechCase_timeStepStrings::ex
 
     auto* container = new RimcDataContainerString();
 
-    const QStringList names   = geoMechCase->timeStepStrings();
-    container->m_stringValues = std::vector<QString>( names.begin(), names.end() );
+    if ( geoMechCase->geoMechData() && geoMechCase->geoMechData()->femPartResults() )
+    {
+        // Filtered time step names match the time step index used by result_values()
+        std::vector<QString> names;
+        for ( const auto& name : geoMechCase->geoMechData()->femPartResults()->filteredTimeStepNames() )
+        {
+            names.push_back( QString::fromStdString( name ) );
+        }
+        container->m_stringValues = names;
+    }
 
     return container;
 }
@@ -265,11 +275,27 @@ std::expected<caf::PdmObjectHandle*, QString> RimGeoMechCase_readResultValuesInt
     const int frameIndex = m_frameIndex() < 0 ? frameCount - 1 : m_frameIndex();
     if ( frameIndex < 0 || frameIndex >= frameCount )
     {
-        return std::unexpected( QString( "Frame %1 is out of range [0, %2)." ).arg( m_frameIndex() ).arg( frameCount ) );
+        return std::unexpected(
+            QString( "Frame %1 (resolved to %2) is out of range [0, %3)." ).arg( m_frameIndex() ).arg( frameIndex ).arg( frameCount ) );
     }
 
     const RigFemResultAddress address( m_resultPosition(), m_fieldName().toStdString(), m_componentName().toStdString() );
     if ( !address.isValid() ) return std::unexpected( QString( "Invalid result %1 %2." ).arg( m_fieldName(), m_componentName() ) );
+
+    const auto fieldsWithComponents = results->scalarFieldAndComponentNames( m_resultPosition() );
+    const auto fieldIt              = fieldsWithComponents.find( address.fieldName );
+    if ( fieldIt == fieldsWithComponents.end() )
+    {
+        return std::unexpected( QString( "Unknown result field '%1'." ).arg( m_fieldName() ) );
+    }
+    const auto& components  = fieldIt->second;
+    const bool  componentOk = components.empty()
+                                  ? address.componentName.empty()
+                                  : std::find( components.begin(), components.end(), address.componentName ) != components.end();
+    if ( !componentOk )
+    {
+        return std::unexpected( QString( "Unknown component '%1' for result field '%2'." ).arg( m_componentName(), m_fieldName() ) );
+    }
 
     std::vector<float> values;
     results->globalResultValues( address, m_timeStep(), frameIndex, values );
