@@ -48,7 +48,7 @@ public:
     static std::map<std::string, std::vector<float>> readPointProperties( const pugi::xml_node& piece );
 
 private:
-    static std::map<std::string, std::vector<float>> readDataArrays( const pugi::xml_node& data );
+    static std::map<std::string, std::vector<float>> readDataArrays( const pugi::xml_node& data, bool scalarsOnly );
     static std::vector<cvf::Vec3d>                   parseVec3ds( std::string_view text );
     static std::vector<cvf::Vec3f>                   parseVec3fs( std::string_view text );
 };

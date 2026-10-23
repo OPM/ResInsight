@@ -119,7 +119,7 @@ std::vector<unsigned> RifVtkImportUtil::readConnectivity( const pugi::xml_node& 
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<float>> RifVtkImportUtil::readProperties( const pugi::xml_node& piece )
 {
-    return readDataArrays( piece.child( "CellData" ) );
+    return readDataArrays( piece.child( "CellData" ), false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,13 +127,14 @@ std::map<std::string, std::vector<float>> RifVtkImportUtil::readProperties( cons
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<float>> RifVtkImportUtil::readPointProperties( const pugi::xml_node& piece )
 {
-    return readDataArrays( piece.child( "PointData" ) );
+    // Vector arrays such as "disp" are read by readDisplacements
+    return readDataArrays( piece.child( "PointData" ), true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<float>> RifVtkImportUtil::readDataArrays( const pugi::xml_node& data )
+std::map<std::string, std::vector<float>> RifVtkImportUtil::readDataArrays( const pugi::xml_node& data, bool scalarsOnly )
 {
     if ( !data ) return {};
 
@@ -141,6 +142,8 @@ std::map<std::string, std::vector<float>> RifVtkImportUtil::readDataArrays( cons
 
     for ( const auto& dataArray : data.children( "DataArray" ) )
     {
+        if ( scalarsOnly && dataArray.attribute( "NumberOfComponents" ).as_int( 1 ) != 1 ) continue;
+
         const char* name = dataArray.attribute( "Name" ).value();
         if ( name && *name )
         {
