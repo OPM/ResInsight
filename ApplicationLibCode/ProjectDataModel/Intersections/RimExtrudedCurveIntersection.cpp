@@ -51,6 +51,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -82,6 +83,18 @@ void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionDirEnum>::setUp()
 }
 
 } // namespace caf
+
+namespace
+{
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames()
+    {
+        caf::PdmScriptEnumNameRegistry::registerName<RimExtrudedCurveIntersection::CrossSectionEnum>( "CrossSectionType" );
+    }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CurveIntersection", "CrossSection" );
 
