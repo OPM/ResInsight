@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCompletionEnums.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiGroup.h"
@@ -26,12 +28,10 @@ class RimNonDarcyPerforationParameters : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum NonDarcyFlowEnum
-    {
-        NON_DARCY_NONE,
-        NON_DARCY_COMPUTED,
-        NON_DARCY_USER_DEFINED,
-    };
+    using NonDarcyFlowEnum                                   = RimCompletionEnums::NonDarcyFlowType;
+    static constexpr NonDarcyFlowEnum NON_DARCY_NONE         = RimCompletionEnums::NON_DARCY_NONE;
+    static constexpr NonDarcyFlowEnum NON_DARCY_COMPUTED     = RimCompletionEnums::NON_DARCY_COMPUTED;
+    static constexpr NonDarcyFlowEnum NON_DARCY_USER_DEFINED = RimCompletionEnums::NON_DARCY_USER_DEFINED;
 
     RimNonDarcyPerforationParameters();
     ~RimNonDarcyPerforationParameters() override;
