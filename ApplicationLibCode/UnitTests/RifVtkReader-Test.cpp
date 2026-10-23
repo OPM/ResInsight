@@ -312,3 +312,80 @@ TEST( RifVtkReaderTest, ReadElementFieldPartialTensorRows )
         EXPECT_FLOAT_EQ( e[c][1], expectedECell1[c] );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Complete stress and strain but no node "pressure": E is available, S and the derived results are not,
+/// also after reading E
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadElementNodalStrainWithoutPor )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "nopor.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+
+    EXPECT_FALSE( reader.populateDerivedResultNames() );
+    EXPECT_EQ( reader.scalarElementNodeFieldAndComponentNames().count( "S" ), 0u );
+    ASSERT_EQ( reader.scalarElementNodeFieldAndComponentNames().count( "E" ), 1u );
+
+    std::vector<std::vector<float>>  e( 6 );
+    std::vector<std::vector<float>*> eValues;
+    for ( auto& v : e )
+        eValues.push_back( &v );
+    reader.readElementNodeField( "E", 0, 0, 0, &eValues );
+    ASSERT_EQ( e[0].size(), 16u );
+    EXPECT_FLOAT_EQ( e[0][8], 1.1f );
+
+    EXPECT_FALSE( reader.populateDerivedResultNames() );
+    EXPECT_EQ( reader.scalarElementNodeFieldAndComponentNames().count( "S" ), 0u );
+    EXPECT_EQ( reader.scalarNodeFieldAndComponentNames().count( "POR" ), 0u );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Step 0 has neither tensor nor POR data: S and E give no values, and reading them adds no fields
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadElementNodalStressAtStepWithoutData )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "model.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+
+    const auto elementFieldsBefore = reader.scalarElementFieldAndComponentNames();
+    const auto nodeFieldsBefore    = reader.scalarNodeFieldAndComponentNames();
+
+    for ( const std::string fieldName : { "S", "E" } )
+    {
+        std::vector<std::vector<float>>  values( 6 );
+        std::vector<std::vector<float>*> resultValues;
+        for ( auto& v : values )
+            resultValues.push_back( &v );
+        reader.readElementNodeField( fieldName, 0, 0, 0, &resultValues );
+        for ( const auto& v : values )
+            EXPECT_TRUE( v.empty() );
+    }
+
+    EXPECT_EQ( reader.scalarElementFieldAndComponentNames(), elementFieldsBefore );
+    EXPECT_EQ( reader.scalarNodeFieldAndComponentNames(), nodeFieldsBefore );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reading the parts twice gives the same element node results
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadFemPartsTwice )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "model.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+    cvf::ref<RigFemPartCollection> femPartsAgain = new RigFemPartCollection();
+    reader.readFemParts( femPartsAgain.p() );
+
+    std::vector<float>               e11;
+    std::vector<std::vector<float>*> eValues = { &e11 };
+    reader.readElementNodeField( "E", 0, 1, 0, &eValues );
+    EXPECT_EQ( e11.size(), 16u );
+}

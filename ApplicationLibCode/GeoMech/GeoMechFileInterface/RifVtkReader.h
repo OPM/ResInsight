@@ -118,5 +118,12 @@ private:
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataNodes;
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataElements;
     std::map<int, std::vector<std::vector<cvf::Vec3f>>>                      m_displacements;
-    std::map<int, std::vector<int>>                                          m_elementNodes; // Node index per element corner, by part
+
+    // Node index per element corner, by part. Element i has the corners [offsets[i], offsets[i + 1]).
+    struct ElementNodes
+    {
+        std::vector<int>    nodes;
+        std::vector<size_t> offsets;
+    };
+    std::map<int, ElementNodes> m_elementNodes;
 };

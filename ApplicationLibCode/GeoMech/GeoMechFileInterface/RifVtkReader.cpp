@@ -81,6 +81,23 @@ std::vector<std::string> availableComponents( const std::map<std::string, std::m
     }
     return available;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Lookup without adding entries to the map. Returns nullptr if there are no values.
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* findValues( const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>& data,
+                                       const std::string&                                                              fieldName,
+                                       int                                                                             stepIndex,
+                                       int                                                                             partIndex )
+{
+    auto fieldIt = data.find( fieldName );
+    if ( fieldIt == data.end() ) return nullptr;
+    auto stepIt = fieldIt->second.find( stepIndex );
+    if ( stepIt == fieldIt->second.end() ) return nullptr;
+    auto partIt = stepIt->second.find( partIndex );
+    if ( partIt == stepIt->second.end() || partIt->second.empty() ) return nullptr;
+    return &partIt->second;
+}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +127,8 @@ void RifVtkReader::close()
 bool RifVtkReader::populateDerivedResultNames() const
 {
     using namespace RifVtkFieldNames;
-    return m_propertyPartDataElements.contains( std::string( S ) + separator + S11 ) && m_propertyPartDataNodes.contains( por );
+    return availableComponents( m_propertyPartDataElements, S, stressComponents ).size() == stressComponents.size() &&
+           m_propertyPartDataNodes.contains( por );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,6 +182,8 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
         RiaLogging::error( result.error() );
         return false;
     }
+
+    m_elementNodes.clear();
 
     auto elementType = result.value();
 
@@ -251,11 +271,14 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
         femPart->setElementPartId( femParts->partCount() );
         femParts->addFemPart( femPart );
 
-        std::vector<int>& elementNodes = m_elementNodes[femPart->elementPartId()];
+        ElementNodes& elementNodes = m_elementNodes[femPart->elementPartId()];
+        elementNodes.offsets.reserve( elmCount + 1 );
+        elementNodes.offsets.push_back( 0 );
         for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
         {
             const int* conn = femPart->connectivities( elmIdx );
-            elementNodes.insert( elementNodes.end(), conn, conn + RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) ) );
+            elementNodes.nodes.insert( elementNodes.nodes.end(), conn, conn + RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) ) );
+            elementNodes.offsets.push_back( elementNodes.nodes.size() );
         }
 
         modelProgress.incrementProgress();
@@ -639,37 +662,46 @@ void RifVtkReader::readElementNodeField( const std::string&                field
 
     // Stress and strain are cell values; every corner of an element gets its cell's value. S is effective
     // stress, tension positive, from the simulator's total stress (compression positive) and the node pore
-    // pressure: S = POR * I - S_VTK. Then ST = -S + POR gives the simulator's stress back.
+    // pressure: S = POR * I - S_VTK. Then ST = -S + POR gives the simulator's stress back. This assumes a Biot
+    // coefficient of 1. A step without POR or tensor data gives no values.
     using namespace RifVtkFieldNames;
 
     const auto components = scalarElementNodeFieldAndComponentNames()[fieldName];
     const auto nodesIt    = m_elementNodes.find( partIndex );
     if ( components.empty() || nodesIt == m_elementNodes.end() ) return;
-    const std::vector<int>& elementNodes = nodesIt->second;
+    const ElementNodes& elementNodes = nodesIt->second;
+    const size_t        elementCount = elementNodes.offsets.size() - 1;
 
     const bool                 isStress  = fieldName == derivedS;
     const std::string          cellField = isStress ? S : E;
-    const std::vector<double>& porValues = m_propertyPartDataNodes[por][stepIndex][partIndex];
-    if ( isStress && porValues.empty() ) return;
+    const std::vector<double>* porValues = nullptr;
+    if ( isStress )
+    {
+        porValues = findValues( m_propertyPartDataNodes, por, stepIndex, partIndex );
+        if ( porValues == nullptr ) return;
+    }
 
-    constexpr int nodesPerElement = 8;
     for ( size_t c = 0; c < components.size() && c < resultValues->size(); c++ )
     {
         std::vector<float>* values = ( *resultValues )[c];
         if ( values == nullptr ) continue;
 
-        const std::vector<double>& cellValues = m_propertyPartDataElements[cellField + separator + components[c]][stepIndex][partIndex];
-        if ( cellValues.empty() ) continue;
+        const std::vector<double>* cellValues =
+            findValues( m_propertyPartDataElements, cellField + separator + components[c], stepIndex, partIndex );
+        if ( cellValues == nullptr || cellValues->size() < elementCount ) continue;
 
         const bool isNormal = c < 3;
-        values->resize( elementNodes.size() );
-        for ( size_t i = 0; i < elementNodes.size(); i++ )
+        values->resize( elementNodes.nodes.size() );
+        for ( size_t elmIdx = 0; elmIdx < elementCount; elmIdx++ )
         {
-            const double cellValue = cellValues[i / nodesPerElement];
-            if ( isStress )
-                ( *values )[i] = static_cast<float>( ( isNormal ? porValues[elementNodes[i]] : 0.0 ) - cellValue );
-            else
-                ( *values )[i] = static_cast<float>( cellValue );
+            const double cellValue = ( *cellValues )[elmIdx];
+            for ( size_t i = elementNodes.offsets[elmIdx]; i < elementNodes.offsets[elmIdx + 1]; i++ )
+            {
+                if ( isStress )
+                    ( *values )[i] = static_cast<float>( ( isNormal ? ( *porValues )[elementNodes.nodes[i]] : 0.0 ) - cellValue );
+                else
+                    ( *values )[i] = static_cast<float>( cellValue );
+            }
         }
     }
 }
