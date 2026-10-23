@@ -243,3 +243,72 @@ TEST( RifVtkReaderTest, ReadElementNodalStressFromCellsAndPor )
         EXPECT_FLOAT_EQ( e[c][idx], expectedE[c] );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// strain[0..2] are the rows of a symmetric tensor; xz and yz change sign with the negated z
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadElementFieldStrainTensorRows )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "model.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+
+    auto elementFields = reader.scalarElementFieldAndComponentNames();
+    ASSERT_TRUE( elementFields.count( "E_VTK" ) > 0 );
+    const std::vector<std::string> expectedComponents = { "E11", "E22", "E33", "E12", "E13", "E23" };
+    EXPECT_EQ( elementFields["E_VTK"], expectedComponents );
+
+    std::vector<std::vector<float>>  values( 6 );
+    std::vector<std::vector<float>*> resultValues;
+    for ( auto& v : values )
+        resultValues.push_back( &v );
+
+    reader.readElementField( "E_VTK", 0, 1, 0, &resultValues );
+
+    const std::vector<float> expectedCell0 = { 0.1f, 0.4f, 0.6f, 0.2f, -0.3f, -0.5f };
+    const std::vector<float> expectedCell1 = { 1.1f, 1.4f, 1.6f, 1.2f, -1.3f, -1.5f };
+    for ( size_t c = 0; c < 6; c++ )
+    {
+        ASSERT_EQ( values[c].size(), 2u );
+        EXPECT_FLOAT_EQ( values[c][0], expectedCell0[c] );
+        EXPECT_FLOAT_EQ( values[c][1], expectedCell1[c] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only stress[0] and strain[1..2]: list only the components with data, and no derived results
+//--------------------------------------------------------------------------------------------------
+TEST( RifVtkReaderTest, ReadElementFieldPartialTensorRows )
+{
+    RifVtkReader reader;
+    reader.openFile( ( testDataDir() / "partial.pvd" ).string(), nullptr );
+
+    cvf::ref<RigFemPartCollection> femParts = new RigFemPartCollection();
+    reader.readFemParts( femParts.p() );
+
+    auto                           elementFields = reader.scalarElementFieldAndComponentNames();
+    const std::vector<std::string> expectedS     = { "S11", "S12", "S13" };
+    const std::vector<std::string> expectedE     = { "E22", "E33", "E23" };
+    EXPECT_EQ( elementFields["S_VTK"], expectedS );
+    EXPECT_EQ( elementFields["E_VTK"], expectedE );
+
+    EXPECT_TRUE( reader.scalarElementNodeFieldAndComponentNames().empty() );
+
+    std::vector<std::vector<float>>  s( 3 ), e( 3 );
+    std::vector<std::vector<float>*> sValues = { &s[0], &s[1], &s[2] };
+    std::vector<std::vector<float>*> eValues = { &e[0], &e[1], &e[2] };
+    reader.readElementField( "S_VTK", 0, 0, 0, &sValues );
+    reader.readElementField( "E_VTK", 0, 0, 0, &eValues );
+
+    const std::vector<float> expectedSCell1 = { 111, 112, -113 };
+    const std::vector<float> expectedECell1 = { 1.22f, 1.33f, -1.23f };
+    for ( size_t c = 0; c < 3; c++ )
+    {
+        ASSERT_EQ( s[c].size(), 2u );
+        ASSERT_EQ( e[c].size(), 2u );
+        EXPECT_FLOAT_EQ( s[c][1], expectedSCell1[c] );
+        EXPECT_FLOAT_EQ( e[c][1], expectedECell1[c] );
+    }
+}

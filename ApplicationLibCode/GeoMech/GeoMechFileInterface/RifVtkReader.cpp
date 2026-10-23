@@ -60,7 +60,28 @@ constexpr const char* E23 = "E23";
 constexpr const char* derivedS = "S";
 constexpr const char* derivedE = "E";
 constexpr const char* por      = "POR";
+
+const std::vector<std::string> stressComponents = { S11, S22, S33, S12, S13, S23 };
+const std::vector<std::string> strainComponents = { E11, E22, E33, E12, E13, E23 };
 } // namespace RifVtkFieldNames
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// The components of a tensor field that have data, stored as "<field>__<component>"
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> availableComponents( const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>& data,
+                                              const std::string&                                                              fieldName,
+                                              const std::vector<std::string>&                                                 components )
+{
+    std::vector<std::string> available;
+    for ( const auto& component : components )
+    {
+        if ( data.contains( fieldName + RifVtkFieldNames::separator + component ) ) available.push_back( component );
+    }
+    return available;
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -452,16 +473,15 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarElementField
         retVal[key] = {};
     }
 
-    // Add S field with components if any S component data was loaded
-    if ( m_propertyPartDataElements.count( std::string( S ) + separator + S11 ) > 0 )
+    // A file may contain only some of the tensor rows, so list only the components that have data
+    if ( auto components = availableComponents( m_propertyPartDataElements, S, stressComponents ); !components.empty() )
     {
-        retVal[S] = { S11, S22, S33, S12, S13, S23 };
+        retVal[S] = components;
     }
 
-    // Add E field with components if any E component data was loaded
-    if ( m_propertyPartDataElements.count( std::string( E ) + separator + E11 ) > 0 )
+    if ( auto components = availableComponents( m_propertyPartDataElements, E, strainComponents ); !components.empty() )
     {
-        retVal[E] = { E11, E22, E33, E12, E13, E23 };
+        retVal[E] = components;
     }
 
     return retVal;
@@ -475,13 +495,15 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarElementNodeF
     using namespace RifVtkFieldNames;
 
     std::map<std::string, std::vector<std::string>> retVal;
-    if ( m_propertyPartDataElements.contains( std::string( S ) + separator + S11 ) && m_propertyPartDataNodes.contains( por ) )
+    // The derived results need the complete tensor
+    if ( availableComponents( m_propertyPartDataElements, S, stressComponents ).size() == stressComponents.size() &&
+         m_propertyPartDataNodes.contains( por ) )
     {
-        retVal[derivedS] = { S11, S22, S33, S12, S13, S23 };
+        retVal[derivedS] = stressComponents;
     }
-    if ( m_propertyPartDataElements.contains( std::string( E ) + separator + E11 ) )
+    if ( availableComponents( m_propertyPartDataElements, E, strainComponents ).size() == strainComponents.size() )
     {
-        retVal[derivedE] = { E11, E22, E33, E12, E13, E23 };
+        retVal[derivedE] = strainComponents;
     }
     return retVal;
 }
@@ -584,14 +606,14 @@ void RifVtkReader::readElementField( const std::string&                fieldName
                                      int                               frameIndex,
                                      std::vector<std::vector<float>*>* resultValues )
 {
-    // S and E fields have 6 components stored as individual internal keys with a separator
+    // S and E fields have up to 6 components stored as individual internal keys with a separator. The result
+    // values follow the component list from scalarElementFieldAndComponentNames(), which has only those with data.
     if ( fieldName == RifVtkFieldNames::S || fieldName == RifVtkFieldNames::E )
     {
         using namespace RifVtkFieldNames;
-        static const std::vector<std::string> sComponents = { S11, S22, S33, S12, S13, S23 };
-        static const std::vector<std::string> eComponents = { E11, E22, E33, E12, E13, E23 };
-        const auto&                           components  = ( fieldName == RifVtkFieldNames::S ) ? sComponents : eComponents;
-        size_t                                count       = std::min( components.size(), resultValues->size() );
+        const auto components =
+            availableComponents( m_propertyPartDataElements, fieldName, fieldName == S ? stressComponents : strainComponents );
+        size_t count = std::min( components.size(), resultValues->size() );
         for ( size_t i = 0; i < count; i++ )
         {
             std::string                      internalKey = fieldName + separator + components[i];
@@ -729,7 +751,8 @@ void RifVtkReader::readScalarData( RigFemPartCollection*                        
                         if ( map == nullptr ) continue;
 
                         // OPM Flow writes a symmetric 3x3 tensor as three rows "stress[0..2]" of 3 values each.
-                        // The upper triangle is read. z is negated on import, so the xz and yz components change sign.
+                        // The upper triangle is read. z is negated on import (RifVtkImportUtil::readPoints and
+                        // readDisplacements), so the xz and yz components change sign.
                         struct StressStrainMapping
                         {
                             std::string vtkName;
@@ -763,7 +786,9 @@ void RifVtkReader::readScalarData( RigFemPartCollection*                        
 
                             for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
                             {
-                                size_t              dataSize = femParts->part( partIdx )->elementCount();
+                                size_t dataSize = femParts->part( partIdx )->elementCount();
+                                if ( values.size() < 3 * dataSize ) continue;
+
                                 std::vector<double> compValues( dataSize, 0.0 );
                                 for ( size_t i = 0; i < dataSize; i++ )
                                 {
