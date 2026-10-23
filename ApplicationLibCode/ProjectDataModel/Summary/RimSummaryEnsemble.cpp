@@ -1024,6 +1024,8 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
     menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
     menuBuilder.addSeparator();
+    menuBuilder << "RicExportEnsembleParametersFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicReloadSummaryCaseFeature";
     menuBuilder << "RicReplaceSummaryEnsembleFeature";
 }

@@ -88,6 +88,16 @@ const QString& RigCaseRealizationParameters::Value::textValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString RigCaseRealizationParameters::Value::valueAsString() const
+{
+    if ( m_valueType == TYPE_TEXT ) return m_textValue;
+    if ( m_valueType == TYPE_NUMERIC ) return QString::number( m_numericValue );
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCaseRealizationParameters::addParameter( const QString& name, double value )
 {
     m_parameters[name].setValue( value );
