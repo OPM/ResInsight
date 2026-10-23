@@ -74,6 +74,9 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRelocatePath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateNonDarcy-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader-Test.cpp
@@ -214,6 +217,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCompletionDataExportTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
