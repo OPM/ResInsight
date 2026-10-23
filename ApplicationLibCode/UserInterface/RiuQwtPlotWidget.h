@@ -167,6 +167,9 @@ public:
     void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
     std::vector<caf::PdmPointer<RimPlotCurve>> highlightedCurves() const;
 
+    // True if curves with equal z-value are attached in the same relative order as in the given list
+    bool isCurveOrderConsistentWith( const std::vector<RimPlotCurve*>& expectedOrder ) const;
+
     // Highlights the plot item closest to the given position, given in widget coordinates. Unlike a left-click, this
     // only applies the visual highlight and does not change the project tree / selection manager selection.
     void highlightClosestPlotItemAtPosition( const QPoint& widgetPos );

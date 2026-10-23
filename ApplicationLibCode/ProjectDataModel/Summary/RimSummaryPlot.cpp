@@ -2316,6 +2316,21 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( plotWidget() )
     {
+        // Curves can be attached in a different order than the order in the project tree, and the
+        // legend follows the order of the attached plot items. Reattaching is costly for many curves,
+        // so only do it when the order differs.
+        auto* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
+        if ( m_summaryCurveCollection && qwtPlotWidget )
+        {
+            std::vector<RimPlotCurve*> treeOrderCurves;
+            for ( auto curve : m_summaryCurveCollection->curves() )
+            {
+                treeOrderCurves.push_back( curve );
+            }
+
+            if ( !qwtPlotWidget->isCurveOrderConsistentWith( treeOrderCurves ) ) m_summaryCurveCollection->updateCurveOrder();
+        }
+
         if ( m_showPlotLegends && !isSubPlot() )
         {
             plotWidget()->insertLegend( m_legendPosition );

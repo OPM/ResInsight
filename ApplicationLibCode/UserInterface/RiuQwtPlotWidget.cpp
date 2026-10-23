@@ -1309,6 +1309,39 @@ std::vector<caf::PdmPointer<RimPlotCurve>> RiuQwtPlotWidget::highlightedCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWidget::isCurveOrderConsistentWith( const std::vector<RimPlotCurve*>& expectedOrder ) const
+{
+    std::map<const RimPlotCurve*, size_t> expectedIndex;
+    for ( size_t i = 0; i < expectedOrder.size(); i++ )
+    {
+        expectedIndex[expectedOrder[i]] = i;
+    }
+
+    // Plot items are sorted by z-value, and items with equal z-value are kept in attach order
+    bool   hasPrevious = false;
+    double previousZ   = 0.0;
+    size_t previousIdx = 0;
+    for ( const QwtPlotItem* plotItem : m_plot->itemList() )
+    {
+        auto* riuPlotCurve = dynamic_cast<const RiuQwtPlotCurve*>( plotItem );
+        if ( !riuPlotCurve ) continue;
+
+        auto it = expectedIndex.find( riuPlotCurve->ownerRimCurve() );
+        if ( it == expectedIndex.end() ) continue;
+
+        if ( hasPrevious && plotItem->z() == previousZ && it->second < previousIdx ) return false;
+
+        hasPrevious = true;
+        previousZ   = plotItem->z();
+        previousIdx = it->second;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotCurveHighlighting()
 {
     m_highlightedCurves.clear();

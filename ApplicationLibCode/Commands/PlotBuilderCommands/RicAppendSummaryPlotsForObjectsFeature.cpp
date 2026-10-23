@@ -64,11 +64,61 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 
     caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
+    // Objects that already have a plot of their own are skipped to avoid duplicated plots. Plots showing several objects of the
+    // selected type do not count, as they are not a plot for each single object. Objects appended in this call are added to the set.
+    std::set<std::string> existingObjects;
+    for ( auto sourcePlot : sourcePlots )
+    {
+        RiaSummaryAddressAnalyzer analyzer;
+        analyzer.appendAddresses( RiaSummaryAddressModifier::allSummaryAddressesY( sourcePlot ) );
+
+        std::set<std::string> names;
+        switch ( selectionType )
+        {
+            case RimSummaryAddressCollection::CollectionContentType::WELL:
+                names = analyzer.wellNames();
+                break;
+            case RimSummaryAddressCollection::CollectionContentType::GROUP:
+                names = analyzer.groupNames();
+                break;
+            case RimSummaryAddressCollection::CollectionContentType::NETWORK:
+                names = analyzer.networkNames();
+                break;
+            case RimSummaryAddressCollection::CollectionContentType::REGION:
+                for ( int regionNumber : analyzer.regionNumbers() )
+                {
+                    names.insert( std::to_string( regionNumber ) );
+                }
+                break;
+            default:
+                break;
+        }
+        if ( names.size() == 1 ) existingObjects.insert( *names.begin() );
+    }
+
+    auto isDeduplicatedType = []( RimSummaryAddressCollection::CollectionContentType type )
+    {
+        using CollectionContentType = RimSummaryAddressCollection::CollectionContentType;
+        return type == CollectionContentType::WELL || type == CollectionContentType::GROUP || type == CollectionContentType::NETWORK ||
+               type == CollectionContentType::REGION;
+    };
+
     summaryMultiPlot->startBatchAddOperation();
     RiaPlotWindowRedrawScheduler::instance()->blockUpdate( true );
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
+        if ( isDeduplicatedType( summaryAdrCollection->contentType() ) )
+        {
+            const auto objectName = summaryAdrCollection->name().toStdString();
+            if ( !existingObjects.insert( objectName ).second )
+            {
+                RiaLogging::info( "Skipped appending plots for '" + objectName + "', as it is already present." );
+                info.incrementProgress();
+                continue;
+            }
+        }
+
         auto duplicatedPlots = RiaSummaryPlotTools::duplicateSummaryPlots( plotsForOneInstance );
 
         for ( auto duplicatedPlot : duplicatedPlots )
