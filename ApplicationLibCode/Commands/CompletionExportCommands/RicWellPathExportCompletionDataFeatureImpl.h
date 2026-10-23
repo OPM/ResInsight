@@ -85,18 +85,6 @@ public:
     static std::optional<int> completionNumberForCell( const std::vector<RigCompletionData>& completions );
 
 private:
-    static std::vector<RigCompletionData> generatePerforationsCompdatValues( const RimWellPath*                                wellPath,
-                                                                             const std::vector<const RimPerforationInterval*>& intervals,
-                                                                             const RicExportCompletionDataSettingsUi&          settings,
-                                                                             const std::optional<QDateTime>& exportDate = std::nullopt );
-
-    static RigCompletionData combineEclipseCellCompletions( const std::vector<RigCompletionData>&    completions,
-                                                            const RicExportCompletionDataSettingsUi& settings );
-
-    static std::vector<RigCompletionData> mainGridCompletions( const std::vector<RigCompletionData>& allCompletions );
-
-    static std::map<QString, std::vector<RigCompletionData>> subGridsCompletions( const std::vector<RigCompletionData>& allCompletions );
-
     static void exportWellPathFractureReport( RimEclipseCase*                                   sourceCase,
                                               QFilePtr                                          exportFile,
                                               const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems );
@@ -125,22 +113,5 @@ private:
                                                RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
                                                bool                                                     exportDataSourceAsComment );
 
-    static void exportCompdatTableUsingFormatter( RifTextDataTableFormatter&            formatter,
-                                                  const QString&                        gridName,
-                                                  const std::vector<RigCompletionData>& completionData );
-
-    static void exportComplumpTableUsingFormatter( RifTextDataTableFormatter&            formatter,
-                                                   const QString&                        gridName,
-                                                   const std::vector<RigCompletionData>& completionData );
-
-    static void exportWpimultTableUsingFormatter( RifTextDataTableFormatter&            formatter,
-                                                  const QString&                        gridName,
-                                                  const std::vector<RigCompletionData>& completionData );
-
-    static void appendCompletionData( std::map<size_t, std::vector<RigCompletionData>>* completionData,
-                                      const std::vector<RigCompletionData>&             data );
-
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
-
-    static RimWellPath* topLevelWellPath( const RigCompletionData& completion );
 };
