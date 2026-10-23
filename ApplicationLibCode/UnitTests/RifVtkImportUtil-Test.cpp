@@ -280,3 +280,27 @@ TEST( RifVtkImportUtilTest, ReadProperties_MissingCellDataSection )
     auto properties = RifVtkImportUtil::readProperties( piece );
     EXPECT_TRUE( properties.empty() );
 }
+
+//--------------------------------------------------------------------------------------------------
+// readPointProperties
+//--------------------------------------------------------------------------------------------------
+
+TEST( RifVtkImportUtilTest, ReadPointProperties_SkipsVectorArrays )
+{
+    pugi::xml_document doc;
+    auto               piece = parsePiece( doc, R"(
+        <UnstructuredGrid>
+          <Piece>
+            <PointData>
+              <DataArray type="Float32" Name="pressure" NumberOfComponents="1" format="ascii">1.0 2.0</DataArray>
+              <DataArray type="Float32" Name="disp" NumberOfComponents="3" format="ascii">0 0 0  0 0 0</DataArray>
+            </PointData>
+          </Piece>
+        </UnstructuredGrid>)" );
+
+    auto properties = RifVtkImportUtil::readPointProperties( piece );
+
+    ASSERT_EQ( properties.size(), 1u );
+    ASSERT_TRUE( properties.count( "pressure" ) > 0 );
+    EXPECT_FLOAT_EQ( properties["pressure"][1], 2.0f );
+}
