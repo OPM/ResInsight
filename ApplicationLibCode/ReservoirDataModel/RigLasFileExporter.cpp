@@ -172,23 +172,25 @@ public:
         lasFile->addWellInfo( "DATE", wellLogDate.toStdString() );
 
         const RigWellLogCurveData& firstCurveData = curveDataForFirstCurve();
+        const std::string          depthUnitStr   = depthUnitString( firstCurveData.depthUnit() );
 
+        std::string depthComment = "Depth in Connection number";
         if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
-        {
-            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
-        }
+            depthComment = "Depth in meters";
         else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
-        {
-            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
-        }
-        else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
-        {
-            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
-        }
+            depthComment = "Depth in feet";
+
+        lasFile->AddLog( "DEPTH", depthUnitStr, depthComment, firstCurveData.depths( RiaDefines::DepthType::MEASURED_DEPTH ) );
 
         if ( !firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ).empty() )
         {
-            lasFile->AddLog( "TVDMSL", "M", "True vertical depth in meters", firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
+            std::string tvdmslComment = "True vertical depth";
+            if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+                tvdmslComment = "True vertical depth in meters";
+            else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
+                tvdmslComment = "True vertical depth in feet";
+
+            lasFile->AddLog( "TVDMSL", depthUnitStr, tvdmslComment, firstCurveData.depths( RiaDefines::DepthType::TRUE_VERTICAL_DEPTH ) );
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {
@@ -199,19 +201,8 @@ public:
                     value += m_rkbDiff;
                 }
 
-                if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
-                {
-                    lasFile->AddLog( "TVDRKB", "M", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
-                }
-                else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
-                {
-                    lasFile->AddLog( "TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
-                }
-                else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
-                {
-                    CAF_ASSERT( false );
-                    lasFile->AddLog( "TVDRKB", "", "", tvdrkbValues );
-                }
+                CAF_ASSERT( firstCurveData.depthUnit() != RiaDefines::DepthUnitType::UNIT_NONE );
+                lasFile->AddLog( "TVDRKB", depthUnitStr, "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
             }
         }
 
@@ -222,13 +213,9 @@ public:
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );
 
-        if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
+        if ( firstCurveData.depthUnit() != RiaDefines::DepthUnitType::UNIT_NONE )
         {
-            lasFile->setDepthUnit( "M" );
-        }
-        else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
-        {
-            lasFile->setDepthUnit( "FT" );
+            lasFile->setDepthUnit( depthUnitStr );
         }
 
         double absentValue = SingleLasFileMetaData::createAbsentValue( m_minimumCurveValue );
@@ -246,6 +233,14 @@ private:
         CAF_ASSERT( !m_logCurveData.empty() );
 
         return m_logCurveData[0].curveData();
+    }
+
+    static std::string depthUnitString( RiaDefines::DepthUnitType depthUnit )
+    {
+        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER ) return "M";
+        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET ) return "FT";
+
+        return "";
     }
 
     static double createAbsentValue( double lowestDataValue )
