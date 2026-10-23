@@ -96,6 +96,9 @@ private:
     static QString determineXAxisTitleFromCurveCollection( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr,
                                                            bool                                                 plotOneMinusSgas );
 
+    static std::vector<RigFlowDiagDefines::RelPermCurve>
+        applyOneMinusSgasTransform( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr, bool applyTransform );
+
     void updatePlotOneMinusSgasCheckBoxState();
 
     static void addVerticalSaturationMarkerLine( double                       saturationValue,

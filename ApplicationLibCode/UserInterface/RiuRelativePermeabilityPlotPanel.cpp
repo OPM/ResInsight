@@ -472,24 +472,15 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     // Only apply the 1-SGAS transformation for two-phase gas-water systems
     const bool applyOneMinusSgas = plotOneMinusSgas && RiaPhaseTools::isTwoPhaseGasWater( availablePhases );
 
+    // Use a local, possibly saturation-transformed, copy of the curves for plotting. The same transform is also
+    // applied when generating the exported ascii data, see asciiDataForUiSelectedCurves(), so that the two stay in sync.
+    const std::vector<RigFlowDiagDefines::RelPermCurve> curvesToPlot = applyOneMinusSgasTransform( curveArr, applyOneMinusSgas );
+
     bool shouldEnableRightYAxis = false;
 
-    for ( size_t i = 0; i < curveArr.size(); i++ )
+    for ( size_t i = 0; i < curvesToPlot.size(); i++ )
     {
-        // Use a local, possibly saturation-transformed, copy of the curve for plotting
-        RigFlowDiagDefines::RelPermCurve curveCopy = curveArr[i];
-        if ( applyOneMinusSgas && curveCopy.isGasCurve() )
-        {
-            for ( double& saturationVal : curveCopy.saturationVals )
-            {
-                saturationVal = 1.0 - saturationVal;
-            }
-
-            // Keep x ascending, as required by the interpolation used for the intersection markers
-            std::reverse( curveCopy.saturationVals.begin(), curveCopy.saturationVals.end() );
-            std::reverse( curveCopy.yVals.begin(), curveCopy.yVals.end() );
-        }
-        const RigFlowDiagDefines::RelPermCurve& curve = curveCopy;
+        const RigFlowDiagDefines::RelPermCurve& curve = curvesToPlot[i];
 
         const auto unscaledCurve = ( curve.epsMode == RigFlowDiagDefines::RelPermCurve::EPS_OFF );
 
@@ -727,6 +718,35 @@ QString RiuRelativePermeabilityPlotPanel::determineXAxisTitleFromCurveCollection
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns a copy of curveArr where the saturation values of the gas curves are transformed to 1-SGAS when
+/// applyTransform is true. Used both when plotting the curves and when generating the exported ascii data, so
+/// that the two always stay in sync.
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFlowDiagDefines::RelPermCurve>
+    RiuRelativePermeabilityPlotPanel::applyOneMinusSgasTransform( const std::vector<RigFlowDiagDefines::RelPermCurve>& curveArr,
+                                                                  bool                                                 applyTransform )
+{
+    if ( !applyTransform ) return curveArr;
+
+    std::vector<RigFlowDiagDefines::RelPermCurve> transformedCurves = curveArr;
+    for ( RigFlowDiagDefines::RelPermCurve& curve : transformedCurves )
+    {
+        if ( !curve.isGasCurve() ) continue;
+
+        for ( double& saturationVal : curve.saturationVals )
+        {
+            saturationVal = 1.0 - saturationVal;
+        }
+
+        // Keep x ascending, as required by the interpolation used for the intersection markers
+        std::reverse( curve.saturationVals.begin(), curve.saturationVals.end() );
+        std::reverse( curve.yVals.begin(), curve.yVals.end() );
+    }
+
+    return transformedCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Add a vertical labeled marker line at the specified saturation value
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine( double                       saturationValue,
@@ -827,6 +847,10 @@ QString RiuRelativePermeabilityPlotPanel::asciiDataForUiSelectedCurves() const
 {
     std::vector<RigFlowDiagDefines::RelPermCurve> selectedCurves = gatherUiSelectedCurves();
 
+    // Apply the same saturation transform as used when plotting, so the exported data matches the graph
+    const bool applyOneMinusSgas = m_plotOneMinusSgasCheckBox->isChecked() && RiaPhaseTools::isTwoPhaseGasWater( m_availablePhases );
+    selectedCurves               = applyOneMinusSgasTransform( selectedCurves, applyOneMinusSgas );
+
     QString outTxt;
 
     // Info header
@@ -842,7 +866,7 @@ QString RiuRelativePermeabilityPlotPanel::asciiDataForUiSelectedCurves() const
         if ( curve.isWaterCurve() )
             outTxt += "SWAT";
         else if ( curve.isGasCurve() )
-            outTxt += "SGAS";
+            outTxt += applyOneMinusSgas ? "1-SGAS" : "SGAS";
         else
             outTxt += "Saturation";
         outTxt += "\t";
