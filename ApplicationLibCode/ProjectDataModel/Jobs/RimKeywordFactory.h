@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "ReservoirDataModel/SimulationFile/RigSimulationInputTool.h"
+#include "ReservoirDataModel/SimulationFile/RigSimulationInputNncTools.h"
 
 #include "cvfVector3.h"
 
@@ -79,7 +79,7 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
                                   std::string          inputProperty,
                                   std::optional<float> alpha = std::nullopt,
                                   std::optional<float> beta  = std::nullopt );
-Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputTool::TransformedNNCConnection>& connections );
+Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputNncTools::TransformedNNCConnection>& connections );
 
 Opm::DeckKeyword datesKeyword( const QDateTime& date );
 QString          deckKeywordToString( const Opm::DeckKeyword& keyword );
