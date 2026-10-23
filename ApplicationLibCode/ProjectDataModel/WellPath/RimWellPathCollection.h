@@ -174,6 +174,7 @@ private:
     std::expected<std::vector<RimFileWellPath*>, QString> addWellPathsForFile( const QString& filePath );
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
+    void                                        assignUnitSystem( RimWellPath* wellPath );
 
     std::vector<RimWellPath*>                    wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
     std::map<QString, std::vector<RimWellPath*>> wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;

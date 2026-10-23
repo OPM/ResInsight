@@ -78,8 +78,6 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
             auto                      newModeledWellPath = new RimModeledWellPath();
             newWellPaths.push_back( newModeledWellPath );
 
-            newModeledWellPath->setUnitSystem( project->commonUnitSystemForAllCases() );
-
             RimFileWellPath* sourceWellPath           = caf::SelectionManager::instance()->selectedItemOfType<RimFileWellPath>();
             bool             enableTargetPointPicking = !copyWellPathGeometry( sourceWellPath, newModeledWellPath );
 

@@ -389,9 +389,37 @@ std::expected<std::vector<RimFileWellPath*>, QString> RimWellPathCollection::add
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
 {
+    assignUnitSystem( wellPath );
     m_wellPaths.push_back( wellPath );
 
     rebuildWellPathNodes();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Single place where the unit system of a new well path is decided
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::assignUnitSystem( RimWellPath* wellPath )
+{
+    if ( !wellPath ) return;
+
+    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+
+    if ( wellPath->wellPathTieIn() && wellPath->wellPathTieIn()->parentWell() )
+    {
+        // Laterals use the same unit system as their parent
+        unitSystem = wellPath->wellPathTieIn()->parentWell()->unitSystem();
+    }
+    else if ( dynamic_cast<RimFileWellPath*>( wellPath ) )
+    {
+        // Files have no unit information, so use the case the well path is located in
+        unitSystem = findUnitSystemForWellPath( wellPath );
+    }
+    else
+    {
+        unitSystem = RimProject::current()->commonUnitSystemForAllCases();
+    }
+
+    wellPath->setUnitSystem( unitSystem );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,7 +468,6 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
         wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
-        wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
         addWellPath( wellPath );
         addedWellPaths.push_back( wellPath );
 
@@ -1309,6 +1336,12 @@ void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* child
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
+    // Well paths created from Python are added directly to the child field
+    if ( containerForNewObject == &m_wellPaths && !m_wellPaths.empty() )
+    {
+        assignUnitSystem( m_wellPaths.childrenByType().back() );
+    }
+
     rebuildWellPathNodes();
 
     scheduleRedrawAffectedViews();
