@@ -145,62 +145,57 @@ bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCou
 /// Restore all previous revisions of a project file stored in the backup database to the destination folder.
 /// Each revision is written to a separate file named by its timestamp.
 //--------------------------------------------------------------------------------------------------
-bool extractVersionsToFolder( const QString& databaseFilePath, const QString& destinationFolder, int* numberOfFilesWritten, QString* errorMessage )
+std::expected<QStringList, QString> extractVersionsToFolder( const QString& databaseFilePath, const QString& destinationFolder )
 {
-    if ( numberOfFilesWritten ) *numberOfFilesWritten = 0;
-
-    auto setError = [errorMessage]( const QString& message )
+    auto fail = []( const QString& message ) -> std::expected<QStringList, QString>
     {
-        if ( errorMessage ) *errorMessage = message;
         RiaLogging::error( message.toStdString() );
+        return std::unexpected( message );
     };
 
     if ( !QFile::exists( databaseFilePath ) )
     {
-        setError( "Backup database file does not exist: " + databaseFilePath );
-        return false;
+        return fail( "Backup database file does not exist: " + databaseFilePath );
     }
 
     QDir dir;
     if ( !dir.mkpath( destinationFolder ) )
     {
-        setError( "Not able to create destination folder: " + destinationFolder );
-        return false;
+        return fail( "Not able to create destination folder: " + destinationFolder );
     }
 
     const QString databaseType = "QSQLITE";
     if ( !QSqlDatabase::isDriverAvailable( databaseType ) )
     {
-        setError( "sqlite database driver is not available." );
-        return false;
+        return fail( "sqlite database driver is not available." );
     }
 
     // Use a dedicated named connection to avoid interfering with the default connection used when writing backups.
     const QString connectionName = "RiaProjectBackupToolsRestoreConnection";
 
-    bool success = true;
+    std::expected<QStringList, QString> result;
     {
         QSqlDatabase db = QSqlDatabase::addDatabase( databaseType, connectionName );
         db.setDatabaseName( databaseFilePath );
 
         if ( !db.open() )
         {
-            setError( "Error opening backup database: " + db.lastError().text() );
+            auto error = fail( "Error opening backup database: " + db.lastError().text() );
+            db         = QSqlDatabase();
             QSqlDatabase::removeDatabase( connectionName );
-            return false;
+            return error;
         }
 
         QSqlQuery query( db );
         query.prepare( "SELECT timestamp, content FROM file_versions ORDER BY timestamp ASC" );
         if ( !query.exec() )
         {
-            setError( "Error retrieving content from backup database: " + query.lastError().text() );
-            success = false;
+            result = fail( "Error retrieving content from backup database: " + query.lastError().text() );
         }
         else
         {
             const QString dateFormat = "yyyy-MM-dd_hh-mm-ss";
-            int           fileCount  = 0;
+            QStringList   restoredFiles;
 
             while ( query.next() )
             {
@@ -208,11 +203,15 @@ bool extractVersionsToFolder( const QString& databaseFilePath, const QString& de
                 QString   projectContent = query.value( 1 ).toString();
 
                 QString filename = destinationFolder + "/" + timestamp.toString( dateFormat ) + ".rsp";
-                QFile   file( filename );
+                // Versions saved within the same second must not overwrite each other
+                for ( int suffix = 2; restoredFiles.contains( filename ); suffix++ )
+                {
+                    filename = destinationFolder + "/" + timestamp.toString( dateFormat ) + QString( "_%1.rsp" ).arg( suffix );
+                }
+                QFile file( filename );
                 if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
                 {
-                    setError( "Error opening file for writing: " + filename );
-                    success = false;
+                    result = fail( "Error opening file for writing: " + filename );
                     break;
                 }
 
@@ -220,17 +219,16 @@ bool extractVersionsToFolder( const QString& databaseFilePath, const QString& de
                 out << projectContent;
                 file.close();
 
-                fileCount++;
+                restoredFiles.append( filename );
             }
 
-            if ( numberOfFilesWritten ) *numberOfFilesWritten = fileCount;
+            if ( result.has_value() ) result = restoredFiles;
         }
 
         db.close();
     }
     QSqlDatabase::removeDatabase( connectionName );
 
-    return success;
+    return result;
 }
-
 } // namespace RiaProjectBackupTools
