@@ -48,6 +48,12 @@
 
 CAF_PDM_SOURCE_INIT( RimRftTornadoPlot, "RftTornadoPlot" );
 
+namespace
+{
+constexpr double axisMinAbsolute = -0.7;
+constexpr double anchorMargin    = 0.03;
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -225,8 +231,8 @@ void RimRftTornadoPlot::updateAxes()
     if ( m_showAbsoluteValues() )
     {
         m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient ABS" );
-        // Use a small negative margin so bar label text (anchored at x=0) remains visible
-        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), -0.15, 1.0 );
+        // Leave room left of zero for the bar labels
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), axisMinAbsolute, 1.0 );
     }
     else
     {
@@ -320,6 +326,10 @@ void RimRftTornadoPlot::onLoadDataAndUpdate()
         m_lastCorrelations  = addDataToChartBuilder( chartBuilder );
         const int labelSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
         chartBuilder.setLabelFontSize( labelSize );
+        // Labels start at the left edge of the plot, in the empty space left of the bars. The anchor must be slightly inside
+        // the axis range, as Qwt skips scale items positioned outside the canvas. Only used for absolute values, as signed
+        // values have bars on both sides of zero.
+        if ( m_showAbsoluteValues() ) chartBuilder.setBarTextAnchor( axisMinAbsolute + anchorMargin );
         RiuRftCorrelationPlotTools::addHorizontalBarChart( m_plotWidget, chartBuilder, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         RimCorrelationBarChartTools::highlightSelectedParameterBar( m_plotWidget,
                                                                     m_selectedParameter,

@@ -25,6 +25,7 @@
 
 #include <limits>
 #include <map>
+#include <optional>
 #include <set>
 
 class QwtPlot;
@@ -49,6 +50,10 @@ public:
 
     void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation, int maxBarCount = -1 );
     void setLabelFontSize( int labelPointSize );
+
+    // For horizontal bar charts: left-align the bar texts at the given value axis position instead of
+    // placing them next to the bars
+    void setBarTextAnchor( double valueAxisPosition );
 
     QString plotContentAsText() const;
 
@@ -91,6 +96,7 @@ private:
     bool                    m_isSortingByMaxValueInGroups;
     int                     m_labelPointSize;
 
-    bool   m_useBarColor = false;
-    QColor m_barColor;
+    std::optional<double> m_barTextAnchor;
+    bool                  m_useBarColor = false;
+    QColor                m_barColor;
 };

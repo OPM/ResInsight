@@ -367,6 +367,8 @@ void RiuGroupedBarChartBuilder::setBarColor( const QColor& color )
 //--------------------------------------------------------------------------------------------------
 void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation barOrientation, int maxBarCount )
 {
+    const bool showBarTextAtAnchor = m_barTextAnchor.has_value() && barOrientation == Qt::Horizontal;
+
     const double majGroupSpacing = 1.6;
     const double midGroupSpacing = 0.5;
     const double minGroupSpacing = 0.2;
@@ -629,8 +631,19 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         barPoints->push_back( { currentBarPosition, barDef.m_value } );
         if ( !barDef.m_barText.isEmpty() )
         {
+            QString barText = barDef.m_barText;
+            if ( showBarTextAtAnchor )
+            {
+                // Long labels are shortened in the middle to limit the space used inside the plot
+                const int maxLabelLength = 26;
+                if ( barText.size() > maxLabelLength )
+                {
+                    barText = barText.left( 10 ) + QString::fromUtf8( "…" ) + barText.right( maxLabelLength - 11 );
+                }
+            }
+
             positionedBarLabels[currentBarPosition] =
-                RiuBarChartScaleDraw::RiuBarChartTick( QwtScaleDiv::MinorTick, barDef.m_barText, barDef.m_value < 0.0 );
+                RiuBarChartScaleDraw::RiuBarChartTick( QwtScaleDiv::MinorTick, barText, !showBarTextAtAnchor && barDef.m_value < 0.0 );
         }
 
         // Increment the bar position for the next bar
@@ -797,10 +810,17 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         QwtScaleDraw::Alignment alignment      = QwtScaleDraw::TopScale;
         double                  labelRotation  = -90.0;
         Qt::Alignment           labelAlignment = Qt::AlignVCenter | Qt::AlignRight;
+        double                  scalePosition  = 0.0;
         if ( barOrientation == Qt::Horizontal )
         {
             alignment     = QwtScaleDraw::RightScale;
             labelRotation = 0.0;
+        }
+
+        if ( showBarTextAtAnchor )
+        {
+            // Labels start at the anchor position and extend to the right
+            scalePosition = *m_barTextAnchor;
         }
 
         QwtScaleDiv barTextScaleDiv( 0, currentBarPosition );
@@ -826,7 +846,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         barTextScaleDrawer->setLabelRotation( labelRotation );
         barTextScaleDrawer->setLabelAlignment( labelAlignment );
 
-        QwtPlotScaleItem* barTextScale = new QwtPlotScaleItem( alignment, 0.0 );
+        QwtPlotScaleItem* barTextScale = new QwtPlotScaleItem( alignment, scalePosition );
         barTextScale->setScaleDraw( barTextScaleDrawer );
         barTextScale->setScaleDiv( barTextScaleDiv );
         barTextScale->attach( plot );
@@ -840,6 +860,14 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 void RiuGroupedBarChartBuilder::setLabelFontSize( int labelPointSize )
 {
     m_labelPointSize = labelPointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGroupedBarChartBuilder::setBarTextAnchor( double valueAxisPosition )
+{
+    m_barTextAnchor = valueAxisPosition;
 }
 
 //--------------------------------------------------------------------------------------------------
