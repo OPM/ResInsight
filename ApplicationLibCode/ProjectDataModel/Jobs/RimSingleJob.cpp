@@ -1,0 +1,256 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimSingleJob.h"
+
+#include "RiaColorTools.h"
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
+#include "RiaQStringFormatter.h"
+
+#include "Batch/RimBatchQueue.h"
+#include "RimJobMonitor.h"
+#include "RimProcess.h"
+#include "RimProcessQueue.h"
+
+#include "RiuGuiTheme.h"
+
+#include "cafPdmUiTreeAttributes.h"
+#include "cafProgressInfo.h"
+
+#include <QMessageBox>
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSingleJob, "SingleJob" ); // Do not use. Abstract class
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSingleJob::RimSingleJob()
+    : m_percentageDone( 0.0 )
+    , m_errorsDetected( 0 )
+    , m_warningsDetected( 0 )
+    , m_process( nullptr )
+    , m_queue( nullptr )
+{
+    CAF_PDM_InitObject( "Generic Single Job" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSingleJob::~RimSingleJob()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSingleJob::percentageDone() const
+{
+    return m_percentageDone;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSingleJob::stop()
+{
+    if ( isRunning() && m_queue != nullptr )
+    {
+        m_queue->stopProcess();
+        RiaLogging::info( std::format( "Stop job \"{}\" requested by user.", name() ) );
+    }
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSingleJob::execute()
+{
+    if ( isRunning() ) return false;
+
+    m_errorsDetected   = 0;
+    m_warningsDetected = 0;
+    m_percentageDone   = 0.0;
+    m_process          = nullptr;
+
+    setState( JobState::Idle );
+
+    onProgress( m_percentageDone );
+
+    // job preparations
+    {
+        caf::ProgressInfo prepProgress( 1, name(), false );
+
+        auto prepRun = prepProgress.task( "Preparing for run, please wait..." );
+
+        if ( !onPrepare() )
+        {
+            setFinished( false );
+            return false;
+        }
+    }
+
+    // check if we should run
+    if ( !onRun() ) return false;
+
+    QStringList cmdLine = command();
+    if ( cmdLine.isEmpty() )
+    {
+        setFinished( false );
+        return false;
+    }
+
+    // cannot delete job while running
+    setDeletable( false );
+    setState( JobState::Queued );
+
+    m_process = std::make_shared<RimProcess>( true /*log output*/, std::make_shared<RimJobMonitor>( this ) );
+
+    // on windows, should run using wsl?
+    m_process->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
+
+    m_process->setDescription( name() );
+
+    // build process to run
+    QString cmd = cmdLine.takeFirst();
+    m_process->setCommand( cmd );
+
+    if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
+    m_process->setWorkingDirectory( workingDirectory() );
+
+    m_queue.reset( RimBatchQueue::createBatchQueue() );
+
+    m_queue->queueProcess( m_process, numberOfProcesses() );
+    onProgress( m_percentageDone );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSingleJob::setFinished( bool runOk )
+{
+    RimGenericJob::setFinished( runOk );
+
+    m_percentageDone = 100.0;
+    onProgress( m_percentageDone );
+    setDeletable( !isChildJob() );
+
+    onCompleted( runOk );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSingleJob::setStarted()
+{
+    setState( RimSingleJob::JobState::Running );
+    onProgress( m_percentageDone );
+    RimGenericJob::setStarted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
+{
+    std::vector<caf::PdmUiTreeViewItemTag> tagsToReturn;
+
+    static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
+    static auto contrastWarnColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
+
+    static auto waitColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) );
+    static auto contrastWaitColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) ) );
+
+    if ( state() == JobState::Failed )
+    {
+        auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
+        auto tag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
+        tagsToReturn.push_back( std::move( tag ) );
+    }
+    else if ( state() == JobState::Queued )
+    {
+        auto tag    = caf::PdmUiTreeViewItemTag::create();
+        tag.text    = "Waiting...";
+        tag.bgColor = waitColor;
+        tag.fgColor = contrastWaitColor;
+        tagsToReturn.push_back( std::move( tag ) );
+    }
+    else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
+    {
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+
+        if ( state() == JobState::Running )
+        {
+            if ( m_percentageDone == 0.0 )
+            {
+                tag.text = "Submitted";
+            }
+            else
+            {
+                tag.text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
+            }
+        }
+        else
+        {
+            tag.text = "Done";
+        }
+
+        double factor = m_percentageDone / 100.0;
+
+        cvf::Color3f viewColor = cvf::Color3f( cvf::Color3f::GREEN );
+        viewColor.set( viewColor.r() * factor, viewColor.g() * factor, viewColor.b() * factor );
+        cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+        tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
+        tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        tagsToReturn.push_back( std::move( tag ) );
+
+        if ( ( state() == JobState::Running ) && !isChildJob() )
+        {
+            auto timeTag = caf::PdmUiTreeViewItemTag::create( QColor( Qt::black ), QColor( Qt::white ), runTimeString() );
+            tagsToReturn.push_back( std::move( timeTag ) );
+        }
+    }
+    if ( m_warningsDetected > 0 )
+    {
+        auto warnTxt = QString( "[%1]" ).arg( m_warningsDetected );
+
+        auto warnTag = caf::PdmUiTreeViewItemTag::create( warnColor, contrastWarnColor, warnTxt );
+        tagsToReturn.push_back( std::move( warnTag ) );
+        auto iconTag = caf::PdmUiTreeViewItemTag::create();
+        iconTag.icon = caf::IconProvider( ":/warning.png" );
+        tagsToReturn.push_back( std::move( iconTag ) );
+    }
+
+    return tagsToReturn;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QStringList RimSingleJob::jobLog() const
+{
+    if ( m_process == nullptr ) return QStringList();
+    return m_process->stdOut();
+}

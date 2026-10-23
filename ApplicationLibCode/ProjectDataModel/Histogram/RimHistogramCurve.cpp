@@ -557,7 +557,7 @@ void RimHistogramCurve::loadAndUpdateDataAndPlot()
     plot->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    mainPlotWindow->updateMultiPlotToolBar();
+    if ( mainPlotWindow ) mainPlotWindow->updateMultiPlotToolBar();
 
     dataChanged.send();
 }

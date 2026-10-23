@@ -57,6 +57,7 @@ public:
     static QString mainWindowPropertyEditorName();
     static QString mainWindowResultInfoName();
     static QString mainWindowProcessMonitorName();
+    static QString mainWindowBatchQueueMonitorName();
     static QString mainWindowResultPlotName();
     static QString mainWindowDepthPlotName();
     static QString mainWindowRelPermPlotName();
@@ -83,6 +84,7 @@ public:
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
     static QString plotMainWindowPlotManagerName();
+    static QString plotMainWindowCurveAppearanceName();
     static QString plotWindowQuickAccessName();
 
     static QString dockState3DEclipseName();

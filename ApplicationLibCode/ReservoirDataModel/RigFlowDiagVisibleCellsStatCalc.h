@@ -41,13 +41,13 @@ public:
                                      const RigFlowDiagResultAddress& resVarAddr,
                                      const cvf::UByteArray*          cellVisibilities );
 
-    void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
-    void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
-    void   valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;
-    void   addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator ) override;
-    void   uniqueValues( size_t timeStepIndex, std::set<int>& values ) override;
-    size_t timeStepCount() override;
-    void   mobileVolumeWeightedMean( size_t timeStepIndex, double& result ) override;
+    void                  minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
+    void                  posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
+    void                  valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;
+    void                  addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator ) override;
+    void                  uniqueValues( size_t timeStepIndex, std::set<int>& values ) override;
+    size_t                timeStepCount() override;
+    std::optional<double> mobileVolumeWeightedMean( size_t timeStepIndex ) override;
 
 private:
     RigFlowDiagResults*        m_resultsData;

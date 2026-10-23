@@ -213,3 +213,42 @@ TEST( PdmPythonGenerator, ReportsAmbiguousEnumClassNames )
     EXPECT_TRUE( errorMessages.front().contains( "AlternativeEnumValue" ) );
     EXPECT_TRUE( errorMessages.front().contains( "PdmScriptEnumNameRegistry" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, RejectsDuplicateEnumClassNames )
+{
+    CollisionTestPdmObject::setUseCollisionEnumField( true );
+
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    CollisionTestPdmObject::setUseCollisionEnumField( false );
+
+    ASSERT_EQ( 1u, errorMessages.size() );
+    EXPECT_TRUE( generatedCode.isEmpty() );
+    EXPECT_TRUE( errorMessages.front().contains( "Duplicate Python enum class name 'MyAppEnumValue'" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "InheritedDemoObj.MyAppEnumValue" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "CollisionTestPdmObject.MyAppEnumValue" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "shared header" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, RejectsEnumClassNamesThatConflictWithModuleNames )
+{
+    CollisionTestPdmObject::setUseReservedNameEnumField( true );
+
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    CollisionTestPdmObject::setUseReservedNameEnumField( false );
+
+    ASSERT_EQ( 1u, errorMessages.size() );
+    EXPECT_TRUE( generatedCode.isEmpty() );
+    EXPECT_TRUE( errorMessages.front().contains( "enum class name 'Type'" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "CollisionTestPdmObject.Type" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "PdmScriptEnumNameRegistry" ) );
+}

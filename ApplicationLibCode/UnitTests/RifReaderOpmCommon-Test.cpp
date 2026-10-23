@@ -23,7 +23,12 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaTestDataDirectory.h"
 
+#include "RigEclipseCaseData.h"
+
 #include "opm/io/eclipse/ERst.hpp"
+
+#include <QFile>
+#include <QTemporaryDir>
 
 #include <filesystem>
 #include <stdexcept>
@@ -90,4 +95,25 @@ TEST( RifReaderOpmCommon, RestartDataSize )
 
     EXPECT_EQ( 0, RifReaderOpmCommon::restartDataSize( restartFile, "XXXX", reportStep ) );
     EXPECT_THROW( RifReaderOpmCommon::restartDataSize( restartFile, "PRESSURE", 99 ), std::invalid_argument );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifReaderOpmCommon, EmptyRestartFile )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString sourceGrid = QString( TEST_MODEL_DIR ) + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID";
+    const QString gridFile   = tempDir.filePath( "EMPTY_RESTART.EGRID" );
+    ASSERT_TRUE( QFile::copy( sourceGrid, gridFile ) );
+
+    QFile restartFile( tempDir.filePath( "EMPTY_RESTART.UNRST" ) );
+    ASSERT_TRUE( restartFile.open( QIODevice::WriteOnly ) );
+    restartFile.close();
+
+    cvf::ref<RigEclipseCaseData> caseData = new RigEclipseCaseData( nullptr );
+    cvf::ref<RifReaderOpmCommon> reader   = new RifReaderOpmCommon;
+    EXPECT_TRUE( reader->open( gridFile, caseData.p() ) );
 }

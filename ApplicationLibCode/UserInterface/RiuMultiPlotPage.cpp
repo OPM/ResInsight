@@ -68,6 +68,15 @@
 #include <cmath>
 #include <optional>
 
+namespace
+{
+bool useCommonLegend( const RimPlotWindow* plotWindow )
+{
+    auto multiPlot = dynamic_cast<const RimMultiPlot*>( plotWindow );
+    return multiPlot && multiPlot->useCommonLegend();
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -360,6 +369,22 @@ void RiuMultiPlotPage::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setHostsCommonLegend( bool hostsCommonLegend )
+{
+    m_hostsCommonLegend = hostsCommonLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// With a common legend, the legends of the individual sub plots are not displayed
+//--------------------------------------------------------------------------------------------------
+bool RiuMultiPlotPage::showSubPlotLegends() const
+{
+    return !useCommonLegend( m_plotDefinition );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::updateSubTitles()
 {
     for ( int i = 0; i < m_plotWidgets.size(); ++i )
@@ -404,11 +429,18 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
     for ( auto legend : legendsForVisiblePlots() )
     {
-        if ( legend )
+        if ( legend && !legend->isHidden() )
         {
             QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
             legend->render( painter, renderOffset );
         }
+    }
+
+    if ( m_commonLegend && !m_commonLegend->isHidden() )
+    {
+        // The common legend is a direct child of the page, not of the plot widget frame
+        QPoint renderOffset = m_commonLegend->frameGeometry().topLeft() - marginOffset;
+        m_commonLegend->render( painter, renderOffset );
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
@@ -483,6 +515,10 @@ bool RiuMultiPlotPage::hasHeightForWidth() const
 //--------------------------------------------------------------------------------------------------
 int RiuMultiPlotPage::heightForWidth( int width ) const
 {
+    // The page aspect ratio is only relevant in page preview mode. Otherwise, a parent scroll area (e.g. a dock widget) will size the
+    // page taller than the visible area, and the bottom of the plot is clipped.
+    if ( !m_previewMode ) return -1;
+
     QPageLayout pageLayout  = m_plotDefinition->pageLayout();
     QRectF      rect        = pageLayout.fullRectPoints();
     double      aspectRatio = rect.height() / rect.width();
@@ -607,9 +643,19 @@ void RiuMultiPlotPage::onLegendUpdated()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::refreshLegends()
 {
+    // The common legend is rebuilt from the sub plot legend data. A full layout rebuild here could trigger new legend
+    // data changes in the plots, and thereby an endless update loop
+    if ( useCommonLegend( m_plotDefinition ) ) updateCommonLegend();
+
     QList<QPointer<RiuQwtPlotLegend>> legends = legendsForVisiblePlots();
     for ( const auto& l : legends )
     {
+        if ( !l ) continue;
+        if ( !showSubPlotLegends() )
+        {
+            l->hide();
+            continue;
+        }
         l->setVisible( !l->isEmpty() );
         updateLegendFont( l );
     }
@@ -664,6 +710,67 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             reinsertPlotWidget( plotWidget, legend, legendFrame, subTitle, row, column, rowSpan, colSpan );
         }
     }
+
+    updateCommonLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Build one legend from the legend data of all sub plots. Entries with identical title and icon are merged.
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateCommonLegend()
+{
+    if ( m_commonLegend ) m_layout->removeWidget( m_commonLegend );
+
+    bool isActive = useCommonLegend( m_plotDefinition ) && m_hostsCommonLegend && m_plotDefinition->legendsVisible();
+    if ( !isActive )
+    {
+        if ( m_commonLegend ) m_commonLegend->hide();
+        return;
+    }
+
+    if ( !m_commonLegend )
+    {
+        m_commonLegend = new RiuQwtPlotLegend( this );
+        m_commonLegend->horizontalScrollBar()->setVisible( false );
+        m_commonLegend->verticalScrollBar()->setVisible( false );
+        m_commonLegend->setDefaultItemMode( QwtLegendData::ReadOnly );
+        m_commonLegend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+        m_commonLegend->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    }
+
+    for ( int i = 0; i < m_commonLegendItemCount; i++ )
+    {
+        m_commonLegend->updateLegend( QVariant( i ), {} );
+    }
+    m_commonLegendItemCount = 0;
+
+    std::vector<QwtPlot*> qwtPlots;
+    for ( auto plotWidget : visiblePlotWidgets() )
+    {
+        if ( plotWidget->plotDefinition() && !plotWidget->plotDefinition()->legendsVisible() ) continue;
+
+        if ( auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget.data() ) )
+        {
+            qwtPlots.push_back( qwtPlotWidget->qwtPlot() );
+        }
+    }
+
+    for ( const auto& legendData : RiuQwtPlotTools::uniqueLegendData( qwtPlots ) )
+    {
+        m_commonLegend->updateLegend( QVariant( m_commonLegendItemCount++ ), legendData );
+    }
+
+    if ( m_commonLegendItemCount == 0 )
+    {
+        m_commonLegend->hide();
+        return;
+    }
+
+    // The common legend is placed below the title, centered above all sub plots
+    m_layout->insertWidget( 1, m_commonLegend, 0, Qt::AlignHCenter );
+    updateLegendColumns( m_commonLegend );
+    updateLegendFont( m_commonLegend );
+    m_commonLegend->show();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -678,6 +785,17 @@ void RiuMultiPlotPage::reinsertPlotWidget( RiuPlotWidget*            plotWidget,
                                            int                       rowSpan,
                                            int                       colSpan )
 {
+    if ( !showSubPlotLegends() )
+    {
+        if ( legend ) legend->hide();
+        if ( legendFrame )
+        {
+            legendFrame->hide();
+            plotWidget->removeOverlayFrame( legendFrame );
+        }
+        legend = nullptr;
+    }
+
     m_gridLayout->addWidget( subTitle, 3 * row, column, 1, colSpan );
 
     addLegendWidget( plotWidget, legend, legendFrame, 3 * row + 1, column, colSpan );

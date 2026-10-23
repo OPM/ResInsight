@@ -60,11 +60,15 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
-                                             double                                        maxSegmentLength,
                                              const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                              RicWellPathExportMswTableData::CompletionType completionType,
                                              const std::optional<QDateTime>&               exportDate );
 
-RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem );
+//--------------------------------------------------------------------------------------------------
+/// Collect the table data of the export. The segment of each COMPSEGS row is written to ISEG if
+/// exportSegmentNumbers is set, otherwise the simulator assigns the segment.
+//--------------------------------------------------------------------------------------------------
+RigMswTableData
+    collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem, bool exportSegmentNumbers = false );
 
 } // namespace RicWellPathExportMswGeometryPath

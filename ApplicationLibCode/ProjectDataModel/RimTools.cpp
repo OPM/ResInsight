@@ -32,11 +32,13 @@
 #include "RimColorLegendCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
@@ -373,6 +375,21 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
             {
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::reservoirGridEnsembleOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    if ( !options ) return;
+    if ( RimProject* proj = RimProject::current() )
+    {
+        for ( auto ensemble : proj->activeOilField()->analysisModels()->reservoirGridEnsembles.childrenByType() )
+        {
+            options->push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble ) );
         }
     }
 }

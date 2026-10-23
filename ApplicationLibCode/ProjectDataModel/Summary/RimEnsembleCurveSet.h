@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
@@ -98,11 +99,13 @@ public:
 
     QString name() const;
 
-    bool   isCurvesVisible() const;
-    void   setColor( cvf::Color3f color );
-    void   setStatisticsColor( const cvf::Color3f& color );
-    void   enableStatisticsLables( bool enable );
-    QColor mainEnsembleColor() const;
+    bool         isCurvesVisible() const;
+    void         setColor( cvf::Color3f color );
+    void         setColorAndUpdateCurves( cvf::Color3f color );
+    cvf::Color3f color() const;
+    void         setStatisticsColor( const cvf::Color3f& color );
+    void         enableStatisticsLables( bool enable );
+    QColor       mainEnsembleColor() const;
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );
@@ -209,7 +212,6 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     std::set<time_t>                       allAvailableTimeSteps() const;
@@ -223,8 +225,8 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+    void                                   childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     void updatePlotAxis();
 

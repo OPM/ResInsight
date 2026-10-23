@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaSeismicDefines.h"
 
+#include "RimGeneric3dView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSeismicData.h"
@@ -75,7 +76,12 @@ RimSeismicView* RicNewSeismicViewFeature::createInitialViewIfNeeded( RimSeismicD
 {
     auto proj = RimProject::current();
 
-    if ( !proj->allViews().empty() ) return nullptr;
+    // Only auto-create when the project has no 3D view at all, but ignore any auto-created data view -
+    // that view has no seismic content, and importing seismic should still get its own view.
+    for ( auto view : proj->allViews() )
+    {
+        if ( !dynamic_cast<RimGeneric3dView*>( view ) ) return nullptr;
+    }
 
     return createSeismicView( seisData );
 }

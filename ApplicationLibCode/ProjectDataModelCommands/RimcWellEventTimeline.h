@@ -20,6 +20,7 @@
 
 #include "RimKeywordEvent.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventInsertDate.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
 #include "RimWellEventState.h"
@@ -137,12 +138,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellEventTimeline_addTubingEvent : public caf::PdmObjectCreationMethod
+class RimcWellEventTimeline_addSegmentEvent : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellEventTimeline_addTubingEvent( caf::PdmObjectHandle* self );
+    RimcWellEventTimeline_addSegmentEvent( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
@@ -154,6 +155,9 @@ private:
     caf::PdmField<double>          m_endMd;
     caf::PdmField<double>          m_innerDiameter;
     caf::PdmField<double>          m_roughness;
+    caf::PdmField<double>          m_fixedSegmentLength;
+    caf::PdmField<double>          m_minSegmentLength;
+    caf::PdmField<double>          m_maxSegmentLength;
 };
 
 //==================================================================================================
@@ -176,6 +180,7 @@ private:
     caf::PdmField<bool>                                                  m_allowCrossFlow;
     caf::PdmField<std::optional<double>>                                 m_referenceDepth;
     caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_wellType;
+    caf::PdmField<QString>                                               m_pressureDrop;
 };
 
 //==================================================================================================
@@ -245,6 +250,24 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcWellEventTimeline_addInsertDateEvent : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_addInsertDateEvent( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_eventDate;
+    caf::PdmField<QString> m_comment;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcWellEventTimeline_setTimestamp : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
@@ -276,5 +299,43 @@ private:
     caf::PdmPtrArrayField<RimWellPath*> m_exportMswForWells;
     caf::PdmField<bool>                 m_firstDateAsComment;
     caf::PdmField<bool>                 m_alignColumns;
-    caf::PdmField<std::vector<QString>> m_additionalDates;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_eventDates : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_eventDates( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>              m_startDate;
+    caf::PdmField<QString>              m_endDate;
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<std::vector<QString>> m_eventTypes;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_wellsWithEvents : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_wellsWithEvents( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>              m_startDate;
+    caf::PdmField<QString>              m_endDate;
+    caf::PdmField<std::vector<QString>> m_eventTypes;
 };

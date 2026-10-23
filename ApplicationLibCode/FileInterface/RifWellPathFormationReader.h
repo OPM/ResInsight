@@ -20,11 +20,8 @@
 
 #include "Well/RigWellPathFormations.h"
 
+#include <expected>
 #include <map>
-#include <utility>
-#include <vector>
-
-#include "cvfObject.h"
 
 #include <QString>
 
@@ -34,14 +31,10 @@
 class RifWellPathFormationReader
 {
 public:
-    static std::map<QString, cvf::ref<RigWellPathFormations>> readWellFormationsToGeometry( const QString& filePath );
+    using WellFormations = std::map<QString /*wellName*/, RigWellPathFormations>;
 
-private:
-    static void readFile( const QString&        filePath,
-                          std::vector<QString>* wellNames,
-                          std::vector<QString>* formationNames,
-                          std::vector<double>*  mdTop,
-                          std::vector<double>*  mdBase,
-                          std::vector<double>*  tvdTop,
-                          std::vector<double>*  tvdBase );
+    // If zoneOrder is given, it receives the unique zone names in order of first appearance in the file
+    static std::expected<WellFormations, QString> readWellFormations( const QString& filePath, QStringList* zoneOrder = nullptr );
+    static std::expected<WellFormations, QString>
+        parseWellFormations( const QString& content, const QString& filePath, QStringList* zoneOrder = nullptr );
 };

@@ -1,10 +1,12 @@
 import sys
 import os
+import pytest
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot
+import rips
 from rips import PressureDrop, ReferenceMdType, WellTypeForExport
 
 
@@ -185,11 +187,40 @@ def test_msw_export(rips_instance, initialize_test):
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
 
     # Export MSW data
-    case.export_msw(well_path=well_y1.name)
+    with pytest.warns(DeprecationWarning):
+        case.export_msw(well_path=well_y1.name)
 
     # Note: The actual file creation validation would require checking
     # the export folder, which may be platform-dependent and require
     # additional file system checks
+
+
+def test_export_msw_completions(rips_instance, initialize_test):
+    """Test the object method for MSW export with explicit well path objects and folder."""
+    project_path = dataroot.PATH + "/msw-export/project-files/perf_lateral.rsp"
+    project = rips_instance.project.open(path=project_path)
+    case = project.cases()[0]
+
+    well_y1 = project.well_path_by_name("Well-1 Y1")
+    assert well_y1 is not None
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        case.export_msw_completions(
+            well_paths=[well_y1],
+            export_folder=tmpdirname,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+        )
+        files = os.listdir(tmpdirname)
+        assert len(files) == 1
+        with open(os.path.join(tmpdirname, files[0])) as f:
+            content = f.read()
+            assert "WELSEGS" in content
+            assert "COMPSEGS" in content
+
+    with pytest.raises(rips.RipsError):
+        case.export_msw_completions(well_paths=[well_y1])
+    with pytest.raises(rips.RipsError):
+        case.export_msw_completions(export_folder=tempfile.gettempdir())
 
 
 def test_msw_settings_read(rips_instance, initialize_test):
@@ -219,14 +250,9 @@ def test_msw_settings_read(rips_instance, initialize_test):
     assert msw_settings.liner_diameter == 0.152, "Liner diameter should be 0.152m"
     assert msw_settings.roughness_factor == 1e-05, "Roughness factor should be 1e-05"
 
-    # Check pressure drop setting
-    assert msw_settings.pressure_drop == "HF-", "Pressure drop should be HF-"
-
-    # Check max segment length setting
-    assert msw_settings.max_segment_length == 200.0, "Max segment length should be 200m"
-
     # Verify completion settings
     completion_settings = well_y1.completion_settings()
+    assert completion_settings.pressure_drop == "HF-", "Pressure drop should be HF-"
     assert completion_settings.well_name_for_export == "Well-1", (
         "Well name for export should be Well-1"
     )
@@ -237,3 +263,62 @@ def test_msw_settings_read(rips_instance, initialize_test):
     assert completion_settings.allow_well_cross_flow, (
         "Allow well cross flow should be True"
     )
+
+
+def _export_msw_files(case, well_paths, export_function):
+    with tempfile.TemporaryDirectory(prefix="rips") as folder:
+        export_function(case, well_paths, folder)
+        files = {}
+        for name in os.listdir(folder):
+            if name.endswith("_MSW"):
+                with open(os.path.join(folder, name)) as f:
+                    # Drop comment lines, they contain a timestamp
+                    files[name] = [
+                        line
+                        for line in f.read().splitlines()
+                        if not line.startswith("--")
+                    ]
+        return files
+
+
+def _export_completions(case, well_paths, folder):
+    case.export_completions(
+        well_paths=well_paths,
+        time_step=0,
+        export_folder=folder,
+        file_split=rips.CompletionExportSplit.SPLIT_ON_WELL,
+        include_msw=True,
+        export_comments=False,
+    )
+
+
+def _export_msw_completions(case, well_paths, folder):
+    case.export_msw_completions(
+        well_paths=well_paths,
+        export_folder=folder,
+        file_split=rips.CompletionExportSplit.SPLIT_ON_WELL,
+    )
+
+
+@pytest.mark.parametrize(
+    "export_function", [_export_completions, _export_msw_completions]
+)
+def test_msw_export_main_and_lateral_exports_top_level_well(
+    rips_instance, initialize_test, export_function
+):
+    """Issue #13485: passing both a main well and its lateral must export the
+    main well (including all laterals), not only the lateral."""
+    project_path = dataroot.PATH + "/msw-export/project-files/perf_lateral.rsp"
+    project = rips_instance.project.open(path=project_path)
+    case = project.cases()[0]
+
+    well_y1 = project.well_path_by_name("Well-1 Y1")
+    well_y2 = project.well_path_by_name("Well-1 Y2")
+    assert well_y1 is not None and well_y2 is not None
+
+    reference = _export_msw_files(case, [well_y1], export_function)
+    assert len(reference) == 1
+
+    for well_paths in ([well_y1, well_y2], [well_y2, well_y1], [well_y2]):
+        exported = _export_msw_files(case, well_paths, export_function)
+        assert exported == reference

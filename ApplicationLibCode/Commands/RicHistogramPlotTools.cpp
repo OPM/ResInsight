@@ -37,8 +37,6 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "cafAssert.h"
-
 namespace caf
 {
 template <>
@@ -68,6 +66,8 @@ std::vector<RicHistogramPlotTools::DataSourceType> RicHistogramPlotTools::allDat
 //--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::createDefaultHistogramCurve( RimHistogramPlot* plot, RicHistogramPlotTools::DataSourceType dataSourceType )
 {
+    if ( !plot ) return;
+
     auto getDataSourceFromType = []( DataSourceType dataSourceType ) -> RimHistogramDataSource*
     {
         if ( dataSourceType == DataSourceType::ENSEMBLE_PARAMETER )
@@ -82,8 +82,10 @@ void RicHistogramPlotTools::createDefaultHistogramCurve( RimHistogramPlot* plot,
     };
 
     RimHistogramDataSource* dataSource = getDataSourceFromType( dataSourceType );
+    if ( !dataSource ) return;
+
     dataSource->setDefaults();
-    return createHistogramCurve( plot, dataSource );
+    createHistogramCurve( plot, dataSource );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +93,16 @@ void RicHistogramPlotTools::createDefaultHistogramCurve( RimHistogramPlot* plot,
 //--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::createHistogramCurve( RimHistogramPlot* plot, RimHistogramDataSource* dataSource )
 {
-    RiaGuiApplication* app     = RiaGuiApplication::instance();
-    RimProject*        project = app->project();
-    CAF_ASSERT( project );
+    if ( !plot || !dataSource ) return;
+
+    // RiaGuiApplication::instance() asserts internally if called when there is no running GUI
+    // application, so check isRunning() first instead of relying on a null check of instance().
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
+    RimProject* project = app->project();
+    if ( !project ) return;
 
     RimHistogramCurve* newCurve = new RimHistogramCurve();
 
@@ -112,7 +121,10 @@ void RicHistogramPlotTools::createHistogramCurve( RimHistogramPlot* plot, RimHis
 //--------------------------------------------------------------------------------------------------
 RimHistogramMultiPlot* RicHistogramPlotTools::addNewHistogramMultiplot()
 {
-    auto collection = RimMainPlotCollection::current()->histogramMultiPlotCollection();
+    auto mainPlotCollection = RimMainPlotCollection::current();
+    if ( !mainPlotCollection ) return nullptr;
+
+    auto collection = mainPlotCollection->histogramMultiPlotCollection();
     if ( !collection ) return nullptr;
 
     return addNewHistogramMultiplot( collection );
@@ -123,9 +135,10 @@ RimHistogramMultiPlot* RicHistogramPlotTools::addNewHistogramMultiplot()
 //--------------------------------------------------------------------------------------------------
 RimHistogramMultiPlot* RicHistogramPlotTools::addNewHistogramMultiplot( RimHistogramMultiPlotCollection* collection )
 {
-    CAF_ASSERT( collection );
+    if ( !collection ) return nullptr;
 
     RimHistogramMultiPlot* multiplot = collection->appendHistogramMultiPlot();
+    if ( !multiplot ) return nullptr;
     multiplot->dockAsPlotWindow();
     multiplot->setShowWindow( true );
     multiplot->loadDataAndUpdate();
@@ -141,6 +154,8 @@ RimHistogramMultiPlot* RicHistogramPlotTools::addNewHistogramMultiplot( RimHisto
 //--------------------------------------------------------------------------------------------------
 RimHistogramPlot* RicHistogramPlotTools::addNewHistogramPlot( RimHistogramMultiPlot* histogramMultiPlot )
 {
+    if ( !histogramMultiPlot ) return nullptr;
+
     RimHistogramPlot* plot = new RimHistogramPlot();
     plot->enableAutoPlotTitle( true );
     histogramMultiPlot->addPlot( plot );
@@ -156,10 +171,16 @@ RimHistogramPlot* RicHistogramPlotTools::addNewHistogramPlot( RimHistogramMultiP
 std::vector<RimHistogramDataSource*> RicHistogramPlotTools::existingDataSources( RimHistogramPlot* plot )
 {
     std::vector<RimHistogramDataSource*> sources;
+    if ( !plot ) return sources;
 
     for ( auto curve : plot->histogramCurves() )
     {
-        sources.push_back( curve->dataSource() );
+        if ( !curve ) continue;
+
+        if ( auto source = curve->dataSource() )
+        {
+            sources.push_back( source );
+        }
     }
 
     return sources;
@@ -170,6 +191,8 @@ std::vector<RimHistogramDataSource*> RicHistogramPlotTools::existingDataSources(
 //--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramPlot* plot, RimEnsembleParameterHistogramDataSource* dataSource )
 {
+    if ( !plot || !dataSource ) return;
+
     for ( auto source : existingDataSources( plot ) )
     {
         if ( auto histSource = dynamic_cast<RimEnsembleParameterHistogramDataSource*>( source ) )
@@ -190,8 +213,15 @@ void RicHistogramPlotTools::appendEnsembleParameterHistogramCurve( RimHistogramP
 //--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, RimHistogramCurve* curve, bool resolveRefs )
 {
-    RiaGuiApplication* app     = RiaGuiApplication::instance();
-    RimProject*        project = app->project();
+    if ( !plot || !curve ) return;
+
+    // RiaGuiApplication::instance() asserts internally if called when there is no running GUI
+    // application, so check isRunning() first instead of relying on a null check of instance().
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
+    RimProject* project = app->project();
     if ( project == nullptr ) return;
 
     plot->addCurveNoUpdate( curve );
@@ -202,7 +232,7 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
     plot->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
-    mainPlotWindow->updateMultiPlotToolBar();
+    if ( mainPlotWindow ) mainPlotWindow->updateMultiPlotToolBar();
 
     RiuPlotMainWindowTools::onObjectAppended( curve, plot );
 }
@@ -213,6 +243,7 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
 std::set<QString> RicHistogramPlotTools::existingEnsembleParameters( RimHistogramPlot* plot )
 {
     std::set<QString> foundParameters;
+    if ( !plot ) return foundParameters;
 
     for ( auto source : existingDataSources( plot ) )
     {
@@ -231,6 +262,7 @@ std::set<QString> RicHistogramPlotTools::existingEnsembleParameters( RimHistogra
 std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> RicHistogramPlotTools::existingSummaryVectors( RimHistogramPlot* plot )
 {
     std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> foundVectors;
+    if ( !plot ) return foundVectors;
 
     for ( auto source : existingDataSources( plot ) )
     {
@@ -248,6 +280,8 @@ std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> RicHistogramPlotTools::
 //--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::appendEnsembleToHistogram( RimHistogramPlot* plot, RimSummaryEnsemble* ensemble )
 {
+    if ( !plot || !ensemble ) return;
+
     auto currentParameters = existingEnsembleParameters( plot );
     auto currentVectors    = existingSummaryVectors( plot );
 

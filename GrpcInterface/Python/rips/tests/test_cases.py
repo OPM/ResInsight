@@ -164,7 +164,8 @@ def test_replaceCase(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
     assert len(cases) == 1
 
-    case.replace(new_grid_file=case_path)
+    with pytest.warns(DeprecationWarning):
+        case.replace(new_grid_file=case_path)
     # Check that the case object has been changed
     assert case.name == "BRUGGE_0000"
     assert case.id == 0
@@ -175,6 +176,36 @@ def test_replaceCase(rips_instance, initialize_test):
     case = project.case(case_id=0)
     assert case.name == "BRUGGE_0000"
     assert case.id == 0
+
+
+def test_replace_grid(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = project.case(case_id=0)
+    assert case is not None
+    assert case.name == "TEST10K_FLT_LGR_NNC"
+
+    case.replace_grid(new_grid_file=case_path)
+
+    # The project is reloaded, so retrieve the case object again
+    cases = rips_instance.project.cases()
+    assert len(cases) == 1
+    case = rips_instance.project.case(case_id=0)
+    assert case.name == "BRUGGE_0000"
+    assert case.id == 0
+
+
+def test_replace_deprecated(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = project.case(case_id=0)
+    with pytest.warns(DeprecationWarning):
+        case.replace(new_grid_file=case_path)
+    assert case.name == "BRUGGE_0000"
 
 
 def test_loadNonExistingCase(rips_instance, initialize_test):
@@ -190,8 +221,14 @@ def test_exportFlowCharacteristics(rips_instance, initialize_test):
         print("Temporary folder: ", tmpdirname)
         file_name = tmpdirname + "/exportFlowChar.txt"
         case.export_flow_characteristics(
-            time_steps=8, producers=[], injectors="I01", file_name=file_name
+            time_steps=[8], producers=[], injectors=["I01"], file_name=file_name
         )
+        assert os.path.exists(file_name)
+        with open(file_name) as f:
+            assert len(f.read()) > 0
+
+        with pytest.raises(rips.RipsError):
+            case.export_flow_characteristics(time_steps=[8])
 
 
 def test_selected_cells(rips_instance, initialize_test):
@@ -415,3 +452,120 @@ def test_10k_result_alias(rips_instance, initialize_test):
 
     with pytest.raises(rips.RipsError, match="No such result"):
         case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SPOIL", 3)
+
+
+def test_create_saturation_pressure_plots_requires_data(rips_instance, initialize_test):
+    # None of the test models carry EQUIL/PBUB/PDEW data, so the method must report a clear error
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with pytest.raises(rips.RipsError):
+        case.create_saturation_pressure_plots()
+
+
+def test_create_well_bore_stability_plot_is_geomech_only(
+    rips_instance, initialize_test
+):
+    # No GeoMech test data is available; verify the method is exposed on the right class
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    assert not hasattr(case, "create_well_bore_stability_plot")
+    assert hasattr(rips.GeoMechCase, "create_well_bore_stability_plot")
+
+
+def _write_small_vtk_case(folder):
+    # Two hexahedron cells sharing a face, with two time steps and one cell property
+    points = [(x, y, z) for x in range(3) for y in range(2) for z in range(2)]
+    point_index = {p: i for i, p in enumerate(points)}
+
+    def hex_connectivity(x0):
+        corners = [
+            (x0, 0, 0),
+            (x0 + 1, 0, 0),
+            (x0 + 1, 1, 0),
+            (x0, 1, 0),
+            (x0, 0, 1),
+            (x0 + 1, 0, 1),
+            (x0 + 1, 1, 1),
+            (x0, 1, 1),
+        ]
+        return [point_index[c] for c in corners]
+
+    connectivity = hex_connectivity(0) + hex_connectivity(1)
+    coordinates = "\n".join(f"{x} {y} {z}" for x, y, z in points)
+    displacements = "\n".join("0 0 0" for _ in points)
+    offsets = " ".join(str(8 * (i + 1)) for i in range(2))
+    types = " ".join("12" for _ in range(2))
+
+    property_values = [[0.1, 0.2], [0.3, 0.4]]
+    for step, values in enumerate(property_values):
+        vtu = f"""<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="{len(points)}" NumberOfCells="2">
+      <Points>
+        <DataArray type="Float64" Name="Coordinates" NumberOfComponents="3" format="ascii">
+{coordinates}
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii">{" ".join(map(str, connectivity))}</DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">{offsets}</DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii">{types}</DataArray>
+      </Cells>
+      <PointData>
+        <DataArray type="Float32" Name="disp" NumberOfComponents="3" format="ascii">
+{displacements}
+        </DataArray>
+      </PointData>
+      <CellData>
+        <DataArray type="Float32" Name="porosity" format="ascii">{" ".join(map(str, values))}</DataArray>
+      </CellData>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+"""
+        with open(os.path.join(folder, f"step_{step}.vtu"), "w") as f:
+            f.write(vtu)
+
+    pvd = """<?xml version="1.0"?>
+<VTKFile type="Collection" version="0.1">
+  <Collection>
+    <DataSet timestep="0" file="step_0.vtu"/>
+    <DataSet timestep="1" file="step_1.vtu"/>
+  </Collection>
+</VTKFile>
+"""
+    pvd_path = os.path.join(folder, "small.pvd")
+    with open(pvd_path, "w") as f:
+        f.write(pvd)
+    return pvd_path, property_values
+
+
+def test_geomech_case_results(rips_instance, initialize_test, tmp_path):
+    pvd_path, property_values = _write_small_vtk_case(str(tmp_path))
+    case = rips_instance.project.load_case(pvd_path)
+    assert isinstance(case, rips.GeoMechCase)
+
+    assert len(case.time_step_strings()) == 2
+
+    positions = rips.GeoMechResultPosition
+    names = case.result_names(positions.ELEMENT)
+    assert "porosity" in names
+
+    for time_step, expected in enumerate(property_values):
+        values = case.result_values(
+            "porosity", time_step=time_step, result_position=positions.ELEMENT
+        )
+        assert values == pytest.approx(expected)
+
+    # The last frame is the default, and is the only frame in this case
+    assert case.result_values(
+        "porosity", time_step=1, result_position=positions.ELEMENT, frame_index=0
+    ) == pytest.approx(property_values[1])
+
+    with pytest.raises(rips.RipsError):
+        case.result_values("porosity", time_step=2, result_position=positions.ELEMENT)
+    with pytest.raises(rips.RipsError):
+        case.result_values(
+            "porosity", time_step=0, result_position=positions.ELEMENT, frame_index=1
+        )

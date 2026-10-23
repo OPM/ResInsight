@@ -37,6 +37,7 @@
 #include "cafPdmUiTableViewQModel.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmUiAttributeTools.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHelper.h"
@@ -263,21 +264,19 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
                 // virtual void            defineDisplayString(const PdmFieldHandle* field, QString uiConfigName) {}
 
                 {
-                    PdmUiLineEditorAttributeUiDisplayString leab;
-                    uiObjForRow->editorAttribute( fieldHandle, m_currentConfigName, &leab );
-
-                    if ( !leab.m_displayString.isEmpty() )
-                    {
-                        val = leab.m_displayString;
-                    }
+                    QString displayString = PdmUiAttributeTools::stringAttribute( uiFieldHandle,
+                                                                                  PdmUiLineEditor::Keys::DISPLAY_STRING,
+                                                                                  m_currentConfigName )
+                                                .value_or( QString() );
+                    if ( !displayString.isEmpty() ) val = displayString;
                 }
 
                 if ( val.isNull() )
                 {
-                    PdmUiDateEditorAttribute leab;
-                    uiObjForRow->editorAttribute( fieldHandle, m_currentConfigName, &leab );
-
-                    QString dateFormat = leab.dateFormat;
+                    QString dateFormat = PdmUiAttributeTools::stringAttribute( uiFieldHandle,
+                                                                               PdmUiDateEditor::Keys::DATE_FORMAT,
+                                                                               m_currentConfigName )
+                                             .value_or( QString() );
                     if ( !dateFormat.isEmpty() )
                     {
                         QDate date = uiFieldHandle->uiValue().toDate();
@@ -382,7 +381,6 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( PdmChildArrayFieldHandl
         if ( uiHandleForFirstObject )
         {
             uiHandleForFirstObject->uiOrdering( configName, configForFirstObject );
-            uiHandleForFirstObject->objectEditorAttribute( m_currentConfigName, &m_pushButtonEditorAttributes );
         }
     }
 
@@ -632,7 +630,7 @@ bool PdmUiTableViewQModel::isRepresentingBoolean( const QModelIndex& index ) con
     PdmFieldHandle* fieldHandle = getField( index );
     if ( fieldHandle )
     {
-        if ( m_pushButtonEditorAttributes.showPushButtonForFieldKeyword( fieldHandle->keyword() ) )
+        if ( pushButtonText( fieldHandle ) )
         {
             return false;
         }
@@ -657,7 +655,7 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
         for ( int col = 0; col < columnCount(); col++ )
         {
             PdmFieldHandle* fieldHandle = getField( createIndex( 0, col ) );
-            if ( m_pushButtonEditorAttributes.showPushButtonForFieldKeyword( fieldHandle->keyword() ) )
+            if ( auto buttonText = pushButtonText( fieldHandle ) )
             {
                 for ( int row = 0; row < rowCount(); row++ )
                 {
@@ -665,13 +663,23 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
 
                     tableView->setIndexWidget( mi,
                                                new TableViewPushButton( getField( mi )->uiCapability(),
-                                                                        m_pushButtonEditorAttributes.pushButtonText(
-                                                                            fieldHandle->keyword() ) ) );
+                                                                        buttonText.value() ) );
                     tableView->openPersistentEditor( mi );
                 }
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<QString> PdmUiTableViewQModel::pushButtonText( PdmFieldHandle* fieldHandle ) const
+{
+    if ( !fieldHandle || !fieldHandle->uiCapability() ) return std::nullopt;
+
+    return fieldHandle->uiCapability()->attribute<QString>( PdmUiTableViewEditor::CellKeys::PUSH_BUTTON_TEXT,
+                                                            m_currentConfigName );
 }
 
 //--------------------------------------------------------------------------------------------------

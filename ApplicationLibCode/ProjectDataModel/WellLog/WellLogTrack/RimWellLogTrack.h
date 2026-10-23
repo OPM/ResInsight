@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "RiaWellLogTrackDefines.h"
 #include "RimWellLogPlot.h"
 
 #include "RiaPlotDefines.h"
@@ -36,16 +35,27 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfColor3.h"
+
 #include <QPointer>
 
 #include <map>
 #include <memory>
+#include <tuple>
 #include <vector>
+
+namespace RiaDefines
+{
+enum class WellLogTrackFormationSource;
+enum class WellLogTrackTrajectoryType;
+enum class WellLogTrackFormationLevel;
+} // namespace RiaDefines
 
 class RigWellPath;
 class RimCase;
 class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
+class RimWellFormationsFile;
 class RimWellLogCurve;
 class RimWellPath;
 class RimDepthTrackPlot;
@@ -91,9 +101,13 @@ public:
     RimWellLogTrack();
     ~RimWellLogTrack() override;
 
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer();
-    RiuPlotWidget*    plotWidget() override;
+    QWidget*                                         viewWidget() override;
+    RiuQwtPlotWidget*                                viewer();
+    std::map<QString, cvf::Color3ub>                 formationZoneColors() const;
+    QStringList                                      wellPickZoneOrder() const;
+    std::vector<std::tuple<QString, double, double>> formationZoneDisplayRanges() const;
+    int                                              formationShadingAlpha() const;
+    RiuPlotWidget*                                   plotWidget() override;
 
     void zoomAll() override;
 
@@ -132,6 +146,10 @@ public:
 
     void setAndUpdateSimWellFormationNamesAndBranchData( RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
+
+    void setAndUpdateWellPickFormationsData( RimWellPath* wellPath );
+
+    void setAndUpdateFormationFileData( RimWellFormationsFile* wellFormationsFile, const QString& wellNameInFile );
 
     [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
     [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void    setAutoScaleYEnabled( bool enabled ) override;

@@ -1,4 +1,4 @@
-# SIMEVENTS File Format — Version 1.0
+# SIMEVENTS File Format — Version 1.1
 
 ## Overview
 
@@ -22,28 +22,29 @@ Runnable examples: `rips/PythonExamples/experimental/import_simulator_events.py`
 ## Quick example
 
 ```
-SIMEVENTS 1.0
+SIMEVENTS 1.1
 UNIT METRIC
 
 # Typed declarations
 DATE     STARTUP  = 2024-01-01
-DATE     PHASE2   = 2024-03-01 + 9
-DURATION RAMP     = 31 DAYS
+DATE     PHASE2   = 2024-03-01 + 9d
+DURATION RAMP     = 31d
 FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 
 WELL A1 = "55_33-A-1"            # alias declaration (has '=')
 
 WELL A1                          # opens an event block via the alias
-  @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA
+  @STARTUP         WELSPECS     GROUP="OP"  PRESSURE_COMPONENTS=HFA
+  @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1  FILTER=POROPERM
-  @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
+  @2024-05-15T14:45:30  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
   @STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
   @2024-05-01      WELTARG      CMODE=ORAT  VALUE=5000.0
   @2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO
 
 WELL "55_33-A-2"                 # quoted form: literal well name
-  @PHASE2 - 1  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5
+  @PHASE2 - 1d  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5
 
 SCHEDULE                         # schedule-level keywords, not tied to a well
   @STARTUP  RPTRST    BASIC=2  FREQ=1
@@ -55,15 +56,15 @@ SCHEDULE                         # schedule-level keywords, not tied to a well
 
 ```
 document        = header , { statement } ;
-header          = "SIMEVENTS" , "1.0" ;           (* first meaningful line *)
+header          = "SIMEVENTS" , "1.1" ;           (* first meaningful line *)
 statement       = unit_directive | declaration | report_line | well_block_open
                 | group_block_open | schedule_block_open | event_line ;
 unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
 report_line     = "REPORT" , date_expr ;
 
 declaration     = date_decl | duration_decl | well_decl | filter_decl ;
-date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
-duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
+date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9d *)
+duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5d12h *)
 well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
 filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
                                         (* FILTER F = "PORO > 0.4 AND PERMX > 100.0" *)
@@ -79,16 +80,26 @@ event_line          = "@" , date_expr , event_type , { attribute } ;
 event_type          = completion_event_type | eclipse_keyword ;
 completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELSPECS" ;
 segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
-                    | "PRESSURE_COMPONENTS" | "COMMENT" ;
+                    | "FIXED_SEGMENT_LENGTH" | "MIN_SEGMENT_LENGTH"
+                    | "MAX_SEGMENT_LENGTH" | "COMMENT" ;
                     (* accepted attribute names when event_type is "SEGMENT" *)
+wellspec_attribute  = "GROUP" | "CROSSFLOW" | "REFDEPTH" | "PHASE"
+                    | "PRESSURE_COMPONENTS" | "COMMENT" ;
+                    (* accepted attribute names when event_type is "WELSPECS" *)
 
-date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
-duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
-term            = integer | dur_ident ;             (* whole days *)
+date_expr       = ( iso_datetime | date_ident ) , { sign , term } ;
+duration_expr   = term , { sign , term } ;
+term            = duration_lit | dur_ident ;        (* e.g. 2d, -12h30m, RAMP *)
 sign            = "+" | "-" ;
-iso_date        = 4digit , "-" , 2digit , "-" , 2digit ;
-iso_datetime    = iso_date , "T" , 2digit , ":" , 2digit , ":" , 2digit ,
-                  [ "." , digits ] ;                (* 2024-05-15T14:45:30.500 *)
+duration_lit    = [ sign ] , component , { component } ;
+                                        (* units strictly descending, each at most once *)
+component       = number , ( "mon" | "d" | "h" | "m" | "s" ) ;
+number          = digits | digits , "." , digits ;
+                                        (* a fraction only on the last component,
+                                           never on "mon" or "s" *)
+iso_datetime    = 4digit , "-" , 2digit , "-" , 2digit ,
+                  [ "T" , 2digit , ":" , 2digit , ":" , 2digit , [ "." , digits ] ] ;
+                                        (* 2024-05-15 or 2024-05-15T14:45:30 *)
 ident           = letter_or_underscore , { word_char } ;
 attribute       = ident , "=" , ( quoted_string | bareword ) ;
 comment         = "#" , rest-of-line ;              (* line or trailing *)
@@ -96,14 +107,14 @@ comment         = "#" , rest-of-line ;              (* line or trailing *)
 
 ## Line types
 
-The format is line-oriented. Every non-blank line is dispatched on its first token; anything else is an error. Keywords are uppercase and case-sensitive (the `DAYS` suffix is also accepted as `days`).
+The format is line-oriented. Every non-blank line is dispatched on its first token; anything else is an error. Keywords are uppercase and case-sensitive; duration units (`mon`, `d`, `h`, `m`, `s`) are lowercase.
 
 | First token | Meaning |
 |---|---|
 | `SIMEVENTS` | Header with version; must be the first meaningful line, exactly once |
 | `UNIT` | Unit system: `METRIC`, `FIELD` or `LAB` (default `METRIC`) |
 | `DATE` | Declare a typed date variable |
-| `DURATION` | Declare a typed whole-day duration variable |
+| `DURATION` | Declare a typed duration variable (Go-style literal, e.g. `5d`, `12h30m`) |
 | `FILTER` | Declare a typed cell-filter expression |
 | `REPORT` | Add a date that must appear in generated schedule output |
 | `WELL` | With `=`: declare a well-name alias. Without `=`: open a well event block |
@@ -114,11 +125,11 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 
 ## Typed declarations
 
-Variables are typed — `DATE`, `DURATION` (whole days), `WELL` (well-name alias) and `FILTER` (cell filter expression) — and share one namespace. They must be declared before use (single-pass, no forward references).
+Variables are typed — `DATE`, `DURATION`, `WELL` (well-name alias) and `FILTER` (cell filter expression) — and share one namespace. They must be declared before use (single-pass, no forward references).
 
 ```
 DATE     STARTUP  = 2024-01-01
-DURATION RAMP     = 31 DAYS              # DAYS suffix optional
+DURATION RAMP     = 31d                  # Go-style duration literal
 DATE     PHASE2   = STARTUP + RAMP       # date arithmetic with variables
 WELL     A1       = "55_33-A-1"
 FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
@@ -134,16 +145,49 @@ Redeclaring a name with the same type warns and the last value wins; redeclaring
 
 ## Date expressions
 
-A date expression is an ISO date, an ISO datetime, or a `DATE` variable, followed by a chain of signed whole-day terms. Each term is a non-negative integer or a `DURATION` variable:
+A date expression is an ISO datetime or a `DATE` variable, followed by a chain of signed terms. Each term is a [duration literal](#duration-literals) or a `DURATION` variable:
 
 ```
 @2024-01-01
-@STARTUP + 5
-@STARTUP + RAMP - 2
-@2024-05-15T14:45:30.500       # time-of-day, millisecond precision
+@STARTUP + 5d
+@STARTUP + RAMP - 2d
+@STARTUP + 12h30m
+@2024-05-15T14:45:30       # time-of-day, second precision
+@2024-01-31 + 1mon         # calendar month: 2024-02-29
 ```
 
-Whitespace around `+`/`-` is optional but conventional. A time-of-day is preserved through the applier and emitted as the optional TIME field of the generated DATES keyword.
+Every date is a datetime with **second** resolution. A date-only literal (`2024-01-01`) means midnight; a time-of-day is written with the `T` separator (`YYYY-MM-DDTHH:MM:SS`). Fractional seconds are accepted and rounded to the nearest second. An operand may carry its own sign (`START + -2d` equals `START - 2d`); whitespace around `+`/`-` is optional but conventional. A non-midnight time-of-day is preserved through the applier and emitted as the optional TIME field of the generated DATES keyword.
+
+## Duration literals
+
+A duration literal is written Go-style: one or more `<number><unit>` components with no spaces, using the units below in strictly descending order, each at most once.
+
+| Unit | Meaning |
+|---|---|
+| `mon` | calendar month |
+| `d` | day (24 h) |
+| `h` | hour |
+| `m` | minute |
+| `s` | second |
+
+```
+DURATION RAMP    = 5d
+DURATION SHIFT   = 12h30m
+DURATION QUARTER = 3mon
+DURATION BACK    = -3d
+DURATION HALF    = 1.5h                  # fraction allowed on the last component only
+DURATION TOTAL   = RAMP + SHIFT - 6h     # duration arithmetic with variables
+```
+
+Rules:
+
+* A unit is mandatory: `5` and the pre-1.1 `5 DAYS` are errors (write `5d`).
+* Units must be in the order `mon`, `d`, `h`, `m`, `s` and may not repeat: `12h30m` is valid, `30m12h` and `1h1h` are not.
+* A fraction is allowed only on the **last** component, and never on `mon` or `s`: `1.5h` and `1d1.5h` are valid, `1.5h30m`, `1.5s` and `1.5mon` are not. The result is rounded to whole seconds.
+* `mon` is calendar-relative and is applied before the fixed part of a duration. Adding months clamps to the last day of a shorter month: `2024-01-31 + 1mon` is `2024-02-29` and `2024-01-31 + 1mon1d` is `2024-03-01`.
+* A leading `-` negates the whole literal (`-1mon12h` is minus one month and minus twelve hours).
+
+In Python a `DURATION` value is a `rips.simulator_events.Duration` with `months` and `delta` (`datetime.timedelta`) fields; `str()` renders the Go-style form, e.g. `1mon5d12h30m`.
 
 ## WELL blocks
 
@@ -166,17 +210,23 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 | `COMPLETION_NUMBER` | no | `completion_number` (COMPLUMP grouping) |
 | `FILTER` | no | case-level combined data filter attached to the perforation: a declared `FILTER` variable (`FILTER=POROPERM`) or an inline quoted expression (`FILTER="PORO > 0.4"`) — see [Filter expressions](#filter-expressions) |
 
-**SEGMENT** → `add_tubing_event` and `add_segment_interval`
+**SEGMENT** → `add_segment_event` and `add_segment_interval`
 
-Each event adds the underlying tubing timeline event and a corresponding **Segment Interval** with the same measured-depth range, diameter, and roughness.
+Each event adds the underlying segment timeline event and a corresponding **Segment Interval** with the same measured-depth range, diameter, and roughness.
 
 | Attribute | Required | Maps to |
 |---|---|---|
-| `MDSTART` | yes | tubing and segment interval `start_md` |
-| `MDEND` | yes | tubing and segment interval `end_md` |
-| `INNER_DIAMETER` | no | tubing `inner_diameter` [m] |
-| `ROUGHNESS` | no | tubing `roughness` [m] |
-| `PRESSURE_COMPONENTS` | no | MSW `pressure_drop`: `H--`, `HF-` or `HFA` |
+| `MDSTART` | yes | segment event and segment interval `start_md` |
+| `MDEND` | yes | segment event and segment interval `end_md` |
+| `INNER_DIAMETER` | no | segment event `inner_diameter` [m] |
+| `ROUGHNESS` | no | segment event `roughness` [m] |
+| `FIXED_SEGMENT_LENGTH` | no | segment event `fixed_segment_length` and segment interval fixed segment length [m] |
+| `MIN_SEGMENT_LENGTH` | no | segment event `min_segment_length` and segment interval min segment length [m] |
+| `MAX_SEGMENT_LENGTH` | no | segment event `max_segment_length` and segment interval max segment length [m] |
+
+The segment lengths control the MSW segmentation of the interval. Lengths must be positive. `FIXED_SEGMENT_LENGTH` cannot be combined with `MIN_SEGMENT_LENGTH` or `MAX_SEGMENT_LENGTH`, and `MIN_SEGMENT_LENGTH` cannot exceed `MAX_SEGMENT_LENGTH`. Violations are reported as parse errors.
+
+Applying a SEGMENT event also sets the well's segment *Reference MD Type* to *User Defined*, with *User Defined Reference MD* set to the start MD of the first (shallowest) segment interval. This value is written as `TOP_LENGTH` in `WELSEGS`.
 
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 
@@ -194,6 +244,18 @@ Each event adds the underlying tubing timeline event and a corresponding **Segme
 | Attribute | Required | Maps to |
 |---|---|---|
 | `STATE` | yes | `well_state`: `OPEN`, `SHUT` or `STOP` |
+
+**WELSPECS** → `add_wellspec_event`
+
+Well-level settings. At least one setting attribute is required; omitted values inherit the previous WELSPECS event for the well, initially the well's completion settings. Only one WELSPECS event per well and timestamp is allowed. `timeline.set_timestamp()` writes the values in effect back to the completion settings.
+
+| Attribute | Required | Maps to |
+|---|---|---|
+| `GROUP` | no | `group_name` |
+| `CROSSFLOW` | no | `allow_cross_flow`: `True` or `False` |
+| `REFDEPTH` | no | `reference_depth` [m] |
+| `PHASE` | no | `well_type`: `OIL`, `GAS`, `WATER` or `LIQUID` |
+| `PRESSURE_COMPONENTS` | no | `pressure_drop`: `H--`, `HF-` or `HFA`. Written to the WELSEGS header of the MSW keywords exported at or after the event date |
 
 Unknown attributes on a completion event are an error and skip the event. On completion events other than `PERFORATION`, `FILTER` is ignored with a warning.
 
@@ -264,7 +326,7 @@ The validator CLI prints these and exits non-zero:
 
 ```
 $ python3 -m rips.simulator_events simulator_events.events
-simulator_events.events: OK (SIMEVENTS 1.0, units METRIC)
+simulator_events.events: OK (SIMEVENTS 1.1, units METRIC)
   4 variable(s), 2 well block(s), 8 well event(s), 0 schedule event(s)
 ```
 
@@ -286,7 +348,7 @@ print(report.events_applied, report.events_skipped, report.warnings, report.erro
 
 timeline.set_timestamp(timestamp="2024-12-24")  # materialize completions up to a date
 schedule_text = timeline.generate_schedule_text(
-    eclipse_case=case, export_msw_for_wells=[well_path]
+    eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
 )
 ```
 
@@ -301,6 +363,101 @@ They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 
 The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings` and `errors`.
 
+### Querying events
+
+Both the parsed document and the timeline can answer common questions directly, so clients do not
+need to walk wells, groups and schedule events themselves. The filters are the same in both layers:
+
+| Filter | Meaning |
+|---|---|
+| `start_date`, `end_date` | Inclusive date range. `None` leaves the bound open. A date without time of day is midnight. |
+| `wells` | Only events for these wells. When given, schedule-level and `INSERT_DATE` events are excluded. |
+| `event_types` | Event types or keyword names (`WCONHIST`, `RPTRST`, ...), case-insensitive. |
+
+An empty list or `None` disables a filter. The filters are combined with AND.
+
+On a `SimulatorEventsDocument` (pure Python, no ResInsight needed), wells and groups are given by name and
+event types use the SIMEVENTS names (`SEGMENT`, `PERFORATION`, `INSERT_DATE`, ...). `groups` is an additional
+owner filter. When both `wells` and `groups` are supplied, matching WELL and GROUP events are combined
+(union), then filtered by date and event type:
+
+```python
+document = rips.simulator_events.parse_simulator_events_file("simulator_events.events")
+document.events(wells=["OP_1"], event_types=["WCONHIST"])  # List[SimulatorEvent], sorted by date
+document.event_dates(start_date=datetime.datetime(2024, 1, 1))
+document.latest_event_date()  # or earliest_event_date(); None when nothing matches
+document.wells_with_events(event_types=["PERFORATION"])  # well names
+document.wells_with_msw_events()  # wells with SEGMENT or VALVE events
+document.groups_with_events()
+```
+
+On a `WellEventTimeline`, wells are `WellPath` objects. Event types use the timeline names `SEGMENT`, `PERF`,
+`VALVE`, `WSTATE`, `WTYPE`, `WELLSPEC`, `WCONTROL`, `KEYWORD`, `SCHEDULE_KEYWORD`, `RAW_TEXT` and `INSERT_DATE`.
+Any other name is matched against keyword names. The queries always use the full timeline. `set_timestamp()` does
+not limit them:
+
+```python
+timeline.event_dates(wells=[well_path])  # List[datetime]
+timeline.set_timestamp(timestamp=timeline.latest_event_date().isoformat())
+timeline.wells_with_events(start_date="2025-01-01")  # List[WellPath]
+schedule_text = timeline.generate_schedule_text(
+    eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
+)
+```
+
+`wells_with_msw_events()` includes wells with `SEGMENT` or `VALVE` events. It does not inspect
+segment configuration on well paths: add MSW wells with only `PERFORATION` (`PERF` on the timeline)
+events explicitly to `export_msw_for_wells`.
+
+Timeline well queries resolve names within the well path collection. Matching names must be unique;
+`wells_with_events()` and `wells_with_msw_events()` raise `ValueError` rather than choose between
+well paths sharing a name.
+
+### Generating a schedule without a grid
+
+`eclipse_case` is optional in `generate_schedule_text()`. It accepts any Eclipse-type case, including Roff and
+corner point cases. Without a case, the keywords that need grid geometry are skipped: `WELSPECS`, `COMPORD`,
+`COMPDAT`, `COMPLUMP`, `WELSEGS`, `COMPSEGS`, `WSEGVALV` and `WSEGAICD`. `DATES`, well controls (`WCONHIST`,
+`WCONINJH`, `WELTARG`, ...), schedule keywords and raw text are still emitted. This supports setups driven only by
+production data, or by a simple event file that controls reporting and production constraints. A well that has
+skipped keywords gets one `-- WARNING:` comment line in the schedule header, for example:
+
+```text
+-- WARNING: No grid case: COMPDAT/COMPLUMP skipped for well 'OP_1'
+```
+
+```python
+schedule_text = timeline.generate_schedule_text()  # no grid case
+```
+
+## Exporting a schedule from the GUI
+
+The schedule generated from the well event timeline can be written to file without scripting.
+Enable *Preferences -> System -> Experimental Features -> Simulator Events* (the same flag that
+enables the import), then
+use **Export Schedule from Events** from either:
+
+- the context menu of the *Well Event Timeline* item (shown under *Wells* once the timeline has
+  events),
+- the context menu of the *Wells* (well path collection) item, or
+- *File -> Export*.
+
+The only thing asked for is the file name (default `schedule.SCH` in the last used export folder).
+Everything else uses fixed defaults:
+
+| Setting | Value |
+|---|---|
+| Eclipse case | the case of the active 3D view, else the first Eclipse case of the project, else none (grid-dependent keywords are skipped, see above) |
+| Multi-segment-well keywords | exported for every well with events |
+| First date | written as a `-- Date: ...` comment instead of a `DATES` keyword |
+| Formatting | aligned columns with a `--`-prefixed column header per keyword |
+
+As in `generate_schedule_text()`, a `set_timestamp()`/*Apply events up to date* timestamp limits the
+export to the events up to that date, while inserted dates (`INSERT_DATE`) are always emitted.
+The written file name and the event count are logged to the message panel. An export without events
+reports the reason in a dialog.
+
 ## Version history
 
-- **1.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
+- **1.1** — current: all dates are datetimes with second resolution (`T` separator required for a time-of-day; fractional seconds rounded); `DURATION` values and offset terms are Go-style literals (`5d`, `12h30m`, `1.5h`, `3mon`, `-3d`) with mandatory units, strict descending unit order, and calendar-aware months. Unitless numbers and the `DAYS` suffix are rejected; `1.0` files are rejected with a migration hint.
+- **1.0** — typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.

@@ -3,11 +3,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewGenericDataViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFormationNamesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellFormationsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadFormationNamesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadWellPathFormationNamesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicHideIntersectionFeature.cpp
@@ -98,6 +99,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicComputeContourMapPeaksFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleDialog.cpp

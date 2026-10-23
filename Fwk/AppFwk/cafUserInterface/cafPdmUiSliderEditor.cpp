@@ -54,6 +54,24 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiSliderEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiSliderEditor::setRange( PdmUiItem* uiItem, int minimum, int maximum )
+{
+    uiItem->setAttribute( Keys::MINIMUM, minimum );
+    uiItem->setAttribute( Keys::MAXIMUM, maximum );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiSliderEditor::clearRange( PdmUiItem* uiItem )
+{
+    uiItem->removeAttribute( Keys::MINIMUM );
+    uiItem->removeAttribute( Keys::MAXIMUM );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_spinBox.isNull() );
@@ -66,56 +84,33 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
-
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
-        if ( auto val = uiItem->attribute<int>( Keys::MINIMUM, uiConfigName ) )
-        {
-            m_attributes.m_minimum = val.value();
-        }
+        m_minimum     = uiItem->attribute<int>( Keys::MINIMUM, uiConfigName ).value_or( 0 );
+        m_maximum     = uiItem->attribute<int>( Keys::MAXIMUM, uiConfigName ).value_or( 10 );
+        m_showSpinBox = uiItem->attribute<bool>( Keys::SHOW_SPIN_BOX, uiConfigName ).value_or( true );
+        m_step        = uiItem->attribute<int>( Keys::STEP, uiConfigName ).value_or( 1 );
 
-        if ( auto val = uiItem->attribute<int>( Keys::MAXIMUM, uiConfigName ) )
-        {
-            m_attributes.m_maximum = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_SPIN_BOX, uiConfigName ) )
-        {
-            m_attributes.m_showSpinBox = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::STEP, uiConfigName ) )
-        {
-            m_attributes.m_step = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
         uiItem->validateAttributes( "PdmUiSliderEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
     {
         m_spinBox->blockSignals( true );
-        m_spinBox->setMinimum( m_attributes.m_minimum );
-        m_spinBox->setMaximum( m_attributes.m_maximum );
-        m_spinBox->setSingleStep( m_attributes.m_step );
+        m_spinBox->setMinimum( m_minimum );
+        m_spinBox->setMaximum( m_maximum );
+        m_spinBox->setSingleStep( m_step );
 
         QString textValue = uiField()->uiValue().toString();
         m_spinBox->setValue( textValue.toInt() );
         m_spinBox->blockSignals( false );
 
-        m_spinBox->setVisible( m_attributes.m_showSpinBox );
+        m_spinBox->setVisible( m_showSpinBox );
     }
 
     {
         m_slider->blockSignals( true );
-        m_slider->setRange( m_attributes.m_minimum, m_attributes.m_maximum );
-        m_slider->setSingleStep( m_attributes.m_step );
+        m_slider->setRange( m_minimum, m_maximum );
+        m_slider->setSingleStep( m_step );
         updateSliderPosition();
         m_slider->blockSignals( false );
     }
@@ -186,7 +181,7 @@ void PdmUiSliderEditor::updateSliderPosition()
     int  newSliderValue = textValue.toInt( &convertOk );
     if ( convertOk )
     {
-        newSliderValue = qBound( m_attributes.m_minimum, newSliderValue, m_attributes.m_maximum );
+        newSliderValue = qBound( m_minimum, newSliderValue, m_maximum );
 
         // Block signals to avoid re-entering slotSliderValueChanged(), which would write to the
         // field a second time and may tear down this editor's widgets while we are still executing.

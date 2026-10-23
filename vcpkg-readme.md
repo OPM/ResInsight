@@ -7,6 +7,24 @@
 | `vcpkg-configuration.json` | Default registry configuration used by all builds |
 | `vcpkg-configuration-rhel8.json` | RHEL8-specific registry configuration with a separate baseline |
 
+## Overlay ports
+
+`ThirdParty/vcpkg-overlay-ports/` holds local copies of upstream vcpkg ports
+that need a patch the upstream port does not carry. Each configuration file
+opts in to individual ports rather than the whole directory, because the two
+baselines resolve different versions: pointing a profile at the parent
+directory would silently override every port in it.
+
+| Port | Used by | Reason |
+|------|---------|--------|
+| `snappy` | `vcpkg-configuration.json` | `snappy.cc` guards `<immintrin.h>` on `SNAPPY_HAVE_BMI2`/`SNAPPY_HAVE_X86_CRC32`, which the port turns off, but `MemCopy64()` uses AVX intrinsics whenever `__AVX__` is defined. Fails on the ubuntu-26.04 runner. [microsoft/vcpkg#51047](https://github.com/microsoft/vcpkg/issues/51047) |
+| `thrift` | `vcpkg-configuration-rhel8.json` | `Mutex.h` uses `int64_t` without including `<cstdint>`, which GCC 15 no longer provides transitively |
+
+When adding a port, copy it from `ThirdParty/vcpkg/ports/<name>`, add the patch
+to `PATCHES` with a comment explaining why, bump `port-version`, and add the
+port's path to the `overlay-ports` array of the configurations that need it.
+Drop the overlay once upstream carries an equivalent fix.
+
 ## Changing the baseline
 
 The `baseline` field in each configuration file pins the vcpkg registry to a specific commit of [microsoft/vcpkg](https://github.com/microsoft/vcpkg). Packages available at that commit are used for dependency resolution.

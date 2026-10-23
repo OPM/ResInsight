@@ -40,12 +40,12 @@ public:
     void   setBlackAndWhiteLegendIcons( bool blackAndWhite );
 
 protected:
-    void    determineSymbol();
-    void    updateZoomInParentPlot() override;
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
-    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void    defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+    void                                   determineSymbol();
+    void                                   updateZoomInParentPlot() override;
+    QString                                createCurveAutoName() override;
+    void                                   onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     int m_dataSetIndex;

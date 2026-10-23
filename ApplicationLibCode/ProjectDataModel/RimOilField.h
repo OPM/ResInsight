@@ -27,6 +27,7 @@
 
 class RimEclipseCaseCollection;
 class RimFormationNamesCollection;
+class RimWellFormationsCollection;
 class RimFractureTemplateCollection;
 class RimCompletionTemplateCollection;
 class RimValveTemplateCollection;
@@ -42,6 +43,7 @@ class RimSeismicViewCollection;
 class RimSurfaceCollection;
 class RimEnsembleWellLogsCollection;
 class RimPolygonCollection;
+class RimGenericViewCollection;
 class RimEclipseViewCollection;
 class RimEclipseContourMapViewCollection;
 class RimVfpDataCollection;
@@ -72,12 +74,13 @@ public:
     caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
     caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
+    caf::PdmChildField<RimWellFormationsCollection*>        wellFormationsCollection;
     caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
     caf::PdmChildField<RimMeasurement*>                     measurement;
     caf::PdmChildField<RimSurfaceCollection*>               surfaceCollection;
     caf::PdmChildField<RimSeismicDataCollection*>           seismicDataCollection;
     caf::PdmChildField<RimSeismicViewCollection*>           seismicViewCollection;
-    caf::PdmChildField<RimEclipseViewCollection*>           eclipseViewCollection;
+    caf::PdmChildField<RimGenericViewCollection*>           genericViewCollection;
     caf::PdmChildField<RimEnsembleWellLogsCollection*>      ensembleWellLogsCollection;
     caf::PdmChildField<RimPolygonCollection*>               polygonCollection;
     caf::PdmChildField<RimEclipseContourMapViewCollection*> eclipseContourMapCollection;
@@ -89,4 +92,5 @@ protected:
 
 private:
     caf::PdmChildField<RimFractureTemplateCollection*> m_fractureTemplateCollection_OBSOLETE;
+    caf::PdmChildField<RimEclipseViewCollection*>      m_eclipseViewCollection_OBSOLETE;
 };

@@ -39,3 +39,71 @@ private:
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSegmentInterval_setSegmentLengthBase : public caf::PdmObjectMethod
+{
+public:
+    RimcSegmentInterval_setSegmentLengthBase( caf::PdmObjectHandle* self, const QString& description );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+protected:
+    enum class LengthType
+    {
+        FIXED,
+        MIN,
+        MAX
+    };
+
+    virtual LengthType lengthType() const = 0;
+
+private:
+    caf::PdmField<double> m_length;
+    caf::PdmField<bool>   m_enable;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSegmentInterval_setFixedSegmentLength : public RimcSegmentInterval_setSegmentLengthBase
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSegmentInterval_setFixedSegmentLength( caf::PdmObjectHandle* self );
+
+protected:
+    LengthType lengthType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSegmentInterval_setMinSegmentLength : public RimcSegmentInterval_setSegmentLengthBase
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSegmentInterval_setMinSegmentLength( caf::PdmObjectHandle* self );
+
+protected:
+    LengthType lengthType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSegmentInterval_setMaxSegmentLength : public RimcSegmentInterval_setSegmentLengthBase
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSegmentInterval_setMaxSegmentLength( caf::PdmObjectHandle* self );
+
+protected:
+    LengthType lengthType() const override;
+};

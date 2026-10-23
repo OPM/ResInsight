@@ -4,6 +4,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaHpcDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.cpp
@@ -13,7 +14,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaExperimentalFeatures.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOpm.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesBatch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesCloudApi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
@@ -21,6 +24,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaTimer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp

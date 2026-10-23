@@ -28,19 +28,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWeightedMeanCalc::weightedMeanOverCells( const std::vector<double>* weights,
-                                                 const std::vector<double>* values,
-                                                 const cvf::UByteArray*     cellVisibilities,
-                                                 bool                       isUsingVisibleCells,
-                                                 const RigActiveCellInfo*   actCellInfo,
-                                                 bool                       isUsingActiveIndex,
-                                                 double*                    result )
+std::optional<double> RigWeightedMeanCalc::weightedMeanOverCells( const std::vector<double>* weights,
+                                                                  const std::vector<double>* values,
+                                                                  const cvf::UByteArray*     cellVisibilities,
+                                                                  bool                       isUsingVisibleCells,
+                                                                  const RigActiveCellInfo*   actCellInfo,
+                                                                  bool                       isUsingActiveIndex )
 {
-    if ( !( weights && values && result ) ) return;
-    if ( !cellVisibilities && isUsingVisibleCells ) return;
-    if ( !actCellInfo && isUsingActiveIndex ) return;
+    if ( !( weights && values ) ) return {};
+    if ( !cellVisibilities && isUsingVisibleCells ) return {};
+    if ( !actCellInfo && isUsingActiveIndex ) return {};
 
-    if ( weights->empty() || values->empty() ) return;
+    if ( weights->empty() || values->empty() ) return {};
 
     double weightedSum = 0.0;
     double weightSum   = 0.0;
@@ -80,12 +79,7 @@ void RigWeightedMeanCalc::weightedMeanOverCells( const std::vector<double>* weig
         weightSum += weight;
     }
 
-    if ( weightSum != 0 )
-    {
-        *result = weightedSum / weightSum;
-    }
-    else
-    {
-        *result = HUGE_VAL;
-    }
+    if ( weightSum == 0.0 ) return {};
+
+    return weightedSum / weightSum;
 }

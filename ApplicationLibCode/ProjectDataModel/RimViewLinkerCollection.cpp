@@ -80,16 +80,6 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
             viewLinker()->updateWindowTitles();
         }
     }
-
-    updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewLinkerCollection::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

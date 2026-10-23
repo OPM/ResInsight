@@ -3,10 +3,10 @@ Well Events module for managing time-dependent well events.
 
 This module provides functionality for creating and managing well events
 in a timeline-based event system. Events can be perforation events, valve events,
-tubing changes, well state changes, and production/injection control changes.
+segment changes, well state changes, and production/injection control changes.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from datetime import date, datetime
 
 from .pdmobject import add_method
@@ -17,6 +17,7 @@ from .generated.generated_classes import (
     WellEventKeyword,
     WellEventTimeline,
     WellPath,
+    WellPathCollection,
 )
 
 
@@ -310,13 +311,30 @@ def add_raw_text_event(
 
 
 @add_method(WellEventTimeline)
+def add_insert_date_event(
+    self: WellEventTimeline,
+    event_date: str | date | datetime,
+    comment: str = "",
+) -> Any:
+    """Add a date that is emitted as a DATES keyword even without other events.
+
+    In Eclipse/Flow a DATES entry ensures a summary report at that date. The
+    event creates no keyword of its own; ``comment`` (if any) is written as
+    "--"-prefixed lines directly below the date.
+    """
+    return self.add_insert_date_event_internal(
+        event_date=_format_date(event_date),
+        comment=comment,
+    )
+
+
+@add_method(WellEventTimeline)
 def generate_schedule_text(
     self: WellEventTimeline,
-    eclipse_case: EclipseCase,
+    eclipse_case: Optional[EclipseCase] = None,
     export_msw_for_wells: List[WellPath] = [],
     first_date_as_comment: bool = True,
     align_columns: bool = False,
-    additional_dates: List[str] = [],
 ) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
@@ -328,7 +346,14 @@ def generate_schedule_text(
     text directly instead of a DataContainerString.
 
     Arguments:
-        eclipse_case (EclipseCase): Eclipse case to use for schedule generation.
+        eclipse_case (Optional[EclipseCase]): Grid case used for the
+            grid-dependent keywords. Any Eclipse-type case works, including
+            Roff and corner point cases. When None (the default), the
+            keywords that need grid geometry (WELSPECS, COMPORD, COMPDAT,
+            COMPLUMP, WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD) are skipped. Each
+            well with skipped keywords gets a "-- WARNING:" comment line in the
+            schedule header. DATES, well controls (WCONHIST, WCONINJH, WELTARG,
+            ...), schedule keywords and raw text are still emitted.
         export_msw_for_wells (List[WellPath]): Wells for which the
             multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD)
             are exported. Wells not in the list get no MSW keywords. An empty
@@ -341,15 +366,12 @@ def generate_schedule_text(
         align_columns (bool): When True, emit each keyword with a "--"-prefixed
             column-header comment and right-aligned, fixed-width columns instead
             of the compact default form. Defaults to False.
-        additional_dates (List[str]): Additional dates ("YYYY-MM-DD" or a full
-            ISO timestamp such as "2024-05-15T14:45:30") emitted as DATES
-            keywords even when no events fall on them. In Eclipse/Flow a DATES
-            entry ensures a summary report at that date. The dates are merged,
-            deduplicated and sorted together with the event dates, and are not
-            filtered by set_timestamp(). If an additional date precedes all
-            event dates it becomes the earliest date and is therefore emitted
-            as a comment when first_date_as_comment is True; pass
-            first_date_as_comment=False to emit every date as a DATES keyword.
+
+    Dates added with add_insert_date_event() are ordinary timeline events, but
+    since they only force a DATES keyword (e.g. to trigger a summary report)
+    they are not filtered by set_timestamp(). If such a date precedes all other
+    event dates it becomes the earliest date and is therefore emitted as a
+    comment when first_date_as_comment is True.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -394,8 +416,151 @@ def generate_schedule_text(
         export_msw_for_wells=export_msw_for_wells,
         first_date_as_comment=first_date_as_comment,
         align_columns=align_columns,
-        additional_dates=additional_dates,
     )
     if container and container.values:
         return "".join(container.values)
     return ""
+
+
+def _format_query_date(query_date: Optional[str | date | datetime]) -> str:
+    """Convert an optional query bound to an ISO string. None gives an empty
+    string (no limit). A datetime keeps its time of day."""
+    if query_date is None:
+        return ""
+    if isinstance(query_date, datetime):
+        return query_date.isoformat(timespec="seconds")
+    return _format_date(query_date)
+
+
+@add_method(WellEventTimeline)
+def event_dates(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> List[datetime]:
+    """Return the sorted, unique dates of the timeline events matching all filters.
+
+    The full timeline is queried; set_timestamp() does not limit the result.
+
+    Arguments:
+        start_date: Earliest event date to include (inclusive). None: no limit.
+        end_date: Latest event date to include (inclusive). None: no limit. A
+            date without time of day means midnight, so events later that day
+            are excluded.
+        wells (Optional[List[WellPath]]): Only include events for these wells.
+            When given, schedule keyword, raw text and insert-date events are
+            excluded. None or empty: no well filter.
+        event_types (Optional[List[str]]): Timeline event types (SEGMENT, PERF,
+            VALVE, WSTATE, WTYPE, WELLSPEC, WCONTROL, KEYWORD,
+            SCHEDULE_KEYWORD, RAW_TEXT, INSERT_DATE) or keyword names
+            (WCONHIST, RPTRST, ...), case-insensitive. None or empty: all
+            events.
+
+    Returns:
+        List[datetime]: The event dates.
+
+    Example:
+        .. code-block:: python
+
+            last_date = timeline.latest_event_date()
+            timeline.set_timestamp(timestamp=last_date.isoformat())
+    """
+    container = self.query_event_dates(
+        start_date=_format_query_date(start_date),
+        end_date=_format_query_date(end_date),
+        well_paths=wells or [],
+        event_types=event_types or [],
+    )
+    values = container.values if container and container.values else []
+    return [datetime.fromisoformat(value) for value in values]
+
+
+@add_method(WellEventTimeline)
+def earliest_event_date(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> Optional[datetime]:
+    """Return the earliest date of the timeline events matching all filters,
+    or None when no event matches. See event_dates() for the arguments."""
+    dates = event_dates(self, start_date, end_date, wells, event_types)
+    return dates[0] if dates else None
+
+
+@add_method(WellEventTimeline)
+def latest_event_date(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    wells: Optional[List[WellPath]] = None,
+    event_types: Optional[List[str]] = None,
+) -> Optional[datetime]:
+    """Return the latest date of the timeline events matching all filters, or
+    None when no event matches. See event_dates() for the arguments."""
+    dates = event_dates(self, start_date, end_date, wells, event_types)
+    return dates[-1] if dates else None
+
+
+@add_method(WellEventTimeline)
+def wells_with_events(
+    self: WellEventTimeline,
+    start_date: Optional[str | date | datetime] = None,
+    end_date: Optional[str | date | datetime] = None,
+    event_types: Optional[List[str]] = None,
+) -> List[WellPath]:
+    """Return the well paths with timeline events matching all filters, sorted
+    by name. See event_dates() for the arguments.
+
+    Matching well names must be unique within the well path collection.
+    Raises ValueError if a name is ambiguous or cannot be resolved.
+
+    Returns:
+        List[WellPath]: The well paths.
+    """
+    container = self.query_wells_with_events(
+        start_date=_format_query_date(start_date),
+        end_date=_format_query_date(end_date),
+        event_types=event_types or [],
+    )
+    names = container.values if container and container.values else []
+    if not names:
+        return []
+
+    collection = self.ancestor(WellPathCollection)
+    if collection is None:
+        raise ValueError("Cannot resolve event wells without a well path collection")
+    matching_names = set(names)
+    well_paths_by_name: Dict[str, WellPath] = {}
+    for well_path in collection.descendants(WellPath):
+        if well_path.name not in matching_names:
+            continue
+        if well_path.name in well_paths_by_name:
+            raise ValueError(f"Ambiguous well path name: {well_path.name!r}")
+        well_paths_by_name[well_path.name] = well_path
+    missing_names = matching_names - well_paths_by_name.keys()
+    if missing_names:
+        raise ValueError(f"Cannot resolve event well names: {sorted(missing_names)!r}")
+    return [well_paths_by_name[name] for name in names]
+
+
+@add_method(WellEventTimeline)
+def wells_with_msw_events(self: WellEventTimeline) -> List[WellPath]:
+    """Return the well paths with SEGMENT or VALVE events, sorted by name.
+
+    Wells with only PERF events are not included, even if segments were
+    configured directly on their well paths; add such MSW wells explicitly
+    to export_msw_for_wells.
+
+    Example:
+        .. code-block:: python
+
+            schedule_text = timeline.generate_schedule_text(
+                eclipse_case=case,
+                export_msw_for_wells=timeline.wells_with_msw_events(),
+            )
+    """
+    return wells_with_events(self, event_types=["SEGMENT", "VALVE"])

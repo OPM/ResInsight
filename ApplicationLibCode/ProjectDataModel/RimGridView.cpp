@@ -380,7 +380,8 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
         {
             RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>( items[i] );
 
-            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_resultDefinition->geoMechCase() )
+            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_resultDefinition &&
+                 geomSelItem->m_resultDefinition->geoMechCase() )
             {
                 RivSingleCellPartGenerator partGen( geomSelItem->m_resultDefinition->geoMechCase(),
                                                     geomSelItem->m_gridIndex,
@@ -409,8 +410,9 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
         {
             RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
 
-            if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition->eclipseCase() &&
-                 eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() )
+            // The result definition is a guarded pointer that is null if the result definition has been deleted.
+            if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition &&
+                 eclipseSelItem->m_resultDefinition->eclipseCase() && eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() )
             {
                 RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
                                                     eclipseSelItem->m_gridIndex,

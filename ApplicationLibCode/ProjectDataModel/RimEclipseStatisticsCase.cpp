@@ -81,6 +81,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
     CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );
+    m_selectionSummary.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
     m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -885,21 +886,6 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_selectionSummary == field )
-    {
-        caf::PdmUiTextEditorAttribute* textEditAttrib = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( textEditAttrib )
-        {
-            textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::initializeSelectedTimeSteps()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.10.0" ) )
@@ -1054,7 +1040,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         if ( varList.contains( RiaResultNames::soil() ) ) m_selectedDynamicProperties.v().push_back( RiaResultNames::soil() );
-        if ( varList.contains( "PRESSURE" ) ) m_selectedDynamicProperties.v().push_back( "PRESSURE" );
+        if ( varList.contains( RiaResultNames::pressure() ) ) m_selectedDynamicProperties.v().push_back( RiaResultNames::pressure() );
     }
 
     if ( m_selectedStaticProperties().empty() )
@@ -1070,7 +1056,8 @@ void RimEclipseStatisticsCase::populateResultSelection()
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         if ( varList.contains( RiaResultNames::soil() ) ) m_selectedFractureDynamicProperties.v().push_back( RiaResultNames::soil() );
-        if ( varList.contains( "PRESSURE" ) ) m_selectedFractureDynamicProperties.v().push_back( "PRESSURE" );
+        if ( varList.contains( RiaResultNames::pressure() ) )
+            m_selectedFractureDynamicProperties.v().push_back( RiaResultNames::pressure() );
     }
 
     if ( m_selectedFractureStaticProperties().empty() )

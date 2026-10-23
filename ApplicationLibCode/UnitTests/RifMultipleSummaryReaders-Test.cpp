@@ -32,6 +32,27 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
+/// Stand-in for a reader reporting a given unit system
+//--------------------------------------------------------------------------------------------------
+class StubUnitSystemReader : public RifSummaryReaderInterface
+{
+public:
+    explicit StubUnitSystemReader( RiaDefines::EclipseUnitSystem unitSystem )
+        : m_unitSystem( unitSystem )
+    {
+    }
+
+    std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override { return {}; }
+    std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override { return { false, {} }; }
+    std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override { return {}; }
+    RiaDefines::EclipseUnitSystem        unitSystem() const override { return m_unitSystem; }
+    size_t                               keywordCount() const override { return 0; }
+
+private:
+    RiaDefines::EclipseUnitSystem m_unitSystem;
+};
+
+//--------------------------------------------------------------------------------------------------
 /// Create a calculation producing a single field address
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation* createFieldCalculation()
@@ -121,4 +142,26 @@ TEST( RifMultipleSummaryReaders, RefreshCalculatedAddressesForReaderWithNoAddres
     EXPECT_EQ( 1u, calculatedAddressCount( multipleReaders ) );
 
     RimProject::current()->calculationCollection()->deleteCalculation( calculation );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Readers without unit information are ignored, and readers with conflicting units give an unknown unit system
+//--------------------------------------------------------------------------------------------------
+TEST( RifMultipleSummaryReaders, UnitSystemFromMultipleReaders )
+{
+    using Units = RiaDefines::EclipseUnitSystem;
+
+    {
+        RifMultipleSummaryReaders readers;
+        readers.addReader( std::make_unique<StubUnitSystemReader>( Units::UNITS_UNKNOWN ) );
+        readers.addReader( std::make_unique<StubUnitSystemReader>( Units::UNITS_FIELD ) );
+        EXPECT_EQ( Units::UNITS_FIELD, readers.unitSystem() );
+    }
+
+    {
+        RifMultipleSummaryReaders readers;
+        readers.addReader( std::make_unique<StubUnitSystemReader>( Units::UNITS_FIELD ) );
+        readers.addReader( std::make_unique<StubUnitSystemReader>( Units::UNITS_METRIC ) );
+        EXPECT_EQ( Units::UNITS_UNKNOWN, readers.unitSystem() );
+    }
 }

@@ -54,9 +54,11 @@
 #include "Formations/RimFormationNamesCollection.h"
 #include "Jobs/RimJobCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
+#include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
+#include "RimCase.h"
 #include "RimDockWindowController.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
@@ -97,6 +99,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
+#include "Workflow/RimWorkflowCollection.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
@@ -217,14 +220,17 @@ RiaGuiApplication::~RiaGuiApplication()
 
     processEvents();
 
+    // The main windows are hidden, not deleted, when closed. Delete them here, as WA_DeleteOnClose used to do.
     if ( m_mainWindow )
     {
         m_mainWindow->close();
+        m_mainWindow->deleteLater();
     }
 
     if ( m_mainPlotWindow )
     {
         m_mainPlotWindow->close();
+        m_mainPlotWindow->deleteLater();
     }
 
     processEvents();
@@ -346,10 +352,27 @@ bool RiaGuiApplication::checkWithUserBeforeClose()
 {
     // check for any running jobs
     if ( !notifyUserAboutRunningJobs() ) return false;
-    // ask user to save modified project if needed
+    // Ask about workflow edits first, so that cancelling does not leave the project saved
+    if ( !askUserToDiscardWorkflowEdits() ) return false;
     if ( !askUserToSaveModifiedProject() ) return false;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Workflow edits are not part of the project file; they are lost unless saved to a workflow folder
+//--------------------------------------------------------------------------------------------------
+bool RiaGuiApplication::askUserToDiscardWorkflowEdits()
+{
+    if ( !project() || !project()->workflowCollection() || !project()->workflowCollection()->hasUnsavedChanges() ) return true;
+
+    const auto answer = QMessageBox::question( m_mainWindow,
+                                               "Unsaved Workflow Changes",
+                                               "Some workflows have changes that are not saved to their workflow folder.\n\n"
+                                               "Discard the changes?",
+                                               QMessageBox::Discard | QMessageBox::Cancel,
+                                               QMessageBox::Cancel );
+    return answer == QMessageBox::Discard;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,12 +428,13 @@ void RiaGuiApplication::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::storeDockState()
 {
-    if ( m_mainWindow )
+    // A closed window has no views docked; its dock state was stored when it was closed
+    if ( m_mainWindow && !m_mainWindow->hasBeenClosed() )
     {
         project()->mainWindowDockState = m_mainWindow->dockWidgetStateString();
     }
 
-    if ( m_mainPlotWindow )
+    if ( m_mainPlotWindow && !m_mainPlotWindow->hasBeenClosed() )
     {
         project()->plotWindowDockState = m_mainPlotWindow->dockWidgetStateString();
     }
@@ -1041,9 +1065,35 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     else
     {
         m_mainWindow->show();
+
+        if ( m_mainWindow->hasBeenClosed() )
+        {
+            m_mainWindow->clearClosedState();
+            loadAndUpdateMainWindowViews();
+        }
     }
 
     return m_mainWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recreate the view widgets of all 3D views, as they are removed from docking when the main window is closed
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::loadAndUpdateMainWindowViews()
+{
+    if ( !m_project || !m_mainWindow ) return;
+
+    for ( RimCase* gridModel : m_project->allGridCases() )
+    {
+        if ( !gridModel ) continue;
+
+        for ( Rim3dView* view : gridModel->views() )
+        {
+            if ( view ) view->loadDataAndUpdate();
+        }
+    }
+
+    m_mainWindow->restoreDockWidgetState( m_project->mainWindowDockState );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1062,6 +1112,12 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateMainPlotWindow()
     if ( !m_mainPlotWindow )
     {
         createMainPlotWindow();
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
+        loadAndUpdatePlotData();
+    }
+    else if ( m_mainPlotWindow->hasBeenClosed() )
+    {
+        m_mainPlotWindow->clearClosedState();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
     }
@@ -1122,9 +1178,15 @@ void RiaGuiApplication::createMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 {
+    const bool rebuildContent = !m_mainPlotWindow || m_mainPlotWindow->hasBeenClosed();
     if ( !m_mainPlotWindow )
     {
         createMainPlotWindow();
+    }
+
+    if ( rebuildContent )
+    {
+        m_mainPlotWindow->clearClosedState();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
         if ( m_project )
@@ -1437,8 +1499,16 @@ void RiaGuiApplication::onProjectBeingClosed()
 
     RiaGuiApplication::clearAllSelections();
 
-    if ( m_mainWindow ) m_mainWindow->cleanupGuiBeforeProjectClose();
-    if ( m_mainPlotWindow ) m_mainPlotWindow->cleanupGuiBeforeProjectClose();
+    if ( m_mainWindow )
+    {
+        m_mainWindow->cleanupGuiBeforeProjectClose();
+        m_mainWindow->clearClosedState();
+    }
+    if ( m_mainPlotWindow )
+    {
+        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
+        m_mainPlotWindow->clearClosedState();
+    }
 
     caf::EffectGenerator::clearEffectCache();
 }
@@ -1464,11 +1534,6 @@ void RiaGuiApplication::onProjectBeingSaved()
     setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( m_project->fileName() ).absolutePath() );
     storeTreeViewState();
     storeDockState();
-
-    if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
-    {
-        sumCaseMainColl->onProjectBeingSaved();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1681,6 +1746,11 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     }
     caf::PdmUiItem::enableExtraDebugText( RiaPreferencesSystem::current()->appendFieldKeywordToToolTipText() );
 
+    if ( m_mainWindow && oldPreferences )
+    {
+        m_mainWindow->restartBatchMonitor();
+    }
+
     if ( oldPreferences )
     {
         onGuiPreferencesChanged();
@@ -1832,6 +1902,13 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
     if ( getNotifyInDestructorFlag() )
     {
         return QApplication::notify( receiver, event );
+    }
+
+    // The crash handler pumps the event loop to send the crash report. Repainting a widget there can re-enter the
+    // faulting code and crash again, replacing the original report with one blaming the crash handler.
+    if ( RiaOpenTelemetryManager::isReportingCrash() && ( receiver->isWidgetType() || receiver->isWindowType() ) )
+    {
+        return false;
     }
 
     bool done = false;

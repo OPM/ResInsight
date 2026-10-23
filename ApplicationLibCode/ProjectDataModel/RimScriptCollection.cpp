@@ -40,6 +40,7 @@ RimScriptCollection::RimScriptCollection()
     CAF_PDM_InitFieldNoDefault( &directory, "ScriptDirectory", "Folder" );
     directory.uiCapability()->setUiReadOnly( true );
     directory.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    directory.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitFieldNoDefault( &calcScripts, "CalcScripts", "" );
     CAF_PDM_InitFieldNoDefault( &subDirectories, "SubDirectories", "" );
@@ -113,21 +114,6 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
 
                 subDirectories.push_back( scriptLocation );
             }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimScriptCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &directory )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
         }
     }
 }

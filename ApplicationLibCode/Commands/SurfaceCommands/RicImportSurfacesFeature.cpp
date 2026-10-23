@@ -18,6 +18,8 @@
 
 #include "RicImportSurfacesFeature.h"
 
+#include "RicNewGenericDataViewFeature.h"
+
 #include "RiaApplication.h"
 
 #include "RimSurface.h"
@@ -78,11 +80,13 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 
     if ( !surfColl ) return;
 
-    RimSurface* lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
+    auto lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
 
     if ( lastCreatedOrUpdated )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        RicNewGenericDataViewFeature::createInitialViewIfNeeded();
+
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated.value() );
     }
 }
 

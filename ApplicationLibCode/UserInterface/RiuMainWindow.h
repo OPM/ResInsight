@@ -23,6 +23,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmPointer.h"
 
 #include <QEvent>
 #include <QLabel>
@@ -42,9 +43,13 @@ class QSlider;
 class Rim3dView;
 class RimCase;
 class RimViewWindow;
+class RimWorkflow;
+class RimWorkflowJob;
+class RimWorkflowFieldBinding;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
+class RiuBatchQueueMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuDepthQwtPlot;
@@ -53,6 +58,7 @@ class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
+class RiuWorkflowEditorWidget;
 
 class RicGridCalculatorDialog;
 
@@ -126,6 +132,14 @@ public:
 
     RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
 
+    void                     workflowBindingChanged( const RimWorkflowFieldBinding* binding );
+    void                     workflowJobStateChanged( const RimWorkflowJob* job );
+    void                     workflowDefinitionChanged( RimWorkflow* workflow );
+    RimWorkflow*             displayedWorkflow() const;
+    RiuWorkflowEditorWidget* workflowEditor() const;
+
+    void restartBatchMonitor();
+
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
@@ -138,6 +152,9 @@ private:
     void createMenus();
     void createToolBars();
     void createDockPanels();
+    void showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job );
+    void showWorkflowTaskProperties( const QString& taskName );
+    void updateWorkflowDockTitle();
 
     void restoreTreeViewState();
 
@@ -174,6 +191,7 @@ private:
 
     RiuResultInfoPanel*       m_resultInfoPanel;
     RiuProcessMonitor*        m_processMonitor;
+    RiuBatchQueueMonitor*     m_batchMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
     RiuResultQwtPlot*                 m_resultQwtPlot;
@@ -277,4 +295,6 @@ private:
     QToolBar* m_holoLensToolBar;
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
+    QPointer<ads::CDockWidget>              m_workflowGraphDock;
+    QPointer<RiuWorkflowEditorWidget>       m_workflowEditor;
 };

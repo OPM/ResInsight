@@ -48,10 +48,11 @@ ThirdParty\vcpkg\bootstrap-vcpkg.bat
 
 ### Cloud Service API
 
-The local Cloud Service API (`scripts/ri-cloud-api`, a git submodule) runs in the Python
+The local Cloud Service API (`scripts/ri-cloud-api`, a git submodule) runs, by default, in the Python
 interpreter configured under *Preferences -> Scripting -> Python Executable Location*, the same one
-used for `rips`. ResInsight does not install its dependencies, so they have to be installed into
-that environment up front. See [cloud-service-api.md](../cloud-service-api.md).
+used for `rips`. A dedicated interpreter can instead be enabled under *Preferences -> RI Cloud API*.
+ResInsight does not install its dependencies, so they have to be installed into whichever environment
+is in use, up front. See [cloud-service-api.md](../cloud-service-api.md).
 
 ## Build Commands
 
@@ -73,7 +74,6 @@ ninja -C build
 
 # Build specific targets
 ninja -C build ResInsight
-ninja -C build extract-projectfile-versions
 ```
 
 ### Windows (Visual Studio 2022)
@@ -95,7 +95,6 @@ cmake --build --preset x64-relwithdebinfo
 
 # Build specific targets
 cmake --build --preset x64-relwithdebinfo --target ResInsight
-cmake --build --preset x64-relwithdebinfo --target extract-projectfile-versions
 ```
 
 **Important — use `cmake --build`, not `ninja` directly, when sharing `build/` with Visual Studio:**

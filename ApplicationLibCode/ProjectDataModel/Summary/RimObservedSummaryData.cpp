@@ -33,6 +33,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimObservedSummaryData, "ObservedData" );
 RimObservedSummaryData::RimObservedSummaryData()
 {
     m_isObservedData = true;
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data" );
     m_importedSummaryData.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );

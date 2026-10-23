@@ -200,6 +200,10 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering( QString uiConfigName, 
 
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_targets );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                            static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FIT_CONTENT ) );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, (bool)m_enablePicking );
+    m_targets.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::BASE_COLOR, m_enablePicking ? QColor( 255, 220, 255 ) : QColor() );
     uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points",
                              [this]()
                              {
@@ -271,29 +275,6 @@ void RimUserDefinedPolylinesAnnotation::defineCustomContextMenu( const caf::PdmF
     menuBuilder << "RicDeletePolylineTargetFeature";
 
     menuBuilder.appendToMenu( menu );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                               QString                    uiConfigName,
-                                                               caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_targets )
-    {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
-        {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
-
-            if ( m_enablePicking )
-            {
-                tvAttribute->baseColor.setRgb( 255, 220, 255 );
-                tvAttribute->alwaysEnforceResizePolicy = true;
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

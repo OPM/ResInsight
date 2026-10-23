@@ -519,6 +519,9 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( eParam.isNumeric() || m_filterMode() == FilterMode::SUMMARY_VALUE )
     {
         uiOrdering.add( &m_valueRange );
+        m_valueRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 100 );
+        m_valueRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, m_lowerLimit );
+        m_valueRange.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, m_upperLimit );
     }
     else if ( eParam.isText() )
     {
@@ -531,23 +534,6 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_valueRange )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            attr->m_sliderTickCount = 100;
-
-            attr->m_minimum = m_lowerLimit;
-            attr->m_maximum = m_upperLimit;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

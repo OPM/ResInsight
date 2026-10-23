@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RimCompletionEnums.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -41,47 +42,36 @@ class RimSegmentCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class ReferenceMDType
+    using ReferenceMDType = RimCompletionEnums::ReferenceMDType;
+
+    enum class CompsegsSegmentNumberType
     {
-        AUTO_REFERENCE_MD = 0,
-        MANUAL_REFERENCE_MD
+        ASSIGNED_BY_SIMULATOR,
+        EXPORTED
     };
 
-    enum class PressureDropType
-    {
-        HYDROSTATIC,
-        HYDROSTATIC_FRICTION,
-        HYDROSTATIC_FRICTION_ACCELERATION
-    };
-
-    enum class LengthAndDepthType
-    {
-        ABS,
-        INC
-    };
-
-    using ReferenceMDEnum    = caf::AppEnum<ReferenceMDType>;
-    using PressureDropEnum   = caf::AppEnum<PressureDropType>;
-    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
+    using ReferenceMDEnum           = caf::AppEnum<ReferenceMDType>;
+    using CompsegsSegmentNumberEnum = caf::AppEnum<CompsegsSegmentNumberType>;
 
     RimSegmentCollection();
 
-    ReferenceMDType    referenceMDType() const;
-    double             manualReferenceMD() const;
-    double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    double             linerDiameter() const;
-    double             roughnessFactor() const;
-    double             roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    PressureDropEnum   pressureDrop() const;
-    LengthAndDepthEnum lengthAndDepth() const;
-    double             maxSegmentLength() const;
+    ReferenceMDType referenceMDType() const;
+    double          manualReferenceMD() const;
+    double          linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double          linerDiameter() const;
+    double          roughnessFactor() const;
+    double          roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    bool            singleSegmentBeforeFirstPerforation() const;
+    bool            singleSegmentAfterLastPerforation() const;
+    bool            exportCompsegsSegmentNumber() const;
 
     void setReferenceMDType( ReferenceMDType refType );
     void setManualReferenceMD( double manualRefMD );
     void setLinerDiameter( double diameter );
     void setRoughnessFactor( double roughnessFactor );
-    void setPressureDrop( PressureDropType pressureDropType );
-    void setLengthAndDepth( LengthAndDepthType lengthAndDepthType );
+    void setCompsegsSegmentNumber( CompsegsSegmentNumberType segmentNumberType );
+    void setSingleSegmentBeforeFirstPerforation( bool enable );
+    void setSingleSegmentAfterLastPerforation( bool enable );
 
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
@@ -98,6 +88,7 @@ public:
     void                                          updateOverlapVisualFeedback();
 
     std::vector<std::pair<double, double>> getSegmentIntervals() const;
+    std::vector<const RimSegmentInterval*> segmentationIntervals( const std::optional<QDateTime>& exportDate ) const;
     bool                                   hasCustomSegmentIntervals() const;
 
     void setUnitSystemSpecificDefaults();
@@ -108,7 +99,10 @@ public:
     static double defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    void updateMswSegments();
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -128,8 +122,8 @@ private:
 
     caf::PdmChildArrayField<RimSegmentInterval*> m_segmentIntervals;
 
-    caf::PdmField<PressureDropEnum>   m_pressureDrop;
-    caf::PdmField<LengthAndDepthEnum> m_lengthAndDepth;
-    caf::PdmField<bool>               m_enforceMaxSegmentLength;
-    caf::PdmField<double>             m_maxSegmentLength;
+    caf::PdmField<bool> m_singleSegmentBeforeFirstPerforation;
+    caf::PdmField<bool> m_singleSegmentAfterLastPerforation;
+
+    caf::PdmField<CompsegsSegmentNumberEnum> m_compsegsSegmentNumber;
 };

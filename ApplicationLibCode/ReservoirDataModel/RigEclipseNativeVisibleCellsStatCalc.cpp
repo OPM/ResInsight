@@ -145,9 +145,9 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
+std::optional<double> RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex )
 {
-    if ( !m_caseData ) return;
+    if ( !m_caseData ) return {};
 
     RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
@@ -155,24 +155,21 @@ void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t time
     // RigCaseCellResultsData::createPlaceholderResultEntries has not been executed
     if ( !m_caseData->ensureKnownResultLoaded( mobPorvAddress ) )
     {
-        return;
+        return {};
     }
 
-    m_caseData->ensureKnownResultLoaded( mobPorvAddress );
-
-    if ( !m_caseData->hasResultEntry( m_resultAddress ) ) return;
-    if ( m_caseData->timeStepCount( m_resultAddress ) == 0 ) return;
+    if ( !m_caseData->hasResultEntry( m_resultAddress ) ) return {};
+    if ( m_caseData->timeStepCount( m_resultAddress ) == 0 ) return {};
 
     const std::vector<double>& weights = m_caseData->cellScalarResults( mobPorvAddress, 0 );
     const std::vector<double>& values  = m_caseData->cellScalarResults( m_resultAddress, timeStepIndex );
 
     const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
 
-    RigWeightedMeanCalc::weightedMeanOverCells( &weights,
-                                                &values,
-                                                m_cellVisibilities.p(),
-                                                true,
-                                                actCellInfo,
-                                                m_caseData->isUsingGlobalActiveIndex( m_resultAddress ),
-                                                &result );
+    return RigWeightedMeanCalc::weightedMeanOverCells( &weights,
+                                                       &values,
+                                                       m_cellVisibilities.p(),
+                                                       true,
+                                                       actCellInfo,
+                                                       m_caseData->isUsingGlobalActiveIndex( m_resultAddress ) );
 }

@@ -321,11 +321,6 @@ bool RimSimWellInViewCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &isActive == changedField )
-    {
-        updateUiIconFromToggleField();
-    }
-
     if ( &m_showWellLabel == changedField )
     {
         for ( RimSimWellInView* w : wells )

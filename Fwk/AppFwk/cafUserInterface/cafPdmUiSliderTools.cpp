@@ -77,11 +77,11 @@ void PdmDoubleValidator::fixup( QString& stringValue ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderTools::updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes )
+void PdmUiSliderTools::updateSliderPosition( QSlider* slider, double value, double minimum, double maximum )
 {
     if ( !slider ) return;
 
-    int newSliderPosition = convertToSliderValue( slider, value, attributes );
+    int newSliderPosition = convertToSliderValue( slider, value, minimum, maximum );
     if ( slider->value() != newSliderPosition )
     {
         slider->blockSignals( true );
@@ -93,10 +93,9 @@ void PdmUiSliderTools::updateSliderPosition( QSlider* slider, double value, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiSliderTools::convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes )
+int PdmUiSliderTools::convertToSliderValue( QSlider* slider, double value, double minimum, double maximum )
 {
-    double exactSliderValue =
-        slider->maximum() * ( value - attributes.m_minimum ) / ( attributes.m_maximum - attributes.m_minimum );
+    double exactSliderValue = slider->maximum() * ( value - minimum ) / ( maximum - minimum );
 
     int sliderValue = static_cast<int>( exactSliderValue + 0.5 );
     sliderValue     = qBound( slider->minimum(), sliderValue, slider->maximum() );
@@ -107,13 +106,10 @@ int PdmUiSliderTools::convertToSliderValue( QSlider* slider, double value, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double PdmUiSliderTools::convertFromSliderValue( QSlider*                                slider,
-                                                 int                                     sliderValue,
-                                                 const PdmUiDoubleSliderEditorAttribute& attributes )
+double PdmUiSliderTools::convertFromSliderValue( QSlider* slider, int sliderValue, double minimum, double maximum )
 {
-    double clampedValue = attributes.m_minimum +
-                          sliderValue * ( attributes.m_maximum - attributes.m_minimum ) / slider->maximum();
-    clampedValue = qBound( attributes.m_minimum, clampedValue, attributes.m_maximum );
+    double clampedValue = minimum + sliderValue * ( maximum - minimum ) / slider->maximum();
+    clampedValue        = qBound( minimum, clampedValue, maximum );
 
     return clampedValue;
 }

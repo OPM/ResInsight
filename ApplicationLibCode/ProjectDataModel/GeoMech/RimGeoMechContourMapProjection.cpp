@@ -55,6 +55,11 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
     CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically" );
     CAF_PDM_InitField( &m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Horizontal Padding around PP regions" );
     m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_paddingAroundPorePressureRegion.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_paddingAroundPorePressureRegion.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 2.0 );
+    m_paddingAroundPorePressureRegion.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 4 );
+    m_paddingAroundPorePressureRegion.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE,
+                                                                    true );
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
 }
@@ -396,27 +401,6 @@ void RimGeoMechContourMapProjection::defineUiOrdering( QString uiConfigName, caf
     group->add( &m_paddingAroundPorePressureRegion );
     m_applyPPRegionLimitVertically.uiCapability()->setUiReadOnly( !m_limitToPorePressureRegions() );
     m_paddingAroundPorePressureRegion.uiCapability()->setUiReadOnly( !m_limitToPorePressureRegions() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                            QString                    uiConfigName,
-                                                            caf::PdmUiEditorAttribute* attribute )
-{
-    RimContourMapProjection::defineEditorAttribute( field, uiConfigName, attribute );
-    if ( field == &m_paddingAroundPorePressureRegion )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum                       = 0.0;
-            myAttr->m_maximum                       = 2.0;
-            myAttr->m_sliderTickCount               = 4;
-            myAttr->m_delaySliderUpdateUntilRelease = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

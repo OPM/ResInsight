@@ -120,6 +120,9 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitScriptableFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density" );
     CAF_PDM_InitScriptableField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
+
     CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters" );
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
@@ -190,6 +193,8 @@ RimWellPathCompletionSettings& RimWellPathCompletionSettings::operator=( const R
     m_wellBoreFluidPVTTable = rhs.m_wellBoreFluidPVTTable;
     m_hydrostaticDensity    = rhs.m_hydrostaticDensity;
     m_fluidInPlaceRegion    = rhs.m_fluidInPlaceRegion;
+    m_pressureDrop          = rhs.m_pressureDrop;
+    m_lengthAndDepth        = rhs.m_lengthAndDepth;
     return *this;
 }
 
@@ -430,6 +435,38 @@ int RimWellPathCompletionSettings::fluidInPlaceRegion() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellPathCompletionSettings::PressureDropEnum RimWellPathCompletionSettings::pressureDrop() const
+{
+    return m_pressureDrop();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathCompletionSettings::LengthAndDepthEnum RimWellPathCompletionSettings::lengthAndDepth() const
+{
+    return m_lengthAndDepth();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::setPressureDrop( PressureDropType pressureDropType )
+{
+    m_pressureDrop = pressureDropType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::setLengthAndDepth( LengthAndDepthType lengthAndDepthType )
+{
+    m_lengthAndDepth = lengthAndDepthType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QRegularExpression RimWellPathCompletionSettings::wellNameForExportRegExp()
 {
     return QRegularExpression( "[\\w\\-\\_]{1,8}" );
@@ -441,6 +478,26 @@ QRegularExpression RimWellPathCompletionSettings::wellNameForExportRegExp()
 RimMswCompletionParameters* RimWellPathCompletionSettings::mswCompletionParameters() const
 {
     return m_mswParameters();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Copy WELSEGS header settings from legacy MSW parameters, if they differ from the defaults
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::importLegacyMswData( const RimMswCompletionParameters* legacyParameters )
+{
+    if ( !legacyParameters ) return;
+
+    const auto legacyPressureDrop = static_cast<RimMswCompletionParameters::PressureDropType>( legacyParameters->pressureDrop() );
+    if ( legacyPressureDrop != RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION )
+    {
+        m_pressureDrop = static_cast<PressureDropType>( static_cast<int>( legacyPressureDrop ) );
+    }
+
+    const auto legacyLengthAndDepth = static_cast<RimMswCompletionParameters::LengthAndDepthType>( legacyParameters->lengthAndDepth() );
+    if ( legacyLengthAndDepth != RimMswCompletionParameters::LengthAndDepthType::ABS )
+    {
+        m_lengthAndDepth = static_cast<LengthAndDepthType>( static_cast<int>( legacyLengthAndDepth ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,6 +521,10 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
         compExportGroup->add( &m_wellBoreFluidPVTTable );
         compExportGroup->add( &m_hydrostaticDensity );
         compExportGroup->add( &m_fluidInPlaceRegion );
+
+        caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well (WELSEGS)" );
+        mswGroup->add( &m_pressureDrop );
+        mswGroup->add( &m_lengthAndDepth );
     }
 
     uiOrdering.skipRemainingFields( true );

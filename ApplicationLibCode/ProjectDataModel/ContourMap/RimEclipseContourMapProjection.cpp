@@ -246,7 +246,14 @@ void RimEclipseContourMapProjection::clearResultVariable()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateGridInformation()
 {
-    auto eclipseCase     = this->eclipseCase();
+    auto eclipseCase = this->eclipseCase();
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() )
+    {
+        m_contourMapGrid.reset();
+        m_contourMapProjection.reset();
+        return;
+    }
+
     auto eclipseCaseData = eclipseCase->eclipseCaseData();
     auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
@@ -389,6 +396,8 @@ std::pair<double, double> RimEclipseContourMapProjection::computeMinMaxValuesAll
 {
     double minimum = std::numeric_limits<double>::infinity();
     double maximum = -std::numeric_limits<double>::infinity();
+
+    if ( !eclipseCase() ) return std::make_pair( minimum, maximum );
 
     int timeStepCount = std::max( static_cast<int>( eclipseCase()->timeStepStrings().size() ), 1 );
     for ( int i = 0; i < (int)timeStepCount; ++i )

@@ -213,17 +213,23 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectHandle::updateUiIconFromToggleField()
+void PdmUiObjectHandle::updateUiIconFromToggleField( const QString& uiConfigName )
 {
-    if ( objectToggleField() )
-    {
-        PdmUiFieldHandle* uiFieldHandle = objectToggleField()->uiCapability();
-        if ( uiFieldHandle )
-        {
-            bool active = uiFieldHandle->uiValue().toBool();
-            updateUiIconFromState( active );
-        }
-    }
+    auto* toggleField = objectToggleField();
+    if ( !toggleField ) return;
+
+    auto* uiFieldHandle = toggleField->uiCapability();
+    if ( !uiFieldHandle ) return;
+
+    updateUiIconFromState( uiFieldHandle->uiValue().toBool(), uiConfigName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiObjectHandle::onAfterRead()
+{
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

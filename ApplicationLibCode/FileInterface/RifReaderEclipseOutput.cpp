@@ -736,8 +736,8 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
-                RigConnectionContainer nncConnections;
-                std::vector<double>    transmissibilityValuesTemp;
+                std::vector<RigConnection> nncConnections;
+                std::vector<double>        transmissibilityValuesTemp;
 
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
@@ -1057,6 +1057,10 @@ void RifReaderEclipseOutput::sourSimRlResult( const QString& result, size_t step
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifReaderEclipseOutput::allTimeSteps() const
 {
+    // allTimeSteps() is also used to discover the time steps a case has before any dynamic result has actually
+    // been requested, so the underlying restart file access must be created here rather than assumed present.
+    const_cast<RifReaderEclipseOutput*>( this )->ensureDynamicResultAccessIsPresent();
+
     std::vector<QDateTime> steps;
     if ( m_dynamicResultsAccess.notNull() )
     {

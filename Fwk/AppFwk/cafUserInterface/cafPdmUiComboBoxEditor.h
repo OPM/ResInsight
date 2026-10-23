@@ -51,45 +51,6 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiComboBoxEditorAttribute()
-    {
-        adjustWidthToContents      = false;
-        showPreviousAndNextButtons = false;
-        minimumContentsLength      = 8;
-        maximumMenuContentsLength  = 40;
-        enableEditableContent      = false;
-        enableAutoComplete         = true;
-        minimumWidth               = -1;
-        iconSize                   = QSize( 14, 14 );
-        notifyWhenTextIsEdited     = false;
-    }
-
-public:
-    bool adjustWidthToContents;
-    bool showPreviousAndNextButtons;
-    int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
-                               // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
-    int     maximumMenuContentsLength;
-    bool    enableEditableContent;
-    bool    enableAutoComplete;
-    int     minimumWidth;
-    QString placeholderText;
-    QString nextButtonText;
-    QString prevButtonText;
-
-    QSize iconSize;
-    QIcon nextIcon;
-    QIcon previousIcon;
-
-    bool notifyWhenTextIsEdited;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class PdmUiComboBoxEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
@@ -157,7 +118,28 @@ private:
     QPointer<QHBoxLayout> m_layout;
     QPointer<QWidget>     m_placeholder;
 
-    PdmUiComboBoxEditorAttribute m_attributes;
+    struct Attributes
+    {
+        bool adjustWidthToContents      = false;
+        bool showPreviousAndNextButtons = false;
+        int  minimumContentsLength      = 8; // The length of string to adjust to if adjustWidthToContents = false.
+                                       // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
+        int     maximumMenuContentsLength = 40;
+        bool    enableEditableContent     = false;
+        bool    enableAutoComplete        = true;
+        int     minimumWidth              = -1;
+        QString placeholderText;
+        QString nextButtonText;
+        QString prevButtonText;
+
+        QSize iconSize = QSize( 14, 14 );
+        QIcon nextIcon;
+        QIcon previousIcon;
+
+        bool notifyWhenTextIsEdited = false;
+    };
+
+    Attributes m_attributes;
 
     QString m_interactiveEditText;
     int     m_interactiveEditCursorPosition;

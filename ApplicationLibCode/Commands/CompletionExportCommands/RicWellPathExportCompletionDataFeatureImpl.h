@@ -67,10 +67,22 @@ public:
     static std::vector<RigCompletionData>
         completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, const std::optional<QDateTime>& exportDate = std::nullopt );
 
+    // Completion data for several well paths (including their laterals), combined per cell into one connection.
+    // Connections are ordered with each well path's mainbore connections first, followed by each lateral's
+    // (depth-first), matching ResInsight's internal completion ordering (see
+    // https://github.com/OPM/ResInsight/issues/14963).
+    static std::vector<RigCompletionData> completionDataForWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                                      RimEclipseCase*                  eCase,
+                                                                      const std::optional<QDateTime>&  exportDate = std::nullopt );
+
     static std::pair<double, cvf::Vec2i>
         wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "" );
 
     static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase* eclipseCase, size_t timeStepIndex );
+
+    // Completion number for a cell with several contributions: the number with the largest summed MD overlap
+    // (endMD - startMD) wins, ties go to the lowest number. Independent of contribution order.
+    static std::optional<int> completionNumberForCell( const std::vector<RigCompletionData>& completions );
 
 private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( const RimWellPath*                                wellPath,

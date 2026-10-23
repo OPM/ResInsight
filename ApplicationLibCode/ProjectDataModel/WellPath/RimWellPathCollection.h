@@ -48,7 +48,6 @@ class RimProject;
 class RimWellLogLasFile;
 class RimWellLogFile;
 class RimWellPath;
-class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class RimWellLog;
 class RimEclipseCase;
@@ -111,6 +110,7 @@ public:
     bool                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
+    cvf::BoundingBox          wellPathsBoundingBox() const;
     void                      removeWellPath( RimWellPath* wellPath );
 
     void deleteAllWellPaths();
@@ -124,14 +124,13 @@ public:
 
     bool showMswSegmentBands() const;
 
-    RimWellPath* mostRecentlyUpdatedWellPath();
-
     void         readWellPathFormationFiles();
     void         reloadAllWellPathFormations();
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
     RimWellPath* tryFindMatchingWellPath( const QString& wellName ) const;
     void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    void         addWellPath( RimWellPath* wellPath );
+    // Set assignUnit to false for copies of existing well paths, as they already carry unit specific settings
+    void addWellPath( RimWellPath* wellPath, bool assignUnit = true );
 
     std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                            addWellPathFormations( const QStringList& filePaths );
@@ -176,6 +175,7 @@ private:
     std::expected<std::vector<RimFileWellPath*>, QString> addWellPathsForFile( const QString& filePath );
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
+    void                                        assignUnitSystem( RimWellPath* wellPath );
 
     std::vector<RimWellPath*>                    wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
     std::map<QString, std::vector<RimWellPath*>> wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
@@ -187,10 +187,8 @@ private:
     void updateMswSegments();
 
 private:
-    std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
-    std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;
+    std::unique_ptr<RifWellPathImporter> m_wellPathImporter;
 
-    caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
     caf::PdmChildField<RimWellEventTimeline*>         m_eventTimeline;
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;

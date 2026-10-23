@@ -29,6 +29,7 @@
 
 #include "Histogram/RimHistogramMultiPlot.h"
 #include "Histogram/RimHistogramPlot.h"
+#include "RimCurveStyleRules.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
@@ -78,6 +79,7 @@
 #include "DockManager.h"
 
 #include <QCloseEvent>
+#include <QFrame>
 #include <QLayout>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -99,8 +101,6 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_autoUpdateEnabled( false )
     , m_autoUpdateTimerId( -1 )
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-
     setUpCentralDockWidget();
     createActions();
     createMenus();
@@ -127,6 +127,7 @@ RiuPlotMainWindow::~RiuPlotMainWindow()
     setBeingDestroyed();
 
     m_summaryPlotManagerView->showProperties( nullptr );
+    m_curveStyleRulesView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
 
@@ -170,6 +171,8 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
+
+    m_curveStyleRulesView->showProperties( RimProject::current()->curveStyleRules() );
 
     RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
     mainPlotColl->ensureDefaultFlowPlotsAreCreated();
@@ -244,6 +247,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     {
         pdmUiPropertyView->showProperties( nullptr );
     }
+    m_curveStyleRulesView->showProperties( nullptr );
 
     cleanUpTemporaryWidgets();
 
@@ -275,6 +279,12 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
 {
+    if ( hasBeenClosed() )
+    {
+        event->accept();
+        return;
+    }
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app->isMain3dWindowVisible() )
     {
@@ -409,7 +419,6 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     {
         commandIds << "RicImportSummaryCaseFeature";
         commandIds << "RicImportGridAndSummaryEnsembleFeature";
-        commandIds << "RicImportEnsembleFeature";
         commandIds << "Separator";
         commandIds << "RicOpenProjectFeature";
         commandIds << "RicSaveProjectFeature";
@@ -588,6 +597,16 @@ void RiuPlotMainWindow::createDockPanels()
         rightWidgets.push_back( dockWidget );
     }
 
+    // the global curve appearance and per item rules, stored in the project
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Curve Appearance", RiuDockWidgetTools::plotMainWindowCurveAppearanceName(), dockManager() );
+
+        m_curveStyleRulesView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( m_curveStyleRulesView.get() );
+        rightWidgets.push_back( dockWidget );
+    }
+
     // the undo stack
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
@@ -760,6 +779,28 @@ RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog
 RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 {
     return m_messagePanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::showCurveAppearance()
+{
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowCurveAppearanceName() );
+    if ( !dockWidget ) return;
+
+    dockWidget->toggleView( true );
+    dockWidget->raise();
+    dockWidget->setAsCurrentTab();
+
+    // Briefly outline the dock edges so the user sees where the settings are, also when it was already visible
+    auto outline = new QFrame( dockWidget );
+    outline->setAttribute( Qt::WA_TransparentForMouseEvents );
+    outline->setStyleSheet( "QFrame { background: transparent; border: 3px solid rgb(255, 160, 0); }" );
+    outline->setGeometry( dockWidget->rect() );
+    outline->show();
+    outline->raise();
+    QTimer::singleShot( 1000, outline, &QObject::deleteLater );
 }
 
 //--------------------------------------------------------------------------------------------------

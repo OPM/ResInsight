@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimPlotCurveAppearance.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
@@ -74,11 +75,13 @@ public:
     void                                setSymbolSize( int sizeInPixels );
     void                                setLineThickness( int thickness );
     void                                resetAppearance();
-    virtual Qt::BrushStyle              fillStyle() const;
-    void                                setFillStyle( Qt::BrushStyle brushStyle );
-    void                                setFillColor( const cvf::Color3f& fillColor );
-    void                                setFillColorOpacity( float opacity );
-    void                                setCurveColorOpacity( float opacity );
+
+    RimPlotCurveAppearance* curveAppearance() const { return m_curveAppearance(); }
+    virtual Qt::BrushStyle  fillStyle() const;
+    void                    setFillStyle( Qt::BrushStyle brushStyle );
+    void                    setFillColor( const cvf::Color3f& fillColor );
+    void                    setFillColorOpacity( float opacity );
+    void                    setCurveColorOpacity( float opacity );
 
     bool isChecked() const;
     void setCheckState( bool isChecked );
@@ -133,11 +136,14 @@ public:
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
 
-    void          attach( RiuPlotWidget* );
-    void          detach( bool deletePlotCurve = false );
-    void          reattach( bool updateParentPlot = true );
-    bool          isSameCurve( const RiuPlotCurve* plotCurve ) const;
-    void          deletePlotCurve();
+    void attach( RiuPlotWidget* );
+    void detach( bool deletePlotCurve = false );
+    void reattach( bool updateParentPlot = true );
+    bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
+    void deletePlotCurve();
+
+    // Deletes this curve if its data source is missing. Returns true if deleted; the object must not be accessed afterwards.
+    virtual bool  deleteIfDataSourceIsMissing();
     RiuPlotCurve* plotCurve() const;
 
     std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
@@ -189,7 +195,7 @@ protected:
     void updateYAxisInPlot( RiuPlotAxis plotAxis );
     void updateXAxisInPlot( RiuPlotAxis plotAxis );
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 

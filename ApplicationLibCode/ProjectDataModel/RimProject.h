@@ -52,6 +52,7 @@ class RimObservedSummaryData;
 class RimOilField;
 class RimColorLegendCollection;
 class RimScriptCollection;
+class RimWorkflowCollection;
 class RimSummaryCase;
 class RimSummaryEnsemble;
 class RimSummaryCaseMainCollection;
@@ -70,6 +71,7 @@ class RimCompletionTemplateCollection;
 class RimPlotTemplateFolderItem;
 class RimGridCalculationCollection;
 class RimQuickAccessCollection;
+class RimCurveStyleRules;
 class RimAutomationSettings;
 class RimJobCollection;
 class RimEnsembleFileSetCollection;
@@ -98,6 +100,7 @@ public:
     caf::PdmChildArrayField<RimOilField*>                oilFields;
     caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
+    caf::PdmChildField<RimWorkflowCollection*>           workflowCollection;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
@@ -192,6 +195,7 @@ public:
     void updatesAfterProjectFileIsRead();
 
     RimQuickAccessCollection*     pinnedFieldCollection() const;
+    RimCurveStyleRules*           curveStyleRules() const;
     RimAutomationSettings*        automationSettings() const;
     RimEnsembleFileSetCollection* ensembleFileSetCollection() const;
     RimJobCollection*             jobCollection() const;
@@ -206,6 +210,7 @@ protected:
 private:
     caf::PdmChildField<RimMainPlotCollection*>        m_mainPlotCollection;
     caf::PdmChildField<RimQuickAccessCollection*>     m_pinnedFieldCollection;
+    caf::PdmChildField<RimCurveStyleRules*>           m_curveStyleRules;
     caf::PdmChildField<RimAutomationSettings*>        m_automationSettings;
     caf::PdmChildField<RimEnsembleFileSetCollection*> m_ensembleFileSetCollection;
     caf::PdmChildField<RimJobCollection*>             m_jobCollection;

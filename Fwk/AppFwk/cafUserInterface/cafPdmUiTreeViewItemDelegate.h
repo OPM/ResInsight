@@ -43,6 +43,7 @@
 
 #include <QAbstractItemModel>
 #include <QEvent>
+#include <QHelpEvent>
 #include <QModelIndex>
 #include <QPoint>
 #include <QRect>
@@ -60,24 +61,29 @@ public:
     PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent );
     void clearTags( QModelIndex index );
     void clearAllTags();
-    void addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag );
+    void addTag( QModelIndex index, const PdmUiTreeViewItemTag& tag );
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
-    std::vector<const PdmUiTreeViewItemAttribute::Tag*> tags( QModelIndex index ) const;
+    std::vector<const PdmUiTreeViewItemTag*> tags( QModelIndex index ) const;
 
 protected:
     bool  editorEvent( QEvent*                     event,
                        QAbstractItemModel*         model,
                        const QStyleOptionViewItem& option,
                        const QModelIndex&          itemIndex ) override;
-    bool  tagClicked( const QPoint&                           clickPos,
-                      const QRect&                            itemRect,
-                      const QModelIndex&                      itemIndex,
-                      const PdmUiTreeViewItemAttribute::Tag** tag ) const;
+    bool  helpEvent( QHelpEvent*                 event,
+                     QAbstractItemView*          view,
+                     const QStyleOptionViewItem& option,
+                     const QModelIndex&          itemIndex ) override;
+    bool  tagClicked( const QPoint&                clickPos,
+                      const QRect&                 itemRect,
+                      const QModelIndex&           itemIndex,
+                      const PdmUiTreeViewItemTag** tag ) const;
     QRect tagRect( const QRect& itemRect, QModelIndex itemIndex, size_t tagIndex ) const;
 
 private:
     PdmUiTreeViewEditor* m_treeView;
 
-    std::map<QModelIndex, std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>> m_tags;
+    // The tag rects are updated when painting
+    mutable std::map<QModelIndex, std::vector<PdmUiTreeViewItemTag>> m_tags;
 };
 } // namespace caf

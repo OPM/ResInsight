@@ -288,13 +288,6 @@ void RimTernaryLegendConfig::setTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::ternaryRanges( double& soilLower,
                                             double& soilUpper,
                                             double& sgasLower,

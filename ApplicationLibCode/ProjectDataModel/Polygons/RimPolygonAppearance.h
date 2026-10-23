@@ -40,6 +40,12 @@ public:
     void         setLineColor( const cvf::Color3f& color );
 
     bool showLines() const;
+    void setShowLines( bool showLines );
+
+    bool showSpheres() const;
+    void setShowSpheres( bool showSpheres );
+    void setSphereRadiusFactor( double radiusFactor );
+    void setSphereColor( const cvf::Color3f& color );
 
 public:
     RimPolygonAppearance();
@@ -47,9 +53,10 @@ public:
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    std::pair<double, double> computePolygonPlaneDepthLimits() const;
+
     caf::PdmField<bool>         m_isClosed;
     caf::PdmField<bool>         m_showLines;
     caf::PdmField<int>          m_lineThickness;

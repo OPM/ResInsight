@@ -46,18 +46,6 @@
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiDateEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    QString dateFormat;
-
-public:
-    PdmUiDateEditorAttribute() {}
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -73,6 +61,7 @@ public:
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
     {
+        // Plain string or std::function<QString()>, set with setAttribute()
         static inline const QString DATE_FORMAT = QStringLiteral( "dateFormat" );
     };
 
@@ -88,8 +77,6 @@ protected slots:
 
 private:
     QPointer<QDateTimeEdit> m_dateEdit;
-
-    PdmUiDateEditorAttribute m_attributes;
 };
 
 } // end namespace caf

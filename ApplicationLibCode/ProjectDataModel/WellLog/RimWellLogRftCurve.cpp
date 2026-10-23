@@ -330,6 +330,21 @@ RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::deleteIfDataSourceIsMissing()
+{
+    if ( m_eclipseCase || m_summaryCase || m_ensemble || m_observedFmuRftData || m_pressureDepthData ) return false;
+
+    auto track = firstAncestorOrThisOfType<RimWellLogTrack>();
+    if ( !track ) return false;
+
+    track->removeCurve( this );
+    delete this;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setPressureDepthData( RimPressureDepthData* observedFmuRftData )
 {
     m_pressureDepthData = observedFmuRftData;
@@ -1218,28 +1233,6 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
     };
 
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::rftCurveDepthValues( RifReaderRftInterface*      reader,
-                                                             const QString&              wellName,
-                                                             const QDateTime&            timeStep,
-                                                             RigEclipseWellLogExtractor* extractor )
-{
-    if ( !reader ) return {};
-
-    auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
-    std::vector<double> depths;
-    reader->values( mdAddress, &depths );
-    if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-    if ( depths.empty() )
-    {
-        auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-        reader->values( tvdAddress, &depths );
-    }
-    return depths;
 }
 
 //--------------------------------------------------------------------------------------------------

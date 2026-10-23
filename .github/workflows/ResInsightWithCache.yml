@@ -7,6 +7,9 @@ on:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is
     - cron: '0 1 * * *'
+  # Allows manually re-running the full pipeline (e.g. to re-verify the
+  # publish-dev-build job) without needing a new commit.
+  workflow_dispatch:
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -22,6 +25,10 @@ jobs:
         config:
           - {
               name: "Windows_2022_qt_610",
+              # Published to the dev-builds distribution repo as
+              # <dist-name>.zip (see the publish-dev-build job below). Left
+              # empty for configs that should not be published there.
+              dist-name: "ResInsight-Windows",
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
@@ -38,6 +45,7 @@ jobs:
             }
           - {
               name: "Ubuntu 24.04 gcc",
+              dist-name: "ResInsight-Ubuntu",
               os: ubuntu-24.04,
               cc: "gcc-14",
               cxx: "g++-14",
@@ -54,6 +62,7 @@ jobs:
             }
           - {
               name: "Ubuntu 24.04 clang-19",
+              dist-name: "",
               os: ubuntu-24.04,
               cc: "clang-19",
               cxx: "clang++-19",
@@ -93,12 +102,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
 
       - name: Get Python executable path
         shell: bash
@@ -133,6 +142,9 @@ jobs:
         run: echo "timestamp ${{ steps.current-time.outputs.formattedTime }}"
 
       - name: Restore Buildcache
+        # The nightly scheduled run starts from an empty cache and saves a
+        # freshly built one; all other runs restore the latest nightly cache.
+        if: github.event_name != 'schedule'
         id: cache-buildcache
         uses: actions/cache/restore@v6
         with:
@@ -249,11 +261,14 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
+        # Restore only. The cache is saved by the "Save vcpkg cache" step after a
+        # successful Configure, so failed or cancelled jobs never write partial
+        # caches.
+        uses: actions/cache/restore@v6
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          prefix: vcpkg-${{ matrix.config.cxx}}/
-          
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+
       - name: Print CMake version
         shell: bash
         run: |
@@ -269,7 +284,7 @@ jobs:
         shell: bash
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching" # Possibly redundant, but explicitly sets the binary caching feature flag
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite"
           CC: ${{ matrix.config.cc }}
           CXX: ${{ matrix.config.cxx }}
         run: >
@@ -289,6 +304,14 @@ jobs:
           -DRESINSIGHT_ENABLE_HDF5=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
+
+      - name: Save vcpkg cache
+        # Only after a fully successful Configure (all ports built)
+        if: success() && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: |
@@ -359,21 +382,26 @@ jobs:
         if: matrix.config.publish-to-pypi
         uses: actions/upload-artifact@v7
         with:
-          name: python-distribution
+          name: dist-python
           path: GrpcInterface/Python/dist
           retention-days: 5
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ResInsight-${{ matrix.config.name }}
+          # Configs with a non-empty matrix.config.dist-name are uploaded
+          # under a dist-<dist-name> artifact name, which the publish-dev-build
+          # job below uses directly as the published asset name. Configs
+          # without a dist-name (e.g. the clang-19 CI-only build) keep the
+          # old descriptive name and are not published.
+          name: ${{ matrix.config.dist-name != '' && format('dist-{0}', matrix.config.dist-name) || format('ResInsight-{0}', matrix.config.name) }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
           retention-days: 5
 
   pypi-publish:
     name: Upload release to PyPI
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: pypi
       url: https://pypi.org/p/rips
@@ -386,7 +414,7 @@ jobs:
     - name: Download python distribution folder
       uses: actions/download-artifact@v8
       with:
-        name: python-distribution
+        name: dist-python
         path: dist
 
     - name: Display structure of downloaded files
@@ -395,3 +423,93 @@ jobs:
     - name: Publish Python package to pypi
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-dev-build:
+    name: Publish dev build to distribution repo
+    needs: build
+    runs-on: ubuntu-24.04
+    # Publishes a rolling `dev` pre-release to CeetronSolutions/resinsight-builds
+    # (see magnesj/ResInsight#1093). Restricted to OPM/ResInsight and to
+    # schedule/workflow_dispatch to limit how often it runs.
+    if: >-
+      github.repository == 'OPM/ResInsight' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/dev'
+    concurrency:
+      group: publish-dev-build
+      cancel-in-progress: true
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Package assets
+        # Only matrix configs with a dist-name are published (dist-<dist-name>);
+        # the zip name matches the dist-name directly. The dist-python
+        # artifact (wheel/sdist built for pypi) is also published as-is.
+        shell: bash
+        run: |
+          set -e
+          mkdir dist
+          shopt -s nullglob
+          dirs=(artifacts/dist-*/)
+          # dist-python holds raw wheel/sdist files, not an install tree;
+          # publish it as-is instead of zipping it with the other dist-* dirs.
+          filtered_dirs=()
+          for d in "${dirs[@]}"; do
+            [ "$d" = "artifacts/dist-python/" ] || filtered_dirs+=("$d")
+          done
+          dirs=("${filtered_dirs[@]}")
+          if [ ${#dirs[@]} -eq 0 ]; then
+            echo "::error::No dist-* artifact directories found"
+            exit 1
+          fi
+          for d in "${dirs[@]}"; do
+            dest_name=$(basename "$d")
+            dest_name=${dest_name#dist-}
+            # upload-artifact drops file permissions; restore the exec bit on
+            # ELF binaries and scripts so they run directly after unzip.
+            while IFS= read -r -d '' f; do
+              case "$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')" in
+                7f454c46|2321*) chmod +x "$f" ;;
+              esac
+            done < <(find "$d" -type f -print0)
+            (cd "$d" && zip -qr "$GITHUB_WORKSPACE/dist/${dest_name}.zip" .)
+          done
+          # Publish the python wheel/sdist built for pypi alongside the zips,
+          # renamed to drop the version number so the rolling release always
+          # exposes a stable, predictable asset name.
+          if [ -d artifacts/dist-python ]; then
+            for f in artifacts/dist-python/*; do
+              case "$f" in
+                *.tar.gz) cp "$f" dist/rips.tar.gz ;;
+                *.whl) cp "$f" dist/rips.whl ;;
+                *) cp "$f" dist/ ;;
+              esac
+            done
+          fi
+          ls -l dist
+
+      - name: Update rolling release in builds repo
+        env:
+          GH_TOKEN: ${{ secrets.DEV_BUILDS_TOKEN }}
+          GH_REPO: CeetronSolutions/resinsight-builds
+          TAG: dev-latest
+        run: |
+          set -e
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --prerelease --title "ResInsight dev build" --notes "Rolling build"
+          fi
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          asset_list=$(cd dist && for f in *; do echo "- $f"; done)
+          notes=$(cat <<EOF
+          Built from OPM/ResInsight@${GITHUB_SHA::8} on $(date -u +%Y-%m-%dT%H:%MZ)
+          Source build job: $run_url
+
+          Published assets:
+          $asset_list
+          EOF
+          )
+          gh release edit "$TAG" --notes "$notes"
+          gh release upload "$TAG" dist/* --clobber

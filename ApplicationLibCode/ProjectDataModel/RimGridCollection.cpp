@@ -22,9 +22,13 @@
 #include "RimEclipseView.h"
 #include "RimGridView.h"
 
+#include "RigLocalGrid.h"
 #include "RigMainGrid.h"
+#include "RigNestedHybridGridReconstructor.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,6 +85,33 @@ void RimGridInfo::setName( const QString& name )
 void RimGridInfo::setEclipseGridIndex( int index )
 {
     m_eclipseGridIndex = index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridInfo::resetSimulatorGridIndices( int index )
+{
+    m_eclipseGridIndex = index;
+    m_additionalGridIndices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridInfo::addSimulatorGridIndex( int index )
+{
+    m_additionalGridIndices.push_back( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimGridInfo::simulatorGridIndices() const
+{
+    std::vector<int> indices = { m_eclipseGridIndex() };
+    indices.insert( indices.end(), m_additionalGridIndices.begin(), m_additionalGridIndices.end() );
+    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,7 +349,8 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
         {
             if ( gridInfo->isActive() )
             {
-                addIfValid( gridInfo->eclipseGridIndex() );
+                for ( int index : gridInfo->simulatorGridIndices() )
+                    addIfValid( index );
             }
         }
     }
@@ -375,6 +407,8 @@ void RimGridCollection::syncFromMainEclipseGrid()
         auto allTemporaryGrids  = m_temporaryLgrs->gridInfos();
         auto allPersistentGrids = m_persistentLgrs->gridInfos();
 
+        std::set<QString> groupedInfos;
+
         size_t gridCount = mainGrid->gridCount();
         for ( size_t i = 1; i < gridCount; i++ )
         {
@@ -399,18 +433,35 @@ void RimGridCollection::syncFromMainEclipseGrid()
             }
             else
             {
-                if ( m_persistentLgrs->containsGrid( gridName ) )
+                // Reconstructed nested hybrid LGRs are grouped into one entry per refinement level
+                const auto*   localGrid = dynamic_cast<const RigLocalGrid*>( grid );
+                const bool    isGrouped = localGrid && localGrid->isReconstructedGrid();
+                const QString infoName  = isGrouped ? RigNestedHybridGridReconstructor::levelGroupName( gridName ) : gridName;
+
+                RimGridInfo* existing = nullptr;
+                for ( auto* info : m_persistentLgrs->gridInfos() )
+                    if ( info->name() == infoName ) existing = info;
+
+                if ( existing )
                 {
-                    removeGridInfo( gridName, allPersistentGrids );
+                    removeGridInfo( infoName, allPersistentGrids );
+                    if ( isGrouped )
+                    {
+                        if ( groupedInfos.count( infoName ) )
+                            existing->addSimulatorGridIndex( (int)gridIndex );
+                        else
+                            existing->resetSimulatorGridIndices( (int)gridIndex );
+                    }
                 }
                 else
                 {
-                    auto gridInfo = new RimGridInfo();
-                    gridInfo->setName( gridName );
-                    gridInfo->setEclipseGridIndex( (int)gridIndex );
-                    gridInfo->setUiIconFromResourceString( ":/LGR16x16.png" );
-                    m_persistentLgrs->addGridInfo( gridInfo );
+                    existing = new RimGridInfo();
+                    existing->setName( infoName );
+                    existing->setEclipseGridIndex( (int)gridIndex );
+                    existing->setUiIconFromResourceString( ":/LGR16x16.png" );
+                    m_persistentLgrs->addGridInfo( existing );
                 }
+                if ( isGrouped ) groupedInfos.insert( infoName );
             }
         }
 

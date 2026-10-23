@@ -38,6 +38,7 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
 #include <string>
 
 class RiaPreferencesSummary;
@@ -48,6 +49,10 @@ class RiaPreferencesGrid;
 class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
+class RiaPreferencesCloudApi;
+class RiaPreferencesBatch;
+
+class QValidator;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -132,6 +137,8 @@ public:
     RiaPreferencesGrid*          gridPreferences() const;
     RiaPreferencesOpm*           opmPreferences() const;
     RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
+    RiaPreferencesCloudApi*      cloudApiPreferences() const;
+    RiaPreferencesBatch*         batchPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -158,8 +165,7 @@ public:
     caf::PdmField<QString> csvTextExportFieldSeparator;
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -171,10 +177,12 @@ private:
     static QString tabNameGeomech();
     static QString tabNamePlotting();
     static QString tabNameScripting();
+    static QString tabNameCloudApi();
     static QString tabNameSystem();
     static QString tabNameImportExport();
     static QString tabNameOpmFlow();
     static QString tabNameExperimental();
+    static QString tabNameBatchScheduler();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -219,7 +227,8 @@ private:
     caf::PdmField<double> m_surfaceImportResamplingDistance;
 
     // Well Path Import
-    caf::PdmField<QString> m_multiLateralWellPattern;
+    caf::PdmField<QString>      m_multiLateralWellPattern;
+    std::unique_ptr<QValidator> m_multiLateralWellPatternValidator;
 
     // Grid import
     caf::PdmChildField<RiaPreferencesGrid*> m_gridPreferences;
@@ -244,6 +253,12 @@ private:
 
     // OpenTelemetry settings
     caf::PdmChildField<RiaPreferencesOpenTelemetry*> m_openTelemetryPreferences;
+
+    // RI Cloud API settings
+    caf::PdmChildField<RiaPreferencesCloudApi*> m_cloudApiPreferences;
+
+    // Batch Scheduler settings
+    caf::PdmChildField<RiaPreferencesBatch*> m_batchPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

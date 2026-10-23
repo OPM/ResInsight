@@ -23,6 +23,18 @@ void AppEnum<MyEnum>::setUp()
     addItem( MyEnum::T6, "T6", "T6" );
     setDefault( MyEnum::T1 );
 }
+
+template <>
+void AppEnum<CollisionTestEnum>::setUp()
+{
+    addItem( CollisionTestEnum::T1, "T1", "T1" );
+    addItem( CollisionTestEnum::T2, "T2", "T2" );
+    addItem( CollisionTestEnum::T3, "T3", "T3" );
+    addItem( CollisionTestEnum::T4, "T4", "T4" );
+    addItem( CollisionTestEnum::T5, "T5", "T5" );
+    addItem( CollisionTestEnum::T6, "T6", "T6" );
+    setDefault( CollisionTestEnum::T1 );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( SimpleObj, "SimpleObj" );
@@ -170,6 +182,34 @@ InheritedDemoObj::InheritedDemoObj()
 void InheritedDemoObj::setUseAmbiguousEnumField( bool useAmbiguousEnumField )
 {
     s_useAmbiguousEnumField = useAmbiguousEnumField;
+}
+
+CAF_PDM_SOURCE_INIT( CollisionTestPdmObject, "CollisionTestPdmObject" );
+
+bool CollisionTestPdmObject::s_useCollisionEnumField    = false;
+bool CollisionTestPdmObject::s_useReservedNameEnumField = false;
+
+CollisionTestPdmObject::CollisionTestPdmObject()
+{
+    CAF_PDM_InitScriptableObject( "Collision Test Object" );
+    if ( s_useCollisionEnumField )
+    {
+        CAF_PDM_InitScriptableFieldNoDefault( &m_enumField, "MyAppEnumValue", "A duplicate enum class name" );
+    }
+    else if ( s_useReservedNameEnumField )
+    {
+        CAF_PDM_InitScriptableFieldNoDefault( &m_enumField, "Type", "An enum with a reserved class name" );
+    }
+}
+
+void CollisionTestPdmObject::setUseCollisionEnumField( bool useCollisionEnumField )
+{
+    s_useCollisionEnumField = useCollisionEnumField;
+}
+
+void CollisionTestPdmObject::setUseReservedNameEnumField( bool useReservedNameEnumField )
+{
+    s_useReservedNameEnumField = useReservedNameEnumField;
 }
 
 CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );

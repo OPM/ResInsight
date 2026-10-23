@@ -78,6 +78,7 @@ const std::vector<double>* RigFlowDiagResults::resultValues( const RigFlowDiagRe
 const RigActiveCellInfo* RigFlowDiagResults::activeCellInfo( const RigFlowDiagResultAddress& resVarAddr )
 {
     auto eclCase = m_flowDiagSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
+    if ( !eclCase || !eclCase->eclipseCaseData() ) return nullptr;
 
     return eclCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ); // Todo: base on
                                                                                                       // resVarAddr member
@@ -244,7 +245,10 @@ std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlo
                                        timeStepIndex,
                                        RigFlowDiagDefines::cellFractionResultName().toStdString(),
                                        RimFlowDiagSolution::TracerStatusType::PRODUCER );
-    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    const RigActiveCellInfo* actCellInfo = activeCellInfo( resVarAddr );
+    if ( !actCellInfo ) return nullptr;
+
+    size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
 
     std::vector<double> injectorTotalFractions;
     std::vector<double> injectorFractMultTof;
@@ -322,7 +326,10 @@ std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult( const Ri
     RigFlowDiagResultFrames* sumOfFractionsFrames = createScalarResult( resVarAddr );
     std::vector<double>&     sumOfFractions       = sumOfFractionsFrames->frameData( timeStepIndex );
 
-    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    const RigActiveCellInfo* actCellInfo = activeCellInfo( resVarAddr );
+    if ( !actCellInfo ) return nullptr;
+
+    size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
 
     calculateSumOfFractions( fractions, activeCellCount, &sumOfFractions );
 
@@ -361,7 +368,10 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult( c
         }
     }
 
-    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    const RigActiveCellInfo* actCellInfo = activeCellInfo( resVarAddr );
+    if ( !actCellInfo ) return nullptr;
+
+    size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
 
     RigFlowDiagResultFrames* maxFractionTracerIdxFrames = createScalarResult( resVarAddr );
     std::vector<double>&     maxFractionTracerIdx       = maxFractionTracerIdxFrames->frameData( timeStepIndex );
@@ -411,7 +421,10 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult( const Rig
                                        timeStepIndex,
                                        RigFlowDiagDefines::cellFractionResultName().toStdString(),
                                        RimFlowDiagSolution::TracerStatusType::PRODUCER );
-    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    const RigActiveCellInfo* actCellInfo = activeCellInfo( resVarAddr );
+    if ( !actCellInfo ) return nullptr;
+
+    size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
 
     std::vector<double> sumOfInjectorFractions;
     calculateSumOfFractions( injectorFractions, activeCellCount, &sumOfInjectorFractions );

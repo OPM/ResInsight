@@ -263,7 +263,8 @@ enum class View3dContent
     FLAT_INTERSECTION = 0b00000100,
     CONTOUR           = 0b00001000,
     SEISMIC           = 0b00010000,
-    ALL               = 0b00011111
+    DATA_OBJECTS      = 0b00100000,
+    ALL               = 0b00111111
 };
 
 enum class ItemIn3dView
@@ -273,6 +274,19 @@ enum class ItemIn3dView
     POLYGON     = 0b00000010,
     CONTOUR_MAP = 0b00000100,
     ALL         = 0b00000111
+};
+
+enum class SnapshotFileFormat
+{
+    PNG,
+    PDF
+};
+
+enum class SnapshotContentType
+{
+    ALL,
+    VIEWS,
+    PLOTS
 };
 
 QString betaFeaturePostfix();

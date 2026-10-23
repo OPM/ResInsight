@@ -418,4 +418,39 @@ std::string makeSuitableAsFileName( const std::string candidateName )
     return tmp.toStdString();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string replaceSubFolderInPath( const std::string& path, const std::string& subFolderToReplace, const std::string& newSubFolder )
+{
+    auto normPath = std::filesystem::path( normalizePath( path ) );
+
+    std::filesystem::path newPath;
+
+    for ( const auto& part : normPath )
+    {
+        if ( part == subFolderToReplace )
+            newPath /= newSubFolder;
+        else
+            newPath /= part;
+    }
+
+    return newPath.generic_string();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string replaceFileExtension( const std::string& filePath, const std::string& newExtension )
+{
+    if ( filePath.empty() )
+    {
+        return filePath;
+    }
+
+    std::filesystem::path path( filePath );
+    path.replace_extension( newExtension );
+    return path.string();
+}
+
 } // namespace RiaFilePathTools

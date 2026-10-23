@@ -110,7 +110,6 @@ void RicCreateWellPathFromSimulationWellFeature::onActionTriggered( bool isCheck
             auto newModeledWellPath = new RimModeledWellPath();
             newModeledWellPath->geometryDefinition()->createAndInsertTargets( filteredWellPathPoints );
             newModeledWellPath->createWellPathGeometry();
-            newModeledWellPath->setUnitSystem( project->commonUnitSystemForAllCases() );
 
             newModeledWellPath->setWellPathColor(
                 RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount + numAddedWells ) );

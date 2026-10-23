@@ -62,17 +62,22 @@ public:
     void setCollapsed( bool doCollapse );
     void setEnableFrame( bool enableFrame );
 
+    /// Zero horizontal spacing between items -- for a frameless group laying out buttons snugly.
+    void setTightHorizontalSpacing( bool enable = true );
+
     // Pdm internal methods
     bool isExpandedByDefault() const;
     bool hasForcedExpandedState() const;
     bool forcedExpandedState() const;
     bool enableFrame() const;
+    bool tightHorizontalSpacing() const;
 
 private:
     bool m_isCollapsedByDefault;
     bool m_hasForcedExpandedState;
     bool m_forcedCollapseState;
     bool m_enableFrame;
+    bool m_tightHorizontalSpacing;
 
     QString m_keyword;
 };

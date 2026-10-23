@@ -18,9 +18,11 @@
 
 #include "RicCreateDeclineCurvesFeature.h"
 
+#include "RiaColorTables.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryDeclineCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
@@ -31,6 +33,8 @@
 #include "cafAssert.h"
 
 #include <QAction>
+
+#include <algorithm>
 
 CAF_CMD_SOURCE_INIT( RicCreateDeclineCurvesFeature, "RicCreateDeclineCurvesFeature" );
 
@@ -54,12 +58,29 @@ void RicCreateDeclineCurvesFeature::onActionTriggered( bool isChecked )
                                                                                     RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC,
                                                                                     RimSummaryDeclineCurve::DeclineCurveType::HARMONIC };
 
+        if ( auto plot = curve->firstAncestorOrThisOfType<RimSummaryPlot>() )
+        {
+            // Initialize the equation box position from the first decline curves: cumulative upper left, rate upper right
+            if ( !plot->hasDeclineCurves() )
+            {
+                const bool isCumulative = curve->curveType() == RifEclipseSummaryAddressDefines::CurveType::ACCUMULATED;
+                plot->setEquationBoxPosition( isCumulative ? RimSummaryPlot::EquationBoxPosition::UPPER_LEFT
+                                                           : RimSummaryPlot::EquationBoxPosition::UPPER_RIGHT );
+            }
+        }
+
         for ( auto declineCurveType : declineCurveTypes )
         {
             RimSummaryDeclineCurve* newCurve = createDeclineCurveAndAddToPlot( curve, declineCurveType );
 
             RiuPlotMainWindowTools::showPlotMainWindow();
             RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
+        }
+
+        // Re-attach all curves in project tree order to get a consistent legend order
+        if ( auto curveCollection = curve->firstAncestorOrThisOfType<RimSummaryCurveCollection>() )
+        {
+            curveCollection->updateCurveOrder();
         }
     }
 }
@@ -74,18 +95,34 @@ void RicCreateDeclineCurvesFeature::setupActionLook( QAction* actionToSetup )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Pick the next color in the default summary palette that is not used by any curve in the plot
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RicCreateDeclineCurvesFeature::createDistinctColor( RimSummaryPlot* summaryPlot, RimSummaryCurve* sourceCurve )
+{
+    const auto& palette = RiaColorTables::summaryCurveDefaultPaletteColors();
+
+    std::vector<cvf::Color3f> usedColors = { sourceCurve->color() };
+    for ( auto curve : summaryPlot->summaryCurves() )
+    {
+        usedColors.push_back( curve->color() );
+    }
+
+    const size_t startIndex = summaryPlot->curveCount();
+    for ( size_t i = 0; i < palette.size(); i++ )
+    {
+        cvf::Color3f candidate = palette.cycledColor3f( startIndex + i );
+        if ( std::find( usedColors.begin(), usedColors.end(), candidate ) == usedColors.end() ) return candidate;
+    }
+
+    return palette.cycledColor3f( startIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddToPlot( RimSummaryCurve* sourceCurve,
                                                                                        RimSummaryDeclineCurve::DeclineCurveType declineCurveType )
 {
-    auto mapToLineStyle = []( RimSummaryDeclineCurve::DeclineCurveType t )
-    {
-        if ( t == RimSummaryDeclineCurve::DeclineCurveType::HARMONIC ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT;
-        if ( t == RimSummaryDeclineCurve::DeclineCurveType::HYPERBOLIC ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH;
-        return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT;
-    };
-
     RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     RimSummaryDeclineCurve* newCurve = new RimSummaryDeclineCurve();
@@ -95,8 +132,8 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
 
     newCurve->setDeclineCurveType( declineCurveType );
 
-    newCurve->setColor( sourceCurve->color() );
-    newCurve->setLineStyle( mapToLineStyle( declineCurveType ) );
+    newCurve->setColor( createDistinctColor( summaryPlot, sourceCurve ) );
+    newCurve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
 
     summaryPlot->addCurveAndUpdate( newCurve );
 

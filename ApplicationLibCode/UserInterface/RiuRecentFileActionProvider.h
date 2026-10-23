@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include <vector>
 
@@ -41,7 +42,8 @@ public:
     void                  addFileName( const QString& fileName );
     std::vector<QAction*> actions() const;
 
-    static QString lastUsedProjectFileName();
+    static QString     lastUsedProjectFileName();
+    static QStringList recentProjectFiles();
 
 private slots:
     void slotOpenRecentFile();

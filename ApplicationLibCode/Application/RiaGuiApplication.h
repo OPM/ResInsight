@@ -133,6 +133,7 @@ protected:
     // use the checkWithUserBeforeClose function, to get all checks in one go
     bool notifyUserAboutRunningJobs();
     bool askUserToSaveModifiedProject();
+    bool askUserToDiscardWorkflowEdits();
 
     // Protected RiaApplication overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
@@ -156,6 +157,7 @@ private:
 
     void createMainWindow();
     void createMainPlotWindow();
+    void loadAndUpdateMainWindowViews();
 
     void storeTreeViewState();
     void storeDockState();

@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "RigActiveCellGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
@@ -29,10 +30,17 @@
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigNestedHybridGridLayout.h"
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultBranch.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include "RiaDefines.h"
+
+#include <QRegularExpression>
 
 #include <algorithm>
 #include <array>
@@ -63,7 +71,15 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
 
     if ( !caseData || !caseData->mainGrid() ) return setError( "No grid data." );
 
-    RigMainGrid* grid      = caseData->mainGrid();
+    RigMainGrid* grid = caseData->mainGrid();
+
+    // Active-cell-only grids keep cells in a sparse map and report a fixed total cell count, so
+    // appending LGR cells is not supported and would write out of bounds.
+    if ( dynamic_cast<RigActiveCellGrid*>( grid ) )
+    {
+        return setError( "Reconstruction is not supported for grids with only active cells loaded." );
+    }
+
     const size_t cellCount = grid->cellCount();
 
     if ( input.refine.size() != cellCount )
@@ -93,6 +109,8 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         coarseNz = std::max( coarseNz, input.oldK[f] );
     }
     const size_t kFactor = ( coarseNz > 0 && nz % (size_t)coarseNz == 0 ) ? nz / (size_t)coarseNz : 1;
+
+    const RigNestedHybridGridLayout layout( cvf::Vec3st( (size_t)coarseNx, (size_t)coarseNy, (size_t)coarseNz ), kFactor );
 
     // Group all refined cells (REFINE > 1) by level, and record each refined cell's parent COARSE
     // cell natural index (for the volume-weighted QC aggregate).
@@ -206,11 +224,12 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
                 for ( size_t lj = 0; lj < dims.y(); lj++ )
                     for ( size_t li = 0; li < dims.x(); li++ )
                     {
-                        size_t local       = naturalIndex( li, lj, lk, dims.x(), dims.y() );
-                        size_t oi          = (size_t)c0[0] + li / factor[0];
-                        size_t oj          = (size_t)c0[1] + lj / factor[1];
-                        size_t ok          = (size_t)c0[2] + lk / factor[2];
-                        boxToParent[local] = naturalIndex( oi - 1, oj - 1, ( ok - 1 ) * kFactor, nx, ny );
+                        size_t       local = naturalIndex( li, lj, lk, dims.x(), dims.y() );
+                        size_t       oi    = (size_t)c0[0] + li / factor[0];
+                        size_t       oj    = (size_t)c0[1] + lj / factor[1];
+                        size_t       ok    = (size_t)c0[2] + lk / factor[2];
+                        caf::VecIjk0 host  = layout.flatIjkFromOriginalIjk( caf::VecIjk0( oi - 1, oj - 1, ok - 1 ) );
+                        boxToParent[local] = naturalIndex( host.x(), host.y(), host.z(), nx, ny );
                     }
 
             std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
@@ -242,10 +261,12 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
 
     grid->setNestedHybridLgrSourceCells( sourceCells );
     grid->setNestedHybridCoarseParents( coarseParents );
+    grid->setNestedHybridLayout( layout );
 
     updateActiveCellInfo( caseData, sourceCells );
     extendFullLengthResults( caseData, origCellCount, sourceCells );
     repointNncConnections( caseData, origCellCount, sourceCells );
+    repointWellResultPoints( caseData, origCellCount, sourceCells );
 
     // Fill LGR cells of any already-loaded active-cell-indexed results from their source flat cells.
     for ( auto model : { RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::PorosityModelType::FRACTURE_MODEL } )
@@ -260,6 +281,16 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         QString( "Nested hybrid grid: created %1 LGRs (%2 cells)" ).arg( grid->gridCount() - 1 ).arg( sourceCells.size() ).toStdString() );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigNestedHybridGridReconstructor::levelGroupName( const QString& gridName )
+{
+    static const QRegularExpression re( "^(LGR_NHG_L\\d+)(_\\d+)?$" );
+    const auto                      match = re.match( gridName );
+    return match.hasMatch() ? match.captured( 1 ) : gridName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,7 +496,7 @@ void RigNestedHybridGridReconstructor::repointNncConnections( RigEclipseCaseData
 
     auto mapped = [&]( size_t idx ) { return ( idx < origCellCount && flatToLgr[idx] != cvf::UNDEFINED_SIZE_T ) ? flatToLgr[idx] : idx; };
 
-    RigConnectionContainer& connections = nncData->allConnections();
+    std::vector<RigConnection>& connections = nncData->allConnections();
     for ( size_t i = 0; i < connections.size(); i++ )
     {
         RigConnection& conn = connections[i];
@@ -478,4 +509,61 @@ void RigNestedHybridGridReconstructor::repointNncConnections( RigEclipseCaseData
             connections[i] = RigConnection( na, nb, conn.face(), conn.polygon() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The well connections read from the restart file reference the original scattered refined cells
+/// in the main grid. Those cells are hidden after reconstruction, but the well cell geometry does not
+/// check the invalid flag, so the stale connections would show the hidden flat cells. Re-point each
+/// such connection and well head to the corresponding LGR cell.
+//--------------------------------------------------------------------------------------------------
+void RigNestedHybridGridReconstructor::repointWellResultPoints( RigEclipseCaseData*             caseData,
+                                                                size_t                          origCellCount,
+                                                                const std::map<size_t, size_t>& sourceCells )
+{
+    RigMainGrid* grid = caseData->mainGrid();
+    if ( !grid || caseData->wellResults().empty() ) return;
+
+    std::vector<size_t> flatToLgr( origCellCount, cvf::UNDEFINED_SIZE_T );
+    for ( const auto& [global, flat] : sourceCells )
+    {
+        if ( flat < origCellCount ) flatToLgr[flat] = global;
+    }
+
+    auto repoint = [&]( RigWellResultPoint& point )
+    {
+        // The flat grid has no LGRs of its own, so all original connections are in the main grid
+        if ( !point.isCell() || point.gridIndex() != 0 || point.cellIndex() >= origCellCount ) return;
+
+        const size_t global = flatToLgr[point.cellIndex()];
+        if ( global == cvf::UNDEFINED_SIZE_T ) return;
+
+        const RigCell& lgrCell = grid->cell( global );
+        point.setGridIndex( lgrCell.hostGrid()->gridIndex() );
+        point.setGridCellIndex( lgrCell.gridLocalCellIndex() );
+    };
+
+    cvf::Collection<RigSimWellData> wells = caseData->wellResults();
+    for ( auto& well : wells )
+    {
+        for ( RigWellResultFrame& frame : well->m_wellCellsTimeSteps )
+        {
+            RigWellResultPoint wellHead = frame.wellHead();
+            repoint( wellHead );
+            frame.setWellHead( wellHead );
+
+            std::vector<RigWellResultBranch> branches = frame.wellResultBranches();
+            for ( RigWellResultBranch& branch : branches )
+            {
+                std::vector<RigWellResultPoint> points = branch.branchResultPoints();
+                for ( RigWellResultPoint& point : points )
+                    repoint( point );
+                branch.setBranchResultPoints( points );
+            }
+            frame.setWellResultBranches( branches );
+        }
+    }
+
+    // Recomputes the well cells per grid for the new grid set
+    caseData->setSimWellData( wells );
 }

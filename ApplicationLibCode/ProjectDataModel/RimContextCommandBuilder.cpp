@@ -49,7 +49,6 @@
 #include "RimColorLegendItem.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
-#include "RimCorrelationPlotCollection.h"
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
@@ -136,6 +135,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellIASettings.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
@@ -351,7 +351,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
-            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-import" ) )
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
             {
                 menuBuilder << "RicImportSimulatorEventsFeature";
             }
@@ -361,7 +361,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportSelectedWellPathsFeature";
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
+            {
+                menuBuilder << "RicExportScheduleFeature";
+            }
             appendExportCompletions( menuBuilder );
+        }
+        else if ( dynamic_cast<RimWellEventTimeline*>( firstUiItem ) )
+        {
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
+            {
+                menuBuilder << "RicExportScheduleFeature";
+            }
         }
         else if ( dynamic_cast<RimWellMeasurementFilePath*>( firstUiItem ) )
         {
@@ -589,13 +600,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewAnalysisPlotFeature";
             menuBuilder << "RicNewPlotDataFilterFeature";
-        }
-        else if ( dynamic_cast<RimCorrelationPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewCorrelationPlotFeature";
-            menuBuilder << "RicNewCorrelationMatrixPlotFeature";
-            menuBuilder << "RicNewParameterResultCrossPlotFeature";
-            menuBuilder << "RicNewCorrelationReportPlotFeature";
         }
         else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
         {
@@ -1059,7 +1063,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseFeature";
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
-        menuBuilder << "RicCloseObservedDataFeature";
         menuBuilder << "RicDeleteSubPlotFeature";
 
         menuBuilder << "RicNewMultiPlotFeature";

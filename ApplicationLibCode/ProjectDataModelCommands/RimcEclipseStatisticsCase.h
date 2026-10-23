@@ -53,7 +53,12 @@ class RimcEclipseStatisticsCase_computeStatistics : public caf::PdmVoidObjectMet
 public:
     RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self );
 
+    void setUpdateViews( bool updateViews );
+
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<bool> m_updateViews;
 };
 
 //==================================================================================================

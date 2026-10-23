@@ -34,6 +34,8 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 
 namespace caf
@@ -286,8 +288,6 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     bool scheduleRedraw = false;
 
     if ( changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
@@ -329,6 +329,14 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
 {
     auto view = firstAncestorOrThisOfType<RimGridView>();
@@ -345,12 +353,4 @@ RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResult
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }

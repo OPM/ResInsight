@@ -85,6 +85,7 @@ public:
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
+    void setCase( RimCase* srcCase ) override;
 
     void              configurePolygonEditor();
     RimPolygonInView* polygonInView() const;

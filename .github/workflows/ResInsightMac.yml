@@ -70,7 +70,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
@@ -127,8 +127,9 @@ jobs:
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ runner.os }}-${{ matrix.arch }}-appleclang-6.7.0-buildcache-v01-${{ steps.current-time.outputs.formattedTime }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.arch }}-appleclang-6.7.0-buildcache-v01-
+          # The nightly scheduled run starts from an empty cache and saves a
+          # freshly built one; other runs restore the latest nightly cache.
+          restore-keys: ${{ github.event_name != 'schedule' && format('{0}-{1}-appleclang-6.7.0-buildcache-v01-', runner.os, matrix.arch) || '' }}
 
       - name: Create folder for buildcache
         run: mkdir -p "${{ env.BUILDCACHE_DIR }}"
@@ -166,19 +167,21 @@ jobs:
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
+        # Restore only; saved after a successful Configure so partial caches are never written.
+        uses: actions/cache/restore@v6
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.arch }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          prefix: vcpkg-clang/
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.arch }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Configure
         shell: bash
         env:
           VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite"
         run: >
           cmake -S . -B cmakebuild
-          -DVCPKG_BUILD_TYPE=release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-release
+          -DVCPKG_HOST_TRIPLET=${{ matrix.arch }}-osx-release
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }}
@@ -193,6 +196,13 @@ jobs:
           -DRESINSIGHT_ENABLE_HDF5=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
           -G Ninja
+
+      - name: Save vcpkg cache
+        if: success() && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: |

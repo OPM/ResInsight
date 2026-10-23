@@ -120,49 +120,27 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_textEdit->setReadOnly( isReadOnly );
     m_textEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    PdmUiTextEditorAttribute leab;
+    TextMode textMode       = PLAIN;
+    bool     showSaveButton = false;
+    WrapMode wrapMode       = WrapAtWordBoundaryOrAnywhere;
+    QFont    font;
+    int      heightHint = 2000;
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
-    }
-
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
-        if ( auto val = uiItem->attribute<int>( Keys::TEXT_MODE, uiConfigName ) )
-        {
-            leab.textMode = static_cast<PdmUiTextEditorAttribute::TextMode>( val.value() );
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::SHOW_SAVE_BUTTON, uiConfigName ) )
-        {
-            leab.showSaveButton = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::WRAP_MODE, uiConfigName ) )
-        {
-            leab.wrapMode = static_cast<PdmUiTextEditorAttribute::WrapMode>( val.value() );
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
-        {
-            leab.heightHint = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<QFont>( Keys::FONT, uiConfigName ) )
-        {
-            leab.font = val.value();
-        }
+        textMode = static_cast<TextMode>( uiItem->attribute<int>( Keys::TEXT_MODE, uiConfigName ).value_or( textMode ) );
+        showSaveButton = uiItem->attribute<bool>( Keys::SHOW_SAVE_BUTTON, uiConfigName ).value_or( showSaveButton );
+        wrapMode = static_cast<WrapMode>( uiItem->attribute<int>( Keys::WRAP_MODE, uiConfigName ).value_or( wrapMode ) );
+        heightHint = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ).value_or( heightHint );
+        font       = uiItem->attribute<QFont>( Keys::FONT, uiConfigName ).value_or( font );
 
         // Validate: warn about unsupported attributes
         uiItem->validateAttributes( "PdmUiTextEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
     }
 
-    m_textMode = leab.textMode;
+    m_textMode = textMode;
 
-    if ( leab.showSaveButton )
+    if ( showSaveButton )
     {
         disconnect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
         m_saveButton->show();
@@ -185,23 +163,23 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     m_textEdit->blockSignals( true );
-    switch ( leab.textMode )
+    switch ( textMode )
     {
-        case PdmUiTextEditorAttribute::PLAIN:
+        case PdmUiTextEditor::PLAIN:
             m_textEdit->setPlainText( uiField()->uiValue().toString() );
             break;
-        case PdmUiTextEditorAttribute::HTML:
+        case PdmUiTextEditor::HTML:
             m_textEdit->setHtml( uiField()->uiValue().toString() );
             break;
     }
     m_textEdit->blockSignals( false );
 
-    m_textEdit->setWordWrapMode( toQTextOptionWrapMode( leab.wrapMode ) );
+    m_textEdit->setWordWrapMode( toQTextOptionWrapMode( wrapMode ) );
 
-    m_textEdit->setFont( leab.font );
-    if ( leab.heightHint > 0 )
+    m_textEdit->setFont( font );
+    if ( heightHint > 0 )
     {
-        m_textEdit->setHeightHint( leab.heightHint );
+        m_textEdit->setHeightHint( heightHint );
     }
 }
 
@@ -250,10 +228,10 @@ void PdmUiTextEditor::slotSetValueToField()
 
     switch ( m_textMode )
     {
-        case PdmUiTextEditorAttribute::PLAIN:
+        case PdmUiTextEditor::PLAIN:
             textValue = m_textEdit->toPlainText();
             break;
-        case PdmUiTextEditorAttribute::HTML:
+        case PdmUiTextEditor::HTML:
             textValue = m_textEdit->toHtml();
             break;
     }
@@ -266,19 +244,19 @@ void PdmUiTextEditor::slotSetValueToField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextOption::WrapMode PdmUiTextEditor::toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode )
+QTextOption::WrapMode PdmUiTextEditor::toQTextOptionWrapMode( PdmUiTextEditor::WrapMode wrapMode )
 {
     switch ( wrapMode )
     {
-        case PdmUiTextEditorAttribute::NoWrap:
+        case PdmUiTextEditor::NoWrap:
             return QTextOption::WrapMode::NoWrap;
-        case PdmUiTextEditorAttribute::WordWrap:
+        case PdmUiTextEditor::WordWrap:
             return QTextOption::WrapMode::WordWrap;
-        case PdmUiTextEditorAttribute::ManualWrap:
+        case PdmUiTextEditor::ManualWrap:
             return QTextOption::WrapMode::ManualWrap;
-        case PdmUiTextEditorAttribute::WrapAnywhere:
+        case PdmUiTextEditor::WrapAnywhere:
             return QTextOption::WrapMode::WrapAnywhere;
-        case PdmUiTextEditorAttribute::WrapAtWordBoundaryOrAnywhere:
+        case PdmUiTextEditor::WrapAtWordBoundaryOrAnywhere:
         default:
             return QTextOption::WrapMode::WrapAtWordBoundaryOrAnywhere;
     }

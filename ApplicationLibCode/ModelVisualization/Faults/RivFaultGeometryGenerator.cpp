@@ -129,7 +129,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
 //--------------------------------------------------------------------------------------------------
 bool RivFaultGeometryGenerator::hasConnection( size_t                             cellIdx,
                                                cvf::StructGridInterface::FaceType face,
-                                               const RigConnectionContainer&      conns,
+                                               const std::vector<RigConnection>&  conns,
                                                const std::vector<size_t>&         nncConnectionIndices )
 {
     cvf::StructGridInterface::FaceType oppositeFace = cvf::StructGridInterface::oppositeFace( face );

@@ -60,7 +60,6 @@ public:
                              const RigContourMapGrid&                    contourMapGrid,
                              ResultAggregationType                       resultAggregation,
                              const std::vector<double>&                  weightingResultValues,
-                             const std::set<int>&                        kLayers,
                              const std::vector<std::vector<cvf::Vec3d>>& limitToPolygons );
 
     static double calculateValueInMapCell( const RigContourMapProjection&                contourMapProjection,
@@ -71,14 +70,12 @@ public:
     static std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                                          const RigContourMapGrid&       contourMapGrid,
                                                                          const cvf::Vec2d&              globalPos2d,
-                                                                         const std::vector<double>&     weightingResultValues,
-                                                                         const std::set<int>&           kLayers );
+                                                                         const std::vector<double>&     weightingResultValues );
 
     static std::vector<CellIndexAndResult> cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                                           const RigContourMapGrid&       contourMapGrid,
                                                                           const cvf::Vec2d&              globalPos2d,
-                                                                          const std::vector<double>&     weightingResultValues,
-                                                                          const std::set<int>&           kLayers );
+                                                                          const std::vector<double>&     weightingResultValues );
 
     static bool isColumnResult( ResultAggregationType aggregationType );
     static bool isMeanResult( ResultAggregationType aggregationType );

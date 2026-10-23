@@ -114,6 +114,8 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             column += colSpan - 1;
         }
     }
+
+    updateCommonLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

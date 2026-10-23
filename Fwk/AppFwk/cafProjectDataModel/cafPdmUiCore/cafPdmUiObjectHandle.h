@@ -3,6 +3,9 @@
 #include "cafPdmObjectCapability.h"
 #include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmUiTreeAttributes.h"
+
+#include <vector>
 
 class QMenu;
 
@@ -44,7 +47,11 @@ public:
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool useUndoRedoForFieldChanged() { return true; }
 
-    void updateUiIconFromToggleField();
+    // Updates the icon active state from the object toggle field. Done automatically when the toggle field is changed
+    // and after the object is read. Call explicitly when the toggle field is set without notification
+    void updateUiIconFromToggleField( const QString& uiConfigName = "" );
+
+    void onAfterRead() override;
 
     /// Append actions to menu builder
     virtual void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const {}
@@ -55,6 +62,9 @@ public: // Virtual
 
     /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
     virtual caf::PdmFieldHandle* objectToggleField() { return nullptr; }
+
+    /// Tags shown next to the item in the tree view. Evaluated each time the tags are updated
+    virtual std::vector<PdmUiTreeViewItemTag> treeItemTags() { return {}; }
 
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void

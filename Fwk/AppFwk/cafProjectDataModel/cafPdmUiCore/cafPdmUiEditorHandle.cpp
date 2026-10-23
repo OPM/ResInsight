@@ -36,7 +36,7 @@
 
 #include "cafPdmUiEditorHandle.h"
 
-#include "cafAssert.h"
+#include <QScopedValueRollback>
 
 namespace caf
 {
@@ -62,11 +62,15 @@ PdmUiEditorHandle::~PdmUiEditorHandle()
 //--------------------------------------------------------------------------------------------------
 void PdmUiEditorHandle::updateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT( !m_isConfiguringUi );
-    m_isConfiguringUi   = true;
+    // Skip a re-entrant update, the ongoing update will configure the editor
+    if ( m_isConfiguringUi ) return;
+
     m_currentConfigName = uiConfigName;
-    this->configureAndUpdateUi( uiConfigName );
-    m_isConfiguringUi = false;
+    {
+        // Reset the flag also if configureAndUpdateUi() throws, otherwise all later updates of this editor are blocked
+        QScopedValueRollback<bool> configuringUiGuard( m_isConfiguringUi, true );
+        this->configureAndUpdateUi( uiConfigName );
+    }
 
     // Allow derived classes to update additional state (e.g., validation)
     this->updateEditorState();
@@ -79,10 +83,14 @@ void PdmUiEditorHandle::updateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 void PdmUiEditorHandle::updateUi()
 {
-    CAF_ASSERT( !m_isConfiguringUi );
-    m_isConfiguringUi = true;
-    this->configureAndUpdateUi( m_currentConfigName );
-    m_isConfiguringUi = false;
+    // Skip a re-entrant update, the ongoing update will configure the editor
+    if ( m_isConfiguringUi ) return;
+
+    {
+        // Reset the flag also if configureAndUpdateUi() throws, otherwise all later updates of this editor are blocked
+        QScopedValueRollback<bool> configuringUiGuard( m_isConfiguringUi, true );
+        this->configureAndUpdateUi( m_currentConfigName );
+    }
 
     // Allow derived classes to update additional state (e.g., validation)
     this->updateEditorState();

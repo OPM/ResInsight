@@ -19,19 +19,13 @@
 
 #include "RicfLoadCase.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferencesGrid.h"
+#include "RicfCommandForwarding.h"
 
-#include "RicImportGeneralDataFeature.h"
-
-#include "RifReaderSettings.h"
+#include "RimCase.h"
+#include "RimProject.h"
+#include "RimcProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RicfLoadCaseResult, "loadCaseResult" );
 
@@ -60,30 +54,19 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfLoadCase::execute()
 {
-    QString   absolutePath = m_path;
-    QFileInfo projectPathInfo( absolutePath );
-    if ( !projectPathInfo.exists() )
-    {
-        QDir startDir( RiaApplication::instance()->startDir() );
-        absolutePath = startDir.absoluteFilePath( m_path );
-    }
+    const QString commandName = classKeyword();
 
-    RifReaderSettings readerSettings = m_gridOnly ? RiaPreferencesGrid::gridOnlyReaderSettings()
-                                                  : RiaPreferencesGrid::current()->readerSettings();
+    RimProject_loadCase method( RimProject::current() );
+    method.setPath( m_path() );
+    method.setGridOnly( m_gridOnly() );
 
-    bool createPlot = false;
-    bool createView = false;
-    auto fileOpenMetaData =
-        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath }, createPlot, createView, readerSettings );
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
 
-    if ( fileOpenMetaData.createdCaseIds.empty() )
-    {
-        QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    auto* rimCase = dynamic_cast<RimCase*>( result.value() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( "Loaded object is not a case", commandName );
 
     caf::PdmScriptResponse response;
-    response.setResult( new RicfLoadCaseResult( fileOpenMetaData.createdCaseIds.front() ) );
+    response.setResult( new RicfLoadCaseResult( rimCase->caseId() ) );
     return response;
 }

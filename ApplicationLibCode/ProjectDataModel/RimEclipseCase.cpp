@@ -65,6 +65,7 @@
 #include "RimFaultDistance.h"
 #include "RimFaultDistanceCollection.h"
 #include "RimFaultInViewCollection.h"
+#include "RimGenericViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
@@ -378,14 +379,28 @@ void RimEclipseCase::clearResultAliases()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView( bool useGlobalViewCollection )
 {
-    RimEclipseViewCollection* viewColl = useGlobalViewCollection ? globalViewCollection() : viewCollection();
-    return createAndAddReservoirView( viewColl );
+    if ( useGlobalViewCollection )
+    {
+        return createAndAddReservoirView( globalViewCollection() );
+    }
+
+    return createAndAddReservoirView( viewCollection() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView( RimEclipseViewCollection* viewColl )
+{
+    if ( !viewColl ) return nullptr;
+
+    return viewColl->addView( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCase::createAndAddReservoirView( RimGenericViewCollection* viewColl )
 {
     if ( !viewColl ) return nullptr;
 
@@ -1395,7 +1410,7 @@ RimEclipseViewCollection* RimEclipseCase::viewCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseViewCollection* RimEclipseCase::globalViewCollection() const
+RimGenericViewCollection* RimEclipseCase::globalViewCollection() const
 {
     RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
@@ -1403,7 +1418,7 @@ RimEclipseViewCollection* RimEclipseCase::globalViewCollection() const
     RimOilField* oilField = project->activeOilField();
     if ( !oilField ) return nullptr;
 
-    return oilField->eclipseViewCollection();
+    return oilField->genericViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1429,6 +1444,23 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const
+{
+    if ( viewColl )
+    {
+        for ( auto view : viewColl->views() )
+        {
+            if ( view && view->eclipseCase() && view->eclipseCase() == this )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimGenericViewCollection* viewColl ) const
 {
     if ( viewColl )
     {

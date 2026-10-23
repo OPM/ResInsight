@@ -55,6 +55,8 @@ public:
 
     void enableIncludeIncompleteCurves( bool enable );
 
+    bool includeZeroValues() const;
+
     cvf::Color3f color() const { return m_color; }
     void         setColor( const cvf::Color3f& color );
     bool         customColor() const;
@@ -74,7 +76,6 @@ public:
 private:
     void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     bool    onShowEnsembleCurves() const;
     void    onSetShowEnsembleCurves( const bool& enable );
     QString validateCustomPercentiles() const;
@@ -94,6 +95,7 @@ private:
     caf::PdmField<QString>        m_customPercentiles;
     caf::PdmField<bool>           m_showCurveLabels;
     caf::PdmField<bool>           m_includeIncompleteCurves;
+    caf::PdmField<bool>           m_includeZeroValues;
     caf::PdmField<bool>           m_customColor;
 
     // Ensemble cross plot settings

@@ -59,10 +59,11 @@ public:
     void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
     RiaDefines::EnsembleGroupingMode groupingMode() const;
 
+    void setRealizationSubSet( QString filterText );
+
     void reload();
 
 private:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;

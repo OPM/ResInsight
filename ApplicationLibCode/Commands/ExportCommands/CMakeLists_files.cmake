@@ -27,6 +27,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportEnsembleParametersFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesUi.cpp

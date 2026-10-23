@@ -116,7 +116,7 @@ COPY vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json
 
 # A direct manifest install compiles every dependency into
 # VCPKG_DEFAULT_BINARY_CACHE. vcpkg-configuration-rhel8.json's overlay-ports
-# entry ("ThirdParty/vcpkg-overlay-ports") is resolved relative to the
+# entry ("ThirdParty/vcpkg-overlay-ports/thrift") is resolved relative to the
 # directory vcpkg-configuration.json lives in, i.e. /src here, so that
 # directory must be copied in too, not just ThirdParty/vcpkg. CC/CXX below
 # match the ResInsight configure in the warmup stage and in CI, so the vcpkg

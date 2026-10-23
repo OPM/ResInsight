@@ -19,11 +19,10 @@
 
 #include "RicfScaleFractureTemplate.h"
 
-#include "RiaLogging.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
-#include "RimProject.h"
+#include "RimcFractureTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -48,36 +47,17 @@ RicfScaleFractureTemplate::RicfScaleFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
 {
-    if ( m_id < 0 )
-    {
-        QString error( "scaleFractureTemplate: Fracture template id not specified" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    const QString commandName = classKeyword();
 
-    RimProject* project = RimProject::current();
+    if ( m_id < 0 ) return RicfForwarding::errorResponse( "Fracture template id not specified", commandName );
 
-    if ( !project )
-    {
-        QString error( "scaleFractureTemplate: Project not found" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    auto fractureTemplate = RicfForwarding::findFractureTemplate( m_id() );
+    if ( !fractureTemplate ) return RicfForwarding::errorResponse( fractureTemplate.error(), commandName );
 
-    RimFractureTemplateCollection* templColl =
-        !project->allFractureTemplateCollections().empty() ? project->allFractureTemplateCollections()[0] : nullptr;
-    RimFractureTemplate* templ = templColl ? templColl->fractureTemplate( m_id ) : nullptr;
+    RimcFractureTemplate_setScaleFactors method( fractureTemplate.value() );
+    method.setScaleFactors( m_halfLengthScaleFactor(), m_heightScaleFactor(), m_dFactorScaleFactor(), m_conductivityScaleFactor() );
 
-    if ( !templ )
-    {
-        QString error = QString( "scaleFractureTemplate: Fracture template not found. Id=%1" ).arg( m_id() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-
-    templ->setScaleFactors( m_halfLengthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor, m_conductivityScaleFactor );
-    templ->loadDataAndUpdateGeometryHasChanged();
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }
 
 //--------------------------------------------------------------------------------------------------

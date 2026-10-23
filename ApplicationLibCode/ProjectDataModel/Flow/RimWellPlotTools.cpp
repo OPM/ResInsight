@@ -491,6 +491,27 @@ std::vector<RimSummaryEnsemble*> rftEnsembles()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Stops at the first realization with RFT data, as querying the RFT reader of every realization is expensive
+//--------------------------------------------------------------------------------------------------
+QString firstWellNameWithEnsembleRftData()
+{
+    for ( RimSummaryEnsemble* ensemble : RimProject::current()->summaryEnsembles() )
+    {
+        if ( !ensemble || !ensemble->isEnsemble() ) continue;
+
+        for ( RimSummaryCase* summaryCase : ensemble->allSummaryCases() )
+        {
+            auto reader = summaryCase->rftReader();
+            if ( !reader ) continue;
+
+            const auto wellNames = reader->wellNames();
+            if ( !wellNames.empty() ) return *wellNames.begin();
+        }
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> observedFmuRftDataForWell( const QString& simWellName )

@@ -33,6 +33,9 @@ RimBinaryExportSettings::RimBinaryExportSettings()
 
     CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename" );
     fileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    fileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
+    fileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
+                                           QString( "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)" ) );
     CAF_PDM_InitFieldNoDefault( &eclipseKeyword, "EclipseKeyword", "Eclipse Keyword" );
     CAF_PDM_InitField( &undefinedValue, "UndefinedValue", 0.0, "Undefined Value" );
 
@@ -40,20 +43,4 @@ RimBinaryExportSettings::RimBinaryExportSettings()
                        "WriteEchoInGrdeclFiles",
                        RiaPreferences::current()->writeEchoInGrdeclFiles(),
                        "Write NOECHO and ECHO" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimBinaryExportSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &fileName )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName  = true;
-            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
-        }
-    }
 }

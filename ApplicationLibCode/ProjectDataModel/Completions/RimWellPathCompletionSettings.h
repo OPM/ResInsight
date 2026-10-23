@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCompletionEnums.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -65,6 +67,12 @@ public:
     };
     using HydrostaticDensityEnum = caf::AppEnum<HydrostaticDensity>;
 
+    using PressureDropType = RimCompletionEnums::PressureDropType;
+    using PressureDropEnum = caf::AppEnum<PressureDropType>;
+
+    using LengthAndDepthType = RimCompletionEnums::LengthAndDepthType;
+    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
+
 public:
     RimWellPathCompletionSettings();
     RimWellPathCompletionSettings( const RimWellPathCompletionSettings& rhs );
@@ -75,10 +83,15 @@ public:
     WellType wellType() const;
     bool     allowWellCrossFlow() const;
 
+    PressureDropEnum   pressureDrop() const;
+    LengthAndDepthEnum lengthAndDepth() const;
+
     void setGroupName( const QString& name );
     void setReferenceDepth( std::optional<double> depth );
     void setWellType( WellType wellType );
     void setAllowWellCrossFlow( bool allowCrossFlow );
+    void setPressureDrop( PressureDropType pressureDropType );
+    void setLengthAndDepth( LengthAndDepthType lengthAndDepthType );
 
     void    setWellNameForExport( const QString& name );
     void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );
@@ -103,6 +116,7 @@ public:
     static QRegularExpression wellNameForExportRegExp();
 
     RimMswCompletionParameters* mswCompletionParameters() const;
+    void                        importLegacyMswData( const RimMswCompletionParameters* legacyParameters );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -126,6 +140,9 @@ private:
     caf::PdmField<int>                     m_wellBoreFluidPVTTable;
     caf::PdmField<HydrostaticDensityEnum>  m_hydrostaticDensity;
     caf::PdmField<int>                     m_fluidInPlaceRegion;
+
+    caf::PdmField<PressureDropEnum>   m_pressureDrop;
+    caf::PdmField<LengthAndDepthEnum> m_lengthAndDepth;
 
     caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 

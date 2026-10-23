@@ -121,6 +121,14 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
         caf::PdmUiGroup& filterGroup = *( uiOrdering.addNewGroup( "Value Filter Settings" ) );
         filterGroup.add( &m_lowerBound );
         filterGroup.add( &m_upperBound );
+
+        for ( auto* field : { &m_lowerBound, &m_upperBound } )
+        {
+            if ( m_minimumResultValue != cvf::UNDEFINED_DOUBLE && m_maximumResultValue != cvf::UNDEFINED_DOUBLE )
+                caf::PdmUiDoubleSliderEditor::setRange( field->uiCapability(), m_minimumResultValue, m_maximumResultValue );
+            else
+                caf::PdmUiDoubleSliderEditor::clearRange( field->uiCapability() );
+        }
     }
 
     uiOrdering.add( &m_wells );
@@ -128,27 +136,6 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_radiusScaleFactor );
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
-    {
-        return;
-    }
-
-    if ( field == &m_lowerBound || field == &m_upperBound )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = m_minimumResultValue;
-            myAttr->m_maximum = m_maximumResultValue;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

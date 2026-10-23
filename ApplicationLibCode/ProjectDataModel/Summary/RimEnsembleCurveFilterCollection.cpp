@@ -186,15 +186,6 @@ void RimEnsembleCurveFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                              QString                    uiConfigName,
-                                                              caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for ( auto& filter : m_filters )

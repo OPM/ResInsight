@@ -23,10 +23,12 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaResultNames.h"
 
 #include "RifReaderSettings.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesGrid, "RifReaderSettings" );
 
@@ -90,9 +92,6 @@ RiaPreferencesGrid::RiaPreferencesGrid()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoComputeDepthRelatedProperties );
 
-    CAF_PDM_InitField( &m_loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_loadAndShowSoil );
-
     CAF_PDM_InitField( &m_onlyLoadActiveCells, "onlyLoadActiveCells", false, "Only Load Active Cell Geometry" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLoadActiveCells );
 
@@ -100,6 +99,12 @@ RiaPreferencesGrid::RiaPreferencesGrid()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_invalidateLongThinCells );
 
     CAF_PDM_InitFieldNoDefault( &m_radialGridMode, "radialGridMode", "Radial Grid Display Mode" );
+
+    CAF_PDM_InitField( &m_preferredDynamicResult, "preferredDynamicResult", QString( "SOIL" ), "Default Dynamic Result to Show:" );
+    m_preferredDynamicResult.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
+    m_preferredDynamicResult.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +122,7 @@ void RiaPreferencesGrid::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
     auto newCBGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
     newCBGroup->add( &m_autoComputeDepthRelatedProperties );
-    newCBGroup->add( &m_loadAndShowSoil );
+    newCBGroup->add( &m_preferredDynamicResult );
     newCBGroup->add( &m_invalidateLongThinCells );
 
     if ( auto prefSummary = RiaPreferencesSummary::current() )
@@ -252,9 +257,9 @@ bool RiaPreferencesGrid::skipWellData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesGrid::loadAndShowSoil() const
+QString RiaPreferencesGrid::preferredDynamicResult() const
 {
-    return m_loadAndShowSoil;
+    return m_preferredDynamicResult();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,4 +348,28 @@ RiaDefines::GridModelReader RiaPreferencesGrid::gridModelReaderOverride() const
 RiaGridDefines::RadialGridMode RiaPreferencesGrid::radialGridMode() const
 {
     return m_radialGridMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaPreferencesGrid::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_preferredDynamicResult )
+    {
+        static std::vector<QString> resultNameOptions = { RiaResultNames::soil(),
+                                                          RiaResultNames::sgas(),
+                                                          RiaResultNames::swat(),
+                                                          RiaResultNames::pressure(),
+                                                          RiaResultNames::undefinedResultName() };
+
+        for ( auto& name : resultNameOptions )
+        {
+            options.push_back( caf::PdmOptionItemInfo( name, QVariant::fromValue( name ) ) );
+        }
+    }
+
+    return options;
 }

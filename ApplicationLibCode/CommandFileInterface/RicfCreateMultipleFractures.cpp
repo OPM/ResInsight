@@ -19,40 +19,16 @@
 #include "RicfCreateMultipleFractures.h"
 
 #include "RicfApplicationTools.h"
-#include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
-#include "FractureCommands/RicCreateMultipleFracturesFeature.h"
-#include "FractureCommands/RicCreateMultipleFracturesOptionItemUi.h"
-#include "FractureCommands/RicCreateMultipleFracturesUi.h"
-
-#include "RimDialogData.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimFractureTemplate.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimcEclipseCase.h"
 
-#include "RiaLogging.h"
-#include "RiaQStringFormatter.h"
-#include "RiaWellNameComparer.h"
-
-#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfCreateMultipleFractures, "createMultipleFractures" );
-
-namespace caf
-{
-template <>
-void AppEnum<MultipleFractures::Action>::setUp()
-{
-    addItem( MultipleFractures::Action::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
-    addItem( MultipleFractures::Action::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
-
-    setDefault( MultipleFractures::Action::NONE );
-}
-} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,110 +54,43 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    RimProject*                   project  = RimProject::current();
-    RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
-
-    // Get case and fracture template
-    auto                      gridCase         = TOOLS::caseFromId( m_caseId );
-    auto                      fractureTemplate = fractureTemplateFromId( m_templateId );
-    std::vector<RimWellPath*> wellPaths;
-
-    // Find well paths
+    if ( m_caseId() < 0 || m_templateId() < 0 )
     {
-        QStringList wellsNotFound;
-        wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
-        if ( !wellsNotFound.empty() )
-        {
-            QString error = QString( "createMultipleFractures: These well paths were not found: %1" ).arg( wellsNotFound.join( ", " ) );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
+        return RicfForwarding::errorResponse( "Mandatory argument(s) missing: caseId and templateId are required", commandName );
     }
 
-    if ( !gridCase )
+    QStringList               wellsNotFound;
+    std::vector<RimWellPath*> wellPaths =
+        RicfApplicationTools::wellPathsFromNames( RicfApplicationTools::toQStringList( m_wellPathNames ), &wellsNotFound );
+    if ( !wellsNotFound.empty() )
     {
-        QString error = QString( "createMultipleFractures: Could not find case with ID %1" ).arg( m_caseId() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( "These well paths were not found: " + wellsNotFound.join( ", " ), commandName );
+    }
+    if ( wellPaths.empty() ) return RicfForwarding::errorResponse( "No wellpaths found", commandName );
+
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
+    if ( !eclipseCase )
+    {
+        return RicfForwarding::errorResponse( QString( "Case with ID %1 is not an Eclipse case" ).arg( m_caseId() ), commandName );
     }
 
-    if ( !fractureTemplate )
-    {
-        QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    auto fractureTemplate = RicfForwarding::findFractureTemplate( m_templateId() );
+    if ( !fractureTemplate ) return RicfForwarding::errorResponse( fractureTemplate.error(), commandName );
 
-    if ( wellPaths.empty() )
-    {
-        QString error( "createMultipleFractures: No wellpaths found" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    RimEclipseCase_createMultipleFractures method( eclipseCase );
+    method.setWellPaths( wellPaths );
+    method.setFractureTemplate( fractureTemplate.value() );
+    method.setMinDistFromWellTd( m_minDistFromWellTd() );
+    method.setMaxFracturesPerWell( m_maxFracturesPerWell() );
+    method.setTopLayer( m_topLayer() );
+    method.setBaseLayer( m_baseLayer() );
+    method.setSpacing( m_spacing() );
+    method.setAction( m_action() );
 
-    if ( !validateArguments() )
-    {
-        QString error( "createMultipleFractures: Mandatory argument(s) missing" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-
-    RicCreateMultipleFracturesOptionItemUi* options        = new RicCreateMultipleFracturesOptionItemUi();
-    caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
-    auto                                    feature =
-        dynamic_cast<RicCreateMultipleFracturesFeature*>( commandManager->getCommandFeature( "RicCreateMultipleFracturesFeature" ) );
-
-    // Default layers
-    int topLayer  = m_topLayer;
-    int baseLayer = m_baseLayer;
-    if ( feature && ( topLayer < 0 || baseLayer < 0 ) )
-    {
-        auto ijkRange = feature->ijkRangeForGrid( gridCase );
-        if ( topLayer < 0 ) topLayer = static_cast<int>( ijkRange.min().z() );
-        if ( baseLayer < 0 ) baseLayer = static_cast<int>( ijkRange.max().z() );
-    }
-    options->setValues( topLayer, baseLayer, fractureTemplate, m_spacing );
-
-    settings->clearWellPaths();
-    for ( auto wellPath : wellPaths )
-    {
-        settings->addWellPath( wellPath );
-    }
-
-    settings->setValues( gridCase, m_minDistFromWellTd, m_maxFracturesPerWell );
-    settings->clearOptions();
-    settings->insertOptionItem( nullptr, options );
-
-    if ( feature )
-    {
-        if ( m_action == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
-        if ( m_action == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
-    }
-    return caf::PdmScriptResponse();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicfCreateMultipleFractures::validateArguments() const
-{
-    bool valid = m_caseId >= 0 && m_templateId >= 0;
-
-    return valid;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId( int templateId ) const
-{
-    for ( RimFractureTemplate* t : RimProject::current()->allFractureTemplates() )
-    {
-        if ( t->id() == templateId ) return t;
-    }
-
-    RiaLogging::error( std::format( "createMultipleFractures: Could not find fracture template with ID {}", templateId ) );
-    return nullptr;
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }

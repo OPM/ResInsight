@@ -18,28 +18,17 @@
 
 #include "RicfExportVisibleCells.h"
 
-#include "RiaFilePathTools.h"
-#include "RiaViewRedrawScheduler.h"
+#include "RiaApplication.h"
 
-#include "ExportCommands/RicSaveEclipseInputVisibleCellsFeature.h"
 #include "ExportCommands/RicSaveEclipseInputVisibleCellsUi.h"
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-
-#include "RifEclipseInputFileTools.h"
+#include "RimcEclipseView.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include <cafUtils.h>
 
 #include <QDir>
 
@@ -77,12 +66,13 @@ RicfExportVisibleCells::RicfExportVisibleCells()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportVisibleCells::execute()
 {
+    const QString commandName = classKeyword();
+
     if ( m_caseId < 0 || ( m_viewName().isEmpty() && m_viewId() < 0 ) )
     {
-        QString error( "exportVisibleCells: CaseId or view name or view id not specified" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( "CaseId or view name or view id not specified", commandName );
     }
+
     RimEclipseView* eclipseView = nullptr;
     if ( m_viewId() >= 0 )
     {
@@ -94,45 +84,33 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
     }
     if ( !eclipseView )
     {
-        QString error( QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" )
-                           .arg( m_viewId() )
-                           .arg( m_viewName() )
-                           .arg( m_caseId() ) );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( QString( "Could not find view of id %1 or named '%2' in case ID %3" )
+                                                  .arg( m_viewId() )
+                                                  .arg( m_viewName() )
+                                                  .arg( m_caseId() ),
+                                              commandName );
     }
 
+    // Resolve the default export folder from the command file executor state. The Rimc method requires an explicit file.
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::CELLS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->currentProjectPath();
     }
-
-    RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
-
-    RicSaveEclipseInputVisibleCellsUi exportSettings;
-    buildExportSettings( exportFolder, &exportSettings );
-    RicSaveEclipseInputVisibleCellsFeature::executeCommand( eclipseView, exportSettings, "exportVisibleCells" );
-
-    return caf::PdmScriptResponse();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings( const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings )
-{
     QDir baseDir( exportFolder );
-    exportSettings->exportFilename = baseDir.absoluteFilePath( QString( "%1.grdecl" ).arg( m_exportKeyword().text() ) );
 
-    if ( m_exportKeyword == ExportKeyword::FLUXNUM )
-        exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
-    else if ( m_exportKeyword == ExportKeyword::MULTNUM )
-        exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
+    RicSaveEclipseInputVisibleCellsUi::ExportKeyword exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
+    if ( m_exportKeyword == ExportKeyword::MULTNUM )
+        exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
     else if ( m_exportKeyword == ExportKeyword::ACTNUM )
-        exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::ACTNUM;
+        exportKeyword = RicSaveEclipseInputVisibleCellsUi::ACTNUM;
 
-    exportSettings->visibleActiveCellsValue = m_visibleActiveCellsValue;
-    exportSettings->hiddenActiveCellsValue  = m_hiddenActiveCellsValue;
-    exportSettings->inactiveCellsValue      = m_inactiveCellsValue;
+    RimEclipseView_exportVisibleCells method( eclipseView );
+    method.setExportFile( baseDir.absoluteFilePath( QString( "%1.grdecl" ).arg( m_exportKeyword().text() ) ) );
+    method.setExportKeyword( exportKeyword );
+    method.setVisibleActiveCellsValue( m_visibleActiveCellsValue() );
+    method.setHiddenActiveCellsValue( m_hiddenActiveCellsValue() );
+    method.setInactiveCellsValue( m_inactiveCellsValue() );
+
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }

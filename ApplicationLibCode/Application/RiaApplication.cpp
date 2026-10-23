@@ -35,6 +35,7 @@
 #include "RiaOpenMPTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
@@ -75,6 +76,8 @@
 #include "RimFileWellPath.h"
 #include "RimFileWellPathDataLoader.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
@@ -906,9 +909,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         for ( RimOilField* oilField : m_project->oilFields )
         {
-            for ( auto seisView : oilField->seismicViewCollection()->views() )
+            if ( oilField->seismicViewCollection() )
             {
-                seisView->loadDataAndUpdate();
+                for ( auto seisView : oilField->seismicViewCollection()->views() )
+                {
+                    seisView->loadDataAndUpdate();
+                }
+            }
+
+            if ( oilField->genericViewCollection() )
+            {
+                for ( auto dataView : oilField->genericViewCollection()->genericViews() )
+                {
+                    dataView->loadDataAndUpdate();
+                }
             }
         }
 
@@ -1028,6 +1042,12 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
     CAF_ASSERT( m_project );
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
     m_project->setFileName( RiaFilePathTools::toInternalSeparator( fileName ) );
+
+    // Move additional summary data to the project folder before the project file is written
+    if ( auto sumCaseMainColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseMainCollection() : nullptr )
+    {
+        sumCaseMainColl->onProjectBeingSaved();
+    }
 
     onProjectBeingSaved();
 
@@ -1367,6 +1387,22 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
 QString RiaApplication::pythonPath() const
 {
     return m_preferences->pythonExecutable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The ri-cloud-api service uses a dedicated Python environment when enabled under
+/// Preferences -> RI Cloud API, and otherwise falls back to the scripting environment so the two do
+/// not have to share a single interpreter and risk conflicting package versions.
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::cloudApiPythonPath() const
+{
+    auto cloudApiPreferences = m_preferences->cloudApiPreferences();
+    if ( cloudApiPreferences->useDedicatedPythonEnvironment() )
+    {
+        return cloudApiPreferences->pythonExecutable();
+    }
+
+    return pythonPath();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1971,7 +2007,7 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         QObject::connect( m_sumoConnector,
                           &RiaSumoConnector::tokenReady,
                           cloudApiService(),
-                          [this]( const QString& ) { cloudApiService()->start(); } );
+                          [this]( const QString& ) { cloudApiService()->start( RiaCloudApiService::StartTrigger::Automatic ); } );
     }
 
     return m_sumoConnector;

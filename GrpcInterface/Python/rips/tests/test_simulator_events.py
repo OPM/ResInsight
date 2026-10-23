@@ -12,6 +12,8 @@ automatically when no instance is available.
 
 import datetime
 import os
+import runpy
+import subprocess
 import sys
 
 import pytest
@@ -21,22 +23,26 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import rips  # noqa: E402
 import dataroot  # noqa: E402
 from rips.simulator_events import (  # noqa: E402
+    Duration,
     ApplyReport,
     SimulatorEventsParseError,
     _cli,
     apply_simulator_events_document,
+    apply_simulator_events_files,
     coalesce_simulator_events_document,
+    merge_simulator_events_documents,
     parse_simulator_events,
+    parse_simulator_events_files,
 )
 
 SAMPLE = """\
 # A comment line
-SIMEVENTS 1.0
+SIMEVENTS 1.2
 UNIT METRIC
 
 DATE     A1_STARTUP = 2018-01-01
-DATE     A2_STARTUP = 2018-03-01 + 9
-DURATION RAMP       = 5 DAYS
+DATE     A2_STARTUP = 2018-03-01 + 9d
+DURATION RAMP       = 5d
 
 WELL A1 = "55_33-A-1"
 
@@ -61,16 +67,43 @@ class FakeCompletionSettings:
         self.allow_well_cross_flow = True
         self.reference_depth_for_export = None
         self.well_type_for_export = "OIL"
+        self.pressure_drop = "HF-"
+
+
+class FakeSegmentInterval:
+    def __init__(self, start_md=0.0):
+        self.start_md = start_md
+        self.segment_length_calls = []
+
+    def set_fixed_segment_length(self, length):
+        self.segment_length_calls.append(("fixed", length))
+        return self
+
+    def set_min_segment_length(self, length):
+        self.segment_length_calls.append(("min", length))
+        return self
+
+    def set_max_segment_length(self, length):
+        self.segment_length_calls.append(("max", length))
+        return self
 
 
 class FakeSegmentCollection:
     def __init__(self):
-        self.pressure_drop = "HF-"
         self.segment_interval_calls = []
+        self._intervals = []
         self.update_calls = 0
+        self.reference_md_type = "GridEntryPoint"
+        self.user_defined_reference_md = 0.0
 
     def add_segment_interval(self, **kwargs):
         self.segment_interval_calls.append(kwargs)
+        interval = FakeSegmentInterval(kwargs["start_md"])
+        self._intervals.append(interval)
+        return interval
+
+    def intervals(self):
+        return self._intervals
 
     def update(self):
         self.update_calls += 1
@@ -183,12 +216,13 @@ class FakeTimeline:
         self.perf_calls = []
         self.perf_events = []
         self.keyword_calls = []
-        self.tubing_calls = []
+        self.segment_calls = []
         self.valve_calls = []
         self.state_calls = []
         self.wellspec_calls = []
         self.schedule_keyword_calls = []
         self.raw_text_calls = []
+        self.insert_date_calls = []
         self.created_events = []
 
     def add_perf_event(self, **kwargs):
@@ -206,8 +240,8 @@ class FakeTimeline:
         self.keyword_calls.append(kwargs)
         return self._new_event()
 
-    def add_tubing_event(self, **kwargs):
-        self.tubing_calls.append(kwargs)
+    def add_segment_event(self, **kwargs):
+        self.segment_calls.append(kwargs)
         return self._new_event()
 
     def add_valve_event(self, **kwargs):
@@ -230,6 +264,10 @@ class FakeTimeline:
         self.raw_text_calls.append(kwargs)
         return self._new_event()
 
+    def add_insert_date_event(self, **kwargs):
+        self.insert_date_calls.append(kwargs)
+        return self._new_event()
+
 
 # ---------------------------------------------------------------------------
 # Layer A: parsing
@@ -239,22 +277,35 @@ class FakeTimeline:
 class TestParsing:
     def test_header_and_unit(self):
         doc = parse_simulator_events(SAMPLE)
-        assert doc.version == "1.0"
+        assert doc.version == "1.2"
         assert doc.unit_system == "METRIC"
+
+    @pytest.mark.parametrize("with_filter", [False, True])
+    def test_schedule_example_parses(self, with_filter):
+        example = runpy.run_path(
+            os.path.join(
+                os.path.dirname(rips.__file__),
+                "PythonExamples",
+                "experimental",
+                "well_event_schedule_simulator_events.py",
+            )
+        )
+        text = example["build_simulator_events_text"]("W", with_filter)
+        doc = parse_simulator_events(text)
+        assert doc.wells[0].well_name == "W"
+        assert doc.insert_dates[-1] == datetime.datetime(2024, 10, 1)
 
     def test_date_declarations_with_day_offset(self):
         doc = parse_simulator_events(SAMPLE)
         assert doc.variables["A1_STARTUP"].kind == "DATE"
-        assert doc.variables["A1_STARTUP"].value == datetime.date(2018, 1, 1)
+        assert doc.variables["A1_STARTUP"].value == datetime.datetime(2018, 1, 1)
         # 2018-03-01 + 9 days
-        assert doc.variables["A2_STARTUP"].value == datetime.date(2018, 3, 10)
+        assert doc.variables["A2_STARTUP"].value == datetime.datetime(2018, 3, 10)
 
     def test_duration_and_well_declarations(self):
         doc = parse_simulator_events(SAMPLE)
         assert doc.variables["RAMP"].kind == "DURATION"
-        assert doc.variables["RAMP"].value == 5
-        assert doc.variables["A1"].kind == "WELL"
-        assert doc.variables["A1"].value == "55_33-A-1"
+        assert doc.variables["RAMP"].value == Duration(delta=datetime.timedelta(days=5))
 
     def test_well_blocks_and_event_dates(self):
         doc = parse_simulator_events(SAMPLE)
@@ -266,7 +317,7 @@ class TestParsing:
             "WELTARG",
         ]
         # A1_STARTUP + RAMP -> 2018-01-06
-        assert well1.events[1].event_date == datetime.date(2018, 1, 6)
+        assert well1.events[1].event_date == datetime.datetime(2018, 1, 6)
 
     def test_value_type_inference(self):
         doc = parse_simulator_events(SAMPLE)
@@ -279,7 +330,7 @@ class TestParsing:
 
     def test_quoted_filter_value_is_single_attribute(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             '  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL > 0.8 AND PERMX > 200"\n'
         )
         doc = parse_simulator_events(text)
@@ -290,7 +341,7 @@ class TestParsing:
 
     def test_comment_attribute_is_preserved(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             '  2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
         event = parse_simulator_events(text).wells[0].events[0]
@@ -299,7 +350,7 @@ class TestParsing:
 
     def test_trailing_comment_ignored_but_not_inside_quotes(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             '  2018-01-01 WCONHIST NOTE="a # b" CMODE=ORAT  # trailing comment\n'
         )
         doc = parse_simulator_events(text)
@@ -308,90 +359,95 @@ class TestParsing:
         assert "CMODE" in attrs
 
     def test_iso_date_literal_event(self):
-        text = 'SIMEVENTS 1.0\nWELL "W"\n  2020-12-31 PERFORATION MDSTART=1 MDEND=2\n'
+        text = 'SIMEVENTS 1.2\nWELL "W"\n  2020-12-31 PERFORATION MDSTART=1 MDEND=2\n'
         doc = parse_simulator_events(text)
-        assert doc.wells[0].events[0].event_date == datetime.date(2020, 12, 31)
+        assert doc.wells[0].events[0].event_date == datetime.datetime(2020, 12, 31)
 
     def test_negative_offset(self):
         text = (
-            "SIMEVENTS 1.0\nDATE START = 2018-01-10\n"
-            'WELL "W"\n  START - 5 PERFORATION MDSTART=1 MDEND=2\n'
+            "SIMEVENTS 1.2\nDATE START = 2018-01-10\n"
+            'WELL "W"\n  START - 5d PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 5)
+        assert doc.wells[0].events[0].event_date == datetime.datetime(2018, 1, 5)
 
     def test_minus_after_iso_date(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n  2018-01-01 - 5 PERFORATION MDSTART=1 MDEND=2\n'
+            'SIMEVENTS 1.2\nWELL "W"\n  2018-01-01 - 5d PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.wells[0].events[0].event_date == datetime.date(2017, 12, 27)
+        assert doc.wells[0].events[0].event_date == datetime.datetime(2017, 12, 27)
 
     def test_signed_operand_in_date_declaration(self):
-        """An operand may carry its own sign: '+ -2' subtracts (issue #14639)."""
-        text = "SIMEVENTS 1.0\nDATE STARTUP = 2026-08-28 + -2\n"
+        """An operand may carry its own sign: '+ -2d' subtracts (issue #14639)."""
+        text = "SIMEVENTS 1.2\nDATE STARTUP = 2026-08-28 + -2d\n"
         doc = parse_simulator_events(text)
-        assert doc.variables["STARTUP"].value == datetime.date(2026, 8, 26)
+        assert doc.variables["STARTUP"].value == datetime.datetime(2026, 8, 26)
 
     def test_signed_operand_sign_combinations(self):
         for expr, expected in (
-            ("+ -2", datetime.date(2026, 8, 26)),
-            ("- -2", datetime.date(2026, 8, 30)),
-            ("+ +2", datetime.date(2026, 8, 30)),
-            ("+-2", datetime.date(2026, 8, 26)),
+            ("+ -2d", datetime.datetime(2026, 8, 26)),
+            ("- -2d", datetime.datetime(2026, 8, 30)),
+            ("+ +2d", datetime.datetime(2026, 8, 30)),
+            ("+-2d", datetime.datetime(2026, 8, 26)),
             # Unsigned operands keep their previous meaning.
-            ("+ 2", datetime.date(2026, 8, 30)),
-            ("- 2", datetime.date(2026, 8, 26)),
+            ("+ 2d", datetime.datetime(2026, 8, 30)),
+            ("- 2d", datetime.datetime(2026, 8, 26)),
+            ("-2d", datetime.datetime(2026, 8, 26)),
         ):
-            doc = parse_simulator_events(f"SIMEVENTS 1.0\nDATE S = 2026-08-28 {expr}\n")
+            doc = parse_simulator_events(f"SIMEVENTS 1.2\nDATE S = 2026-08-28 {expr}\n")
             assert doc.variables["S"].value == expected, expr
 
     def test_signed_operand_on_event_line_and_duration(self):
         text = (
-            "SIMEVENTS 1.0\nDATE START = 2018-01-01\nDURATION RAMP = 5 + -2\n"
-            'WELL "W"\n  START + RAMP + -1 PERFORATION MDSTART=1 MDEND=2\n'
+            "SIMEVENTS 1.2\nDATE START = 2018-01-01\nDURATION RAMP = 5d + -2d\n"
+            'WELL "W"\n  START + RAMP + -1d PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.variables["RAMP"].value == 3
-        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 3)
+        assert doc.variables["RAMP"].value == Duration(delta=datetime.timedelta(days=3))
+        assert doc.wells[0].events[0].event_date == datetime.datetime(2018, 1, 3)
 
     def test_signed_operand_in_insert_date_until(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
-            "INSERT_DATE 2024-01-01 + -1 EVERY DAY UNTIL 2024-01-05 + -2\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            '2024-01-01 + -1d INSERT_DATE EVERY=1d UNTIL="2024-01-05 + -2d"\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2023, 12, 31),
-            datetime.date(2024, 1, 1),
-            datetime.date(2024, 1, 2),
-            datetime.date(2024, 1, 3),
+        assert doc.insert_dates == [
+            datetime.datetime(2023, 12, 31),
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 1, 2),
+            datetime.datetime(2024, 1, 3),
         ]
 
-    def test_signed_operand_does_not_accept_fractional_days(self):
-        """Fractional day offsets remain unsupported."""
-        with pytest.raises(
-            SimulatorEventsParseError, match="Malformed DATE declaration"
-        ):
-            parse_simulator_events("SIMEVENTS 1.0\nDATE S = 2026-08-28 + -2.5\n")
+    def test_unitless_offset_is_rejected(self):
+        """Every duration needs a unit; bare day counts are no longer accepted."""
+        with pytest.raises(SimulatorEventsParseError, match="a unit is required"):
+            parse_simulator_events("SIMEVENTS 1.2\nDATE S = 2026-08-28 + -2\n")
+        with pytest.raises(SimulatorEventsParseError, match="a unit is required"):
+            parse_simulator_events("SIMEVENTS 1.2\nDATE S = 2026-08-28 + 2.5\n")
 
     def test_offset_chain_with_duration_variable(self):
         text = (
-            "SIMEVENTS 1.0\nDATE START = 2018-01-01\nDURATION RAMP = 5\n"
-            'WELL "W"\n  START + RAMP - 2 PERFORATION MDSTART=1 MDEND=2\n'
+            "SIMEVENTS 1.2\nDATE START = 2018-01-01\nDURATION RAMP = 5d\n"
+            'WELL "W"\n  START + RAMP - 2d PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 4)
+        assert doc.wells[0].events[0].event_date == datetime.datetime(2018, 1, 4)
 
-    def test_duration_declaration_days_suffix_optional(self):
+    def test_duration_declaration_days_suffix_rejected(self):
         for suffix in ("", " DAYS", " days"):
-            doc = parse_simulator_events(f"SIMEVENTS 1.0\nDURATION X = 5{suffix}\n")
-            assert doc.variables["X"].value == 5
+            with pytest.raises(SimulatorEventsParseError):
+                parse_simulator_events(f"SIMEVENTS 1.2\nDURATION X = 5{suffix}\n")
+        with pytest.raises(SimulatorEventsParseError, match="DAYS suffix is not"):
+            parse_simulator_events("SIMEVENTS 1.2\nDURATION X = 5 DAYS\n")
 
     def test_duration_arithmetic_in_declaration(self):
-        text = "SIMEVENTS 1.0\nDURATION RAMP = 5\nDURATION X = RAMP + 2 DAYS\n"
+        text = "SIMEVENTS 1.2\nDURATION RAMP = 5d\nDURATION X = RAMP + 2d - 12h\n"
         doc = parse_simulator_events(text)
-        assert doc.variables["X"].value == 7
+        assert doc.variables["X"].value == Duration(
+            delta=datetime.timedelta(days=6, hours=12)
+        )
 
     def test_well_alias_resolution(self):
         doc = parse_simulator_events(SAMPLE)
@@ -399,21 +455,25 @@ class TestParsing:
         assert doc.wells[0].well_name == "55_33-A-1"
 
     def test_quoted_well_block_ignores_alias(self):
-        text = 'SIMEVENTS 1.0\nWELL A1 = "55_33-A-1"\nWELL "A1"\n'
+        text = 'SIMEVENTS 1.2\nWELL A1 = "55_33-A-1"\nWELL "A1"\n'
         doc = parse_simulator_events(text)
         assert doc.wells[0].well_name == "A1"
 
     def test_unknown_well_alias_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="Unknown variable 'NOPE'"):
-            parse_simulator_events("SIMEVENTS 1.0\nWELL NOPE\n")
+            parse_simulator_events("SIMEVENTS 1.2\nWELL NOPE\n")
 
     def test_empty_well_block_ok(self):
-        doc = parse_simulator_events('SIMEVENTS 1.0\nWELL "W"\n')
+        doc = parse_simulator_events('SIMEVENTS 1.2\nWELL "W"\n')
         assert doc.wells[0].well_name == "W"
         assert doc.wells[0].events == []
 
+    def test_v1_0_file_rejected_with_migration_hint(self):
+        with pytest.raises(SimulatorEventsParseError, match="expected 1.2.*'5d'"):
+            parse_simulator_events("SIMEVENTS 1.0\nUNIT METRIC\n")
+
     def test_v2_file_rejected_with_clear_message(self):
-        with pytest.raises(SimulatorEventsParseError, match="expected 1.0"):
+        with pytest.raises(SimulatorEventsParseError, match="expected 1.2"):
             parse_simulator_events("SIMEVENTS 2.0\nUNIT METRIC\n")
 
     def test_unsupported_version_rejected(self):
@@ -431,18 +491,18 @@ class TestParsing:
             SimulatorEventsParseError, match="before any WELL or SCHEDULE block"
         ):
             parse_simulator_events(
-                "SIMEVENTS 1.0\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+                "SIMEVENTS 1.2\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
             )
 
     def test_unknown_variable_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="Unknown variable 'NOPE'"):
             parse_simulator_events(
-                'SIMEVENTS 1.0\nWELL "W"\n  NOPE PERFORATION MDSTART=1 MDEND=2\n'
+                'SIMEVENTS 1.2\nWELL "W"\n  NOPE PERFORATION MDSTART=1 MDEND=2\n'
             )
 
     def test_duration_where_date_expected_raises(self):
         text = (
-            'SIMEVENTS 1.0\nDURATION RAMP = 5\nWELL "W"\n  RAMP WCONHIST STATUS=OPEN\n'
+            'SIMEVENTS 1.2\nDURATION RAMP = 5d\nWELL "W"\n  RAMP WCONHIST STATUS=OPEN\n'
         )
         with pytest.raises(
             SimulatorEventsParseError,
@@ -452,7 +512,7 @@ class TestParsing:
 
     def test_date_where_duration_expected_raises(self):
         text = (
-            "SIMEVENTS 1.0\nDATE START = 2018-01-01\nDATE OTHER = 2018-02-01\n"
+            "SIMEVENTS 1.2\nDATE START = 2018-01-01\nDATE OTHER = 2018-02-01\n"
             'WELL "W"\n  START + OTHER WCONHIST STATUS=OPEN\n'
         )
         with pytest.raises(
@@ -461,12 +521,12 @@ class TestParsing:
             parse_simulator_events(text)
 
     def test_well_variable_in_date_context_raises(self):
-        text = 'SIMEVENTS 1.0\nWELL A1 = "X"\nWELL A1\n  A1 WCONHIST STATUS=OPEN\n'
+        text = 'SIMEVENTS 1.2\nWELL A1 = "X"\nWELL A1\n  A1 WCONHIST STATUS=OPEN\n'
         with pytest.raises(SimulatorEventsParseError, match="is a WELL .* but a DATE"):
             parse_simulator_events(text)
 
     def test_cross_type_redefinition_raises(self):
-        text = "SIMEVENTS 1.0\nDATE X = 2018-01-01\nDURATION X = 5\n"
+        text = "SIMEVENTS 1.2\nDATE X = 2018-01-01\nDURATION X = 5d\n"
         with pytest.raises(
             SimulatorEventsParseError,
             match="already declared as DATE .* redeclare as DURATION",
@@ -475,36 +535,36 @@ class TestParsing:
 
     def test_forward_reference_raises(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n  START PERFORATION MDSTART=1 MDEND=2\n'
+            'SIMEVENTS 1.2\nWELL "W"\n  START PERFORATION MDSTART=1 MDEND=2\n'
             "DATE START = 2018-01-01\n"
         )
         with pytest.raises(SimulatorEventsParseError, match="Unknown variable 'START'"):
             parse_simulator_events(text)
 
     def test_single_quoted_well_name_rejected(self):
-        text = "SIMEVENTS 1.0\n'W'\n"
+        text = "SIMEVENTS 1.2\n'W'\n"
         with pytest.raises(SimulatorEventsParseError, match="not supported"):
             parse_simulator_events(text)
 
     def test_set_line_rejected_with_hint(self):
-        text = "SIMEVENTS 1.0\nSET X = 2018-01-01\n"
+        text = "SIMEVENTS 1.2\nSET X = 2018-01-01\n"
         with pytest.raises(SimulatorEventsParseError, match="SET is not supported"):
             parse_simulator_events(text)
 
     def test_malformed_attribute_raises(self):
-        text = 'SIMEVENTS 1.0\nWELL "W"\n  2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n'
+        text = 'SIMEVENTS 1.2\nWELL "W"\n  2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n'
         with pytest.raises(SimulatorEventsParseError, match="Malformed attribute"):
             parse_simulator_events(text)
 
     def test_duplicate_date_declaration_warns(self):
-        text = 'SIMEVENTS 1.0\nDATE X = 2018-01-01\nDATE X = 2019-01-01\nWELL "W"\n'
+        text = 'SIMEVENTS 1.2\nDATE X = 2018-01-01\nDATE X = 2019-01-01\nWELL "W"\n'
         doc = parse_simulator_events(text)
         assert any("Duplicate" in w.message for w in doc.warnings)
-        assert doc.variables["X"].value == datetime.date(2019, 1, 1)
+        assert doc.variables["X"].value == datetime.datetime(2019, 1, 1)
 
     def test_schedule_block_parses(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
             "  2024-01-01 RPTRST BASIC=2 FREQ=1\n"
@@ -520,7 +580,7 @@ class TestParsing:
 
     def test_group_blocks_parse_and_switch_event_sink(self):
         text = (
-            'SIMEVENTS 1.0\nGROUP "OP"\n'
+            'SIMEVENTS 1.2\nGROUP "OP"\n'
             "  2020-07-01 GEFAC FACTOR=1.0 TRANSFER=YES\n"
             "  2020-07-01 GCONPROD CMODE=LRAT LRAT=20000\n"
             'GROUP "WI"\n'
@@ -538,17 +598,17 @@ class TestParsing:
         assert [event.event_type for event in doc.schedule_events] == ["RPTRST"]
 
     def test_empty_group_block_ok(self):
-        doc = parse_simulator_events('SIMEVENTS 1.0\nGROUP "OP"\n')
+        doc = parse_simulator_events('SIMEVENTS 1.2\nGROUP "OP"\n')
         assert doc.groups[0].group_name == "OP"
         assert doc.groups[0].events == []
 
     def test_malformed_group_line_rejected(self):
         with pytest.raises(SimulatorEventsParseError, match="Malformed GROUP line"):
-            parse_simulator_events("SIMEVENTS 1.0\nGROUP OP\n")
+            parse_simulator_events("SIMEVENTS 1.2\nGROUP OP\n")
 
     def test_duplicate_wellspec_for_well_and_date_is_rejected(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             "  2024-01-01 WELSPECS GROUP=A\n"
             'WELL "W"\n'
             "  2024-01-01 WELSPECS PHASE=GAS\n"
@@ -560,7 +620,7 @@ class TestParsing:
 
     def test_wellspec_same_date_for_different_wells_is_allowed(self):
         document = parse_simulator_events(
-            'SIMEVENTS 1.0\nWELL "A"\n'
+            'SIMEVENTS 1.2\nWELL "A"\n'
             "  2024-01-01 WELSPECS GROUP=GA\n"
             'WELL "B"\n'
             "  2024-01-01 WELSPECS GROUP=GB\n"
@@ -569,7 +629,7 @@ class TestParsing:
 
     def test_boolean_attributes_are_typed_unless_quoted(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "SCHEDULE\n"
             '  2024-01-01 RPTRST DEN=True ROCKC=FALSE LABEL="True"\n'
         )
@@ -582,7 +642,7 @@ class TestParsing:
 
     def test_single_restart_event_parses(self):
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\nSCHEDULE\n  2024-02-01 RESTART\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n  2024-02-01 RESTART\n"
         )
         restart = document.schedule_events[0]
         assert restart.event_type == "RESTART"
@@ -592,19 +652,19 @@ class TestParsing:
         "text,expected_error",
         [
             (
-                'SIMEVENTS 1.0\nWELL "W"\n  2024-01-01 RESTART\n',
+                'SIMEVENTS 1.2\nWELL "W"\n  2024-01-01 RESTART\n',
                 "only valid in a SCHEDULE block",
             ),
             (
-                'SIMEVENTS 1.0\nGROUP "G"\n  2024-01-01 RESTART\n',
+                'SIMEVENTS 1.2\nGROUP "G"\n  2024-01-01 RESTART\n',
                 "only valid in a SCHEDULE block",
             ),
             (
-                "SIMEVENTS 1.0\nSCHEDULE\n  2024-01-01 RESTART VALUE=1\n",
+                "SIMEVENTS 1.2\nSCHEDULE\n  2024-01-01 RESTART VALUE=1\n",
                 "takes no attributes",
             ),
             (
-                "SIMEVENTS 1.0\nSCHEDULE\n  2024-01-01 RESTART\n  2024-02-01 RESTART\n",
+                "SIMEVENTS 1.2\nSCHEDULE\n  2024-01-01 RESTART\n  2024-02-01 RESTART\n",
                 "Only one RESTART event",
             ),
         ],
@@ -617,11 +677,11 @@ class TestParsing:
         with pytest.raises(
             SimulatorEventsParseError, match="SCHEDULE takes no arguments"
         ):
-            parse_simulator_events("SIMEVENTS 1.0\nSCHEDULE NOW\n")
+            parse_simulator_events("SIMEVENTS 1.2\nSCHEDULE NOW\n")
 
     def test_raw_text_block_preserves_body_and_attributes(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD "
             "ANCHOR=COMPDAT PRIORITY=-2\n"
             "# not a parser comment\n"
@@ -661,13 +721,13 @@ class TestParsing:
         ],
     )
     def test_invalid_raw_text_header_rejected(self, header, error):
-        text = f"SIMEVENTS 1.0\nSCHEDULE\n  2024-01-01 {header}\nx\nEND_RAW_TEXT\n"
+        text = f"SIMEVENTS 1.2\nSCHEDULE\n  2024-01-01 {header}\nx\nEND_RAW_TEXT\n"
         with pytest.raises(SimulatorEventsParseError, match=error):
             parse_simulator_events(text)
 
     def test_raw_text_outside_schedule_rejected(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
             "x\nEND_RAW_TEXT\n"
         )
@@ -676,7 +736,7 @@ class TestParsing:
 
     def test_unterminated_raw_text_rejected(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\ntext\n"
         )
         with pytest.raises(SimulatorEventsParseError, match="Unterminated RAW_TEXT"):
@@ -684,164 +744,323 @@ class TestParsing:
 
     def test_report_lines_parse(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "DATE START = 2024-01-01\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2024-06-01\n"
-            "INSERT_DATE START + 31\n"
+            "2024-06-01 INSERT_DATE\n"
+            "START + 31d INSERT_DATE\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2024, 6, 1),
-            datetime.date(2024, 2, 1),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 6, 1),
+            datetime.datetime(2024, 2, 1),
         ]
 
     def test_report_keeps_duplicates_and_file_order(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\nINSERT_DATE 2024-06-01\nINSERT_DATE 2024-06-01\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n2024-06-01 INSERT_DATE\n2024-06-01 INSERT_DATE\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [datetime.date(2024, 6, 1)] * 2
+        assert doc.insert_dates == [datetime.datetime(2024, 6, 1)] * 2
 
     def test_insert_date_is_only_valid_in_schedule_block(self):
         with pytest.raises(SimulatorEventsParseError, match="only valid in a SCHEDULE"):
-            parse_simulator_events("SIMEVENTS 1.0\nINSERT_DATE 2024-06-01\n")
+            parse_simulator_events(
+                'SIMEVENTS 1.2\nWELL "W"\n  2024-06-01 INSERT_DATE\n'
+            )
 
     def test_legacy_report_keyword_is_rejected(self):
         with pytest.raises(SimulatorEventsParseError, match="renamed to INSERT_DATE"):
-            parse_simulator_events("SIMEVENTS 1.0\nSCHEDULE\nREPORT 2024-06-01\n")
+            parse_simulator_events("SIMEVENTS 1.2\nSCHEDULE\nREPORT 2024-06-01\n")
 
     def test_report_with_undeclared_variable_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="NOPE"):
-            parse_simulator_events("SIMEVENTS 1.0\nSCHEDULE\nINSERT_DATE NOPE + 1\n")
+            parse_simulator_events("SIMEVENTS 1.2\nSCHEDULE\nNOPE + 1d INSERT_DATE\n")
 
-    def test_malformed_report_line_raises(self):
+    def test_legacy_insert_date_line_raises(self):
         with pytest.raises(
-            SimulatorEventsParseError, match="Malformed INSERT_DATE line"
+            SimulatorEventsParseError,
+            match="INSERT_DATE is written as a SCHEDULE event since SIMEVENTS 1.2",
         ):
-            parse_simulator_events("SIMEVENTS 1.0\nSCHEDULE\nINSERT_DATE\n")
+            parse_simulator_events("SIMEVENTS 1.2\nSCHEDULE\nINSERT_DATE\n")
 
     def test_report_with_datetime_literal(self):
-        text = "SIMEVENTS 1.0\nSCHEDULE\nINSERT_DATE 2024-06-01T14:45:30.500\n"
+        text = "SIMEVENTS 1.2\nSCHEDULE\n2024-06-01T14:45:30.700 INSERT_DATE\n"
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [datetime.datetime(2024, 6, 1, 14, 45, 30, 500000)]
+        assert doc.insert_dates == [datetime.datetime(2024, 6, 1, 14, 45, 31)]
 
     def test_daily_report_recurrence_with_inclusive_until(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "DATE START = 2024-01-01\n"
             "DATE END = 2024-01-05\n"
             "SCHEDULE\n"
-            "INSERT_DATE START + 1 EVERY 2 DAYS UNTIL END\n"
+            "START + 1d INSERT_DATE EVERY=2d UNTIL=END\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2024, 1, 2),
-            datetime.date(2024, 1, 4),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 1, 2),
+            datetime.datetime(2024, 1, 4),
         ]
 
     def test_monthly_report_recurrence_is_anchored_to_initial_day(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
-            "INSERT_DATE 2024-01-31 EVERY MONTH UNTIL 2024-04-30\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            "2024-01-31 INSERT_DATE EVERY=1mon UNTIL=2024-04-30\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2024, 1, 31),
-            datetime.date(2024, 2, 29),
-            datetime.date(2024, 3, 31),
-            datetime.date(2024, 4, 30),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 1, 31),
+            datetime.datetime(2024, 2, 29),
+            datetime.datetime(2024, 3, 31),
+            datetime.datetime(2024, 4, 30),
         ]
 
     def test_yearly_report_recurrence_clamps_leap_day(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
-            "INSERT_DATE 2024-02-29 EVERY YEAR UNTIL 2028-02-29\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            "2024-02-29 INSERT_DATE EVERY=12mon UNTIL=2028-02-29\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2024, 2, 29),
-            datetime.date(2025, 2, 28),
-            datetime.date(2026, 2, 28),
-            datetime.date(2027, 2, 28),
-            datetime.date(2028, 2, 29),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 2, 29),
+            datetime.datetime(2025, 2, 28),
+            datetime.datetime(2026, 2, 28),
+            datetime.datetime(2027, 2, 28),
+            datetime.datetime(2028, 2, 29),
         ]
 
     def test_report_recurrence_without_until_uses_last_event(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2024-01-01 EVERY MONTH\n"
+            "2024-01-01 INSERT_DATE EVERY=1mon\n"
             'WELL "W"\n'
             "  2024-03-15 WCONHIST STATUS=OPEN\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.date(2024, 1, 1),
-            datetime.date(2024, 2, 1),
-            datetime.date(2024, 3, 1),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 2, 1),
+            datetime.datetime(2024, 3, 1),
         ]
 
     def test_recurring_report_preserves_datetime(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2024-06-01T14:45:30.500 EVERY DAY "
-            "UNTIL 2024-06-02T14:45:30.500\n"
+            "2024-06-01T14:45:30.700 INSERT_DATE EVERY=1d "
+            "UNTIL=2024-06-02T14:45:30.700\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
-            datetime.datetime(2024, 6, 1, 14, 45, 30, 500000),
-            datetime.datetime(2024, 6, 2, 14, 45, 30, 500000),
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 6, 1, 14, 45, 31),
+            datetime.datetime(2024, 6, 2, 14, 45, 31),
         ]
 
     @pytest.mark.parametrize(
         ("report_line", "message"),
         [
             (
-                "INSERT_DATE 2024-01-01 EVERY 0 DAYS UNTIL 2024-01-02",
-                "greater than zero",
+                "2024-01-01 INSERT_DATE EVERY=0d UNTIL=2024-01-02",
+                "must be a positive duration",
             ),
-            ("INSERT_DATE 2024-01-02 EVERY DAY UNTIL 2024-01-01", "must not precede"),
-            ("INSERT_DATE 2024-01-01 EVERY DAY", "requires at least one event"),
+            ("2024-01-02 INSERT_DATE EVERY=1d UNTIL=2024-01-01", "must not precede"),
+            ("2024-01-01 INSERT_DATE EVERY=1d", "requires at least one event"),
         ],
     )
     def test_invalid_report_recurrence_rejected(self, report_line, message):
         with pytest.raises(SimulatorEventsParseError, match=message):
-            parse_simulator_events(f"SIMEVENTS 1.0\nSCHEDULE\n{report_line}\n")
+            parse_simulator_events(f"SIMEVENTS 1.2\nSCHEDULE\n{report_line}\n")
+
+    def _insert_dates(self, *lines, decls=""):
+        text = (
+            "SIMEVENTS 1.2\n"
+            + decls
+            + "SCHEDULE\n"
+            + "".join(f"  {line}\n" for line in lines)
+        )
+        return parse_simulator_events(text).insert_dates
+
+    def test_insert_date_every_accepts_duration_variable(self):
+        dates = self._insert_dates(
+            "2024-01-01 INSERT_DATE EVERY=STEP UNTIL=2024-03-01",
+            decls="DURATION STEP = 1mon\n",
+        )
+        assert dates == [
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 2, 1),
+            datetime.datetime(2024, 3, 1),
+        ]
+
+    def test_insert_date_every_accepts_duration_expression(self):
+        dates = self._insert_dates(
+            '2024-01-01 INSERT_DATE EVERY="STEP + 1d" UNTIL=2024-01-07',
+            decls="DURATION STEP = 2d\n",
+        )
+        assert dates == [
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 1, 4),
+            datetime.datetime(2024, 1, 7),
+        ]
+
+    def test_insert_date_every_mixed_months_and_days(self):
+        dates = self._insert_dates(
+            "2024-01-31 INSERT_DATE EVERY=1mon1d UNTIL=2024-04-30"
+        )
+        # Occurrence n is start + n months (clamped), then + n days.
+        assert dates == [
+            datetime.datetime(2024, 1, 31),
+            datetime.datetime(2024, 3, 1),
+            datetime.datetime(2024, 4, 2),
+        ]
+
+    def test_insert_date_every_sub_day_duration(self):
+        dates = self._insert_dates("2024-01-01 INSERT_DATE EVERY=12h UNTIL=2024-01-02")
+        assert dates == [
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 1, 1, 12),
+            datetime.datetime(2024, 1, 2),
+        ]
+
+    def test_insert_date_until_quoted_and_unquoted_expressions(self):
+        quoted = self._insert_dates(
+            '2024-01-01 INSERT_DATE EVERY=1d UNTIL="START + 2d"',
+            decls="DATE START = 2024-01-01\n",
+        )
+        unquoted = self._insert_dates(
+            "2024-01-01 INSERT_DATE EVERY=1d UNTIL=START+2d",
+            decls="DATE START = 2024-01-01\n",
+        )
+        assert (
+            quoted
+            == unquoted
+            == [
+                datetime.datetime(2024, 1, 1),
+                datetime.datetime(2024, 1, 2),
+                datetime.datetime(2024, 1, 3),
+            ]
+        )
+
+    def test_insert_date_keyword_and_attributes_are_case_insensitive(self):
+        dates = self._insert_dates("2024-01-01 insert_date every=1d until=2024-01-02")
+        assert dates == [datetime.datetime(2024, 1, 1), datetime.datetime(2024, 1, 2)]
+
+    def test_insert_date_comment_is_kept_for_every_occurrence(self):
+        text = (
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            '  2024-01-01 INSERT_DATE EVERY=1d UNTIL=2024-01-02 COMMENT="Daily"\n'
+        )
+        doc = parse_simulator_events(text)
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 1, 1),
+            datetime.datetime(2024, 1, 2),
+        ]
+        # Each occurrence keeps the comment, and nothing else, of the statement.
+        for event in doc.insert_date_events:
+            assert set(event.attributes) == {"COMMENT"}
+            assert event.attributes["COMMENT"].value == "Daily"
+        assert doc.schedule_events == []
+        assert doc.warnings == []
+
+    def test_insert_date_creates_insert_date_events_only(self):
+        text = (
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            "  2024-01-01 RPTRST BASIC=1\n"
+            '  2024-02-01 INSERT_DATE COMMENT="Report"\n'
+        )
+        doc = parse_simulator_events(text)
+        assert [event.event_type for event in doc.schedule_events] == ["RPTRST"]
+        timeline = FakeTimeline()
+        report = apply_simulator_events_document(doc, timeline, FakeProject(()))
+        assert report.events_applied == 2
+        assert timeline.insert_date_calls == [
+            {"event_date": "2024-02-01", "comment": "Report"}
+        ]
+
+    @pytest.mark.parametrize(
+        ("attributes", "message"),
+        [
+            ("EVERY=1d FREQ=2", r"Unknown INSERT_DATE attribute\(s\): FREQ"),
+            ("UNTIL=2024-02-01", "UNTIL requires EVERY"),
+            ("EVERY=-1d UNTIL=2024-02-01", "must be a positive duration"),
+            ("EVERY=1mon-1d UNTIL=2024-02-01", "must be a positive duration"),
+            ("EVERY=MONTH", "Unknown variable 'MONTH'"),
+            ("EVERY=3", "a unit is required"),
+            ("EVERY=1d UNTIL=soon!", "UNTIL must be a date expression"),
+            ('EVERY="1d 2d"', "EVERY must be a duration"),
+        ],
+    )
+    def test_invalid_insert_date_attributes_rejected(self, attributes, message):
+        with pytest.raises(SimulatorEventsParseError, match=message):
+            self._insert_dates(f"2024-01-01 INSERT_DATE {attributes}")
+
+    def test_insert_date_in_group_block_rejected(self):
+        with pytest.raises(SimulatorEventsParseError, match="only valid in a SCHEDULE"):
+            parse_simulator_events(
+                'SIMEVENTS 1.2\nGROUP "OP"\n  2024-06-01 INSERT_DATE\n'
+            )
+
+    @pytest.mark.parametrize(
+        ("legacy", "suggestion"),
+        [
+            ("INSERT_DATE 2024-06-01", "'2024-06-01 INSERT_DATE'"),
+            ("INSERT_DATE START EVERY MONTH", "'START INSERT_DATE EVERY=1mon'"),
+            (
+                "INSERT_DATE START EVERY 30 DAYS UNTIL START + 90d",
+                "'START INSERT_DATE EVERY=30d UNTIL=\"START + 90d\"'",
+            ),
+            ("INSERT_DATE START EVERY 2 YEARS", "'START INSERT_DATE EVERY=24mon'"),
+        ],
+    )
+    def test_legacy_insert_date_syntax_suggests_new_form(self, legacy, suggestion):
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events(
+                f"SIMEVENTS 1.2\nDATE START = 2024-01-01\nSCHEDULE\n{legacy}\n"
+            )
+        message = str(exc_info.value)
+        assert "Line 4: INSERT_DATE is written as a SCHEDULE event" in message
+        assert f"write {suggestion}" in message
+
+    def test_v1_1_file_rejected_with_insert_date_migration_hint(self):
+        with pytest.raises(
+            SimulatorEventsParseError,
+            match=r"expected 1\.2.*'2024-01-01 INSERT_DATE EVERY=3mon'",
+        ):
+            parse_simulator_events("SIMEVENTS 1.1\nUNIT METRIC\n")
 
     def test_event_dates_parse_without_prefix(self):
         text = (
-            "SIMEVENTS 1.0\nDATE START = 2024-05-15\n"
+            "SIMEVENTS 1.2\nDATE START = 2024-05-15\n"
             'WELL "W"\n'
-            "  START + 1 PERFORATION MDSTART=1 MDEND=2\n"
+            "  START + 1d PERFORATION MDSTART=1 MDEND=2\n"
             "  2024-05-17 WCONHIST STATUS=OPEN\n"
         )
         doc = parse_simulator_events(text)
         assert [event.event_date for event in doc.wells[0].events] == [
-            datetime.date(2024, 5, 16),
-            datetime.date(2024, 5, 17),
+            datetime.datetime(2024, 5, 16),
+            datetime.datetime(2024, 5, 17),
         ]
 
     def test_at_prefix_is_rejected(self):
-        text = 'SIMEVENTS 1.0\nWELL "W"\n  @2024-05-17 WCONHIST STATUS=OPEN\n'
+        text = 'SIMEVENTS 1.2\nWELL "W"\n  @2024-05-17 WCONHIST STATUS=OPEN\n'
         with pytest.raises(SimulatorEventsParseError, match="Unrecognized line"):
             parse_simulator_events(text)
 
     def test_datetime_literal_event(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
-            "  2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-05-15T14:45:30.700 PERFORATION MDSTART=1 MDEND=2\n"
         )
         doc = parse_simulator_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
-            2024, 5, 15, 14, 45, 30, 500000
+            2024, 5, 15, 14, 45, 31
         )
 
     def test_datetime_with_day_offset(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
-            "  2024-05-15T14:45:30 + 2 PERFORATION MDSTART=1 MDEND=2\n"
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-05-15T14:45:30 + 2d PERFORATION MDSTART=1 MDEND=2\n"
         )
         doc = parse_simulator_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
@@ -850,19 +1069,285 @@ class TestParsing:
 
     def test_date_variable_with_time_of_day(self):
         text = (
-            "SIMEVENTS 1.0\nDATE T0 = 2024-05-15T14:45:30.500\n"
-            'WELL "W"\n  T0 + 1 PERFORATION MDSTART=1 MDEND=2\n'
+            "SIMEVENTS 1.2\nDATE T0 = 2024-05-15T14:45:30.700\n"
+            'WELL "W"\n  T0 + 1d PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_simulator_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
-            2024, 5, 16, 14, 45, 30, 500000
+            2024, 5, 16, 14, 45, 31
         )
+
+    def test_fractional_seconds_round_to_nearest_second(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-05-15T14:45:30.499 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-05-15T14:45:59.900 WCONHIST STATUS=OPEN\n"
+        )
+        doc = parse_simulator_events(text)
+        assert [event.event_date for event in doc.wells[0].events] == [
+            datetime.datetime(2024, 5, 15, 14, 45, 30),
+            datetime.datetime(2024, 5, 15, 14, 46, 0),
+        ]
+
+    def test_space_separated_datetime_is_rejected_with_hint(self):
+        text = 'SIMEVENTS 1.2\nWELL "W"\n  2018-01-01 11:20:33 WCONHIST STATUS=OPEN\n'
+        with pytest.raises(
+            SimulatorEventsParseError, match="joined to the date with 'T'"
+        ):
+            parse_simulator_events(text)
+        with pytest.raises(
+            SimulatorEventsParseError, match="joined to the date with 'T'"
+        ):
+            parse_simulator_events("SIMEVENTS 1.2\nDATE S = 2018-01-01 11:20:33\n")
+
+    def test_date_only_literal_is_midnight_datetime(self):
+        doc = parse_simulator_events("SIMEVENTS 1.2\nDATE S = 2018-01-01\n")
+        value = doc.variables["S"].value
+        assert isinstance(value, datetime.datetime)
+        assert value == datetime.datetime(2018, 1, 1, 0, 0, 0)
+
+
+class TestDocumentQueries:
+    """Query event dates, wells and groups from a parsed document (#14688)."""
+
+    TEXT = (
+        "SIMEVENTS 1.2\n"
+        'WELL "OP_1"\n'
+        "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500\n"
+        "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200\n"
+        "  2024-06-01 WCONHIST STATUS=OPEN\n"
+        'WELL "OP_2"\n'
+        "  2024-03-01 PERFORATION MDSTART=2000 MDEND=2200\n"
+        'GROUP "FIELD"\n'
+        "  2024-02-01 GCONPROD CMODE=LRAT LRAT=1000\n"
+        "SCHEDULE\n"
+        "  2025-01-01 RPTRST BASIC=2\n"
+        "  2030-01-01 INSERT_DATE\n"
+    )
+
+    @pytest.fixture
+    def doc(self):
+        return parse_simulator_events(self.TEXT)
+
+    def test_event_dates_cover_all_blocks(self, doc):
+        D = datetime.datetime
+        assert doc.event_dates() == [
+            D(2024, 1, 1),
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+            D(2024, 6, 1),
+            D(2025, 1, 1),
+            D(2030, 1, 1),
+        ]
+        assert doc.latest_event_date() == D(2030, 1, 1)
+        assert doc.earliest_event_date() == D(2024, 1, 1)
+        assert doc.latest_event_date(event_types=["INSERT_DATE"]) == D(2030, 1, 1)
+        assert doc.latest_event_date(event_types=["NOSUCH"]) is None
+
+    def test_date_bounds_are_inclusive(self, doc):
+        D = datetime.datetime
+        assert doc.event_dates(start_date=D(2024, 2, 1), end_date=D(2024, 6, 1)) == [
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+            D(2024, 6, 1),
+        ]
+
+    def test_owner_and_type_filters(self, doc):
+        D = datetime.datetime
+        assert [e.event_type for e in doc.events(wells=["OP_1"])] == [
+            "SEGMENT",
+            "PERFORATION",
+            "WCONHIST",
+        ]
+        assert [e.event_type for e in doc.events(groups=["FIELD"])] == ["GCONPROD"]
+        # Owner filters exclude SCHEDULE and INSERT_DATE events
+        assert doc.event_dates(wells=["OP_2"], groups=["FIELD"]) == [
+            D(2024, 2, 1),
+            D(2024, 3, 1),
+        ]
+        assert doc.event_dates(event_types=["perforation", "rptrst"]) == [
+            D(2024, 1, 1),
+            D(2024, 3, 1),
+            D(2025, 1, 1),
+        ]
+
+    def test_wells_and_groups_with_events(self, doc):
+        assert doc.wells_with_events() == ["OP_1", "OP_2"]
+        assert doc.wells_with_events(start_date=datetime.datetime(2024, 2, 1)) == [
+            "OP_1",
+            "OP_2",
+        ]
+        assert doc.wells_with_events(event_types=["WCONHIST"]) == ["OP_1"]
+        assert doc.wells_with_msw_events() == ["OP_1"]
+        assert doc.groups_with_events() == ["FIELD"]
+        assert doc.groups_with_events(event_types=["GCONINJE"]) == []
+
+    def test_msw_wells_include_valves_without_segment_events(self):
+        doc = parse_simulator_events(
+            self.TEXT
+            + 'WELL "VALVE_ONLY"\n'
+            + "  2024-03-01 VALVE MD=2100 TYPE=ICV STATE=OPEN CV=0.7 AREA=0.0001\n"
+        )
+        assert doc.wells_with_msw_events() == ["OP_1", "VALVE_ONLY"]
+
+
+class TestDurations:
+    """Go-style duration literals (issue #14651)."""
+
+    @staticmethod
+    def _duration(text):
+        doc = parse_simulator_events(f"SIMEVENTS 1.2\nDURATION X = {text}\n")
+        return doc.variables["X"].value
+
+    @pytest.mark.parametrize(
+        "literal, months, delta",
+        [
+            ("5d", 0, datetime.timedelta(days=5)),
+            ("12h", 0, datetime.timedelta(hours=12)),
+            ("30m", 0, datetime.timedelta(minutes=30)),
+            ("45s", 0, datetime.timedelta(seconds=45)),
+            ("2mon", 2, datetime.timedelta(0)),
+            ("12h30m", 0, datetime.timedelta(hours=12, minutes=30)),
+            (
+                "1mon2d3h4m5s",
+                1,
+                datetime.timedelta(days=2, hours=3, minutes=4, seconds=5),
+            ),
+            ("1.5h", 0, datetime.timedelta(minutes=90)),
+            ("2.5d", 0, datetime.timedelta(days=2, hours=12)),
+            ("0.5m", 0, datetime.timedelta(seconds=30)),
+            ("1d1.5h", 0, datetime.timedelta(days=1, minutes=90)),
+            ("-3d", 0, datetime.timedelta(days=-3)),
+            ("+3d", 0, datetime.timedelta(days=3)),
+            ("-1mon12h", -1, datetime.timedelta(hours=-12)),
+            ("0d", 0, datetime.timedelta(0)),
+        ],
+    )
+    def test_valid_literals(self, literal, months, delta):
+        assert self._duration(literal) == Duration(months, delta)
+
+    @pytest.mark.parametrize(
+        "literal, message",
+        [
+            ("5", "a unit is required"),
+            ("2.5", "a unit is required"),
+            ("5 DAYS", "DAYS suffix is not supported"),
+            ("5x", "unknown unit 'x'"),
+            ("5D", "unknown unit 'D'"),
+            ("5min", "unknown unit 'min'.*did you mean 'mon'"),
+            ("30m12h", "descending order"),
+            ("1d1d", "given more than once"),
+            ("1.5h30m", "fraction is only allowed on the last component"),
+            ("1.5s", "fraction is not allowed on 's'"),
+            ("1.5mon", "fraction is not allowed on 'mon'"),
+            ("d", "Unknown variable 'd'"),
+            ("1d 2h", "Malformed DURATION declaration"),
+            ("1d2", "missing unit after '2'"),
+        ],
+    )
+    def test_invalid_literals(self, literal, message):
+        with pytest.raises(SimulatorEventsParseError, match=message):
+            self._duration(literal)
+
+    def test_long_malformed_durations_rejected_promptly(self, tmp_path):
+        literal = "0." + "1" * 128 + "h!"
+        path = tmp_path / "malformed.events"
+        path.write_text(
+            "SIMEVENTS 1.2\n"
+            f"DURATION X = {literal}\n"
+            f"DATE S = 2024-01-01 + {literal}\n"
+            "SCHEDULE\n"
+            f"2024-01-01 + {literal} INSERT_DATE\n",
+            encoding="utf-8",
+        )
+        # Bound the runtime in a subprocess so a backtracking regression cannot
+        # hang the test runner. Use the same source package as this test.
+        result = subprocess.run(
+            [sys.executable, "-m", "rips.simulator_events", str(path)],
+            cwd=os.path.dirname(os.path.dirname(rips.__file__)),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        assert result.returncode == 1, result.stderr
+        assert "3 error(s) found" in result.stdout
+
+    def test_fractional_component_rounds_to_whole_seconds(self):
+        # 0.0001h = 0.36s -> 0s; 0.001h = 3.6s -> 4s
+        assert self._duration("0.0001h") == Duration()
+        assert self._duration("0.001h") == Duration(delta=datetime.timedelta(seconds=4))
+
+    def test_go_style_str(self):
+        for literal, expected in (
+            ("5d", "5d"),
+            ("12h30m", "12h30m"),
+            ("1.5h", "1h30m"),
+            ("36h", "1d12h"),
+            ("1mon2d3h4m5s", "1mon2d3h4m5s"),
+            ("-3d", "-3d"),
+            ("-1mon12h", "-1mon12h"),
+            ("0d", "0s"),
+        ):
+            assert str(self._duration(literal)) == expected, literal
+        # A mixed-sign result cannot be a single literal.
+        assert str(self._duration("1mon - 1d")) == "1mon - 1d"
+
+    def test_arithmetic_combines_months_and_fixed_parts(self):
+        text = (
+            "SIMEVENTS 1.2\nDURATION A = 1mon2d\nDURATION B = 12h\n"
+            "DURATION C = A + B - 1d + -6h\n"
+        )
+        doc = parse_simulator_events(text)
+        assert doc.variables["C"].value == Duration(
+            1, datetime.timedelta(days=1, hours=6)
+        )
+
+    def test_hour_offsets_on_event_dates(self):
+        text = (
+            "SIMEVENTS 1.2\nDATE START = 2018-01-01T11:20:33 + 12h30m\n"
+            "DURATION RAMP = 5d\n"
+            'WELL "W"\n'
+            "  START + RAMP -3d PERFORATION MDSTART=1 MDEND=2\n"
+            "  START + RAMP + -1d WCONHIST STATUS=OPEN\n"
+        )
+        doc = parse_simulator_events(text)
+        assert doc.variables["START"].value == datetime.datetime(2018, 1, 1, 23, 50, 33)
+        assert [event.event_date for event in doc.wells[0].events] == [
+            datetime.datetime(2018, 1, 3, 23, 50, 33),
+            datetime.datetime(2018, 1, 5, 23, 50, 33),
+        ]
+
+    def test_month_offsets_clamp_to_end_of_month(self):
+        text = (
+            "SIMEVENTS 1.2\n"
+            "DATE A = 2024-01-31 + 1mon\n"
+            "DATE B = 2024-03-31 - 1mon\n"
+            "DATE C = 2023-12-15T06:00:00 + 14mon\n"
+            "DATE D = 2024-01-31 + 1mon1d\n"
+        )
+        doc = parse_simulator_events(text)
+        assert doc.variables["A"].value == datetime.datetime(2024, 2, 29)
+        assert doc.variables["B"].value == datetime.datetime(2024, 2, 29)
+        assert doc.variables["C"].value == datetime.datetime(2025, 2, 15, 6)
+        # Months are applied before the fixed part.
+        assert doc.variables["D"].value == datetime.datetime(2024, 3, 1)
+
+    def test_duration_variable_in_insert_date(self):
+        text = (
+            "SIMEVENTS 1.2\nDURATION STEP = 1mon\nSCHEDULE\n"
+            "2024-01-31 + STEP INSERT_DATE EVERY=1d UNTIL=2024-01-31+STEP+1d\n"
+        )
+        doc = parse_simulator_events(text)
+        assert doc.insert_dates == [
+            datetime.datetime(2024, 2, 29),
+            datetime.datetime(2024, 3, 1),
+        ]
 
 
 class TestFilterParsing:
     def _perf_with_filter(self, decls, filter_value):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             + decls
             + 'WELL "W"\n'
             + f"  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={filter_value}\n"
@@ -870,7 +1355,7 @@ class TestFilterParsing:
         return parse_simulator_events(text)
 
     def test_filter_declaration_single_term(self):
-        doc = parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "poro > 0.4"\n')
+        doc = parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "poro > 0.4"\n')
         value = doc.variables["F"]
         assert value.kind == "FILTER"
         expr = value.value
@@ -884,7 +1369,7 @@ class TestFilterParsing:
 
     def test_filter_declaration_two_terms_and(self):
         doc = parse_simulator_events(
-            'SIMEVENTS 1.0\nFILTER F = "poro>0.4 AND permx > 100.0"\n'
+            'SIMEVENTS 1.2\nFILTER F = "poro>0.4 AND permx > 100.0"\n'
         )
         expr = doc.variables["F"].value
         assert expr.combine_mode == "AND"
@@ -892,7 +1377,7 @@ class TestFilterParsing:
 
     def test_filter_declaration_or_mode(self):
         doc = parse_simulator_events(
-            'SIMEVENTS 1.0\nFILTER F = "PORO < 0.1 OR PERMX <= 10"\n'
+            'SIMEVENTS 1.2\nFILTER F = "PORO < 0.1 OR PERMX <= 10"\n'
         )
         expr = doc.variables["F"].value
         assert expr.combine_mode == "OR"
@@ -900,19 +1385,19 @@ class TestFilterParsing:
 
     def test_filter_all_operators(self):
         doc = parse_simulator_events(
-            'SIMEVENTS 1.0\nFILTER F = "A > 1 AND B >= 2 AND C < 3 AND D <= 4"\n'
+            'SIMEVENTS 1.2\nFILTER F = "A > 1 AND B >= 2 AND C < 3 AND D <= 4"\n'
         )
         expr = doc.variables["F"].value
         assert [t.op for t in expr.terms] == [">", ">=", "<", "<="]
         assert [t.value for t in expr.terms] == [1.0, 2.0, 3.0, 4.0]
 
     def test_filter_scientific_notation_value(self):
-        doc = parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "PERMX < 1.5e4"\n')
+        doc = parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "PERMX < 1.5e4"\n')
         assert doc.variables["F"].value.terms[0].value == 15000.0
 
     def test_filter_qualified_result_type(self):
         doc = parse_simulator_events(
-            'SIMEVENTS 1.0\nFILTER F = "DYNAMIC_NATIVE.MY_PROPERTY > 1"\n'
+            'SIMEVENTS 1.2\nFILTER F = "DYNAMIC_NATIVE.MY_PROPERTY > 1"\n'
         )
         term = doc.variables["F"].value.terms[0]
         assert term.result_type == "DYNAMIC_NATIVE"
@@ -926,7 +1411,7 @@ class TestFilterParsing:
             ("static_native", "STATIC_NATIVE"),
         ):
             doc = parse_simulator_events(
-                f'SIMEVENTS 1.0\nFILTER F = "{qualifier}.my_property > 1"\n'
+                f'SIMEVENTS 1.2\nFILTER F = "{qualifier}.my_property > 1"\n'
             )
             term = doc.variables["F"].value.terms[0]
             assert term.result_type == expected
@@ -951,7 +1436,7 @@ class TestFilterParsing:
 
     def test_filter_on_non_perforation_event_is_plain_attribute(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "W"\n'
+            'SIMEVENTS 1.2\nWELL "W"\n'
             '  2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
         )
         doc = parse_simulator_events(text)
@@ -962,41 +1447,41 @@ class TestFilterParsing:
     def test_mixed_and_or_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="mixes AND and OR"):
             parse_simulator_events(
-                'SIMEVENTS 1.0\nFILTER F = "A > 1 AND B > 2 OR C > 3"\n'
+                'SIMEVENTS 1.2\nFILTER F = "A > 1 AND B > 2 OR C > 3"\n'
             )
 
     def test_lowercase_connector_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="uppercase AND / OR"):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "poro>0.4 and permx>1"\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "poro>0.4 and permx>1"\n')
 
     def test_equality_operator_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="only >, >=, < and <="):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "poro = 0.4"\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "poro = 0.4"\n')
 
     def test_function_style_result_name_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="Malformed filter term"):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "SOIL(0) > 0.8"\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "SOIL(0) > 0.8"\n')
 
     def test_non_numeric_value_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="Malformed filter term"):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "poro > high"\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "poro > high"\n')
 
     def test_empty_filter_expression_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="Empty filter expression"):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = ""\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = ""\n')
 
     def test_unknown_qualifier_raises_with_hint(self):
         with pytest.raises(
             SimulatorEventsParseError,
             match="Unknown result type 'DYNAMIK'.*did you mean",
         ):
-            parse_simulator_events('SIMEVENTS 1.0\nFILTER F = "DYNAMIK.PORO > 1"\n')
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "DYNAMIK.PORO > 1"\n')
 
     def test_malformed_filter_declaration_raises(self):
         with pytest.raises(
             SimulatorEventsParseError, match="Malformed FILTER declaration"
         ):
-            parse_simulator_events("SIMEVENTS 1.0\nFILTER F = poro>0.4\n")
+            parse_simulator_events("SIMEVENTS 1.2\nFILTER F = poro>0.4\n")
 
     def test_undeclared_filter_reference_raises_with_hint(self):
         with pytest.raises(SimulatorEventsParseError, match="did you mean 'poroperm'"):
@@ -1010,7 +1495,7 @@ class TestFilterParsing:
 
     def test_filter_variable_in_date_context_raises(self):
         text = (
-            'SIMEVENTS 1.0\nFILTER F = "poro>1"\nWELL "W"\n'
+            'SIMEVENTS 1.2\nFILTER F = "poro>1"\nWELL "W"\n'
             "  F PERFORATION MDSTART=1 MDEND=2\n"
         )
         with pytest.raises(
@@ -1025,7 +1510,7 @@ class TestFilterParsing:
             self._perf_with_filter("", "123")
 
     def test_duplicate_filter_declaration_warns(self):
-        text = 'SIMEVENTS 1.0\nFILTER F = "poro>1"\nFILTER F = "permx>2"\n'
+        text = 'SIMEVENTS 1.2\nFILTER F = "poro>1"\nFILTER F = "permx>2"\n'
         doc = parse_simulator_events(text)
         assert any("Duplicate FILTER" in w.message for w in doc.warnings)
         assert doc.variables["F"].value.terms[0].result_name == "PERMX"
@@ -1034,7 +1519,7 @@ class TestFilterParsing:
 class TestDiagnostics:
     def test_all_errors_reported_in_one_pass(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "DATE A1_STARTUP = 2018-01-01\n"
             "SET X = 2018-01-01\n"  # line 3
             'WELL "W"\n'
@@ -1047,7 +1532,7 @@ class TestDiagnostics:
 
     def test_malformed_well_block_suppresses_cascading_errors(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "WELL 55_33-A-2\n"  # malformed: unquoted special characters
             "  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
             "  2018-01-01 WCONHIST STATUS=OPEN\n"
@@ -1059,7 +1544,7 @@ class TestDiagnostics:
 
     def test_unknown_variable_hint(self):
         text = (
-            "SIMEVENTS 1.0\nDATE A1_STARTUP = 2018-01-01\n"
+            "SIMEVENTS 1.2\nDATE A1_STARTUP = 2018-01-01\n"
             'WELL "W"\n  A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n'
         )
         with pytest.raises(
@@ -1069,7 +1554,65 @@ class TestDiagnostics:
 
     def test_misspelled_keyword_hint(self):
         with pytest.raises(SimulatorEventsParseError, match="did you mean 'DURATION'"):
-            parse_simulator_events("SIMEVENTS 1.0\nDURATON X = 5\n")
+            parse_simulator_events("SIMEVENTS 1.2\nDURATON X = 5\n")
+
+    @pytest.mark.parametrize(
+        "lengths, expected",
+        [
+            (
+                "FIXED_SEGMENT_LENGTH=20 MIN_SEGMENT_LENGTH=5",
+                "FIXED_SEGMENT_LENGTH cannot be combined",
+            ),
+            (
+                "FIXED_SEGMENT_LENGTH=20 MAX_SEGMENT_LENGTH=50",
+                "FIXED_SEGMENT_LENGTH cannot be combined",
+            ),
+            (
+                "MIN_SEGMENT_LENGTH=60 MAX_SEGMENT_LENGTH=50",
+                "MIN_SEGMENT_LENGTH \\(60\\) exceeds MAX_SEGMENT_LENGTH \\(50\\)",
+            ),
+            ("MIN_SEGMENT_LENGTH=0", "MIN_SEGMENT_LENGTH must be greater than zero"),
+            ("MAX_SEGMENT_LENGTH=-5", "MAX_SEGMENT_LENGTH must be greater than zero"),
+            ("FIXED_SEGMENT_LENGTH=long", "FIXED_SEGMENT_LENGTH must be a number"),
+        ],
+    )
+    def test_invalid_segment_lengths_are_parse_errors(self, lengths, expected):
+        text = (
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            f"  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 {lengths}\n"  # line 4
+        )
+        with pytest.raises(SimulatorEventsParseError, match=expected) as excinfo:
+            parse_simulator_events(text)
+        assert [issue.loc.line for issue in excinfo.value.errors] == [4]
+
+    def test_invalid_segment_lengths_are_rejected_when_merging(self):
+        first = parse_simulator_events(
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 FIXED_SEGMENT_LENGTH=10\n"
+        )
+        first.wells[0].events[0].attributes.update(
+            parse_simulator_events(
+                'SIMEVENTS 1.2\nWELL "W"\n'
+                "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 MIN_SEGMENT_LENGTH=5\n"
+            )
+            .wells[0]
+            .events[0]
+            .attributes
+        )
+        with pytest.raises(
+            SimulatorEventsParseError, match="FIXED_SEGMENT_LENGTH cannot be combined"
+        ):
+            merge_simulator_events_documents([first])
+
+    def test_valid_segment_lengths_parse(self):
+        document = parse_simulator_events(
+            'SIMEVENTS 1.2\nWELL "W"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=100 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=5\n"
+            "  2024-01-01 SEGMENT MDSTART=100 MDEND=200 FIXED_SEGMENT_LENGTH=12.5\n"
+        )
+        assert len(document.wells[0].events) == 2
 
 
 class TestValidatorCli:
@@ -1088,7 +1631,7 @@ class TestValidatorCli:
     def test_invalid_file_exits_nonzero_with_errors(self, tmp_path, capsys):
         path = self._write(
             tmp_path,
-            'SIMEVENTS 1.0\nSET X = 2018-01-01\nWELL "W"\n  NOPE WCONHIST A=1\n',
+            'SIMEVENTS 1.2\nSET X = 2018-01-01\nWELL "W"\n  NOPE WCONHIST A=1\n',
         )
         assert _cli([path]) == 1
         out = capsys.readouterr().out
@@ -1195,7 +1738,7 @@ class TestApplying:
 
     def test_same_owner_type_and_date_events_are_merged(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             'WELL "55_33-A-1"\n'
             "  2018-01-01 WCONHIST STATUS=OPEN ORAT=100\n"
             'WELL "55_33-A-1"\n'
@@ -1227,7 +1770,7 @@ class TestApplying:
 
     def test_well_keyword_history_is_inherited_chronologically(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             'WELL "55_33-A-1"\n'
             "  2024-01-20 WCONHIST WRAT=0.03\n"
             '  2024-01-15 WCONHIST STATUS=OPEN CMODE=RESV GRAT=4756545.5 COMMENT="Startup"\n'
@@ -1244,13 +1787,13 @@ class TestApplying:
             event
             for event in first_well_events
             if event.event_type.upper() == "WCONHIST"
-            and event.event_date.isoformat() == "2024-01-15"
+            and event.event_date == datetime.datetime(2024, 1, 15)
         )
         january_20 = next(
             event
             for event in first_well_events
             if event.event_type.upper() == "WCONHIST"
-            and event.event_date.isoformat() == "2024-01-20"
+            and event.event_date == datetime.datetime(2024, 1, 20)
         )
 
         assert january_15.attributes["GRAT"].value == 550678.44
@@ -1290,7 +1833,7 @@ class TestApplying:
 
     def test_same_date_perforations_are_not_merged(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             'WELL "55_33-A-1"\n'
             "  2018-01-01 PERFORATION MDSTART=1000 MDEND=1100 COMPLETION_NUMBER=1\n"
             "  2018-01-01 PERFORATION MDSTART=1200 MDEND=1300 COMPLETION_NUMBER=2\n"
@@ -1312,7 +1855,7 @@ class TestApplying:
 
     def test_group_and_schedule_events_merge_only_within_owner(self):
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             'GROUP "OP"\n'
             "  2018-01-01 GCONPROD CONTROL_MODE=ORAT\n"
             'GROUP "OP"\n'
@@ -1362,7 +1905,7 @@ class TestApplying:
 
     def test_comment_is_applied_to_timeline_event_not_keyword_data(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             '  2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
         timeline, report = self._apply(text)
@@ -1374,7 +1917,7 @@ class TestApplying:
 
     def test_perforation_comment_is_applied(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 COMMENT=Interval\n"
         )
         timeline, report = self._apply(text)
@@ -1396,7 +1939,7 @@ class TestApplying:
         # DSHIFT is not part of the format; it forwards unchanged like any
         # other attribute instead of being stripped.
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 WCONHIST STATUS=OPEN CMODE=ORAT DSHIFT=10\n"
         )
         timeline, report = self._apply(text)
@@ -1405,24 +1948,25 @@ class TestApplying:
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
         assert not report.warnings
 
-    def test_report_dates_on_apply_report(self):
+    def test_insert_dates_become_timeline_events(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2018-07-01\n"
-            "INSERT_DATE 2018-03-01\n"
-            "INSERT_DATE 2018-07-01\n"
+            "2018-07-01 INSERT_DATE\n"
+            '2018-03-01 INSERT_DATE COMMENT="Mid-year"\n'
         )
         timeline, report = self._apply(text)
-        # Sorted, deduplicated ISO strings ready for
-        # generate_schedule_text(additional_dates=...). No timeline events.
-        assert report.report_dates == ["2018-03-01", "2018-07-01"]
-        assert report.events_applied == 1
+        # One timeline event per inserted date, in document order.
+        assert timeline.insert_date_calls == [
+            {"event_date": "2018-07-01", "comment": ""},
+            {"event_date": "2018-03-01", "comment": "Mid-year"},
+        ]
+        assert report.events_applied == 3
 
     def test_radius_on_perforation_is_unknown_attribute_error(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 RADIUS=0.1\n"
         )
         timeline, report = self._apply(text)
@@ -1435,7 +1979,7 @@ class TestApplying:
         # PERFID is not part of the format; it is rejected like any other
         # unknown completion attribute.
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
         )
         timeline, report = self._apply(text)
@@ -1446,7 +1990,7 @@ class TestApplying:
 
     def test_filter_on_keyword_event_warns_and_applies(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             '  2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
         )
         timeline, report = self._apply(text)
@@ -1467,7 +2011,7 @@ class TestApplying:
             self._apply(SAMPLE, names=("55_33-A-1",), on_unknown_well="error")
 
     def test_unknown_event_type_warns_with_hint(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2018-01-01 WCONHST STATUS=OPEN\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 WCONHST STATUS=OPEN\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any(
@@ -1475,21 +2019,21 @@ class TestApplying:
         )
 
     def test_perforation_missing_required_attr_is_error(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("MDEND" in e for e in report.errors)
         assert 'Line 3 [WELL "55_33-A-1", date 2018-01-01]' in report.errors[0]
 
     def test_perforation_unknown_attr_is_error(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("ZZZ" in e for e in report.errors)
 
     def test_wellspec_partial_updates_are_cumulative_by_date(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2019-01-01 WELSPECS CROSSFLOW=False PHASE=gas\n"
             "  2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
         )
@@ -1505,10 +2049,27 @@ class TestApplying:
             "allow_cross_flow": False,
             "reference_depth": 1002.0,
             "well_type": "GAS",
+            "pressure_drop": "HF-",
         }
         assert timeline.wellspec_calls[1]["group_name"] == "my_group"
         assert timeline.wellspec_calls[1]["allow_cross_flow"] is True
         assert timeline.wellspec_calls[1]["well_type"] == "WATER"
+
+    def test_wellspec_pressure_components_are_cumulative(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2018-01-01 WELSPECS PRESSURE_COMPONENTS=hfa\n"
+            "  2019-01-01 WELSPECS GROUP=G1\n"
+            "  2020-01-01 WELSPECS PRESSURE_COMPONENTS=H--\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.errors == []
+        assert [call["pressure_drop"] for call in timeline.wellspec_calls] == [
+            "HFA",
+            "HFA",
+            "H--",
+        ]
 
     @pytest.mark.parametrize(
         "attributes,expected_error",
@@ -1516,13 +2077,17 @@ class TestApplying:
             ("CROSSFLOW=YES", "CROSSFLOW must be True or False"),
             ("REFDEPTH=deep", "REFDEPTH must be numeric"),
             ("PHASE=steam", "PHASE must be OIL, GAS, WATER, or LIQUID"),
+            (
+                "PRESSURE_COMPONENTS=INVALID",
+                "PRESSURE_COMPONENTS must be H--, HF-, or HFA",
+            ),
             ("GROUP=1", "GROUP must be a non-empty string"),
             ("UNKNOWN=1", "unknown WELSPECS attribute"),
             ("COMMENT=empty", "needs at least one setting attribute"),
         ],
     )
     def test_invalid_wellspec_is_reported_and_skipped(self, attributes, expected_error):
-        text = f'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2018-01-01 WELSPECS {attributes}\n'
+        text = f'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 WELSPECS {attributes}\n'
         timeline, report = self._apply(text)
 
         assert report.events_applied == 0
@@ -1530,15 +2095,15 @@ class TestApplying:
         assert expected_error in report.errors[0]
         assert timeline.wellspec_calls == []
 
-    def test_segment_mapping_creates_custom_interval_and_sets_pressure_drop(self):
+    def test_segment_mapping_creates_custom_interval(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 "
-            "ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
+            "ROUGHNESS=1.0e-5\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
-        call = timeline.tubing_calls[0]
+        call = timeline.segment_calls[0]
         assert call["start_md"] == 0.0
         assert call["end_md"] == 2500.0
         assert call["inner_diameter"] == 0.15
@@ -1553,25 +2118,66 @@ class TestApplying:
                 "roughness_factor": pytest.approx(1.0e-5),
             }
         ]
-        assert well.segment_collection().pressure_drop == "HFA"
-        assert well.segment_collection().update_calls == 1
 
-    def test_segment_rejects_invalid_pressure_components(self):
+    def test_segment_mapping_sets_reference_md_to_first_segment(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
-            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 "
-            "PRESSURE_COMPONENTS=INVALID\n"
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=1500 MDEND=2500\n"
+            "  2024-01-01 SEGMENT MDSTART=1200 MDEND=1500\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.errors == []
+        segment_collection = timeline.segment_calls[0]["well_path"].segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
+
+    def test_segment_min_max_lengths_are_mapped(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=50\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.errors == []
+        assert report.events_applied == 1
+        call = timeline.segment_calls[0]
+        assert call["min_segment_length"] == 5.0
+        assert call["max_segment_length"] == 50.0
+        assert "fixed_segment_length" not in call
+
+        interval = call["well_path"].segment_collection().intervals()[0]
+        assert interval.segment_length_calls == [("min", 5.0), ("max", 50.0)]
+
+    def test_segment_fixed_length_is_mapped(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 FIXED_SEGMENT_LENGTH=12\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 1
+        call = timeline.segment_calls[0]
+        assert call["fixed_segment_length"] == 12.0
+        assert "min_segment_length" not in call
+        assert "max_segment_length" not in call
+
+        interval = call["well_path"].segment_collection().intervals()[0]
+        assert interval.segment_length_calls == [("fixed", 12.0)]
+
+    def test_segment_rejects_pressure_components(self):
+        text = (
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 PRESSURE_COMPONENTS=HFA\n"
         )
         timeline, report = self._apply(text)
 
         assert report.events_applied == 0
         assert report.events_skipped == 1
-        assert "PRESSURE_COMPONENTS must be H--, HF-, or HFA" in report.errors[0]
-        assert timeline.tubing_calls == []
+        assert "unknown SEGMENT attribute(s): PRESSURE_COMPONENTS" in report.errors[0]
+        assert timeline.segment_calls == []
 
     def test_tubing_is_reported_as_renamed_event(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-01-01 TUBING MDSTART=0 MDEND=2500\n"
         )
         timeline, report = self._apply(text)
@@ -1581,7 +2187,7 @@ class TestApplying:
         assert any("did you mean 'SEGMENT'" in warning for warning in report.warnings)
 
     def test_wellspec_is_reported_as_renamed_event(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2024-01-01 WELLSPEC GROUP=FIELD\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2024-01-01 WELLSPEC GROUP=FIELD\n'
         timeline, report = self._apply(text)
 
         assert report.events_skipped == 1
@@ -1590,7 +2196,7 @@ class TestApplying:
 
     def test_valve_mapping(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-03-01 VALVE MD=2100 TYPE=ICV STATE=OPEN CV=0.7 AREA=0.0001\n"
         )
         timeline, report = self._apply(text)
@@ -1603,20 +2209,20 @@ class TestApplying:
         assert call["area"] == pytest.approx(0.0001)
 
     def test_valve_missing_type_is_error(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2024-03-01 VALVE MD=2100\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2024-03-01 VALVE MD=2100\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("TYPE" in e for e in report.errors)
 
     def test_state_mapping(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2024-02-15 STATE STATE=SHUT\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2024-02-15 STATE STATE=SHUT\n'
         timeline, report = self._apply(text)
         assert report.events_applied == 1
         assert timeline.state_calls[0]["well_state"] == "SHUT"
 
     def test_generic_well_keyword_pass_through(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-06-01 WRFTPLT OUTPUT_RFT=YES OUTPUT_PLT=NO OUTPUT_SEGMENT=NO\n"
         )
         timeline, report = self._apply(text)
@@ -1629,7 +2235,7 @@ class TestApplying:
 
     def test_typo_of_builtin_is_not_passed_through(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2024-01-01 PERFORATIN MDSTART=1 MDEND=2\n"
         )
         timeline, report = self._apply(text)
@@ -1639,7 +2245,7 @@ class TestApplying:
 
     def test_schedule_events_applied_without_well(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RPTRST BASIC=2 FREQ=1\n"
             "  2024-01-01 TUNING TSINIT=1 TSMAXZ=30\n"
         )
@@ -1651,7 +2257,7 @@ class TestApplying:
         assert "WELL" not in rptrst["keyword_data"]
 
     def test_restart_event_creates_non_emitting_timeline_marker(self):
-        text = "SIMEVENTS 1.0\nSCHEDULE\n  2024-02-01 RESTART\n"
+        text = "SIMEVENTS 1.2\nSCHEDULE\n  2024-02-01 RESTART\n"
         timeline, report = self._apply(text)
 
         assert report.events_applied == 1
@@ -1666,7 +2272,7 @@ class TestApplying:
 
     def test_raw_text_event_is_applied_without_coalescing(self):
         text = (
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=2\n"
             "first\nEND_RAW_TEXT\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=1\n"
@@ -1689,7 +2295,7 @@ class TestApplying:
 
     def test_group_events_inject_group_name(self):
         text = (
-            'SIMEVENTS 1.0\nGROUP "OP"\n'
+            'SIMEVENTS 1.2\nGROUP "OP"\n'
             "  2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
             "  2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 WATER_TARGET=20000 OIL_TARGET=20000\n"
             'GROUP "WI"\n'
@@ -1712,7 +2318,7 @@ class TestApplying:
 
     def test_member_event_expands_to_unique_grouptree_events(self):
         text = (
-            'SIMEVENTS 1.0\nGROUP "PRODUCERS"\n'
+            'SIMEVENTS 1.2\nGROUP "PRODUCERS"\n'
             '  2024-01-01 MEMBER MEMBERS="WELL_A, WELL_B,WELL_A" '
             'COMMENT="Group membership"\n'
         )
@@ -1746,7 +2352,7 @@ class TestApplying:
         ],
     )
     def test_invalid_member_event_is_skipped(self, block, event, expected_error):
-        text = f"SIMEVENTS 1.0\n{block}\n  2024-01-01 {event}\n"
+        text = f"SIMEVENTS 1.2\n{block}\n  2024-01-01 {event}\n"
         timeline, report = self._apply(text)
 
         assert report.events_applied == 0
@@ -1757,19 +2363,19 @@ class TestApplying:
         assert f"[{expected_scope}, date 2024-01-01]" in report.errors[0]
 
     def test_completion_event_in_schedule_block_is_error(self):
-        text = "SIMEVENTS 1.0\nSCHEDULE\n  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+        text = "SIMEVENTS 1.2\nSCHEDULE\n  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         timeline, report = self._apply(text)
         assert report.events_skipped == 1
         assert timeline.schedule_keyword_calls == []
         assert any("needs a WELL block" in e for e in report.errors)
 
-    def test_datetime_event_date_keeps_milliseconds(self):
+    def test_datetime_event_date_rounds_to_seconds(self):
         text = (
-            'SIMEVENTS 1.0\nWELL "55_33-A-1"\n'
-            "  2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
+            'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
+            "  2024-05-15T14:45:30.700 PERFORATION MDSTART=1 MDEND=2\n"
         )
         timeline, _ = self._apply(text)
-        assert timeline.perf_calls[0]["event_date"] == "2024-05-15T14:45:30.500"
+        assert timeline.perf_calls[0]["event_date"] == "2024-05-15T14:45:31"
 
     def test_invalid_policy_value_raises(self):
         doc = parse_simulator_events(SAMPLE)
@@ -1801,7 +2407,7 @@ class TestFilterApplying:
             f"  2018-01-{index:02d} PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
             for index, value in enumerate(filter_values, start=1)
         )
-        return "SIMEVENTS 1.0\n" + decls + 'WELL "55_33-A-1"\n' + events
+        return "SIMEVENTS 1.2\n" + decls + 'WELL "55_33-A-1"\n' + events
 
     def test_declared_filter_creates_combined_filter_and_attaches(self):
         text = self._perf_text(
@@ -1885,7 +2491,7 @@ class TestFilterApplying:
             self._apply(text, cases=[])
 
     def test_no_filter_without_case_is_fine(self):
-        text = 'SIMEVENTS 1.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n'
+        text = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n'
         _, _, report = self._apply(text, cases=[])
         assert report.events_applied == 1
 
@@ -1912,12 +2518,237 @@ class TestFilterApplying:
 
     def test_declared_but_unused_filter_creates_nothing(self):
         text = (
-            'SIMEVENTS 1.0\nFILTER unused = "poro>0.4"\nWELL "55_33-A-1"\n'
+            'SIMEVENTS 1.2\nFILTER unused = "poro>0.4"\nWELL "55_33-A-1"\n'
             "  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         )
         _, project, report = self._apply(text)
         assert report.events_applied == 1
         assert not project.cases()[0].data_filter_collection().combined_filters
+
+
+# ---------------------------------------------------------------------------
+# Multiple files: documents are merged before matching events are coalesced
+# ---------------------------------------------------------------------------
+
+FILE_A = """\
+SIMEVENTS 1.2
+WELL "55_33-A-1"
+  2018-01-01 WCONHIST STATUS=OPEN ORAT=100
+  2018-01-01 PERFORATION MDSTART=1 MDEND=2
+GROUP "OP"
+  2018-01-01 GCONPROD CONTROL_MODE=ORAT
+SCHEDULE
+  2018-01-01 RPTRST BASIC=1
+  2018-02-01 INSERT_DATE
+"""
+
+FILE_B = """\
+SIMEVENTS 1.2
+WELL "55_33-A-1"
+  2018-01-01 WCONHIST CMODE=ORAT
+  2018-01-01 PERFORATION MDSTART=3 MDEND=4
+GROUP "OP"
+  2018-01-01 GCONPROD OIL_TARGET=100
+SCHEDULE
+  2018-01-01 RPTRST FREQ=2
+  2018-02-01 INSERT_DATE
+  2018-03-01 INSERT_DATE
+"""
+
+
+class TestMultipleFiles:
+    def _write(self, tmp_path, name, text):
+        path = tmp_path / name
+        path.write_text(text)
+        return str(path)
+
+    def _files(self, tmp_path, text_a=FILE_A, text_b=FILE_B):
+        return [
+            self._write(tmp_path, "a.events", text_a),
+            self._write(tmp_path, "b.events", text_b),
+        ]
+
+    def test_events_from_different_files_are_merged(self, tmp_path):
+        document = parse_simulator_events_files(self._files(tmp_path))
+        merged = coalesce_simulator_events_document(document)
+
+        assert len(merged.wells) == 1
+        well_events = merged.wells[0].events
+        wconhist = [e for e in well_events if e.event_type == "WCONHIST"]
+        assert len(wconhist) == 1
+        assert set(wconhist[0].attributes) == {"STATUS", "ORAT", "CMODE"}
+
+        # Events that create domain objects are never merged.
+        perforations = [e for e in well_events if e.event_type == "PERFORATION"]
+        assert len(perforations) == 2
+
+        assert len(merged.groups) == 1
+        assert set(merged.groups[0].events[0].attributes) == {
+            "CONTROL_MODE",
+            "OIL_TARGET",
+        }
+        assert len(merged.schedule_events) == 1
+        assert set(merged.schedule_events[0].attributes) == {"BASIC", "FREQ"}
+
+        # The repeated 2018-02-01 insert date is reduced to one event.
+        assert merged.insert_dates == [
+            datetime.datetime(2018, 2, 1),
+            datetime.datetime(2018, 3, 1),
+        ]
+        assert merged.warnings == []
+
+    def test_source_locations_carry_file_names(self, tmp_path):
+        document = parse_simulator_events_files(self._files(tmp_path))
+        assert document.wells[0].loc.source == "a.events"
+        assert document.wells[1].loc.source == "b.events"
+
+    def test_merge_does_not_mutate_inputs(self):
+        document_a = parse_simulator_events(FILE_A, source="a.events")
+        document_b = parse_simulator_events(FILE_B, source="b.events")
+        merge_simulator_events_documents([document_a, document_b])
+        assert len(document_a.wells) == 1
+        assert len(document_a.schedule_events) == 1
+
+    def test_conflicting_attribute_across_files_warns_with_both_sources(self, tmp_path):
+        text_b = 'SIMEVENTS 1.2\nWELL "55_33-A-1"\n  2018-01-01 WCONHIST STATUS=SHUT\n'
+        files = self._files(tmp_path, text_b=text_b)
+
+        timeline = FakeTimeline()
+        report = apply_simulator_events_files(
+            files, timeline, FakeProject(("55_33-A-1",))
+        )
+
+        wconhist_calls = [
+            call
+            for call in timeline.keyword_calls
+            if call["keyword_name"] == "WCONHIST"
+        ]
+        assert len(wconhist_calls) == 1
+        assert wconhist_calls[0]["keyword_data"]["STATUS"] == "SHUT"
+        assert wconhist_calls[0]["keyword_data"]["ORAT"] == 100
+
+        conflicts = [w for w in report.warnings if "conflicting" in w]
+        assert len(conflicts) == 1
+        assert conflicts[0].startswith('b.events, line 3: [WELL "55_33-A-1"')
+        assert "conflicting WCONHIST attribute 'STATUS'" in conflicts[0]
+        assert "previous value on line 3 of a.events" in conflicts[0]
+        assert "using 'SHUT'" in conflicts[0]
+
+    def test_identical_attribute_across_files_does_not_warn(self, tmp_path):
+        files = self._files(tmp_path, text_b=FILE_A)
+        document = parse_simulator_events_files(files)
+        merged = coalesce_simulator_events_document(document)
+        assert merged.warnings == []
+
+    def test_unit_mismatch_is_an_error(self, tmp_path):
+        text_b = "SIMEVENTS 1.2\nUNIT FIELD\n"
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(self._files(tmp_path, text_b=text_b))
+        message = str(exc_info.value)
+        assert "Unit system mismatch" in message
+        assert "b.events uses FIELD" in message
+        assert "a.events uses METRIC" in message
+
+    def test_parse_errors_are_collected_from_all_files(self, tmp_path):
+        bad = 'SIMEVENTS 1.2\nWELL "W"\n  NOPE WCONHIST A=1\n'
+        files = self._files(tmp_path, text_a=bad, text_b="")
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(files)
+        lines = str(exc_info.value).splitlines()
+        assert len(lines) == 2
+        assert lines[0].startswith("a.events, line 3:")
+        assert lines[1].startswith("b.events: Empty file")
+
+    def test_second_restart_across_files_is_an_error(self, tmp_path):
+        text = "SIMEVENTS 1.2\nSCHEDULE\n  2018-01-01 RESTART\n"
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(
+                self._files(tmp_path, text_a=text, text_b=text)
+            )
+        assert "b.events, line 3" in str(exc_info.value)
+        assert "Only one RESTART event is allowed" in str(exc_info.value)
+
+    def test_same_date_wellspec_across_files_is_an_error(self, tmp_path):
+        text = 'SIMEVENTS 1.2\nWELL "W"\n  2018-01-01 WELSPECS GROUP=OP\n'
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(
+                self._files(tmp_path, text_a=text, text_b=text)
+            )
+        message = str(exc_info.value)
+        assert "WELSPECS already defined" in message
+        assert "(first definition on line 3 of a.events)" in message
+
+    def test_filter_name_collision_warns_and_keeps_each_expression(self, tmp_path):
+        def text(expr):
+            return (
+                "SIMEVENTS 1.2\n"
+                f'FILTER HIGH = "{expr}"\n'
+                'WELL "55_33-A-1"\n'
+                "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER=HIGH\n"
+            )
+
+        files = self._files(
+            tmp_path, text_a=text("PORO > 0.2"), text_b=text("PORO > 0.3")
+        )
+        document = parse_simulator_events_files(files)
+        assert len(document.warnings) == 1
+        assert "FILTER 'HIGH' is also declared on line 2 of a.events" in (
+            document.warnings[0].message
+        )
+
+        case = FakeCase()
+        timeline = FakeTimeline()
+        report = apply_simulator_events_document(
+            document, timeline, FakeProject(("55_33-A-1",)), case=case
+        )
+        assert report.errors == []
+        combined = case.data_filter_collection().combined_filters
+        assert [f.property_filters[0].lower_bound for f in combined] == [0.2, 0.3]
+        assert timeline.perf_events[0].filters[0] is combined[0]
+        assert timeline.perf_events[1].filters[0] is combined[1]
+
+    def test_single_document_messages_are_unchanged(self):
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            'WELL "55_33-A-1"\n'
+            "  2018-01-01 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 WCONHIST STATUS=SHUT\n"
+        )
+        report = apply_simulator_events_document(
+            document, FakeTimeline(), FakeProject(("55_33-A-1",))
+        )
+        assert report.warnings[0].startswith('Line 4: [WELL "55_33-A-1"')
+        assert "previous value on line 3)" in report.warnings[0]
+
+    def test_cli_validates_and_applies_multiple_files(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        timeline = FakeTimeline()
+        project = FakeCliProject(
+            ("55_33-A-1",), collections=[FakeWellPathCollection(timeline)]
+        )
+        monkeypatch.setattr(
+            rips.Instance, "find", staticmethod(lambda: FakeInstance(project))
+        )
+        files = self._files(tmp_path)
+
+        assert _cli([*files, "--apply"]) == 0
+        out = capsys.readouterr().out
+        assert f"{files[0]}, {files[1]}: OK" in out
+        assert "2 well block(s), 4 well event(s)" in out
+        # One merged WCONHIST, two perforations, one GCONPROD, one RPTRST and
+        # two inserted dates (the repeated 2018-02-01 is applied once).
+        assert "Events applied: 7" in out
+        assert len(timeline.keyword_calls) == 1
+        assert len(timeline.perf_calls) == 2
+
+    def test_cli_reports_errors_with_file_names(self, tmp_path, capsys):
+        bad = 'SIMEVENTS 1.2\nWELL "W"\n  NOPE WCONHIST A=1\n'
+        files = self._files(tmp_path, text_b=bad)
+        assert _cli(files) == 1
+        out = capsys.readouterr().out
+        assert "b.events, line 3:" in out
+        assert "1 error(s) found" in out
 
 
 # ---------------------------------------------------------------------------
@@ -1948,7 +2779,7 @@ class TestSimulatorEventsIntegration:
         project, _case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN INVALID_FIELD=1.0\n"
         )
@@ -1971,7 +2802,7 @@ class TestSimulatorEventsIntegration:
         project, _case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2018-06-08 WTRACER TRACER=T1 CONCENTRATION=1.0 COMMENTS=typo\n"
         )
@@ -1998,7 +2829,7 @@ class TestSimulatorEventsIntegration:
         project, _case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             '  2018-06-08 WTRACER TRACER=T1 CONCENTRATION=1.0 COMMENT="Tracer start"\n'
         )
@@ -2014,7 +2845,7 @@ class TestSimulatorEventsIntegration:
         project, _case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 NOT_A_KEYWORD VALUE=1\n"
             "  2024-01-02 WCONHIST STATUS=OPEN\n"
@@ -2039,7 +2870,7 @@ class TestSimulatorEventsIntegration:
         settings.update()
 
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
             "  2024-01-01 WELTARG CMODE=ORAT VALUE=200\n"
@@ -2063,7 +2894,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
@@ -2090,7 +2921,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
@@ -2129,7 +2960,7 @@ class TestSimulatorEventsIntegration:
     def test_raw_text_only_schedule_is_generated(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
             "-- raw-only\nEND_RAW_TEXT\n"
         )
@@ -2149,7 +2980,7 @@ class TestSimulatorEventsIntegration:
     ):
         project, case, timeline = project_with_case_and_wells
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD ANCHOR=COMPDAT\n"
             "text\nEND_RAW_TEXT\n"
         )
@@ -2164,7 +2995,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             '  2024-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
@@ -2180,7 +3011,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2020-07-01 WCONHIST STATUS=OPEN CMODE=ORAT\n"
             'GROUP "OP"\n'
@@ -2209,7 +3040,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN\n"
             'GROUP "PRODUCERS"\n'
@@ -2232,7 +3063,7 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = next(wp for wp in project.well_paths() if "A" in wp.name)
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
             "  2019-01-01 WELSPECS CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
@@ -2279,14 +3110,14 @@ class TestSimulatorEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             "  2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
             "  2024-02-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=200\n"
             "  2024-03-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=300\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2024-01-15\n"
-            "INSERT_DATE 2024-04-01\n"
+            "2024-01-15 INSERT_DATE\n"
+            "2024-04-01 INSERT_DATE\n"
             "  2024-02-01 RESTART\n"
         )
 
@@ -2296,7 +3127,6 @@ class TestSimulatorEventsIntegration:
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             first_date_as_comment=False,
-            additional_dates=report.report_dates,
         )
         assert "1 'JAN' 2024" not in schedule
         assert "15 'JAN' 2024" not in schedule
@@ -2308,28 +3138,35 @@ class TestSimulatorEventsIntegration:
         assert " 300" in schedule
         assert "RESTART\n" not in schedule
 
-    def test_report_only_document_generates_schedule(self, project_with_case_and_wells):
+    def test_insert_date_only_document_generates_schedule(
+        self, project_with_case_and_wells
+    ):
         project, case, timeline = project_with_case_and_wells
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\nSCHEDULE\nINSERT_DATE 2024-02-01\nINSERT_DATE 2024-06-01\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            '2024-02-01 INSERT_DATE EVERY=1mon UNTIL=2024-04-01 COMMENT="Quarterly"\n'
+            "2024-06-01 INSERT_DATE\n"
         )
 
         report = apply_simulator_events_document(document, timeline, project)
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             first_date_as_comment=False,
-            additional_dates=report.report_dates,
         )
 
-        assert report.events_applied == 0
-        assert report.report_dates == ["2024-02-01", "2024-06-01"]
+        # Three occurrences of the recurring statement plus the single date.
+        assert report.events_applied == 4
         assert "1 'FEB' 2024" in schedule
+        assert "1 'MAR' 2024" in schedule
+        assert "1 'APR' 2024" in schedule
         assert "1 'JUN' 2024" in schedule
+        # The comment of the statement follows every generated date.
+        assert schedule.count("-- Quarterly") == 3
 
     def test_end_is_first_keyword_after_date(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells
         document = parse_simulator_events(
-            "SIMEVENTS 1.0\nSCHEDULE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
             "2024-01-01 RPTRST BASIC=2 FREQ=1\n"
             "2024-01-01 END\n"
         )
@@ -2353,22 +3190,21 @@ class TestSimulatorEventsIntegration:
 
         # Reference the real well name; MD range is valid for well path A.
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "UNIT METRIC\n"
             "DATE START = 2024-01-01\n"
-            "DURATION RAMP = 5 DAYS\n"
+            "DURATION RAMP = 5d\n"
             f'WELL "{well.name}"\n'
             "  START         PERFORATION  MDSTART=2000  MDEND=2200  DIAMETER=0.1  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
             "  START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
             "SCHEDULE\n"
-            "INSERT_DATE 2024-07-01\n"
+            "2024-07-01 INSERT_DATE\n"
         )
         document = parse_simulator_events(text)
         report = apply_simulator_events_document(document, timeline, project)
         assert report.errors == []
-        assert report.events_applied == 3
-        assert report.report_dates == ["2024-07-01"]
+        assert report.events_applied == 4
 
         # Materialize completions from the perforation event.
         timeline.set_timestamp(timestamp="2024-01-15")
@@ -2385,7 +3221,6 @@ class TestSimulatorEventsIntegration:
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=[],
-            additional_dates=report.report_dates,
         )
         assert "COMPDAT" in schedule
         assert "WCONHIST" in schedule
@@ -2394,20 +3229,59 @@ class TestSimulatorEventsIntegration:
             "INSERT_DATE date should be emitted as a DATES entry"
         )
 
+    def test_segment_lengths_are_applied_to_interval(self, project_with_case_and_wells):
+        project, _case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=1000 MIN_SEGMENT_LENGTH=5 "
+            "MAX_SEGMENT_LENGTH=50\n"
+            "  2024-01-01 SEGMENT MDSTART=1000 MDEND=2500 FIXED_SEGMENT_LENGTH=25\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+        assert report.events_applied == 2
+
+        events = timeline.descendants(rips.WellEventSegment)
+        min_max_event = next(e for e in events if e.end_md == 1000.0)
+        assert min_max_event.min_segment_length == (True, 5.0)
+        assert min_max_event.max_segment_length == (True, 50.0)
+        assert min_max_event.fixed_segment_length[0] is False
+
+        def check_intervals():
+            intervals = {
+                (i.start_md, i.end_md): i for i in well.segment_collection().intervals()
+            }
+            min_max = intervals[(0.0, 1000.0)]
+            assert min_max.min_segment_length == (True, 5.0)
+            assert min_max.max_segment_length == (True, 50.0)
+            assert min_max.fixed_segment_length[0] is False
+            fixed = intervals[(1000.0, 2500.0)]
+            assert fixed.fixed_segment_length == (True, 25.0)
+            assert fixed.min_segment_length[0] is False
+            assert fixed.max_segment_length[0] is False
+
+        check_intervals()
+        timeline.set_timestamp(timestamp="2024-12-24")
+        check_intervals()
+
     def test_apply_full_event_coverage_and_schedule(self, project_with_case_and_wells):
         """All event kinds from well_event_schedule.py expressed as SIMEVENTS."""
         project, case, timeline = project_with_case_and_wells
         well = next(wp for wp in project.well_paths() if "A" in wp.name)
 
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             "UNIT METRIC\n"
             "DATE STARTUP = 2024-01-01\n"
-            "DURATION RAMP = 31 DAYS\n"
+            "DURATION RAMP = 31d\n"
             f'WELL "{well.name}"\n'
-            "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
+            "  STARTUP         WELSPECS     PRESSURE_COMPONENTS=HFA\n"
+            "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5\n"
             "  STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  DIAMETER=0.1  SKIN=0.5  COMPLETION_NUMBER=1\n"
-            "  2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=2\n"
+            "  2024-05-15T14:45:30.700  PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=2\n"
             "  2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
             "  2024-02-15      STATE        STATE=OPEN\n"
             "  2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  ORAT=3999.99  VFP=1\n"
@@ -2422,16 +3296,16 @@ class TestSimulatorEventsIntegration:
         report = apply_simulator_events_document(document, timeline, project)
         assert report.errors == []
         assert report.warnings == []
-        assert report.events_applied == 11
+        assert report.events_applied == 12
 
         segment_intervals = well.descendants(rips.SegmentInterval)
         assert any(
             segment.start_md == 0.0 and segment.end_md == 2500.0
             for segment in segment_intervals
         )
-        assert well.segment_collection().pressure_drop == "HFA"
 
         timeline.set_timestamp(timestamp="2024-12-24")
+        assert well.completion_settings().pressure_drop == "HFA"
         schedule = timeline.generate_schedule_text(
             eclipse_case=case, export_msw_for_wells=[well]
         )
@@ -2447,14 +3321,78 @@ class TestSimulatorEventsIntegration:
         ):
             assert keyword in schedule, f"{keyword} missing from schedule"
         # The datetime perforation must surface as a DATES entry with TIME.
-        assert "14:45:30.500" in schedule
+        assert "14:45:31" in schedule
+        assert "'HFA'" in schedule.split("WELSEGS", 1)[1].split("/", 1)[0]
+
+    def test_welsegs_uses_pressure_components_from_wellspec_at_date(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 WELSPECS     PRESSURE_COMPONENTS=HFA\n"
+            "  2024-01-01 SEGMENT      MDSTART=0  MDEND=2500\n"
+            "  2024-01-01 PERFORATION  MDSTART=2000  MDEND=2200\n"
+            "  2024-06-01 WELSPECS     PRESSURE_COMPONENTS=H--\n"
+            "  2024-06-01 PERFORATION  MDSTART=2300  MDEND=2350\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well]
+        )
+        headers = [block.split("/", 1)[0] for block in schedule.split("WELSEGS\n")[1:]]
+        assert len(headers) == 2
+        assert "'HFA'" in headers[0]
+        assert "'H--'" in headers[1]
+
+    def test_segment_events_set_user_defined_reference_md(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 SEGMENT      MDSTART=1500  MDEND=2500\n"
+            "  2024-01-01 SEGMENT      MDSTART=1200  MDEND=1500\n"
+            "  2024-01-01 PERFORATION  MDSTART=2000  MDEND=2200\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+
+        segment_collection = well.segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well]
+        )
+        header = schedule.split("WELSEGS\n", 1)[1].split("/", 1)[0]
+        header_values = [
+            line.split()
+            for line in header.splitlines()
+            if line.strip() and not line.strip().startswith("--")
+        ][0]
+        top_length = float(header_values[2])
+        assert top_length == pytest.approx(1200.0)
+
+        segment_collection.reference_md_type = "GridEntryPoint"
+        segment_collection.update()
+        timeline.set_timestamp(timestamp="2024-12-24")
+        segment_collection = well.segment_collection()
+        assert segment_collection.reference_md_type == "UserDefined"
+        assert segment_collection.user_defined_reference_md == 1200.0
 
     def test_apply_unknown_well_warns_and_applies_nothing(
         self, project_with_case_and_wells
     ):
         project, _case, timeline = project_with_case_and_wells
         text = (
-            'SIMEVENTS 1.0\nWELL "NO_SUCH_WELL"\n'
+            'SIMEVENTS 1.2\nWELL "NO_SUCH_WELL"\n'
             "  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         )
         document = parse_simulator_events(text)
@@ -2470,7 +3408,7 @@ class TestSimulatorEventsIntegration:
         well = next(wp for wp in project.well_paths() if "A" in wp.name)
 
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             'FILTER hiperm = "PERMX > 50.0"\n'
             f'WELL "{well.name}"\n'
             "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 DIAMETER=0.1 FILTER=hiperm\n"
@@ -2507,7 +3445,7 @@ class TestSimulatorEventsIntegration:
         well = next(wp for wp in project.well_paths() if "A" in wp.name)
 
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             '  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="static.PERMX >= 50"\n'
         )
@@ -2530,7 +3468,7 @@ class TestSimulatorEventsIntegration:
         well = next(wp for wp in project.well_paths() if "A" in wp.name)
 
         text = (
-            "SIMEVENTS 1.0\n"
+            "SIMEVENTS 1.2\n"
             f'WELL "{well.name}"\n'
             '  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="NO_SUCH_RESULT > 1"\n'
         )

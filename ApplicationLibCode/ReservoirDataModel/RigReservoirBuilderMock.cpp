@@ -339,7 +339,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
     grid->setFaults( faults );
 
     // NNCs
-    RigConnectionContainer nncConnections;
+    std::vector<RigConnection> nncConnections;
     {
         size_t i1 = 2;
         size_t j1 = 2;
@@ -384,7 +384,14 @@ void RigReservoirBuilderMock::enableWellData( bool enableWellData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections )
+void RigReservoirBuilderMock::addNnc( RigMainGrid*                grid,
+                                      size_t                      i1,
+                                      size_t                      j1,
+                                      size_t                      k1,
+                                      size_t                      i2,
+                                      size_t                      j2,
+                                      size_t                      k2,
+                                      std::vector<RigConnection>& nncConnections )
 {
     if ( i1 >= grid->cellCountI() || j1 >= grid->cellCountJ() || k1 >= grid->cellCountK() ) return;
     if ( i2 >= grid->cellCountI() || j2 >= grid->cellCountJ() || k2 >= grid->cellCountK() ) return;

@@ -200,7 +200,8 @@ bool Frustum::isOutside(const Vec3d& point) const
 //--------------------------------------------------------------------------------------------------
 bool Frustum::isOutside(const BoundingBox& bbox) const
 {
-    CVF_ASSERT(m_planes.size() == 6);
+    // An incomplete frustum (e.g. from a degenerate projection matrix) cannot cull anything
+    if (m_planes.size() != 6) return false;
 
     const Vec3d& boxMin = bbox.min();
     const Vec3d& boxMax = bbox.max();

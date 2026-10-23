@@ -33,7 +33,10 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
         { "osdu-well-logs", "OSDU Well Logs", "Enable import of well logs from OSDU." },
         { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
         { "oil-volume-result", "Oil Volume Result", "Compute the derived oil volume cell result." },
-        { "simulator-events-import", "Simulator Events Import", "Enable import of simulator events from file." },
+        { "simulator-events",
+          "Simulator Events",
+          "Enable import of simulator events from file, and export of an Eclipse schedule generated "
+          "from the well event timeline." },
         { "remember-dialog-size",
           "Remember Dialog Size",
           "Remember the size of property and preferences dialogs between sessions and restore it the next time they "
@@ -45,6 +48,7 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
           "log level in preferences) to also see cvf's debug-level messages, e.g. OpenGL context and widget "
           "lifecycle events; note that debug level also logs one message per rendering pass and per part, every "
           "frame, so the log can grow quickly." },
+        { "workflows", "Workflows", "Discover and run taskmaestro workflows from the project tree." },
     };
 
     return features;

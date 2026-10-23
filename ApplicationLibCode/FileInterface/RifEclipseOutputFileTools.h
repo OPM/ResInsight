@@ -86,6 +86,7 @@ public:
     static int readUnitsType( const ecl_file_type* ecl_file );
 
     static cvf::ref<RifEclipseRestartDataAccess> createDynamicResultAccess( const QString& fileName );
+    static bool                                  hasOnlyNonUnifiedRestartFiles( const QString& fileName );
 
     static QString createIndexFileName( const QString& resultFileName );
 

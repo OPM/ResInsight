@@ -18,13 +18,11 @@
 
 #include "RicfSetTimeStep.h"
 
-#include "Rim3dView.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RicfCommandForwarding.h"
 
-#include "RiaLogging.h"
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimcGridView.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -69,47 +67,31 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetTimeStep::execute()
 {
-    RimCase* rimCase = nullptr;
+    const QString commandName = classKeyword();
 
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    // A view id of -1 applies the time step to all views of the case
+    std::vector<Rim3dView*> views;
+    if ( m_viewId() == -1 )
     {
-        std::vector<RimCase*> allCases = RimProject::current()->allGridCases();
-
-        bool foundCase = false;
-        for ( RimCase* c : allCases )
-        {
-            if ( c->caseId() == m_caseId )
-            {
-                rimCase   = c;
-                foundCase = true;
-                break;
-            }
-        }
-        if ( !foundCase )
-        {
-            QString error = QString( "setTimeStep: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
+        views = rimCase.value()->views();
+    }
+    else
+    {
+        auto view = RicfForwarding::findView( rimCase.value(), m_viewId() );
+        if ( !view ) return RicfForwarding::errorResponse( view.error(), commandName );
+        views.push_back( view.value() );
     }
 
-    int maxTimeStep = rimCase->timeStepStrings().size() - 1;
-    if ( m_timeStepIndex() > maxTimeStep )
+    for ( Rim3dView* view : views )
     {
-        QString error = QString( "setTimeStep: Step %1 is larger than the maximum of %2 for case %3" )
-                            .arg( m_timeStepIndex() )
-                            .arg( maxTimeStep )
-                            .arg( m_caseId() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+        Rim3dView_setTimeStep method( view );
+        method.setTimeStep( m_timeStepIndex() );
 
-    for ( Rim3dView* view : rimCase->views() )
-    {
-        if ( m_viewId() == -1 || view->id() == m_viewId() )
-        {
-            view->setCurrentTimeStepAndUpdate( m_timeStepIndex );
-            view->createDisplayModelAndRedraw();
-        }
+        auto result = method.execute();
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
 
     return caf::PdmScriptResponse();

@@ -64,8 +64,10 @@ RimSumoDataSource::RimSumoDataSource()
                        "Realization Filter",
                        "",
                        "Specify realization numbers. Example: 1-5, 8, 11-20, !4 will include 1, 2, 3, 5, 8, 11-20" );
+    m_realizationFilter.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT, "E.g. 0,1,4-10,!6. Use '*' for all." );
 
     CAF_PDM_InitFieldNoDefault( &m_realizationFilterInfo, "RealizationFilterInfo", "Info" );
+    m_realizationFilterInfo.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::HEIGHT_HINT, -1 );
     m_realizationFilterInfo.registerGetMethod( this, &RimSumoDataSource::realizationFilterInfoText );
     m_realizationFilterInfo.uiCapability()->setUiReadOnly( true );
     m_realizationFilterInfo.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -296,27 +298,6 @@ void RimSumoDataSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder
 {
     menuBuilder.addCmdFeature( "RicCreateSumoEnsembleFeature" );
     menuBuilder.addCmdFeature( "RicCreateSumoReservoirGridEnsembleFeature" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSumoDataSource::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_realizationFilter )
-    {
-        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            lineEdAttr->placeholderText = "E.g. 0,1,4-10,!6. Use '*' for all.";
-        }
-    }
-    else if ( field == &m_realizationFilterInfo )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
-        {
-            myAttr->heightHint = -1;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

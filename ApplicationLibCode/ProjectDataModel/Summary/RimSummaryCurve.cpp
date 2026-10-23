@@ -31,6 +31,7 @@
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "RimCurveStyleRules.h"
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -839,13 +840,6 @@ double RimSummaryCurve::computeCurveZValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::hideXAxisGroup()
 {
     m_showXAxisGroup = false;
@@ -900,7 +894,20 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
+    const auto plot     = firstAncestorOrThisOfType<RimSummaryPlot>();
+    const auto rules    = RimProject::current() ? RimProject::current()->curveStyleRules() : nullptr;
+    const auto caseName = RimCurveStyleSettings::caseName( summaryCaseY() );
+
+    // Curves without a value for the selected dimensions are not changed by the global appearance
+    const bool isAppearanceGlobal =
+        plot && plot->useGlobalCurveAppearance() && firstAncestorOrThisOfType<RimSummaryCurveCollection>() && rules &&
+        ( rules->controlsColor( summaryAddressY(), caseName ) || rules->controlsSymbol( summaryAddressY(), caseName ) );
+    m_curveAppearance->setUiLocked( isAppearanceGlobal );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    if ( isAppearanceGlobal )
+        RimCurveStyleRules::addGlobalAppearanceLink( *appearanceGroup,
+                                                     "The appearance is controlled by the <a href=\"dummy\">global curve appearance</a>." );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
@@ -1087,6 +1094,15 @@ void RimSummaryCurve::setAsTopZWithinCategory( bool enable )
 void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == objectToggleField() && isChecked() )
+    {
+        // Re-attaching changes the legend order, so reattach all curves to keep it consistent with the project tree
+        if ( auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>() )
+        {
+            curveCollection->updateCurveOrder();
+        }
+    }
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
@@ -1396,6 +1412,21 @@ void RimSummaryCurve::calculateCurveTypeFromAddress()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateTimeAnnotations()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::deleteIfDataSourceIsMissing()
+{
+    const bool isXCaseMissing = m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR && !m_xValuesSummaryCase();
+    if ( m_yValuesSummaryCase() && !isXCaseMissing ) return false;
+
+    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( !summaryPlot ) return false;
+
+    summaryPlot->deleteCurves( { this } );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

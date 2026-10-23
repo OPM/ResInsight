@@ -33,6 +33,8 @@ set(PROJECT_FILES
     cafPdmUiComboBoxEditor.h
     cafPdmUiRadioButtonEditor.cpp
     cafPdmUiRadioButtonEditor.h
+    cafPdmUiAttributeTools.cpp
+    cafPdmUiAttributeTools.h
     cafPdmUiDateEditor.cpp
     cafPdmUiDateEditor.h
     cafPdmUiTimeEditor.cpp
@@ -127,8 +129,6 @@ set(PROJECT_FILES
     cafPdmUiTabbedPropertyViewDialog.cpp
     cafPdmUiTreeViewItemDelegate.h
     cafPdmUiTreeViewItemDelegate.cpp
-    cafPdmUiTreeAttributes.h
-    cafPdmUiTreeAttributes.cpp
     cafUiAppearanceSettings.cpp
     cafUiIconFactory.cpp
     cafPdmUiSliderTools.h

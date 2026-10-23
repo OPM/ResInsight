@@ -23,6 +23,7 @@
 #include "cafPdmObjectMethod.h"
 
 #include <QString>
+#include <QStringList>
 
 class RimEclipseResultCase;
 
@@ -77,4 +78,58 @@ public:
 
 private:
     caf::PdmField<QString> m_mswNameGrouping;
+};
+
+//==================================================================================================
+/// Import well paths from a list of files and/or all well path files in a folder.
+/// Returns the names of the imported well paths as a string container.
+//==================================================================================================
+class RimWellPathCollection_importWellPaths : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWellPathCollection_importWellPaths( caf::PdmObjectHandle* self );
+
+    void setWellPathFiles( const std::vector<QString>& wellPathFiles );
+    void setWellPathFolder( const QString& wellPathFolder );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+    /// Warnings from the last execute(), e.g. files that could not be parsed
+    QStringList warnings() const;
+
+private:
+    caf::PdmField<std::vector<QString>> m_wellPathFiles;
+    caf::PdmField<QString>              m_wellPathFolder;
+
+    QStringList m_warnings;
+};
+
+//==================================================================================================
+/// Import well log files (LAS) from a list of files and/or all well log files in a folder, and attach
+/// them to the well paths with matching names. Returns the names of the affected well paths.
+//==================================================================================================
+class RimWellPathCollection_importWellLogFiles : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWellPathCollection_importWellLogFiles( caf::PdmObjectHandle* self );
+
+    void setWellLogFiles( const std::vector<QString>& wellLogFiles );
+    void setWellLogFolder( const QString& wellLogFolder );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+    /// Warnings from the last execute(), e.g. files that could not be parsed
+    QStringList warnings() const;
+
+private:
+    caf::PdmField<std::vector<QString>> m_wellLogFiles;
+    caf::PdmField<QString>              m_wellLogFolder;
+
+    QStringList m_warnings;
 };

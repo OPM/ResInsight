@@ -26,12 +26,14 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
+#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFilterDisplayUtil.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMap.h"
@@ -173,6 +175,24 @@ void RimStatisticsContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& 
 RimStatisticsContourMap* RimStatisticsContourMapView::statisticsContourMap() const
 {
     return m_statisticsContourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the ensemble data filter applied to the contour map, since it is not part of the view's own
+/// (unused) cell/property filter collection.
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMapView::activeFiltersDisplayText() const
+{
+    if ( statisticsContourMap() )
+    {
+        if ( auto* filter = statisticsContourMap()->dataFilter() )
+        {
+            const QString text = RimFilterDisplayUtil::filterNamesJoined( { filter }, true );
+            if ( !text.isEmpty() ) return text;
+        }
+    }
+
+    return RimEclipseContourMapView::activeFiltersDisplayText();
 }
 
 //--------------------------------------------------------------------------------------------------

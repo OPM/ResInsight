@@ -18,21 +18,12 @@
 
 #include "RicfExportFlowCharacteristics.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-
-#include "RicfApplicationTools.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimFlowCharacteristicsPlot.h"
-#include "RimFlowPlotCollection.h"
-#include "RimMainPlotCollection.h"
+#include "RimcEclipseCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QDir>
-#include <QFile>
-#include <QTextStream>
 
 CAF_PDM_SOURCE_INIT( RicfExportFlowCharacteristics, "exportFlowCharacteristics" );
 
@@ -55,66 +46,24 @@ RicfExportFlowCharacteristics::RicfExportFlowCharacteristics()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( TOOLS::caseFromId( m_caseId() ) );
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    auto* eclipseCase = dynamic_cast<RimEclipseResultCase*>( rimCase.value() );
     if ( !eclipseCase )
     {
-        QString error = QString( "exportFlowCharacteristics: Could not find case with ID %1." ).arg( m_caseId() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( QString( "Case with ID %1 is not an Eclipse result case" ).arg( m_caseId() ), commandName );
     }
 
-    {
-        QString   exportFileName = m_fileName();
-        QFileInfo fi( exportFileName );
-        if ( !fi.isAbsolute() )
-        {
-            QString relativePath = fi.path();
+    RimEclipseResultCase_exportFlowCharacteristics method( eclipseCase );
+    method.setTimeSteps( m_selectedTimeSteps() );
+    method.setInjectors( m_injectors() );
+    method.setProducers( m_producers() );
+    method.setFileName( m_fileName() );
+    method.setMinimumCommunication( m_minCommunication() );
+    method.setAquiferCellThreshold( m_maxPvFraction() );
 
-            QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( relativePath );
-
-            QDir exportDir( exportFolder );
-            if ( !exportDir.exists() )
-            {
-                if ( !exportDir.mkpath( "." ) )
-                {
-                    QString msg = QString( "Failed to create folder - %1" ).arg( exportFolder );
-                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
-                }
-            }
-
-            exportFileName = exportFolder + "/" + fi.fileName();
-        }
-
-        RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();
-            plot->setFromFlowSolution( eclipseCase->defaultFlowDiagSolution() );
-            plot->setTimeSteps( m_selectedTimeSteps );
-            plot->setInjectorsAndProducers( m_injectors, m_producers );
-            plot->setAquiferCellThreshold( m_maxPvFraction );
-            plot->setMinimumCommunication( m_minCommunication );
-
-            plot->loadDataAndUpdate();
-
-            {
-                QString content = plot->curveDataAsText();
-
-                QFile file( exportFileName );
-                if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
-                {
-                    QTextStream textstream( &file );
-                    textstream << content;
-                }
-                else
-                {
-                    QString msg = QString( "Failed to export file - %1" ).arg( exportFileName );
-                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
-                }
-            }
-        }
-    }
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }

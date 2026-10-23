@@ -193,6 +193,11 @@ void RiaWellPathDataToGrpcConverter::copyCompsegsToGrpc( const RigMswTableData& 
         {
             grpcCompData->set_grid_name( compsegsRow.gridName );
         }
+
+        if ( compsegsRow.segmentNumber.has_value() )
+        {
+            grpcCompData->set_segment_number( *compsegsRow.segmentNumber );
+        }
     }
 }
 

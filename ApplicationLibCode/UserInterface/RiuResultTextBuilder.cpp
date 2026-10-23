@@ -814,6 +814,7 @@ std::pair<bool, QStringList> RiuResultTextBuilder::resultTextFromLinkedViews() c
     QStringList     additionalCellResultText;
     bool            hasMultipleCases   = false;
     RimEclipseCase* primaryEclipseCase = m_eclipseView->eclipseCase();
+    if ( !primaryEclipseCase ) return {};
 
     auto views = m_eclipseView->assosiatedViewLinker()->allViews();
     for ( auto view : views )

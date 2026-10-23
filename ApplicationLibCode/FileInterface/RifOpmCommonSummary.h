@@ -26,6 +26,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
@@ -75,6 +76,9 @@ private:
     void   populateTimeSteps();
     std::string keywordForAddress( const RifEclipseSummaryAddress& address ) const;
 
+    RiaDefines::EclipseUnitSystem detectUnitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystemFromVectorUnits() const;
+
     static bool writeEsmryFile( QString& smspecFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
     static void increaseEsmryFileCount();
 
@@ -89,6 +93,10 @@ private:
 
     bool m_useEsmryFiles;
     bool m_createEsmryFiles;
+
+    // Detected on first request, as reading the SMSPEC file is not needed for summary import
+    QString                                              m_fileName;
+    mutable std::optional<RiaDefines::EclipseUnitSystem> m_unitSystem;
 
     RifEnsembleImportConfig m_ensembleImportState;
 };

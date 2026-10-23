@@ -64,6 +64,8 @@ RimDockWindowController::~RimDockWindowController()
 //--------------------------------------------------------------------------------------------------
 void RimDockWindowController::handleViewerDeletion()
 {
+    if ( !viewPdmObject() ) return;
+
     viewPdmObject()->m_showWindow = false;
     viewPdmObject()->updateConnectedEditors();
     viewPdmObject()->updateUiIconFromToggleField();
@@ -130,8 +132,27 @@ void RimDockWindowController::updateViewerWidget()
     {
         if ( !viewWidget() )
         {
+            // Create the view widget first: if it fails, nothing has been allocated yet. Creating the
+            // dock widget first and having view widget creation fail afterwards would otherwise leave a
+            // dock widget without a dock manager, which deleteDockWidget() cannot clean up.
+            QWidget* viewWidget = viewPdmObject()->createViewWidget();
+            if ( !viewWidget ) return;
+
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
-            QWidget*          viewWidget = viewPdmObject()->createViewWidget();
+            if ( !dockWidget )
+            {
+                viewPdmObject()->deleteViewWidget();
+                return;
+            }
+
+            // The dock manager identifies dock widgets by name. A duplicate name (e.g. from a project saved with
+            // copied views) would unregister the existing dock widget, which is then deleted on next dock state restore.
+            if ( auto existing = mainWindow->dockManager()->findDockWidget( viewPdmObject()->dockWindowName() );
+                 existing && existing != dockWidget )
+            {
+                viewPdmObject()->resetDockWindowId();
+            }
+
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );

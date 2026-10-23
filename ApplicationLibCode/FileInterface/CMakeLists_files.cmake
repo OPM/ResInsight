@@ -34,7 +34,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifCsvHtmlTableTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
@@ -51,6 +51,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesFileParser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelGeologicalFrkExporter.cpp
@@ -63,6 +64,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEventKeywordFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderAggregator.cpp
@@ -85,6 +87,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommonActive.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonFlowDiagGridSource.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEdfmTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp

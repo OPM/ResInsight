@@ -13,5 +13,8 @@
   ],
   "overlay-triplets": [
     "ThirdParty/vcpkg-overlay-triplets"
+  ],
+  "overlay-ports": [
+    "ThirdParty/vcpkg-overlay-ports/snappy"
   ]
 }

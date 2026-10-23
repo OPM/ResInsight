@@ -26,6 +26,7 @@
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
+class RimCellFilter;
 class RimRegularGridCase;
 class RigFloodingSettings;
 
@@ -66,8 +67,10 @@ public:
         double                  transmissibility;
         int                     maxNumTargets;
         int                     maxIterations;
+        bool                    avoidFaults = false; // do not grow across fault faces and fault NNCs
         RigEclipseResultAddress filterAddress;
-        std::vector<double>     filter;
+        RimCellFilter*          startDataFilter = nullptr; // falls back to growDataFilter if null
+        RimCellFilter*          growDataFilter  = nullptr;
     };
 
     static void generateCandidates( RimEclipseCase*            eclipseCase,
@@ -100,4 +103,5 @@ public:
                                                            double                              expandBoundingBoxZPercent );
 
     static QString wellTargetResultName();
+    static QString wellTargetFaultFacesResultName();
 };

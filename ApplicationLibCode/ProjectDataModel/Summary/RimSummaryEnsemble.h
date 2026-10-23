@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 #include "Summary/RiaSummaryDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -69,6 +70,7 @@ public:
     QString name() const;
 
     void                                        setNameTemplate( const QString& name );
+    void                                        setAutoName( bool autoName );
     virtual void                                updateName( const std::set<QString>& existingEnsembleNames );
     void                                        setUsePathKey1( bool useKey1 );
     void                                        setUsePathKey2( bool useKey2 );
@@ -119,6 +121,7 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
     void onCalculationUpdated();
+    void onSummaryVectorsChanged();
 
     void updateReferringCurveSets();
     void updateReferringCurveSetsZoomAll();
@@ -154,8 +157,7 @@ protected:
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     QString nameAndItemCount() const;
     void    updateIcon();

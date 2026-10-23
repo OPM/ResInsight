@@ -31,6 +31,7 @@
 #include "RiuDockWidgetTools.h"
 
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -60,6 +61,9 @@ RimViewWindow::RimViewWindow()
 
     CAF_PDM_InitField( &m_dockWindowId, "DockWindowId", QString(), "Dock Window Id" );
     m_dockWindowId.uiCapability()->setUiHidden( true );
+    // The dock id must be unique, as the dock manager identifies dock widgets by name. Copies (including plots created
+    // from templates) get a new id.
+    m_dockWindowId.xmlCapability()->setCopyable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,7 +348,6 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         {
             updateDockWindowVisibility();
         }
-        uiCapability()->updateUiIconFromToggleField();
     }
 }
 
@@ -412,20 +415,22 @@ void RimViewWindow::dockInWindow( int mainWindowID )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimViewWindow::treeItemTags()
 {
-    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
+    if ( RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
     {
-        treeItemAttribute->tags.clear();
-        auto tag                   = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->text                  = QString( "%1" ).arg( id() );
+        auto tag                   = caf::PdmUiTreeViewItemTag::create();
+        tag.text                   = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
-        tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
-        tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
-        treeItemAttribute->tags.push_back( std::move( tag ) );
+        tag.bgColor                = QColor( RiaColorTools::toQColor( viewColor ) );
+        tag.fgColor                = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

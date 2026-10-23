@@ -274,6 +274,13 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     }
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup( "Location / Orientation" );
+    if ( auto wellPath = firstAncestorOrThisOfType<RimWellPath>() )
+    {
+        m_measuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM,
+                                                      static_cast<double>( wellPath->uniqueStartMD() ) );
+        m_measuredDepth.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM,
+                                                      static_cast<double>( wellPath->uniqueEndMD() ) );
+    }
     locationGroup->add( &m_measuredDepth );
     locationGroup->add( &m_azimuth );
     locationGroup->add( &m_uiWellPathAzimuth );
@@ -297,28 +304,6 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     m_wellPathDepthAtFracture.uiCapability()->setUiReadOnly( m_autoUpdateWellPathDepthAtFractureFromTemplate() );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimFracture::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_measuredDepth )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-
-        if ( myAttr )
-        {
-            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
-            if ( !wellPath ) return;
-
-            myAttr->m_minimum = wellPath->uniqueStartMD();
-            myAttr->m_maximum = wellPath->uniqueEndMD();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

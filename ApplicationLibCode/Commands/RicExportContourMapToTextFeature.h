@@ -22,9 +22,12 @@
 #include "cafCmdFeature.h"
 #include "cafPdmField.h"
 
+#include <expected>
+
 #include <utility>
 
 class RimContourMapProjection;
+class Rim3dView;
 class RimEclipseContourMapView;
 class RimGeoMechContourMapView;
 
@@ -42,6 +45,13 @@ public:
     caf::PdmScriptResponse execute() override;
 
     static std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> findContourMapView();
+
+    /// Export the contour map of the given view (an Eclipse or GeoMech contour map view) to a text file.
+    static std::expected<void, QString> exportContourMapToText( Rim3dView*     view,
+                                                                const QString& exportFileName,
+                                                                bool           exportLocalCoordinates,
+                                                                const QString& undefinedValueLabel,
+                                                                bool           excludeUndefinedValues );
 
 protected:
     bool isCommandEnabled() const override;

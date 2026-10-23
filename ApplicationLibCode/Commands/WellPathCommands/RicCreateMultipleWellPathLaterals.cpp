@@ -149,7 +149,7 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
 
             newModeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( measuredDepth );
 
-            wellPathCollection->addWellPath( newModeledWellPath );
+            wellPathCollection->addWellPath( newModeledWellPath, false );
             newModeledWellPath->resolveReferencesRecursively();
 
             newModeledWellPath->updateReferencePoint();

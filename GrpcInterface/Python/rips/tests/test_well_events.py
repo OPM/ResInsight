@@ -100,11 +100,11 @@ class TestWellEventTimeline:
 
         assert event is not None, "Control event should be created"
 
-    def test_add_tubing_event(self, test_well_path):
-        """Test adding a tubing event to the timeline."""
+    def test_add_segment_event(self, test_well_path):
+        """Test adding a segment event to the timeline."""
         wellpath, timeline = test_well_path
 
-        event = timeline.add_tubing_event(
+        event = timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=wellpath,
             start_md=500.0,
@@ -113,7 +113,40 @@ class TestWellEventTimeline:
             roughness=1.0e-5,
         )
 
-        assert event is not None, "Tubing event should be created"
+        assert event is not None, "Segment event should be created"
+
+    def test_add_segment_event_segment_lengths(self, test_well_path):
+        """Segment lengths are stored on the event; 0 means not set."""
+        wellpath, timeline = test_well_path
+
+        event = timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=wellpath,
+            start_md=500.0,
+            end_md=1000.0,
+            min_segment_length=5.0,
+            max_segment_length=50.0,
+        )
+        assert event.min_segment_length == (True, 5.0)
+        assert event.max_segment_length == (True, 50.0)
+        assert event.fixed_segment_length[0] is False
+
+        with pytest.raises(rips.RipsError, match="cannot be combined"):
+            timeline.add_segment_event(
+                well_path=wellpath,
+                start_md=500.0,
+                end_md=1000.0,
+                fixed_segment_length=10.0,
+                min_segment_length=5.0,
+            )
+        with pytest.raises(rips.RipsError, match="cannot exceed"):
+            timeline.add_segment_event(
+                well_path=wellpath,
+                start_md=500.0,
+                end_md=1000.0,
+                min_segment_length=60.0,
+                max_segment_length=50.0,
+            )
 
 
 class TestWellEventScheduleApplication:
@@ -172,14 +205,14 @@ class TestWellEventScheduleApplication:
             "Perforation end MD should match"
         )
 
-    def test_set_timestamp_creates_tubing_intervals(self, project_with_wells):
-        """Test that set_timestamp creates tubing intervals from tubing events."""
+    def test_set_timestamp_creates_segment_intervals(self, project_with_wells):
+        """Test that set_timestamp creates segment intervals from segment events."""
         # Get Well Path B (end MD 2112)
         well_paths, timeline = project_with_wells
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add a tubing event at a valid MD range for Well Path B
-        timeline.add_tubing_event(
+        # Add a segment event at a valid MD range for Well Path B
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_b,
             start_md=1000.0,
@@ -191,7 +224,7 @@ class TestWellEventScheduleApplication:
         # Apply events up to the date
         timeline.set_timestamp(timestamp="2024-01-15")
 
-        # Verify a segment interval was created from the tubing event
+        # Verify a segment interval was created from the segment event
         segment_collection = well_path_b.segment_collection()
         assert segment_collection is not None, "Segment collection should be available"
 
@@ -272,15 +305,15 @@ class TestScheduleGeneration:
         return project, case, well_path_coll.event_timeline()
 
     def test_generate_schedule_text_basic(self, project_with_case_and_well):
-        """Test basic schedule text generation with MSW (tubing + perforation) events."""
+        """Test basic schedule text generation with MSW (segment + perforation) events."""
         project, case, timeline = project_with_case_and_well
 
         # Get well path
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing to enable MSW
-        timeline.add_tubing_event(
+        # Add segment to enable MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -315,6 +348,183 @@ class TestScheduleGeneration:
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert "2024" in schedule_text, "Schedule should contain the event date"
         assert "WELSEGS" in schedule_text, "Schedule should contain MSW WELSEGS keyword"
+
+    def test_generate_schedule_shared_well_name_exported_once(
+        self, project_with_case_and_well
+    ):
+        """Wells sharing an export name (multilateral) give one WELSPECS/COMPORD record and unique COMPDAT cells (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+
+        for index, well_path in enumerate(project.well_paths()):
+            well_path.name = "OP5" if index == 0 else "OP5_Y2"
+            well_path.update()
+            settings = well_path.completion_settings()
+            settings.well_name_for_export = "OP5"
+            settings.update()
+
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        assert (
+            len(re.findall(r"^\s*'OP5'\s+'", schedule_text.split("COMPORD")[0], re.M))
+            == 1
+        )
+        assert schedule_text.count("'OP5' 'INPUT'") == 1
+
+        compdat = schedule_text.split("COMPDAT")[1]
+        cells = re.findall(r"'OP5'\s+(\d+\s+\d+\s+\d+)", compdat)
+        assert cells and len(cells) == len(set(cells))
+
+    @staticmethod
+    def _two_wells_sharing_export_name(project, timeline, with_segment=False):
+        """Import a second copy of well path A (renamed) and perforate both copies identically."""
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+        well_path_coll.import_well_path(
+            file_name=dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"
+        )
+
+        well_paths = [wp for wp in project.well_paths() if wp.name == "Well Path A"]
+        assert len(well_paths) == 2
+        for index, well_path in enumerate(well_paths):
+            well_path.name = f"Well Path A{index + 1}"
+            well_path.update()
+        for well_path in well_paths:
+            if with_segment:
+                timeline.add_segment_event(
+                    event_date="2024-01-01",
+                    well_path=well_path,
+                    start_md=1500.0,
+                    end_md=2300.0,
+                    inner_diameter=0.15,
+                    roughness=1.0e-5,
+                )
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+        timeline.set_timestamp(timestamp="2024-12-31")
+        return well_paths
+
+    @staticmethod
+    def _set_export_names(well_paths, names):
+        for well_path, name in zip(well_paths, names):
+            settings = well_path.completion_settings()
+            settings.well_name_for_export = name
+            settings.update()
+
+    @staticmethod
+    def _compdat_transmissibilities(schedule_text, well_name):
+        """Map 'I J K' -> connection transmissibility for the COMPDAT records of a well."""
+        compdat = schedule_text.split("COMPDAT")[1].split("\n/")[0]
+        pattern = rf"'{well_name}'\s+(\d+ \d+ \d+) \d+ '\w+' \S+ (\S+)"
+        return {cell: float(trans) for cell, trans in re.findall(pattern, compdat)}
+
+    def test_shared_well_name_combines_overlapping_connections(
+        self, project_with_case_and_well
+    ):
+        """Cells shared by well paths with the same export name are combined, not dropped (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = self._two_wells_sharing_export_name(project, timeline)
+
+        self._set_export_names(well_paths, ["OPA1", "OPA2"])
+        separate = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        single = self._compdat_transmissibilities(separate, "OPA1")
+        assert single and single == self._compdat_transmissibilities(separate, "OPA2")
+
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+        shared = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        combined = self._compdat_transmissibilities(shared, "OP5")
+        compdat = shared.split("COMPDAT")[1].split("\n/")[0]
+        assert len(re.findall(r"^\s*'OP5'", compdat, re.M)) == len(single)
+        assert combined.keys() == single.keys()
+        for cell, trans in single.items():
+            assert combined[cell] == pytest.approx(2.0 * trans, rel=1e-6)
+
+    @pytest.mark.parametrize("selected_index", [0, 1])
+    def test_shared_well_name_msw_exported_for_any_selected_member(
+        self, project_with_case_and_well, selected_index
+    ):
+        """MSW for a well name is exported once when any member is selected, not only the first (issue #14870)."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = self._two_wells_sharing_export_name(
+            project, timeline, with_segment=True
+        )
+        well_paths[0].append_lateral_from_geometry(well_path_lateral=well_paths[1])
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_paths[selected_index]],
+            first_date_as_comment=False,
+        )
+
+        assert schedule_text.count("WELSEGS") == 1
+        assert schedule_text.count("COMPSEGS") == 1
+
+    @pytest.mark.parametrize("selected_indices", [[0], [1], [0, 1]])
+    def test_shared_well_name_msw_rejects_independent_trees(
+        self, project_with_case_and_well, selected_indices
+    ):
+        """Independent trees cannot share an MSW name without leaving connections unmapped."""
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        for well_path in well_paths:
+            timeline.add_segment_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=1500.0,
+                end_md=2300.0,
+                inner_diameter=0.15,
+                roughness=1.0e-5,
+            )
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
+        timeline.set_timestamp(timestamp="2024-12-31")
+        self._set_export_names(well_paths, ["OP5", "OP5"])
+
+        # Grouping independent trees remains supported without MSW export.
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[], first_date_as_comment=False
+        )
+        assert len(self._compdat_transmissibilities(schedule_text, "OP5")) == 12
+
+        with pytest.raises(rips.RipsError, match="OP5.*independent well trees"):
+            timeline.generate_schedule_text(
+                eclipse_case=case,
+                export_msw_for_wells=[well_paths[i] for i in selected_indices],
+                first_date_as_comment=False,
+            )
 
     def test_generate_schedule_preserves_time_of_day(self, project_with_case_and_well):
         """Event timestamps with a time-of-day must be preserved in the exported DATES keyword (issue #14111)."""
@@ -356,8 +566,8 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing for MSW
-        timeline.add_tubing_event(
+        # Add segment for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -444,8 +654,10 @@ class TestScheduleGeneration:
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert "2024" in schedule_text, "Schedule should contain event dates"
 
-    def test_generate_schedule_with_additional_dates(self, project_with_case_and_well):
-        """Additional dates become bare DATES keywords, merged chronologically (issue #14514)."""
+    def test_generate_schedule_with_insert_date_events(
+        self, project_with_case_and_well
+    ):
+        """Insert-date events become bare DATES keywords, merged chronologically (issue #14514)."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -467,21 +679,30 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2024-02-01")
+        timeline.add_insert_date_event(
+            event_date="2024-06-01", comment="Mid-year summary report"
+        )
         timeline.set_timestamp(timestamp="2024-12-31")
 
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2024-02-01", "2024-06-01"],
         )
 
         assert "1 'FEB' 2024" in schedule_text, (
-            "Additional date 2024-02-01 should be emitted as a DATES entry"
+            "Inserted date 2024-02-01 should be emitted as a DATES entry"
         )
         assert "1 'JUN' 2024" in schedule_text, (
-            "Additional date 2024-06-01 should be emitted as a DATES entry"
+            "Inserted date 2024-06-01 should be emitted as a DATES entry"
         )
+        assert "-- Mid-year summary report" in schedule_text, (
+            "The comment of an insert-date event should be emitted above its date"
+        )
+        assert schedule_text.index("-- Mid-year summary report") < schedule_text.index(
+            "1 'JUN' 2024"
+        ), "The comment must precede the DATES keyword of its insert-date event"
         # Dates must appear in chronological order: JAN (event), FEB, MAR (event), JUN
         positions = [
             schedule_text.index(date_str)
@@ -496,8 +717,8 @@ class TestScheduleGeneration:
             f"Dates should appear chronologically, got positions {positions}"
         )
 
-    def test_additional_dates_deduplicated_and_merged(self, project_with_case_and_well):
-        """An additional date equal to an event date must not produce a duplicate DATES entry."""
+    def test_insert_dates_deduplicated_and_merged(self, project_with_case_and_well):
+        """An inserted date equal to an event date must not produce a duplicate DATES entry."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -511,46 +732,30 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2024-01-01")
+        timeline.add_insert_date_event(event_date="2024-01-01")
         timeline.set_timestamp(timestamp="2024-12-31")
 
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2024-01-01", "2024-01-01"],
         )
 
         assert schedule_text.count("1 'JAN' 2024") == 1, (
-            "Duplicate additional dates should be merged with the event date"
+            "Duplicate inserted dates should be merged with the event date"
         )
 
-    def test_additional_dates_invalid_format(self, project_with_case_and_well):
-        """An unparsable additional date must raise an error mentioning the format."""
-        project, case, timeline = project_with_case_and_well
-
-        well_paths = project.well_paths()
-        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
-
-        timeline.add_perf_event(
-            event_date="2024-01-01",
-            well_path=well_path_a,
-            start_md=1800.0,
-            end_md=2000.0,
-            diameter=0.1,
-            state="OPEN",
-        )
-        timeline.set_timestamp(timestamp="2024-12-31")
+    def test_insert_date_invalid_format(self, project_with_case_and_well):
+        """An unparsable inserted date must raise an error mentioning the format."""
+        _, _, timeline = project_with_case_and_well
 
         with pytest.raises(rips.RipsError) as exc_info:
-            timeline.generate_schedule_text(
-                eclipse_case=case,
-                export_msw_for_wells=project.well_paths(),
-                additional_dates=["not-a-date"],
-            )
+            timeline.add_insert_date_event(event_date="not-a-date")
         assert "Invalid date format" in str(exc_info.value)
 
-    def test_additional_date_before_first_event(self, project_with_case_and_well):
-        """An additional date earlier than all events becomes the first date of the schedule."""
+    def test_insert_date_before_first_event(self, project_with_case_and_well):
+        """An inserted date earlier than all events becomes the first date of the schedule."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -564,17 +769,17 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2023-06-01")
         timeline.set_timestamp(timestamp="2024-12-31")
 
-        # Default first_date_as_comment=True: the earliest date (the additional
+        # Default first_date_as_comment=True: the earliest date (the inserted
         # one) becomes the comment; the event date is a real DATES entry.
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
-            additional_dates=["2023-06-01"],
         )
         assert "-- Date: 1 JUN 2023" in schedule_text, (
-            "Earliest (additional) date should be emitted as a comment by default"
+            "Earliest (inserted) date should be emitted as a comment by default"
         )
         assert "1 'JAN' 2024" in schedule_text, (
             "Event date should be a DATES entry when it is no longer first"
@@ -585,10 +790,9 @@ class TestScheduleGeneration:
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2023-06-01"],
         )
         assert "1 'JUN' 2023" in schedule_text, (
-            "Additional date should be a DATES entry with first_date_as_comment=False"
+            "Inserted date should be a DATES entry with first_date_as_comment=False"
         )
 
     def test_first_date_as_comment(self, project_with_case_and_well):
@@ -653,8 +857,8 @@ class TestScheduleGeneration:
         """Test that only wells with events before timestamp appear in schedule output.
 
         Scenario:
-        - Add tubing event for well A at 2024-01-01
-        - Add tubing event for well B at 2024-03-01
+        - Add segment event for well A at 2024-01-01
+        - Add segment event for well B at 2024-03-01
         - Set timestamp to 2024-02-01 (between the two dates)
         - Verify schedule contains well A but not well B
         """
@@ -665,8 +869,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add tubing event for well A on 2024-01-01 (before timestamp)
-        timeline.add_tubing_event(
+        # Add segment event for well A on 2024-01-01 (before timestamp)
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -697,8 +901,8 @@ class TestScheduleGeneration:
             },
         )
 
-        # Add tubing event for well B on 2024-03-01 (after timestamp)
-        timeline.add_tubing_event(
+        # Add segment event for well B on 2024-03-01 (after timestamp)
+        timeline.add_segment_event(
             event_date="2024-03-01",
             well_path=well_path_b,
             start_md=0.0,
@@ -767,9 +971,9 @@ class TestScheduleGeneration:
         """Test that wells only appear in schedule sections at their event dates, not earlier.
 
         Scenario:
-        - Add tubing + perf + ICV valve for well A at 2024-01-01 (depth 2000-2200, valve at 2100)
-        - Add tubing + perf + ICD valve for well B at 2024-03-01 (depth 1500-1700, valve at 1600)
-        - Add tubing + perf + ICV valve + perf + AICD valve for well A at 2024-04-01
+        - Add segment + perf + ICV valve for well A at 2024-01-01 (depth 2000-2200, valve at 2100)
+        - Add segment + perf + ICD valve for well B at 2024-03-01 (depth 1500-1700, valve at 1600)
+        - Add segment + perf + ICV valve + perf + AICD valve for well A at 2024-04-01
           (perf 1800-2000 with ICV at 1900, perf 2250-2400 with AICD at 2300)
         - Set timestamp to 2024-12-31 (after all events)
         - Verify well A appears in January and April sections with different COMPSEGS
@@ -787,8 +991,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Add tubing + perforation for well A at 2024-01-01 (depth 2000-2200)
-        timeline.add_tubing_event(
+        # Add segment + perforation for well A at 2024-01-01 (depth 2000-2200)
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=1500.0,
@@ -815,8 +1019,8 @@ class TestScheduleGeneration:
             area=0.0001,
         )
 
-        # Add tubing + perforation for well B at 2024-03-01 (depth 1500-1700)
-        timeline.add_tubing_event(
+        # Add segment + perforation for well B at 2024-03-01 (depth 1500-1700)
+        timeline.add_segment_event(
             event_date="2024-03-01",
             well_path=well_path_b,
             start_md=1400.0,
@@ -843,8 +1047,8 @@ class TestScheduleGeneration:
             area=0.00012,
         )
 
-        # Add another tubing + perforation for well A at 2024-04-01 at a different depth (1800-2000)
-        timeline.add_tubing_event(
+        # Add another segment + perforation for well A at 2024-04-01 at a different depth (1800-2000)
+        timeline.add_segment_event(
             event_date="2024-04-01",
             well_path=well_path_a,
             start_md=600.0,
@@ -1007,27 +1211,27 @@ class TestScheduleGeneration:
             "April COMPSEGS should contain ICV valve depth 1900"
         )
 
-        # Verify WELSEGS sections exist for tubing events
+        # Verify WELSEGS sections exist for segment events
         assert "WELSEGS" in january_section, (
-            "January section should contain WELSEGS for well A (tubing event)"
+            "January section should contain WELSEGS for well A (segment event)"
         )
         assert "WELSEGS" in april_section, (
-            "April section should contain WELSEGS for well A (second tubing event)"
+            "April section should contain WELSEGS for well A (second segment event)"
         )
 
-        # Verify that the April tubing event values do NOT leak into January WELSEGS.
-        # January tubing: inner_diameter=0.15, roughness=9e-05
-        # April tubing: inner_diameter=0.20, roughness=3e-05
-        # The roughness value 3e-05 is unique to the April tubing event,
+        # Verify that the April segment event values do NOT leak into January WELSEGS.
+        # January segment: inner_diameter=0.15, roughness=9e-05
+        # April segment: inner_diameter=0.20, roughness=3e-05
+        # The roughness value 3e-05 is unique to the April segment event,
         # so it must NOT appear in the January section.
         assert "3e-05" not in january_section, (
-            "January WELSEGS should NOT contain roughness 3e-05 from April tubing event. "
-            "Tubing events should only appear at their event date, not earlier."
+            "January WELSEGS should NOT contain roughness 3e-05 from April segment event. "
+            "Segment events should only appear at their event date, not earlier."
         )
 
-        # Verify April section contains the April tubing roughness
+        # Verify April section contains the April segment roughness
         assert "3e-05" in april_section, (
-            "April WELSEGS should contain roughness 3e-05 from April tubing event"
+            "April WELSEGS should contain roughness 3e-05 from April segment event"
         )
 
         # Verify distinct perf diameter/skin values appear in COMPDAT sections
@@ -1110,9 +1314,9 @@ class TestScheduleGeneration:
         print("✓ Verified: Well A appears in April section (event at 1800-2000)")
         print("✓ Verified: COMPSEGS for well A is different in January vs April")
         print(
-            "✓ Verified: WELSEGS present in both January and April (two tubing events)"
+            "✓ Verified: WELSEGS present in both January and April (two segment events)"
         )
-        print("✓ Verified: April tubing values do NOT leak into January section")
+        print("✓ Verified: April segment values do NOT leak into January section")
         print("✓ Verified: Distinct perf diameters/skin values in COMPDAT sections")
         print("✓ Verified: WSEGVALV present in January section (ICV, 1 valve entry)")
         print("✓ Verified: WSEGVALV present in March section (ICD valve)")
@@ -1135,8 +1339,8 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path = [wp for wp in well_paths if "A" in wp.name][0]
 
-        # Add tubing event (installed early) - should generate WELSEGS
-        timeline.add_tubing_event(
+        # Add segment event (installed early) - should generate WELSEGS
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1257,13 +1461,13 @@ class TestScheduleGeneration:
             or "APR" in schedule_text
         ), "Schedule should contain month abbreviations"
 
-        # Verify MSW keywords from tubing events
+        # Verify MSW keywords from segment events
         assert "WELSEGS" in schedule_text, (
-            "Schedule should contain WELSEGS keyword from tubing events"
+            "Schedule should contain WELSEGS keyword from segment events"
         )
 
         # Verify completion keywords from perforation events
-        # With MSW (tubing), should generate COMPSEGS
+        # With MSW (segment), should generate COMPSEGS
         assert "COMPSEGS" in schedule_text, (
             "Schedule should contain COMPSEGS keyword from perforation events with MSW"
         )
@@ -1317,11 +1521,11 @@ class TestScheduleGeneration:
         )
 
     def test_schedule_contains_welsegs_keyword(self, project_with_case_and_well):
-        """Verify WELSEGS keyword is generated for tubing events."""
+        """Verify WELSEGS keyword is generated for segment events."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        timeline.add_tubing_event(
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1338,7 +1542,7 @@ class TestScheduleGeneration:
         print(f"\nSchedule text for WELSEGS test:\n{schedule_text}")
 
         assert "WELSEGS" in schedule_text, (
-            "Schedule should contain WELSEGS keyword for tubing events"
+            "Schedule should contain WELSEGS keyword for segment events"
         )
         # Eclipse well names typically don't have spaces
         well_name_no_spaces = well_path.name.replace(" ", "")
@@ -1348,13 +1552,66 @@ class TestScheduleGeneration:
             f"Schedule should contain well name ({well_path.name} or {well_name_no_spaces})"
         )
 
+    def test_valve_only_date_redefines_segments_when_layout_changes(
+        self, project_with_case_and_well
+    ):
+        """A valve activated on a later date adds valve segments, so WELSEGS/COMPSEGS must be redefined (issue #14873)."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=1500.0,
+            end_md=2300.0,
+            inner_diameter=0.22,
+            roughness=9.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            skin_factor=0.5,
+            state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-03-01",
+            well_path=well_path,
+            measured_depth=2100.0,
+            valve_type="ICV",
+            state="OPEN",
+            flow_coefficient=0.7,
+            area=0.0001,
+        )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        sections = schedule_text.split("DATES\n")
+        january = [s for s in sections if "1 'JAN' 2024" in s or "1 JAN 2024" in s]
+        march = [s for s in sections if "1 'MAR' 2024" in s or "1 MAR 2024" in s]
+        assert len(january) == 1 and len(march) == 1
+
+        assert "WELSEGS" in january[0]
+        assert "WSEGVALV" in march[0]
+        assert "WELSEGS" in march[0], "New valve segments must be defined"
+        assert "COMPSEGS" in march[0], "Connections must be remapped to valve segments"
+        assert "WELSPECS" not in march[0]
+        assert "COMPDAT" not in march[0]
+
     def test_schedule_contains_wsegvalv_keyword(self, project_with_case_and_well):
         """Verify WSEGVALV keyword is generated for valve events."""
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and valve on same date to simplify test
-        timeline.add_tubing_event(
+        # Add segment and valve on same date to simplify test
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -1753,7 +2010,7 @@ class TestScheduleGeneration:
         well_paths = project.well_paths()
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        timeline.add_tubing_event(
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -1815,8 +2072,8 @@ class TestScheduleGeneration:
         well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
         well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
 
-        # Well A: tubing + perforation + AICD valve -> WSEGAICD.
-        timeline.add_tubing_event(
+        # Well A: segment + perforation + AICD valve -> WSEGAICD.
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_a,
             start_md=0.0,
@@ -1847,8 +2104,8 @@ class TestScheduleGeneration:
             aicd_visc_func_exp=0.5,
         )
 
-        # Well B: tubing + perforation + ICD valve -> WSEGVALV.
-        timeline.add_tubing_event(
+        # Well B: segment + perforation + ICD valve -> WSEGVALV.
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path_b,
             start_md=0.0,
@@ -2018,7 +2275,7 @@ class TestScheduleGeneration:
         )
 
         for wp in well_paths[:2]:
-            timeline.add_tubing_event(
+            timeline.add_segment_event(
                 event_date="2024-01-01",
                 well_path=wp,
                 start_md=0.0,
@@ -2330,8 +2587,8 @@ class TestKeywordEvents:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and perforation for MSW
-        timeline.add_tubing_event(
+        # Add segment and perforation for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -2361,7 +2618,7 @@ class TestKeywordEvents:
             },
         )
 
-        # Apply tubing/perf events
+        # Apply segment/perf events
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
@@ -2682,8 +2939,8 @@ class TestScheduleKeywordEvents:
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
 
-        # Add tubing and perforation for MSW
-        timeline.add_tubing_event(
+        # Add segment and perforation for MSW
+        timeline.add_segment_event(
             event_date="2024-01-01",
             well_path=well_path,
             start_md=0.0,
@@ -2710,7 +2967,7 @@ class TestScheduleKeywordEvents:
             },
         )
 
-        # Apply tubing/perf events
+        # Apply segment/perf events
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
@@ -2850,3 +3107,281 @@ class TestScheduleKeywordEvents:
             ), f"flag {flag!r} missing from RPTRST output: {rptrst_block!r}"
         # False-valued flag must be omitted entirely.
         assert "OBSOLETE" not in rptrst_block
+
+
+class TestScheduleGenerationWithoutCase:
+    """Schedule generation without a grid case emits only grid-independent keywords."""
+
+    @pytest.fixture
+    def project_with_well(self, rips_instance, initialize_test):
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        project.import_well_paths(well_path_files=[case_root + "/wellpath_a.dev"])
+        well_path_coll = project.descendants(rips.WellPathCollection)[0]
+        return project, project.well_paths()[0], well_path_coll.event_timeline()
+
+    def test_wconhist_without_case(self, project_with_well):
+        project, well_path, timeline = project_with_well
+        assert not project.cases()
+
+        for event_date, rate in (("2024-01-01", 1000.0), ("2024-02-01", 2000.0)):
+            timeline.add_well_keyword_event(
+                event_date=event_date,
+                well_path=well_path,
+                keyword_name="WCONHIST",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "STATUS": "OPEN",
+                    "CMODE": "ORAT",
+                    "ORAT": rate,
+                },
+            )
+
+        schedule = timeline.generate_schedule_text()
+
+        assert schedule.count("WCONHIST") == 2
+        assert "DATES" in schedule
+        assert "WELSPECS" not in schedule
+        assert "COMPDAT" not in schedule
+        assert "WARNING" not in schedule
+
+    def test_perforation_without_case_is_skipped_with_warning(self, project_with_well):
+        project, well_path, timeline = project_with_well
+
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_well_keyword_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            keyword_name="WCONHIST",
+            keyword_data={"WELL": well_path.name, "STATUS": "OPEN"},
+        )
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=None, export_msw_for_wells=[well_path]
+        )
+
+        assert "WCONHIST" in schedule
+        for keyword in ("WELSPECS", "COMPDAT", "WELSEGS", "COMPSEGS"):
+            assert f"\n{keyword}\n" not in schedule
+        warnings = [
+            line for line in schedule.splitlines() if line.startswith("-- WARNING:")
+        ]
+        export_name = well_path.completion_settings().well_name_for_export
+        assert any("COMPDAT" in w and export_name in w for w in warnings)
+        assert any("WELSPECS" in w for w in warnings)
+        assert any("WELSEGS" in w for w in warnings)
+
+
+class TestTimelineQueries:
+    """#14688: query event dates and wells from the timeline."""
+
+    @pytest.fixture
+    def populated_timeline(self, rips_instance, initialize_test):
+        """Timeline with a SEGMENT well (A), a perforation-only well (B), a
+        schedule keyword and an insert date."""
+        case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+        project = rips_instance.project
+        case = project.load_case(path=case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+        project.import_well_paths(
+            well_path_files=[
+                case_root + "/wellpath_a.dev",
+                case_root + "/wellpath_b.dev",
+            ]
+        )
+        timeline = project.descendants(rips.WellPathCollection)[0].event_timeline()
+        well_paths = project.well_paths()
+        well_a = [wp for wp in well_paths if "A" in wp.name][0]
+        well_b = [wp for wp in well_paths if "B" in wp.name][0]
+
+        timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=well_a,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_a,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_perf_event(
+            event_date="2024-03-01",
+            well_path=well_b,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_well_keyword_event(
+            event_date="2024-06-01",
+            well_path=well_b,
+            keyword_name="WCONHIST",
+            keyword_data={"WELL": well_b.name, "STATUS": "OPEN"},
+        )
+        timeline.add_keyword_event(
+            event_date="2025-01-01",
+            keyword_name="RPTRST",
+            keyword_data={"BASIC": 2},
+        )
+        timeline.add_insert_date_event(event_date="2030-01-01")
+        return case, timeline, well_a, well_b
+
+    def test_event_dates_and_bounds(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, _ = populated_timeline
+
+        assert timeline.event_dates() == [
+            datetime(2024, 1, 1),
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+            datetime(2025, 1, 1),
+            datetime(2030, 1, 1),
+        ]
+        assert timeline.latest_event_date() == datetime(2030, 1, 1)
+        assert timeline.earliest_event_date() == datetime(2024, 1, 1)
+        assert timeline.latest_event_date(event_types=["INSERT_DATE"]) == datetime(
+            2030, 1, 1
+        )
+
+        # Inclusive bounds
+        assert timeline.event_dates(start_date="2024-03-01", end_date="2024-06-01") == [
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+        ]
+        assert timeline.latest_event_date(end_date=datetime(2024, 12, 31)) == datetime(
+            2024, 6, 1
+        )
+        assert timeline.latest_event_date(start_date="2031-01-01") is None
+
+    def test_event_dates_filters(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, well_a, well_b = populated_timeline
+
+        assert timeline.event_dates(wells=[well_b]) == [
+            datetime(2024, 3, 1),
+            datetime(2024, 6, 1),
+        ]
+        assert timeline.event_dates(event_types=["segment"]) == [datetime(2024, 1, 1)]
+        # Keyword names match well and schedule keyword events
+        assert timeline.event_dates(event_types=["WCONHIST", "rptrst"]) == [
+            datetime(2024, 6, 1),
+            datetime(2025, 1, 1),
+        ]
+        assert timeline.event_dates(wells=[well_a], event_types=["WCONHIST"]) == []
+
+    def test_set_timestamp_does_not_limit_queries(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, _ = populated_timeline
+        timeline.set_timestamp(timestamp="2024-02-01")
+        assert timeline.latest_event_date() == datetime(2030, 1, 1)
+
+    def test_wells_with_events(self, populated_timeline):
+        _, timeline, well_a, well_b = populated_timeline
+
+        assert [wp.name for wp in timeline.wells_with_events()] == sorted(
+            [well_a.name, well_b.name]
+        )
+        assert [
+            wp.name for wp in timeline.wells_with_events(start_date="2024-02-01")
+        ] == [well_b.name]
+        assert [wp.name for wp in timeline.wells_with_msw_events()] == [well_a.name]
+
+    def test_msw_wells_drive_schedule_export(self, populated_timeline):
+        case, timeline, well_a, well_b = populated_timeline
+        timeline.set_timestamp(timestamp="2030-01-01")
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=timeline.wells_with_msw_events()
+        )
+        lines = schedule.splitlines()
+        welsegs_wells = [
+            lines[i + 1].split()[0].strip("'")
+            for i, line in enumerate(lines)
+            if line == "WELSEGS"
+        ]
+        assert welsegs_wells == [well_a.completion_settings().well_name_for_export]
+        assert well_b.completion_settings().well_name_for_export in schedule
+
+    @pytest.mark.parametrize(
+        "valve_type, keyword", [("ICD", "WSEGVALV"), ("AICD", "WSEGAICD")]
+    )
+    def test_msw_wells_include_valves_without_segment_events(
+        self, populated_timeline, valve_type, keyword
+    ):
+        case, timeline, well_a, well_b = populated_timeline
+        well_b.segment_collection().add_segment_interval(
+            start_md=0.0, end_md=2500.0, diameter=0.15, roughness_factor=1.0e-5
+        )
+        timeline.add_valve_event(
+            event_date="2024-03-01",
+            well_path=well_b,
+            measured_depth=2100.0,
+            valve_type=valve_type,
+            state="OPEN",
+        )
+        assert timeline.event_dates(wells=[well_b], event_types=["SEGMENT"]) == []
+        msw_wells = timeline.wells_with_msw_events()
+        assert [wp.name for wp in msw_wells] == sorted([well_a.name, well_b.name])
+
+        timeline.set_timestamp(timestamp="2030-01-01")
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=msw_wells
+        )
+        assert f"\n{keyword}\n" in schedule
+
+    @pytest.mark.parametrize("event_types", [None, ["SEGMENT"]])
+    def test_wells_with_events_rejects_ambiguous_names(
+        self, populated_timeline, event_types
+    ):
+        _, timeline, well_a, well_b = populated_timeline
+        well_b.name = well_a.name
+        well_b.update()
+        assert well_a.address() != well_b.address()
+        with pytest.raises(ValueError, match="Ambiguous well path name"):
+            timeline.wells_with_events(event_types=event_types)
+
+    def test_date_only_end_excludes_later_events(self, populated_timeline):
+        from datetime import datetime
+
+        _, timeline, _, well_b = populated_timeline
+        timeline.add_valve_event(
+            event_date="2024-03-01T12:30:00", well_path=well_b, measured_depth=2100.0
+        )
+        assert timeline.event_dates(wells=[well_b], end_date="2024-03-01") == [
+            datetime(2024, 3, 1)
+        ]
+        assert timeline.event_dates(wells=[well_b], end_date="2024-03-01T12:30:00") == [
+            datetime(2024, 3, 1),
+            datetime(2024, 3, 1, 12, 30),
+        ]
+        assert (
+            timeline.wells_with_events(end_date="2024-03-01", event_types=["VALVE"])
+            == []
+        )
+        assert [
+            wp.name
+            for wp in timeline.wells_with_events(
+                end_date="2024-03-01T12:30:00", event_types=["VALVE"]
+            )
+        ] == [well_b.name]
+
+    def test_invalid_date_raises(self, populated_timeline):
+        _, timeline, _, _ = populated_timeline
+        with pytest.raises(rips.RipsError):
+            timeline.event_dates(start_date="not-a-date")

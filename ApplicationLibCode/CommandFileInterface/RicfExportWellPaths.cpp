@@ -20,20 +20,12 @@
 
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
-
-#include "ExportCommands/RicExportSelectedWellPathsFeature.h"
-
-#include "RimDialogData.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimFractureTemplate.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimWellPath.h"
+#include "RicfCommandForwarding.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaWellNameComparer.h"
+
+#include "RimWellPath.h"
+#include "RimcWellPath.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -53,41 +45,36 @@ RicfExportWellPaths::RicfExportWellPaths()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportWellPaths::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    std::vector<RimWellPath*> wellPaths;
-
-    // Find well paths
+    // Empty name list means all well paths
+    QStringList               wellsNotFound;
+    std::vector<RimWellPath*> wellPaths =
+        RicfApplicationTools::wellPathsFromNames( RicfApplicationTools::toQStringList( m_wellPathNames ), &wellsNotFound );
+    if ( !wellsNotFound.empty() )
     {
-        QStringList wellsNotFound;
-        wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
-        if ( !wellsNotFound.empty() )
-        {
-            QString error( QString( "exportWellPaths: These well paths were not found: " ) + wellsNotFound.join( ", " ) );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
+        return RicfForwarding::errorResponse( "These well paths were not found: " + wellsNotFound.join( ", " ), commandName );
     }
+    if ( wellPaths.empty() ) return RicfForwarding::errorResponse( "No well paths found", commandName );
 
-    if ( wellPaths.empty() )
-    {
-        QString error( "No well paths found" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-
+    // Resolve the export folder from the command file executor state. The Rimc method requires an explicit folder.
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::WELLPATHS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "wellpaths" );
     }
 
-    for ( const auto wellPath : wellPaths )
+    for ( RimWellPath* wellPath : wellPaths )
     {
-        if ( wellPath )
-        {
-            RicExportSelectedWellPathsFeature::exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
-        }
+        if ( !wellPath ) continue;
+
+        RimWellPath_exportGeometry method( wellPath );
+        method.setExportFolder( exportFolder );
+        method.setMdStepSize( m_mdStepSize() );
+
+        auto result = method.execute();
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
+
     return caf::PdmScriptResponse();
 }

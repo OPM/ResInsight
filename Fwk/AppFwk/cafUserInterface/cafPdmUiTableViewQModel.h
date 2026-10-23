@@ -45,6 +45,8 @@
 #include <QItemSelection>
 #include <QPushButton>
 
+#include <optional>
+
 namespace caf
 {
 class PdmChildArrayFieldHandle;
@@ -116,6 +118,7 @@ private:
     void              recreateTableItemEditors();
     PdmUiFieldHandle* getUiFieldHandle( const QModelIndex& index ) const;
 
+    std::optional<QString> pushButtonText( PdmFieldHandle* fieldHandle ) const;
     friend class PdmUiTableViewDelegate;
     QWidget*                getEditorWidgetAndTransferOwnership( QWidget* parent, const QModelIndex& index );
     PdmUiFieldEditorHandle* getEditor( const QModelIndex& index );
@@ -133,8 +136,6 @@ private:
     std::vector<int>                           m_modelColumnIndexToFieldIndex;
 
     std::vector<PdmUiTableRowEditor*> m_tableRowEditors;
-
-    PdmUiTableViewPushButtonEditorAttribute m_pushButtonEditorAttributes;
 };
 
 } // End of namespace caf

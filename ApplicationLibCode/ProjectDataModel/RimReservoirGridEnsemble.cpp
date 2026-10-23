@@ -58,6 +58,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 #include "cafProgressInfo.h"
 
 #include "RigCaseCellResultsData.h"
@@ -756,6 +757,7 @@ RimCaseCollection* RimReservoirGridEnsemble::caseCollection() const
 void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicNewStatisticsContourMapFeature";
     menuBuilder << "RicNewWellTargetMappingFeature";
 
@@ -770,6 +772,8 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     menuBuilder.subMenuStart( "Data Filters", QIcon( ":/CellFilter.png" ) );
     m_dataFilterCollection->appendMenuItems( menuBuilder );
     menuBuilder.subMenuEnd();
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewEnsembleJobFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1096,6 +1100,9 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
     updateGridModeToolTip();
     updateStatisticsVisibility();
     updateConnectedEditors();
+
+    // Re-initialize data filters now that the case data is loaded (needed for e.g. FORMATION_NAMES). See #14022.
+    if ( m_dataFilterCollection() ) m_dataFilterCollection->loadAndInitializeFilters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1124,17 +1131,18 @@ void RimReservoirGridEnsemble::updateGridModeToolTip()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirGridEnsemble::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimReservoirGridEnsemble::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
+    if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
     {
-        if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/info16x16.png" );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/info16x16.png" );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

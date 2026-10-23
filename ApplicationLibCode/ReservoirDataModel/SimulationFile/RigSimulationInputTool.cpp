@@ -31,6 +31,7 @@
 
 #include "RigBoundingBoxIjk.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseResultTools.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
@@ -38,6 +39,9 @@
 #include "RigPadModel.h"
 #include "RigRefinement.h"
 #include "RigResdataGridConverter.h"
+#include "RigSimulationInputAquiferTools.h"
+#include "RigSimulationInputConnectionTools.h"
+#include "RigSimulationInputNncTools.h"
 #include "RigSimulationInputSettings.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigWellResultFrame.h"
@@ -60,6 +64,10 @@
 
 #include <QFileInfo>
 
+#include <algorithm>
+#include <cmath>
+#include <map>
+#include <optional>
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -122,17 +130,17 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    if ( auto result = replaceAquconKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    if ( auto result = RigSimulationInputAquiferTools::replaceAquconKeywordIndices( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
 
-    if ( auto result = replaceAquanconKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    if ( auto result = RigSimulationInputAquiferTools::replaceAquanconKeywordIndices( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
 
-    if ( auto result = replaceAqunumKeywordIndices( &eclipseCase, settings, deckFile ); !result )
+    if ( auto result = RigSimulationInputAquiferTools::replaceAqunumKeywordIndices( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -154,7 +162,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
 
     auto validWellNames = wellNamesToInclude( &eclipseCase, settings );
 
-    if ( auto result = filterAndUpdateWellKeywords( validWellNames, settings, deckFile ); !result )
+    if ( auto result = filterAndUpdateWellKeywords( &eclipseCase, validWellNames, settings, deckFile ); !result )
     {
         return result;
     }
@@ -164,7 +172,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
-    if ( auto result = exportEditNncKeyword( &eclipseCase, settings, deckFile ); !result )
+    if ( auto result = RigSimulationInputNncTools::exportEditNncKeyword( &eclipseCase, settings, deckFile ); !result )
     {
         return result;
     }
@@ -1061,36 +1069,6 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceAquconKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "AQUCON", eclipseCase, settings, deckFile, processAquconRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceAquanconKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                    const RigSimulationInputSettings& settings,
-                                                                                    RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "AQUANCON", eclipseCase, settings, deckFile, processAquanconRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::replaceAqunumKeywordIndices( RimEclipseCase*                   eclipseCase,
-                                                                                  const RigSimulationInputSettings& settings,
-                                                                                  RifOpmFlowDeckFile&               deckFile )
-{
-    return replaceKeywordWithBoxIndices( "AQUNUM", eclipseCase, settings, deckFile, processAqunumRecord );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::expected<void, QString> RigSimulationInputTool::updateWelldimsKeyword( RimEclipseCase*                   eclipseCase,
                                                                             const RigSimulationInputSettings& settings,
                                                                             RifOpmFlowDeckFile&               deckFile )
@@ -1257,122 +1235,6 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
 
     // Copy remaining items
     for ( size_t i = 4; i < record.size(); ++i )
-    {
-        items.push_back( record.getItem( i ) );
-    }
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompdatRecord( const Opm::DeckRecord&            record,
-                                                                                      const std::string&                wellName,
-                                                                                      const RigSimulationInputSettings& settings )
-{
-    // COMPDAT format: WELL I J K1 K2 STATE ...
-    // Items: 0=WELL, 1=I, 2=J, 3=K1, 4=K2
-    if ( record.size() < 5 )
-    {
-        return std::unexpected( QString( "COMPDAT record for well %1 has insufficient items (expected at least 5, got %2)" )
-                                    .arg( wellName.c_str() )
-                                    .arg( record.size() ) );
-    }
-
-    std::vector<Opm::DeckItem> items;
-
-    // Copy well name
-    items.push_back( record.getItem( 0 ) );
-
-    // Transform I, J, K1, K2
-    int origI  = record.getItem( 1 ).get<int>( 0 ) - 1; // Convert to 0-based
-    int origJ  = record.getItem( 2 ).get<int>( 0 ) - 1;
-    int origK1 = record.getItem( 3 ).get<int>( 0 ) - 1;
-    int origK2 = record.getItem( 4 ).get<int>( 0 ) - 1;
-
-    // Transform K1
-    caf::VecIjk0 origIjkK1( origI, origJ, origK1 );
-    auto         transformResultK1 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK1, settings.min(), settings.max(), settings.refinement(), true );
-
-    // Transform K2
-    caf::VecIjk0 origIjkK2( origI, origJ, origK2 );
-    auto         transformResultK2 =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjkK2, settings.min(), settings.max(), settings.refinement(), true );
-
-    if ( !transformResultK1 )
-    {
-        return std::unexpected(
-            QString( "COMPDAT K1 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK1.error() ) );
-    }
-
-    if ( !transformResultK2 )
-    {
-        return std::unexpected(
-            QString( "COMPDAT K2 coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResultK2.error() ) );
-    }
-
-    using C = Opm::ParserKeywords::COMPDAT;
-    items.push_back( RifOpmDeckTools::item( C::I::itemName, static_cast<int>( transformResultK1->toOneBased().x() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::J::itemName, static_cast<int>( transformResultK1->toOneBased().y() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K1::itemName, static_cast<int>( transformResultK1->toOneBased().z() ) ) );
-    items.push_back( RifOpmDeckTools::item( C::K2::itemName, static_cast<int>( transformResultK2->toOneBased().z() ) ) );
-
-    // Copy remaining items
-    for ( size_t i = 5; i < record.size(); ++i )
-    {
-        items.push_back( record.getItem( i ) );
-    }
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processCompsegsRecord( const Opm::DeckRecord&            record,
-                                                                                       const std::string&                wellName,
-                                                                                       bool                              isWellNameRecord,
-                                                                                       const RigSimulationInputSettings& settings )
-{
-    // COMPSEGS format: first record is well name, subsequent records are segment data
-    // Well name record: just copy as-is
-    if ( isWellNameRecord )
-    {
-        return Opm::DeckRecord( record );
-    }
-
-    // Segment record format: I J K BRANCH START_MD END_MD ...
-    // Items: 0=I, 1=J, 2=K
-    if ( record.size() < 3 )
-    {
-        return std::unexpected( QString( "COMPSEGS segment record for well %1 has insufficient items (expected at least 3, got %2)" )
-                                    .arg( wellName.c_str() )
-                                    .arg( record.size() ) );
-    }
-
-    std::vector<Opm::DeckItem> items;
-
-    // Transform I, J, K (first three items)
-    caf::VecIjk1 origIjk = extractIjk( record, 0, 1, 2 );
-
-    auto transformResult =
-        RigGridExportAdapter::transformIjkToSectorCoordinates( origIjk.toZeroBased(), settings.min(), settings.max(), settings.refinement(), true );
-
-    if ( !transformResult )
-    {
-        return std::unexpected(
-            QString( "COMPSEGS segment coordinate for well %1 is out of sector bounds: %2" ).arg( wellName.c_str() ).arg( transformResult.error() ) );
-    }
-
-    // Add transformed I, J, K
-    items.push_back( RifOpmDeckTools::item( "I", static_cast<int>( transformResult->toOneBased().x() ) ) );
-    items.push_back( RifOpmDeckTools::item( "J", static_cast<int>( transformResult->toOneBased().y() ) ) );
-    items.push_back( RifOpmDeckTools::item( "K", static_cast<int>( transformResult->toOneBased().z() ) ) );
-
-    // Copy remaining items
-    for ( size_t i = 3; i < record.size(); ++i )
     {
         items.push_back( record.getItem( i ) );
     }
@@ -1631,211 +1493,6 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAddRecord
         items.push_back( RifOpmDeckTools::item( A::J2::itemName, static_cast<int>( transformResult->max().y() + 1 ) ) );
         items.push_back( RifOpmDeckTools::item( A::K1::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
         items.push_back( RifOpmDeckTools::item( A::K2::itemName, static_cast<int>( transformResult->max().z() + 1 ) ) );
-    }
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquconRecord( const Opm::DeckRecord& record,
-                                                                                     const caf::VecIjk0&    min,
-                                                                                     const caf::VecIjk0&    max,
-                                                                                     const RigRefinement&   refinement )
-{
-    // AQUCON format: ID I1 I2 J1 J2 K1 K2 CONNECT_FACE ...
-    // Items: 0=ID, 1=I1, 2=I2, 3=J1, 4=J2, 5=K1, 6=K2, 7+=other parameters
-    if ( record.size() < 1 )
-    {
-        return std::unexpected( QString( "AQUCON record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
-    }
-
-    using A = Opm::ParserKeywords::AQUCON;
-
-    std::vector<Opm::DeckItem> items;
-
-    // Copy aquifer ID (first item)
-    items.push_back( record.getItem( 0 ) );
-
-    if ( record.size() >= 7 && record.getItem( 1 ).hasValue( 0 ) && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) &&
-         record.getItem( 4 ).hasValue( 0 ) && record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) )
-    {
-        // Transform IJK box coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
-        // Note: AQUCON uses 1-based Eclipse coordinates
-        caf::VecIjk1 origMin = extractIjk( record, 1, 3, 5 ); // I1, J1, K1
-        caf::VecIjk1 origMax = extractIjk( record, 2, 4, 6 ); // I2, J2, K2
-
-        // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
-
-        // Get aquifer ID for logging
-        int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
-        QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
-
-        // Transform box to sector coordinates
-        auto transformResult =
-            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
-        if ( !transformResult )
-        {
-            return std::unexpected( transformResult.error() );
-        }
-
-        items.push_back( RifOpmDeckTools::item( A::I1::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::I2::itemName, static_cast<int>( transformResult->max().x() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::J1::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::J2::itemName, static_cast<int>( transformResult->max().y() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::K1::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::K2::itemName, static_cast<int>( transformResult->max().z() + 1 ) ) );
-
-        // Copy remaining items (CONNECT_FACE and other parameters)
-        for ( size_t i = 7; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
-    }
-    else
-    {
-        // No box definition or incomplete box definition - copy remaining items as-is
-        for ( size_t i = 1; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
-    }
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAquanconRecord( const Opm::DeckRecord& record,
-                                                                                       const caf::VecIjk0&    min,
-                                                                                       const caf::VecIjk0&    max,
-                                                                                       const RigRefinement&   refinement )
-{
-    // AQUANCON format: ID I1 I2 J1 J2 K1 K2 AQU_FACE ...
-    // Items: 0=ID, 1=I1, 2=I2, 3=J1, 4=J2, 5=K1, 6=K2, 7+=other parameters
-    if ( record.size() < 1 )
-    {
-        return std::unexpected( QString( "AQUANCON record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
-    }
-
-    using A = Opm::ParserKeywords::AQUANCON;
-
-    std::vector<Opm::DeckItem> items;
-
-    // Copy aquifer ID (first item)
-    items.push_back( record.getItem( 0 ) );
-
-    if ( record.size() >= 7 && record.getItem( 1 ).hasValue( 0 ) && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) &&
-         record.getItem( 4 ).hasValue( 0 ) && record.getItem( 5 ).hasValue( 0 ) && record.getItem( 6 ).hasValue( 0 ) )
-    {
-        // Transform IJK box coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
-        // Note: AQUANCON uses 1-based Eclipse coordinates
-        caf::VecIjk1 origMin = extractIjk( record, 1, 3, 5 ); // I1, J1, K1
-        caf::VecIjk1 origMax = extractIjk( record, 2, 4, 6 ); // I2, J2, K2
-
-        // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origMin.toZeroBased(), origMax.toZeroBased() );
-
-        // Get aquifer ID for logging
-        int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
-        QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
-
-        // Transform box to sector coordinates
-        auto transformResult =
-            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
-        if ( !transformResult )
-        {
-            return std::unexpected( transformResult.error() );
-        }
-
-        items.push_back( RifOpmDeckTools::item( A::I1::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::I2::itemName, static_cast<int>( transformResult->max().x() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::J1::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::J2::itemName, static_cast<int>( transformResult->max().y() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::K1::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::K2::itemName, static_cast<int>( transformResult->max().z() + 1 ) ) );
-
-        // Copy remaining items (AQUFACE and other parameters)
-        for ( size_t i = 7; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
-    }
-    else
-    {
-        // No box definition or incomplete box definition - copy remaining items as-is
-        for ( size_t i = 1; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
-    }
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processAqunumRecord( const Opm::DeckRecord& record,
-                                                                                     const caf::VecIjk0&    min,
-                                                                                     const caf::VecIjk0&    max,
-                                                                                     const RigRefinement&   refinement )
-{
-    // AQUNUM format: ID I J K AREA ...
-    // Items: 0=ID, 1=I, 2=J, 3=K, 4+=other parameters
-    if ( record.size() < 1 )
-    {
-        return std::unexpected( QString( "AQUNUM record has insufficient items (expected at least 1, got %1)" ).arg( record.size() ) );
-    }
-
-    using A = Opm::ParserKeywords::AQUNUM;
-
-    std::vector<Opm::DeckItem> items;
-
-    // Copy aquifer ID (first item)
-    items.push_back( record.getItem( 0 ) );
-
-    if ( record.size() >= 4 && record.getItem( 1 ).hasValue( 0 ) && record.getItem( 2 ).hasValue( 0 ) && record.getItem( 3 ).hasValue( 0 ) )
-    {
-        // Transform IJK coordinates (items 1-6: I1, I2, J1, J2, K1, K2)
-        // Note: AQUNUM uses 1-based Eclipse coordinates
-        caf::VecIjk1 origCell = extractIjk( record, 1, 2, 3 ); // I, J, K
-
-        // Create input bounding box (0-based, inclusive)
-        RigBoundingBoxIjk<caf::VecIjk0> inputBox( origCell.toZeroBased(), origCell.toZeroBased() );
-
-        // Get aquifer ID for logging
-        int     aquiferId   = record.getItem( 0 ).get<int>( 0 );
-        QString recordIdent = QString( "for aquifer %1" ).arg( aquiferId );
-
-        // Transform box to sector coordinates
-        auto transformResult =
-            transformBoxToSectorCoordinates( inputBox, min, max, refinement, QString::fromStdString( A::keywordName ), recordIdent );
-        if ( !transformResult )
-        {
-            return std::unexpected( transformResult.error() );
-        }
-
-        items.push_back( RifOpmDeckTools::item( A::I::itemName, static_cast<int>( transformResult->min().x() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::J::itemName, static_cast<int>( transformResult->min().y() + 1 ) ) );
-        items.push_back( RifOpmDeckTools::item( A::K::itemName, static_cast<int>( transformResult->min().z() + 1 ) ) );
-
-        // Copy remaining items (AREA and other parameters)
-        for ( size_t i = 4; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
-    }
-    else
-    {
-        // No box definition or incomplete box definition - copy remaining items as-is
-        for ( size_t i = 1; i < record.size(); ++i )
-        {
-            items.push_back( record.getItem( i ) );
-        }
     }
 
     return Opm::DeckRecord{ std::move( items ) };
@@ -2103,7 +1760,8 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
+                                                                                  std::set<std::string>&            validWellNames,
                                                                                   const RigSimulationInputSettings& settings,
                                                                                   RifOpmFlowDeckFile&               deckFile )
 {
@@ -2113,6 +1771,12 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                                               "WELCNTL",  "WELOPEN",  "WELPI",    "WELSEGS",  "WELSPECS", "WELTARG",
                                               "WINJCLN",  "WINJMULT", "WINJTEMP", "WLIFTOPT", "WPAVEDEP", "WRFTPLT",
                                               "WTEMP",    "WTEST",    "WTRACER",  "WSEGVALV", "WSEGAICD", "WSEGSICD" };
+
+    // Collect connection directions from the original COMPDAT before it is transformed, used to split COMPSEGS
+    const auto directions = RigSimulationInputConnectionTools::connectionDirections( deckFile.findAllKeywords( "COMPDAT" ) );
+    const auto reversedCells = RigSimulationInputConnectionTools::reversedSegmentCells( deckFile.findAllKeywords( "COMPSEGS" ), directions );
+
+    const auto cellProperties = RigSimulationInputConnectionTools::connectionCellPropertiesProvider( eclipseCase );
 
     // Process each type of well keyword
     // Use findAllKeywordsWithIndices to get all occurrences with their positions
@@ -2191,10 +1855,13 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         }
                         else if ( keywordName == "COMPDAT" )
                         {
-                            auto result = processCompdatRecord( record, wellName, settings );
+                            auto result = RigSimulationInputConnectionTools::processCompdatRecord( record, wellName, settings, cellProperties );
                             if ( result )
                             {
-                                filteredKeyword.addRecord( std::move( result.value() ) );
+                                for ( auto& rec : result.value() )
+                                {
+                                    filteredKeyword.addRecord( std::move( rec ) );
+                                }
                             }
                             else
                             {
@@ -2204,10 +1871,18 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                         }
                         else if ( keywordName == "COMPSEGS" )
                         {
-                            auto result = processCompsegsRecord( record, wellName, isWellNameRecord, settings );
+                            auto result = RigSimulationInputConnectionTools::processCompsegsRecord( record,
+                                                                                                    wellName,
+                                                                                                    isWellNameRecord,
+                                                                                                    settings,
+                                                                                                    directions,
+                                                                                                    reversedCells );
                             if ( result )
                             {
-                                filteredKeyword.addRecord( std::move( result.value() ) );
+                                for ( auto& rec : result.value() )
+                                {
+                                    filteredKeyword.addRecord( std::move( rec ) );
+                                }
                             }
                             else
                             {
@@ -2343,78 +2018,6 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile,
-                                                                                                          const RigMainGrid&  mainGrid )
-{
-    std::vector<NNCConnection> connections;
-
-    // Find all EDITNNC keywords in deck (there may be multiple)
-    auto keywords = deckFile.findAllKeywordsWithIndices( "EDITNNC" );
-
-    for ( const auto& keywordPair : keywords )
-    {
-        const auto& keyword = keywordPair.second;
-
-        // Each keyword can have multiple records
-        for ( size_t recordIdx = 0; recordIdx < keyword.size(); ++recordIdx )
-        {
-            const auto& record = keyword.getRecord( recordIdx );
-
-            // Read IJK coordinates directly from deck (1-based) and convert to 0-based
-            caf::VecIjk1 ijk1( record.getItem( 0 ).get<int>( 0 ), record.getItem( 1 ).get<int>( 0 ), record.getItem( 2 ).get<int>( 0 ) );
-            caf::VecIjk1 ijk2( record.getItem( 3 ).get<int>( 0 ), record.getItem( 4 ).get<int>( 0 ), record.getItem( 5 ).get<int>( 0 ) );
-            double       transMult = record.getItem( 6 ).get<double>( 0 );
-
-            // Convert IJK to global cell indices
-            size_t c1Idx = mainGrid.cellIndexFromIJK( ijk1.toZeroBased() );
-            size_t c2Idx = mainGrid.cellIndexFromIJK( ijk2.toZeroBased() );
-
-            // Validate indices
-            if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
-            {
-                RiaLogging::warning( std::format( "Invalid EDITNNC connection in deck: ({})-({})", ijk1.toString(), ijk2.toString() ) );
-                continue;
-            }
-
-            connections.push_back( { c1Idx, c2Idx, transMult } );
-        }
-    }
-
-    return connections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RigSimulationInputTool::NNCConnection>
-    RigSimulationInputTool::filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,
-                                                             const RigMainGrid&                mainGrid,
-                                                             const caf::VecIjk0&               min,
-                                                             const caf::VecIjk0&               max )
-{
-    std::vector<NNCConnection> filteredConnections;
-
-    RigBoundingBoxIjk sectorBounds( min, max );
-
-    for ( const auto& conn : allConnections )
-    {
-        // Get IJK for both cells
-        auto ijk1 = mainGrid.ijkFromCellIndex( conn.c1GlobIdx );
-        auto ijk2 = mainGrid.ijkFromCellIndex( conn.c2GlobIdx );
-
-        // Only keep if BOTH cells are inside sector bounds
-        if ( ijk1 && ijk2 && sectorBounds.contains( *ijk1 ) && sectorBounds.contains( *ijk2 ) )
-        {
-            filteredConnections.push_back( conn );
-        }
-    }
-
-    return filteredConnections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 caf::VecIjk0 RigSimulationInputTool::transformToSectorCoordinates( const caf::VecIjk0&  globalIjk,
                                                                    const caf::VecIjk0&  min,
                                                                    const RigRefinement& refinement )
@@ -2428,176 +2031,6 @@ caf::VecIjk0 RigSimulationInputTool::transformToSectorCoordinates( const caf::Ve
     return caf::VecIjk0( refinement.cumulativeOffset( RigRefinement::DimI, sectorI ),
                          refinement.cumulativeOffset( RigRefinement::DimJ, sectorJ ),
                          refinement.cumulativeOffset( RigRefinement::DimK, sectorK ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<RigSimulationInputTool::TransformedNNCConnection, QString>
-    RigSimulationInputTool::transformNNCToSectorCoordinates( const NNCConnection& connection,
-                                                             const RigMainGrid&   mainGrid,
-                                                             const caf::VecIjk0&  min,
-                                                             const RigRefinement& refinement )
-{
-    // Get global IJK for both cells
-    auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
-    if ( !gijk1 )
-    {
-        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c1GlobIdx ) );
-    }
-
-    auto gijk2 = mainGrid.ijkFromCellIndex( connection.c2GlobIdx );
-    if ( !gijk2 )
-    {
-        return std::unexpected( QString( "Invalid cell index: %1" ).arg( connection.c2GlobIdx ) );
-    }
-
-    // Transform to sector coordinates using utility method
-    TransformedNNCConnection transformed;
-    transformed.cell1            = transformToSectorCoordinates( *gijk1, min, refinement );
-    transformed.cell2            = transformToSectorCoordinates( *gijk2, min, refinement );
-    transformed.transmissibility = connection.transmissibility;
-
-    return transformed;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RigSimulationInputTool::TransformedNNCConnection> RigSimulationInputTool::refineEditNncConnection( const NNCConnection& connection,
-                                                                                                               const RigMainGrid&  mainGrid,
-                                                                                                               const caf::VecIjk0& min,
-                                                                                                               const RigRefinement& refinement )
-{
-    // Get global IJK for both cells
-    auto gijk1 = mainGrid.ijkFromCellIndex( connection.c1GlobIdx );
-    auto gijk2 = mainGrid.ijkFromCellIndex( connection.c2GlobIdx );
-
-    if ( !gijk1 || !gijk2 )
-    {
-        return {}; // Return empty on error
-    }
-
-    // For EDITNNC: Connect subcells at same relative positions within coarse cells
-    // Example: refinement (2,2,1) creates 4 connections:
-    //   (0,0,0) → (0,0,0)
-    //   (0,1,0) → (0,1,0)
-    //   (1,0,0) → (1,0,0)
-    //   (1,1,0) → (1,1,0)
-    // Each connection gets the SAME TRANSMUL (no division)
-
-    // Get base sector coordinates for both cells (start of refined block)
-    caf::VecIjk0 baseCell1 = transformToSectorCoordinates( *gijk1, min, refinement );
-    caf::VecIjk0 baseCell2 = transformToSectorCoordinates( *gijk2, min, refinement );
-
-    // Get subcell counts for each cell
-    size_t rel1I = gijk1->i() - min.i();
-    size_t rel1J = gijk1->j() - min.j();
-    size_t rel1K = gijk1->k() - min.k();
-
-    size_t subcellsI = refinement.subcellCount( RigRefinement::DimI, rel1I );
-    size_t subcellsJ = refinement.subcellCount( RigRefinement::DimJ, rel1J );
-    size_t subcellsK = refinement.subcellCount( RigRefinement::DimK, rel1K );
-
-    std::vector<TransformedNNCConnection> refined;
-    for ( size_t subI = 0; subI < subcellsI; ++subI )
-    {
-        for ( size_t subJ = 0; subJ < subcellsJ; ++subJ )
-        {
-            for ( size_t subK = 0; subK < subcellsK; ++subK )
-            {
-                // Add subcell offset to base coordinates
-                TransformedNNCConnection conn;
-                conn.cell1 = caf::VecIjk0( baseCell1.i() + subI, baseCell1.j() + subJ, baseCell1.k() + subK );
-
-                // SAME relative position in cell2
-                conn.cell2 = caf::VecIjk0( baseCell2.i() + subI, baseCell2.j() + subJ, baseCell2.k() + subK );
-
-                conn.transmissibility = connection.transmissibility; // Same TRAN_MULT for all
-                refined.push_back( conn );
-            }
-        }
-    }
-
-    return refined;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEclipseCase*                   eclipseCase,
-                                                                           const RigSimulationInputSettings& settings,
-                                                                           RifOpmFlowDeckFile&               deckFile )
-{
-    RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-    if ( !mainGrid ) return std::unexpected( "No main grid available" );
-
-    // Step 1: Extract EDITNNC from deck only
-    auto allConnections = extractDeckEditNncConnections( deckFile, *mainGrid );
-
-    if ( allConnections.empty() )
-    {
-        RiaLogging::info( "No EDITNNC keywords found in deck - skipping EDITNNC export" );
-        return {};
-    }
-
-    // Step 2: Filter for internal sector
-    auto sectorConnections = filterInternalSectorConnections( allConnections, *mainGrid, settings.min(), settings.max() );
-
-    if ( sectorConnections.empty() )
-    {
-        RiaLogging::info( "No internal EDITNNC connections in sector - skipping EDITNNC export" );
-        return {};
-    }
-
-    RiaLogging::info(
-        std::format( "Found {} internal EDITNNC connections in sector (out of {} total)", sectorConnections.size(), allConnections.size() ) );
-
-    // Step 3: Transform and refine
-    bool hasRef = settings.hasRefinement();
-
-    std::vector<TransformedNNCConnection> transformedConnections;
-
-    if ( hasRef )
-    {
-        // Refine to subcells with corresponding positions
-        for ( const auto& conn : sectorConnections )
-        {
-            auto refined = refineEditNncConnection( conn, *mainGrid, settings.min(), settings.refinement() );
-            transformedConnections.insert( transformedConnections.end(), refined.begin(), refined.end() );
-        }
-    }
-    else
-    {
-        // Simple coordinate transformation, no refinement
-        for ( const auto& conn : sectorConnections )
-        {
-            auto result = transformNNCToSectorCoordinates( conn, *mainGrid, settings.min(), settings.refinement() );
-            if ( result )
-            {
-                transformedConnections.push_back( *result );
-            }
-            else
-            {
-                RiaLogging::warning( result.error().toStdString() );
-            }
-        }
-    }
-
-    if ( transformedConnections.empty() )
-    {
-        return std::unexpected( "Failed to transform any EDITNNC connections" );
-    }
-
-    RiaLogging::info( std::format( "Exporting {} EDITNNC connections to sector model", transformedConnections.size() ) );
-
-    // Step 4: Create keyword
-    auto editnncKw = RimKeywordFactory::editnncKeyword( transformedConnections );
-
-    // Step 5: Replace/add to EDIT section (not GRID!)
-    deckFile.replaceKeyword( "EDIT", editnncKw );
-
-    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

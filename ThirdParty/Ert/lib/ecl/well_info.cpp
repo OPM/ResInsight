@@ -281,13 +281,16 @@ static void well_info_add_state(well_info_type* well_info, well_state_type* well
 void well_info_add_wells2(well_info_type* well_info, ecl_file_view_type* rst_view, int report_nr, bool load_segment_information) {
     bool close_stream = ecl_file_view_drop_flag(rst_view, ECL_FILE_CLOSE_STREAM);
     ecl_rsthead_type* global_header = ecl_rsthead_alloc(rst_view, report_nr);
-    int well_nr;
-    for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-        well_state_type* well_state = well_state_alloc_from_file2(rst_view, well_info->grid_names, report_nr, well_nr, load_segment_information);
-        if (well_state != NULL)
-            well_info_add_state(well_info, well_state);
+    // NULL if INTEHEAD is missing or cannot be read, e.g. from a truncated restart file
+    if (global_header) {
+        int well_nr;
+        for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
+            well_state_type* well_state = well_state_alloc_from_file2(rst_view, well_info->grid_names, report_nr, well_nr, load_segment_information);
+            if (well_state != NULL)
+                well_info_add_state(well_info, well_state);
+        }
+        ecl_rsthead_free(global_header);
     }
-    ecl_rsthead_free(global_header);
     if (close_stream)
         ecl_file_view_add_flag(rst_view, ECL_FILE_CLOSE_STREAM);
 }

@@ -22,12 +22,12 @@
 
 #include "cafVecIjk.h"
 #include "cvfArray.h"
+#include "cvfVector3.h"
 
 #include <QString>
 
 #include <expected>
 #include <functional>
-#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -57,24 +57,6 @@ class DeckKeyword;
 class RigSimulationInputTool
 {
 public:
-    // Data structures for NNC export
-
-    /// Raw NNC connection with global cell indices
-    struct NNCConnection
-    {
-        size_t c1GlobIdx; // Global cell index for cell 1
-        size_t c2GlobIdx; // Global cell index for cell 2
-        double transmissibility; // Transmissibility value
-    };
-
-    /// Transformed NNC connection with sector-relative 0-based IJK coordinates
-    struct TransformedNNCConnection
-    {
-        caf::VecIjk0 cell1            = caf::VecIjk0::ZERO; // 0-based sector IJK for cell 1
-        caf::VecIjk0 cell2            = caf::VecIjk0::ZERO; // 0-based sector IJK for cell 2
-        double       transmissibility = 0.0; // Transmissibility value
-    };
-
     static std::expected<void, QString>
         exportSimulationInput( RimEclipseCase& eclipseCase, const RigSimulationInputSettings& settings, cvf::UByteArray* visibility );
 
@@ -93,38 +75,37 @@ public:
     static std::expected<Opm::DeckRecord, QString>
         processAddRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
 
-    static std::expected<Opm::DeckRecord, QString>
-        processAquconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
-
-    static std::expected<Opm::DeckRecord, QString>
-        processAquanconRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
-
-    static std::expected<Opm::DeckRecord, QString>
-        processAqunumRecord( const Opm::DeckRecord& record, const caf::VecIjk0& min, const caf::VecIjk0& max, const RigRefinement& refinement );
-
     static std::vector<int> createRefinedVisibility( const RigGridExportAdapter& gridAdapter );
 
     static std::expected<void, QString>
         transformKeywordsInDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    // Public EDITNNC methods for testing
-    static std::vector<NNCConnection> extractDeckEditNncConnections( RifOpmFlowDeckFile& deckFile, const RigMainGrid& mainGrid );
-    static std::vector<NNCConnection> filterInternalSectorConnections( const std::vector<NNCConnection>& allConnections,
-                                                                       const RigMainGrid&                mainGrid,
-                                                                       const caf::VecIjk0&               min,
-                                                                       const caf::VecIjk0&               max );
-    static std::expected<TransformedNNCConnection, QString> transformNNCToSectorCoordinates( const NNCConnection& connection,
-                                                                                             const RigMainGrid&   mainGrid,
-                                                                                             const caf::VecIjk0&  min,
-                                                                                             const RigRefinement& refinement );
-    static std::vector<TransformedNNCConnection>            refineEditNncConnection( const NNCConnection& connection,
-                                                                                     const RigMainGrid&   mainGrid,
-                                                                                     const caf::VecIjk0&  min,
-                                                                                     const RigRefinement& refinement );
+    // Utility: Transform global IJK to sector-relative coordinates with refinement
+    static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const RigRefinement& refinement );
 
     // Generic helper for processing keywords with box indices
     using RecordProcessorFunc =
         std::function<std::expected<Opm::DeckRecord, QString>( const Opm::DeckRecord&, const caf::VecIjk0&, const caf::VecIjk0&, const RigRefinement& )>;
+
+    static std::expected<void, QString> replaceKeywordWithBoxIndices( const std::string&                keywordName,
+                                                                      RimEclipseCase*                   eclipseCase,
+                                                                      const RigSimulationInputSettings& settings,
+                                                                      RifOpmFlowDeckFile&               deckFile,
+                                                                      RecordProcessorFunc               processorFunc );
+
+    // Helper function to transform bounding box from global to sector coordinates
+    // Returns bounding box with 0-based sector-relative coordinates
+    static std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
+        transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
+                                         const caf::VecIjk0&                    sectorMin,
+                                         const caf::VecIjk0&                    sectorMax,
+                                         const RigRefinement&                   refinement,
+                                         const QString&                         keywordName,
+                                         const QString&                         recordIdentifier );
+
+    // Helper function to extract IJK coordinates from a deck record
+    // Returns a VecIjk1 (1-based) constructed from values at the specified item indices
+    static caf::VecIjk1 extractIjk( const Opm::DeckRecord& record, size_t indexI, size_t indexJ, size_t indexK );
 
 private:
     static std::expected<void, QString> updateCornerPointGridInDeckFile( RimEclipseCase*                   eclipseCase,
@@ -153,18 +134,10 @@ private:
                                                                      RifOpmFlowDeckFile&               deckFile );
 
     static std::expected<void, QString>
-        replaceAquconKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceAquanconKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
-        replaceAqunumKeywordIndices( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
-    static std::expected<void, QString>
         addFaultsToDeckFile( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
 
-    static std::expected<void, QString> filterAndUpdateWellKeywords( std::set<std::string>&            validWellNames,
+    static std::expected<void, QString> filterAndUpdateWellKeywords( RimEclipseCase*                   eclipseCase,
+                                                                     std::set<std::string>&            validWellNames,
                                                                      const RigSimulationInputSettings& settings,
                                                                      RifOpmFlowDeckFile&               deckFile );
 
@@ -174,13 +147,7 @@ private:
 
     static std::set<std::string> wellNamesToInclude( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings );
 
-    static std::expected<void, QString>
-        exportEditNncKeyword( RimEclipseCase* eclipseCase, const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
-
     static std::expected<void, QString> applyModelPadding( RifOpmFlowDeckFile& deckFile, const RigModelPaddingSettings& paddingSettings );
-
-    // Utility: Transform global IJK to sector-relative coordinates with refinement
-    static caf::VecIjk0 transformToSectorCoordinates( const caf::VecIjk0& globalIjk, const caf::VecIjk0& min, const RigRefinement& refinement );
 
     static std::expected<void, QString> addOperNumRegionAndOperater( RifOpmFlowDeckFile&         deckFile,
                                                                      const RigGridExportAdapter& gridAdapter,
@@ -192,32 +159,4 @@ private:
 
     static std::expected<Opm::DeckRecord, QString>
         processWelspecsRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
-
-    static std::expected<Opm::DeckRecord, QString>
-        processCompdatRecord( const Opm::DeckRecord& record, const std::string& wellName, const RigSimulationInputSettings& settings );
-
-    static std::expected<Opm::DeckRecord, QString> processCompsegsRecord( const Opm::DeckRecord&            record,
-                                                                          const std::string&                wellName,
-                                                                          bool                              isWellNameRecord,
-                                                                          const RigSimulationInputSettings& settings );
-
-    static std::expected<void, QString> replaceKeywordWithBoxIndices( const std::string&                keywordName,
-                                                                      RimEclipseCase*                   eclipseCase,
-                                                                      const RigSimulationInputSettings& settings,
-                                                                      RifOpmFlowDeckFile&               deckFile,
-                                                                      RecordProcessorFunc               processorFunc );
-
-    // Helper function to transform bounding box from global to sector coordinates
-    // Returns bounding box with 0-based sector-relative coordinates
-    static std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
-        transformBoxToSectorCoordinates( const RigBoundingBoxIjk<caf::VecIjk0>& inputBox,
-                                         const caf::VecIjk0&                    sectorMin,
-                                         const caf::VecIjk0&                    sectorMax,
-                                         const RigRefinement&                   refinement,
-                                         const QString&                         keywordName,
-                                         const QString&                         recordIdentifier );
-
-    // Helper function to extract IJK coordinates from a deck record
-    // Returns a VecIjk1 (1-based) constructed from values at the specified item indices
-    static caf::VecIjk1 extractIjk( const Opm::DeckRecord& record, size_t indexI, size_t indexJ, size_t indexK );
 };

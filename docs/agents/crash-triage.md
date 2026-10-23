@@ -8,15 +8,13 @@ stacktrace registry and drive each to one of two outcomes:
 - **No confident fix** → record a note on the signature explaining the findings
   and why a fix is uncertain. Nothing is filed for it.
 
-No GitHub issue is created. The call stack that motivated each fix lives in the
-PR body, and `registry.json` holds the state.
+No GitHub issue is created; the call stacks live in the PR body and
+`registry.json` holds the state. This is **step 3** of the weekly pipeline
+(steps 1–2, dedupe + issue-linking, are done by `registry.py` /
+`link_issues.py` in the system-doc repo).
 
-This is **step 3** of the weekly pipeline. Steps 1–2 (dedupe + issue-linking)
-are done by `registry.py` / `link_issues.py` in the system-doc repo.
-
-> A locally-invokable Claude Code skill mirroring this doc lives at
-> `.claude/skills/crash-triage/SKILL.md` (untracked — `.claude/` is gitignored).
-> This file is the canonical, checked-in version.
+> A local skill mirroring this doc is at `.claude/skills/crash-triage/SKILL.md`
+> (gitignored). This file is the canonical version.
 
 ## Locations
 
@@ -30,21 +28,18 @@ are done by `registry.py` / `link_issues.py` in the system-doc repo.
 
 ## Hard rules
 
-- **`registry.json` status is the single source of truth** for what has already
-  been handled. Never re-triage a signature whose status is anything other than
-  `new` or `linked`, and update the status at every transition.
-- **Do not create GitHub issues.** One PR covers the whole batch; each fix's
-  call stack goes in the PR body.
-- **Never post to GitHub before the human gate.** Prepare everything (patches,
-  PR text) and stop for explicit approval. Only after approval run the
-  `gh`/`git push` commands.
-- Branches and PRs go to your **personal fork** remote, never `origin` (OPM upstream).
-- Commit messages are a short description with no issue number (there is no
-  issue); no AI attribution; no `## Test plan` section in the PR.
-- Keep all comments and descriptions (PR, notes, code) short and concise.
-- **Never update previous week reports.** Always run
-  `registry.py render --date <latest-week>` for the current week only — never
-  `render --all`, which rewrites and collapses every historical week's report.
+- **`registry.json` status is the source of truth.** Only triage `new` or
+  `linked` signatures, or `resolved` ones labelled **regressed**; update the
+  status at every transition.
+- **Do not create GitHub issues.** One PR covers the batch.
+- **Never post to GitHub before the human gate.** Prepare everything, stop for
+  approval, then run `gh`/`git push`.
+- Branches and PRs go to your **personal fork**, never `origin` (OPM upstream).
+- Commit messages: short title, fix description and call stack; no issue
+  number, no AI attribution. No `## Test plan` section in the PR.
+- Keep all comments and descriptions short and concise.
+- **Never update previous week reports.** Run `registry.py render --date
+  <latest-week>` only, never `render --all`.
 
 ## Status lifecycle
 
@@ -57,17 +52,32 @@ are done by `registry.py` / `link_issues.py` in the system-doc repo.
 | `no-fix-found` | investigated, no confident fix; note recorded |
 | `on-hold` | deliberately parked |
 
+### Regressions
+
+`regressed` is a computed label, not a status. When a fix merges,
+`link_issues.py` records `fixed_in` (the version in `ResInsightVersion.cmake`
+at the merge commit). If the signature later crashes on a **strictly newer**
+version, the weekly report shows `**Status:** resolved · **regressed**` plus a
+`**Regressed:**` line, and the worklist lists it as `[resolved, regressed]`.
+
+- Equal versions are not a regression.
+- Newer *releases* only count if their `v<version>` tag contains the fix
+  (cached in `fix_shipped`); dev/RC builds are compared by version only.
+- `set --pr` clears `fixed_in`; the new merge sets it again. Override with
+  `set --fixed-in VER` (or `""` to clear).
+
 ## Procedure
 
 ### 1. Pick the batch
 
-Run `registry.py worklist` and take the 4–5 highest-impact entries. The
-`(unsymbolized crash site)` bucket is already filtered out — those stacks have
-no ResInsight symbol at the fault and are not individually actionable.
+Run `registry.py worklist` and take the 4–5 highest-impact entries
+(`(unsymbolized crash site)` is already filtered out). It ranks unhandled
+signatures by occurrences on the newest release, plus regressed ones. Still
+check each candidate's status in `registry.json`.
 
-`worklist` does not filter on status, so **check each candidate's status in
-`registry.json` and skip anything that is not `new` or `linked`** — otherwise
-signatures already covered by an open PR resurface.
+For a regressed signature, first read the previous fix (`pr`) and the
+`**Regressed:**` versions: was the old fix incomplete, lost, or do the new
+crashes take a different path? Reference the previous PR in the new one.
 
 Read each entry (`top_frame`, `signature_frames`, `representative_stack`,
 `total_count`, `weeks`) and mark it picked:
@@ -81,12 +91,11 @@ Then work steps 2–5 per signature.
 ### 2. Locate the real crash site
 
 Map each frame in `representative_stack` to source via its `at <path>:<line>`.
-The reported crash line is often the optimizer's line marker, not the true
-fault — read the surrounding function and find the actual unsafe operation
-(null dereference, out-of-range index, use-after-free, unchecked cast). The
-model investigation is PR #14194: the trace blamed `cvf::ref<…>::isNull()` but
-the real bug was an unchecked `mainGrid()` returning `nullptr`. Use
-`git log`/`git blame` on the crash site to understand intent.
+The reported line is often the optimizer's marker, not the true fault — read
+the surrounding function and find the actual unsafe operation (null
+dereference, out-of-range index, use-after-free, unchecked cast). Model case:
+PR #14194, where the trace blamed `cvf::ref<…>::isNull()` but the real bug was
+an unchecked `mainGrid()` returning `nullptr`. Use `git blame` for intent.
 
 ### 3. Form a fix
 
@@ -97,50 +106,62 @@ prevents the unsafe operation on the reported path, (b) it builds, **and**
 (c) the reproducing test from step 4 passes.
 
 If the root cause is a fragile call pattern rather than a one-off mistake, grep
-the codebase for other occurrences of the same pattern and list them in the PR
-with a suggested fix for all locations (example: the manual
-`resolveReferencesRecursively()` + `initAfterReadRecursively()` pair combined
-into `initAfterInsert()`, https://github.com/OPM/ResInsight/issues/14372).
-Still patch only the crashing site unless told otherwise.
+the codebase for other occurrences and list them in the PR with a suggested fix
+(example: the manual `resolveReferencesRecursively()` +
+`initAfterReadRecursively()` pair combined into `initAfterInsert()`,
+https://github.com/OPM/ResInsight/issues/14372).
+
+Always check the close surroundings for the same defect — the rest of the
+file/class and the consumers of the fixed function (callers repeating the
+unsafe call or mishandling a new null/empty result) — and fix it in the same
+commit. Keep these small; list anything larger in the PR instead of patching it.
 
 ### 4. Create a test reproducing the issue
 
-Write a unit test that reproduces the crash path: drive the crashing function
-with the state that triggers the fault (null pointer, empty collection, missing
-result, ...). Place it alongside the existing tests for the affected code (see
-[build.md](build.md) for test locations and commands). Confirm the test fails
-or crashes **without** the patch, then passes **with** it. If the crash path
-cannot be reached from a test (e.g. it requires GUI state or external data),
-say so at the human gate and fall back to reasoning + build verification.
+Write a unit test that drives the crashing function with the triggering state
+(null pointer, empty collection, missing result, ...), next to the existing
+tests for that code (see [build.md](build.md)). Confirm it fails **without**
+the patch and passes **with** it. If the path is unreachable from a test (GUI
+state, external data), say so at the human gate and fall back to reasoning +
+build verification.
 
 ### 5. Build-verify
 
-Build the affected target with CMake (never call ninja directly):
+Build the affected target (never call ninja directly):
 
 ```
 cmake --build build --target <target owning the file>
 ```
 
-If it does not compile, fix and rebuild. The bar for a verified fix is sound
-root-cause reasoning, a clean build, and the reproducing test from step 4
-passing (or a stated reason why no test is feasible).
+A verified fix needs sound root-cause reasoning, a clean build, and the passing
+test from step 4 (or a stated reason why none is feasible).
 
 ### 6. Human gate
 
 Once the whole batch is investigated, present in one message — per signature:
-the root cause, the patch diff, the test and build results, and a confidence
+the root cause, the patch diff (including surrounding fixes), the test and build results, and a confidence
 rating — plus the draft PR body covering the batch. Then **stop** and ask the
 user to approve, revise, or downgrade individual signatures to a note.
 
 ### 7a. On approval — one branch, one PR for the batch
 
-Branch on the fork (`crash-triage-<YYYY-MM-DD>`), one commit per signature with
-a short description, push to your personal fork, and open a single PR with a
-short title.
+Branch on the fork (`crash-triage-<YYYY-MM-DD>`), push to your personal fork,
+and open a single PR with a short title.
 
-The PR body has one section per signature containing a one-line Problem/Fix and
-the raw `representative_stack` in a code fence (this replaces the issue that
-used to carry it):
+One commit per signature: short title, short fix description, then the raw
+call stack:
+
+```
+<short title>
+
+<short description of the fix>
+
+Call stack:
+[0] ...
+```
+
+The PR body has one section per signature, so it contains the call stack of
+**every** fix:
 
 ````markdown
 ### <short description>
@@ -174,15 +195,15 @@ python registry.py set --id <sid> --status no-fix-found \
 
 ### 8. When the PR is merged — mark resolved
 
-The PR merging is what closes a signature out. For every signature in that PR:
+For every signature in a merged PR:
 
 ```
-python registry.py set --id <sid> --status resolved
+python registry.py set --id <sid> --pr-state MERGED --status resolved
 python registry.py render --date <latest-week>
 ```
 
-Signatures whose PR is still open stay at `pr-open`; do not mark them resolved
-early.
+Signatures whose PR is still open stay at `pr-open`. `link_issues.py` fills
+`fixed_in` on its next run (the regression baseline).
 
 ### 9. Commit the registry change
 
@@ -194,3 +215,6 @@ branch and push to the user's fork. Do this after step 7 and again after step 8.
 - The same `top_frame` can appear under two signature ids (different deeper
   paths). Fixing one does not auto-resolve the other — handle each, though the
   same PR may cover both; set the status on both ids.
+- A regressed signature keeps its old `pr` until a new one is recorded with
+  `set --pr`; picking it with `--status investigating` removes it from the
+  worklist.

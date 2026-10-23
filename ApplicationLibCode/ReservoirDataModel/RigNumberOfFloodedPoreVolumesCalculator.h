@@ -50,15 +50,15 @@ private:
                     std::vector<const std::vector<double>*> flowrateIatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateJatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps,
-                    const RigConnectionContainer&           connections,
+                    const std::vector<RigConnection>&       connections,
                     std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps,
                     std::vector<std::vector<double>>        summedTracersAtAllTimesteps );
 
-    void distributeNNCflow( const RigConnectionContainer& connections,
-                            RimEclipseCase*               caseToApply,
-                            const std::vector<double>&    summedTracerValues,
-                            const std::vector<double>*    flowrateNNC,
-                            std::vector<double>&          flowrateIntoCell );
+    void distributeNNCflow( const std::vector<RigConnection>& connections,
+                            RimEclipseCase*                   caseToApply,
+                            const std::vector<double>&        summedTracerValues,
+                            const std::vector<double>*        flowrateNNC,
+                            std::vector<double>&              flowrateIntoCell );
 
     void distributeNeighbourCellFlow( RigMainGrid*               mainGrid,
                                       RimEclipseCase*            caseToApply,

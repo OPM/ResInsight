@@ -23,9 +23,11 @@
 #include "RimCellRangeFilter.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimDataFilterInView.h"
 #include "RimDataFilterInViewCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafSignal.h"
@@ -245,4 +247,59 @@ TEST( RimDataFilterCollection, ensembleViewUsesEnsembleDataFilters )
 
     ensemble->addView( view );
     EXPECT_EQ( ensemble->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A view created via a case's own view collection should still resolve the ensemble's data filters.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, viewForSingleRealizationUsesEnsembleDataFilters )
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    auto* eclipseCase = new RimEclipseResultCase();
+    ensemble->addCase( eclipseCase );
+
+    RimEclipseView* view = eclipseCase->viewCollection()->addView( eclipseCase );
+
+    EXPECT_EQ( ensemble->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A filter added to the ensemble after the view exists must still appear as a wrapper in the view.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, viewWrapperAppearsWhenEnsembleFilterAddedAfterViewExists )
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    auto* eclipseCase = new RimEclipseResultCase();
+    ensemble->addCase( eclipseCase );
+
+    RimEclipseView* view = eclipseCase->viewCollection()->addView( eclipseCase );
+    ASSERT_EQ( ensemble->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
+    EXPECT_TRUE( view->dataFiltersInView()->wrappers().empty() );
+
+    ensemble->dataFilterCollection()->addNewPropertyFilter();
+
+    ASSERT_EQ( size_t{ 1 }, view->dataFiltersInView()->wrappers().size() );
+    EXPECT_EQ( ensemble->dataFilterCollection()->filters().front(), view->dataFiltersInView()->wrappers().front()->sourceFilter() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reproduces RicNewViewForGridEnsembleFeature's "New View" command: the view is created via the
+/// ensemble's own view collection, which used to lose the ensemble's data filter because the case
+/// was assigned before the view was parented. See #14710.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, viewCreatedViaEnsembleViewCollectionUsesEnsembleDataFilters )
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    auto* eclipseCase = new RimEclipseResultCase();
+    ensemble->addCase( eclipseCase );
+    ensemble->dataFilterCollection()->addNewPropertyFilter();
+
+    // Exercises the same call path as RicNewViewForGridEnsembleFeature.
+    RimEclipseView* view = ensemble->viewCollection()->addView( eclipseCase );
+
+    EXPECT_EQ( ensemble->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
+    ASSERT_EQ( size_t{ 1 }, view->dataFiltersInView()->wrappers().size() );
 }

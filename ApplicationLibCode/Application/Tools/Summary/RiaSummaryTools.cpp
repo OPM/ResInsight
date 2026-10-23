@@ -71,6 +71,47 @@ std::vector<RimSummaryCase*> RiaSummaryTools::singleTopLevelSummaryCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryTools::allSummaryCaseNames()
+{
+    std::set<std::string> summaryCaseFilenames;
+
+    for ( RimSummaryCase* rimCase : RimProject::current()->allSummaryCases() )
+    {
+        summaryCaseFilenames.insert( rimCase->summaryHeaderFilename().toUtf8().constData() );
+    }
+
+    return summaryCaseFilenames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryTools::allSummaryWellNames()
+{
+    std::set<std::string> summaryWellNames;
+
+    for ( RimSummaryCase* rimCase : RimProject::current()->allSummaryCases() )
+    {
+        if ( !rimCase ) continue;
+
+        RifSummaryReaderInterface* reader = rimCase->summaryReader();
+        if ( !reader ) continue;
+
+        for ( const auto& address : reader->allResultAddresses() )
+        {
+            if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
+            {
+                summaryWellNames.insert( address.wellName() );
+            }
+        }
+    }
+
+    return summaryWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
     RimProject* project = RimProject::current();

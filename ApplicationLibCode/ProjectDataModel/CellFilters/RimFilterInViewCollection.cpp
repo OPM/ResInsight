@@ -55,6 +55,7 @@ RimFilterInViewCollection::RimFilterInViewCollection()
 
     setName( "Filters" );
     nameField()->uiCapability()->setUiHidden( true );
+    nameField()->uiCapability()->setUiReadOnly( true );
 
     setCheckState( true );
 }

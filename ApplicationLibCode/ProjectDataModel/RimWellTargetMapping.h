@@ -30,7 +30,8 @@
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
-class RimEclipseView;
+class RimCellFilter;
+class RimDataFilterCollection;
 
 //==================================================================================================
 ///
@@ -54,7 +55,6 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     void initAfterRead() override;
@@ -67,12 +67,12 @@ private:
     void        generateEnsembleStatistics();
     cvf::Vec3st getResultGridCellCount() const;
 
-    RimEclipseCase* firstCase() const;
+    RimEclipseCase*          firstCase() const;
+    RimDataFilterCollection* dataFilterCollection() const;
 
     static std::vector<RigWellTargetMapping::VolumesType> findAvailableVolumesTypes( RimEclipseCase* eclipseCase );
 
     RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
-    std::vector<double>                    getVisibilityFilter() const;
 
     void resetMinimumCellValuesToDefault();
     void onGenerateButtonClicked();
@@ -106,7 +106,10 @@ private:
     caf::PdmField<int> m_cellCountJ;
     caf::PdmField<int> m_cellCountK;
 
-    caf::PdmPtrField<RimEclipseView*> m_filterView;
+    caf::PdmPtrField<RimCellFilter*> m_startDataFilter;
+    caf::PdmPtrField<RimCellFilter*> m_dataFilter; // grow filter
+
+    caf::PdmField<bool> m_avoidFaults;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 

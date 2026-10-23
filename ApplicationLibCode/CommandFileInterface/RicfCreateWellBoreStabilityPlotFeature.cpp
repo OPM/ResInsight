@@ -17,20 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfCreateWellBoreStabilityPlotFeature.h"
 
-#include "RiaLogging.h"
-
-#include "WellLogCommands/RicNewWellBoreStabilityPlotFeature.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
 #include "RimProject.h"
 #include "RimWbsParameters.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellPath.h"
+#include "RimcGeoMechCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QAction>
 
 CAF_PDM_SOURCE_INIT( RicfCreateWbsPlotResult, "createWbsPlotResult" );
 
@@ -62,48 +58,32 @@ RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 {
-    RimProject* project = RimProject::current();
+    const QString commandName = classKeyword();
 
-    std::vector<RimGeoMechCase*> geoMechCases = project->descendantsIncludingThisOfType<RimGeoMechCase>();
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
-    RimGeoMechCase* chosenCase = nullptr;
-    for ( RimGeoMechCase* geoMechCase : geoMechCases )
+    auto* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase.value() );
+    if ( !geoMechCase )
     {
-        if ( geoMechCase->caseId() == m_caseId() )
-        {
-            chosenCase = geoMechCase;
-            break;
-        }
+        return RicfForwarding::errorResponse( QString( "Could not find GeoMech case with id %1" ).arg( m_caseId() ), commandName );
     }
 
-    RimWellPath* chosenWellPath = nullptr;
-    for ( RimWellPath* wellPath : project->allWellPaths() )
-    {
-        if ( wellPath->name() == m_wellPath() )
-        {
-            chosenWellPath = wellPath;
-            break;
-        }
-    }
+    RimWellPath* wellPath = RimProject::current()->wellPathByName( m_wellPath() );
+    if ( !wellPath ) return RicfForwarding::errorResponse( QString( "Could not find well path '%1'" ).arg( m_wellPath() ), commandName );
 
-    if ( chosenCase && chosenWellPath && m_timeStep() >= 0 )
-    {
-        if ( !chosenWellPath->wellPathGeometry() )
-        {
-            QString error =
-                QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( chosenWellPath->name() );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
+    RimGeoMechCase_createWellBoreStabilityPlot method( geoMechCase );
+    method.setWellPath( wellPath );
+    method.setTimeStep( m_timeStep() );
+    method.setParameters( m_wbsParameters() );
 
-        RimWellBoreStabilityPlot* wbsPlot =
-            RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase, chosenWellPath, m_timeStep(), m_wbsParameters() );
-        caf::PdmScriptResponse response;
-        response.setResult( new RicfCreateWbsPlotResult( wbsPlot->id() ) );
-        return response;
-    }
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
 
-    QString error = QString( "createWellBoreStabilityPlot: Could not find GeoMech case with id %1" ).arg( m_caseId() );
-    RiaLogging::error( error.toStdString() );
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+    auto* plot = dynamic_cast<RimWellBoreStabilityPlot*>( result.value() );
+    if ( !plot ) return RicfForwarding::errorResponse( "Created object is not a Well Bore Stability plot", commandName );
+
+    caf::PdmScriptResponse response;
+    response.setResult( new RicfCreateWbsPlotResult( plot->id() ) );
+    return response;
 }

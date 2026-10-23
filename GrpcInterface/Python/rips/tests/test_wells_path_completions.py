@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -18,11 +19,58 @@ def test_10k(rips_instance, initialize_test):
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
 
     case = project.cases()[0]
-    case.export_well_path_completions(
-        time_step=1,
-        well_path_names=["Well-1"],
-        file_split="UNIFIED_FILE",
-    )
+    with pytest.warns(DeprecationWarning):
+        case.export_well_path_completions(
+            time_step=1,
+            well_path_names=["Well-1"],
+            file_split="UNIFIED_FILE",
+        )
+
+
+def test_export_completions(rips_instance, initialize_test):
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    project_path = case_root_path + "/well_completions_pytest.rsp"
+    project = rips_instance.project.open(path=project_path)
+
+    case = project.cases()[0]
+    well_path = project.well_path_by_name("Well-1")
+    assert well_path is not None
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        case.export_completions(
+            well_paths=[well_path],
+            time_step=1,
+            export_folder=tmpdirname,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+            custom_file_name="my_completions.sch",
+        )
+        files = os.listdir(tmpdirname)
+        assert "my_completions.sch" in files
+        with open(os.path.join(tmpdirname, "my_completions.sch")) as f:
+            content = f.read()
+            assert "COMPDAT" in content
+            assert "WELSPECS" in content
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # Empty list exports all visible well paths, split on well
+        case.export_completions(time_step=1, export_folder=tmpdirname)
+        files = os.listdir(tmpdirname)
+        assert len(files) >= 1
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # A non-existent export folder is created on demand
+        export_folder = os.path.join(tmpdirname, "new_folder")
+        case.export_completions(
+            well_paths=[well_path],
+            time_step=1,
+            export_folder=export_folder,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+            custom_file_name="created.sch",
+        )
+        assert "created.sch" in os.listdir(export_folder)
+
+    with pytest.raises(rips.RipsError):
+        case.export_completions(well_paths=[well_path])
 
 
 def test_add_well_path_completions(rips_instance, initialize_test):
@@ -60,12 +108,16 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert completions_settings_updated.well_name_for_export == "TestWellName"
     assert completions_settings_updated.well_type_for_export == "LIQUID"
 
+    completions_settings.pressure_drop = "HFA"
+    completions_settings.length_and_depth = "INC"
+    completions_settings.update()
+    completions_settings_updated = well_path.completion_settings()
+    assert completions_settings_updated.pressure_drop == "HFA"
+    assert completions_settings_updated.length_and_depth == "INC"
+
     segment_collection = well_path.segment_collection()
     segment_collection.custom_values_for_lateral = True
-    segment_collection.enforce_max_segment_length = True
     segment_collection.liner_diameter = 20.0
-    segment_collection.max_segment_length = 123.05
-    segment_collection.pressure_drop = "HFA"
     segment_collection.reference_md_type = "UserDefined"
     segment_collection.roughness_factor = 1.3
     segment_collection.user_defined_reference_md = 1234.56
@@ -73,10 +125,7 @@ def test_add_well_path_completions(rips_instance, initialize_test):
 
     segment_collection_updated = well_path.segment_collection()
     assert segment_collection_updated.custom_values_for_lateral
-    assert segment_collection_updated.enforce_max_segment_length
     assert segment_collection_updated.liner_diameter == 20.0
-    assert segment_collection_updated.max_segment_length == 123.05
-    assert segment_collection_updated.pressure_drop == "HFA"
     assert segment_collection_updated.reference_md_type == "UserDefined"
     assert segment_collection_updated.roughness_factor == 1.3
     assert segment_collection_updated.user_defined_reference_md == 1234.56
@@ -169,6 +218,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     fishbones.lateral_tubing_diameter = 0.1
     fishbones.lateral_tubing_roghness_factor = 0.1
     fishbones.subs_orientation_mode = "FIXED"
+    fishbones.fixed_installation_rotation_angle = 12.3
     fishbones.update()
 
     fishbones_updated = fishbones_collection.fishbones()[0]
@@ -186,6 +236,7 @@ def test_fishbone_interface(rips_instance, initialize_test):
     assert fishbones_updated.lateral_tubing_diameter == 0.1
     assert fishbones_updated.lateral_tubing_roghness_factor == 0.1
     assert fishbones_updated.subs_orientation_mode == "FIXED"
+    assert fishbones_updated.fixed_installation_rotation_angle == 12.3
 
 
 # test perforations and perforations settings

@@ -274,11 +274,8 @@ void RicExportContourMapToTextFeature::setupActionLook( QAction* actionToSetup )
 caf::PdmScriptResponse RicExportContourMapToTextFeature::execute()
 {
     caf::PdmScriptResponse response;
-    QStringList            errorMessages, warningMessages;
 
-    RiaApplication* app = RiaApplication::instance();
-
-    RimProject* proj = app->project();
+    RimProject* proj = RimProject::current();
     CAF_ASSERT( proj );
 
     Rim3dView* myView = nullptr;
@@ -296,10 +293,31 @@ caf::PdmScriptResponse RicExportContourMapToTextFeature::execute()
         return response;
     }
 
+    auto result = exportContourMapToText( myView,
+                                          m_exportFileName(),
+                                          m_exportLocalCoordinates.value(),
+                                          m_undefinedValueLabel.value(),
+                                          m_excludeUndefinedValues.value() );
+    if ( !result )
+    {
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, result.error() );
+    }
+
+    return response;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RicExportContourMapToTextFeature::exportContourMapToText( Rim3dView*     view,
+                                                                                       const QString& exportFileName,
+                                                                                       bool           exportLocalCoordinates,
+                                                                                       const QString& undefinedValueLabel,
+                                                                                       bool           excludeUndefinedValues )
+{
     RimContourMapProjection*  contourMapProjection      = nullptr;
-    RimEclipseContourMapView* existingEclipseContourMap = dynamic_cast<RimEclipseContourMapView*>( myView );
-    RimGeoMechContourMapView* existingGeoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>( myView );
-    CAF_ASSERT( existingEclipseContourMap || existingGeoMechContourMap );
+    RimEclipseContourMapView* existingEclipseContourMap = dynamic_cast<RimEclipseContourMapView*>( view );
+    RimGeoMechContourMapView* existingGeoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>( view );
 
     QString contourMapName;
     if ( existingEclipseContourMap )
@@ -312,30 +330,22 @@ caf::PdmScriptResponse RicExportContourMapToTextFeature::execute()
         contourMapProjection = existingGeoMechContourMap->contourMapProjection();
         contourMapName       = existingGeoMechContourMap->createAutoName();
     }
-
-    CAF_ASSERT( contourMapProjection );
-
-    QFile exportFile( m_exportFileName );
-    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        errorMessages << QString( "Export Contour Map to Text : Could not open the file: %1" ).arg( m_exportFileName );
-    }
     else
     {
-        QString     tableText;
-        QTextStream stream( &exportFile );
-        writeMetaDataToStream( stream, contourMapProjection, contourMapName, m_exportLocalCoordinates.value() );
-        writeContourMapToStream( stream,
-                                 contourMapProjection,
-                                 m_exportLocalCoordinates.value(),
-                                 m_undefinedValueLabel.value(),
-                                 m_excludeUndefinedValues.value() );
+        return std::unexpected( "The view is not a contour map view" );
     }
 
-    for ( QString errorMessage : errorMessages )
+    if ( !contourMapProjection ) return std::unexpected( "The contour map view has no projection" );
+
+    QFile exportFile( exportFileName );
+    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
+        return std::unexpected( QString( "Export Contour Map to Text : Could not open the file: %1" ).arg( exportFileName ) );
     }
 
-    return response;
+    QTextStream stream( &exportFile );
+    writeMetaDataToStream( stream, contourMapProjection, contourMapName, exportLocalCoordinates );
+    writeContourMapToStream( stream, contourMapProjection, exportLocalCoordinates, undefinedValueLabel, excludeUndefinedValues );
+
+    return {};
 }

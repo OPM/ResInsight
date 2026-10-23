@@ -270,26 +270,10 @@ void PdmNestedCollection<SelfT, ItemT>::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &m_collectionName );
     uiOrdering.add( &m_subCollections );
     uiOrdering.add( &m_items );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename SelfT, typename ItemT>
-void PdmNestedCollection<SelfT, ItemT>::defineEditorAttribute( const PdmFieldHandle* field,
-                                                               QString               uiConfigName,
-                                                               PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_items )
-    {
-        auto tvAttribute = dynamic_cast<PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
-        {
-            tvAttribute->resizePolicy              = PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
-            tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->minimumHeight             = 300;
-        }
-    }
+    m_items.uiCapability()->setAttribute( PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                          static_cast<int>( PdmUiTableViewEditor::RESIZE_TO_FILL_CONTAINER ) );
+    m_items.uiCapability()->setAttribute( PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
+    m_items.uiCapability()->setAttribute( PdmUiTableViewEditor::Keys::MINIMUM_HEIGHT, 300 );
 }
 
 //--------------------------------------------------------------------------------------------------

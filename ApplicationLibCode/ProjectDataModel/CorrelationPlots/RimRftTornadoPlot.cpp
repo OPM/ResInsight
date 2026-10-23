@@ -26,19 +26,19 @@
 
 #include "RimCorrelationBarChartTools.h"
 #include "RimEclipseResultCase.h"
-#include "RimParameterRftCrossPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
+
+#include "Formations/RimWellFormationsFile.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotItem.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuRftCorrelationPlotTools.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-
-#include "qwt_plot.h"
-#include "qwt_text.h"
 
 #include <QPaintDevice>
 
@@ -59,9 +59,16 @@ RimRftTornadoPlot::RimRftTornadoPlot()
     CAF_PDM_InitField( &m_wellName, "WellName", QString(), "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStep, "TimeStep", "Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
-    CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
-    CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
-    CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
+    CAF_PDM_InitField( &m_filterMode,
+                       "FilterMode",
+                       RimRftCrossPlotTools::DepthFilterModeEnum( RimRftCrossPlotTools::DepthFilterMode::NONE ),
+                       "Filter By" );
+    CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth" );
+    CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth" );
+    CAF_PDM_InitFieldNoDefault( &m_wellFormations, "WellFormations", "Well Formations File" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedZones, "SelectedZones", "Zones" );
+    CAF_PDM_InitField( &m_depthType, "DepthType", caf::AppEnum<RiaDefines::DepthType>( RiaDefines::DepthType::MEASURED_DEPTH ), "Depth Type" );
+    m_depthType.uiCapability()->setUiHidden( true ); // driven by the parent RimRftCorrelationReportPlot
 
     CAF_PDM_InitField( &m_showAbsoluteValues, "ShowAbsoluteValues", false, "Show Absolute Values" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "SortByAbsoluteValues", true, "Sort by Absolute Values" );
@@ -131,18 +138,42 @@ void RimRftTornadoPlot::setEclipseCase( RimEclipseResultCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTornadoPlot::setUseDepthRange( bool useDepthRange )
+void RimRftTornadoPlot::setDepthRange( double minMd, double maxMd )
 {
-    m_useDepthRange = useDepthRange;
+    m_depthRangeMin = minMd;
+    m_depthRangeMax = maxMd;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTornadoPlot::setDepthRange( double minMd, double maxMd )
+void RimRftTornadoPlot::setDepthType( RiaDefines::DepthType depthType )
 {
-    m_depthRangeMin = minMd;
-    m_depthRangeMax = maxMd;
+    m_depthType = depthType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode )
+{
+    m_filterMode = filterMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setWellFormations( RimWellFormationsFile* wellFormationsFile )
+{
+    m_wellFormations = wellFormationsFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setSelectedZones( const std::vector<QString>& zones )
+{
+    m_selectedZones = zones;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,8 +254,7 @@ void RimRftTornadoPlot::detachAllCurves()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
+        RiuRftCorrelationPlotTools::detachBarChartItems( m_plotWidget );
     }
 }
 
@@ -290,13 +320,13 @@ void RimRftTornadoPlot::onLoadDataAndUpdate()
         m_lastCorrelations  = addDataToChartBuilder( chartBuilder );
         const int labelSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
         chartBuilder.setLabelFontSize( labelSize );
-        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
+        RiuRftCorrelationPlotTools::addHorizontalBarChart( m_plotWidget, chartBuilder, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         RimCorrelationBarChartTools::highlightSelectedParameterBar( m_plotWidget,
                                                                     m_selectedParameter,
                                                                     RiaColorTools::toQColor( m_barColor() ),
                                                                     RiaColorTools::toQColor( m_highlightBarColor() ) );
 
-        m_plotWidget->qwtPlot()->insertLegend( nullptr );
+        RiuRftCorrelationPlotTools::removeLegend( m_plotWidget );
 
         updateAxes();
         updatePlotTitle();
@@ -353,6 +383,20 @@ void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimRftCrossPlotTools::DepthInterval> RimRftTornadoPlot::depthIntervals() const
+{
+    return RimRftCrossPlotTools::buildDepthIntervals( m_filterMode(),
+                                                      m_depthRangeMin(),
+                                                      m_depthRangeMax(),
+                                                      m_wellFormations(),
+                                                      m_wellName(),
+                                                      m_selectedZones(),
+                                                      m_depthType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
     std::map<QString, double> correlations;
@@ -362,13 +406,12 @@ std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBa
     const auto& allCases = m_ensemble->allSummaryCases();
 
     // Build pressure vector per case (indices match allCases order)
-    const std::vector<double> pressurePerCase = RimParameterRftCrossPlot::computeMeanPressurePerCase( m_ensemble(),
-                                                                                                      m_wellName(),
-                                                                                                      m_selectedTimeStep(),
-                                                                                                      m_eclipseCase(),
-                                                                                                      m_useDepthRange(),
-                                                                                                      m_depthRangeMin(),
-                                                                                                      m_depthRangeMax() );
+    const std::vector<double> pressurePerCase = RimRftCrossPlotTools::computeMeanPressurePerCase( m_ensemble(),
+                                                                                                  m_wellName(),
+                                                                                                  m_selectedTimeStep(),
+                                                                                                  m_eclipseCase(),
+                                                                                                  depthIntervals(),
+                                                                                                  m_depthType() );
 
     // For each numeric parameter, compute Pearson correlation against pressurePerCase
     for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( allCases ) )
@@ -410,8 +453,9 @@ void RimRftTornadoPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle() && m_ensemble() )
     {
-        const QString rangeStr = m_useDepthRange() ? QString( " [MD %1 - %2 m]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                                   : QString();
+        const QString filterDescription =
+            RimRftCrossPlotTools::depthFilterDescription( m_filterMode(), m_depthType(), m_depthRangeMin(), m_depthRangeMax(), m_selectedZones() );
+        const QString rangeStr = filterDescription.isEmpty() ? QString() : QString( " [%1]" ).arg( filterDescription );
         m_description          = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
     }
 

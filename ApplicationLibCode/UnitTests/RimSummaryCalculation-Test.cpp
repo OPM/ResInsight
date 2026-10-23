@@ -2,6 +2,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressDefines.h"
+#include "RimProject.h"
 #include "RimSummaryCalculation.h"
 
 using SummaryCategory = RifEclipseSummaryAddressDefines::SummaryCategory;
@@ -28,6 +29,8 @@ public:
     {
         return singleAddressesForCategory( address );
     }
+
+    bool testDetectCyclicCalculation( int id, std::set<int>& ids ) const { return detectCyclicCalculation( id, ids ); }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -216,4 +219,16 @@ TEST( RimSummaryCalculation, SubstituteVariables_BlockLgr )
     EXPECT_EQ( 10, vars[0].summaryAddress.cellI() );
     EXPECT_EQ( 20, vars[0].summaryAddress.cellJ() );
     EXPECT_EQ( 30, vars[0].summaryAddress.cellK() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A calculation referring to a calculation that is already removed from the collection, as when the
+/// referenced calculation is being deleted, is not cyclic
+//--------------------------------------------------------------------------------------------------
+TEST( RimSummaryCalculation, DetectCyclicCalculation_MissingCalculation )
+{
+    RimSummaryCalculationTester calculation;
+
+    std::set<int> ids;
+    EXPECT_FALSE( calculation.testDetectCyclicCalculation( 9999, ids ) );
 }

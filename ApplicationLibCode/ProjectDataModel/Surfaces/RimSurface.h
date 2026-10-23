@@ -91,7 +91,7 @@ protected:
     void   setDepthOffset( double depthoffset );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     static void applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices );
 

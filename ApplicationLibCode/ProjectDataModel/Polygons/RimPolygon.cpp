@@ -38,6 +38,7 @@
 #include "cafPdmUiButton.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "Polygon", "RimPolygon" );
 
@@ -194,6 +195,46 @@ bool RimPolygon::showLines() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::setShowLines( bool showLines )
+{
+    m_appearance->setShowLines( showLines );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygon::showSpheres() const
+{
+    return m_appearance->showSpheres();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setShowSpheres( bool showSpheres )
+{
+    m_appearance->setShowSpheres( showSpheres );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setSphereRadiusFactor( double radiusFactor )
+{
+    m_appearance->setSphereRadiusFactor( radiusFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setSphereColor( const cvf::Color3f& color )
+{
+    m_appearance->setSphereColor( color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
@@ -275,21 +316,22 @@ void RimPolygon::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygon::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygon::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( color() ),
-                                                               RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
-                                                               "---" );
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-        tag->clicked.connect( this, &RimPolygon::onColorTagClicked );
+    auto tag = caf::PdmUiTreeViewItemTag::create( RiaColorTools::toQColor( color() ),
+                                                  RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                  "---" );
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
-    }
+    tag.clicked = [this]( size_t index ) { this->onColorTagClicked( nullptr, index ); };
+
+    tags.push_back( tag );
 
     if ( m_isReadOnly )
     {
-        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        tags.push_back( caf::PdmUiTreeViewItemTag::createWithIcon( ":/padlock.svg" ) );
     }
+
+    return tags;
 }

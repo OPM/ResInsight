@@ -22,12 +22,15 @@
 
 #include "cafPdmPointer.h"
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RimProcess;
+class RiaTimer;
 
 //==================================================================================================
 ///
@@ -50,40 +53,35 @@ public:
     RimGenericJob();
     ~RimGenericJob() override;
 
-    bool execute();
-    bool setFinished( bool runOk );
-    void setStarted();
+    virtual bool              execute()                                                         = 0;
+    virtual void              stop()                                                            = 0;
+    virtual double            percentageDone() const                                            = 0;
+    virtual const QStringList jobLog() const                                                    = 0;
+    virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
+    virtual void              processLogOutput( const QString& logLine ) {};
 
-    bool isRunning() const;
-    bool stop();
+    virtual void setFinished( bool runOk );
+    virtual void setStarted();
 
+    void setIsChildJob( bool isChildJob );
+    bool isChildJob() const;
+
+    bool     isRunning() const;
     JobState state() const;
-
-    double            percentageDone() const;
-    const QStringList jobLog() const;
-
-    virtual bool matchesKeyValue( const QString& key, const QString& value ) const;
-
-    virtual void processLogOutput( const QString& logLine ) = 0;
+    void     setState( JobState state );
+    double   runTimeSeconds();
+    QString  runTimeString();
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-    virtual QStringList                command()     = 0;
-    virtual std::map<QString, QString> environment() = 0;
-    virtual QString                    workingDirectory() const;
-    virtual bool                       onPrepare()                         = 0;
-    virtual bool                       onRun()                             = 0;
-    virtual void                       onCompleted( bool success )         = 0;
-    virtual void                       onProgress( double percentageDone ) = 0;
-
-protected:
-    double m_percentageDone;
-    int    m_warningsDetected;
-    int    m_errorsDetected;
+    void onRefreshTimer( const SignalEmitter* emitter );
 
 private:
-    JobState                    m_jobState;
-    caf::PdmPointer<RimProcess> m_process;
+    caf::PdmField<bool> m_isChildJob;
+
+    JobState  m_jobState;
+    QDateTime m_startTime;
+    QDateTime m_stopTime;
+
+    std::unique_ptr<RiaTimer> m_refreshTimer;
 };

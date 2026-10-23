@@ -93,8 +93,6 @@ public:
 
     static const char* plotNameFormatString();
 
-    void deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData );
-
     bool showErrorBarsForObservedData() const;
     void onLegendDefinitionChanged();
 
@@ -114,6 +112,11 @@ public:
     std::vector<RimSummaryEnsemble*> selectedEnsembles() const;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    // Permanently detaches this plot from the dock system (unlike removeWindowFromDock(), which must
+    // leave the window controller intact so the plot can be re-docked later). Use when this plot is
+    // embedded as a sub-plot elsewhere and should never be docked as a standalone window again.
+    void detachFromDockPermanently();
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

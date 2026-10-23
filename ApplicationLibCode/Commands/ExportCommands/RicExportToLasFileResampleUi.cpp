@@ -59,6 +59,7 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi()
 
     CAF_PDM_InitField( &exportFolder, "ExportFolder", QString(), "Export Folder" );
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix" );
     CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &capitalizeFileName );
@@ -128,23 +129,6 @@ void RicExportToLasFileResampleUi::setUnitConversionOptionEnabled( bool enabled 
 void RicExportToLasFileResampleUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateFieldVisibility();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportToLasFileResampleUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                          QString                    uiConfigName,
-                                                          caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &exportFolder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

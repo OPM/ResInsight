@@ -10,9 +10,13 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ert-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigModelPaddingSettings-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPadModel-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputAquiferTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputConnectionTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputNncTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationInputTool-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigBoundingBoxIjk-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigContourMapGrid-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseContourMapProjection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifcCommandCore-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcFieldSerialization-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools-Test.cpp
@@ -20,22 +24,28 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonFlowDiagGridSource-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultsData-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleFractureStatisticsCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResults-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSgasResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPorvSoilSgasResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigMainGridFaults-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigMainGridSearchTree-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigNonUniformRefinement-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigNestedHybridGridReconstructor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsMath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramDataSource-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisTools-Test.cpp
@@ -50,6 +60,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/WellPathAsciiFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/opm-flowdiagnostics-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigContourMapPeakFinder-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/HDF5FileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/HDF5FileWriter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools-Test.cpp
@@ -83,14 +94,25 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaHpcTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Intersect-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftCrossPlotTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowVec3Binding-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinition-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJobSync-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphLayout-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDockWindowController-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFilterInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection-Test.cpp
@@ -111,6 +133,10 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesFileParser-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifCsvHtmlTableTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffWriter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools-Test.cpp
@@ -129,6 +155,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/opm-summary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveStyleSettings-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveStyleRules-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaVariableMapper-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPressureDepthTextFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader-Test.cpp
@@ -146,6 +174,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifGridCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsContourMap-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmReader-Test.cpp
@@ -158,9 +187,13 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewController-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/CvfCameraCrashTriage-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNameUniquenessTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigFemPart-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralAtDepthFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkImportUtil-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStore-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleImportTools-Test.cpp
@@ -175,6 +208,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../TestModels/RimMockSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection-Test.cpp
@@ -184,6 +218,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicMswBranchBuilder-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMswTableData-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
@@ -266,6 +302,36 @@ set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
 
 qt_add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
+# Scope USE_HDF5 and its include dir to the 3 test files that need them, to
+# avoid a full rebuild on toggle.
+if(RESINSIGHT_FOUND_HDF5)
+  set(RI_HDF5_TEST_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/HDF5FileReader-Test.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/HDF5FileWriter-Test.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/RimEmReader-Test.cpp
+  )
+  set_source_files_properties(
+    ${RI_HDF5_TEST_FILES} PROPERTIES COMPILE_DEFINITIONS
+                                     "USE_HDF5;H5_BUILT_AS_DYNAMIC_LIB"
+  )
+  if(MSVC)
+    set_source_files_properties(
+      ${RI_HDF5_TEST_FILES} PROPERTIES INCLUDE_DIRECTORIES
+                                       ${RESINSIGHT_HDF5_DIR}/include
+    )
+  else()
+    # Drop implicit dirs such as /usr/include, see ApplicationLibCode.
+    set(RI_HDF5_TEST_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+    list(REMOVE_ITEM RI_HDF5_TEST_INCLUDE_DIRS
+         ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+    )
+    set_source_files_properties(
+      ${RI_HDF5_TEST_FILES} PROPERTIES INCLUDE_DIRECTORIES
+                                       "${RI_HDF5_TEST_INCLUDE_DIRS}"
+    )
+  endif()
+endif()
+
 # Make ResInsight-tests depend on the prebuild target.
 add_dependencies(ResInsight-tests PreBuildFileCopyTest)
 
@@ -283,7 +349,6 @@ target_include_directories(
   ResInsight-tests
   PUBLIC ${CMAKE_BINARY_DIR}/Generated
          "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
-         ${RI_PRIVATE_INCLUDES}
          ${PROJECT_SOURCE_DIR}/Commands
          ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
          ${CMAKE_CURRENT_LIST_DIR}/../TestModels
@@ -319,7 +384,11 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-target_link_libraries(ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest)
+target_link_libraries(
+  ResInsight-tests
+  PUBLIC ${LINK_LIBRARIES} GTest::gtest
+  PRIVATE ResInsightCommonSettings
+)
 
 if(MSVC)
   add_custom_command(

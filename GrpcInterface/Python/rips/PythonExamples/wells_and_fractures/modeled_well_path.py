@@ -81,14 +81,17 @@ print(
 # Optionally update the segment settings
 msw_settings = well_path.segment_collection()
 msw_settings.custom_values_for_lateral = False
-msw_settings.enforce_max_segment_length = False
 msw_settings.liner_diameter = 0.152
-msw_settings.max_segment_length = 200
-msw_settings.pressure_drop = "HF-"
 msw_settings.reference_md_type = "GridEntryPoint"
 msw_settings.roughness_factor = 1e-05
 msw_settings.user_defined_reference_md = 0
 msw_settings.update()
+
+# The WELSEGS header settings are part of the completion settings
+completion_settings = well_path.completion_settings()
+completion_settings.pressure_drop = "HF-"
+completion_settings.length_and_depth = "ABS"
+completion_settings.update()
 
 # Optionally update the Perforation Non-Darcy settings
 non_darcy_parameters = perforation_coll.non_darcy_parameters()
@@ -103,11 +106,12 @@ for case in cases:
     print("Case name: ", case.name)
     print("Case id: ", case.id)
 
-    case.export_well_path_completions(
+    case.export_completions(
+        well_paths=[well_path],
         time_step=0,
-        well_path_names=["Test Well-1 Y1"],
-        file_split="UNIFIED_FILE",
-        include_perforations=True,
         # Replace the following with a valid path
-        custom_file_name="f:/scratch/2023-11-02/myfile.myext",
+        export_folder="f:/scratch/2023-11-02",
+        file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+        include_perforations=True,
+        custom_file_name="myfile.myext",
     )

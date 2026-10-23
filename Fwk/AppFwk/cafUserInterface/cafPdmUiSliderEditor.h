@@ -48,27 +48,6 @@
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiSliderEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiSliderEditorAttribute()
-    {
-        m_minimum     = 0;
-        m_maximum     = 10;
-        m_showSpinBox = true;
-        m_step        = 1;
-    }
-
-public:
-    int  m_minimum;
-    int  m_maximum;
-    bool m_showSpinBox;
-    int  m_step;
-};
-
 class PdmUiSliderEditor : public PdmUiFieldLabelEditorHandle
 {
     Q_OBJECT
@@ -93,6 +72,10 @@ public:
                                                                    Keys::SHOW_SPIN_BOX,
                                                                    Keys::STEP };
 
+    // Clearing restores the editor defaults, use when the range is unknown to avoid keeping a stale range
+    static void setRange( PdmUiItem* uiItem, int minimum, int maximum );
+    static void clearRange( PdmUiItem* uiItem );
+
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;
@@ -109,7 +92,10 @@ private:
     QPointer<QSpinBox> m_spinBox;
     QPointer<QSlider>  m_slider;
 
-    PdmUiSliderEditorAttribute m_attributes;
+    int  m_minimum     = 0;
+    int  m_maximum     = 10;
+    bool m_showSpinBox = true;
+    int  m_step        = 1;
 };
 
 } // end namespace caf

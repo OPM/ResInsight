@@ -17,19 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
 #include "RigFormationNames.h"
 
 #include <expected>
 
 #include <QString>
-
-namespace cvf
-{
-class Color3f;
-}
 
 //==================================================================================================
 ///
@@ -38,10 +30,4 @@ class RifFormationNamesReader
 {
 public:
     [[nodiscard]] static std::expected<RigFormationNames, QString> readFormationNamesFile( const QString& fileName );
-
-private:
-    static std::expected<RigFormationNames, QString> readLyrFormationNameFile( const QString& fileName );
-    static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString& fileName );
-
-    static bool convertStringToColor( const QString& word, cvf::Color3f* color );
 };

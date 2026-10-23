@@ -418,6 +418,8 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     // still flow, so the HTTP reply completes.
     if ( m_pendingReplies.load() > 0 )
     {
+        m_isReportingCrash = true;
+
         auto* prefs          = RiaPreferencesOpenTelemetry::current();
         int   timeoutMs      = prefs ? prefs->connectionTimeoutMs() : 5000;
         int   elapsedMs      = 0;
@@ -449,6 +451,14 @@ bool RiaOpenTelemetryManager::isEnabled() const
 bool RiaOpenTelemetryManager::isInitialized() const
 {
     return m_initialized.load();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// True while the crash handler sends a crash report. Never reset, the process exits afterwards.
+//--------------------------------------------------------------------------------------------------
+bool RiaOpenTelemetryManager::isReportingCrash()
+{
+    return m_isReportingCrash.load();
 }
 
 //--------------------------------------------------------------------------------------------------

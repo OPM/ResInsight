@@ -20,11 +20,9 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaOptionItemFactory.h"
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
-#include "RigActiveCellInfo.h"
 #include "RiuMainWindow.h"
 
 #include "RigCaseCellResultsData.h"
@@ -34,6 +32,8 @@
 #include "RigStatisticsMath.h"
 #include "Well/RigWellTargetMapping.h"
 
+#include "RimCellFilter.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -107,6 +107,9 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
     caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
@@ -115,6 +118,9 @@ RimWellTargetMapping::RimWellTargetMapping()
 
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_saturationOil, "SaturationOil", 0.0, "Saturation Oil" );
     m_saturationOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -160,7 +166,25 @@ RimWellTargetMapping::RimWellTargetMapping()
                        "How much to increase the bounding box of the first case to cover for any grid size differences across the "
                        "ensemble." );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
+    // "DataFilter" is the grow filter; keeping the keyword keeps old project files working (an empty start filter falls back to it).
+    CAF_PDM_InitFieldNoDefault( &m_startDataFilter,
+                                "StartDataFilter",
+                                "Start Data Filter",
+                                "",
+                                "Limits where starting cells are searched for. If empty, the grow data filter is used." );
+    CAF_PDM_InitFieldNoDefault( &m_dataFilter,
+                                "DataFilter",
+                                "Grow Data Filter",
+                                "",
+                                "Limits where clusters can grow. If empty, clusters can grow anywhere in the model." );
+
+    CAF_PDM_InitField( &m_avoidFaults,
+                       "AvoidFaults",
+                       false,
+                       "Avoid Growing Across Faults",
+                       "",
+                       "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault faces per "
+                       "cell." );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
@@ -226,15 +250,15 @@ QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const
             caf::AppEnum<RigWellTargetMapping::VolumesType>::setEnumSubset( &m_volumesType, findAvailableVolumesTypes( fc ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_filterView )
+    else if ( fieldNeedingOptions == &m_dataFilter || fieldNeedingOptions == &m_startDataFilter )
     {
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-        if ( auto fc = firstCase() )
+        if ( auto collection = dataFilterCollection() )
         {
-            for ( const auto& view : fc->views() )
+            for ( auto filter : collection->filters() )
             {
-                RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+                options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
             }
         }
     }
@@ -285,15 +309,21 @@ void RimWellTargetMapping::updateAllBoundaries()
     };
 
     std::tie( m_minimumSaturationOil, m_maximumSaturationOil, m_defaultSaturationOil ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) },
+                              timeStepIdx );
     m_defaultSaturationOil = 0.3;
 
     std::tie( m_minimumSaturationGas, m_maximumSaturationGas, m_defaultSaturationGas ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) },
+                              timeStepIdx );
     m_defaultSaturationGas = 0.3;
 
     std::tie( m_minimumPressure, m_maximumPressure, m_defaultPressure ) =
-        updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) }, timeStepIdx );
+        updateBoundaryValues( resultsData,
+                              { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) },
+                              timeStepIdx );
 
     std::tie( m_minimumPermeability, m_maximumPermeability, m_defaultPermeability ) =
         updateBoundaryValues( resultsData, { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ) }, 0 );
@@ -304,73 +334,6 @@ void RimWellTargetMapping::updateAllBoundaries()
                                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ),
                                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) },
                               0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-
-{
-    if ( field == &m_saturationOil && m_minimumSaturationOil != cvf::UNDEFINED_DOUBLE && m_maximumSaturationOil != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumSaturationOil;
-            doubleAttributes->m_maximum  = m_maximumSaturationOil;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_saturationGas && m_minimumSaturationGas != cvf::UNDEFINED_DOUBLE && m_maximumSaturationGas != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumSaturationGas;
-            doubleAttributes->m_maximum  = m_maximumSaturationGas;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_pressure && m_minimumPressure != cvf::UNDEFINED_DOUBLE && m_maximumPressure != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumPressure;
-            doubleAttributes->m_maximum  = m_maximumPressure;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_permeability && m_minimumPermeability != cvf::UNDEFINED_DOUBLE && m_maximumPermeability != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumPermeability;
-            doubleAttributes->m_maximum  = m_maximumPermeability;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( field == &m_transmissibility && m_minimumTransmissibility != cvf::UNDEFINED_DOUBLE && m_maximumTransmissibility != cvf::UNDEFINED_DOUBLE )
-    {
-        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            doubleAttributes->m_minimum  = m_minimumTransmissibility;
-            doubleAttributes->m_maximum  = m_maximumTransmissibility;
-            doubleAttributes->m_decimals = 3;
-        }
-    }
-
-    if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum         = 0.0;
-            myAttr->m_maximum         = 1.0;
-            myAttr->m_sliderTickCount = 20;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,7 +461,23 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
 
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
-    if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
+    uiOrdering.add( &m_startDataFilter );
+    uiOrdering.add( &m_dataFilter );
+    uiOrdering.add( &m_avoidFaults );
+
+    auto setSliderRange = []( auto& field, double minimum, double maximum )
+    {
+        if ( minimum == cvf::UNDEFINED_DOUBLE || maximum == cvf::UNDEFINED_DOUBLE )
+            caf::PdmUiDoubleSliderEditor::clearRange( field.uiCapability() );
+        else
+            caf::PdmUiDoubleSliderEditor::setRange( field.uiCapability(), minimum, maximum );
+        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 3 );
+    };
+    setSliderRange( m_saturationOil, m_minimumSaturationOil, m_maximumSaturationOil );
+    setSliderRange( m_saturationGas, m_minimumSaturationGas, m_maximumSaturationGas );
+    setSliderRange( m_pressure, m_minimumPressure, m_maximumPressure );
+    setSliderRange( m_permeability, m_minimumPermeability, m_maximumPermeability );
+    setSliderRange( m_transmissibility, m_minimumTransmissibility, m_maximumTransmissibility );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
     if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );
@@ -559,44 +538,28 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
              .transmissibility = m_transmissibility,
              .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
+             .avoidFaults      = m_avoidFaults,
              .filterAddress    = m_resultDefinition->eclipseResultAddress(),
-             .filter           = getVisibilityFilter() };
+             .startDataFilter  = m_startDataFilter(),
+             .growDataFilter   = m_dataFilter() };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
+RimDataFilterCollection* RimWellTargetMapping::dataFilterCollection() const
 {
-    std::vector<double> filter = {};
-
-    // Visibility filter is only valid in the single case setting
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
-                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
-    if ( !hasEnsembleParent )
+    if ( auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
     {
-        auto fc = firstCase();
-        if ( m_filterView() && fc && fc->eclipseCaseData() )
-        {
-            cvf::ref<cvf::UByteArray> visibility = m_filterView->currentTotalCellVisibility();
-
-            auto activeReservoirCellIndices =
-                fc->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-            int numActiveCells = static_cast<int>( activeReservoirCellIndices.size() );
-
-            filter.resize( numActiveCells, std::numeric_limits<double>::infinity() );
-
-            // Create binary filter for active cells: 1.0 can be used, 0.0 is filtered out.
-#pragma omp parallel for
-            for ( int i = 0; i < numActiveCells; i++ )
-            {
-                const auto reservoirCellIndex = activeReservoirCellIndices[i];
-                filter[i]                     = visibility->val( reservoirCellIndex.value() ) ? 1.0 : 0.0;
-            }
-        }
+        return ensemble->dataFilterCollection();
     }
 
-    return filter;
+    if ( auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>() )
+    {
+        return eclipseCase->dataFilterCollection();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

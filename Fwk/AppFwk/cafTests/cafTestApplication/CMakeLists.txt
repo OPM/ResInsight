@@ -66,6 +66,8 @@ set(PROJECT_FILES
     PdmObjects/ValidationTest.cpp
     PdmObjects/ReentrantEditorRebuild.h
     PdmObjects/ReentrantEditorRebuild.cpp
+    PdmObjects/GroupVisibilityByEnum.h
+    PdmObjects/GroupVisibilityByEnum.cpp
 )
 
 qt_add_executable(
@@ -77,6 +79,8 @@ qt_add_executable(
   $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove
   # when we can use target_link_libraries with OBJECT libraries
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES AUTORCC ON)
 
 set(TAP_LINK_LIBRARIES cafUserInterface)
 
@@ -98,6 +102,15 @@ target_link_libraries(
   ${PROJECT_NAME} PRIVATE ${TAP_LINK_LIBRARIES} ${QT_LIBRARIES}
                           ${EXTERNAL_LINK_LIBRARIES}
 )
+
+# Make the executable runnable from its own folder (platform plugins etc.)
+if(WIN32 AND TARGET Qt6::windeployqt)
+  add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND Qt6::windeployqt --no-translations $<TARGET_FILE:${PROJECT_NAME}>
+  )
+endif()
 
 foreach(qtlib ${QT_LIBRARIES})
   add_custom_command(

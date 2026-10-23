@@ -18,22 +18,9 @@
 
 #include "RimGenericJob.h"
 
-#include "RiaColorTools.h"
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaQStringFormatter.h"
-
-#include "RimJobMonitor.h"
-#include "RimProcess.h"
-#include "RimProcessQueue.h"
-
-#include "RiuGuiTheme.h"
+#include "RiaTimer.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiTreeAttributes.h"
-#include "cafProgressInfo.h"
-
-#include <QMessageBox>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. Abstract class
 
@@ -41,13 +28,16 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. 
 ///
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::RimGenericJob()
-    : m_percentageDone( 0.0 )
-    , m_jobState( JobState::Idle )
-    , m_errorsDetected( 0 )
-    , m_warningsDetected( 0 )
-    , m_process( nullptr )
+    : m_jobState( JobState::Idle )
+    , m_refreshTimer( std::make_unique<RiaTimer>() )
+
 {
     CAF_PDM_InitObject( "Generic Job" );
+
+    CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
+    m_isChildJob.uiCapability()->setUiHidden( true );
+
+    m_refreshTimer->tick.connect( this, &RimGenericJob::onRefreshTimer );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,14 +45,31 @@ RimGenericJob::RimGenericJob()
 //--------------------------------------------------------------------------------------------------
 RimGenericJob::~RimGenericJob()
 {
+    m_refreshTimer->stop();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimGenericJob::percentageDone() const
+bool RimGenericJob::isRunning() const
 {
-    return m_percentageDone;
+    return ( m_jobState == JobState::Queued ) || ( m_jobState == JobState::Running );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericJob::JobState RimGenericJob::state() const
+{
+    return m_jobState;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setState( RimGenericJob::JobState state )
+{
+    m_jobState = state;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,206 +92,83 @@ void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericJob::workingDirectory() const
-{
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGenericJob::isRunning() const
-{
-    return ( m_jobState == JobState::Queued ) || ( m_jobState == JobState::Running );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGenericJob::JobState RimGenericJob::state() const
-{
-    return m_jobState;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGenericJob::stop()
-{
-    if ( !m_process.isNull() )
-    {
-        RimProcessQueue::stopProcess( m_process->ID() );
-        RiaLogging::info( std::format( "Job \"{}\" stopped by user.", name() ) );
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGenericJob::execute()
-{
-    if ( isRunning() ) return false;
-
-    m_errorsDetected   = 0;
-    m_warningsDetected = 0;
-    m_percentageDone   = 0.0;
-    m_process          = nullptr;
-    m_jobState         = JobState::Idle;
-
-    onProgress( m_percentageDone );
-
-    // job preparations
-    {
-        caf::ProgressInfo prepProgress( 1, name(), false );
-
-        auto prepRun = prepProgress.task( "Preparing for run, please wait..." );
-
-        if ( !onPrepare() )
-        {
-            m_jobState = JobState::Failed;
-            onProgress( m_percentageDone );
-            return false;
-        }
-    }
-
-    // check if we should run
-    if ( !onRun() ) return false;
-
-    QStringList cmdLine = command();
-    if ( cmdLine.isEmpty() )
-    {
-        m_jobState = JobState::Failed;
-        onProgress( m_percentageDone );
-        return false;
-    }
-
-    // cannot delete job while running
-    setDeletable( false );
-    m_jobState = JobState::Queued;
-
-    m_process = new RimProcess( true, new RimJobMonitor( this ) );
-
-    // build process to run
-    QString cmd = cmdLine.takeFirst();
-    m_process->setCommand( cmd );
-    if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
-    m_process->setWorkingDirectory( workingDirectory() );
-    for ( const auto& [name, value] : environment() )
-    {
-        m_process->addEnvironmentVariable( name, value );
-    }
-
-    RimProcessQueue::queueProcess( m_process );
-    onProgress( m_percentageDone );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGenericJob::setFinished( bool runOk )
-{
-    m_jobState = runOk ? JobState::Completed : JobState::Failed;
-
-    m_percentageDone = 100.0;
-    onProgress( m_percentageDone );
-    setDeletable( true );
-
-    onCompleted( runOk );
-
-    return runOk;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGenericJob::setStarted()
 {
-    m_jobState = RimGenericJob::JobState::Running;
-    onProgress( m_percentageDone );
+    m_startTime = QDateTime::currentDateTime();
+    m_stopTime  = QDateTime();
+    m_refreshTimer->start();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+double RimGenericJob::runTimeSeconds()
 {
-    static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
-    static auto contrastWarnColor =
-        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
-
-    static auto waitColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) );
-    static auto contrastWaitColor =
-        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) ) );
-
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    if ( m_startTime.isValid() )
     {
-        if ( m_jobState == JobState::Failed )
+        if ( isRunning() )
         {
-            auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
-            auto tag =
-                caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
+            return m_startTime.secsTo( QDateTime::currentDateTime() );
         }
-        else if ( m_jobState == JobState::Queued )
+        else if ( m_stopTime.isValid() )
         {
-            auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->text    = "Waiting...";
-            tag->bgColor = waitColor;
-            tag->fgColor = contrastWaitColor;
-            treeItemAttribute->tags.push_back( std::move( tag ) );
+            return m_startTime.secsTo( m_stopTime );
         }
-        else if ( ( m_jobState == JobState::Running ) || ( m_jobState == JobState::Completed ) )
-        {
-            auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
+    }
+    return 0.0;
+}
 
-            if ( m_jobState == JobState::Running )
-            {
-                tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
-            }
-            else
-            {
-                tag->text = "Done";
-            }
-
-            double factor = m_percentageDone / 100.0;
-
-            cvf::Color3f viewColor = cvf::Color3f( cvf::Color3f::GREEN );
-            viewColor.set( viewColor.r() * factor, viewColor.g() * factor, viewColor.b() * factor );
-            cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
-            tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
-            tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
-        if ( m_warningsDetected > 0 )
-        {
-            auto warnTxt = QString( "[%1]" ).arg( m_warningsDetected );
-
-            auto warnTag = caf::PdmUiTreeViewItemAttribute::createTag( warnColor, contrastWarnColor, warnTxt );
-            treeItemAttribute->tags.push_back( std::move( warnTag ) );
-            auto iconTag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            iconTag->icon = caf::IconProvider( ":/warning.png" );
-            treeItemAttribute->tags.push_back( std::move( iconTag ) );
-        }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setFinished( bool runOk )
+{
+    m_refreshTimer->stop();
+    m_stopTime = QDateTime::currentDateTime();
+    if ( runOk )
+    {
+        setState( RimGenericJob::Completed );
+    }
+    else
+    {
+        setState( RimGenericJob::Failed );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QStringList RimGenericJob::jobLog() const
+QString RimGenericJob::runTimeString()
 {
-    if ( m_process.isNull() ) return QStringList();
-    return m_process->stdOut();
+    double seconds = runTimeSeconds();
+    int    h       = static_cast<int>( seconds / 3600 );
+    int    m       = static_cast<int>( ( seconds - h * 3600 ) / 60 );
+    int    s       = static_cast<int>( seconds - h * 3600 - m * 60 );
+
+    return QString( "%1:%2:%3" ).arg( h, 2, 10, QChar( '0' ) ).arg( m, 2, 10, QChar( '0' ) ).arg( s, 2, 10, QChar( '0' ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGenericJob::matchesKeyValue( const QString& key, const QString& value ) const
+bool RimGenericJob::isChildJob() const
 {
-    return false;
+    return m_isChildJob();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::setIsChildJob( bool isChildJob )
+{
+    m_isChildJob = isChildJob;
+    if ( isChildJob ) setDeletable( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::onRefreshTimer( const SignalEmitter* emitter )
+{
+    if ( isRunning() ) updateConnectedEditors();
 }

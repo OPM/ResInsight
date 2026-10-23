@@ -565,8 +565,7 @@ QList<QPointer<RiuPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
     QList<QPointer<RiuPlotWidget>> plotWidgets;
     for ( QPointer<RiuPlotWidget> plotWidget : m_plotWidgets )
     {
-        CAF_ASSERT( plotWidget );
-        if ( plotWidget->isChecked() )
+        if ( plotWidget && plotWidget->isChecked() )
         {
             plotWidgets.push_back( plotWidget );
         }
@@ -642,6 +641,7 @@ const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotBook::pages() const
 RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 {
     RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
+    page->setHostsCommonLegend( m_pages.isEmpty() );
 
     applyPageSettings( page );
 

@@ -105,38 +105,6 @@ QString RicCellRangeUi::gridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCellRangeUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-    if ( !myAttr )
-    {
-        return;
-    }
-
-    const cvf::StructGridInterface* grid = RigReservoirGridTools::gridByIndex( m_case, m_gridIndex() );
-    if ( grid )
-    {
-        if ( field == &m_startIndexI || field == &m_cellCountI )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>( grid->cellCountI() );
-        }
-        else if ( field == &m_startIndexJ || field == &m_cellCountJ )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>( grid->cellCountJ() );
-        }
-        else if ( field == &m_startIndexK || field == &m_cellCountK )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>( grid->cellCountK() );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicCellRangeUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -306,6 +274,26 @@ void RicCellRangeUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     uiOrdering.add( &m_startIndexK );
     uiOrdering.add( &m_cellCountK );
+
+    if ( const cvf::StructGridInterface* grid = RigReservoirGridTools::gridByIndex( m_case, m_gridIndex() ) )
+    {
+        auto setRange = []( caf::PdmFieldHandle& field, size_t maximum )
+        { caf::PdmUiSliderEditor::setRange( field.uiCapability(), 1, static_cast<int>( maximum ) ); };
+
+        setRange( m_startIndexI, grid->cellCountI() );
+        setRange( m_cellCountI, grid->cellCountI() );
+        setRange( m_startIndexJ, grid->cellCountJ() );
+        setRange( m_cellCountJ, grid->cellCountJ() );
+        setRange( m_startIndexK, grid->cellCountK() );
+        setRange( m_cellCountK, grid->cellCountK() );
+    }
+    else
+    {
+        for ( auto* field : { &m_startIndexI, &m_cellCountI, &m_startIndexJ, &m_cellCountJ, &m_startIndexK, &m_cellCountK } )
+        {
+            caf::PdmUiSliderEditor::clearRange( field->uiCapability() );
+        }
+    }
 
     updateLegendText();
 }

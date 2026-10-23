@@ -45,6 +45,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimFishbones.h"
+#include "RimJobWellSettings.h"
 #include "RimKeywordFactory.h"
 #include "RimKeywordWconinje.h"
 #include "RimKeywordWconprod.h"
@@ -79,15 +80,6 @@ CAF_PDM_SOURCE_INIT( RimOpmFlowJob, "OpmFlowJob" );
 namespace caf
 {
 template <>
-void caf::AppEnum<RimOpmFlowJob::WellOpenType>::setUp()
-{
-    addItem( RimOpmFlowJob::WellOpenType::OPEN_BY_POSITION, "OpenByPosition", "By Position in File" );
-    addItem( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE, "AtSelectedDate", "By Date" );
-
-    setDefault( RimOpmFlowJob::WellOpenType::OPEN_AT_DATE );
-}
-
-template <>
 void caf::AppEnum<RimOpmFlowJob::DateAppendType>::setUp()
 {
     addItem( RimOpmFlowJob::DateAppendType::ADD_DAYS, "AppendDays", "Day(s)" );
@@ -105,6 +97,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
     , m_fileDeckIsRestart( false )
     , m_startStepForProgress( -1 )
+    , jobCompleted( this )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -112,6 +105,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     m_deckFileName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_workDir, "WorkDirectory", "Working Folder" );
+    m_workDir.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path for New Well" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case for Well Data", "", "Eclipse Case to use for Well Data" );
     CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
@@ -128,8 +122,14 @@ RimOpmFlowJob::RimOpmFlowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "WellGroupName", "Well Group Name" );
     m_wellGroupName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_EDITABLE_CONTENT, true );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ENABLE_AUTO_COMPLETE, false );
+    m_wellGroupName.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
 
-    CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_AT_DATE ), "Open Well" );
+    CAF_PDM_InitField( &m_wellOpenType,
+                       "WellOpenType",
+                       caf::AppEnum<RimJobWellSettings::WellOpenType>( RimJobWellSettings::WellOpenType::OPEN_AT_DATE ),
+                       "Open Well" );
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_wellOpenKeyword.xmlCapability()->disableIO();
@@ -154,6 +154,9 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_newDatesInterval, "NewDatesInterval", 1, "Interval" );
     CAF_PDM_InitField( &m_numberOfNewDates, "NumberOfNewDates", 12, "Number of Dates to Append" );
     CAF_PDM_InitField( &m_dateAppendType, "DateAppendType", caf::AppEnum<DateAppendType>( DateAppendType::ADD_MONTHS ), " " );
+
+    CAF_PDM_InitField( &m_autoLoadResults, "AutoLoadResults", true, "Automatic loading of results from job" );
+    m_autoLoadResults.uiCapability()->setUiHidden( true );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
@@ -251,37 +254,12 @@ bool RimOpmFlowJob::matchesKeyValue( const QString& key, const QString& value ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOpmFlowJob::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_workDir )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
-    else if ( field == &m_wellGroupName )
-    {
-        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->enableEditableContent  = true;
-            attr->enableAutoComplete     = false;
-            attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = false;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( isRunning() )
     {
-        auto runGrp = uiOrdering.addNewGroup( "Running" );
         m_workDir.uiCapability()->setUiReadOnly( true );
+        auto runGrp = uiOrdering.addNewGroup( "Running" );
         runGrp->add( &m_workDir );
         auto stopButton = runGrp->addNewButton( "Stop", [this]() { RicStopJobFeature::stopJob( this ); } );
         stopButton->setUiIconFromResourceString( ":/stop.svg" );
@@ -289,13 +267,25 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.skipRemainingFields();
         return;
     }
-    m_workDir.uiCapability()->setUiReadOnly( false );
 
+    if ( isChildJob() )
+    {
+        m_workDir.uiCapability()->setUiReadOnly( true );
+        uiOrdering.add( &m_workDir );
+        uiOrdering.skipRemainingFields();
+        return;
+    }
+
+    m_workDir.uiCapability()->setUiReadOnly( false );
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
     genGrp->add( &m_addToEnsemble );
+
+    auto runButton = genGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
+    runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setAlignment( Qt::AlignCenter );
 
     if ( m_eclipseCase() == nullptr )
     {
@@ -331,7 +321,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
             if ( m_fileDeckHasDates )
             {
-                if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
+                if ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
                 {
                     wellGrp->add( &m_openTimeStep );
                     if ( !m_fileDeckIsRestart )
@@ -344,7 +334,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
                     }
                     if ( m_eclipseCase() ) wellGrp->add( &m_includeMSWData );
                 }
-                else if ( m_wellOpenType == WellOpenType::OPEN_BY_POSITION )
+                else if ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_BY_POSITION )
                 {
                     createOpenPostionButton = true;
                 }
@@ -354,7 +344,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
             {
                 createOpenPostionButton = true;
 
-                m_wellOpenType = WellOpenType::OPEN_BY_POSITION;
+                m_wellOpenType = RimJobWellSettings::WellOpenType::OPEN_BY_POSITION;
                 m_wellOpenType.uiCapability()->setUiReadOnly( true );
             }
 
@@ -386,11 +376,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     }
 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
-
-    auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
-    runButton->setUiIconFromResourceString( ":/Play.svg" );
-    runButton->setAlignment( Qt::AlignCenter );
-
+    opmGrp->setCollapsedByDefault();
     opmGrp->add( &m_pauseBeforeRun );
 
     m_jobSettings->uiOrdering( opmGrp, false /* expand by default */ );
@@ -565,6 +551,14 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setJobSettings( RimOpmFlowJobSettings* jobSettings )
+{
+    m_jobSettings = jobSettings->copyObject<RimOpmFlowJobSettings>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::openDeckFile()
 {
     if ( m_deckFile.get() == nullptr )
@@ -703,6 +697,15 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimOpmFlowJob::numberOfProcesses()
+{
+    if ( !RiaPreferencesOpm::current()->useMpi() ) return 1;
+    return m_jobSettings()->mpiProcesses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -716,9 +719,6 @@ QStringList RimOpmFlowJob::command()
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
     {
-        cmd.append( RiaWslTools::wslCommand() );
-        cmd.append( opmPref->wslOptions() );
-
         workDir  = RiaWslTools::convertToWslPath( workDir );
         dataFile = RiaWslTools::convertToWslPath( dataFile );
     }
@@ -727,7 +727,7 @@ QStringList RimOpmFlowJob::command()
     {
         cmd.append( opmPref->mpirunCommand() );
         cmd.append( QString( "-np" ) );
-        cmd.append( QString( "%1" ).arg( m_jobSettings->mpiProcesses() ) );
+        cmd.append( QString( "%1" ).arg( numberOfProcesses() ) );
     }
 
     cmd.append( opmPref->opmFlowCommand() );
@@ -737,19 +737,6 @@ QStringList RimOpmFlowJob::command()
     cmd.append( m_jobSettings->commandLineOptions( workingDirectory(), workDir ) );
 
     return cmd;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RimOpmFlowJob::environment()
-{
-    auto opmPref = RiaPreferencesOpm::current();
-    if ( opmPref->useWsl() )
-    {
-        return RiaWslTools::wslEnvironmentVariables();
-    }
-    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -811,28 +798,40 @@ bool RimOpmFlowJob::onPrepare()
         }
         m_wellPath->completionSettings()->setGroupName( m_wellGroupName() );
 
+        // well data needs the case to be open, this is not necessarily true for ensemble
+        bool needToOpenCase = !m_eclipseCase->isReservoirCaseOpen();
+        if ( needToOpenCase )
+        {
+            m_eclipseCase->ensureReservoirCaseIsOpen();
+        }
+
         int mergePosition = mergeBasicWellSettings();
         if ( mergePosition < 0 )
         {
+            if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
             RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
             return false;
         }
 
-        if ( ( m_includeMSWData ) && ( m_wellOpenType == WellOpenType::OPEN_AT_DATE ) )
+        if ( ( m_includeMSWData ) && ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE ) )
         {
             mergePosition = mergeMswData( mergePosition );
             if ( mergePosition < 0 )
             {
+                if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
                 RiaLogging::error( "Failed to merge MSW data into file deck." );
                 return false;
             }
         }
 
+        // close cases that was previously closed to save memory
+        if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
+
         Opm::DeckKeyword openKeyword = ( m_wellOpenKeyword() == "WCONPROD" ) ? m_wconprodKeyword->keyword( wellNameInDeck )
                                                                              : m_wconinjeKeyword->keyword( wellNameInDeck );
 
         // open new well at selected timestep
-        if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+        if ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
         {
             if ( !m_deckFile->openWellAtTimeStep( m_openTimeStep(), openKeyword ) )
             {
@@ -916,10 +915,29 @@ void RimOpmFlowJob::onProgress( double percentageDone )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::shouldUseWsl()
+{
+    return RiaPreferencesOpm::current()->useWsl();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::onCompleted( bool success )
 {
-    if ( !success ) return;
+    if ( success && m_autoLoadResults() )
+    {
+        loadResults();
+    }
 
+    jobCompleted.send( success );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::loadResults()
+{
     QString outputEgridFileName = workingDirectory() + "/" + deckName() + ".EGRID";
     if ( !QFile::exists( outputEgridFileName ) ) return;
 
@@ -1044,13 +1062,18 @@ int RimOpmFlowJob::mergeBasicWellSettings()
     auto complumpKw = RimKeywordFactory::complumpKeyword( compdata, wellName );
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
-    if ( welspecsKw.empty() || compdatKw.empty() )
+    if ( compdatKw.empty() )
     {
-        RiaLogging::error( "Failed to create WELSPECS and COMPDAT keywords for selected well path. Do you have a valid case selected?" );
+        RiaLogging::warning( "Failed to create COMPDAT keyword for selected well path. Do you have a valid case selected?" );
+    }
+
+    if ( welspecsKw.empty() )
+    {
+        RiaLogging::error( "Failed to create WELSPECS keyword for selected well path. Do you have a valid case selected?" );
         return failure;
     }
 
-    if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+    if ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
     {
         // reverse order for correct insertion order
         if ( !complumpKw.empty() )
@@ -1122,13 +1145,18 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     auto wsegaicdKw  = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
     auto wsegsicdKw  = RimKeywordFactory::wsegsicdKeyword( mswDataResult.value() );
 
-    if ( welsegsKw.empty() || compsegsKw.empty() )
+    if ( compsegsKw.empty() )
     {
-        RiaLogging::error( "Failed to create WELSEGS or COMPSEGS keyword from MSW data." );
-        return failure;
+        RiaLogging::warning( "Unable to create COMPSEGS keyword from MSW data, skipping MSW export. Is the wellpath outside the grid?" );
+        return ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE ) ? 0 : mergePosition;
     }
 
-    if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
+    if ( welsegsKw.empty() )
+    {
+        RiaLogging::warning( "Unable to create WELSEGS keyword from MSW data. Is the wellpath outside the grid?" );
+    }
+
+    if ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
     {
         // make sure we insert after COMPDAT kw
         if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
@@ -1279,4 +1307,32 @@ std::vector<QString> RimOpmFlowJob::wellgroupsInFileDeck()
 QString RimOpmFlowJob::jobInputFileKey()
 {
     return "OpmFlowInputFile";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setJobWellSettings( RimJobWellSettings* jobWellSettings )
+{
+    if ( jobWellSettings == nullptr ) return;
+
+    m_addNewWell      = jobWellSettings->addNewWell();
+    m_wellPath        = jobWellSettings->wellPath();
+    m_wellGroupName   = jobWellSettings->wellGroupName();
+    m_openTimeStep    = jobWellSettings->openTimeStep();
+    m_wellOpenType    = jobWellSettings->wellOpenType();
+    m_wellOpenKeyword = jobWellSettings->wellOpenKeyword();
+    m_wconinjeKeyword = jobWellSettings->wconinjeKeyword();
+    m_wconprodKeyword = jobWellSettings->wconprodKeyword();
+    m_includeMSWData  = jobWellSettings->includeMSWData();
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
+{
+    m_autoLoadResults = autoLoadResults;
 }

@@ -37,6 +37,9 @@ RimHistogramCurveCollection::RimHistogramCurveCollection()
     : curvesChanged( this )
 {
     CAF_PDM_InitObject( "Histogram Curves", ":/HistogramCurveFilter16x16.png" );
+    uiCapability()->setAttribute<std::function<caf::PdmObjectHandle*()>>( caf::PdmUiTreeViewEditor::Keys::CURRENT_OBJECT,
+                                                                          [this]() -> caf::PdmObjectHandle*
+                                                                          { return m_currentHistogramCurve.p(); } );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Curves" );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimHistogramCurveCollection::onCurvesReordered );
@@ -318,18 +321,6 @@ void RimHistogramCurveCollection::defineUiOrdering( QString uiConfigName, caf::P
 caf::PdmFieldHandle* RimHistogramCurveCollection::objectToggleField()
 {
     return &m_showCurves;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimHistogramCurveCollection::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
-    if ( myAttr && m_currentHistogramCurve.notNull() )
-    {
-        myAttr->currentObject = m_currentHistogramCurve.p();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -85,32 +85,53 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
         if ( !snapshotPath.mkpath( "." ) ) return;
     }
 
-    const QString absSnapshotPath = snapshotPath.absolutePath();
-
     std::vector<RimViewWindow*> viewWindows = RimMainPlotCollection::current()->descendantsIncludingThisOfType<RimViewWindow>();
     for ( auto viewWindow : viewWindows )
     {
         if ( viewWindow->isMainDockedWindow() && viewWindow->viewWidget() && ( viewId == -1 || viewId == viewWindow->id() ) )
         {
-            QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow );
-            if ( !prefix.isEmpty() )
-            {
-                fileName = prefix + fileName;
-            }
-
-            fileName.replace( " ", "_" );
-
-            if ( activateWidget )
-            {
-                RiuPlotMainWindowTools::selectAsCurrentItem( viewWindow );
-                QApplication::processEvents();
-            }
-
-            QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, preferredFileSuffix );
-
-            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, viewWindow, width, height );
+            exportSnapshotOfPlot( viewWindow, snapshotPath.absolutePath(), width, height, activateWidget, prefix, preferredFileSuffix );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Export a snapshot of a single plot window into the given folder. The folder is created if it does not exist.
+/// <= 0 for width and height means to use the existing size
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlot( RimViewWindow* viewWindow,
+                                                             const QString& snapshotFolderName,
+                                                             int            width,
+                                                             int            height,
+                                                             bool           activateWidget,
+                                                             const QString& prefix,
+                                                             const QString& preferredFileSuffix )
+{
+    if ( !viewWindow ) return;
+
+    QDir snapshotPath( snapshotFolderName );
+    if ( !snapshotPath.exists() )
+    {
+        if ( !snapshotPath.mkpath( "." ) ) return;
+    }
+
+    QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow );
+    if ( !prefix.isEmpty() )
+    {
+        fileName = prefix + fileName;
+    }
+
+    fileName.replace( " ", "_" );
+
+    if ( activateWidget )
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( viewWindow );
+        QApplication::processEvents();
+    }
+
+    QString absoluteFileName = caf::Utils::constructFullFileName( snapshotPath.absolutePath(), fileName, preferredFileSuffix );
+
+    RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, viewWindow, width, height );
 }
 
 //--------------------------------------------------------------------------------------------------

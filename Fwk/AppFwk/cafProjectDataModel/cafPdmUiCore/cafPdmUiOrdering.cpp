@@ -38,6 +38,7 @@
 
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiButton.h"
+#include "cafPdmUiButtonBox.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiLabel.h"
 #include "cafPdmUiObjectHandle.h"
@@ -98,6 +99,19 @@ PdmUiButton*
     m_createdButtons.push_back( std::move( button ) );
 
     return m_createdButtons.back().get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiButtonBox* PdmUiOrdering::addNewButtonBox( LayoutOptions layout )
+{
+    auto buttonBox = std::make_unique<PdmUiButtonBox>();
+
+    m_ordering.emplace_back( buttonBox.get(), layout );
+    m_createdButtonBoxes.push_back( std::move( buttonBox ) );
+
+    return m_createdButtonBoxes.back().get();
 }
 
 //--------------------------------------------------------------------------------------------------

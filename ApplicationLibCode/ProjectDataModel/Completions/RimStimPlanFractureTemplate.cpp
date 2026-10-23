@@ -78,6 +78,8 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
+    m_propertiesTable.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_propertiesTable.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
 
     CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -689,26 +691,6 @@ void RimStimPlanFractureTemplate::defineUiOrdering( QString uiConfigName, caf::P
 QString RimStimPlanFractureTemplate::getFileSelectionFilter() const
 {
     return "StimPlan Xml Files(*.xml);;All Files (*.*)";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute )
-{
-    RimMeshFractureTemplate::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_propertiesTable )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

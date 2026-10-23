@@ -76,8 +76,6 @@ caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( &faultColor == changedField || &showFault == changedField )
     {
         auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
@@ -87,14 +85,6 @@ void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
             reservoirView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultInView::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -53,7 +53,7 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 ## Development Notes
 
 - **Version**: Current version defined in `ResInsightVersion.cmake` (2025.04.4-dev)
-- **Git Workflow**: Main development on `dev` branch, `master` branch for stable releases
+- **Git Workflow**: Main development on `dev` branch, releases are defined by tags (e.g. `v2026.09.1`)
 - **Dependencies**: Extensive third-party integration via git submodules in `ThirdParty/`
 - **Build Output**: Goes to `CMAKE_RUNTIME_OUTPUT_DIRECTORY` (CMAKE_CURRENT_BINARY_DIR)
 - **Qt Integration**: Uses Qt's resource system (.qrc files) for UI resources
@@ -74,11 +74,13 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 ### Commit Conventions
 - When creating a git commit for a feature request use the issue number at the start of the title, e.g "#12773 Python: Add API for creating valve templates"
 - When creating a commit use git conventions
+- Keep the commit message short and concise: a one-line title, and only as much body text as needed to explain the "why" — avoid long, exhaustive explanations
 - Always run python formatting/check on changed files before commits
 - When you change a CMake file and `cmakelang` is available, run `cmake-format -c cmake/cmake-format.py -i <file>` before committing (see `docs/agents/coding-style.md`)
 
 ### PR Conventions
 - Do not include a test plan in the PR description
+- Keep the PR description short and concise: a few short sections (e.g. Problem / Fix / Testing) with 1-3 sentences each, not an exhaustive report
 
 ## Making PDM Objects Scriptable for Python GRPC Interface
 
@@ -163,6 +165,82 @@ segments = well_path.segment_collection()
 interval = segments.add_segment_interval(start_md=100, end_md=200)
 print(f"Start: {interval.start_md}, End: {interval.end_md}")
 ```
+
+## Scriptable Object Methods (Rimc) and the Legacy Command File Interface (Ricf)
+
+ResInsight has two command systems. New functionality goes into **object methods**; the legacy
+command file interface is a thin forwarding layer kept for backward compatibility.
+
+### Object methods (`ApplicationLibCode/ProjectDataModelCommands/Rimc*.{h,cpp}`)
+
+- Subclass `caf::PdmVoidObjectMethod` (no return), `caf::PdmObjectCreationMethod` (returns a new
+  persistent object) or `caf::PdmObjectMethod` (returns a transient container such as
+  `RimcDataContainerString`).
+- Register with `CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimTargetClass, RimTargetClass_methodName, "methodName" )`.
+  Use **camelCase** keywords; the Python generator converts them to snake_case.
+- Name the class `<TargetClass>_<methodName>`, e.g. `RimCase_replaceGrid`, `RimEclipseView_exportVisibleCells`.
+- Parameters are `CAF_PDM_InitScriptableField` fields. Pass **objects, not ids**: use
+  `caf::PdmPtrField<T*>` / `caf::PdmPtrArrayField<T*>` (generated as `T` / `List[T]` in Python).
+  Enum parameters use `caf::PdmField<caf::AppEnum<E>>` and are generated as Python `StrEnum`s; pin the
+  Python class name with `caf::PdmScriptEnumNameRegistry::registerName<E>( "Name" )`.
+- Set the `whatsThis` text (third variadic argument of `CAF_PDM_InitScriptableField`) - it becomes the
+  argument description in the generated Python docstring.
+- Paths are **explicit parameters**. Object methods must not read `RicfCommandFileExecutor` state
+  (`getExportPath()`, `getLastProjectPath()`) or depend on `CommandFileInterface/` at all.
+- Return errors with `std::unexpected( QString )`; do not log-and-return-nullptr.
+- Provide typed public setters (`setExportFolder( const QString& )` ...) so C++ callers (in particular
+  the Ricf forwarders) can populate the method without going through gRPC.
+- Guard GUI-only code with `RiaGuiApplication::isRunning()`; methods must work in headless mode.
+- Child objects (`PdmChildField`) are **not** supported as method parameters over gRPC.
+
+### Legacy command file commands (`ApplicationLibCode/CommandFileInterface/Ricf*.{h,cpp}`)
+
+`RicfCommandObject` subclasses are the command-file syntax (`--commandFile`) and the handlers for the
+legacy `Commands.proto` gRPC service. Their keywords, fields and `Commands.proto` **must not change**.
+
+A Ricf `execute()` should only:
+1. Resolve ids to objects with the helpers in `RicfCommandForwarding.h`
+   (`findCase`, `findView`, `findCaseGroup`, `findFractureTemplate`, `findWellLogPlot`, ...).
+2. Resolve executor state (export folders, last project path) into explicit values.
+3. Construct the Rimc method, call its setters, call `execute()`, and convert the result with
+   `RicfForwarding::toScriptResponse()` / `errorResponse()`.
+4. Loop when the legacy command accepts multiple ids and the object method is single-object.
+
+```cpp
+caf::PdmScriptResponse RicfExportMsw::execute()
+{
+    const QString commandName = classKeyword();
+
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
+    if ( !eclipseCase ) return RicfForwarding::errorResponse( "Not an Eclipse case", commandName );
+
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
+
+    RimEclipseCase_exportMswCompletions method( eclipseCase );
+    method.setWellPaths( { wellPath } );
+    method.setExportFolder( exportFolder );
+
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
+}
+```
+
+Commands that only manipulate application or executor state (`openProject`, `closeProject`,
+`saveProject`, `setStartDir`, `setExportFolder`, `setMainWindowSize`, `setPlotWindowSize`,
+`exportMultiCaseSnapshots`, `replaceMultipleCases`) intentionally remain Ricf-only.
+
+### Python wrappers (`GrpcInterface/Python/rips/*.py`)
+
+- Prefer the generated method. Remove a hand-written wrapper when the generated method has the same
+  name and a compatible signature.
+- A generated method on a **subclass** (e.g. `Reservoir`) shadows a hand-written wrapper on the base
+  class (`Case`) through normal attribute lookup. A deprecation shim on the base class is then never
+  reached; either remove the wrapper or give the object method a different keyword.
+- When the old wrapper must stay (different argument names, id-based lookups, client-side
+  conveniences), keep it thin, forward to the generated method, and emit
+  `warnings.warn( "...", DeprecationWarning, stacklevel=3 )` (`add_method` adds one frame).
 
 ## Field Validation in Python GRPC Interface
 
@@ -307,19 +385,17 @@ m_comboBoxField.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::BU
 **Old pattern (deprecated):**
 ```cpp
 // In defineEditorAttribute() override
-auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+auto* myAttr = dynamic_cast<caf::PdmUiSomeEditorAttribute*>( attribute );
 if ( myAttr )
 {
-    myAttr->adjustWidthToContents = true;
-    myAttr->minimumContentsLength = 15;
+    myAttr->someMember = true;
 }
 ```
 
 **New pattern:**
 ```cpp
 // In field initialization or elsewhere
-m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::ADJUST_WIDTH_TO_CONTENTS, true );
-m_field.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 15 );
+m_field.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 ```
 
 ### Common Attribute Examples

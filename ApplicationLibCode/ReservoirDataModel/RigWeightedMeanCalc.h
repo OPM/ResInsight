@@ -20,6 +20,7 @@
 
 #include "cvfArray.h"
 
+#include <optional>
 #include <vector>
 
 class RigActiveCellInfo;
@@ -27,11 +28,12 @@ class RigActiveCellInfo;
 class RigWeightedMeanCalc
 {
 public:
-    static void weightedMeanOverCells( const std::vector<double>* weights,
-                                       const std::vector<double>* values,
-                                       const cvf::UByteArray*     cellVisibilities,
-                                       bool                       isUsingVisibleCells,
-                                       const RigActiveCellInfo*   actCellInfo,
-                                       bool                       isUsingActiveIndex,
-                                       double*                    result );
+    // Returns the weighted mean over the given cells, or an empty optional if the mean can not be computed,
+    // ie. when required input data is missing or the sum of weights is zero.
+    static std::optional<double> weightedMeanOverCells( const std::vector<double>* weights,
+                                                        const std::vector<double>* values,
+                                                        const cvf::UByteArray*     cellVisibilities,
+                                                        bool                       isUsingVisibleCells,
+                                                        const RigActiveCellInfo*   actCellInfo,
+                                                        bool                       isUsingActiveIndex );
 };

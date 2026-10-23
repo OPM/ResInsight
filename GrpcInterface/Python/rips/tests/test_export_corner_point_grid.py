@@ -204,6 +204,21 @@ def test_create_corner_point_grid_geometry_properties(rips_instance, initialize_
         assert values["DEPTH"][active_index] == pytest.approx(1050.0 + k * 100.0)
 
 
+def test_create_corner_point_grid_does_not_create_view(rips_instance, initialize_test):
+    """Creating a grid from the python API must not create a view (issue #14828)."""
+
+    nx, ny, nz = 1, 1, 1
+    coord = [0, 0, 1000, 0, 0, 1100] * 4
+    zcorn = [1000] * 4 + [1100] * 4
+    actnum = [1]
+
+    case = rips_instance.project.create_corner_point_grid(
+        "NoViewGrid", nx, ny, nz, coord, zcorn, actnum
+    )
+
+    assert len(case.views()) == 0
+
+
 def test_export_corner_point_grid_return_types(rips_instance, initialize_test):
     """Test that export_corner_point_grid returns the correct types"""
 

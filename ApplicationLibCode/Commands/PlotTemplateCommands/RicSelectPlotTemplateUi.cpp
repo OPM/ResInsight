@@ -43,6 +43,7 @@ RicSelectPlotTemplateUi::RicSelectPlotTemplateUi()
     CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates" );
     m_selectedPlotTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedPlotTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_selectedPlotTemplates.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SINGLE_SELECTION_MODE, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +52,7 @@ RicSelectPlotTemplateUi::RicSelectPlotTemplateUi()
 void RicSelectPlotTemplateUi::setMultiSelectMode( bool multiSelect )
 {
     m_useMultiSelect = multiSelect;
+    m_selectedPlotTemplates.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SINGLE_SELECTION_MODE, !multiSelect );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,19 +110,4 @@ QList<caf::PdmOptionItemInfo> RicSelectPlotTemplateUi::calculateValueOptions( co
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSelectPlotTemplateUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_selectedPlotTemplates == field )
-    {
-        auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( a )
-        {
-            a->singleSelectionMode = !m_useMultiSelect;
-        }
-    }
 }

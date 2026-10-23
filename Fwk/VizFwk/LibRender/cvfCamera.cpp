@@ -43,9 +43,46 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryUtils.h"
 
+#include <limits>
+
 namespace cvf {
 
+namespace {
 
+//--------------------------------------------------------------------------------------------------
+/// A zero, undefined or non-finite view direction cannot define a view; fall back to looking along the Y axis
+//--------------------------------------------------------------------------------------------------
+Vec3d validViewDirection(const Vec3d& dir)
+{
+    const double length = dir.length();
+    if (!dir.isUndefined() && length > 0.0 && length < std::numeric_limits<double>::max()) return dir;
+
+    return Vec3d::Y_AXIS;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns an up vector guaranteed to be non-parallel to dir. If the passed up vector is already
+/// non-parallel to dir, it is returned unchanged. Otherwise a corrected, orthogonal up vector is
+/// derived from an arbitrary fallback axis not parallel to dir.
+//--------------------------------------------------------------------------------------------------
+Vec3d nonParallelUpVector(const Vec3d& dir, const Vec3d& up)
+{
+    cvf::Vec3d right = dir^up;
+    if (right.normalize())
+    {
+        return up;
+    }
+
+    const cvf::Vec3d& fallbackAxis = (cvf::Math::abs(dir.x()) < 0.9) ? cvf::Vec3d::X_AXIS : cvf::Vec3d::Y_AXIS;
+    cvf::Vec3d fallbackRight = dir^fallbackAxis;
+    fallbackRight.normalize();
+
+    cvf::Vec3d correctedUp = fallbackRight^dir;
+    correctedUp.normalize();
+    return correctedUp;
+}
+
+} // namespace
 
 //==================================================================================================
 ///
@@ -286,31 +323,43 @@ void Camera::setProjectionAsPixelExact2D()
 /// the view to. The relativeDistance parameter specifies the distance from the camera to the 
 /// center of the bounding box
 //--------------------------------------------------------------------------------------------------
-void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor)
+void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dirIn, const Vec3d& up, double coverageFactor)
 {
+    const cvf::Vec3d dir = validViewDirection(dirIn);
+
+    // dir and up may be parallel (degenerate camera orientation); derive a corrected, non-parallel
+    // up vector so both the eye computation and the final look-at matrix use a consistent basis.
+    cvf::Vec3d correctedUp = nonParallelUpVector(dir, up);
+
     // Use old view direction, but look towards model center
-    Vec3d eye = computeFitViewEyePosition(boundingBox, dir, up, coverageFactor, m_fieldOfViewYDeg, viewport()->aspectRatio());
+    Vec3d eye = computeFitViewEyePosition(boundingBox, dir, correctedUp, coverageFactor, m_fieldOfViewYDeg, viewport()->aspectRatio());
 
     // Will update cached values
-    setFromLookAt(eye, boundingBox.center(), up);
+    setFromLookAt(eye, boundingBox.center(), correctedUp);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
+Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dirIn, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
 {
+    const cvf::Vec3d dir = validViewDirection(dirIn);
+
     cvf::Vec3d corners[8];
     boundingBox.cornerVertices(corners);
 
-    cvf::Vec3d upNorm = up.getNormalized();
-    cvf::Vec3d right = dir^up;
+    // dir and up may be parallel (degenerate camera orientation); derive a corrected, non-parallel
+    // up vector so upNorm, planeTop and right are all consistent with each other.
+    cvf::Vec3d correctedUp = nonParallelUpVector(dir, up);
+
+    cvf::Vec3d upNorm = correctedUp.getNormalized();
+    cvf::Vec3d right = dir^correctedUp;
     right.normalize();
     cvf::Vec3d boxEyeNorm = (-dir).getNormalized();
 
     cvf::Plane planeTop;
-    planeTop.setFromPointAndNormal(boundingBox.center(), up);
+    planeTop.setFromPointAndNormal(boundingBox.center(), correctedUp);
 
     cvf::Plane planeSide;
     planeSide.setFromPointAndNormal(boundingBox.center(), right);

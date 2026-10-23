@@ -17,9 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RimPlotWindow.h"
 #include "RimReportPlotGroup.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
@@ -28,6 +31,7 @@
 
 class RimParameterRftCrossPlot;
 class RimRftTornadoPlot;
+class RimWellLogTrack;
 class RimWellRftPlot;
 
 namespace ads
@@ -63,6 +67,7 @@ public:
     std::vector<RimPlot*> childPlotsForTextExport() const override;
 
     void initializeFromSourcePlot( RimWellRftPlot* source );
+    void syncEnsembleParameterToRftCurves();
 
 private:
     QString createDescription() const;
@@ -70,6 +75,7 @@ private:
     void    cleanupBeforeClose();
 
     void     setupBeforeSave() override;
+    void     initAfterRead() override;
     void     doRenderWindowContent( QPaintDevice* paintDevice ) override;
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
@@ -79,11 +85,18 @@ private:
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void     doUpdateLayout() override {}
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void updateDockTitleBarsVisibility();
     void syncCrossPlotSelectionToRftPlot();
     void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
+    void applyDepthTypeToSubPlots();
+    void applyWellFormationsToSubPlots();
+    void installTrackClickFilters();
+    void updateSelectedZoneHighlight();
+    void syncZoneColorsToCrossPlot();
+    void onRftTrackDepthClicked( RimWellLogTrack* track, double depth );
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -92,11 +105,14 @@ private:
     caf::PdmChildField<RimParameterRftCrossPlot*> m_parameterRftCrossPlot;
     caf::PdmChildField<RimRftTornadoPlot*>        m_tornadoPlot;
 
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>> m_depthType;
+
     caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;
 
     QWidget*           m_viewWidget            = nullptr;
     QObject*           m_contextMenuFilter     = nullptr;
+    QObject*           m_trackClickFilter      = nullptr;
     ads::CDockManager* m_dockManager           = nullptr;
     ads::CDockWidget*  m_rftDockWidget         = nullptr;
     ads::CDockWidget*  m_correlationDockWidget = nullptr;

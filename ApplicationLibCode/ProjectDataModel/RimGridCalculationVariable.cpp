@@ -63,6 +63,7 @@ RimGridCalculationVariable::RimGridCalculationVariable()
 
     CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_button );
+    m_button.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::CellKeys::PUSH_BUTTON_TEXT, "Edit" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,18 +103,6 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
 
     m_resultType.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
     m_timeStep.uiCapability()->setUiReadOnly( m_resultType == RiaDefines::ResultCatType::STATIC_NATIVE );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    auto attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
-    if ( attr )
-    {
-        attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

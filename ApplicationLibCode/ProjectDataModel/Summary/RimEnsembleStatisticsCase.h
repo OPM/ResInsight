@@ -49,7 +49,8 @@ public:
     void calculate( const std::vector<RimSummaryCase*>& summaryCases,
                     const RifEclipseSummaryAddress&     inputAddress,
                     bool                                includeIncompleteCurves,
-                    const std::vector<int>&             percentiles = { 10, 50, 90 } );
+                    const std::vector<int>&             percentiles       = { 10, 50, 90 },
+                    bool                                includeZeroValues = true );
 
     std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;

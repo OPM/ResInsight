@@ -27,11 +27,11 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimWellEventPerf::State>::setUp()
+void caf::AppEnum<RimWellEventEnums::State>::setUp()
 {
-    addItem( RimWellEventPerf::State::OPEN, "OPEN", "Open" );
-    addItem( RimWellEventPerf::State::SHUT, "SHUT", "Shut" );
-    setDefault( RimWellEventPerf::State::OPEN );
+    addItem( RimWellEventEnums::State::OPEN, "OPEN", "Open" );
+    addItem( RimWellEventEnums::State::SHUT, "SHUT", "Shut" );
+    setDefault( RimWellEventEnums::State::OPEN );
 }
 } // namespace caf
 

@@ -45,18 +45,6 @@
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    QString timeFormat;
-
-public:
-    PdmUiTimeEditorAttribute() {}
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +60,7 @@ public:
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
     {
+        // Plain string or std::function<QString()>, set with setAttribute()
         static inline const QString TIME_FORMAT = QStringLiteral( "timeFormat" );
     };
 
@@ -88,8 +77,6 @@ protected slots:
 
 private:
     QPointer<QTimeEdit> m_timeEdit;
-
-    PdmUiTimeEditorAttribute m_attributes;
 };
 
 } // end namespace caf

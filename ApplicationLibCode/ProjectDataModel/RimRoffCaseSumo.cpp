@@ -191,6 +191,14 @@ int RimRoffCaseSumo::realization() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSumoDataSource* RimRoffCaseSumo::dataSource() const
+{
+    return m_sumoDataSource();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Every realization downloads and parses its own grid blob, because a roff grid carries its geometry and
 /// its active cells in one stream and there is no way to read the active cells alone. When the ensemble
 /// already holds a grid of the same dimensions, the geometry just parsed is released and the shared grid

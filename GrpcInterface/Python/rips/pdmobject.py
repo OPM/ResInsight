@@ -521,6 +521,11 @@ class PdmObjectBase:
         )
         try:
             pb2_object = self._pdm_object_stub.GetAncestorPdmObject(request)
+            from .generated.generated_classes import class_from_keyword
+
+            actual_class = class_from_keyword(pb2_object.class_keyword)
+            if actual_class is not None and issubclass(actual_class, class_definition):
+                class_definition = actual_class
             pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             return pdm_object
         except grpc.RpcError as e:

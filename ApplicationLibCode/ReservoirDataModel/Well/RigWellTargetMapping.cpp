@@ -40,6 +40,7 @@
 #include "RigNNCData.h"
 #include "RigStatisticsMath.h"
 
+#include "RimCellFilterTools.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
@@ -115,7 +116,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         }
     }
 
-    RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+    RigEclipseResultAddress pressureAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() );
     resultsData->ensureKnownResultLoaded( pressureAddress );
     data.pressure = resultsData->cellScalarResults( pressureAddress, timeStepIdx );
 
@@ -145,22 +146,55 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         data.transmissibilityNNC = nullptr;
     }
 
-    std::vector<double> filterVector;
-    if ( !limits.filter.empty() )
-    {
-        filterVector = limits.filter;
-    }
-    else if ( limits.filterAddress.isValid() )
-    {
-        resultsData->ensureKnownResultLoaded( limits.filterAddress );
-        filterVector = resultsData->cellScalarResults( limits.filterAddress, timeStepIdx );
-    }
+    if ( limits.avoidFaults && mainGrid != nullptr ) data.isFaultNnc = RigWellTargetMappingTools::findFaultNncs( mainGrid );
 
-    // Disable filtering if not configured: set all items to 1 (which includes all cells).
-    if ( filterVector.empty() || filterVector.size() != data.pressure.size() )
+    // Evaluate for each realization after opening its grid, using the mapping's time step.
+    auto computeFilterVector = [&]( RimCellFilter* dataFilter ) -> std::vector<double>
     {
-        filterVector = std::vector<double>( data.pressure.size(), 1.0 );
-    }
+        std::vector<double> filterVector;
+        if ( dataFilter )
+        {
+            auto visibility = RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eclipseCase, timeStepIdx );
+            if ( visibility.notNull() )
+            {
+                auto activeReservoirCellIndices =
+                    caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+                const int numActiveCells = static_cast<int>( activeReservoirCellIndices.size() );
+                filterVector.resize( numActiveCells );
+
+                // Convert reservoir visibility to the active-cell indexing used by clustering.
+#pragma omp parallel for
+                for ( int i = 0; i < numActiveCells; i++ )
+                {
+                    filterVector[i] = visibility->val( activeReservoirCellIndices[i].value() ) ? 1.0 : 0.0;
+                }
+            }
+            else
+            {
+                // Fall through to the unfiltered path below so all realizations in an ensemble get a result,
+                // consistent with how an invalid filterAddress is handled.
+                RiaLogging::warning(
+                    std::format( "Unable to evaluate well target mapping data filter for case '{}'. Continuing without filter.",
+                                 eclipseCase->caseUserDescription().toStdString() ) );
+            }
+        }
+        else if ( limits.filterAddress.isValid() )
+        {
+            resultsData->ensureKnownResultLoaded( limits.filterAddress );
+            filterVector = resultsData->cellScalarResults( limits.filterAddress, timeStepIdx );
+        }
+
+        // Disable filtering if not configured: set all items to 1 (which includes all cells).
+        if ( filterVector.empty() || filterVector.size() != data.pressure.size() )
+        {
+            filterVector = std::vector<double>( data.pressure.size(), 1.0 );
+        }
+        return filterVector;
+    };
+
+    const std::vector<double> growFilterVector = computeFilterVector( limits.growDataFilter );
+    // Without a start filter, the grow filter is used to find the starting cells.
+    const std::vector<double> startFilterVector = limits.startDataFilter ? computeFilterVector( limits.startDataFilter ) : growFilterVector;
 
     const QString logKeyword = "RigWellTargetMapping";
 
@@ -172,7 +206,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     for ( int clusterId = 1; clusterId <= numClusters; clusterId++ )
     {
         std::optional<caf::VecIjk0> startCell =
-            RigWellTargetMappingTools::findStartCell( eclipseCase, timeStepIdx, volumeType, limits, data, filterVector, clusters );
+            RigWellTargetMappingTools::findStartCell( eclipseCase, timeStepIdx, volumeType, limits, data, startFilterVector, clusters );
 
         if ( startCell.has_value() )
         {
@@ -189,7 +223,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                                     volumeType,
                                                     limits,
                                                     data,
-                                                    filterVector,
+                                                    growFilterVector,
                                                     clusters,
                                                     clusterId,
                                                     timeStepIdx,
@@ -212,6 +246,15 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     RigWellTargetMappingTools::createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
+
+    if ( limits.avoidFaults && mainGrid != nullptr )
+    {
+        RigWellTargetMappingTools::createResultVector( *eclipseCase,
+                                                       wellTargetFaultFacesResultName(),
+                                                       RigWellTargetMappingTools::countFaultFacesPerActiveCell( mainGrid,
+                                                                                                                resultsData->activeCellInfo() ),
+                                                       timeStepIdx );
+    }
 
     std::vector<RigWellTargetMappingTools::ClusterStatistics> statistics =
         RigWellTargetMappingTools::generateStatistics( eclipseCase, data.pressure, data.permeabilityX, numClustersFound, timeStepIdx, resultName );
@@ -487,4 +530,12 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
 QString RigWellTargetMapping::wellTargetResultName()
 {
     return "WELL_TARGET_NUM";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellTargetMapping::wellTargetFaultFacesResultName()
+{
+    return "WELL_TARGET_FAULT_FACES";
 }

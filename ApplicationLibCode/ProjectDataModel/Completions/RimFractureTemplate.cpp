@@ -79,16 +79,6 @@ void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
-{
-    addItem( RimFractureTemplate::NON_DARCY_NONE, "None", "None" );
-    addItem( RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
-    addItem( RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
-
-    setDefault( RimFractureTemplate::NON_DARCY_NONE );
-}
-
-template <>
 void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
 {
     addItem( RimFractureTemplate::USER_DEFINED_BETA_FACTOR, "UserDefinedBetaFactor", "User Defined" );
@@ -109,7 +99,7 @@ RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitField( &m_id, "Id", -1, "ID" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name" );
@@ -138,6 +128,8 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency" );
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_perforationEfficiency.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_perforationEfficiency.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
 
     CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture" );
     CAF_PDM_InitScriptableField( &m_conductivityType,
@@ -195,6 +187,9 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.uiCapability()->setUiReadOnly( true );
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_dFactorSummaryText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::WRAP_MODE, static_cast<int>( caf::PdmUiTextEditor::NoWrap ) );
+    m_dFactorSummaryText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::FONT, QFont( "Monospace", 10 ) );
+    m_dFactorSummaryText.uiCapability()->setAttribute( caf::PdmUiTextEditor::Keys::TEXT_MODE, static_cast<int>( caf::PdmUiTextEditor::HTML ) );
 
     CAF_PDM_InitScriptableField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
     CAF_PDM_InitScriptableField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
@@ -350,6 +345,12 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     prepareFieldsForUiDisplay();
 
     {
+        auto [minimum, maximum] = wellPathDepthAtFractureRange();
+        m_wellPathDepthAtFracture.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, static_cast<double>( minimum ) );
+        m_wellPathDepthAtFracture.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, static_cast<double>( maximum ) );
+    }
+
+    {
         auto group = uiOrdering.addNewGroup( "Sensitivity Scale Factors" );
         group->setCollapsedByDefault();
         group->add( &m_heightScaleFactor );
@@ -406,46 +407,6 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     uiOrdering.add( &m_fractureTemplateUnit );
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_perforationEfficiency )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 1.0;
-        }
-    }
-
-    if ( field == &m_dFactorSummaryText )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-
-            QFont font( "Monospace", 10 );
-            myAttr->font     = font;
-            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
-        }
-    }
-
-    if ( field == &m_wellPathDepthAtFracture )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            auto [minimum, maximum] = wellPathDepthAtFractureRange();
-            myAttr->m_minimum       = minimum;
-            myAttr->m_maximum       = maximum;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,16 @@
 
 #include "RimcEclipseView.h"
 
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "ExportCommands/RicSaveEclipseInputVisibleCellsFeature.h"
+
+#include "RiaViewRedrawScheduler.h"
+
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFaultDistance.h"
 #include "RimFaultDistanceCollection.h"
@@ -26,6 +36,7 @@
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafUtils.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_addFaultDistance, "add_fault_distance" );
 
@@ -81,4 +92,214 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistance::
 QString RimcEclipseView_addFaultDistance::classKeywordReturnedType() const
 {
     return RimFaultDistance::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimEclipseView_exportCurrentProperty, "exportCurrentProperty" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView_exportCurrentProperty::RimEclipseView_exportCurrentProperty( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Current Property", "", "", "Export the cell result currently shown in the view to a GRDECL style text file" );
+
+    CAF_PDM_InitScriptableField( &m_exportFile, "ExportFile", QString(), "Export File", "", "", "Full path of the file to write" );
+    CAF_PDM_InitScriptableField( &m_undefinedValue, "UndefinedValue", 0.0, "Undefined Value", "", "", "Value written for undefined cells" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportCurrentProperty::setExportFile( const QString& exportFile )
+{
+    m_exportFile = exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportCurrentProperty::setUndefinedValue( double undefinedValue )
+{
+    m_undefinedValue = undefinedValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseView_exportCurrentProperty::execute()
+{
+    auto* view = self<RimEclipseView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( m_exportFile().isEmpty() ) return std::unexpected( "No export file specified." );
+
+    RimEclipseCase* eclipseCase = view->eclipseCase();
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) return std::unexpected( "The view has no case data." );
+
+    cvf::ref<RigResultAccessor> resultAccessor = currentPropertyAccessor( view );
+
+    const QString propertyName = view->cellResult()->resultVariableUiShortName();
+
+    if ( resultAccessor.isNull() )
+    {
+        return std::unexpected( QString( "Could not find property '%1' at time step %2 in view '%3'" )
+                                    .arg( propertyName )
+                                    .arg( view->currentTimeStep() )
+                                    .arg( view->name() ) );
+    }
+
+    const bool writeEchoKeywords = false;
+    QString    errorMessage;
+    if ( !RicEclipseCellResultToFileImpl::writeResultToTextFile( m_exportFile(),
+                                                                 eclipseCase->eclipseCaseData(),
+                                                                 resultAccessor.p(),
+                                                                 propertyName,
+                                                                 m_undefinedValue(),
+                                                                 "exportProperty",
+                                                                 writeEchoKeywords,
+                                                                 &errorMessage ) )
+    {
+        return std::unexpected( errorMessage );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RimEclipseView_exportCurrentProperty::currentPropertyAccessor( const RimEclipseView* view )
+{
+    if ( !view || !view->eclipseCase() || !view->eclipseCase()->eclipseCaseData() ) return nullptr;
+
+    const int mainGridIndex = 0;
+    return RigResultAccessorFactory::createFromResultDefinition( view->eclipseCase()->eclipseCaseData(),
+                                                                 mainGridIndex,
+                                                                 view->currentTimeStep(),
+                                                                 view->cellResult() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView_exportCurrentProperty::hasCurrentProperty( const RimEclipseView* view )
+{
+    return currentPropertyAccessor( view ).notNull();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseView_exportCurrentProperty::defaultFileBaseName( const RimEclipseView* view )
+{
+    if ( !view || !view->eclipseCase() ) return {};
+
+    const QString propertyName = view->cellResult()->resultVariableUiShortName();
+    const QString fileName =
+        QString( "%1-%2-T%3-%4" ).arg( view->eclipseCase()->caseUserDescription() ).arg( view->name() ).arg( view->currentTimeStep() ).arg( propertyName );
+
+    return caf::Utils::makeValidFileBasename( fileName );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimEclipseView_exportVisibleCells, "exportVisibleCells" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView_exportVisibleCells::RimEclipseView_exportVisibleCells( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Visible Cells", "", "", "Export a GRDECL keyword with one value per cell based on cell visibility in the view" );
+
+    CAF_PDM_InitScriptableField( &m_exportFile, "ExportFile", QString(), "Export File", "", "", "Full path of the file to write" );
+    CAF_PDM_InitScriptableField( &m_exportKeyword,
+                                 "ExportKeyword",
+                                 RicSaveEclipseInputVisibleCellsUi::FLUXNUM,
+                                 "Export Keyword",
+                                 "",
+                                 "",
+                                 "GRDECL keyword to write" );
+    CAF_PDM_InitScriptableField( &m_visibleActiveCellsValue,
+                                 "VisibleActiveCellsValue",
+                                 1,
+                                 "Visible Active Cells Value",
+                                 "",
+                                 "",
+                                 "Value for visible active cells" );
+    CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue,
+                                 "HiddenActiveCellsValue",
+                                 0,
+                                 "Hidden Active Cells Value",
+                                 "",
+                                 "",
+                                 "Value for hidden active cells" );
+    CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "InactiveCellsValue", 0, "Inactive Cells Value", "", "", "Value for inactive cells" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportVisibleCells::setExportFile( const QString& exportFile )
+{
+    m_exportFile = exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportVisibleCells::setExportKeyword( RicSaveEclipseInputVisibleCellsUi::ExportKeyword exportKeyword )
+{
+    m_exportKeyword = exportKeyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportVisibleCells::setVisibleActiveCellsValue( int value )
+{
+    m_visibleActiveCellsValue = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportVisibleCells::setHiddenActiveCellsValue( int value )
+{
+    m_hiddenActiveCellsValue = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView_exportVisibleCells::setInactiveCellsValue( int value )
+{
+    m_inactiveCellsValue = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseView_exportVisibleCells::execute()
+{
+    auto* view = self<RimEclipseView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( m_exportFile().isEmpty() ) return std::unexpected( "No export file specified." );
+
+    RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
+
+    RicSaveEclipseInputVisibleCellsUi exportSettings;
+    exportSettings.exportFilename          = m_exportFile();
+    exportSettings.exportKeyword           = m_exportKeyword();
+    exportSettings.visibleActiveCellsValue = m_visibleActiveCellsValue();
+    exportSettings.hiddenActiveCellsValue  = m_hiddenActiveCellsValue();
+    exportSettings.inactiveCellsValue      = m_inactiveCellsValue();
+
+    if ( auto result = RicSaveEclipseInputVisibleCellsFeature::exportVisibleCells( view, exportSettings ); !result )
+    {
+        return std::unexpected( result.error() );
+    }
+
+    return nullptr;
 }

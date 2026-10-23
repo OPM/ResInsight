@@ -32,7 +32,7 @@ void AppEnum<RimWellEvent::EventType>::setUp()
 {
     addItem( RimWellEvent::EventType::PERF, "PERF", "Perforation" );
     addItem( RimWellEvent::EventType::VALVE, "VALVE", "Valve" );
-    addItem( RimWellEvent::EventType::TUBING, "TUBING", "Tubing" );
+    addItem( RimWellEvent::EventType::SEGMENT, "SEGMENT", "Segment" );
     addItem( RimWellEvent::EventType::WSTATE, "WSTATE", "Well State" );
     addItem( RimWellEvent::EventType::WTYPE, "WTYPE", "Well Type" );
     addItem( RimWellEvent::EventType::WELLSPEC, "WELLSPEC", "Well Specification" );
@@ -40,6 +40,7 @@ void AppEnum<RimWellEvent::EventType>::setUp()
     addItem( RimWellEvent::EventType::KEYWORD, "KEYWORD", "Well Keyword" );
     addItem( RimWellEvent::EventType::SCHEDULE_KEYWORD, "SCHEDULE_KEYWORD", "Schedule Keyword" );
     addItem( RimWellEvent::EventType::RAW_TEXT, "RAW_TEXT", "Raw Text" );
+    addItem( RimWellEvent::EventType::INSERT_DATE, "INSERT_DATE", "Insert Date" );
     setDefault( RimWellEvent::EventType::PERF );
 }
 } // namespace caf

@@ -20,16 +20,23 @@
 
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationReportPlot.h"
+#include "RimOilField.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimParameterRftCrossPlot.h"
 #include "RimProject.h"
 #include "RimRftCorrelationReportPlot.h"
+#include "RimRftCrossPlotTools.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
@@ -206,12 +213,12 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
 {
     auto* report = new RimRftCorrelationReportPlot;
     report->dockAsPlotWindow();
+    report->initializeFromSourcePlot( source );
 
-    if ( source )
+    auto* rftPlot = report->wellRftPlot();
+    if ( rftPlot )
     {
-        report->initializeFromSourcePlot( source );
-
-        const auto ensembles = source->selectedEnsembles();
+        const auto ensembles = rftPlot->selectedEnsembles();
         if ( !ensembles.empty() )
         {
             auto* ensemble = ensembles.front();
@@ -223,13 +230,34 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
                 if ( param.isNumeric() )
                 {
                     report->crossPlot()->setEnsembleParameter( param.name );
+
+                    if ( auto* curveSet = rftPlot->findEnsembleCurveSet( ensemble ) )
+                    {
+                        curveSet->setColorByEnsembleParameter( param.name );
+                    }
                     break;
                 }
             }
         }
-        report->crossPlot()->setWellName( source->simWellOrWellPathName() );
+        const QString wellName = rftPlot->simWellOrWellPathName();
+        report->crossPlot()->setWellName( wellName );
 
-        const auto timeSteps = source->selectedTimeSteps();
+        // Default to filtering by formation when a formations file has data for the well
+        if ( auto* project = RimProject::current();
+             project && project->activeOilField() && project->activeOilField()->wellFormationsCollection() )
+        {
+            for ( RimWellFormationsFile* file : project->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
+            {
+                if ( file->formationsForWell( wellName ) )
+                {
+                    report->crossPlot()->setWellFormations( file );
+                    report->crossPlot()->setFilterMode( RimRftCrossPlotTools::DepthFilterMode::ZONES );
+                    break;
+                }
+            }
+        }
+
+        const auto timeSteps = rftPlot->selectedTimeSteps();
         if ( !timeSteps.empty() ) report->crossPlot()->setTimeStep( timeSteps.front() );
     }
 
@@ -243,6 +271,19 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
 std::vector<RimRftCorrelationReportPlot*> RimCorrelationPlotCollection::rftReports() const
 {
     return m_rftCorrelationReports.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewCorrelationPlotFeature";
+    menuBuilder << "RicNewCorrelationMatrixPlotFeature";
+    menuBuilder << "RicNewParameterResultCrossPlotFeature";
+    menuBuilder << "RicNewCorrelationReportPlotFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicCreateRftCorrelationReportFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

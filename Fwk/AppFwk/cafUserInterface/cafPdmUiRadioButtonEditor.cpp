@@ -107,12 +107,8 @@ void PdmUiRadioButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
         PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
-    // Handle attributes
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    uiField()->validateAttributes( "PdmUiRadioButtonEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
+    m_orientation = uiField()->attribute<Qt::Orientation>( Keys::ORIENTATION, uiConfigName ).value_or( Qt::Vertical );
 
     // Clear any existing layout and radio buttons
     if ( m_verticalLayout )
@@ -129,7 +125,7 @@ void PdmUiRadioButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     clearRadioButtons();
 
     // Create appropriate layout based on orientation
-    if ( m_attributes.orientation == Qt::Vertical )
+    if ( m_orientation == Qt::Vertical )
     {
         m_verticalLayout = new QVBoxLayout( m_groupBox );
         m_verticalLayout->setContentsMargins( 6, 6, 6, 6 );
@@ -169,11 +165,11 @@ void PdmUiRadioButtonEditor::updateRadioButtons()
         m_buttonGroup->addButton( radioButton, i );
 
         // Add to layout
-        if ( m_attributes.orientation == Qt::Vertical && m_verticalLayout )
+        if ( m_orientation == Qt::Vertical && m_verticalLayout )
         {
             m_verticalLayout->addWidget( radioButton );
         }
-        else if ( m_attributes.orientation == Qt::Horizontal && m_horizontalLayout )
+        else if ( m_orientation == Qt::Horizontal && m_horizontalLayout )
         {
             m_horizontalLayout->addWidget( radioButton );
         }
@@ -197,7 +193,7 @@ void PdmUiRadioButtonEditor::updateRadioButtons()
     }
 
     // Add stretch to vertical layout
-    if ( m_attributes.orientation == Qt::Vertical && m_verticalLayout )
+    if ( m_orientation == Qt::Vertical && m_verticalLayout )
     {
         m_verticalLayout->addStretch();
     }

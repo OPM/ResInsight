@@ -22,6 +22,7 @@
 #include "RiaSumoDefines.h"
 #include "RiaSumoExplore.h"
 #include "RiaSumoGrid.h"
+#include "RiaSumoPolygons.h"
 #include "RiaSumoSummary.h"
 
 #include <QByteArray>
@@ -74,6 +75,9 @@ public:
 
     // The summary data of a case.
     RiaSumoSummary& summary();
+
+    // The polygon results of an ensemble.
+    RiaSumoPolygons& polygons();
 
     // Transport used by the data specific delegates. Every request goes through the transfer thread, so
     // the calling thread waits without dispatching events.
@@ -179,9 +183,10 @@ private:
 private:
     std::function<QString()> m_serverUrlProvider;
 
-    RiaSumoExplore m_explore;
-    RiaSumoGrid    m_grid;
-    RiaSumoSummary m_summary;
+    RiaSumoExplore  m_explore;
+    RiaSumoGrid     m_grid;
+    RiaSumoSummary  m_summary;
+    RiaSumoPolygons m_polygons;
 
     // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
     // a nested event loop on the GUI thread let the view update code re-enter a load that was still running,

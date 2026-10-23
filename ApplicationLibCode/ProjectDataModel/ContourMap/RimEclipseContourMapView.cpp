@@ -90,6 +90,13 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseContourMapView::~RimEclipseContourMapView()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimContourMapProjection* RimEclipseContourMapView::contourMapProjection() const
 {
     return m_contourMapProjection().p();

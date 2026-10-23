@@ -71,7 +71,6 @@ private:
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

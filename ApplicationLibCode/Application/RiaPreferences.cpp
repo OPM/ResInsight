@@ -25,6 +25,8 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesBatch.h"
+#include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaPreferencesOpenTelemetry.h"
@@ -102,6 +104,8 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)" );
     scriptDirectories.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    scriptDirectories.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
+    scriptDirectories.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::APPEND_UI_SELECTED_FOLDER_TO_TEXT, true );
 
     // TODO: This only currently works for installed ResInsight.
     scriptDirectories = QCoreApplication::applicationDirPath() + "/Python/rips/PythonExamples";
@@ -172,6 +176,7 @@ RiaPreferences::RiaPreferences()
                        "" );
 
     CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5.0, "Default Z Scale Factor" );
+    m_defaultScaleFactorZ.setRange( 0.000001, 100000.0 );
 
     CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size" );
     CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size" );
@@ -179,6 +184,12 @@ RiaPreferences::RiaPreferences()
 
     auto defaultValue = FontSizeEnum( RiaFontCache::FontSize::FONT_SIZE_10 );
     CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", defaultValue, "Plot Font Size" );
+
+    for ( caf::PdmFieldHandle* fontSizeField :
+          std::vector<caf::PdmFieldHandle*>{ &defaultSceneFontSize, &defaultAnnotationFontSize, &defaultWellLabelFontSize, &defaultPlotFontSize } )
+    {
+        fontSizeField->uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 2 );
+    }
 
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
@@ -213,6 +224,8 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_plotTemplateFolders.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
+    m_plotTemplateFolders.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::APPEND_UI_SELECTED_FOLDER_TO_TEXT, true );
     CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth, "MaxPlotTemplateFoldersDepth", 2, "Maximum Plot Template Folder Search Depth" );
 
     CAF_PDM_InitFieldNoDefault( &m_lastUsedPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
@@ -244,6 +257,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_summaryCalculationExpressionFolder,
                                 "summaryCalculationExpressionFolder",
                                 "Summary Calculation Expression Folder" );
+    m_gridCalculationExpressionFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
+    m_summaryCalculationExpressionFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
@@ -262,6 +277,10 @@ RiaPreferences::RiaPreferences()
                        "of ? and * as wildcards.",
                        "" );
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    // The line editor does not take ownership of the validator
+    m_multiLateralWellPatternValidator = std::make_unique<RiaValidRegExpValidator>( defaultMultiLateralWellNamePattern() );
+    m_multiLateralWellPattern.uiCapability()->setAttribute<QValidator*>( caf::PdmUiLineEditor::Keys::VALIDATOR,
+                                                                         m_multiLateralWellPatternValidator.get() );
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme" );
 
@@ -277,6 +296,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_opmPreferences, "opmPreferences", "opmPreferences" );
     m_opmPreferences = new RiaPreferencesOpm();
 
+    CAF_PDM_InitFieldNoDefault( &m_batchPreferences, "batchPreferences", "batchPreferences" );
+    m_batchPreferences = new RiaPreferencesBatch();
+
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 
@@ -287,6 +309,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
     m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
+
+    CAF_PDM_InitFieldNoDefault( &m_cloudApiPreferences, "cloudApiPreferences", "cloudApiPreferences" );
+    m_cloudApiPreferences = new RiaPreferencesCloudApi;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,56 +327,6 @@ RiaPreferences::~RiaPreferences()
 RiaPreferences* RiaPreferences::current()
 {
     return RiaApplication::instance()->preferences();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
-
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            if ( field == &scriptDirectories || field == &m_plotTemplateFolders )
-            {
-                myAttr->m_selectDirectory              = true;
-                myAttr->m_appendUiSelectedFolderToText = true;
-            }
-            else if ( field == &m_gridCalculationExpressionFolder || field == &m_summaryCalculationExpressionFolder )
-            {
-                myAttr->m_selectDirectory = true;
-            }
-        }
-    }
-
-    if ( field == &defaultSceneFontSize || field == &defaultWellLabelFontSize || field == &defaultAnnotationFontSize ||
-         field == &defaultPlotFontSize )
-    {
-        caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->minimumContentsLength = 2;
-        }
-    }
-    else if ( field == &m_multiLateralWellPattern )
-    {
-        caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::defaultMultiLateralWellNamePattern() );
-        }
-    }
-    else if ( field == &m_defaultScaleFactorZ )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->validator = new QDoubleValidator( 0.000001, 100000.0, 6 );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,9 +457,18 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameCloudApi() )
+    {
+        caf::PdmUiGroup* pythonGroup = uiOrdering.addNewGroup( "Python Environment" );
+        m_cloudApiPreferences()->appendItems( *pythonGroup );
+    }
     else if ( uiConfigName == RiaPreferences::tabNameOpmFlow() )
     {
         m_opmPreferences()->appendItems( uiOrdering );
+    }
+    else if ( uiConfigName == RiaPreferences::tabNameBatchScheduler() )
+    {
+        m_batchPreferences()->appendItems( uiOrdering );
     }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
@@ -650,9 +634,25 @@ QString RiaPreferences::tabNameScripting()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameCloudApi()
+{
+    return "RI Cloud API";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameOpmFlow()
 {
     return "OPM Flow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameBatchScheduler()
+{
+    return "Batch Scheduler";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +707,9 @@ QStringList RiaPreferences::tabNames()
     names << tabNameSummary();
     names << tabNamePlotting();
     names << tabNameScripting();
+    names << tabNameCloudApi();
     names << tabNameOpmFlow();
+    names << tabNameBatchScheduler();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
@@ -1063,6 +1065,14 @@ RiaPreferencesOpm* RiaPreferences::opmPreferences() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaPreferencesBatch* RiaPreferences::batchPreferences() const
+{
+    return m_batchPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesOsdu* RiaPreferences::osduPreferences() const
 {
     return m_osduPreferences();
@@ -1082,6 +1092,14 @@ RiaPreferencesSumo* RiaPreferences::sumoPreferences() const
 RiaPreferencesOpenTelemetry* RiaPreferences::openTelemetryPreferences() const
 {
     return m_openTelemetryPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesCloudApi* RiaPreferences::cloudApiPreferences() const
+{
+    return m_cloudApiPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

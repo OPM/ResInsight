@@ -84,7 +84,6 @@ public:
     std::vector<const RivIntersectionGeometryGeneratorInterface*> intersectionGeometryGenerators() const;
 
 protected:
-    void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

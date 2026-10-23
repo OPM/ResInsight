@@ -41,6 +41,7 @@
 #include "cafPdmLogging.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiButton.h"
+#include "cafPdmUiButtonBox.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiFieldHandle.h"
@@ -55,6 +56,7 @@
 #include "QMinimizePanel.h"
 
 #include <QCoreApplication>
+#include <QDialogButtonBox>
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
@@ -235,6 +237,14 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                                            .arg( button->uiName( uiConfigName ) ) );
                 }
             }
+            else if ( auto* buttonBox = dynamic_cast<PdmUiButtonBox*>( currentItem ) )
+            {
+                // No alignment: stretched to fill its cell, its own internal layout packs the
+                // buttons -- the same mechanism a real QDialog's button row uses.
+                QDialogButtonBox* qButtonBox = createButtonBox( containerWidgetWithGridLayout, *buttonBox );
+                parentLayout->addWidget( qButtonBox, currentRowIndex, currentColumn, 1, itemColumnSpan );
+                currentColumn += itemColumnSpan;
+            }
             else
             {
                 PdmUiFieldEditorHandle* fieldEditor = nullptr;
@@ -273,6 +283,9 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
 
                             if ( labelPos == PdmUiItemInfo::LabelPosition::HIDDEN )
                             {
+                                // Not added to the layout, so reparent explicitly. Otherwise the label stays in a
+                                // previous group box and is deleted with it when the field moves to another group.
+                                fieldLabelWidget->setParent( containerWidgetWithGridLayout );
                                 fieldLabelWidget->hide();
                             }
                             else if ( labelPos == PdmUiItemInfo::LabelPosition::TOP )
@@ -475,6 +488,13 @@ QLabel* caf::PdmUiFormLayoutObjectEditor::createLabel( QWidget* parent, const Pd
     qLabel->setText( label.uiName( uiConfigName ) );
     qLabel->setWordWrap( true );
 
+    if ( auto callback = label.linkActivatedCallback() )
+    {
+        qLabel->setTextFormat( Qt::RichText );
+        qLabel->setTextInteractionFlags( Qt::LinksAccessibleByMouse );
+        QObject::connect( qLabel, &QLabel::linkActivated, qLabel, [callback]( const QString& link ) { callback( link ); } );
+    }
+
     m_labels.push_back( qLabel );
     return qLabel;
 }
@@ -488,6 +508,8 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::createButton( QWidget*           
 {
     QPushButton* qButton = new QPushButton( parent );
     qButton->setText( button.uiName( uiConfigName ) );
+    qButton->setEnabled( !button.isUiReadOnly( uiConfigName ) );
+    qButton->setToolTip( button.uiToolTip( uiConfigName ) );
 
     auto hPolicy = button.fillWidth() ? QSizePolicy::Expanding : QSizePolicy::Maximum;
     qButton->setSizePolicy( hPolicy, QSizePolicy::Fixed );
@@ -513,6 +535,32 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::createButton( QWidget*           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QDialogButtonBox* caf::PdmUiFormLayoutObjectEditor::createButtonBox( QWidget* parent, const PdmUiButtonBox& buttonBox )
+{
+    QDialogButtonBox* qButtonBox = new QDialogButtonBox( parent );
+
+    // ActionRole preserves add order (no OS-specific OK/Cancel reordering) while still getting
+    // QDialogButtonBox's normal leading-stretch-then-packed-buttons layout.
+    for ( const auto& spec : buttonBox.buttons() )
+    {
+        QPushButton* qButton = qButtonBox->addButton( spec.text, QDialogButtonBox::ActionRole );
+        qButton->setEnabled( spec.enabled );
+        qButton->setToolTip( spec.toolTip );
+
+        auto callback = spec.callback;
+        if ( callback )
+        {
+            QObject::connect( qButton, &QPushButton::clicked, [callback]() { callback(); } );
+        }
+    }
+
+    m_buttonBoxes.push_back( qButtonBox );
+    return qButtonBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*          parent,
                                                                                         PdmUiFieldHandle* field,
                                                                                         const QString&    uiConfigName )
@@ -520,6 +568,14 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it = m_fieldViews.find( field->fieldHandle() );
+
+    // The editor's field was deleted and a new field was allocated at the same address
+    if ( it != m_fieldViews.end() && it->second->uiField() != field )
+    {
+        delete it->second;
+        m_fieldViews.erase( it );
+        it = m_fieldViews.end();
+    }
 
     if ( it == m_fieldViews.end() )
     {
@@ -576,7 +632,8 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget,
-                                                                            QMargins contentMargins )
+                                                                            QMargins contentMargins,
+                                                                            int      horizontalSpacing )
 {
     CAF_ASSERT( containerWidget );
     QLayout* layout = containerWidget->layout();
@@ -594,6 +651,10 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
 
     QGridLayout* gridLayout = new QGridLayout;
     gridLayout->setContentsMargins( contentMargins );
+    if ( horizontalSpacing >= 0 )
+    {
+        gridLayout->setHorizontalSpacing( horizontalSpacing );
+    }
     containerWidget->setLayout( gridLayout );
 }
 
@@ -684,6 +745,15 @@ void caf::PdmUiFormLayoutObjectEditor::deleteLabelsAndButtons()
         }
     }
     m_buttons.clear();
+
+    for ( auto& buttonBox : m_buttonBoxes )
+    {
+        if ( buttonBox )
+        {
+            buttonBox->deleteLater();
+        }
+    }
+    m_buttonBoxes.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,20 +1,12 @@
 #include "RicfCreateView.h"
 
-#include "RiaLogging.h"
+#include "RicfCommandForwarding.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
+#include "RimCase.h"
+#include "RimcCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafSelectionManager.h"
-
-#include <QAction>
 
 CAF_PDM_SOURCE_INIT( RicfCreateViewResult, "createViewResult" );
 
@@ -42,42 +34,20 @@ RicfCreateView::RicfCreateView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateView::execute()
 {
-    RimProject*           project  = RimProject::current();
-    std::vector<RimCase*> allCases = project->allGridCases();
-    for ( RimCase* rimCase : allCases )
-    {
-        if ( rimCase->caseId() == m_caseId() )
-        {
-            int             viewId      = -1;
-            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
-            RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase );
-            if ( eclipseCase )
-            {
-                RimEclipseView* view = eclipseCase->createAndAddReservoirView();
-                view->loadDataAndUpdate();
-                viewId = view->id();
-                eclipseCase->updateConnectedEditors();
-                Riu3DMainWindowTools::setExpanded( view );
-            }
-            else if ( geoMechCase )
-            {
-                RimGeoMechView* view = geoMechCase->createAndAddReservoirView();
-                view->loadDataAndUpdate();
-                viewId = view->id();
-                geoMechCase->updateConnectedEditors();
-                Riu3DMainWindowTools::setExpanded( view );
-            }
+    const QString commandName = classKeyword();
 
-            if ( viewId >= 0 )
-            {
-                caf::PdmScriptResponse response;
-                response.setResult( new RicfCreateViewResult( viewId ) );
-                return response;
-            }
-        }
-    }
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
-    QString error = QString( "createView: Could not create view for case id %1" ).arg( m_caseId() );
-    RiaLogging::error( error.toStdString() );
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+    RimCase_createView method( rimCase.value() );
+
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
+
+    auto* view = dynamic_cast<Rim3dView*>( result.value() );
+    if ( !view ) return RicfForwarding::errorResponse( "Created object is not a view", commandName );
+
+    caf::PdmScriptResponse response;
+    response.setResult( new RicfCreateViewResult( view->id() ) );
+    return response;
 }

@@ -50,3 +50,55 @@ private:
     caf::PdmPtrField<RimEclipseCase*> m_case;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
 };
+
+//==================================================================================================
+/// Export the curves of the well log plot to LAS files. Returns the exported file names.
+//==================================================================================================
+class RimWellLogPlot_exportDataAsLas : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWellLogPlot_exportDataAsLas( caf::PdmObjectHandle* self );
+
+    void setExportFolder( const QString& exportFolder );
+    void setFilePrefix( const QString& filePrefix );
+    void setExportTvdRkb( bool enable );
+    void setCapitalizeFileNames( bool enable );
+    void setResampleInterval( double interval );
+    void setConvertToStandardUnits( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_exportFolder;
+    caf::PdmField<QString> m_filePrefix;
+    caf::PdmField<bool>    m_exportTvdRkb;
+    caf::PdmField<bool>    m_capitalizeFileNames;
+    caf::PdmField<double>  m_resampleInterval;
+    caf::PdmField<bool>    m_convertToStandardUnits;
+};
+
+//==================================================================================================
+/// Export the curves of the well log plot to a single ASCII file. Returns the exported file name.
+//==================================================================================================
+class RimWellLogPlot_exportDataAsAscii : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWellLogPlot_exportDataAsAscii( caf::PdmObjectHandle* self );
+
+    void setExportFolder( const QString& exportFolder );
+    void setFilePrefix( const QString& filePrefix );
+    void setCapitalizeFileNames( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_exportFolder;
+    caf::PdmField<QString> m_filePrefix;
+    caf::PdmField<bool>    m_capitalizeFileNames;
+};

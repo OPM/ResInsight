@@ -19,12 +19,16 @@
 #include "RimCellFilterTools.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigGridBase.h"
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 
 #include "RimCellFilter.h"
+#include "RimCombinedFilter.h"
 #include "RimEclipseCase.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseResultDefinition.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Evaluate the filter against the given case for all grids, and return the visibility indexed by
@@ -42,6 +46,9 @@ cvf::ref<cvf::UByteArray>
 
     const bool isInclude = ( filter->filterMode() == RimCellFilter::INCLUDE );
 
+    // Nested hybrid grid: range filters use the original grid IJK and are evaluated on every grid
+    const bool usesNestedHybridOriginalIjk = caseData->mainGrid()->nestedHybridLayout().has_value();
+
     // Grid local masks are kept to allow propagation of parent grid visibility into LGRs
     std::vector<cvf::ref<cvf::UByteArray>> gridMasks( caseData->gridCount() );
 
@@ -57,7 +64,7 @@ cvf::ref<cvf::UByteArray>
         {
             // Range filters evaluate only on their target grid. On other grids an INCLUDE filter
             // contributes no cells, while an EXCLUDE filter removes none.
-            const bool isTargetGrid = ( filter->gridIndex() == static_cast<int>( gridIndex ) );
+            const bool isTargetGrid = usesNestedHybridOriginalIjk || ( filter->gridIndex() == static_cast<int>( gridIndex ) );
             if ( isTargetGrid )
             {
                 filter->applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
@@ -104,4 +111,57 @@ cvf::ref<cvf::UByteArray>
     }
 
     return reservoirVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A property filter on a dynamic result (e.g. SOIL, SWAT) accepts different cells at each time step.
+/// A combined filter is dynamic if any of its descendants is. Range, index, polygon and formation
+/// name filters are static: they select the same cells regardless of time step.
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilterTools::isDynamicFilter( const RimCellFilter* filter )
+{
+    if ( auto* propertyFilter = dynamic_cast<const RimEclipsePropertyFilter*>( filter ) )
+    {
+        if ( !propertyFilter->resultDefinition() ) return false;
+
+        // Classify by result category rather than hasDynamicResult(), which only answers correctly once
+        // the result has been loaded. Ensemble data filters may not have loaded their result yet.
+        switch ( propertyFilter->resultDefinition()->resultType() )
+        {
+            case RiaDefines::ResultCatType::DYNAMIC_NATIVE:
+            case RiaDefines::ResultCatType::SOURSIMRL:
+            case RiaDefines::ResultCatType::FLOW_DIAGNOSTICS:
+            case RiaDefines::ResultCatType::INJECTION_FLOODING:
+                return true;
+            default:
+                return propertyFilter->resultDefinition()->hasDynamicResult();
+        }
+    }
+    else if ( auto* combinedFilter = dynamic_cast<const RimCombinedFilter*>( filter ) )
+    {
+        return combinedFilter->hasActiveDynamicPropertyDescendant();
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The result address a dynamic property filter (or one of a combined filter's descendants) is based
+/// on, so callers can make sure it is loaded before asking the case how many time steps it has.
+//--------------------------------------------------------------------------------------------------
+std::optional<RigEclipseResultAddress> RimCellFilterTools::dynamicResultAddress( const RimCellFilter* filter )
+{
+    if ( auto* propertyFilter = dynamic_cast<const RimEclipsePropertyFilter*>( filter ) )
+    {
+        if ( isDynamicFilter( propertyFilter ) ) return propertyFilter->resultDefinition()->eclipseResultAddress();
+    }
+    else if ( auto* combinedFilter = dynamic_cast<const RimCombinedFilter*>( filter ) )
+    {
+        for ( RimCellFilter* child : combinedFilter->filters() )
+        {
+            if ( auto address = dynamicResultAddress( child ) ) return address;
+        }
+    }
+
+    return std::nullopt;
 }

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimCompletionEnums.h"
+
 #include "RiaDefines.h"
 
 #include "cafAppEnum.h"
@@ -115,12 +117,10 @@ public:
         BETA_FACTOR_FROM_FRACTURE,
     };
 
-    enum NonDarcyFlowEnum
-    {
-        NON_DARCY_NONE,
-        NON_DARCY_COMPUTED,
-        NON_DARCY_USER_DEFINED,
-    };
+    using NonDarcyFlowEnum                                   = RimCompletionEnums::NonDarcyFlowType;
+    static constexpr NonDarcyFlowEnum NON_DARCY_NONE         = RimCompletionEnums::NON_DARCY_NONE;
+    static constexpr NonDarcyFlowEnum NON_DARCY_COMPUTED     = RimCompletionEnums::NON_DARCY_COMPUTED;
+    static constexpr NonDarcyFlowEnum NON_DARCY_USER_DEFINED = RimCompletionEnums::NON_DARCY_USER_DEFINED;
 
 public:
     RimFractureTemplate();
@@ -193,7 +193,6 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RimFracture*> fracturesUsingThisTemplate() const;
     virtual void              onLoadDataAndUpdateGeometryHasChanged() = 0;

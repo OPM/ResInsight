@@ -28,6 +28,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <optional>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -586,10 +587,14 @@ namespace
 class VectorBackedStatisticsCalculator : public RigStatisticsCalculator
 {
 public:
-    explicit VectorBackedStatisticsCalculator( const std::vector<std::vector<double>>& valuesPerTimeStep )
+    explicit VectorBackedStatisticsCalculator( const std::vector<std::vector<double>>&   valuesPerTimeStep,
+                                               const std::vector<std::optional<double>>& mobileVolumeWeightedMeans = {} )
         : m_valuesPerTimeStep( valuesPerTimeStep )
+        , m_mobileVolumeWeightedMeans( mobileVolumeWeightedMeans )
     {
     }
+
+    using RigStatisticsCalculator::mobileVolumeWeightedMean;
 
     void minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override
     {
@@ -624,10 +629,33 @@ public:
 
     size_t timeStepCount() override { return m_valuesPerTimeStep.size(); }
 
+    std::optional<double> mobileVolumeWeightedMean( size_t timeStepIndex ) override
+    {
+        if ( timeStepIndex >= m_mobileVolumeWeightedMeans.size() ) return {};
+
+        return m_mobileVolumeWeightedMeans[timeStepIndex];
+    }
+
 private:
-    std::vector<std::vector<double>> m_valuesPerTimeStep;
+    std::vector<std::vector<double>>   m_valuesPerTimeStep;
+    std::vector<std::optional<double>> m_mobileVolumeWeightedMeans;
 };
 } // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Unavailable time steps must not contribute to either the accumulated sum or the divisor.
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsCalculator, MobileVolumeWeightedMeanSkipsUnavailableTimeSteps )
+{
+    VectorBackedStatisticsCalculator partlyAvailable( { {}, {}, {} }, { 10.0, std::nullopt, 20.0 } );
+
+    const auto mean = partlyAvailable.mobileVolumeWeightedMean();
+    ASSERT_TRUE( mean.has_value() );
+    EXPECT_DOUBLE_EQ( 15.0, *mean );
+
+    VectorBackedStatisticsCalculator unavailable( { {}, {} }, { std::nullopt, std::nullopt } );
+    EXPECT_FALSE( unavailable.mobileVolumeWeightedMean().has_value() );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// computeHistogram() fills a custom-configured histogram calculator without disturbing the

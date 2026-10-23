@@ -111,35 +111,55 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
         }
     }
 
-    const QString absSnapshotPath = snapshotPath.absolutePath();
     RiaLogging::info( std::format( "Exporting snapshot of all views to {}", snapshotFolderName ) );
 
     for ( auto riv : viewsForSnapshot )
     {
-        RiuViewer* viewer = riv->viewer();
-        if ( !viewer ) continue;
-        if ( !viewer->ownerViewWindow() ) continue;
-
-        RiaApplication::instance()->setActiveReservoirView( riv );
-
-        Riu3DMainWindowTools::setActiveViewer( viewer->ownerViewWindow()->dockWindowName() );
-
-        RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
-        RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
-
-        riv->createDisplayModelAndRedraw();
-        viewer->repaint();
-
-        QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( riv );
-        if ( !prefix.isEmpty() )
-        {
-            fileName = prefix + fileName;
-        }
-
-        QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
-
-        RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv, width, height );
+        exportSnapshotOfView( riv, snapshotPath.absolutePath(), width, height, prefix );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Export a snapshot of a single view into the given folder. The folder is created if it does not exist.
+/// <= 0 for width and height means to use the existing view size
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfView( Rim3dView*     riv,
+                                                             const QString& snapshotFolderName,
+                                                             int            width,
+                                                             int            height,
+                                                             const QString& prefix )
+{
+    if ( !riv ) return;
+
+    RiuViewer* viewer = riv->viewer();
+    if ( !viewer ) return;
+    if ( !viewer->ownerViewWindow() ) return;
+
+    QDir snapshotPath( snapshotFolderName );
+    if ( !snapshotPath.exists() )
+    {
+        if ( !snapshotPath.mkpath( "." ) ) return;
+    }
+
+    RiaApplication::instance()->setActiveReservoirView( riv );
+
+    Riu3DMainWindowTools::setActiveViewer( viewer->ownerViewWindow()->dockWindowName() );
+
+    RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
+    RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
+
+    riv->createDisplayModelAndRedraw();
+    viewer->repaint();
+
+    QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( riv );
+    if ( !prefix.isEmpty() )
+    {
+        fileName = prefix + fileName;
+    }
+
+    QString absoluteFileName = caf::Utils::constructFullFileName( snapshotPath.absolutePath(), fileName, ".png" );
+
+    RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv, width, height );
 }
 
 //--------------------------------------------------------------------------------------------------

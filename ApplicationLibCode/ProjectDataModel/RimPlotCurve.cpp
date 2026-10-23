@@ -37,6 +37,7 @@
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
 
@@ -1244,6 +1245,14 @@ void RimPlotCurve::deletePlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::deleteIfDataSourceIsMissing()
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotCurve* RimPlotCurve::plotCurve() const
 {
     return m_plotCurve;
@@ -1268,20 +1277,19 @@ QString RimPlotCurve::curveExportDescription( const RifEclipseSummaryAddress& ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPlotCurve::treeItemTags()
 {
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-    {
-        treeItemAttribute->tags.clear();
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-        auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( m_curveAppearance->color() ),
-                                                               RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
-                                                               "---" );
+    auto tag = caf::PdmUiTreeViewItemTag::create( RiaColorTools::toQColor( m_curveAppearance->color() ),
+                                                  RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                  "---" );
 
-        tag->clicked.connect( this, &RimPlotCurve::onColorTagClicked );
+    tag.clicked = [this]( size_t index ) { this->onColorTagClicked( nullptr, index ); };
 
-        treeItemAttribute->tags.push_back( std::move( tag ) );
-    }
+    tags.push_back( tag );
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

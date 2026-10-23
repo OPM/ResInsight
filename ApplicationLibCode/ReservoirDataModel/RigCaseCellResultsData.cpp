@@ -28,6 +28,7 @@
 #include "RiaResultNames.h"
 
 #include "RifReaderEclipseOutput.h"
+#include "RifReaderOpmCommon.h"
 
 #include "RigAllanDiagramData.h"
 #include "RigAllanUtil.h"
@@ -569,19 +570,23 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Time steps reported by the file reader itself, independent of which results (if any) have been
+/// loaded so far. gridFileName is only needed for the opm-common reader, which requires it to locate
+/// the matching restart file.
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader() const
+std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader( const QString& gridFileName ) const
 {
-    const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>( m_readerInterface.p() );
-    if ( rifReaderOutput )
+    if ( const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>( m_readerInterface.p() ) )
     {
         return rifReaderOutput->allTimeSteps();
     }
-    else
+
+    if ( auto* rifReaderOpmCommon = dynamic_cast<const RifReaderOpmCommon*>( m_readerInterface.p() ) )
     {
-        return std::vector<QDateTime>();
+        if ( !gridFileName.isEmpty() ) return const_cast<RifReaderOpmCommon*>( rifReaderOpmCommon )->timeStepsOnFile( gridFileName );
     }
+
+    return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -835,32 +840,40 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
     auto isCandidateResult = []( const RigEclipseResultAddress& adr, RiaDefines::ResultCatType category )
     { return adr.resultCatType() == category && adr.resultName() != RiaResultNames::completionTypeResultName(); };
 
+    auto preferredResult = RiaPreferencesGrid::current()->preferredDynamicResult();
+    if ( preferredResult == RiaResultNames::undefinedResultName() )
+    {
+        return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::undefinedResultName() );
+    }
+
     if ( maxTimeStepCount() > 0 )
     {
-        auto prefs = RiaPreferencesGrid::current();
-        if ( prefs->loadAndShowSoil() && m_ownerCaseData )
+        if ( m_ownerCaseData )
         {
-            // Use the saturation result matching the available phases, but only if the result exists or can be
-            // computed, i.e. a result entry is present. See issue #10122.
+            // Check which results are available
             const auto phases = m_ownerCaseData->availablePhases();
 
             const RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
-            if ( phases.contains( RiaDefines::PhaseType::OIL_PHASE ) && hasResultEntry( soilAddress ) )
-            {
-                return soilAddress;
-            }
-
             const RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
-            if ( phases.contains( RiaDefines::PhaseType::GAS_PHASE ) && hasResultEntry( sgasAddress ) )
+
+            bool soilAvailable = phases.contains( RiaDefines::PhaseType::OIL_PHASE ) && hasResultEntry( soilAddress );
+            bool sgasAvailable = phases.contains( RiaDefines::PhaseType::GAS_PHASE ) && hasResultEntry( sgasAddress );
+
+            if ( preferredResult == RiaResultNames::soil() )
             {
-                return sgasAddress;
+                if ( soilAvailable ) return soilAddress;
+                if ( sgasAvailable ) return sgasAddress;
+            }
+            else if ( preferredResult == RiaResultNames::sgas() )
+            {
+                if ( sgasAvailable ) return sgasAddress;
+                if ( soilAvailable ) return soilAddress;
             }
 
-            const RigEclipseResultAddress swatAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
-            if ( hasResultEntry( swatAddress ) )
-            {
-                return swatAddress;
-            }
+            const RigEclipseResultAddress defaultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, preferredResult );
+            if ( hasResultEntry( defaultAddress ) ) return defaultAddress;
+
+            RiaLogging::warning( std::format( "Unable to find default dynamic result {}", preferredResult.toStdString() ) );
         }
 
         auto dynamicResult = std::find_if( allResults.begin(),
@@ -2524,7 +2537,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
-    const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->allConnections();
+    const std::vector<RigConnection>& nncConnections = m_ownerMainGrid->nncData()->allConnections();
     for ( size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++ )
     {
         size_t                             nativeResvCellIndex = nncConnections[connIdx].c1GlobIdx();
@@ -2877,7 +2890,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     if ( transResults->size() != riAreaNormTransResults.size() ) return;
 
-    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->allConnections();
+    const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->allConnections();
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {
@@ -3364,8 +3377,12 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
                                                               RiaDefines::PorosityModelType poroModel,
                                                               std::vector<RimEclipseCase*>  destinationCases )
 {
-    std::vector<RigEclipseResultAddress> resAddresses  = mainCaseResultsData->results( poroModel )->existingResults();
-    std::vector<RigEclipseTimeStepInfo>  timeStepInfos = mainCaseResultsData->results( poroModel )->timeStepInfos( resAddresses[0] );
+    std::vector<RigEclipseResultAddress> resAddresses = mainCaseResultsData->results( poroModel )->existingResults();
+    std::vector<RigEclipseTimeStepInfo>  timeStepInfos;
+    if ( !resAddresses.empty() )
+    {
+        timeStepInfos = mainCaseResultsData->results( poroModel )->timeStepInfos( resAddresses[0] );
+    }
 
     const std::vector<RigEclipseResultInfo> resultInfos = mainCaseResultsData->results( poroModel )->infoForEachResultIndex();
 

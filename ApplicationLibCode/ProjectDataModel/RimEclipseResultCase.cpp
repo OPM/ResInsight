@@ -86,6 +86,10 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
+    m_resultAliasList.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                                    static_cast<int>( caf::PdmUiTableViewEditor::RESIZE_TO_FILL_CONTAINER ) );
+    m_resultAliasList.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
+
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System" );
     m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
@@ -98,6 +102,7 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name" );
     m_sourSimFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_sourSimFileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER, QString( "SourSim (*.sourres)" ) );
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );
 #endif
@@ -198,6 +203,17 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         // opmcommon reader only reads EGRID
         if ( !gridFileName().toLower().endsWith( ".egrid" ) )
         {
+            readerType = RiaDefines::GridModelReader::RESDATA;
+        }
+
+        // opmcommon reader only reads unified restart files
+        if ( readerType == RiaDefines::GridModelReader::OPM_COMMON &&
+             RifEclipseOutputFileTools::hasOnlyNonUnifiedRestartFiles( gridFileName() ) )
+        {
+            RiaLogging::info(
+                QString( "Using the resdata reader for '%1', as the opm-common reader does not support non-unified restart files" )
+                    .arg( gridFileName() )
+                    .toStdString() );
             readerType = RiaDefines::GridModelReader::RESDATA;
         }
 
@@ -360,6 +376,8 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
                                                                eclipseCaseData(),
                                                                std::vector<QString>( fileNames.begin(), fileNames.end() ),
                                                                importFaults );
+
+    updateResultAddressCollection();
 
     return true;
 }
@@ -757,6 +775,8 @@ bool RimEclipseResultCase::hasSourSimFile()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_sourSimFileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::DEFAULT_PATH, QFileInfo( gridFileName() ).absolutePath() );
+
     uiOrdering.add( &m_caseUserDescription );
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_caseId );
@@ -803,31 +823,6 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     }
 
     return RimEclipseCase::fieldChangedByUi( changedField, oldValue, newValue );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_sourSimFileName )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
-            myAttr->m_defaultPath         = QFileInfo( gridFileName() ).absolutePath();
-        }
-    }
-    else if ( field == &m_resultAliasList )
-    {
-        auto* tvAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttr )
-        {
-            tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
-            tvAttr->alwaysEnforceResizePolicy = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

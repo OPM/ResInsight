@@ -1,0 +1,214 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimcCase.h"
+
+#include "RiaApplication.h"
+#include "RiaProjectModifier.h"
+
+#include "Formations/RimFormationNames.h"
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
+#include "RimProject.h"
+
+#include "Riu3DMainWindowTools.h"
+
+#include "cafPdmFieldScriptingCapability.h"
+
+#include <QDir>
+#include <QFileInfo>
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCase, RimCase_replaceGrid, "replaceGrid" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase_replaceGrid::RimCase_replaceGrid( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Replace Grid", "", "", "Replace the grid file of the case and reload the project" );
+
+    CAF_PDM_InitScriptableField( &m_newGridFile,
+                                 "NewGridFile",
+                                 QString(),
+                                 "New Grid File",
+                                 "",
+                                 "",
+                                 "Path to the new grid file (EGRID, GRID, GRDECL or ODB)" );
+    CAF_PDM_InitScriptableField( &m_projectFile,
+                                 "ProjectFile",
+                                 QString(),
+                                 "Project File",
+                                 "",
+                                 "",
+                                 "Optional project file to reload. Defaults to the current project file." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase_replaceGrid::setNewGridFile( const QString& newGridFile )
+{
+    m_newGridFile = newGridFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase_replaceGrid::setProjectFile( const QString& projectFile )
+{
+    m_projectFile = projectFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimCase_replaceGrid::execute()
+{
+    auto* rimCase = self<RimCase>();
+    if ( !rimCase ) return std::unexpected( "No case is available." );
+
+    if ( m_newGridFile().isEmpty() ) return std::unexpected( "No new grid file specified." );
+
+    QString projectPath = m_projectFile();
+    if ( projectPath.isEmpty() )
+    {
+        RimProject* project = RimProject::current();
+        if ( project ) projectPath = project->fileName();
+    }
+
+    if ( projectPath.isEmpty() )
+    {
+        return std::unexpected( "The project must be saved as a file before replacing the grid of a case." );
+    }
+
+    QString   filePath = m_newGridFile();
+    QFileInfo casePathInfo( filePath );
+    if ( !casePathInfo.exists() )
+    {
+        QDir startDir( RiaApplication::instance()->startDir() );
+        filePath = startDir.absoluteFilePath( m_newGridFile() );
+    }
+
+    cvf::ref<RiaProjectModifier> projectModifier = cvf::make_ref<RiaProjectModifier>();
+    projectModifier->setReplaceCase( rimCase->caseId(), filePath );
+
+    if ( !RiaApplication::instance()->loadProject( projectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
+    {
+        return std::unexpected( "Could not reload project" );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCase, RimCase_createView, "createView" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase_createView::RimCase_createView( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create View", "", "", "Create a new 3D view in the case" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimCase_createView::execute()
+{
+    auto* rimCase = self<RimCase>();
+    if ( !rimCase ) return std::unexpected( "No case is available." );
+
+    Rim3dView* view = nullptr;
+    if ( auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase ) )
+    {
+        RimEclipseView* eclipseView = eclipseCase->createAndAddReservoirView();
+        eclipseView->loadDataAndUpdate();
+        eclipseCase->updateConnectedEditors();
+        view = eclipseView;
+    }
+    else if ( auto* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase ) )
+    {
+        RimGeoMechView* geoMechView = geoMechCase->createAndAddReservoirView();
+        geoMechView->loadDataAndUpdate();
+        geoMechCase->updateConnectedEditors();
+        view = geoMechView;
+    }
+
+    if ( !view ) return std::unexpected( QString( "Could not create view for case '%1'" ).arg( rimCase->caseUserDescription() ) );
+
+    Riu3DMainWindowTools::setExpanded( view );
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase_createView::classKeywordReturnedType() const
+{
+    return Rim3dView::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCase, RimCase_setFormationNames, "setFormationNames" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase_setFormationNames::RimCase_setFormationNames( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Formation Names", "", "", "Set the active formation names of the case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_formationNames,
+                                          "FormationNames",
+                                          "Formation Names",
+                                          "",
+                                          "",
+                                          "Formation names object, e.g. from Project.import_formation_names()" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase_setFormationNames::setFormationNames( RimFormationNames* formationNames )
+{
+    m_formationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimCase_setFormationNames::execute()
+{
+    auto* rimCase = self<RimCase>();
+    if ( !rimCase ) return std::unexpected( "No case is available." );
+
+    RimFormationNames* formationNames = m_formationNames();
+    if ( !formationNames ) return std::unexpected( "No formation names specified." );
+
+    rimCase->setFormationNames( formationNames );
+    rimCase->updateFormationNamesData();
+    rimCase->updateConnectedEditors();
+
+    return nullptr;
+}

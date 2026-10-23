@@ -222,6 +222,7 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
         for ( int i = 0; i < texSection->partsCount(); i++ )
         {
             const auto& texturePart = texSection->part( i );
+            if ( texturePart.rect.size() < 2 ) continue;
 
             // Each part of the seismic section is a rectangle, use two corners of the rectangle to create a polyline
             std::vector<cvf::Vec3d> polyLineForSection = { texturePart.rect[0], texturePart.rect[1] };

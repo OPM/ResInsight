@@ -29,6 +29,7 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicScheduleDataGenerator.h"
 #include "RicTransmissibilityCalculator.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 #include "RicWellPathExportMswCompletionsImpl.h"
@@ -65,6 +66,8 @@
 
 #include <QDir>
 
+#include <algorithm>
+#include <limits>
 #include <map>
 #include <optional>
 #include <set>
@@ -72,9 +75,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         wellPaths,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         allWellPaths,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
+    // Laterals are exported together with their top level well path
+    const auto wellPaths = RicWellPathExportCompletionsFileTools::uniqueTopLevelWellPaths( allWellPaths );
+
     if ( exportSettings.caseToApply() == nullptr )
     {
         RiaLogging::error( "Export Completions Data: Cannot export completions data a valid Eclipse case" );
@@ -376,6 +382,39 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
     return completionsPerEclipseCell;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<int> RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( const std::vector<RigCompletionData>& completions )
+{
+    // One perforation interval can cross the same cell more than once, so lengths are summed per number
+    std::map<int, double> overlapPerNumber;
+    for ( const auto& completion : completions )
+    {
+        const auto number = completion.completionNumber();
+        if ( !number.has_value() ) continue;
+
+        double length = 0.0;
+        if ( completion.startMD().has_value() && completion.endMD().has_value() )
+        {
+            length = std::max( 0.0, completion.endMD().value() - completion.startMD().value() );
+        }
+        overlapPerNumber[number.value()] += length;
+    }
+
+    if ( overlapPerNumber.empty() ) return std::nullopt;
+
+    // Iterating in ascending number order and requiring a strictly larger length makes ties go to the lowest number
+    const double tolerance = 1.0e-6;
+
+    auto best = overlapPerNumber.begin();
+    for ( auto it = std::next( best ); it != overlapPerNumber.end(); ++it )
+    {
+        if ( it->second > best->second + tolerance ) best = it;
+    }
+    return best->first;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -406,9 +445,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     auto isValidTransmissibility = []( double transmissibility )
     { return RigStatisticsTools::isValidNumber<double>( transmissibility ) && transmissibility >= 0.0; };
 
-    auto startMD          = completions[0].startMD();
-    auto endMD            = completions[0].endMD();
-    auto completionNumber = completions[0].completionNumber();
+    auto startMD = completions[0].startMD();
+    auto endMD   = completions[0].endMD();
 
     for ( const RigCompletionData& completion : completions )
     {
@@ -433,14 +471,6 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             if ( completion.endMD().has_value() && ( completion.endMD().value() > endMD.value() ) )
             {
                 endMD = completion.endMD();
-            }
-        }
-
-        if ( !completionNumber.has_value() )
-        {
-            if ( completion.completionNumber().has_value() )
-            {
-                completionNumber = completion.completionNumber();
             }
         }
 
@@ -470,7 +500,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     {
         resultCompletion.setDepthRange( startMD.value(), endMD.value() );
     }
-    if ( completionNumber.has_value() ) resultCompletion.setCompletionNumber( completionNumber.value() );
+    if ( auto completionNumber = completionNumberForCell( completions ) ) resultCompletion.setCompletionNumber( completionNumber.value() );
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();
@@ -768,30 +798,47 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclips
 
     // See similar logic in RiaGrpcWellPathService::GetCompletionData()
 
+    // A well must be defined only once. Use the LGR the well path enters first.
     for ( const auto& [wellPath, gridNames] : wellPathToLgrNameMap )
     {
+        QString    firstLgrName;
+        double     firstMeasuredDepth = std::numeric_limits<double>::max();
+        cvf::Vec2i firstIJ;
+        bool       isFound = false;
+
         for ( const auto& lgrName : gridNames )
         {
             const auto& [measuredDepth, ijIntersection] = wellPathUpperGridIntersectionIJ( gridCase, wellPath, lgrName );
 
-            auto completionSettings = wellPath->completionSettings();
-
-            formatter.add( completionSettings->wellNameForExport() )
-                .add( completionSettings->groupNameForExport() )
-                .add( lgrName )
-                .add( ijIntersection.x() + 1 )
-                .add( ijIntersection.y() + 1 )
-                .add( completionSettings->referenceDepthForExport() )
-                .add( completionSettings->wellTypeNameForExport() )
-                .add( completionSettings->drainageRadiusForExport() )
-                .add( completionSettings->gasInflowEquationForExport() )
-                .add( completionSettings->automaticWellShutInForExport() )
-                .add( completionSettings->allowWellCrossFlowForExport() )
-                .add( completionSettings->wellBoreFluidPVTForExport() )
-                .add( completionSettings->hydrostaticDensityForExport() )
-                .add( completionSettings->fluidInPlaceRegionForExport() )
-                .rowCompleted();
+            const bool isValid = measuredDepth != cvf::UNDEFINED_DOUBLE;
+            if ( !isFound || ( isValid && measuredDepth < firstMeasuredDepth ) )
+            {
+                firstLgrName       = lgrName;
+                firstMeasuredDepth = isValid ? measuredDepth : std::numeric_limits<double>::max();
+                firstIJ            = ijIntersection;
+                isFound            = true;
+            }
         }
+
+        if ( !isFound ) continue;
+
+        auto completionSettings = wellPath->completionSettings();
+
+        formatter.add( completionSettings->wellNameForExport() )
+            .add( completionSettings->groupNameForExport() )
+            .add( firstLgrName )
+            .add( firstIJ.x() + 1 )
+            .add( firstIJ.y() + 1 )
+            .add( completionSettings->referenceDepthForExport() )
+            .add( completionSettings->wellTypeNameForExport() )
+            .add( completionSettings->drainageRadiusForExport() )
+            .add( completionSettings->gasInflowEquationForExport() )
+            .add( completionSettings->automaticWellShutInForExport() )
+            .add( completionSettings->allowWellCrossFlowForExport() )
+            .add( completionSettings->wellBoreFluidPVTForExport() )
+            .add( completionSettings->hydrostaticDensityForExport() )
+            .add( completionSettings->fluidInPlaceRegionForExport() )
+            .rowCompleted();
     }
     formatter.tableCompleted();
 }
@@ -871,7 +918,15 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     formatter.setColumnSpacing( 3 );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    for ( const auto& gridCompletions : completionsPerGrid )
+    // All LGRs share one set of tables (COMPDATL, WPIMULTL, COMPLMPL) where each row carries its own LGR name
+    std::map<QString, std::vector<RigCompletionData>> completionsPerTable;
+    for ( const auto& [gridName, gridCompletions] : completionsPerGrid )
+    {
+        auto& tableCompletions = completionsPerTable[gridName.isEmpty() ? QString() : QString( "LGR" )];
+        tableCompletions.insert( tableCompletions.end(), gridCompletions.begin(), gridCompletions.end() );
+    }
+
+    for ( const auto& gridCompletions : completionsPerTable )
     {
         std::vector<RigCompletionData> completions = gridCompletions.second;
 
@@ -982,7 +1037,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( data.completionDataGridCell().lgrName() );
         }
 
         formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
@@ -1063,7 +1118,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportComplumpTableUsingFormatt
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( data.completionDataGridCell().lgrName() );
         }
 
         formatter.add( data.completionDataGridCell().localCellIndexI() + 1 )
@@ -1122,7 +1177,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
         if ( !gridName.isEmpty() )
         {
-            formatter.add( gridName );
+            formatter.add( completion.completionDataGridCell().lgrName() );
         }
 
         formatter.add( completion.wpimult() );
@@ -1384,6 +1439,19 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
                                                                                                       RimEclipseCase* eCase,
                                                                                                       const std::optional<QDateTime>& exportDate )
 {
+    if ( wellPath == nullptr ) return {};
+
+    return completionDataForWellPaths( { wellPath }, eCase, exportDate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData>
+    RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                                            RimEclipseCase*                  eCase,
+                                                                            const std::optional<QDateTime>&  exportDate )
+{
     if ( eCase == nullptr ) return {};
 
     // Ensure that the case is open. This will enable export without any open views.
@@ -1404,14 +1472,20 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
 
     std::vector<RigCompletionData> completions;
 
+    // Completions from all given well paths (and their laterals) are combined per cell, so that cells shared
+    // by several well paths are exported as a single connection.
     std::vector<RimWellPath*> allWellPathLaterals;
-    if ( wellPath->unitSystem() == eCase->eclipseCaseData()->unitsType() )
+    for ( auto* wellPath : wellPaths )
     {
-        allWellPathLaterals = wellPath->allWellPathLaterals();
-    }
-    else
-    {
-        return {};
+        if ( !wellPath || wellPath->unitSystem() != eCase->eclipseCaseData()->unitsType() ) continue;
+
+        for ( auto* lateral : wellPath->allWellPathLaterals() )
+        {
+            if ( std::find( allWellPathLaterals.begin(), allWellPathLaterals.end(), lateral ) == allWellPathLaterals.end() )
+            {
+                allWellPathLaterals.push_back( lateral );
+            }
+        }
     }
 
     std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
@@ -1473,7 +1547,11 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compl
         completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
     }
 
-    std::sort( completions.begin(), completions.end() );
+    // Order completions with each well's mainbore connections first, followed by each lateral's
+    // (see https://github.com/OPM/ResInsight/issues/14963), instead of the plain well
+    // name/completion type/measured depth ordering from RigCompletionData::operator<(), since each
+    // lateral has its own independent MD scale.
+    RicScheduleDataGenerator::sortCompletionsMainBoreFirst( wellPaths, completions );
 
     // make sure we set per-connection D-factors, must be done after combining completions
     for ( auto& completion : completions )

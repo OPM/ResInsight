@@ -55,6 +55,8 @@ set(PROJECT_FILES
     cafPdmUiLabel.h
     cafPdmUiButton.cpp
     cafPdmUiButton.h
+    cafPdmUiButtonBox.cpp
+    cafPdmUiButtonBox.h
     cafSelectionManager.cpp
     cafSelectionManager.h
     cafSelectionChangedReceiver.h
@@ -66,6 +68,8 @@ set(PROJECT_FILES
     cafQShortenedLabel.h
     cafIconProvider.cpp
     cafIconProvider.h
+    cafPdmUiTreeAttributes.h
+    cafPdmUiTreeAttributes.cpp
     cafFontTools.cpp
     cafFontTools.h
     caf.h

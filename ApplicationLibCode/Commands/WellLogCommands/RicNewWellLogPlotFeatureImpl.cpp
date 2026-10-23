@@ -20,6 +20,7 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaWellLogTrackDefines.h"
 
 #include "Formations/RimFormationNames.h"
 #include "RimCase.h"

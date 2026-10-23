@@ -136,6 +136,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
     // Create a default RFT plot based on well name, and toggle on all available data sources in this RFT plot
 
     auto rftPlot = new RimWellRftPlot();
+    rftPlot->dockAsPlotWindow();
     rftPlot->setSimWellOrWellPathName( wellName );
 
     auto plotTrack = new RimWellLogTrack();

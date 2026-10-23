@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaWellLogTrackDefines.h"
-
 #include "Well/RigWellPathFormations.h"
 
 #include "cafAppEnum.h"
@@ -27,9 +25,17 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+namespace RiaDefines
+{
+enum class WellLogTrackFormationSource;
+enum class WellLogTrackTrajectoryType;
+enum class WellLogTrackFormationLevel;
+} // namespace RiaDefines
+
 class RimCase;
 class RimWellPath;
 class RimWellLogTrack;
+class RimWellFormationsFile;
 
 //==================================================================================================
 ///
@@ -62,6 +68,18 @@ public:
     RimWellPath* wellPathForSourceWellPath() const;
     void         setWellPathForSourceWellPath( RimWellPath* wellPath );
 
+    // Direct well formations file + well name, used by the WELL_PICK_FILTER source when no well
+    // path is selected (e.g. tracks not associated with a RimWellPath).
+    RimWellFormationsFile* wellFormationsFile() const;
+    void                   setWellFormationsFile( RimWellFormationsFile* file );
+
+    QString wellNameInFormationsFile() const;
+    void    setWellNameInFormationsFile( const QString& wellName );
+
+    // Resolves the formations to show for the WELL_PICK_FILTER source: the selected well path's
+    // own formations if present, otherwise the well looked up directly in wellFormationsFile().
+    const RigWellPathFormations* resolveWellPickFormations() const;
+
     // Simulation well
     QString simWellName() const;
     void    setSimWellName( const QString& simWellName );
@@ -88,11 +106,14 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
+    void                                                                 onAddWellPicksClicked();
     caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackFormationSource>> m_formationSource;
     caf::PdmPtrField<RimCase*>                                           m_formationCase;
     caf::PdmField<caf::AppEnum<RiaDefines::WellLogTrackTrajectoryType>>  m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceCase;
     caf::PdmPtrField<RimWellPath*>                                       m_formationWellPathForSourceWellPath;
+    caf::PdmPtrField<RimWellFormationsFile*>                             m_wellFormationsFile;
+    caf::PdmField<QString>                                               m_wellNameInFormationsFile;
     caf::PdmField<QString>                                               m_formationSimWellName;
     caf::PdmField<int>                                                   m_formationBranchIndex;
     caf::PdmField<bool>                                                  m_formationBranchDetection;

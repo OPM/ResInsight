@@ -46,6 +46,7 @@
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 
@@ -656,8 +657,10 @@ void RimGridTimeHistoryCurve::childFieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimGridTimeHistoryCurve::treeItemTags()
 {
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
     bool isUpdatedByAutomation = false;
 
     if ( auto parentPlot = RiaSummaryTools::parentSummaryPlot( this ) )
@@ -673,16 +676,15 @@ void RimGridTimeHistoryCurve::defineObjectEditorAttribute( QString uiConfigName,
     {
         QString iconResourceString = m_isLocked ? ":/padlock.svg" : ":/padlock-unlocked.svg";
 
-        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( iconResourceString );
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( iconResourceString );
 
-            tag->clicked.connect( this, &RimGridTimeHistoryCurve::onPadlockClicked );
+        tag.clicked = [this]( size_t index ) { this->onPadlockClicked( nullptr, index ); };
 
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------

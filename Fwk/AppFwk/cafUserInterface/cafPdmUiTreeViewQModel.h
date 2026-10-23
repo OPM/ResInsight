@@ -63,7 +63,6 @@ public:
     void setPdmItemRoot( PdmUiItem* rootItem );
     void updateSubTree( PdmUiItem* subTreeRoot, bool notifyEditors );
 
-    void setColumnHeaders( const QStringList& columnHeaders );
     void setUiConfigName( const QString& uiConfigName ) { m_uiConfigName = uiConfigName; }
 
     // These are supposed to be used from the Editor only, and to implement selection support.
@@ -92,7 +91,6 @@ private:
     void allIndicesRecursiveImpl( const QModelIndex& current, std::list<QModelIndex>& modelList ) const;
 
     PdmUiTreeOrdering* m_treeOrderingRoot;
-    QStringList        m_columnHeaders;
     QString            m_uiConfigName;
 
     PdmUiTreeViewEditor* m_treeViewEditor;

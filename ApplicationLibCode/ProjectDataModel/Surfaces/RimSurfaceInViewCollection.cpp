@@ -396,21 +396,11 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( changedField == &m_isChecked || changedField == &m_surfaceColorMode )
     {
         auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::initAfterRead()
-{
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

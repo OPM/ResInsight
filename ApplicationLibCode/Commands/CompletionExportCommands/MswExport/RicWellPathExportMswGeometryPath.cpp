@@ -83,7 +83,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
     auto                      mswParameters = wellPath->segmentCollection();
     if ( !mswParameters ) return result;
 
-    const std::string                            infoType         = mswParameters->lengthAndDepth().text().toStdString();
+    const std::string                            infoType         = wellPath->completionSettings()->lengthAndDepth().text().toStdString();
     const std::vector<std::pair<double, double>> segmentIntervals = mswParameters->getSegmentIntervals();
     const double                                 tieInMD          = wellPath->wellPathTieIn()->tieInMeasuredDepth();
     const double                                 tieInTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( tieInMD ).z();
@@ -188,8 +188,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    lateralBranchNum,
                                                                    segmentNumber,
                                                                    childOutletSeg,
-                                                                   mswParameters->maxSegmentLength(),
                                                                    segmentIntervals,
+                                                                   RicMswTableDataTools::segmentationSettings( mswParameters, exportDate ),
                                                                    exportDate,
                                                                    unitSystem,
                                                                    &childCellSegMap,
@@ -236,7 +236,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                   wellNameForExport,
                                                                   segmentNumber,
                                                                   completionBranchNumber,
-                                                                  mswParameters->maxSegmentLength(),
                                                                   segmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
@@ -265,7 +264,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          completionBranchNumber,
-                                                                         mswParameters->maxSegmentLength(),
                                                                          segmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );
@@ -302,7 +300,6 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 //--------------------------------------------------------------------------------------------------
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
-                                             double                                        maxSegmentLength,
                                              const std::vector<std::pair<double, double>>& customSegmentIntervals,
                                              CompletionType                                completionType,
                                              const std::optional<QDateTime>&               exportDate )
@@ -312,7 +309,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
 
     const RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
     const RigMainGrid*                  mainGrid   = eclipseCase->mainGrid();
-    const std::string                   infoType   = mswParameters->lengthAndDepth().text().toStdString();
+    const std::string                   infoType   = wellPath->completionSettings()->lengthAndDepth().text().toStdString();
 
     auto cellIntersections = RicWellPathExportMswTableData::generateCellSegments( eclipseCase, wellPath );
     double initialMD = RicWellPathExportMswTableData::computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
@@ -326,7 +323,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     header.topLength          = initialMD;
     header.topDepth           = initialTVD;
     header.infoType           = infoType;
-    header.pressureComponents = mswParameters->pressureDrop().text().toStdString();
+    header.pressureComponents = wellPath->completionSettings()->pressureDrop().text().toStdString();
 
     const bool includePerforations = ( completionType & CompletionType::PERFORATIONS ) == CompletionType::PERFORATIONS;
     const std::vector<const RimPerforationInterval*> perforationIntervals =
@@ -380,8 +377,8 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                     lateralBranchNumber,
                                                                     segmentNumber,
                                                                     1, // outlet = heel (segment 1)
-                                                                    maxSegmentLength,
                                                                     customSegmentIntervals,
+                                                                    RicMswTableDataTools::segmentationSettings( mswParameters, exportDate ),
                                                                     exportDate,
                                                                     unitSystem,
                                                                     &cellSegMap,
@@ -422,7 +419,6 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                   wellNameForExport,
                                                                   segmentNumber,
                                                                   completionBranchNumber,
-                                                                  maxSegmentLength,
                                                                   customSegmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
@@ -448,7 +444,6 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          completionBranchNumber,
-                                                                         maxSegmentLength,
                                                                          customSegmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );
@@ -502,7 +497,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
 /// Populate RigMswTableData from a pre-built RigMswWellExportData by simple iteration over
 /// RigMswSegment objects.
 //--------------------------------------------------------------------------------------------------
-RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem )
+RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem, bool exportSegmentNumbers )
 {
     RigMswTableData tableData( exportData.header.well, unitSystem );
     tableData.setWelsegsHeader( exportData.header );
@@ -543,6 +538,7 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
             compRow.distanceStart = inter.distanceStart;
             compRow.distanceEnd   = inter.distanceEnd;
             compRow.gridName      = inter.gridName;
+            if ( exportSegmentNumbers ) compRow.segmentNumber = seg.segmentNumber;
             compsegsRows.push_back( { compRow, branch.source } );
         }
 

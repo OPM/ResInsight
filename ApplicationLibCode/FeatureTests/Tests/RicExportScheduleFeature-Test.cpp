@@ -1,0 +1,269 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+//  A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "gtest/gtest.h"
+
+#include "RiaFeatureTestModelBuilder.h"
+
+#include "CompletionExportCommands/RicExportScheduleFeature.h"
+
+#include "RimKeywordEvent.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimWellEventInsertDate.h"
+#include "RimWellEventTimeline.h"
+#include "RimWellPathCollection.h"
+
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
+
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QTemporaryDir>
+#include <QTextStream>
+
+//--------------------------------------------------------------------------------------------------
+/// Curated test for RicExportScheduleFeature, which writes the schedule generated from the well
+/// event timeline to file. The interactive part (the save file dialog) is skipped by calling
+/// exportScheduleToFile() directly; the feature is only queried for whether it accepts the
+/// selection.
+//--------------------------------------------------------------------------------------------------
+class RicExportScheduleFeatureTest : public ::testing::Test
+{
+protected:
+    void TearDown() override
+    {
+        caf::SelectionManager::instance()->clearAll();
+        RiaFeatureTestModelBuilder::closeProject();
+    }
+
+    static RimWellEventTimeline* timelineWithEvents()
+    {
+        RimOilField* oilField = RimProject::current()->activeOilField();
+        if ( !oilField || !oilField->wellPathCollection() ) return nullptr;
+
+        RimWellEventTimeline* timeline = oilField->wellPathCollection()->eventTimeline();
+        if ( !timeline ) return nullptr;
+
+        const QDateTime firstDate( QDate( 2024, 1, 1 ), QTime( 0, 0, 0 ) );
+        auto*           keywordEvent = timeline->addKeywordEvent( firstDate, "RPTRST" );
+        keywordEvent->addIntItem( "BASIC", 2 );
+
+        auto* insertDate = timeline->addInsertDateEvent( QDateTime( QDate( 2024, 7, 1 ), QTime( 0, 0, 0 ) ) );
+        insertDate->setComment( "Mid-year summary report" );
+
+        return timeline;
+    }
+};
+
+TEST_F( RicExportScheduleFeatureTest, ExportWritesScheduleForTimelineEvents )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+    ASSERT_TRUE( model.eclipseCase != nullptr );
+
+    RimWellEventTimeline* timeline = timelineWithEvents();
+    ASSERT_TRUE( timeline != nullptr );
+
+    caf::SelectionManager::instance()->setSelectedItem( timeline );
+
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportScheduleFeature" );
+    ASSERT_TRUE( feature != nullptr );
+    EXPECT_TRUE( feature->canFeatureBeExecuted() );
+
+    // Without a related selection (e.g. from the File -> Export menu) the timeline of the
+    // project's well path collection is used.
+    caf::SelectionManager::instance()->clearAll();
+    EXPECT_TRUE( feature->canFeatureBeExecuted() );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "schedule.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+    EXPECT_EQ( fileName.toStdString(), exportedFile->toStdString() );
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    // The first (earliest) date is written as a comment, the inserted date as a DATES keyword
+    // followed by the comment of the insert-date event. Columns are aligned, so the records are
+    // padded: "    1  'JUL'  2024 /".
+    EXPECT_TRUE( content.contains( "-- Date: 1 JAN 2024" ) );
+    EXPECT_TRUE( content.contains( "RPTRST" ) );
+    EXPECT_TRUE( content.contains( "BASIC=2" ) );
+    EXPECT_TRUE( content.contains( "DATES" ) );
+    EXPECT_TRUE( content.contains( "'JUL'" ) );
+    EXPECT_TRUE( content.contains( "-- Mid-year summary report" ) );
+    // Aligned output adds a column-header comment per keyword.
+    EXPECT_TRUE( content.contains( "--DAY" ) );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportKeepsKeywordPriorityOrderRegardlessOfInsertionOrder )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+    ASSERT_TRUE( model.eclipseCase != nullptr );
+
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    ASSERT_TRUE( oilField != nullptr && oilField->wellPathCollection() != nullptr );
+    RimWellEventTimeline* timeline = oilField->wellPathCollection()->eventTimeline();
+    ASSERT_TRUE( timeline != nullptr );
+
+    // Added out of priority order on purpose: the exporter must still emit them sorted by the
+    // keyword priority order, with the group keywords (GCONPROD, GCONINJE, GEFAC) placed between
+    // WRFTPLT and TUNING, and the MSW keywords (WELSEGS, WSEGVALV, WSEGAICD, COMPSEGS) kept in that
+    // relative order. The MSW/group keywords use schedule-level keyword events with dummy data (not
+    // real well completions), so only the keyword priority order is exercised here.
+    const QDateTime date( QDate( 2024, 1, 1 ), QTime( 0, 0, 0 ) );
+    timeline->addKeywordEvent( date, "RPTRST" )->addIntItem( "BASIC", 2 );
+    timeline->addKeywordEvent( date, "TUNING" );
+    timeline->addKeywordEvent( date, "GEFAC" )->addStringItem( "GROUP", "FIELD" );
+    timeline->addKeywordEvent( date, "GCONINJE" )->addStringItem( "GROUP", "FIELD" );
+    timeline->addKeywordEvent( date, "GCONPROD" )->addStringItem( "GROUP", "FIELD" );
+    timeline->addKeywordEvent( date, "WRFTPLT" )->addStringItem( "WELL", "W1" );
+    timeline->addKeywordEvent( date, "COMPSEGS" )->addStringItem( "WELL", "W1" );
+    timeline->addKeywordEvent( date, "WSEGAICD" )->addStringItem( "WELL", "W1" );
+    timeline->addKeywordEvent( date, "WSEGVALV" )->addStringItem( "WELL", "W1" );
+    timeline->addKeywordEvent( date, "WELSEGS" )->addStringItem( "WELL", "W1" );
+
+    caf::SelectionManager::instance()->setSelectedItem( timeline );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "schedule_order.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    const int wrftpltPos  = content.indexOf( "WRFTPLT" );
+    const int gconprodPos = content.indexOf( "GCONPROD" );
+    const int gconinjePos = content.indexOf( "GCONINJE" );
+    const int gefacPos    = content.indexOf( "GEFAC" );
+    const int tuningPos   = content.indexOf( "TUNING" );
+    const int rptrstPos   = content.indexOf( "RPTRST" );
+    const int welsegsPos  = content.indexOf( "WELSEGS" );
+    const int wsegvalvPos = content.indexOf( "WSEGVALV" );
+    const int wsegaicdPos = content.indexOf( "WSEGAICD" );
+    const int compsegsPos = content.indexOf( "COMPSEGS" );
+
+    ASSERT_NE( wrftpltPos, -1 );
+    ASSERT_NE( gconprodPos, -1 );
+    ASSERT_NE( gconinjePos, -1 );
+    ASSERT_NE( gefacPos, -1 );
+    ASSERT_NE( tuningPos, -1 );
+    ASSERT_NE( rptrstPos, -1 );
+    ASSERT_NE( welsegsPos, -1 );
+    ASSERT_NE( wsegvalvPos, -1 );
+    ASSERT_NE( wsegaicdPos, -1 );
+    ASSERT_NE( compsegsPos, -1 );
+
+    EXPECT_LT( wrftpltPos, gconprodPos );
+    EXPECT_LT( gconprodPos, gconinjePos );
+    EXPECT_LT( gconinjePos, gefacPos );
+    EXPECT_LT( gefacPos, tuningPos );
+    EXPECT_LT( tuningPos, rptrstPos );
+
+    EXPECT_LT( welsegsPos, wsegvalvPos );
+    EXPECT_LT( wsegvalvPos, wsegaicdPos );
+    EXPECT_LT( wsegaicdPos, compsegsPos );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportOfEmptyTimelineFails )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+    ASSERT_TRUE( model.eclipseCase != nullptr );
+
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    ASSERT_TRUE( oilField != nullptr && oilField->wellPathCollection() != nullptr );
+    RimWellEventTimeline* timeline = oilField->wellPathCollection()->eventTimeline();
+    ASSERT_TRUE( timeline != nullptr );
+
+    // No events: the feature is not offered, and a direct export reports why.
+    caf::SelectionManager::instance()->setSelectedItem( timeline );
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportScheduleFeature" );
+    ASSERT_TRUE( feature != nullptr );
+    EXPECT_FALSE( feature->canFeatureBeExecuted() );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, model.eclipseCase, temporaryDir.filePath( "empty.SCH" ) );
+    ASSERT_FALSE( exportedFile.has_value() );
+    EXPECT_EQ( std::string( "No events found in timeline" ), exportedFile.error().toStdString() );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportWithoutCaseWritesGridIndependentKeywords )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+
+    RimWellEventTimeline* timeline = timelineWithEvents();
+    ASSERT_TRUE( timeline != nullptr );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "no_case.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, nullptr, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    EXPECT_TRUE( content.contains( "-- Date: 1 JAN 2024" ) );
+    EXPECT_TRUE( content.contains( "RPTRST" ) );
+    EXPECT_TRUE( content.contains( "'JUL'" ) );
+    // No grid-dependent keywords were requested, so nothing is skipped.
+    EXPECT_FALSE( content.contains( "WARNING" ) );
+}
+
+TEST_F( RicExportScheduleFeatureTest, ExportWithoutCaseWarnsForPerforationEvents )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::wellPath();
+    ASSERT_TRUE( model.wellPath != nullptr );
+
+    RimWellEventTimeline* timeline = timelineWithEvents();
+    ASSERT_TRUE( timeline != nullptr );
+    timeline->addPerforationEvent( model.wellPath, QDateTime( QDate( 2024, 1, 1 ), QTime( 0, 0, 0 ) ) );
+
+    QTemporaryDir temporaryDir;
+    ASSERT_TRUE( temporaryDir.isValid() );
+    const QString fileName = temporaryDir.filePath( "no_case_perforation.SCH" );
+
+    auto exportedFile = RicExportScheduleFeature::exportScheduleToFile( *timeline, nullptr, fileName );
+    ASSERT_TRUE( exportedFile.has_value() ) << exportedFile.error().toStdString();
+
+    QFile file( fileName );
+    ASSERT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    const QString content = QTextStream( &file ).readAll();
+
+    EXPECT_TRUE( content.contains( "-- WARNING: No grid case: WELSPECS/COMPORD skipped for well '" ) );
+    EXPECT_TRUE( content.contains( "-- WARNING: No grid case: COMPDAT/COMPLUMP skipped for well '" ) );
+    EXPECT_FALSE( content.contains( "\nWELSPECS\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPORD\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPDAT\n" ) );
+    EXPECT_FALSE( content.contains( "\nCOMPLUMP\n" ) );
+    EXPECT_TRUE( content.contains( "\nRPTRST\n" ) );
+}

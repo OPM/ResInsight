@@ -41,6 +41,8 @@ dev = [
     "types-protobuf",
     "packaging>=22.0",
 ]
+# Needed by rips.taskmaestro_helper (the ResInsight workflow editor)
+workflow = ["taskmaestro>=0.4,<0.5"]
 
 [project.urls]
 Homepage = "http://www.resinsight.org"
@@ -51,6 +53,9 @@ Homepage = "http://www.resinsight.org"
 # releases. CI also enforces this via the UV_EXCLUDE_NEWER env var, since this
 # setting is only discovered when uv runs from this directory.
 exclude-newer = "1 week"
+
+[tool.pytest.ini_options]
+filterwarnings = ["error"]
 
 [tool.setuptools.dynamic]
 version = {attr = "rips._version.__version__"}

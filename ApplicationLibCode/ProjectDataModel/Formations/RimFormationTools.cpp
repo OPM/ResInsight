@@ -52,14 +52,20 @@ QStringList RimFormationTools::formationFoldersFromCaseFileName( const QString c
 //--------------------------------------------------------------------------------------------------
 RimFormationNames* RimFormationTools::loadFormationNamesFromFolder( const QStringList& folderNames )
 {
-    QStringList filters;
-    filters << "*.lyr";
+    // Priority: .lyr (may contain colors), then zone range yaml files, then FMU layer zone table
+    const std::vector<QStringList> filterPriority = { { "*.lyr" },
+                                                      { "zonation_ecl_map.yml", "zonation_ecl_map.yaml", "zone_layers.yml", "zone_layers.yaml" },
+                                                      { "layer_zone_table.txt" } };
 
     QStringList fileList;
 
     for ( auto& folder : folderNames )
     {
-        fileList.append( caf::Utils::getFilesInDirectory( folder, filters, true /*absolute filename*/ ) );
+        for ( const QStringList& filters : filterPriority )
+        {
+            fileList = caf::Utils::getFilesInDirectory( folder, filters, true /*absolute filename*/ );
+            if ( !fileList.isEmpty() ) break;
+        }
         if ( !fileList.isEmpty() ) break;
     }
 

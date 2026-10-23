@@ -23,6 +23,8 @@
 #include <QFile>
 #include <QTemporaryDir>
 
+#include <iomanip>
+
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +101,100 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 
         RifEclipseSummaryAddress eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( s1 );
         EXPECT_TRUE( eclAdr.isValid() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// For ensembles, RimSummaryEnsemble::ensembleSummaryAddresses() only builds the address-to-keyword
+/// map (by calling createAndSetAddresses()) for the realization with the most keywords, for
+/// performance reasons. For all other realizations, RifOpmCommonEclipseSummary::values() has to
+/// reconstruct the keyword text for a given address without having built that map.
+///
+/// This must work for region-to-region addresses (e.g. RGFT:1-2) using the standard (non-ESMRY)
+/// opm-common reader, matching the "R1-R2" (no spaces) keyword format used by opm-common. Using
+/// RifEclipseSummaryAddress::toEclipseTextAddress() directly is not correct here, as it formats
+/// region-to-region addresses with spaces ("R1 - R2") for UI display purposes.
+///
+/// See https://github.com/OPM/ResInsight/issues/14853
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadRegionToRegionValuesWithoutPrebuiltAddressMap )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+
+    // Reader with addresses built, used to obtain a valid region-to-region address and reference values.
+    RifOpmCommonEclipseSummary readerWithAddresses;
+    readerWithAddresses.useEnhancedSummaryFiles( false );
+    readerWithAddresses.createEnhancedSummaryFiles( false );
+    ASSERT_TRUE( readerWithAddresses.open( filePath, false, nullptr ) );
+    readerWithAddresses.createAddressesIfRequired();
+
+    RifEclipseSummaryAddress regionToRegionAddress;
+    for ( const auto& adr : readerWithAddresses.allResultAddresses() )
+    {
+        if ( adr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
+        {
+            regionToRegionAddress = adr;
+            break;
+        }
+    }
+    ASSERT_TRUE( regionToRegionAddress.isValid() );
+
+    auto [referenceOk, referenceValues] = readerWithAddresses.values( regionToRegionAddress );
+    ASSERT_TRUE( referenceOk );
+    ASSERT_FALSE( referenceValues.empty() );
+
+    // Reader for the same file, but createAndSetAddresses()/createAddressesIfRequired() is deliberately never
+    // called. This mirrors the state of a realization in an ensemble that was not selected to provide the
+    // ensemble's address list.
+    RifOpmCommonEclipseSummary readerWithoutAddresses;
+    readerWithoutAddresses.useEnhancedSummaryFiles( false );
+    readerWithoutAddresses.createEnhancedSummaryFiles( false );
+    ASSERT_TRUE( readerWithoutAddresses.open( filePath, false, nullptr ) );
+
+    auto [ok, values] = readerWithoutAddresses.values( regionToRegionAddress );
+    EXPECT_TRUE( ok );
+    ASSERT_EQ( referenceValues.size(), values.size() );
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        EXPECT_DOUBLE_EQ( referenceValues[i], values[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadUnitSystem )
+{
+    {
+        RifOpmCommonEclipseSummary reader;
+        reader.useEnhancedSummaryFiles( false );
+        reader.createEnhancedSummaryFiles( false );
+        ASSERT_TRUE( reader.open( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC", false, nullptr ) );
+        EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_METRIC, reader.unitSystem() );
+    }
+
+    {
+        // ESMRY without SMSPEC, the unit system is derived from the vector units. Create the ESMRY file in a temporary folder, as the
+        // ESMRY file in the test data folder is rewritten by other tests.
+        QTemporaryDir tempDir;
+        ASSERT_TRUE( tempDir.isValid() );
+        const QString smspecFilePath = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.SMSPEC" );
+        const QString unsmryFilePath = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.UNSMRY" );
+        const QString esmryFilePath  = tempDir.filePath( "NORNE_ATW2013_RFTPLT_V2.ESMRY" );
+        ASSERT_TRUE( QFile::copy( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC", smspecFilePath ) );
+        ASSERT_TRUE( QFile::copy( H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.UNSMRY", unsmryFilePath ) );
+        {
+            Opm::EclIO::ESmry eSmry( smspecFilePath.toStdString() );
+            ASSERT_TRUE( eSmry.make_esmry_file() );
+        }
+        ASSERT_TRUE( QFile::remove( smspecFilePath ) );
+        ASSERT_TRUE( QFile::remove( unsmryFilePath ) );
+
+        RifOpmCommonEclipseSummary reader;
+        reader.useEnhancedSummaryFiles( true );
+        reader.createEnhancedSummaryFiles( false );
+        ASSERT_TRUE( reader.open( esmryFilePath, false, nullptr ) );
+        EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_METRIC, reader.unitSystem() );
     }
 }
 

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
@@ -50,6 +51,8 @@ class RimCase;
 class RimLegendConfig;
 class RimWellPathCollection;
 class RimAnnotationInViewCollection;
+class RimSurfaceInViewCollection;
+class RimPolygonInViewCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
@@ -125,6 +128,10 @@ public:
 
     virtual RiaDefines::View3dContent viewContent() const = 0;
 
+    // Default: no surface/polygon collection. RimGridView, RimGeneric3dView and RimSeismicView re-abstract these.
+    virtual RimSurfaceInViewCollection* surfaceInViewCollection() const { return nullptr; }
+    virtual RimPolygonInViewCollection* polygonInViewCollection() const { return nullptr; }
+
     void           setMeshOnlyDrawstyle();
     void           setMeshSurfDrawstyle();
     void           setSurfOnlyDrawstyle();
@@ -181,6 +188,10 @@ public:
 
     virtual void             updateGridBoxData();
     virtual cvf::BoundingBox domainBoundingBox();
+
+    // Context menu shown when right-clicking directly inside the 3D viewer (as opposed to the project tree).
+    // Override in derived views to contribute view-specific 3D viewer context menu entries.
+    virtual void appendViewerContextMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const {}
 
     void         setScaleZ( double scaleZ );
     void         setScaleZAndUpdate( double scaleZ );
@@ -280,8 +291,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     void setupBeforeSave() override;
 

@@ -18,240 +18,172 @@
 
 #include "RifWellPathFormationReader.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaRegressionTestRunner.h"
-#include "Riu3DMainWindowTools.h"
-#include "RiuMessageDialog.h"
-
-#include "cafAssert.h"
+#include "RifCsvHtmlTableTools.h"
 
 #include <QFile>
 #include <QStringList>
+#include <QTextStream>
 
-#include <algorithm>
-#include <cctype>
-#include <string>
+#include <optional>
+#include <vector>
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList parseHeader( const QString& line, QChar delimiter )
+{
+    QString header = line.toLower();
+    header.removeIf( []( QChar c ) { return c.isSpace() || c == '_'; } );
+
+    return header.split( delimiter );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the index of the first of the candidate column names present in the header, or -1
+//--------------------------------------------------------------------------------------------------
+int findColumn( const QStringList& header, std::initializer_list<const char*> candidates )
+{
+    for ( const char* candidate : candidates )
+    {
+        const int index = header.indexOf( QString( candidate ) );
+        if ( index != -1 ) return index;
+    }
+    return -1;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::readWellFormationsToGeometry( const QString& filePath )
+std::optional<double> toOptionalDouble( const QStringList& columns, int index )
 {
-    std::map<QString, cvf::ref<RigWellPathFormations>> result;
+    if ( index == -1 || index >= columns.size() ) return std::nullopt;
 
-    std::vector<QString> wellNames;
-    std::vector<QString> formationNames;
+    bool         ok    = false;
+    const double value = columns[index].toDouble( &ok );
+    return ok ? std::optional( value ) : std::nullopt;
+}
+} // namespace
 
-    std::vector<double> mdTop;
-    std::vector<double> mdBase;
-
-    std::vector<double> tvdTop;
-    std::vector<double> tvdBase;
-
-    readFile( filePath, &wellNames, &formationNames, &mdTop, &mdBase, &tvdTop, &tvdBase );
-
-    bool mdIsPresent  = true;
-    bool tvdIsPresent = true;
-
-    if ( mdTop.empty() || mdBase.empty() )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RifWellPathFormationReader::WellFormations, QString> RifWellPathFormationReader::readWellFormations( const QString& filePath,
+                                                                                                                   QStringList* zoneOrder )
+{
+    QFile file( filePath );
+    if ( !file.open( QFile::ReadOnly | QFile::Text ) )
     {
-        mdIsPresent = false;
+        return std::unexpected( QString( "Failed to open %1" ).arg( filePath ) );
     }
 
-    if ( tvdTop.empty() || tvdBase.empty() )
+    return parseWellFormations( QString::fromUtf8( file.readAll() ), filePath, zoneOrder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RifWellPathFormationReader::WellFormations, QString>
+    RifWellPathFormationReader::parseWellFormations( const QString& content, const QString& filePath, QStringList* zoneOrder )
+{
+    const auto parseFailure = QString( "Failed to parse %1 as a well pick file" ).arg( filePath );
+
+    QString     text = content;
+    QTextStream stream( &text );
+
+    QStringList header;
+    QChar       delimiter = ';';
+    while ( header.size() < 3 )
     {
-        tvdIsPresent = false;
+        if ( stream.atEnd() ) return std::unexpected( parseFailure );
+
+        const QString rawHeaderLine = stream.readLine();
+        delimiter                   = RifCsvHtmlTableTools::detectDelimiter( rawHeaderLine );
+        header                      = parseHeader( rawHeaderLine, delimiter );
     }
 
-    if ( wellNames.empty() || formationNames.empty() )
-    {
-        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
-                                     "Import failure",
-                                     QString( "Failed to parse %1 as a well pick file" ).arg( filePath ) );
+    // The "well pick" formats use wellname/unitname, the FMU formations.csv format uses well/zone (and
+    // ignores zone_code). Both support md and/or tvd, and the FMU format can also include an x/y
+    // position for the zone top.
+    //
+    // "tvdss" columns hold a positive magnitude in the opposite (RMS, Z-up) sign convention and are
+    // negated to match ResInsight's positive-down TVD. Plain "tvd" columns (as used in the FMU
+    // formations.csv) are already positive-down and are used as-is.
+    const int wellNameIndex  = findColumn( header, { "wellname", "well" } );
+    const int unitNameIndex  = findColumn( header, { "unitname", "zone" } );
+    const int mdTopIndex     = header.indexOf( "topmd" );
+    const int mdBaseIndex    = header.indexOf( "basemd" );
+    const int tvdSSTopIndex  = header.indexOf( "toptvdss" );
+    const int tvdSSBaseIndex = header.indexOf( "basetvdss" );
+    const int tvdTopIndex    = tvdSSTopIndex != -1 ? tvdSSTopIndex : header.indexOf( "toptvd" );
+    const int tvdBaseIndex   = tvdSSBaseIndex != -1 ? tvdSSBaseIndex : header.indexOf( "basetvd" );
+    const int xIndex         = header.indexOf( "xutme" );
+    const int yIndex         = header.indexOf( "yutmn" );
 
-        return result;
+    const bool hasMd   = mdTopIndex != -1 && mdBaseIndex != -1;
+    const bool hasTvd  = tvdTopIndex != -1 && tvdBaseIndex != -1;
+    const bool isTvdSS = tvdSSTopIndex != -1 && tvdSSBaseIndex != -1;
+    const bool hasXY   = xIndex != -1 && yIndex != -1;
+
+    if ( wellNameIndex == -1 || unitNameIndex == -1 )
+    {
+        return std::unexpected( parseFailure );
     }
-    else if ( !( mdIsPresent || tvdIsPresent ) )
-    {
-        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
-                                     "Import failure",
-                                     QString( "Failed to parse %1 as a well pick file. Neither MD or TVD is present." ).arg( filePath ) );
 
-        return result;
+    if ( !hasMd && !hasTvd )
+    {
+        return std::unexpected( parseFailure + ". Neither MD or TVD is present." );
     }
 
-    CAF_ASSERT( wellNames.size() == formationNames.size() );
+    std::map<QString, std::vector<RigWellPathFormation>> formationsPerWell;
 
-    std::map<QString, std::vector<RigWellPathFormation>> formations;
-
-    for ( size_t i = 0; i < wellNames.size(); i++ )
+    while ( !stream.atEnd() )
     {
+        const QStringList columns = stream.readLine().split( delimiter );
+        if ( columns.size() != header.size() ) continue;
+
+        const QString wellName = columns[wellNameIndex];
+        const QString unitName = columns[unitNameIndex].trimmed();
+        if ( wellName.trimmed().isEmpty() && unitName.isEmpty() ) continue;
+
         RigWellPathFormation formation;
-        formation.formationName = formationNames[i];
+        formation.formationName = unitName;
 
-        if ( mdIsPresent )
+        if ( hasMd )
         {
-            formation.mdTop  = mdTop[i];
-            formation.mdBase = mdBase[i];
+            formation.mdTop  = columns[mdTopIndex].toDouble();
+            formation.mdBase = columns[mdBaseIndex].toDouble();
         }
 
-        if ( tvdIsPresent )
+        if ( hasTvd )
         {
-            formation.tvdTop  = tvdTop[i];
-            formation.tvdBase = tvdBase[i];
+            const double sign = isTvdSS ? -1.0 : 1.0;
+            formation.tvdTop  = sign * columns[tvdTopIndex].toDouble();
+            formation.tvdBase = sign * columns[tvdBaseIndex].toDouble();
         }
 
-        if ( !formations.count( wellNames[i] ) )
+        if ( hasXY )
         {
-            formations[wellNames[i]] = std::vector<RigWellPathFormation>();
+            auto x = toOptionalDouble( columns, xIndex );
+            auto y = toOptionalDouble( columns, yIndex );
+            if ( x && y ) formation.topXY = cvf::Vec2d( *x, *y );
         }
 
-        formations[wellNames[i]].push_back( formation );
+        formationsPerWell[wellName].push_back( formation );
+        if ( zoneOrder && !unitName.isEmpty() && !zoneOrder->contains( unitName ) ) zoneOrder->push_back( unitName );
     }
 
-    for ( const std::pair<const QString, std::vector<RigWellPathFormation>>& formation : formations )
+    if ( formationsPerWell.empty() )
     {
-        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations( formation.second, filePath, formation.first );
-        result[formation.first]                            = wellPathFormations;
+        return std::unexpected( parseFailure );
+    }
+
+    WellFormations result;
+    for ( const auto& [wellName, formations] : formationsPerWell )
+    {
+        result.emplace( wellName, RigWellPathFormations( formations, filePath, wellName ) );
     }
 
     return result;
-}
-
-void removeWhiteSpaces( QString* word )
-{
-    std::string wordStd = word->toStdString();
-    wordStd.erase( std::remove_if( wordStd.begin(), wordStd.end(), []( unsigned char x ) { return std::isspace( x ); } ), wordStd.end() );
-
-    ( *word ) = QString( wordStd.c_str() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifWellPathFormationReader::readFile( const QString&        filePath,
-                                           std::vector<QString>* wellNames,
-                                           std::vector<QString>* formationNames,
-                                           std::vector<double>*  mdTop,
-                                           std::vector<double>*  mdBase,
-                                           std::vector<double>*  tvdTop,
-                                           std::vector<double>*  tvdBase )
-{
-    QFile data( filePath );
-
-    if ( !data.open( QFile::ReadOnly ) )
-    {
-        return;
-    }
-    QStringList header;
-
-    while ( header.size() < 3 )
-    {
-        if ( data.atEnd() ) return;
-
-        QString line = data.readLine().toLower();
-        removeWhiteSpaces( &line );
-
-        header = line.split( ';' );
-    }
-
-    static const QString wellNameText      = "wellname";
-    static const QString surfaceNameText   = "surfacename";
-    static const QString measuredDepthText = "md";
-
-    int wellNameIndex      = header.indexOf( wellNameText );
-    int surfaceNameIndex   = header.indexOf( surfaceNameText );
-    int measuredDepthIndex = header.indexOf( measuredDepthText );
-
-    if ( wellNameIndex != -1 && surfaceNameIndex != -1 && measuredDepthIndex != -1 )
-    {
-        do
-        {
-            QString line = data.readLine();
-
-            QStringList dataLine = line.split( ';' );
-            if ( dataLine.size() != header.size() ) continue;
-
-            bool   conversionOk;
-            double measuredDepth = dataLine[measuredDepthIndex].toDouble( &conversionOk );
-            if ( !conversionOk ) continue;
-
-            QString wellName    = dataLine[wellNameIndex];
-            QString surfaceName = dataLine[surfaceNameIndex];
-
-            wellNames->push_back( wellName );
-            formationNames->push_back( surfaceName );
-            mdTop->push_back( measuredDepth );
-
-        } while ( !data.atEnd() );
-
-        return;
-    }
-
-    static const QString unitNameText              = "unitname";
-    static const QString measuredDepthToptext      = "topmd";
-    static const QString measuredDepthBasetext     = "basemd";
-    static const QString trueVerticalDepthToptext  = "toptvdss";
-    static const QString trueVerticalDepthBasetext = "basetvdss";
-
-    int unitNameIndex = header.indexOf( unitNameText );
-
-    int measuredDepthTopIndex  = header.indexOf( measuredDepthToptext );
-    int measuredDepthBaseIndex = header.indexOf( measuredDepthBasetext );
-
-    int trueVerticalDepthTopIndex  = header.indexOf( trueVerticalDepthToptext );
-    int trueVerticalDepthBaseIndex = header.indexOf( trueVerticalDepthBasetext );
-
-    bool mdIsPresent  = true;
-    bool tvdIsPresent = true;
-
-    if ( measuredDepthTopIndex == -1 || measuredDepthBaseIndex == -1 )
-    {
-        mdIsPresent = false;
-    }
-
-    if ( trueVerticalDepthTopIndex == -1 || trueVerticalDepthBaseIndex == -1 )
-    {
-        tvdIsPresent = false;
-    }
-
-    if ( unitNameIndex != -1 && ( mdIsPresent || tvdIsPresent ) )
-    {
-        do
-        {
-            QString line = data.readLine();
-
-            QStringList dataLine = line.split( ';' );
-            if ( dataLine.size() != header.size() ) continue;
-
-            QString wellName = dataLine[wellNameIndex];
-            QString unitName = dataLine[unitNameIndex];
-            unitName         = unitName.trimmed();
-
-            if ( wellName.trimmed().isEmpty() && unitName.isEmpty() ) continue;
-
-            if ( mdIsPresent )
-            {
-                double mdTopValue  = dataLine[measuredDepthTopIndex].toDouble();
-                double mdBaseValue = dataLine[measuredDepthBaseIndex].toDouble();
-
-                mdTop->push_back( mdTopValue );
-                mdBase->push_back( mdBaseValue );
-            }
-
-            if ( tvdIsPresent )
-            {
-                double tvdTopValue  = dataLine[trueVerticalDepthTopIndex].toDouble();
-                double tvdBaseValue = dataLine[trueVerticalDepthBaseIndex].toDouble();
-
-                tvdTop->push_back( -tvdTopValue );
-                tvdBase->push_back( -tvdBaseValue );
-            }
-
-            wellNames->push_back( wellName );
-            formationNames->push_back( unitName );
-
-        } while ( !data.atEnd() );
-    }
 }

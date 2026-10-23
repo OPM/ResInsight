@@ -18,14 +18,19 @@
 #pragma once
 
 #include "Appearance/RimFontSizeField.h"
+#include "RiaDefines.h"
 #include "RimPlot.h"
+#include "RimRftCrossPlotTools.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+#include <QColor>
 #include <QDateTime>
 #include <QPointer>
 
+#include <map>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -33,6 +38,7 @@
 class RimEclipseResultCase;
 class RimSummaryEnsemble;
 class RimSummaryCase;
+class RimWellFormationsFile;
 class RiuQwtPlotWidget;
 
 //==================================================================================================
@@ -46,10 +52,19 @@ class RimParameterRftCrossPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Determines how the RFT pressure samples within the selected depth range are reduced to
+    // (ensemble parameter, pressure) points shown in the cross plot.
+    enum class SamplingMode
+    {
+        ALL_SAMPLES, // One point per individual RFT sample within the depth range.
+        MEAN_PER_REALIZATION // One point per realization, using the mean pressure within the depth range.
+    };
+    using SamplingModeEnum = caf::AppEnum<SamplingMode>;
+
     struct CaseData
     {
         double          parameterValue;
-        double          pressureValue; // mean pressure in depth range
+        double          pressureValue; // pressure sample, or mean pressure in depth range
         RimSummaryCase* summaryCase;
     };
 
@@ -61,30 +76,29 @@ public:
     void setWellName( const QString& wellName );
     void setTimeStep( const QDateTime& timeStep );
     void setDepthRange( double minMd, double maxMd );
+    void setDepthType( RiaDefines::DepthType depthType );
     void setEnsembleParameter( const QString& paramName );
+    void setWellFormations( RimWellFormationsFile* wellFormationsFile );
+    void setFilterMode( RimRftCrossPlotTools::DepthFilterMode filterMode );
+    void setSelectedZones( const std::vector<QString>& zones );
+    void setZoneColors( const std::map<QString, QColor>& zoneColors );
+    void appendDataAndFilterUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
-    QString               ensembleParameter() const;
-    QString               wellName() const;
-    QDateTime             selectedTimeStep() const;
-    RimSummaryEnsemble*   ensemble() const;
-    RimEclipseResultCase* eclipseCase() const;
-    bool                  useDepthRange() const;
-    double                depthRangeMin() const;
-    double                depthRangeMax() const;
+    QString                               ensembleParameter() const;
+    QString                               wellName() const;
+    QDateTime                             selectedTimeStep() const;
+    RimSummaryEnsemble*                   ensemble() const;
+    RimEclipseResultCase*                 eclipseCase() const;
+    double                                depthRangeMin() const;
+    double                                depthRangeMax() const;
+    RiaDefines::DepthType                 depthType() const;
+    RimRftCrossPlotTools::DepthFilterMode filterMode() const;
+    std::vector<QString>                  selectedZones() const;
+    RimWellFormationsFile*                wellFormationsFile() const;
 
     RiuQwtPlotWidget* viewer();
 
     std::vector<CaseData> createCaseData() const;
-
-    // Computes mean RFT pressure per ensemble case (one entry per case, infinity = no data).
-    // Indices match ensemble->allSummaryCases().
-    static std::vector<double> computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                           const QString&        wellName,
-                                                           const QDateTime&      timeStep,
-                                                           RimEclipseResultCase* eclipseCase,
-                                                           bool                  useDepthRange,
-                                                           double                depthRangeMin,
-                                                           double                depthRangeMax );
 
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
@@ -112,20 +126,29 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void            createPoints();
+    void            attachObservedPressure();
     void            updatePlotTitle();
     void            updateValueRanges();
     void            cleanupBeforeClose();
     RimSummaryCase* findClosestCase( const QPoint& canvasPos );
 
+    std::vector<RimRftCrossPlotTools::DepthInterval>    depthIntervals() const;
+    std::vector<RimRftCrossPlotTools::ObservedPressure> observedPressures() const;
+
 private:
-    caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<QDateTime>                m_selectedTimeStep;
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-    caf::PdmField<bool>                     m_useDepthRange;
-    caf::PdmField<double>                   m_depthRangeMin;
-    caf::PdmField<double>                   m_depthRangeMax;
-    caf::PdmField<QString>                  m_ensembleParameter;
+    caf::PdmPtrField<RimSummaryEnsemble*>                    m_ensemble;
+    caf::PdmField<QString>                                   m_wellName;
+    caf::PdmField<QDateTime>                                 m_selectedTimeStep;
+    caf::PdmPtrField<RimEclipseResultCase*>                  m_eclipseCase;
+    caf::PdmField<RimRftCrossPlotTools::DepthFilterModeEnum> m_filterMode;
+    caf::PdmField<double>                                    m_depthRangeMin;
+    caf::PdmField<double>                                    m_depthRangeMax;
+    caf::PdmPtrField<RimWellFormationsFile*>                 m_wellFormations;
+    caf::PdmField<std::vector<QString>>                      m_selectedZones;
+    std::map<QString, QColor>                                m_zoneColors;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthType>>       m_depthType;
+    caf::PdmField<SamplingModeEnum>                          m_samplingMode;
+    caf::PdmField<QString>                                   m_ensembleParameter;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;

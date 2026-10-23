@@ -210,18 +210,30 @@ set(LINK_LIBRARIES
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
+
+  # Scope to the one file that needs it, to avoid a full rebuild on toggle.
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/RiaMain.cpp PROPERTIES COMPILE_DEFINITIONS
+                                                       ENABLE_GRPC
+  )
 endif()
 
 if(RESINSIGHT_USE_ODB_API)
-  add_definitions(-DUSE_ODB_API)
+  target_compile_definitions(ResInsight PRIVATE USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-if(RESINSIGHT_ENABLE_OPENVDS)
-  add_definitions(-DUSE_OPENVDS)
-endif()
-
 target_link_libraries(ResInsight PRIVATE ${LINK_LIBRARIES})
+
+# Arrow/Parquet/Thrift (vcpkg) link OpenSSL statically, independent of gRPC.
+# Keep those symbols out of the dynamic symbol table, otherwise they interpose
+# the system OpenSSL loaded by the Qt TLS plugin (and by libssh2/libldap via
+# libcurl), mixing two OpenSSL versions and crashing during the TLS handshake.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  target_link_options(
+    ResInsight PRIVATE "LINKER:--exclude-libs,libssl.a:libcrypto.a"
+  )
+endif()
 
 if(UNIX AND NOT APPLE)
   target_link_libraries(ResInsight PRIVATE xcb)

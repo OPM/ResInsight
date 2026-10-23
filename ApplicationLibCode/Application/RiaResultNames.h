@@ -92,6 +92,7 @@ QString rockv();
 QString soil();
 QString sgas();
 QString swat();
+QString pressure();
 
 QString sowcr();
 QString sogcr();

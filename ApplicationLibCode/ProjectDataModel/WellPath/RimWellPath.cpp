@@ -22,13 +22,13 @@
 
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RicImportWellLogOsduFeature.h"
 #include "RicfCommandObject.h"
 
-#include "RifWellPathFormationsImporter.h"
 #include "RifWellPathImporter.h"
 
 #include "Well/RigWellPath.h"
@@ -39,6 +39,7 @@
 #include "RimFishbonesCollection.h"
 #include "RimImportedWellLog.h"
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimOsduWellLog.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
@@ -57,6 +58,9 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathTieIn.h"
+
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 
 #include "RiuMainWindow.h"
 
@@ -98,6 +102,12 @@ RimWellPath::RimWellPath()
     : nameChanged( this )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.svg", "", "", "WellPath", "A ResInsight Well Path" );
+
+    // The nodes for well paths are created by the well path collection object. When a well path object is asked to
+    // be updated in the project tree, always rebuild the tree from the well path collection object.
+    uiCapability()->setAttribute<std::function<caf::PdmObjectHandle*()>>( caf::PdmUiTreeViewEditor::Keys::OBJECT_FOR_UPDATE_OF_UI_TREE,
+                                                                          []() -> caf::PdmObjectHandle*
+                                                                          { return RimWellPathCollection::instance(); } );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerKeywordAlias( "WellPathName" );
@@ -143,8 +153,11 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File" );
     m_formationKeyInFile.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path" );
-    m_wellPathFormationFilePath.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_wellFormationsFile, "WellFormationsFile", "Well Formations File" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath_OBSOLETE, "WellPathFormationFilePath", "File Path" );
+    m_wellPathFormationFilePath_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellPathFormationFilePath_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish" );
     m_wellPathAttributes = new RimWellPathAttributeCollection;
@@ -479,6 +492,12 @@ void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         QString newName      = newValue.toString();
         m_completionSettings->updateWellPathNameHasChanged( newName, previousName );
     }
+    else if ( changedField == &m_wellFormationsFile )
+    {
+        refreshFormationsFromFile();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimMainPlotCollection::current()->updatePlotsWithFormations();
+    }
     else
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
@@ -533,6 +552,19 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
             index++;
         }
     }
+    else if ( fieldNeedingOptions == &m_wellFormationsFile )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        auto proj = RimProject::current();
+        if ( proj && proj->activeOilField() && proj->activeOilField()->wellFormationsCollection() )
+        {
+            for ( RimWellFormationsFile* file : proj->activeOilField()->wellFormationsCollection()->wellFormationsFiles() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( file->shortName(), file, false, file->uiCapability()->uiIconProvider() ) );
+            }
+        }
+    }
 
     return options;
 }
@@ -551,6 +583,26 @@ void RimWellPath::initAfterRead()
     }
 
     m_completions->segmentCollection()->importLegacyData( m_completionSettings->mswCompletionParameters() );
+    m_completionSettings->importLegacyMswData( m_completionSettings->mswCompletionParameters() );
+
+    // Migrate an old direct file path reference into the project-level well formations collection.
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2026.09.2" ) && !m_wellFormationsFile() &&
+         !m_wellPathFormationFilePath_OBSOLETE().path().isEmpty() )
+    {
+        if ( auto oilField = RimProject::current()->activeOilField() )
+        {
+            if ( !oilField->wellFormationsCollection() ) oilField->wellFormationsCollection = new RimWellFormationsCollection();
+
+            if ( auto file = oilField->wellFormationsCollection->findOrCreate( m_wellPathFormationFilePath_OBSOLETE().path() ) )
+            {
+                setWellFormationsFile( *file, m_formationKeyInFile() );
+            }
+            else
+            {
+                RiaLogging::error( file.error().toStdString() );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -761,7 +813,7 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     wellInfoGroup->add( &m_unitSystem );
 
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
-    formationFileInfoGroup->add( &m_wellPathFormationFilePath );
+    formationFileInfoGroup->add( &m_wellFormationsFile );
     formationFileInfoGroup->add( &m_formationKeyInFile );
 
     uiOrdering.skipRemainingFields( true );
@@ -832,21 +884,6 @@ void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
     else
     {
         *( to->m_completionSettings() ) = *( from->m_completionSettings() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    auto myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
-    if ( myAttr )
-    {
-        // The nodes for well paths are created by the well path collection object. When a well path object is asked to
-        // be updated in the project tree, always rebuild the tree from the well path collection object.
-
-        myAttr->objectForUpdateOfUiTree = RimWellPathCollection::instance();
     }
 }
 
@@ -987,63 +1024,53 @@ void RimWellPath::detachWellLog( RimWellLog* wellLog )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPathFormations )
+void RimWellPath::setFormationsGeometry( const RigWellPathFormations& wellPathFormations )
 {
-    m_wellPathFormations        = wellPathFormations;
-    m_wellPathFormationFilePath = wellPathFormations->filePath();
-    m_formationKeyInFile        = wellPathFormations->keyInFile();
+    m_wellPathFormations = wellPathFormations;
 
     updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Points this well path at an entry in the project-level well formations collection, and resolves
+/// the formations for keyInFile right away.
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter )
+void RimWellPath::setWellFormationsFile( RimWellFormationsFile* wellFormationsFile, const QString& keyInFile )
 {
-    if ( m_wellPathFormationFilePath().path().isEmpty() )
+    m_wellFormationsFile = wellFormationsFile;
+    m_formationKeyInFile = keyInFile;
+
+    refreshFormationsFromFile();
+
+    if ( m_name().isEmpty() )
     {
-        return true;
+        setName( keyInFile );
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
-    {
-        m_wellPathFormations =
-            wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath().path(), m_formationKeyInFile() );
-        if ( m_name().isEmpty() )
-        {
-            setName( m_formationKeyInFile() );
-        }
-        return true;
-    }
-    else
-    {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
-        return false;
-    }
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Re-resolves the cached formations from the linked RimWellFormationsFile, e.g. after a reload.
+/// Returns false if there is no linked file, or the key is not found in it.
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter )
+bool RimWellPath::refreshFormationsFromFile()
 {
-    if ( m_wellPathFormationFilePath().path().isEmpty() )
+    if ( !m_wellFormationsFile() )
     {
-        return true;
+        m_wellPathFormations.reset();
+        return false;
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
+    if ( auto formations = m_wellFormationsFile()->formationsForWell( m_formationKeyInFile() ) )
     {
-        m_wellPathFormations =
-            wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(), m_formationKeyInFile() );
-        return true;
+        m_wellPathFormations = *formations;
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
-        return false;
+        m_wellPathFormations.reset();
     }
+    return m_wellPathFormations.has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1051,7 +1078,23 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasFormations() const
 {
-    return !m_wellPathFormations.isNull();
+    return m_wellPathFormations.has_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellFormationsFile* RimWellPath::wellFormationsFile() const
+{
+    return m_wellFormationsFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::formationKeyInFile() const
+{
+    return m_formationKeyInFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1059,7 +1102,7 @@ bool RimWellPath::hasFormations() const
 //--------------------------------------------------------------------------------------------------
 const RigWellPathFormations* RimWellPath::formationsGeometry() const
 {
-    return m_wellPathFormations.p();
+    return m_wellPathFormations ? &m_wellPathFormations.value() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

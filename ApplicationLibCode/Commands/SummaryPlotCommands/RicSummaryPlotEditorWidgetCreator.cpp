@@ -298,8 +298,12 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
                     }
                     else
                     {
-                        QWidget* fieldLabelWidget = fieldEditor->labelWidget();
-                        if ( fieldLabelWidget ) fieldLabelWidget->hide();
+                        if ( auto fieldLabelWidget = fieldEditor->labelWidget() )
+                        {
+                            // Reparent so the label is not deleted with a previous group box
+                            fieldLabelWidget->setParent( widget() );
+                            fieldLabelWidget->hide();
+                        }
                     }
 
                     if ( fieldEditorWidget )

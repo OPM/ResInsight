@@ -31,10 +31,12 @@
 #include "RigEclipseCaseData.h"
 
 #include "RimDataSourceForRftPlt.h"
+#include "RimDockWindowController.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObservedFmuRftData.h"
+#include "RimOilField.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -55,6 +57,9 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 #include "RimWellRftEnsembleCurveSet.h"
+
+#include "Formations/RimWellFormationsCollection.h"
+#include "Formations/RimWellFormationsFile.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
@@ -147,7 +152,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    dockAsPlotWindow();
+    // Not docked by default: can be embedded elsewhere. Standalone creators call dockAsPlotWindow().
     m_isOnLoad = true;
 }
 
@@ -159,6 +164,19 @@ RimWellRftPlot::~RimWellRftPlot()
     removeWindowFromDock();
 
     deleteViewWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::detachFromDockPermanently()
+{
+    if ( m_windowController != nullptr )
+    {
+        m_windowController->removeWindowFromDock();
+        delete m_windowController();
+        m_windowController = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,16 +272,48 @@ void RimWellRftPlot::updateFormationsOnPlot() const
                 }
             }
 
-            if ( wellPath )
+            // Prefer well-pick (formations.csv) zone bands over case-derived formation names when
+            // they are available for the selected well, so the RFT profile shows the same zone
+            // bands used by other well log tracks and the RFT correlation/cross plots.
+            RimWellFormationsFile* wellFormationsFile = nullptr;
+            QString                wellNameInFile     = associatedSimWellName();
+
+            if ( wellPath && wellPath->formationsGeometry() )
+            {
+                wellFormationsFile = wellPath->wellFormationsFile();
+            }
+
+            if ( wellFormationsFile )
+            {
+                track->setAndUpdateWellPickFormationsData( wellPath );
+            }
+            else if ( wellPath )
             {
                 track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
             }
             else
             {
-                track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                       associatedSimWellName(),
-                                                                       m_branchIndex,
-                                                                       m_branchDetection );
+                // No well path trajectory is available (e.g. a purely simulation-well based RFT
+                // entry). Prefer a formations file with explicit, depth-based zone picks for this
+                // well over the case/K-layer based formation names, since there is no trajectory to
+                // extract K-layers along.
+                RimWellFormationsFile* formationsFileForWell = nullptr;
+                if ( proj->activeOilField() && proj->activeOilField()->wellFormationsCollection() )
+                {
+                    formationsFileForWell = proj->activeOilField()->wellFormationsCollection()->findFileForWell( wellNameInFile );
+                }
+
+                if ( formationsFileForWell )
+                {
+                    track->setAndUpdateFormationFileData( formationsFileForWell, wellNameInFile );
+                }
+                else
+                {
+                    track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
+                                                                           associatedSimWellName(),
+                                                                           m_branchIndex,
+                                                                           m_branchDetection );
+                }
             }
         }
     }
@@ -894,30 +944,6 @@ int RimWellRftPlot::branchIndex() const
 const char* RimWellRftPlot::plotNameFormatString()
 {
     return PLOT_NAME_QFORMAT_STRING;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedFmuRftData* observedFmuRftData )
-{
-    for ( auto plot : plots() )
-    {
-        RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plot );
-        if ( track )
-        {
-            auto curves = track->curves();
-            for ( auto curve : curves )
-            {
-                RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
-                if ( rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData )
-                {
-                    track->removeCurve( rftCurve );
-                    delete rftCurve;
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1891,6 +1917,21 @@ void RimWellRftPlot::initializeDataSources( RimWellRftPlot* source )
     {
         // If no source is provided, initialize with empty sources
         setOrInitializeDataSources( {} );
+
+        // Use the depth unit of the data in a new plot, with the unit of the grid model in the project as fallback
+        auto depthUnit = RiaDefines::DepthUnitType::UNIT_NONE;
+        for ( const auto& dataSource : m_selectedSources() )
+        {
+            for ( auto unitSystem : dataSource.availableUnitSystems() )
+            {
+                depthUnit = RiaDefines::fromEclipseUnit( unitSystem );
+                if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) break;
+            }
+            if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) break;
+        }
+
+        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_NONE ) depthUnit = caseDepthUnit();
+        if ( depthUnit != RiaDefines::DepthUnitType::UNIT_NONE ) setDepthUnit( depthUnit );
     }
 }
 

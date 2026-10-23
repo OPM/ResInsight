@@ -7,8 +7,10 @@
 #include "RimSegmentCollection.h"
 #include "RimSegmentInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimWellPathCompletions.h"
 
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
@@ -32,6 +34,61 @@ TEST( RimWellPathCompletions, SegmentIntervalsDefineCustomSegmentation )
     EXPECT_DOUBLE_EQ( 2.0e-5, segments->getRoughnessAtMD( 150.0, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
     EXPECT_DOUBLE_EQ( 0.18, segments->getDiameterAtMD( 250.0, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
     EXPECT_DOUBLE_EQ( 3.0e-5, segments->getRoughnessAtMD( 250.0, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
+}
+
+TEST( RimWellPathCompletions, SegmentIntervalFixedLengthIsExclusiveWithMinMax )
+{
+    RimSegmentInterval interval;
+    EXPECT_FALSE( interval.fixedSegmentLength().has_value() );
+    EXPECT_FALSE( interval.minSegmentLength().has_value() );
+    EXPECT_FALSE( interval.maxSegmentLength().has_value() );
+
+    // Min and max can be combined
+    interval.setMinSegmentLength( 12.0 );
+    interval.setMaxSegmentLength( 30.0 );
+    EXPECT_EQ( std::optional<double>( 12.0 ), interval.minSegmentLength() );
+    EXPECT_EQ( std::optional<double>( 30.0 ), interval.maxSegmentLength() );
+
+    // Fixed replaces min and max
+    interval.setFixedSegmentLength( 20.0 );
+    EXPECT_EQ( std::optional<double>( 20.0 ), interval.fixedSegmentLength() );
+    EXPECT_FALSE( interval.minSegmentLength().has_value() );
+    EXPECT_FALSE( interval.maxSegmentLength().has_value() );
+
+    // Min or max replaces fixed
+    interval.setMaxSegmentLength( 8.0 );
+    EXPECT_FALSE( interval.fixedSegmentLength().has_value() );
+    EXPECT_EQ( std::optional<double>( 8.0 ), interval.maxSegmentLength() );
+
+    interval.setMinSegmentLength( std::nullopt );
+    EXPECT_FALSE( interval.minSegmentLength().has_value() );
+
+    // A length <= 0 is treated as not set
+    interval.setMaxSegmentLength( 0.0 );
+    EXPECT_FALSE( interval.maxSegmentLength().has_value() );
+}
+
+TEST( RimWellPathCompletions, SegmentIntervalSegmentationControlsArePersisted )
+{
+    RimSegmentInterval original;
+    original.setMaxSegmentLength( 25.0 );
+    original.setMinSegmentLength( 5.0 );
+    const QString xml = original.writeObjectToXmlString();
+
+    RimSegmentInterval restored;
+    restored.readObjectFromXmlString( xml, caf::PdmDefaultObjectFactory::instance() );
+    EXPECT_FALSE( restored.fixedSegmentLength().has_value() );
+    EXPECT_EQ( std::optional<double>( 5.0 ), restored.minSegmentLength() );
+    EXPECT_EQ( std::optional<double>( 25.0 ), restored.maxSegmentLength() );
+
+    // A project written before the controls existed has all controls off
+    RimSegmentInterval legacy;
+    legacy.readObjectFromXmlString( "<SegmentInterval><StartMd>100</StartMd><EndMd>200</EndMd></SegmentInterval>",
+                                    caf::PdmDefaultObjectFactory::instance() );
+    EXPECT_FALSE( legacy.fixedSegmentLength().has_value() );
+    EXPECT_FALSE( legacy.minSegmentLength().has_value() );
+    EXPECT_FALSE( legacy.maxSegmentLength().has_value() );
+    EXPECT_DOUBLE_EQ( 200.0, legacy.endMD() );
 }
 
 TEST( RimWellPathCompletions, SegmentIntervalUiUsesMeasuredDepthNameAndMetricUnits )
@@ -111,35 +168,26 @@ TEST( RimWellPathCompletions, LegacyMigrationPreservesDisabledSettings )
 {
     RimMswCompletionParameters legacyParameters;
     legacyParameters.setManualReferenceMD( 123.0 );
-    auto* maxLength    = dynamic_cast<caf::PdmField<double>*>( legacyParameters.findField( "MaxSegmentLength" ) );
     auto* customValues = dynamic_cast<caf::PdmField<bool>*>( legacyParameters.findField( "CustomValuesForLateral" ) );
-    ASSERT_NE( nullptr, maxLength );
     ASSERT_NE( nullptr, customValues );
-    maxLength->setValue( 345.0 );
     customValues->setValue( true );
     legacyParameters.setPressureDrop( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION );
     legacyParameters.setLengthAndDepth( RimMswCompletionParameters::LengthAndDepthType::INC );
 
     RimSegmentCollection segments;
     segments.importLegacyData( &legacyParameters );
+    RimWellPathCompletionSettings completionSettings;
+    completionSettings.importLegacyMswData( &legacyParameters );
 
     EXPECT_EQ( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD, segments.referenceMDType() );
-    auto* migratedMaxLength    = dynamic_cast<caf::PdmField<double>*>( segments.findField( "MaxSegmentLength" ) );
     auto* migratedCustomValues = dynamic_cast<caf::PdmField<bool>*>( segments.findField( "CustomValuesForLateral" ) );
-    auto* enforceMaxLength     = dynamic_cast<caf::PdmField<bool>*>( segments.findField( "EnforceMaxSegmentLength" ) );
-    ASSERT_NE( nullptr, migratedMaxLength );
     ASSERT_NE( nullptr, migratedCustomValues );
-    ASSERT_NE( nullptr, enforceMaxLength );
-    EXPECT_DOUBLE_EQ( 345.0, migratedMaxLength->value() );
     EXPECT_TRUE( migratedCustomValues->value() );
-    EXPECT_FALSE( enforceMaxLength->value() );
-    EXPECT_EQ( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, segments.pressureDrop() );
-    EXPECT_EQ( RimSegmentCollection::LengthAndDepthType::INC, segments.lengthAndDepth() );
+    EXPECT_EQ( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, completionSettings.pressureDrop() );
+    EXPECT_EQ( RimWellPathCompletionSettings::LengthAndDepthType::INC, completionSettings.lengthAndDepth() );
 
     segments.setReferenceMDType( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD );
     EXPECT_DOUBLE_EQ( 123.0, segments.manualReferenceMD() );
-    enforceMaxLength->setValue( true );
-    EXPECT_DOUBLE_EQ( 345.0, segments.maxSegmentLength() );
 }
 
 TEST( RimWellPathCompletions, DefaultLegacySettingsDoNotOverwriteSegments )

@@ -27,10 +27,11 @@
 
 struct RimWellSpecData
 {
-    QString                                 groupName;
-    bool                                    allowCrossFlow = true;
-    std::optional<double>                   referenceDepth;
-    RimWellPathCompletionSettings::WellType wellType = RimWellPathCompletionSettings::OIL;
+    QString                                         groupName;
+    bool                                            allowCrossFlow = true;
+    std::optional<double>                           referenceDepth;
+    RimWellPathCompletionSettings::WellType         wellType     = RimWellPathCompletionSettings::OIL;
+    RimWellPathCompletionSettings::PressureDropType pressureDrop = RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION;
 };
 
 //==================================================================================================
@@ -64,8 +65,10 @@ private:
     caf::PdmField<bool>                                                  m_allowCrossFlow;
     caf::PdmField<std::optional<double>>                                 m_referenceDepth;
     caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_wellType;
+    caf::PdmField<RimWellPathCompletionSettings::PressureDropEnum>       m_pressureDrop;
     caf::PdmField<QString>                                               m_baselineGroupName;
     caf::PdmField<bool>                                                  m_baselineAllowCrossFlow;
     caf::PdmField<std::optional<double>>                                 m_baselineReferenceDepth;
     caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_baselineWellType;
+    caf::PdmField<RimWellPathCompletionSettings::PressureDropEnum>       m_baselinePressureDrop;
 };

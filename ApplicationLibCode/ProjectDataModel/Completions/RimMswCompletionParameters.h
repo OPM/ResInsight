@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RimCompletionEnums.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -34,24 +35,9 @@ class RimMswCompletionParameters : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class ReferenceMDType
-    {
-        AUTO_REFERENCE_MD = 0,
-        MANUAL_REFERENCE_MD
-    };
-
-    enum class PressureDropType
-    {
-        HYDROSTATIC,
-        HYDROSTATIC_FRICTION,
-        HYDROSTATIC_FRICTION_ACCELERATION
-    };
-
-    enum class LengthAndDepthType
-    {
-        ABS,
-        INC
-    };
+    using ReferenceMDType    = RimCompletionEnums::ReferenceMDType;
+    using PressureDropType   = RimCompletionEnums::PressureDropType;
+    using LengthAndDepthType = RimCompletionEnums::LengthAndDepthType;
 
     enum class DiameterRoughnessMode
     {

@@ -324,8 +324,6 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         rftPlot->onLegendDefinitionChanged();
     }
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -674,8 +672,6 @@ void RimRegularLegendConfig::initAfterRead()
     }
 
     updateFieldVisibility();
-
-    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,13 +680,6 @@ void RimRegularLegendConfig::initAfterRead()
 caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 {
     return &m_showLegend;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
 }
 
 //--------------------------------------------------------------------------------------------------

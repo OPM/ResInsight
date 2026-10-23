@@ -40,6 +40,7 @@ RicExportCarfinUi::RicExportCarfinUi()
 
     CAF_PDM_InitFieldNoDefault( &m_exportFileName, "ExportFileName", "Export Filename" );
     m_exportFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_exportFileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
 
     CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case" );
 
@@ -181,19 +182,4 @@ void RicExportCarfinUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     gridRefinement->add( &m_cellCountJ );
     gridRefinement->add( &m_cellCountK );
     gridRefinement->add( &m_maxWellCount );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportCarfinUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_exportFileName )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
-    }
 }

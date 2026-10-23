@@ -1,0 +1,246 @@
+"""Unit tests for rips.taskmaestro_helper.
+
+These tests do not require a running ResInsight; they exercise reference
+resolution and progress reporting for the `run` subcommand in isolation.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("taskmaestro")
+
+
+def test_strip_refs_drops_references_and_lists_holding_them() -> None:
+    from rips.taskmaestro_helper.refs import strip_refs
+
+    ref = {"__resinsight_ref__": "EclipseCase", "case_id": 0}
+    inputs = {
+        "start": {"case": ref, "count": 1},
+        "sum": {"cases": [ref, ref], "mixed": [1.0, ref], "values": [1.0, 2.0]},
+        "only_refs": {"case": ref},
+    }
+    assert strip_refs(inputs) == {
+        "start": {"count": 1},
+        "sum": {"values": [1.0, 2.0]},
+        "only_refs": {},
+    }
+
+
+def test_resolve_refs_substitutes_object_model_value() -> None:
+    from rips.taskmaestro_helper.run import resolve_refs
+
+    sentinel_case = object()
+    sentinel_well = object()
+
+    def resolver(ri_type: str, extras: dict) -> object:
+        if ri_type == "EclipseCase" and extras == {"case_id": 0}:
+            return sentinel_case
+        if ri_type == "WellPath" and extras == {"well_path_name": "B-2H"}:
+            return sentinel_well
+        raise AssertionError(f"unexpected ref: {ri_type} {extras}")
+
+    raw = {
+        "load_model": {
+            "case": {"__resinsight_ref__": "EclipseCase", "case_id": 0},
+            "label": "x",
+        },
+        "load_well": {
+            "well": {"__resinsight_ref__": "WellPath", "well_path_name": "B-2H"},
+        },
+        "untouched": "stays",
+    }
+    out = resolve_refs(raw, resolver)
+    assert out["load_model"]["case"] == {"value": sentinel_case}
+    assert out["load_model"]["label"] == "x"
+    assert out["load_well"]["well"] == {"value": sentinel_well}
+    assert out["untouched"] == "stays"
+
+
+def test_progress_hook_reports_named_task_instances(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from types import SimpleNamespace
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+
+    hook = ProgressHook("run-123")
+    task = SimpleNamespace(name="add_perf_1")
+    hook.on_task_start(None, task)
+    hook.on_task_complete(None, task, None)
+    hook.on_task_fail(None, task, ValueError("bad range"))
+
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 3
+    events = [json.loads(line.removeprefix(PROGRESS_PREFIX)) for line in lines]
+    assert all(line.startswith(PROGRESS_PREFIX) for line in lines)
+    assert [event["state"] for event in events] == ["running", "completed", "failed"]
+    assert all(
+        event["task"] == "add_perf_1" and event["run_id"] == "run-123"
+        for event in events
+    )
+    assert events[-1]["error"] == "bad range"
+    assert all("output" not in event for event in events)
+
+
+def test_progress_hook_follows_runner_instance_names(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+
+    class Step(Task[EmptyConfig, EmptyConfig]):
+        name = "step"
+
+        def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:
+            return EmptyConfig()
+
+    workflow = (
+        Workflow.builder("two_steps")
+        .add_task(Step, name="first")
+        .add_task(Step, name="second", depends_on="first")
+        .build()
+    )
+    Runner(hooks=[ProgressHook("run-456")]).run(
+        Job(workflow, EmptyConfig()), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("first", "running"),
+        ("first", "completed"),
+        ("second", "running"),
+        ("second", "completed"),
+    ]
+
+
+def test_progress_hook_reports_runner_failure(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+
+    class Fails(Task[EmptyConfig, EmptyConfig]):
+        name = "fails"
+
+        def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:
+            raise ValueError("bad range")
+
+    workflow = Workflow.builder("failure").add_task(Fails, name="add_perf_1").build()
+    result = Runner(hooks=[ProgressHook("run-789")]).run(
+        Job(workflow, EmptyConfig()), ctx=ExecutionContext()
+    )
+    assert result.error == "bad range"
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("add_perf_1", "running"),
+        ("add_perf_1", "failed"),
+    ]
+    assert events[-1]["error"] == "bad range"
+
+
+def test_progress_hook_reports_mapped_items(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from pydantic import BaseModel
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+    from taskmaestro.job import JobConfiguration
+    from taskmaestro.mapping import TaskMap
+
+    class Item(BaseModel):
+        key: str
+        value: int
+
+    class Out(BaseModel):
+        value: int
+
+    class Check(Task[Item, Out]):
+        name = "check"
+
+        def run(self, input: Item, ctx: ExecutionContext) -> Out:
+            if input.value < 0:
+                raise ValueError("negative")
+            return Out(value=input.value)
+
+    workflow = (
+        Workflow.builder("mapped")
+        .add_task(
+            Check,
+            name="each",
+            mapped_over=TaskMap(
+                over="items", key_as="key", value_as="value", error_mode="collect_all"
+            ),
+        )
+        .build()
+    )
+    config = JobConfiguration({"each": {"items": {"a": 1, "b": -1}}})
+    Runner(hooks=[ProgressHook("run-map")]).run(
+        Job(workflow, EmptyConfig(), job_configuration=config), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [
+        (event["event"], event.get("item"), event["state"]) for event in events
+    ] == [
+        ("task_state", None, "running"),
+        ("map_item_state", "a", "running"),
+        ("map_item_state", "a", "completed"),
+        ("map_item_state", "b", "running"),
+        ("map_item_state", "b", "failed"),
+        ("task_state", None, "failed"),
+    ]
+    assert events[4]["error"] == "negative"
+
+
+def test_run_helper_emits_progress_without_grpc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import rips
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, run_workflow
+
+    (tmp_path / "progress_pipeline.py").write_text(
+        "from taskmaestro import EmptyConfig, ExecutionContext, Task\n"
+        "class Start(Task[EmptyConfig, EmptyConfig]):\n"
+        "    name = 'start'\n"
+        "    def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:\n"
+        "        return EmptyConfig()\n"
+        "class Done(Task[EmptyConfig, EmptyConfig]):\n"
+        "    name = 'done'\n"
+        "    def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:\n"
+        "        return EmptyConfig()\n"
+    )
+    (tmp_path / "workflow.yaml").write_text(
+        "workflow:\n  name: progress_test\n  tasks:\n"
+        "    - task: progress_pipeline.Start\n    - task: progress_pipeline.Done\n"
+    )
+    input_path = tmp_path / "input.yaml"
+    input_path.write_text("{}\n")
+    monkeypatch.setattr(rips.Instance, "find", lambda **kwargs: object())
+
+    assert run_workflow(tmp_path, input_path, 1234, "run-456") == 0
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("start", "running"),
+        ("start", "completed"),
+        ("done", "running"),
+        ("done", "completed"),
+    ]
+    assert all(event["run_id"] == "run-456" for event in events)

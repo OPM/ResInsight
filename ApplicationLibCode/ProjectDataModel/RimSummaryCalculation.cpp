@@ -178,12 +178,17 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
         RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
         auto                             calc     = dynamic_cast<RimSummaryCalculation*>( calcColl->findCalculationById( id ) );
 
+        // The referenced calculation is already removed from the collection when it is being deleted
+        if ( !calc ) return false;
+
         // Check if any of the variables references already seen calculations
         auto vars = calc->variables();
         for ( size_t i = 0; i < vars->size(); i++ )
         {
             auto variable = dynamic_cast<RimSummaryCalculationVariable*>( vars->at( i ) );
-            auto addr     = variable->summaryAddress()->address();
+            if ( !variable || !variable->summaryAddress() ) continue;
+
+            auto addr = variable->summaryAddress()->address();
 
             if ( addr.id() != -1 && detectCyclicCalculation( addr.id(), ids ) ) return true;
         }

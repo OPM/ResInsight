@@ -32,6 +32,8 @@
 
 #include <QString>
 
+#include <iterator>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -95,12 +97,14 @@ void RigNNCData::buildPolygonsForEclipseConnections()
 //--------------------------------------------------------------------------------------------------
 void RigNNCData::computeAdditionalNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool includeInactiveCells )
 {
-    RigConnectionContainer otherConnections =
+    std::vector<RigConnection> otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
 
     if ( !otherConnections.empty() )
     {
-        m_connections.push_back( otherConnections );
+        m_connections.insert( m_connections.end(),
+                              std::make_move_iterator( otherConnections.begin() ),
+                              std::make_move_iterator( otherConnections.end() ) );
 
         // Transmissibility values from Eclipse has been read into propertyNameCombTrans in
         // RifReaderEclipseOutput::transferStaticNNCData(). Initialize computed NNCs with zero transmissibility
@@ -241,7 +245,7 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setEclipseConnections( RigConnectionContainer& eclipseConnections )
+void RigNNCData::setEclipseConnections( std::vector<RigConnection>& eclipseConnections )
 {
     m_connections            = eclipseConnections;
     m_eclipseConnectionCount = m_connections.size();
@@ -260,7 +264,7 @@ size_t RigNNCData::eclipseConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigConnectionContainer& RigNNCData::availableConnections() const
+const std::vector<RigConnection>& RigNNCData::availableConnections() const
 {
     // Return connections without calling ensureConnectionDataIsProcessed() to avoid potential heavy computations
     // Relevant if only native connection data is required
@@ -273,7 +277,7 @@ const RigConnectionContainer& RigNNCData::availableConnections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnectionContainer& RigNNCData::allConnections()
+std::vector<RigConnection>& RigNNCData::allConnections()
 {
     ensureAllConnectionDataIsProcessed();
 

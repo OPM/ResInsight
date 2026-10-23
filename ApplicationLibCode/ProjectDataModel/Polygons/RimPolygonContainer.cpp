@@ -20,6 +20,7 @@
 
 #include "RiaNameUniquenessTools.h"
 
+#include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
 
@@ -69,6 +70,30 @@ void RimPolygonContainer::loadData()
     {
         if ( sub ) sub->loadData();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonContainer::supportsRealizationOverride() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimPolygonContainer::availableRealizationIdsForOverride() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPolygonContainer::resolveViewMatchingRealization( const Rim3dView* view ) const
+{
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------

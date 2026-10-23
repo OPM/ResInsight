@@ -27,6 +27,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
 
@@ -244,10 +245,14 @@ void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimPolygonFile::treeItemTags()
 {
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+
     if ( m_items.empty() )
     {
-        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
+        tags.push_back( caf::PdmUiTreeViewItemTag::createWithIcon( ":/warning.svg" ) );
     }
+
+    return tags;
 }

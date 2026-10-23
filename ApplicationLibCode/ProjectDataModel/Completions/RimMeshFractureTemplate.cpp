@@ -451,6 +451,7 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Input" );
         group->add( &m_stimPlanFileName );
+        m_stimPlanFileName.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER, getFileSelectionFilter() );
         group->add( &m_activeTimeStepIndex );
         group->add( &m_userDefinedWellPathDepthAtFracture );
         group->add( &m_wellPathDepthAtFracture );
@@ -487,23 +488,6 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
     }
 
     RimFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimMeshFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimFractureTemplate::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_stimPlanFileName )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_fileSelectionFilter = getFileSelectionFilter();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

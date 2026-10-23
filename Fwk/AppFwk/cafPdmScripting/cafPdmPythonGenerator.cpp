@@ -162,7 +162,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::map<QString, EnumClassDef>                enumDefByDataTypeName;
     std::map<QString, QString>                     enumClassNameByDataTypeName;
     std::map<QString, std::pair<QString, QString>> inferredEnumNameAndFieldByDataTypeName;
+    std::map<QString, std::pair<QString, QString>> enumTypeAndFieldByBaseName;
     std::set<QString>                              ambiguousEnumDataTypesReported;
+    std::set<QString>                              duplicateEnumClassNamesReported;
+    bool                                           enumClassNameCollisionDetected = false;
     // Seed with names that are already bound at module scope in the generated file (imports
     // and module-level functions) so a generated enum cannot shadow them.
     std::set<QString> usedEnumClassNames = { "PdmObjectBase",
@@ -242,18 +245,47 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             baseName = it->second.first;
         }
 
+        QString fieldName = QString( "%1.%2" ).arg( field->ownerClass() ).arg( scriptability->scriptFieldName() );
+        auto [enumNameIt, inserted] =
+            enumTypeAndFieldByBaseName.emplace( baseName, std::make_pair( dataTypeName, fieldName ) );
+        if ( !inserted && enumNameIt->second.first != dataTypeName )
+        {
+            enumClassNameCollisionDetected = true;
+            if ( !duplicateEnumClassNamesReported.count( baseName ) )
+            {
+                errorMessages.push_back( QString( "Duplicate Python enum class name '%1' is inferred for distinct enum "
+                                                  "types used by fields '%2' and '%3'. "
+                                                  "Register distinct names with caf::PdmScriptEnumNameRegistry, or "
+                                                  "move the enum to a shared header if both fields "
+                                                  "represent the same enum." )
+                                             .arg( baseName )
+                                             .arg( enumNameIt->second.second )
+                                             .arg( fieldName ) );
+                duplicateEnumClassNamesReported.insert( baseName );
+            }
+            return QString();
+        }
+
         auto cached = enumClassNameByDataTypeName.find( dataTypeName );
         if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
 
-        QString candidate = baseName;
-        int     suffix    = 1;
-        while ( usedEnumClassNames.count( candidate ) )
+        if ( usedEnumClassNames.count( baseName ) )
         {
-            candidate = baseName + QString::number( ++suffix );
+            enumClassNameCollisionDetected = true;
+            if ( !duplicateEnumClassNamesReported.count( baseName ) )
+            {
+                errorMessages.push_back(
+                    QString( "Python enum class name '%1' inferred for field '%2' conflicts with an existing module "
+                             "name. Register a distinct name with caf::PdmScriptEnumNameRegistry." )
+                        .arg( baseName )
+                        .arg( fieldName ) );
+                duplicateEnumClassNamesReported.insert( baseName );
+            }
+            return QString();
         }
 
         EnumClassDef def;
-        def.className = candidate;
+        def.className = baseName;
         std::set<QString> usedMemberNames;
         for ( const QString& text : enumTexts )
         {
@@ -269,10 +301,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             def.memberNameByText[text] = unique;
         }
 
-        enumClassNameByDataTypeName[dataTypeName] = candidate;
+        enumClassNameByDataTypeName[dataTypeName] = baseName;
         enumDefByDataTypeName[dataTypeName]       = def;
-        usedEnumClassNames.insert( candidate );
-        return candidate;
+        usedEnumClassNames.insert( baseName );
+        return baseName;
     };
 
     auto enumClassNameForMethodReturn = [&]( const QString& scriptName, const QStringList& enumTexts ) -> QString
@@ -544,7 +576,8 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 if ( !method->classKeywordReturnedType().isEmpty() )
                 {
                     QString classKeywordReturnedType = method->classKeywordReturnedType();
-                    returnComment                    = classKeywordReturnedType;
+                    returnComment =
+                        PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
                     containerClassName =
                         PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
 
@@ -782,6 +815,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         }
     }
 
+    if ( enumClassNameCollisionDetected ) return QString();
     return generatedCode;
 }
 

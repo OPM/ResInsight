@@ -280,7 +280,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         }
     }
 
-    if ( perTimeStepHeaderKeywordCount )
+    if ( perTimeStepHeaderKeywordCount && !timeSteps->empty() )
     {
         // 6X simulator can report more then one keyword block per time step. Report the total number of keywords per
         // time steps to be able to read data from correct index
@@ -566,6 +566,19 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     }
 
     return resultsAccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true if the results are stored in one restart file per time step, and there is no unified restart file
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::hasOnlyNonUnifiedRestartFiles( const QString& fileName )
+{
+    QStringList filesWithSameBaseName;
+    RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( fileName, &filesWithSameBaseName );
+
+    if ( !RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE ).empty() ) return false;
+
+    return !RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE ).empty();
 }
 
 //--------------------------------------------------------------------------------------------------

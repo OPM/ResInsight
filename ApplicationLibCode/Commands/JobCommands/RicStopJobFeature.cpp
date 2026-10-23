@@ -49,17 +49,16 @@ void RicStopJobFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicStopJobFeature::stopJob( RimGenericJob* job )
+void RicStopJobFeature::stopJob( RimGenericJob* job )
 {
-    if ( job == nullptr ) return false;
-
-    if ( QMessageBox::question( RiaGuiApplication::widgetToUseAsParent(),
-                                job->name(),
-                                "Do you want to stop this job?",
-                                QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+    if ( job != nullptr )
     {
-        return job->stop();
+        if ( QMessageBox::question( RiaGuiApplication::widgetToUseAsParent(),
+                                    job->name(),
+                                    "Do you want to stop this job?",
+                                    QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+        {
+            job->stop();
+        }
     }
-
-    return false;
 }

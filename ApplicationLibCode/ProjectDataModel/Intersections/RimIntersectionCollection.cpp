@@ -403,8 +403,16 @@ void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveInte
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::synchronize2dIntersectionViews()
 {
-    auto ownerCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-    ownerCase->intersectionViewCollection()->syncFromExistingIntersections( true );
+    auto ownerView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !ownerView ) return;
+
+    auto ownerCase = ownerView->ownerCase();
+    if ( !ownerCase ) return;
+
+    auto intersectionViewCollection = ownerCase->intersectionViewCollection();
+    if ( !intersectionViewCollection ) return;
+
+    intersectionViewCollection->syncFromExistingIntersections( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,7 +480,6 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
     if ( changedField == &m_isActive )
     {
-        updateUiIconFromToggleField();
         rebuildView = true;
     }
     else if ( changedField == &m_depthThresholdOverridden )
@@ -581,6 +588,18 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
     m_depthUpperThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
     m_depthLowerThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
 
+    RimEclipseView* eclView = eclipseView();
+    if ( eclView && eclView->mainGrid() )
+    {
+        const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
+
+        for ( auto* field : { &m_depthUpperThreshold, &m_depthLowerThreshold } )
+        {
+            field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, -1.0 * bb.max().z() );
+            field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, -1.0 * bb.min().z() );
+        }
+    }
+
     filterGroup->add( &m_depthThresholdOverridden );
     filterGroup->add( &m_depthFilterType );
 
@@ -619,29 +638,6 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( doubleSliderAttrib )
-    {
-        if ( ( field == &m_depthUpperThreshold ) || ( field == &m_depthLowerThreshold ) )
-        {
-            RimEclipseView* eclView = eclipseView();
-
-            if ( eclView && eclView->mainGrid() )
-            {
-                const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
-
-                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
-                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

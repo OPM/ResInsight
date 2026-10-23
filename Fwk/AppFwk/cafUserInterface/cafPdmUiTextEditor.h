@@ -50,43 +50,6 @@ class QGridLayout;
 namespace caf
 {
 //==================================================================================================
-///
-//==================================================================================================
-class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    enum WrapMode
-    {
-        NoWrap,
-        WordWrap,
-        ManualWrap,
-        WrapAnywhere,
-        WrapAtWordBoundaryOrAnywhere
-    };
-
-    PdmUiTextEditorAttribute()
-    {
-        textMode       = PLAIN;
-        showSaveButton = false;
-        wrapMode       = WrapAtWordBoundaryOrAnywhere;
-        heightHint     = 2000;
-    }
-
-    enum TextMode
-    {
-        PLAIN,
-        HTML
-    };
-
-public:
-    TextMode textMode;
-    bool     showSaveButton;
-    WrapMode wrapMode;
-    QFont    font;
-    int      heightHint;
-};
-
-//==================================================================================================
 /// Override focus out event and emit editinghFinished to avoid multiple field changed events
 //==================================================================================================
 class TextEdit : public QTextEdit
@@ -118,17 +81,32 @@ class PdmUiTextEditor : public PdmUiFieldLabelEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTextEditor() { m_textMode = PdmUiTextEditorAttribute::PLAIN; }
+    enum WrapMode
+    {
+        NoWrap,
+        WordWrap,
+        ManualWrap,
+        WrapAnywhere,
+        WrapAtWordBoundaryOrAnywhere
+    };
+
+    enum TextMode
+    {
+        PLAIN,
+        HTML
+    };
+
+    PdmUiTextEditor() { m_textMode = PLAIN; }
     ~PdmUiTextEditor() override {}
 
     // Attribute key constants for compile-time safety and discoverability
     struct Keys
     {
-        static inline const QString TEXT_MODE        = QStringLiteral( "textMode" );
-        static inline const QString SHOW_SAVE_BUTTON = QStringLiteral( "showSaveButton" );
-        static inline const QString WRAP_MODE        = QStringLiteral( "wrapMode" );
-        static inline const QString FONT             = QStringLiteral( "font" );
-        static inline const QString HEIGHT_HINT      = QStringLiteral( "heightHint" );
+        static inline const QString TEXT_MODE        = QStringLiteral( "textMode" ); // int (TextMode)
+        static inline const QString SHOW_SAVE_BUTTON = QStringLiteral( "showSaveButton" ); // bool
+        static inline const QString WRAP_MODE        = QStringLiteral( "wrapMode" ); // int (WrapMode)
+        static inline const QString FONT             = QStringLiteral( "font" ); // QFont
+        static inline const QString HEIGHT_HINT      = QStringLiteral( "heightHint" ); // int
     };
 
     // Set of all supported attributes for validation
@@ -147,13 +125,13 @@ protected slots:
     void slotSetValueToField();
 
 private:
-    QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
+    QTextOption::WrapMode toQTextOptionWrapMode( WrapMode wrapMode );
 
 private:
     QPointer<TextEdit>    m_textEdit;
     QPointer<QPushButton> m_saveButton;
 
-    PdmUiTextEditorAttribute::TextMode m_textMode;
+    TextMode m_textMode;
 };
 
 } // end namespace caf

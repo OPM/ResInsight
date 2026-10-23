@@ -68,8 +68,6 @@ int RimGeoMechPart::partId() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPart::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateUiIconFromToggleField();
-
     if ( changedField == objectToggleField() )
     {
         auto ownerView = firstAncestorOrThisOfType<RimGeoMechView>();

@@ -29,7 +29,7 @@ import rips
 import rips.simulator_events
 
 
-def main():
+def main() -> None:
     resinsight = rips.Instance.find()
     project = resinsight.project
 
@@ -42,6 +42,9 @@ def main():
     )
     print(f"\n1. Parsing: {simulator_events_file}")
     document = rips.simulator_events.parse_simulator_events_file(simulator_events_file)
+    # Several files can be imported together; matching events from different
+    # files are merged exactly as if they were written in one file:
+    #   document = rips.simulator_events.parse_simulator_events_files([a, b])
     print(f"   Version: {document.version}, units: {document.unit_system}")
     print(f"   Wells: {[w.well_name for w in document.wells]}")
     print(
@@ -99,7 +102,7 @@ def main():
     )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
-    print(f"   Report dates:   {report.report_dates}")
+    print(f"   Inserted dates: {len(document.insert_date_events)}")
     for warning in report.warnings:
         print(f"   WARNING: {warning}")
     for error in report.errors:
@@ -119,13 +122,18 @@ def main():
 
     # Generate Eclipse schedule text from the timeline.
     print("\n4. Generating Eclipse schedule text...")
-    if report.events_applied == 0 and not report.report_dates:
-        print("   No events or report dates found - skipping schedule generation.")
+    if report.events_applied == 0:
+        print("   No events found - skipping schedule generation.")
         return
+    # Export multi-segment-well keywords only for the wells with SEGMENT events.
+    msw_wells = timeline.wells_with_msw_events()
+    print(
+        f"   Event dates: {timeline.earliest_event_date()} to {timeline.latest_event_date()}"
+    )
+    print(f"   MSW wells: {[well.name for well in msw_wells]}")
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case,
-        export_msw_for_wells=project.well_paths(),
-        additional_dates=report.report_dates,
+        export_msw_for_wells=msw_wells,
         align_columns=True,
     )
     if schedule_text:

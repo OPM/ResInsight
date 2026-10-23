@@ -19,6 +19,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewWizard.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewListWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.cpp
@@ -49,6 +50,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuBatchQueueMonitor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuBatchMonitorWorker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuCellAndNncPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
@@ -71,6 +74,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessageDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowJobRunner.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphLayout.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowTaskPalette.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowEditorWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowValidationRunner.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.cpp
@@ -86,6 +95,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurveSelectorFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuRftCorrelationPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.cpp

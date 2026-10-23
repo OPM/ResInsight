@@ -27,6 +27,8 @@
 
 #include <QString>
 
+#include <vector>
+
 class RigMainGrid;
 
 //==================================================================================================
@@ -47,6 +49,11 @@ public:
     QString name() const;
     int     eclipseGridIndex() const;
 
+    // A grid info can represent several grids (e.g. all reconstructed LGRs of one nested hybrid level)
+    void             resetSimulatorGridIndices( int index );
+    void             addSimulatorGridIndex( int index );
+    std::vector<int> simulatorGridIndices() const;
+
     caf::PdmFieldHandle* objectToggleField() override;
 
 protected:
@@ -58,6 +65,7 @@ private:
     caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_gridName;
     caf::PdmField<int>     m_eclipseGridIndex;
+    std::vector<int>       m_additionalGridIndices;
 };
 
 //==================================================================================================

@@ -47,6 +47,7 @@ PdmUiGroup::PdmUiGroup()
     m_hasForcedExpandedState = false;
     m_forcedCollapseState    = false;
     m_enableFrame            = true;
+    m_tightHorizontalSpacing = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +108,14 @@ void PdmUiGroup::setEnableFrame( bool enableFrame )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiGroup::setTightHorizontalSpacing( bool enable )
+{
+    m_tightHorizontalSpacing = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool PdmUiGroup::isExpandedByDefault() const
 {
     return !m_isCollapsedByDefault;
@@ -134,6 +143,14 @@ bool PdmUiGroup::forcedExpandedState() const
 bool PdmUiGroup::enableFrame() const
 {
     return m_enableFrame;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiGroup::tightHorizontalSpacing() const
+{
+    return m_tightHorizontalSpacing;
 }
 
 } // End of namespace caf

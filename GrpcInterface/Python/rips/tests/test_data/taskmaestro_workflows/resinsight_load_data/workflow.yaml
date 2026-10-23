@@ -1,0 +1,20 @@
+# ResInsight grid, property, and regular surface loading example.
+
+workflow:
+  name: resinsight_load_data
+  result_task: resinsight.import_grid_property
+  tasks:
+    - task: resinsight.connect
+    - task: resinsight.load_model
+      depends_on:
+        resinsight: resinsight.connect
+      config_fields: [path]
+    - task: resinsight.import_grid_property
+      depends_on:
+        resinsight: resinsight.connect
+        grid_case: resinsight.load_model
+      config_fields: [paths]
+    - task: resinsight.load_regular_surface
+      depends_on:
+        resinsight: resinsight.connect
+      config_fields: [path]

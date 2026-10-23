@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryMultiPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryResampleData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcProject.cpp
@@ -45,6 +46,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventPerf.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcColorLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcViewWindow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcGeoMechCase.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

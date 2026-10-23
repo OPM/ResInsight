@@ -1,0 +1,46 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "RigFormationNames.h"
+
+#include "cvfColor3.h"
+
+#include <expected>
+#include <map>
+
+#include <QString>
+
+//==================================================================================================
+/// Parsers for the individual formation name file formats. Use RifFormationNamesReader to read a
+/// file based on its name.
+//==================================================================================================
+class RifFormationNamesFileParser
+{
+public:
+    // Reads zone/subzone colors from a stratigraphy.json file. Subzone colors take precedence over zone colors.
+    [[nodiscard]] static std::expected<std::map<QString, cvf::Color3f>, QString> readStratigraphyColors( const QString& fileName );
+
+    [[nodiscard]] static std::expected<RigFormationNames, QString> readLyrFormationNameFile( const QString& fileName );
+    [[nodiscard]] static std::expected<RigFormationNames, QString>
+        readFmuFormationNameFile( const QString& fileName, const std::map<QString, cvf::Color3f>& colors = {} );
+    [[nodiscard]] static std::expected<RigFormationNames, QString>
+        readYamlFormationNameFile( const QString& fileName, const std::map<QString, cvf::Color3f>& colors = {} );
+
+    [[nodiscard]] static std::expected<cvf::Color3f, QString> convertStringToColor( const QString& word );
+};

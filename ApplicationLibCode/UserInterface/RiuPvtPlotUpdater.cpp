@@ -18,6 +18,8 @@
 
 #include "RiuPvtPlotUpdater.h"
 
+#include "RiaResultNames.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -91,7 +93,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
 
         cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RS" ) );
         cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RV" ) );
-        cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+        cellResultsData->ensureKnownResultLoaded(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::pressure() ) );
         cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PVTNUM" ) );
 
         cvf::ref<RigResultAccessor> rsAccessor =
@@ -111,7 +114,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                                                                gridIndex,
                                                                porosityModel,
                                                                timeStepIndex,
-                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                        RiaResultNames::pressure() ) );
         cvf::ref<RigResultAccessor> pvtnumAccessor =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                gridIndex,

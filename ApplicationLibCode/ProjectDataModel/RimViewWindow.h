@@ -19,11 +19,14 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cafFontTools.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include <QPointer>
 
 class QImage;
 class RimDockWindowController;
@@ -104,7 +107,7 @@ protected:
     caf::PdmFieldHandle* objectToggleField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
     static QImage internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWidget* widget, int width, int height );
 
@@ -117,8 +120,8 @@ private:
 protected:
     caf::PdmChildField<RimDockWindowController*> m_windowController;
 
-    caf::PdmField<bool>    m_showWindow;
-    ads::CDockWidget*      m_dockWidget;
-    caf::PdmField<QString> m_dockWindowId;
-    bool                   m_isActiveViewer;
+    caf::PdmField<bool>        m_showWindow;
+    QPointer<ads::CDockWidget> m_dockWidget;
+    caf::PdmField<QString>     m_dockWindowId;
+    bool                       m_isActiveViewer;
 };

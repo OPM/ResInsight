@@ -48,6 +48,7 @@ RimSummaryCalculationVariable::RimSummaryCalculationVariable()
 
     CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_button );
+    m_button.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::CellKeys::PUSH_BUTTON_TEXT, "Edit" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Summary Case" );
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
@@ -178,18 +179,6 @@ void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf:
     uiOrdering.add( &m_button );
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
-    if ( attr )
-    {
-        attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

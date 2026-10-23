@@ -66,11 +66,3 @@ void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimWellLog::fieldChangedByUi( changedField, oldValue, newValue );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimWellLog::defineEditorAttribute( field, uiConfigName, attribute );
-}

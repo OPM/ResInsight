@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimNamedObject.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "RimPolylinesDataInterface.h"
 
@@ -60,6 +61,12 @@ public:
     void         setColor( const cvf::Color3f& color );
 
     bool showLines() const;
+    void setShowLines( bool showLines );
+
+    bool showSpheres() const;
+    void setShowSpheres( bool showSpheres );
+    void setSphereRadiusFactor( double radiusFactor );
+    void setSphereColor( const cvf::Color3f& color );
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
@@ -69,9 +76,9 @@ public:
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
 private:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                                   appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 

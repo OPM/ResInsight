@@ -25,6 +25,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaProjectBackupTools.h"
 #include "RiaProjectFileTools.h"
 #include "RiaVersionInfo.h"
@@ -35,6 +36,7 @@
 #include "ContourMap/RimEclipseContourMapViewCollection.h"
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimWellFormationsCollection.h"
 #include "Jobs/RimJobCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -54,11 +56,12 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
-#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridCalculationCollection.h"
@@ -98,9 +101,11 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellTargetMapping.h"
+#include "Summary/RimCurveStyleRules.h"
 #include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
+#include "Workflow/RimWorkflowCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -136,10 +141,16 @@ RimProject::RimProject()
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &workflowCollection, "WorkflowCollection", "Workflows", ":/Folder.png" );
+    workflowCollection.xmlCapability()->disableIO();
+
     CAF_PDM_InitFieldNoDefault( &m_jobCollection, "JobCollection", "Jobs", ":/gear.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
     CAF_PDM_InitFieldNoDefault( &m_pinnedFieldCollection, "PinnedFieldCollection", "PinnedFieldCollection" );
+
+    CAF_PDM_InitFieldNoDefault( &m_curveStyleRules, "CurveStyleRules", "Curve Style Rules" );
+    m_curveStyleRules = new RimCurveStyleRules;
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection = new RimViewLinkerCollection;
@@ -194,6 +205,9 @@ RimProject::RimProject()
     scriptCollection->directory.uiCapability()->setUiHidden( true );
     scriptCollection->uiCapability()->setUiName( "Scripts" );
     scriptCollection->uiCapability()->setUiIconFromResourceString( ":/octave.png" );
+
+    workflowCollection = new RimWorkflowCollection();
+    workflowCollection->uiCapability()->setUiName( "Workflows" );
 
     m_mainPlotCollection    = new RimMainPlotCollection();
     m_pinnedFieldCollection = new RimQuickAccessCollection();
@@ -334,6 +348,14 @@ void RimProject::updatesAfterProjectFileIsRead()
 RimQuickAccessCollection* RimProject::pinnedFieldCollection() const
 {
     return m_pinnedFieldCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCurveStyleRules* RimProject::curveStyleRules() const
+{
+    return m_curveStyleRules();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -899,6 +921,14 @@ std::vector<Rim3dView*> RimProject::allViews() const
             }
         }
 
+        if ( oilField->genericViewCollection() )
+        {
+            for ( auto dataView : oilField->genericViewCollection()->genericViews() )
+            {
+                views.push_back( dataView );
+            }
+        }
+
         if ( oilField->analysisModels() )
         {
             for ( auto ensemble : oilField->analysisModels()->caseEnsembles.childrenByType() )
@@ -1308,22 +1338,27 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
-    RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    using Unit = RiaDefines::EclipseUnitSystem;
+
+    Unit commonUnitSystem = Unit::UNITS_UNKNOWN;
 
     for ( const auto& c : allGridCases() )
     {
+        // Cases that are not loaded, or have no unit information, do not take part in the comparison
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
-        if ( eclipseCase && eclipseCase->eclipseCaseData() )
+        if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) continue;
+
+        const Unit caseUnit = eclipseCase->eclipseCaseData()->unitsType();
+        if ( caseUnit == Unit::UNITS_UNKNOWN ) continue;
+
+        if ( commonUnitSystem == Unit::UNITS_UNKNOWN )
         {
-            if ( commonUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            {
-                commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
-            }
-            else if ( commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType() )
-            {
-                commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
-                break;
-            }
+            commonUnitSystem = caseUnit;
+        }
+        else if ( commonUnitSystem != caseUnit )
+        {
+            // Mixed unit systems: there is no common unit system
+            return Unit::UNITS_UNKNOWN;
         }
     }
 
@@ -1472,12 +1507,20 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             {
                 uiTreeOrdering.add( oilField->vfpDataCollection() );
             }
+            if ( oilField->wellFormationsCollection() )
+            {
+                uiTreeOrdering.add( oilField->wellFormationsCollection() );
+            }
         }
     }
     else if ( uiConfigName == "PlotWindow.Scripts" || uiConfigName == "MainWindow.Scripts" )
     {
         uiTreeOrdering.add( scriptCollection() );
         uiTreeOrdering.add( jobCollection() );
+        if ( RiaPreferencesSystem::current()->isFeatureEnabled( "workflows" ) )
+        {
+            uiTreeOrdering.add( workflowCollection() );
+        }
     }
     else if ( uiConfigName == "PlotWindow.Templates" )
     {
@@ -1516,7 +1559,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         if ( oilField )
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
-            if ( oilField->eclipseViewCollection() ) uiTreeOrdering.add( oilField->eclipseViewCollection() );
+            if ( oilField->genericViewCollection() ) uiTreeOrdering.add( oilField->genericViewCollection() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );

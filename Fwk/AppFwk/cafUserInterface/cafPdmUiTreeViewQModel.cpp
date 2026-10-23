@@ -134,14 +134,6 @@ void PdmUiTreeViewQModel::resetTree( PdmUiTreeOrdering* newRoot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::setColumnHeaders( const QStringList& columnHeaders )
-{
-    m_columnHeaders = columnHeaders;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewQModel::emitDataChanged( const QModelIndex& index )
 {
     emit dataChanged( index, index );
@@ -824,13 +816,7 @@ Qt::ItemFlags PdmUiTreeViewQModel::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 QVariant PdmUiTreeViewQModel::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
 {
-    if ( role != Qt::DisplayRole ) return QVariant();
-
-    if ( section < m_columnHeaders.size() )
-    {
-        return m_columnHeaders[section];
-    }
-
+    // No column headers, and no fallback to the default section numbers
     return QVariant();
 }
 

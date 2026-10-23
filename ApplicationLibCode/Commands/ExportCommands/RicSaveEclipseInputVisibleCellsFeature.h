@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include <expected>
+
 class RimEclipseView;
 class RicSaveEclipseInputVisibleCellsUi;
 
@@ -33,6 +35,7 @@ class RicSaveEclipseInputVisibleCellsFeature : public caf::CmdFeature
 public:
     static void openDialogAndExecuteCommand( RimEclipseView* view );
     static void executeCommand( RimEclipseView* view, const RicSaveEclipseInputVisibleCellsUi& exportSettings, const QString& logPrefix );
+    static std::expected<void, QString> exportVisibleCells( RimEclipseView* view, const RicSaveEclipseInputVisibleCellsUi& exportSettings );
 
 protected:
     bool isCommandEnabled() const override;

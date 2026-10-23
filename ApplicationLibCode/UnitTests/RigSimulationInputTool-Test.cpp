@@ -29,8 +29,11 @@
 #include "RigMainGrid.h"
 #include "RigModelPaddingSettings.h"
 #include "RigNoRefinement.h"
+#include "RigNonUniformRefinement.h"
 #include "RigSimulationInputSettings.h"
+#include "RigSimulationInputTestHelpers.h"
 #include "RigSimulationInputTool.h"
+#include "RigTransmissibilityEquations.h"
 #include "RigUniformRefinement.h"
 #include "RimEclipseResultCase.h"
 
@@ -45,35 +48,13 @@
 #include <QString>
 #include <QTemporaryDir>
 
+#include <cmath>
 #include <limits>
 #include <set>
 #include <vector>
 
-static RigUniformRefinement makeRef( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const cvf::Vec3st& refCounts )
-{
-    cvf::Vec3st sectorSize( sectorMax.i() - sectorMin.i() + 1, sectorMax.j() - sectorMin.j() + 1, sectorMax.k() - sectorMin.k() + 1 );
-    return RigUniformRefinement( refCounts, sectorSize );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Helper: set refinement on settings, computing sector size from min/max.
-/// If refCounts is (1,1,1), creates RigNoRefinement; otherwise RigUniformRefinement.
-//--------------------------------------------------------------------------------------------------
-static void setSettingsRefinement( RigSimulationInputSettings& settings, const cvf::Vec3st& refCounts )
-{
-    cvf::Vec3st sectorSize( settings.max().i() - settings.min().i() + 1,
-                            settings.max().j() - settings.min().j() + 1,
-                            settings.max().k() - settings.min().k() + 1 );
-
-    if ( refCounts.x() == 1 && refCounts.y() == 1 && refCounts.z() == 1 )
-    {
-        settings.setRefinement( std::make_unique<RigNoRefinement>( sectorSize ) );
-    }
-    else
-    {
-        settings.setRefinement( std::make_unique<RigUniformRefinement>( refCounts, sectorSize ) );
-    }
-}
+using RigSimulationInputTestHelpers::makeRef;
+using RigSimulationInputTestHelpers::setSettingsRefinement;
 
 //--------------------------------------------------------------------------------------------------
 /// Helper to create an EQUALS DeckRecord
@@ -276,126 +257,6 @@ TEST( RigSimulationInputTool, ProcessEqualsRecord_AtBoundary )
     EXPECT_EQ( 10, result->getItem( 5 ).get<int>( 0 ) ); // J2
     EXPECT_EQ( 1, result->getItem( 6 ).get<int>( 0 ) ); // K1
     EXPECT_EQ( 10, result->getItem( 7 ).get<int>( 0 ) ); // K2
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Helper to create an AQUCON DeckRecord
-/// AQUCON format: ID I1 I2 J1 J2 K1 K2 CONNECT_FACE ... (1-based Eclipse coordinates)
-//--------------------------------------------------------------------------------------------------
-static Opm::DeckRecord createAquconRecord( int aquiferId, int i1, int i2, int j1, int j2, int k1, int k2, const std::string& connectFace )
-{
-    std::vector<Opm::DeckItem> items;
-    items.push_back( RifOpmDeckTools::item( "ID", aquiferId ) );
-    items.push_back( RifOpmDeckTools::item( "I1", i1 ) );
-    items.push_back( RifOpmDeckTools::item( "I2", i2 ) );
-    items.push_back( RifOpmDeckTools::item( "J1", j1 ) );
-    items.push_back( RifOpmDeckTools::item( "J2", j2 ) );
-    items.push_back( RifOpmDeckTools::item( "K1", k1 ) );
-    items.push_back( RifOpmDeckTools::item( "K2", k2 ) );
-    items.push_back( RifOpmDeckTools::item( "CONNECT_FACE", connectFace ) );
-
-    return Opm::DeckRecord{ std::move( items ) };
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test AQUCON record with partial overlap (based on user-provided data)
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, ProcessAquconRecord_PartialOverlap )
-{
-    // Sector: min=(40, 27, 21), max=(100, 72, 58) (inclusive, 0-based)
-    // This corresponds to a sector with cells [40-100, 27-72, 21-58]
-    caf::VecIjk0 sectorMin( 40, 27, 21 );
-    caf::VecIjk0 sectorMax( 100, 72, 58 );
-    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
-
-    // AQUCON record from user data: 1 57 57 28 36 46 58 'I+' (1-based Eclipse)
-    // Converts to 0-based: I[56-56], J[27-35], K[45-57]
-    // Sector is I[40-100], J[27-72], K[21-58]
-    // Overlap: I[56-56], J[27-35], K[45-57] - all inside, no clamping needed
-    auto record = createAquconRecord( 1, 57, 57, 28, 36, 46, 58, "I+" );
-
-    auto result = RigSimulationInputTool::processAquconRecord( record, sectorMin, sectorMax, refinement );
-
-    ASSERT_TRUE( result.has_value() );
-
-    // Check transformed coordinates (sector-relative, 1-based)
-    // I: (56-40)*1+1 = 17 to (56-40)*1+1 = 17
-    // J: (27-27)*1+1 = 1 to (35-27)*1+1 = 9
-    // K: (45-21)*1+1 = 25 to (57-21)*1+1 = 37
-    EXPECT_EQ( 17, result->getItem( 1 ).get<int>( 0 ) ); // I1
-    EXPECT_EQ( 17, result->getItem( 2 ).get<int>( 0 ) ); // I2
-    EXPECT_EQ( 1, result->getItem( 3 ).get<int>( 0 ) ); // J1
-    EXPECT_EQ( 9, result->getItem( 4 ).get<int>( 0 ) ); // J2
-    EXPECT_EQ( 25, result->getItem( 5 ).get<int>( 0 ) ); // K1
-    EXPECT_EQ( 37, result->getItem( 6 ).get<int>( 0 ) ); // K2
-
-    // Check aquifer ID and connect face are preserved
-    EXPECT_EQ( 1, result->getItem( 0 ).get<int>( 0 ) );
-    EXPECT_EQ( "I+", result->getItem( 7 ).get<std::string>( 0 ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test AQUCON record with partial K overlap requiring clamping
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, ProcessAquconRecord_PartialOverlapWithClamping )
-{
-    // Sector: min=(40, 27, 21), max=(100, 72, 58) (inclusive, 0-based)
-    caf::VecIjk0 sectorMin( 40, 27, 21 );
-    caf::VecIjk0 sectorMax( 100, 72, 58 );
-    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
-
-    // AQUCON record: 1 79 79 41 67 5 11 'I+' (1-based Eclipse)
-    // Converts to 0-based: I[78-78], J[40-66], K[4-10]
-    // Sector K is [21-58], so K[4-10] is outside and should be skipped
-    auto record = createAquconRecord( 1, 79, 79, 41, 67, 5, 11, "I+" );
-
-    auto result = RigSimulationInputTool::processAquconRecord( record, sectorMin, sectorMax, refinement );
-
-    // This should fail because K range [4-10] doesn't overlap with sector K range [21-58]
-    EXPECT_FALSE( result.has_value() );
-    EXPECT_TRUE( result.error().contains( "does not overlap" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test AQUCON record completely inside sector
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, ProcessAquconRecord_CompletelyInside )
-{
-    // Sector: min=(40, 27, 21), max=(100, 72, 58) (inclusive, 0-based)
-    caf::VecIjk0 sectorMin( 40, 27, 21 );
-    caf::VecIjk0 sectorMax( 100, 72, 58 );
-    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
-
-    // AQUCON record: 1 61 61 48 72 12 17 'I+' (1-based Eclipse)
-    // Converts to 0-based: I[60-60], J[47-71], K[11-16]
-    // However, K[11-16] is outside sector K[21-58], so this should fail
-    auto record = createAquconRecord( 1, 61, 61, 48, 72, 12, 17, "I+" );
-
-    auto result = RigSimulationInputTool::processAquconRecord( record, sectorMin, sectorMax, refinement );
-
-    EXPECT_FALSE( result.has_value() );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test AQUCON record without box definition (only aquifer ID)
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, ProcessAquconRecord_NoBoxDefinition )
-{
-    caf::VecIjk0 sectorMin( 0, 0, 0 );
-    caf::VecIjk0 sectorMax( 9, 9, 9 );
-    auto         refinement = makeRef( sectorMin, sectorMax, cvf::Vec3st( 1, 1, 1 ) );
-
-    // Create a record with only aquifer ID (no box coordinates)
-    std::vector<Opm::DeckItem> items;
-    items.push_back( RifOpmDeckTools::item( "ID", 1 ) );
-
-    Opm::DeckRecord record{ std::move( items ) };
-
-    auto result = RigSimulationInputTool::processAquconRecord( record, sectorMin, sectorMax, refinement );
-
-    EXPECT_TRUE( result.has_value() );
-    EXPECT_EQ( result->size(), 1U );
-    EXPECT_EQ( 1, result->getItem( 0 ).get<int>( 0 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1297,9 +1158,9 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
         }
     }
 
-    // Verify specific COMPDAT coordinates are centered correctly
+    // Verify COMPDAT K ranges cover all refined sub-cells
     // For refinement (1, 3, 5):
-    // - K dimension: refinement=5, center offset = (5+1)/2 = 3
+    // - K dimension: refinement=5, original layer k maps to refined layers (k-1)*5+1 .. k*5
     auto checkCompdatCoordinates = [&compdatKeywords]( const std::string& wellName, int expectedK1, int expectedK2 ) -> bool
     {
         return std::any_of( compdatKeywords.begin(),
@@ -1319,13 +1180,13 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement )
                             } );
     };
 
-    // B-1H: original K1=1, K2=5, sector_min K=0
-    //   K1: (1-0)*5 + 3 = 3, K2: (5-0)*5 + 3 = 23
-    EXPECT_TRUE( checkCompdatCoordinates( "B-1H", 3, 23 ) ) << "B-1H COMPDAT K coordinates not centered correctly";
+    // B-1H: original K1=1, K2=5 (defaulted CF), sector_min K=0
+    //   All sub-cells of the original range: K1 = 1, K2 = 5*5 = 25
+    EXPECT_TRUE( checkCompdatCoordinates( "B-1H", 1, 25 ) ) << "B-1H COMPDAT K range does not cover all refined sub-cells";
 
     // B-2H: original K1=1, K2=6
-    //   K1: (1-0)*5 + 3 = 3, K2: (6-0)*5 + 3 = 28
-    EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 3, 28 ) ) << "B-2H COMPDAT K coordinates not centered correctly";
+    //   K1 = 1, K2 = 6*5 = 30
+    EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 1, 30 ) ) << "B-2H COMPDAT K range does not cover all refined sub-cells";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1512,162 +1373,6 @@ TEST( RigSimulationInputTool, ExportModel5WithRefinement_3_5_1 )
     // B-2H: original K1=1, K2=6
     //   K1: (1-0)*1 + 1 = 1, K2: (6-0)*1 + 1 = 6
     EXPECT_TRUE( checkCompdatCoordinates( "B-2H", 1, 6 ) ) << "B-2H COMPDAT K coordinates not centered correctly";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Helper to load model5 test case
-//--------------------------------------------------------------------------------------------------
-static cvf::ref<RigEclipseCaseData> loadModel5TestCase()
-{
-    QDir baseFolder( TEST_DATA_DIR );
-    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
-    if ( !subFolderExists ) return nullptr;
-
-    QString egridFilename( "0_BASE_MODEL5.EGRID" );
-    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
-    if ( !QFile::exists( egridFilePath ) ) return nullptr;
-
-    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
-    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
-
-    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
-    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
-    if ( !loadResult ) return nullptr;
-
-    return caseData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test filterInternalSectorConnections - both cells inside
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, FilterNNCConnections_BothInside )
-{
-    // Load model5 test data (20x30x10 grid)
-    auto caseData = loadModel5TestCase();
-    ASSERT_TRUE( caseData.notNull() );
-    ASSERT_TRUE( caseData->mainGrid() != nullptr );
-    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
-    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
-    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
-
-    RigMainGrid* mainGrid = caseData->mainGrid();
-
-    // Create test connections using the real grid
-    std::vector<RigSimulationInputTool::NNCConnection> allConnections;
-
-    // Connection 1: (2,3,4) to (3,3,4) - both inside sector [1,5] x [1,5] x [1,5]
-    size_t c1Idx = mainGrid->cellIndexFromIJK( 2, 3, 4 );
-    size_t c2Idx = mainGrid->cellIndexFromIJK( 3, 3, 4 );
-    allConnections.push_back( { c1Idx, c2Idx, 1.5 } );
-
-    // Connection 2: (10,20,8) to (11,20,8) - both outside sector
-    c1Idx = mainGrid->cellIndexFromIJK( 10, 20, 8 );
-    c2Idx = mainGrid->cellIndexFromIJK( 11, 20, 8 );
-    allConnections.push_back( { c1Idx, c2Idx, 2.5 } );
-
-    // Connection 3: (1,2,3) to (15,15,8) - one inside, one outside
-    c1Idx = mainGrid->cellIndexFromIJK( 1, 2, 3 );
-    c2Idx = mainGrid->cellIndexFromIJK( 15, 15, 8 );
-    allConnections.push_back( { c1Idx, c2Idx, 3.5 } );
-
-    // Filter for sector [1,5] x [1,5] x [1,5]
-    caf::VecIjk0 sectorMin( 1, 1, 1 );
-    caf::VecIjk0 sectorMax( 5, 5, 5 );
-
-    auto filtered = RigSimulationInputTool::filterInternalSectorConnections( allConnections, *mainGrid, sectorMin, sectorMax );
-
-    // Only connection 1 should remain
-    ASSERT_EQ( 1u, filtered.size() );
-    EXPECT_EQ( 1.5, filtered[0].transmissibility );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test transformNNCToSectorCoordinates - no refinement
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, TransformNNCToSectorCoordinates_NoRefinement )
-{
-    // Load model5 test data (20x30x10 grid)
-    auto caseData = loadModel5TestCase();
-    ASSERT_TRUE( caseData.notNull() );
-    RigMainGrid* mainGrid = caseData->mainGrid();
-
-    // Connection between (10,15,5) and (11,15,5) - I-face neighbors
-    size_t c1Idx = mainGrid->cellIndexFromIJK( 10, 15, 5 );
-    size_t c2Idx = mainGrid->cellIndexFromIJK( 11, 15, 5 );
-
-    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 4.5 };
-
-    // Sector starts at (5,10,2), grid is 20x30x10
-    caf::VecIjk0 sectorMin( 5, 10, 2 );
-    auto         refinement = RigUniformRefinement( cvf::Vec3st( 1, 1, 1 ), cvf::Vec3st( 20, 30, 10 ) );
-
-    auto result = RigSimulationInputTool::transformNNCToSectorCoordinates( connection, *mainGrid, sectorMin, refinement );
-
-    ASSERT_TRUE( result.has_value() );
-
-    // Cell 1: (10,15,5) - sector min (5,10,2) = (5,5,3) in 0-based sector coords
-    EXPECT_EQ( 5, result->cell1.i() );
-    EXPECT_EQ( 5, result->cell1.j() );
-    EXPECT_EQ( 3, result->cell1.k() );
-
-    // Cell 2: (11,15,5) - sector min (5,10,2) = (6,5,3) in 0-based sector coords
-    EXPECT_EQ( 6, result->cell2.i() );
-    EXPECT_EQ( 5, result->cell2.j() );
-    EXPECT_EQ( 3, result->cell2.k() );
-
-    EXPECT_EQ( 4.5, result->transmissibility );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Test refineEDITNNCConnection - corresponding subcells with refinement (2,2,1)
-//--------------------------------------------------------------------------------------------------
-TEST( RigSimulationInputTool, RefineEDITNNCConnection_CorrespondingSubcells )
-{
-    // Load model5 test data (20x30x10 grid)
-    auto caseData = loadModel5TestCase();
-    ASSERT_TRUE( caseData.notNull() );
-    RigMainGrid* mainGrid = caseData->mainGrid();
-
-    // Connection between cells (3,4,5) and (6,8,7) - non-neighbors
-    size_t c1Idx = mainGrid->cellIndexFromIJK( 3, 4, 5 );
-    size_t c2Idx = mainGrid->cellIndexFromIJK( 6, 8, 7 );
-
-    RigSimulationInputTool::NNCConnection connection{ c1Idx, c2Idx, 2.5 }; // TRAN_MULT = 2.5
-
-    caf::VecIjk0 sectorMin( 0, 0, 0 );
-    auto refinement = RigUniformRefinement( cvf::Vec3st( 2, 2, 1 ), cvf::Vec3st( 20, 30, 10 ) ); // Refine by 2x2x1, grid is 20x30x10
-
-    auto refined = RigSimulationInputTool::refineEditNncConnection( connection, *mainGrid, sectorMin, refinement );
-
-    // For EDITNNC: creates connections between corresponding subcells
-    // Should create 2*2*1 = 4 connections (one per subcell pair at same relative position)
-    ASSERT_EQ( 4u, refined.size() );
-
-    // All connections should have same TRAN_MULT (no distribution)
-    for ( const auto& conn : refined )
-    {
-        EXPECT_DOUBLE_EQ( 2.5, conn.transmissibility );
-    }
-
-    // Verify corresponding subcell connections
-    // Cell1 starts at sector coordinates (3*2, 4*2, 5*1) = (6, 8, 5)
-    // Cell2 starts at sector coordinates (6*2, 8*2, 7*1) = (12, 16, 7)
-
-    // Connection 0: (0,0,0) -> (0,0,0): (6,8,5) -> (12,16,7)
-    EXPECT_EQ( caf::VecIjk0( 6, 8, 5 ), refined[0].cell1 );
-    EXPECT_EQ( caf::VecIjk0( 12, 16, 7 ), refined[0].cell2 );
-
-    // Connection 1: (0,1,0) -> (0,1,0): (6,9,5) -> (12,17,7)
-    EXPECT_EQ( caf::VecIjk0( 6, 9, 5 ), refined[1].cell1 );
-    EXPECT_EQ( caf::VecIjk0( 12, 17, 7 ), refined[1].cell2 );
-
-    // Connection 2: (1,0,0) -> (1,0,0): (7,8,5) -> (13,16,7)
-    EXPECT_EQ( caf::VecIjk0( 7, 8, 5 ), refined[2].cell1 );
-    EXPECT_EQ( caf::VecIjk0( 13, 16, 7 ), refined[2].cell2 );
-
-    // Connection 3: (1,1,0) -> (1,1,0): (7,9,5) -> (13,17,7)
-    EXPECT_EQ( caf::VecIjk0( 7, 9, 5 ), refined[3].cell1 );
-    EXPECT_EQ( caf::VecIjk0( 13, 17, 7 ), refined[3].cell2 );
 }
 
 //--------------------------------------------------------------------------------------------------

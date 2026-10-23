@@ -162,6 +162,7 @@ public:
     QProcessEnvironment octaveProcessEnvironment() const;
 
     QString                     pythonPath() const;
+    QString                     cloudApiPythonPath() const;
     virtual QProcessEnvironment pythonProcessEnvironment() const;
     virtual std::optional<int>  activeGrpcPortNumber() const;
 

@@ -43,6 +43,7 @@ RimSeismicDataInterface::RimSeismicDataInterface()
     m_legendConfig = new RimRegularLegendConfig();
 
     CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 0.0 ), "Clip Value" );
+    m_userClipValue.setMinValue( 0.00001 );
     CAF_PDM_InitField( &m_userMuteThreshold,
                        "userMuteThreshold",
                        std::make_pair( false, 0.0 ),

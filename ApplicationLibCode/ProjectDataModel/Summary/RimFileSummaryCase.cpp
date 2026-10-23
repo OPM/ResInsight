@@ -64,6 +64,7 @@ RimFileSummaryCase::RimFileSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath, "AdditionalSummaryFilePath", "Additional File Path (set invisible when ready)" );
     m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
+    m_additionalSummaryFilePath.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
 
     CAF_PDM_InitFieldNoDefault( &m_rftCase, "RftCase", "RFT Data" );
     m_rftCase = new RimRftCase;
@@ -262,21 +263,6 @@ std::unique_ptr<RifReaderOpmRft> RimFileSummaryCase::createOpmRftReader( const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_additionalSummaryFilePath )
-    {
-        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     RimSummaryCase::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
@@ -303,6 +289,10 @@ void RimFileSummaryCase::openAndAttachAdditionalReader()
     auto isValid             = opmCommonReader->open( additionalSummaryFilePath, includeRestartFiles, nullptr );
     if ( isValid )
     {
+        // The additional file is small, and the addresses are required to read values also when the addresses of the case are not
+        // created (e.g. realizations in an ensemble)
+        opmCommonReader->createAddressesIfRequired();
+
         m_additionalSummaryReaderId = opmCommonReader->serialNumber();
         m_multiSummaryReader->addReader( std::move( opmCommonReader ) );
     }
@@ -361,6 +351,11 @@ std::expected<void, QString>
 
     auto address    = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( keyword );
     auto fileReader = m_multiSummaryReader->findReader( m_fileSummaryReaderId );
+    if ( fileReader )
+    {
+        // Addresses are created lazily, and can be missing for realizations in an ensemble
+        fileReader->createAddressesIfRequired();
+    }
     if ( fileReader && fileReader->hasAddress( address ) )
     {
         QString errorMsg = QString( "Cannot set summary values for '%1' because the vector comes from the source summary file. "
@@ -436,28 +431,66 @@ std::expected<void, QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFileSummaryCase::additionalSummaryFilePath() const
+{
+    return m_additionalSummaryFilePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Attach an existing file with user-defined summary vectors. Used when the case is recreated, e.g. when
+/// an ensemble is defined by a file set and the cases are not stored in the project file.
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::setAdditionalSummaryFilePath( const QString& filePath )
+{
+    if ( filePath.isEmpty() || !QFile::exists( filePath ) ) return;
+
+    m_additionalSummaryFilePath = filePath;
+
+    if ( m_multiSummaryReader )
+    {
+        m_multiSummaryReader->removeReader( m_additionalSummaryReaderId );
+        openAndAttachAdditionalReader();
+
+        // Addresses are created lazily for realizations in an ensemble, only refresh if already created
+        if ( !m_multiSummaryReader->allResultAddresses().empty() )
+        {
+            m_multiSummaryReader->createAndSetAddresses();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::onProjectBeingSaved()
 {
-    // If additional data is stored in temp folder, copy to project folder and remove file in temp folder
+    // If additional data is stored in temp folder, copy to project folder and remove file in temp folder. Files in other folders are
+    // copied and kept, so a project saved with Save As does not lose the data of the original project. The project file is not written
+    // yet, so additionalSummaryDataFilePath() would still point to the temp folder on the first save.
+    const QString projectFileName = RimProject::current() ? RimProject::current()->fileName() : QString();
+    if ( projectFileName.isEmpty() ) return;
 
     auto existingFilePath = m_additionalSummaryFilePath().path();
     if ( QFile::exists( existingFilePath ) )
     {
-        auto currentFilePath = additionalSummaryDataFilePath();
+        auto currentFilePath = QFileInfo( projectFileName ).dir().absoluteFilePath( QFileInfo( existingFilePath ).fileName() );
         if ( existingFilePath != currentFilePath )
         {
+            if ( m_multiSummaryReader ) m_multiSummaryReader->removeReader( m_additionalSummaryReaderId );
+
             if ( QFile::copy( existingFilePath, currentFilePath ) )
             {
-                QFile::remove( existingFilePath );
+                const bool isInTempFolder = QFileInfo( existingFilePath ).absoluteDir() == QDir( QDir::tempPath() );
+                if ( isInTempFolder ) QFile::remove( existingFilePath );
                 m_additionalSummaryFilePath = currentFilePath;
-
-                openAndAttachAdditionalReader();
             }
             else
             {
                 QString txt = "Error when copying temporary file to " + currentFilePath;
                 RiaLogging::error( txt.toStdString() );
             }
+
+            if ( m_multiSummaryReader ) openAndAttachAdditionalReader();
         }
     }
 }

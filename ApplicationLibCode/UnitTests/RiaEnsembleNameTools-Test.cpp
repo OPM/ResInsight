@@ -108,6 +108,42 @@ TEST( RiaFilePathTools, EnsembleGroupingMultipleEnsembles )
 }
 
 //--------------------------------------------------------------------------------------------------
+// Some FMU-like data sets skip the "iter-N" folder level and place the case files directly inside
+// "realization-N". Ensemble grouping mode NONE should still create a single best-effort ensemble
+// containing all the files, regardless of the folder structure used.
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleGroupingNoneFlatRealizationStructure )
+{
+    QStringList fileNames = { "f:/scratch/grid_ensemble/realization-1/SIMPLE_R1.EGRID",
+                              "f:/scratch/grid_ensemble/realization-2/SIMPLE_R2.EGRID",
+                              "f:/scratch/grid_ensemble/realization-3/SIMPLE_R3.EGRID" };
+
+    auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, RiaDefines::EnsembleGroupingMode::NONE );
+
+    ASSERT_EQ( 1u, grouping.size() );
+
+    const auto& [groupName, groupedFileNames] = *grouping.begin();
+    EXPECT_FALSE( groupName.isEmpty() );
+    EXPECT_EQ( 3, groupedFileNames.size() );
+    for ( const auto& fileName : fileNames )
+    {
+        EXPECT_TRUE( groupedFileNames.contains( fileName ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// groupFilesByEnsembleName with an empty input list must not create a bogus ensemble entry.
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, EnsembleGroupingNoneEmptyInput )
+{
+    QStringList fileNames;
+
+    auto grouping = RiaEnsembleNameTools::groupFilesByEnsembleName( fileNames, RiaDefines::EnsembleGroupingMode::NONE );
+
+    EXPECT_TRUE( grouping.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RiaFilePathTools, EnsembleGroupingEverest )
 {
     {

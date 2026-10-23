@@ -19,6 +19,8 @@
 
 #include "RiaApplication.h"
 
+#include "ExportCommands/RicExportToLasFileFeature.h"
+#include "WellLogCommands/RicAsciiExportWellLogPlotFeature.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimEclipseCase.h"
@@ -29,9 +31,12 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+#include "RimcDataContainerString.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
+
+#include <QFileInfo>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogPlot, RimcWellLogPlot_newWellLogTrack, "NewWellLogTrack" );
 
@@ -94,4 +99,187 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
 QString RimcWellLogPlot_newWellLogTrack::classKeywordReturnedType() const
 {
     return RimWellLogTrack::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogPlot, RimWellLogPlot_exportDataAsLas, "exportDataAsLas" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot_exportDataAsLas::RimWellLogPlot_exportDataAsLas( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Export Data As LAS", "", "", "Export the curves of the plot to LAS files and return the exported file names" );
+
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the LAS files to. Must exist." );
+    CAF_PDM_InitScriptableField( &m_filePrefix, "FilePrefix", QString(), "File Prefix", "", "", "Prefix for the generated file names" );
+    CAF_PDM_InitScriptableField( &m_exportTvdRkb, "ExportTvdRkb", false, "Export TVD RKB", "", "", "Export in TVD-RKB format" );
+    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "CapitalizeFileNames", false, "Capitalize File Names", "", "", "Make all file names upper case" );
+    CAF_PDM_InitScriptableField( &m_resampleInterval,
+                                 "ResampleInterval",
+                                 0.0,
+                                 "Resample Interval",
+                                 "",
+                                 "",
+                                 "If > 0.0 the curves are resampled with this interval" );
+    CAF_PDM_InitScriptableField( &m_convertToStandardUnits,
+                                 "ConvertToStandardUnits",
+                                 false,
+                                 "Convert To Standard Units",
+                                 "",
+                                 "",
+                                 "Convert curve units to standard units" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setFilePrefix( const QString& filePrefix )
+{
+    m_filePrefix = filePrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setExportTvdRkb( bool enable )
+{
+    m_exportTvdRkb = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setCapitalizeFileNames( bool enable )
+{
+    m_capitalizeFileNames = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setResampleInterval( double interval )
+{
+    m_resampleInterval = interval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsLas::setConvertToStandardUnits( bool enable )
+{
+    m_convertToStandardUnits = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimWellLogPlot_exportDataAsLas::execute()
+{
+    auto* plot = self<RimWellLogPlot>();
+    if ( !plot ) return std::unexpected( "No well log plot is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+    if ( !QFileInfo::exists( m_exportFolder() ) ) return std::unexpected( m_exportFolder() + " does not exist" );
+
+    const bool           exportAllCurves = true;
+    std::vector<QString> exportedFiles   = RicExportToLasFileFeature::exportToLasFiles( m_exportFolder(),
+                                                                                      m_filePrefix(),
+                                                                                      plot,
+                                                                                      m_exportTvdRkb(),
+                                                                                      m_capitalizeFileNames(),
+                                                                                      exportAllCurves,
+                                                                                      m_resampleInterval(),
+                                                                                      m_convertToStandardUnits() );
+    if ( exportedFiles.empty() ) return std::unexpected( QString( "No files exported for '%1'" ).arg( plot->description() ) );
+
+    auto* result           = new RimcDataContainerString();
+    result->m_stringValues = exportedFiles;
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot_exportDataAsLas::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellLogPlot, RimWellLogPlot_exportDataAsAscii, "exportDataAsAscii" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot_exportDataAsAscii::RimWellLogPlot_exportDataAsAscii( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Export Data As ASCII", "", "", "Export the curves of the plot to a single ASCII file and return the file name" );
+
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the file to. Must exist." );
+    CAF_PDM_InitScriptableField( &m_filePrefix, "FilePrefix", QString(), "File Prefix", "", "", "Prefix for the generated file name" );
+    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "CapitalizeFileNames", false, "Capitalize File Names", "", "", "Make the file name upper case" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsAscii::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsAscii::setFilePrefix( const QString& filePrefix )
+{
+    m_filePrefix = filePrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot_exportDataAsAscii::setCapitalizeFileNames( bool enable )
+{
+    m_capitalizeFileNames = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimWellLogPlot_exportDataAsAscii::execute()
+{
+    auto* plot = self<RimWellLogPlot>();
+    if ( !plot ) return std::unexpected( "No well log plot is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+    if ( !QFileInfo::exists( m_exportFolder() ) ) return std::unexpected( m_exportFolder() + " does not exist" );
+
+    QString fileName =
+        RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot, m_exportFolder(), m_filePrefix(), m_capitalizeFileNames() );
+    if ( !RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( fileName, plot ) )
+    {
+        return std::unexpected( QString( "Could not export '%1' to %2" ).arg( plot->description() ).arg( fileName ) );
+    }
+
+    auto* result           = new RimcDataContainerString();
+    result->m_stringValues = { fileName };
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot_exportDataAsAscii::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }

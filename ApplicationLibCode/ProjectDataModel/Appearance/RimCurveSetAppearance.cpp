@@ -83,6 +83,9 @@ RimCurveSetAppearance::RimCurveSetAppearance()
     CAF_PDM_InitField( &m_colorOpacity, "ColorOpacity", 0.7, "Opacity" );
     m_colorOpacity.registerKeywordAlias( "ColorTransparency" );
     m_colorOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.001 );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_colorOpacity.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::DECIMALS, 2 );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -148,6 +151,30 @@ void RimCurveSetAppearance::setColorMode( ColorModeEnum colorMode )
 void RimCurveSetAppearance::setEnsembleParameter( const QString& ensembleParameter )
 {
     m_ensembleParameter = ensembleParameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveSetAppearance::setColorByEnsembleParameter( const QString& ensembleParameter )
+{
+    m_colorMode         = RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM;
+    m_ensembleParameter = ensembleParameter;
+    updateEnsembleParameterLegend( m_ensembleLegendConfig );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Changes the ensemble parameter only if curves are colored by ensemble parameter. Returns true
+/// if the parameter was changed.
+//--------------------------------------------------------------------------------------------------
+bool RimCurveSetAppearance::syncEnsembleParameter( const QString& ensembleParameter )
+{
+    if ( m_colorMode() != RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM || m_ensembleParameter() == ensembleParameter )
+        return false;
+
+    m_ensembleParameter = ensembleParameter;
+    updateEnsembleParameterLegend( m_ensembleLegendConfig );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,20 +366,4 @@ QList<caf::PdmOptionItemInfo> RimCurveSetAppearance::calculateValueOptions( cons
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCurveSetAppearance::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_colorOpacity )
-    {
-        if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum  = 0.001;
-            myAttr->m_maximum  = 1.0;
-            myAttr->m_decimals = 2;
-        }
-    }
 }

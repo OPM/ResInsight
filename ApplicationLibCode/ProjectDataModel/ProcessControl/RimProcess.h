@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaWslTools.h"
+
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -25,6 +27,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <atomic>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -36,7 +40,7 @@ class RimProcess : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProcess( bool logStdOutErr = true, RimProcessMonitor* monitor = nullptr );
+    RimProcess( bool logStdOutErr = true, std::shared_ptr<RimProcessMonitor> monitor = nullptr );
     ~RimProcess() override;
 
     void setDescription( QString desc );
@@ -46,13 +50,21 @@ public:
 
     void addEnvironmentVariable( QString name, QString value );
 
-    void setWorkingDirectory( QString directory );
+    const std::vector<std::pair<QString, QString>>& environmentVariables() const;
+
+    void    setWorkingDirectory( QString directory );
+    QString workingDirectory() const;
 
     QString commandLine() const;
 
-    QString     command() const;
-    QStringList parameters() const;
-    size_t      ID() const;
+    QString                            command() const;
+    QStringList                        parameters() const;
+    size_t                             ID() const;
+    QString                            description() const;
+    std::shared_ptr<RimProcessMonitor> monitor() const;
+
+    void                           setWslOptions( const RiaWslTools::WslOptions& wslOpt );
+    const RiaWslTools::WslOptions& wslOptions() const;
 
     // blocking run
     bool execute( bool enableStdOut = true, bool enableStdErr = true );
@@ -62,9 +74,14 @@ public:
     void cleanUpAfterRun();
     void terminate();
     void notifyErrorFinish();
+    void writeToStdIn( QStringList stdIn );
+    bool isRunning();
 
-    QStringList stdErr() const;
-    QStringList stdOut() const;
+    const QStringList& stdErr() const;
+    const QStringList& stdOut() const;
+
+    void appendStdOut( QString line );
+    void appendStdErr( QString line );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -84,8 +101,10 @@ private:
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 
-    static size_t      m_nextProcessId;
-    RimProcessMonitor* m_monitor;
-    bool               m_enableLogging;
-    QPointer<QProcess> m_qProcess;
+    static std::atomic<size_t>         m_nextProcessId;
+    std::shared_ptr<RimProcessMonitor> m_monitor;
+    bool                               m_enableLogging;
+    QPointer<QProcess>                 m_qProcess;
+    QStringList                        m_emptyList;
+    RiaWslTools::WslOptions            m_wslOptions;
 };

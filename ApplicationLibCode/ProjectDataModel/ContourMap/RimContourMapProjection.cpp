@@ -22,6 +22,7 @@
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTrianglesGenerator.h"
+#include "ContourMap/RimContourMapPeaksCollection.h"
 #include "RigFloodingSettings.h"
 
 #include "RimCase.h"
@@ -97,6 +98,9 @@ RimContourMapProjection::RimContourMapProjection()
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
     CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
     caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
@@ -105,6 +109,9 @@ RimContourMapProjection::RimContourMapProjection()
 
     CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
+    m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
     CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
     CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
@@ -116,6 +123,9 @@ RimContourMapProjection::RimContourMapProjection()
     m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", 0.0, "Lower Threshold" );
     m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_peaksCollection, "PeaksCollection", "Computed Peaks" );
+    m_peaksCollection = new RimContourMapPeaksCollection;
 
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
@@ -136,6 +146,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
     caf::ProgressInfo progress( 100, "Generate Results", true );
 
     if ( !m_contourMapGrid || !m_contourMapProjection || gridInformationIsStale() ) updateGridInformation();
+    if ( !m_contourMapGrid || !m_contourMapProjection ) return;
 
     progress.setProgress( 10 );
 
@@ -147,7 +158,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         if ( gridMappingNeedsUpdating() )
         {
             m_contourMapProjection->setCellVisibility( getCellVisibility() );
-            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights(), m_selectedKLayers, {} );
+            m_contourMapProjection->generateGridMapping( m_resultAggregation(), retrieveParameterWeights(), {} );
         }
         progress.setProgress( 20 );
         m_mapCellVisibility = m_contourMapProjection->getMapCellVisibility( timeStep, m_resultAggregation() );
@@ -215,6 +226,9 @@ void RimContourMapProjection::generateGeometryIfNecessary()
                                                                                                           m_contourLevelCumulativeAreas,
                                                                                                           discrete,
                                                                                                           sampleSpacing() );
+
+        // Result, time step or value filter may have changed
+        if ( m_peaksCollection() ) m_peaksCollection->updateOutdatedState();
     }
     progress.setProgress( 100 );
 }
@@ -312,6 +326,14 @@ const RigContourMapProjection* RimContourMapProjection::mapProjection() const
 const RigContourMapGrid* RimContourMapProjection::mapGrid() const
 {
     return m_contourMapGrid.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapPeaksCollection* RimContourMapProjection::peaksCollection() const
+{
+    return m_peaksCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,31 +593,6 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_lowerThreshold == field || &m_upperThreshold == field )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum         = m_minResultAllTimeSteps;
-            myAttr->m_maximum         = m_maxResultAllTimeSteps;
-            myAttr->m_sliderTickCount = 20;
-        }
-    }
-    else if ( ( &m_userDefinedFloodingOil == field ) || ( &m_userDefinedFloodingGas == field ) )
-    {
-        if ( auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
-        {
-            myAttr->m_minimum         = 0.0;
-            myAttr->m_maximum         = 1.0;
-            myAttr->m_sliderTickCount = 20;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup( "Projection Settings" );
@@ -642,6 +639,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    uiTreeOrdering.add( &m_peaksCollection );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -653,6 +651,12 @@ void RimContourMapProjection::appendValueFilterGroup( caf::PdmUiOrdering& uiOrde
     auto valueFilterGroup = uiOrdering.addNewGroup( "Value Filter" );
     valueFilterGroup->add( &m_valueFilterType );
 
+    for ( auto* field : { &m_lowerThreshold, &m_upperThreshold } )
+    {
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, m_minResultAllTimeSteps );
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, m_maxResultAllTimeSteps );
+        field->uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
+    }
     switch ( m_valueFilterType() )
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
@@ -694,12 +698,4 @@ void RimContourMapProjection::clearMinMaxValueRange()
 {
     m_minResultAllTimeSteps = std::numeric_limits<double>::infinity();
     m_maxResultAllTimeSteps = -std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::useKLayers( std::set<int> kLayers )
-{
-    m_selectedKLayers = kLayers;
 }

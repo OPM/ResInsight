@@ -33,6 +33,16 @@ enum class MyEnum
     T6
 };
 
+enum class CollisionTestEnum
+{
+    T1,
+    T2,
+    T3,
+    T4,
+    T5,
+    T6
+};
+
 // This is a specialized class that can be used to implement custom behavior in configureCapabilities
 // It is required to have a specialization of PdmFieldScriptingCapability for this class, as the new class
 // MyAppEnumField is not known to the template
@@ -133,6 +143,22 @@ public:
 
 private:
     static bool s_useAmbiguousEnumField;
+};
+
+class CollisionTestPdmObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    CollisionTestPdmObject();
+    static void setUseCollisionEnumField( bool useCollisionEnumField );
+    static void setUseReservedNameEnumField( bool useReservedNameEnumField );
+
+    caf::PdmField<caf::AppEnum<CollisionTestEnum>> m_enumField;
+
+private:
+    static bool s_useCollisionEnumField;
+    static bool s_useReservedNameEnumField;
 };
 
 class MyPdmDocument : public caf::PdmDocument

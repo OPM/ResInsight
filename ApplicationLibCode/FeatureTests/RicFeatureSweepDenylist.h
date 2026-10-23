@@ -41,6 +41,7 @@ inline const std::map<std::string, std::string>& featureSweepDenylist()
         { "RicSaveProjectFeature", "may open a save QFileDialog and writes to disk" },
         { "RicSaveProjectAsFeature", "opens a save QFileDialog" },
         { "RicSaveProjectNoGlobalPathsFeature", "opens a save QFileDialog" },
+        { "RicExportScheduleFeature", "opens a save QFileDialog and writes to disk" },
 
         // External processes
         { "RicExecuteScriptFeature", "launches an external Octave/Python process" },

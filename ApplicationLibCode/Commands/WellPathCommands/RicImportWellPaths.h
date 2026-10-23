@@ -43,10 +43,9 @@ public:
     caf::PdmScriptResponse execute() override;
 
     static std::vector<RimWellPath*> importWellPaths( const QStringList& wellPathFilePaths, QStringList* errorMessages );
+    static QStringList               wellPathNameFilters();
 
 protected:
-    static QStringList wellPathNameFilters();
-
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

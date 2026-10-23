@@ -133,6 +133,8 @@ RimWellPltPlot::RimWellPltPlot()
                                                                          RimWellPlotTools::FlowPhase::FLOW_PHASE_GAS,
                                                                          RimWellPlotTools::FlowPhase::FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_phases.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
+    m_phases.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TOGGLE_ALL_CHECKBOX, false );
 
     m_nameConfig->setCustomName( "PLT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
@@ -412,6 +414,9 @@ public:
             const std::vector<RigWellResultPoint> branchResPoints = resFrame->branchResultPointsFromBranchIndex( brIdx );
             for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
             {
+                // MSW segments without a connection have no cell
+                if ( !branchResPoints[wrpIdx].isCell() ) continue;
+
                 const RigGridBase* grid            = mainGrid->gridByIndex( branchResPoints[wrpIdx].gridIndex() );
                 size_t             globalCellIndex = grid->reservoirCellIndex( branchResPoints[wrpIdx].cellIndex() );
 
@@ -942,19 +947,6 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_phases )
-    {
-        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        attrib->showTextFilter                         = false;
-        attrib->showToggleAllCheckbox                  = false;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

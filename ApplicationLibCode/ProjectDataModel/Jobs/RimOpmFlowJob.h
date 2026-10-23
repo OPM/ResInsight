@@ -18,9 +18,12 @@
 
 #pragma once
 
-#include "RimGenericJob.h"
+#include "RimSingleJob.h"
+
+#include "RimJobWellSettings.h"
 
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include <string>
 
@@ -37,22 +40,18 @@ class RimOpmFlowJobSettings;
 ///
 ///
 //==================================================================================================
-class RimOpmFlowJob : public RimGenericJob
+class RimOpmFlowJob : public RimSingleJob
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class WellOpenType
-    {
-        OPEN_BY_POSITION,
-        OPEN_AT_DATE
-    };
-
     enum class DateAppendType
     {
         ADD_DAYS,
         ADD_MONTHS
     };
+
+    caf::Signal<bool> jobCompleted;
 
 public:
     RimOpmFlowJob();
@@ -61,7 +60,12 @@ public:
     void setWorkingDirectory( QString workDir );
     void setEclipseCase( RimEclipseCase* eCase );
     void setInputDataFile( QString filename );
+    void setJobSettings( RimOpmFlowJobSettings* jobSettings );
+    void setJobWellSettings( RimJobWellSettings* jobWellSettings );
+
     void initAfterCopy();
+
+    void setAutoLoadResults( bool autoLoad );
 
     QString deckName();
     QString mainWorkingDirectory() const;
@@ -69,7 +73,6 @@ public:
     static QString jobInputFileKey();
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -78,17 +81,20 @@ protected:
     bool matchesKeyValue( const QString& key, const QString& value ) const override;
     void processLogOutput( const QString& logLine ) override;
 
-    QStringList                command() override;
-    std::map<QString, QString> environment() override;
-    QString                    workingDirectory() const override;
-    bool                       onPrepare() override;
-    bool                       onRun() override;
-    void                       onCompleted( bool success ) override;
-    void                       onProgress( double percentageDone ) override;
+    QStringList command() override;
+    QString     workingDirectory() const override;
+    bool        onPrepare() override;
+    bool        onRun() override;
+    void        onCompleted( bool success ) override;
+    void        onProgress( double percentageDone ) override;
+    bool        shouldUseWsl() override;
+    int         numberOfProcesses() override;
 
     bool openDeckFile();
     void closeDeckFile();
     bool copyUnrstFileToWorkDir();
+
+    void loadResults();
 
 private:
     RimEclipseCase* findExistingCase( QString filename );
@@ -124,13 +130,13 @@ private:
     caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
     caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
 
-    caf::PdmField<int>                        m_openTimeStep;
-    caf::PdmField<bool>                       m_endTimeStepEnabled;
-    caf::PdmField<int>                        m_endTimeStep;
-    caf::PdmField<bool>                       m_addNewWell;
-    caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
-    caf::PdmField<bool>                       m_includeMSWData;
-    caf::PdmField<QString>                    m_wellGroupName;
+    caf::PdmField<int>                                            m_openTimeStep;
+    caf::PdmField<bool>                                           m_endTimeStepEnabled;
+    caf::PdmField<int>                                            m_endTimeStep;
+    caf::PdmField<bool>                                           m_addNewWell;
+    caf::PdmField<caf::AppEnum<RimJobWellSettings::WellOpenType>> m_wellOpenType;
+    caf::PdmField<bool>                                           m_includeMSWData;
+    caf::PdmField<QString>                                        m_wellGroupName;
 
     caf::PdmField<bool>                         m_appendNewDates;
     caf::PdmField<int>                          m_newDatesInterval;
@@ -140,6 +146,8 @@ private:
     caf::PdmChildField<RimKeywordWconprod*>    m_wconprodKeyword;
     caf::PdmChildField<RimKeywordWconinje*>    m_wconinjeKeyword;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
+
+    caf::PdmField<bool> m_autoLoadResults;
 
     caf::PdmField<QString> m_wellOpenKeyword;
 

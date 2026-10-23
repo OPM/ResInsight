@@ -53,10 +53,10 @@ public:
     QString includeFileAbsolutePathPrefix() const;
     bool    useResultIndexFile() const;
     bool    skipWellData() const;
-    bool    loadAndShowSoil() const;
     bool    autoComputeDepthRelatedProperties() const;
     bool    onlyLoadActiveCells() const;
     bool    invalidateLongThinCells() const;
+    QString preferredDynamicResult() const;
 
     RiaDefines::GridModelReader gridModelReader() const;
 
@@ -67,6 +67,9 @@ public:
     RiaGridDefines::RadialGridMode radialGridMode() const;
 
     void appendItems( caf::PdmUiOrdering& uiOrdering );
+
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmField<GridModelEnum> m_gridModelReader;
@@ -80,9 +83,9 @@ private:
     caf::PdmField<bool>    m_useResultIndexFile;
     caf::PdmField<bool>    m_skipWellData;
     caf::PdmField<bool>    m_autoComputeDepthRelatedProperties;
-    caf::PdmField<bool>    m_loadAndShowSoil;
     caf::PdmField<bool>    m_onlyLoadActiveCells;
     caf::PdmField<bool>    m_invalidateLongThinCells;
+    caf::PdmField<QString> m_preferredDynamicResult;
 
     caf::PdmField<caf::AppEnum<RiaGridDefines::RadialGridMode>> m_radialGridMode;
 };

@@ -26,11 +26,14 @@
 #include "cafPdmPtrArrayField.h"
 
 #include <QDateTime>
+#include <QString>
+
+#include <set>
 #include <vector>
 
 class RimWellEventPerf;
 class RimWellEventValve;
-class RimWellEventTubing;
+class RimWellEventSegment;
 class RimWellEventState;
 class RimWellEventType;
 class RimWellEventWellSpec;
@@ -38,6 +41,7 @@ class RimWellEventControl;
 class RimWellEventKeyword;
 class RimKeywordEvent;
 class RimWellEventRawText;
+class RimWellEventInsertDate;
 class RimWellPath;
 class RimWellPathCollection;
 
@@ -58,6 +62,16 @@ public:
         TYPE
     };
 
+    // Filter for queryEvents(). Invalid dates leave the range open, empty sets disable the filter.
+    struct EventQuery
+    {
+        QDateTime                         startDate;
+        QDateTime                         endDate;
+        std::set<const RimWellPath*>      wellPaths;
+        std::set<RimWellEvent::EventType> eventTypes;
+        std::set<QString>                 keywords; // Upper case keyword names
+    };
+
     RimWellEventTimeline();
     ~RimWellEventTimeline() override;
 
@@ -72,17 +86,21 @@ public:
     std::vector<RimWellPath*>  getWellPathsWithEvents() const;
     std::vector<RimWellPath*>  getWellPathsWithEventsUpToDate( const QDateTime& date ) const;
 
+    // Events matching all filters in the query, sorted by date. Ignores the applied timestamp.
+    std::vector<RimWellEvent*> queryEvents( const EventQuery& query ) const;
+
     // Add event methods (return the created event for further configuration)
-    RimWellEventPerf*     addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventValve*    addValveEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventTubing*   addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventState*    addStateEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventType*     addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventWellSpec* addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventControl*  addControlEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventKeyword*  addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
-    RimKeywordEvent*      addKeywordEvent( const QDateTime& date, const QString& keywordName );
-    RimWellEventRawText*  addRawTextEvent( const QDateTime& date );
+    RimWellEventPerf*       addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventValve*      addValveEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventSegment*    addSegmentEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventState*      addStateEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventType*       addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventWellSpec*   addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventControl*    addControlEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventKeyword*    addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
+    RimKeywordEvent*        addKeywordEvent( const QDateTime& date, const QString& keywordName );
+    RimWellEventRawText*    addRawTextEvent( const QDateTime& date );
+    RimWellEventInsertDate* addInsertDateEvent( const QDateTime& date );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );
@@ -111,7 +129,7 @@ protected:
 private:
     bool applyEvent( RimWellPathCollection* wellPathCollection, RimWellEvent* event );
 
-    bool applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath );
+    bool applySegmentEvent( const RimWellEventSegment& event, RimWellPath& wellPath );
     bool applyPerfEvent( const RimWellEventPerf& event, RimWellPath& wellPath );
     bool applyValveEvent( RimWellEventValve& event, RimWellPath& wellPath );
     bool applyWellSpecEvent( const RimWellEventWellSpec& event, RimWellPath& wellPath );

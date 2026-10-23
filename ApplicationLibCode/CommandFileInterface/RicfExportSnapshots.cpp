@@ -19,22 +19,17 @@
 #include "RicfExportSnapshots.h"
 
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
-#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
-#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
-
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
-#include "RiaRegressionTestRunner.h"
-
-#include "RiuDockWidgetTools.h"
-#include "RiuMainWindow.h"
-
-#include "DockManager.h"
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimViewWindow.h"
+#include "RimcProject.h"
+#include "RimcViewWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
 
@@ -78,73 +73,81 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportSnapshots::execute()
 {
-    if ( !RiaGuiApplication::isRunning() )
+    const QString commandName = classKeyword();
+
+    // Resolve the export folder from the command file executor state. The Rimc methods only accept explicit folders.
+    QString exportFolder = m_exportFolder();
+    if ( exportFolder.isEmpty() )
     {
-        QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
     }
 
-    int width  = m_width();
-    int height = m_height();
+    const RiaDefines::SnapshotFileFormat plotFileFormat =
+        m_plotOutputFormat() == PlotOutputFormat::PDF ? RiaDefines::SnapshotFileFormat::PDF : RiaDefines::SnapshotFileFormat::PNG;
 
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if ( !mainWnd )
+    const bool exportViews = m_type() != SnapshotsType::PLOTS;
+    const bool exportPlots = m_type() != SnapshotsType::VIEWS;
+
+    // No case or view filtering: export everything of the requested type through the project method
+    if ( m_caseId() == -1 && m_viewId() == -1 )
     {
-        QString error( "RicfExportSnapshot: No main window available" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        RimProject_exportSnapshots method( RimProject::current() );
+        method.setContentType( m_type() == SnapshotsType::ALL ? RiaDefines::SnapshotContentType::ALL
+                               : exportViews                  ? RiaDefines::SnapshotContentType::VIEWS
+                                                              : RiaDefines::SnapshotContentType::PLOTS );
+        method.setExportFolder( exportFolder );
+        method.setPrefix( m_prefix() );
+        method.setWidth( m_width() );
+        method.setHeight( m_height() );
+        method.setPlotFileFormat( plotFileFormat );
+
+        return RicfForwarding::toScriptResponse( method.execute(), commandName );
     }
 
-    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
+    // Collect the view windows matching the case and view filters
+    std::vector<RimViewWindow*> viewWindows;
 
-    if ( !m_exportFolder().isEmpty() )
+    if ( exportViews )
     {
-        absolutePathToSnapshotDir = m_exportFolder;
-    }
-    if ( absolutePathToSnapshotDir.isNull() )
-    {
-        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
-    }
-    if ( m_type == RicfExportSnapshots::SnapshotsType::VIEWS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
-    {
-        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+        RimProject* project = RimProject::current();
+        for ( RimCase* gridCase : project->allGridCases() )
         {
-            QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-            width             = defaultSize.width();
-            height            = defaultSize.height();
-        }
+            if ( !gridCase ) continue;
+            if ( m_caseId() != -1 && m_caseId() != gridCase->caseId() ) continue;
 
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir,
-                                                                           width,
-                                                                           height,
-                                                                           m_prefix,
-                                                                           m_caseId(),
-                                                                           m_viewId() );
+            for ( Rim3dView* view : gridCase->views() )
+            {
+                if ( view && view->viewer() && ( m_viewId() == -1 || m_viewId() == view->id() ) )
+                {
+                    viewWindows.push_back( view );
+                }
+            }
+        }
     }
-    if ( m_type == RicfExportSnapshots::SnapshotsType::PLOTS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
-    {
-        bool activateWidget = false;
-        if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
-        {
-            QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-            width             = defaultSize.width();
-            height            = defaultSize.height();
-        }
-        else
-        {
-            activateWidget = true;
-        }
 
-        QString fileSuffix = ".png";
-        if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
-                                                                           width,
-                                                                           height,
-                                                                           activateWidget,
-                                                                           m_prefix,
-                                                                           m_viewId(),
-                                                                           fileSuffix );
+    if ( exportPlots )
+    {
+        // Plots are not associated with a case id, so only the view id filter applies
+        for ( RimViewWindow* viewWindow : RimMainPlotCollection::current()->descendantsIncludingThisOfType<RimViewWindow>() )
+        {
+            if ( viewWindow->isMainDockedWindow() && viewWindow->viewWidget() && ( m_viewId() == -1 || m_viewId() == viewWindow->id() ) )
+            {
+                viewWindows.push_back( viewWindow );
+            }
+        }
+    }
+
+    for ( RimViewWindow* viewWindow : viewWindows )
+    {
+        RimViewWindow_exportSnapshot method( viewWindow );
+        method.setExportFolder( exportFolder );
+        method.setPrefix( m_prefix() );
+        method.setWidth( m_width() );
+        method.setHeight( m_height() );
+        method.setFileFormat( plotFileFormat );
+
+        auto result = method.execute();
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
 
     return caf::PdmScriptResponse();

@@ -67,6 +67,24 @@ PdmUiDoubleSliderEditor::~PdmUiDoubleSliderEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiDoubleSliderEditor::setRange( PdmUiItem* uiItem, double minimum, double maximum )
+{
+    uiItem->setAttribute( Keys::MINIMUM, minimum );
+    uiItem->setAttribute( Keys::MAXIMUM, maximum );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiDoubleSliderEditor::clearRange( PdmUiItem* uiItem )
+{
+    uiItem->removeAttribute( Keys::MINIMUM );
+    uiItem->removeAttribute( Keys::MAXIMUM );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_lineEdit.isNull() );
@@ -76,39 +94,21 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_slider->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-    }
+    m_minimum                       = 0.0;
+    m_maximum                       = 10.0;
+    m_decimals                      = 6;
+    m_sliderTickCount               = 2000;
+    m_delaySliderUpdateUntilRelease = false;
 
-    // Override with map-based attributes if present (new system takes precedence)
     if ( auto uiItem = uiField() )
     {
-        if ( auto val = uiItem->attribute<double>( Keys::MINIMUM, uiConfigName ) )
-        {
-            m_attributes.m_minimum = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<double>( Keys::MAXIMUM, uiConfigName ) )
-        {
-            m_attributes.m_maximum = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ) )
-        {
-            m_attributes.m_decimals = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<int>( Keys::SLIDER_TICK_COUNT, uiConfigName ) )
-        {
-            m_attributes.m_sliderTickCount = val.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, uiConfigName ) )
-        {
-            m_attributes.m_delaySliderUpdateUntilRelease = val.value();
-        }
+        m_minimum  = uiItem->attribute<double>( Keys::MINIMUM, uiConfigName ).value_or( m_minimum );
+        m_maximum  = uiItem->attribute<double>( Keys::MAXIMUM, uiConfigName ).value_or( m_maximum );
+        m_decimals = uiItem->attribute<int>( Keys::DECIMALS, uiConfigName ).value_or( m_decimals );
+        m_sliderTickCount = uiItem->attribute<int>( Keys::SLIDER_TICK_COUNT, uiConfigName ).value_or( m_sliderTickCount );
+        m_delaySliderUpdateUntilRelease =
+            uiItem->attribute<bool>( Keys::DELAY_SLIDER_UPDATE_UNTIL_RELEASE, uiConfigName )
+                .value_or( m_delaySliderUpdateUntilRelease );
 
         // Validate: warn about unsupported attributes
         uiItem->validateAttributes( "PdmUiDoubleSliderEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
@@ -118,18 +118,17 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     QString textValue   = uiField()->uiValue().toString();
 
     m_slider->blockSignals( true );
-    m_slider->setMaximum( m_attributes.m_sliderTickCount );
+    m_slider->setMaximum( m_sliderTickCount );
     m_slider->blockSignals( false );
 
-    PdmDoubleValidator* pdmValidator =
-        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
+    PdmDoubleValidator* pdmValidator = new PdmDoubleValidator( m_minimum, m_maximum, m_decimals, this );
     pdmValidator->fixup( textValue );
 
     m_lineEdit->setValidator( pdmValidator );
     m_lineEdit->setText( textValue );
 
     m_sliderValue = doubleValue;
-    PdmUiSliderTools::updateSliderPosition( m_slider, doubleValue, m_attributes );
+    PdmUiSliderTools::updateSliderPosition( m_slider, doubleValue, m_minimum, m_maximum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +164,7 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
     QString textValue = m_lineEdit->text();
 
     double doubleVal = textValue.toDouble();
-    doubleVal        = qBound( m_attributes.m_minimum, doubleVal, m_attributes.m_maximum );
+    doubleVal        = qBound( m_minimum, doubleVal, m_maximum );
     m_sliderValue    = doubleVal;
 
     writeValueToField( doubleVal );
@@ -176,10 +175,10 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::slotSliderValueChanged( int value )
 {
-    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_slider, value, m_attributes );
+    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_slider, value, m_minimum, m_maximum );
     m_sliderValue         = newDoubleValue;
 
-    if ( m_attributes.m_delaySliderUpdateUntilRelease )
+    if ( m_delaySliderUpdateUntilRelease )
     {
         m_lineEdit->setText( QString( "%1" ).arg( m_sliderValue ) );
     }

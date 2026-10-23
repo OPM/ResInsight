@@ -71,6 +71,23 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
                                                              const RicSaveEclipseInputVisibleCellsUi& exportSettings,
                                                              const QString&                           logPrefix )
 {
+    if ( auto result = exportVisibleCells( view, exportSettings ); !result )
+    {
+        RiaLogging::error( std::format( "{}: {}", logPrefix, result.error() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString>
+    RicSaveEclipseInputVisibleCellsFeature::exportVisibleCells( RimEclipseView* view, const RicSaveEclipseInputVisibleCellsUi& exportSettings )
+{
+    if ( !view || !view->eclipseCase() || !view->eclipseCase()->eclipseCaseData() )
+    {
+        return std::unexpected( "The view has no case data." );
+    }
+
     std::vector<double> values;
     cvf::UByteArray     visibleCells;
     view->calculateCurrentTotalCellVisibility( &visibleCells, view->currentTimeStep() );
@@ -97,8 +114,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     QFile exportFile( exportSettings.exportFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( std::format( "{}: Unable to open file '{}' for writing.", logPrefix, exportSettings.exportFilename() ) );
-        return;
+        return std::unexpected( QString( "Unable to open file '%1' for writing." ).arg( exportSettings.exportFilename() ) );
     }
 
     int valuesPerRow = 5;
@@ -107,6 +123,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
                                                          exportSettings.exportKeyword().text(),
                                                          values,
                                                          valuesPerRow );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

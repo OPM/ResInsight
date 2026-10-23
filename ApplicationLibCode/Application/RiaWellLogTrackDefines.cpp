@@ -18,6 +18,8 @@
 
 #include "RiaWellLogTrackDefines.h"
 
+#include "cafAppEnum.h"
+
 namespace caf
 {
 template <>
@@ -33,6 +35,7 @@ void AppEnum<RiaDefines::WellLogTrackFormationSource>::setUp()
 {
     addItem( RiaDefines::WellLogTrackFormationSource::CASE, "CASE", "Case" );
     addItem( RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER, "WELL_PICK_FILTER", "Well Picks for Well Path" );
+    addItem( RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY, "WELL_PICKS_NO_TRAJECTORY", "Well Picks (no trajectory)" );
     setDefault( RiaDefines::WellLogTrackFormationSource::CASE );
 }
 

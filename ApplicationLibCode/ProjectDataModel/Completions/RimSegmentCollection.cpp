@@ -26,6 +26,7 @@
 #include "RimMswCompletionParameters.h"
 #include "RimSegmentInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -42,35 +43,15 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <>
-void RimSegmentCollection::ReferenceMDEnum::setUp()
-{
-    addItem( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD, "GridEntryPoint", "Grid Entry Point", { "GridIntersectionRefMD" } );
-    addItem( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD, "UserDefined", "User Defined", { "ManualRefMD" } );
-    setDefault( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <>
-void RimSegmentCollection::PressureDropEnum::setUp()
+void RimSegmentCollection::CompsegsSegmentNumberEnum::setUp()
 {
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
-    setDefault( RimSegmentCollection::PressureDropType::HYDROSTATIC_FRICTION );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <>
-void RimSegmentCollection::LengthAndDepthEnum::setUp()
-{
-    addItem( RimSegmentCollection::LengthAndDepthType::INC, "INC", "Incremental" );
-    addItem( RimSegmentCollection::LengthAndDepthType::ABS, "ABS", "Absolute" );
-    setDefault( RimSegmentCollection::LengthAndDepthType::ABS );
+    addItem( RimSegmentCollection::CompsegsSegmentNumberType::ASSIGNED_BY_SIMULATOR, "AssignedBySimulator", "Assigned by Simulator (1*)" );
+    addItem( RimSegmentCollection::CompsegsSegmentNumberType::EXPORTED, "Exported", "Exported" );
+    setDefault( RimSegmentCollection::CompsegsSegmentNumberType::ASSIGNED_BY_SIMULATOR );
 }
 
 } // namespace caf
@@ -82,7 +63,7 @@ CAF_PDM_SOURCE_INIT( RimSegmentCollection, "SegmentCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSegmentCollection::RimSegmentCollection()
 {
-    CAF_PDM_InitScriptableObject( "Segments", ":/CompletionsSymbol16x16.png", "", "SegmentCollection" );
+    CAF_PDM_InitScriptableObject( "Segments", ":/Segment.svg", "", "SegmentCollection" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_refMDType, "RefMDType", "ReferenceMdType", "Reference MD Type" );
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_refMD, "RefMD", "UserDefinedReferenceMd", 0.0, "User Defined Reference MD" );
@@ -93,11 +74,18 @@ RimSegmentCollection::RimSegmentCollection()
     CAF_PDM_InitScriptableField( &m_roughnessFactor, "RoughnessFactor", defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_segmentIntervals, "Intervals", "Segment Intervals" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
-    CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
-    CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
-    m_maxSegmentLength.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitScriptableField( &m_singleSegmentBeforeFirstPerforation,
+                                 "SingleSegmentBeforeFirstPerforation",
+                                 false,
+                                 "Single Segment Before First Perforation" );
+    CAF_PDM_InitScriptableField( &m_singleSegmentAfterLastPerforation,
+                                 "SingleSegmentAfterLastPerforation",
+                                 false,
+                                 "Single Segment After Last Perforation" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_compsegsSegmentNumber, "CompsegsSegmentNumber", "COMPSEGS Segment Number (ISEG)" );
+    m_compsegsSegmentNumber.uiCapability()->setUiToolTip(
+        "Export the segment each COMPSEGS connection belongs to, or leave it to the simulator to assign the segment" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,25 +168,49 @@ double RimSegmentCollection::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSegmentCollection::PressureDropEnum RimSegmentCollection::pressureDrop() const
+void RimSegmentCollection::setSingleSegmentBeforeFirstPerforation( bool enable )
 {
-    return m_pressureDrop();
+    m_singleSegmentBeforeFirstPerforation = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSegmentCollection::LengthAndDepthEnum RimSegmentCollection::lengthAndDepth() const
+void RimSegmentCollection::setSingleSegmentAfterLastPerforation( bool enable )
 {
-    return m_lengthAndDepth();
+    m_singleSegmentAfterLastPerforation = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSegmentCollection::maxSegmentLength() const
+bool RimSegmentCollection::singleSegmentBeforeFirstPerforation() const
 {
-    return m_enforceMaxSegmentLength() ? m_maxSegmentLength() : std::numeric_limits<double>::infinity();
+    return m_singleSegmentBeforeFirstPerforation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSegmentCollection::singleSegmentAfterLastPerforation() const
+{
+    return m_singleSegmentAfterLastPerforation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSegmentCollection::exportCompsegsSegmentNumber() const
+{
+    return m_compsegsSegmentNumber() == CompsegsSegmentNumberType::EXPORTED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::setCompsegsSegmentNumber( CompsegsSegmentNumberType segmentNumberType )
+{
+    m_compsegsSegmentNumber = segmentNumberType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,22 +243,6 @@ void RimSegmentCollection::setLinerDiameter( double diameter )
 void RimSegmentCollection::setRoughnessFactor( double roughnessFactor )
 {
     m_roughnessFactor = roughnessFactor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSegmentCollection::setPressureDrop( PressureDropType pressureDropType )
-{
-    m_pressureDrop = pressureDropType;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSegmentCollection::setLengthAndDepth( LengthAndDepthType lengthAndDepthType )
-{
-    m_lengthAndDepth = lengthAndDepthType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,6 +386,22 @@ std::vector<std::pair<double, double>> RimSegmentCollection::getSegmentIntervals
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Valid intervals with a fixed, min or max segment length rule, active on the export date if given
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimSegmentInterval*> RimSegmentCollection::segmentationIntervals( const std::optional<QDateTime>& exportDate ) const
+{
+    std::vector<const RimSegmentInterval*> result;
+    for ( auto* interval : intervals() )
+    {
+        if ( !interval || !interval->isValidInterval() ) continue;
+        if ( exportDate.has_value() && !interval->isActiveOnDate( *exportDate ) ) continue;
+        if ( interval->fixedSegmentLength().has_value() || interval->minSegmentLength().has_value() || interval->maxSegmentLength().has_value() )
+            result.push_back( interval );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimSegmentCollection::hasCustomSegmentIntervals() const
@@ -412,12 +424,11 @@ void RimSegmentCollection::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimSegmentCollection::updateFromTopLevelWell( const RimSegmentCollection* topLevelWellParameters )
 {
-    m_refMDType               = topLevelWellParameters->m_refMDType();
-    m_refMD                   = topLevelWellParameters->m_refMD();
-    m_pressureDrop            = topLevelWellParameters->m_pressureDrop();
-    m_lengthAndDepth          = topLevelWellParameters->m_lengthAndDepth();
-    m_enforceMaxSegmentLength = topLevelWellParameters->m_enforceMaxSegmentLength();
-    m_maxSegmentLength        = topLevelWellParameters->m_maxSegmentLength();
+    m_refMDType                           = topLevelWellParameters->m_refMDType();
+    m_refMD                               = topLevelWellParameters->m_refMD();
+    m_compsegsSegmentNumber               = topLevelWellParameters->m_compsegsSegmentNumber();
+    m_singleSegmentBeforeFirstPerforation = topLevelWellParameters->m_singleSegmentBeforeFirstPerforation();
+    m_singleSegmentAfterLastPerforation   = topLevelWellParameters->m_singleSegmentAfterLastPerforation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,9 +443,6 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
                                legacyParameters->linerDiameter() != defaultLinerDiameter( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->roughnessFactor() != defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ) ||
                                legacyParameters->diameterRoughnessMode() != RimMswCompletionParameters::DiameterRoughnessMode::UNIFORM ||
-                               legacyParameters->pressureDrop() != RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION ||
-                               legacyParameters->lengthAndDepth() != RimMswCompletionParameters::LengthAndDepthType::ABS ||
-                               legacyParameters->enforceMaxSegmentLength() || legacyParameters->storedMaxSegmentLength() != 200.0 ||
                                !legacyParameters->diameterRoughnessIntervals()->intervals().empty() ||
                                !legacyParameters->customSegmentIntervals()->intervals().empty();
     if ( !hasLegacyData ) return;
@@ -444,12 +452,6 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
     m_customValuesForLateral = legacyParameters->customValuesForLateral();
     m_linerDiameter          = legacyParameters->linerDiameter();
     m_roughnessFactor        = legacyParameters->roughnessFactor();
-    m_pressureDrop           = static_cast<PressureDropType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::PressureDropType>( legacyParameters->pressureDrop() ) ) );
-    m_lengthAndDepth = static_cast<LengthAndDepthType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::LengthAndDepthType>( legacyParameters->lengthAndDepth() ) ) );
-    m_enforceMaxSegmentLength = legacyParameters->enforceMaxSegmentLength();
-    m_maxSegmentLength        = legacyParameters->storedMaxSegmentLength();
 
     removeAllIntervals();
     if ( legacyParameters->diameterRoughnessMode() == RimMswCompletionParameters::DiameterRoughnessMode::INTERVALS )
@@ -503,10 +505,26 @@ double RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSyst
 void RimSegmentCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_refMDType ) updateAllRequiredEditors();
-    if ( changedField == &m_enforceMaxSegmentLength )
+
+    updateMswSegments();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    updateMswSegments();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::updateMswSegments()
+{
+    if ( auto* wellPathCollection = RimWellPathCollection::instance() )
     {
-        m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
-        caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+        wellPathCollection->updateMswSegmentsForObject( this );
     }
 }
 
@@ -515,7 +533,7 @@ void RimSegmentCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimSegmentCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicNewSegmentIntervalFeature";
+    menuBuilder << "RicCreateSegmentIntervalFeature";
     if ( hasIntervals() ) menuBuilder << "RicDeleteSegmentIntervalFeature";
 }
 
@@ -546,10 +564,11 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     if ( wellPath->isTopLevelWellPath() )
     {
-        uiOrdering.add( &m_pressureDrop );
-        uiOrdering.add( &m_lengthAndDepth );
-        uiOrdering.add( &m_enforceMaxSegmentLength );
-        uiOrdering.add( &m_maxSegmentLength );
+        uiOrdering.add( &m_compsegsSegmentNumber );
+
+        auto* segmentationGroup = uiOrdering.addNewGroup( "Segmentation" );
+        segmentationGroup->add( &m_singleSegmentBeforeFirstPerforation );
+        segmentationGroup->add( &m_singleSegmentAfterLastPerforation );
     }
 
     const bool readOnly = !wellPath->isTopLevelWellPath() && !m_customValuesForLateral();

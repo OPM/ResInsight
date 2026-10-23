@@ -666,18 +666,26 @@ bool RifRoffFileTools::hasGridData( const QString& filename )
         return false;
     }
 
-    roff::Reader reader( stream );
-    reader.parse();
+    try
+    {
+        roff::Reader reader( stream );
+        reader.parse();
 
-    const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+        const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
-    const std::string cornerLinesDataKeyword = "cornerLines" + roff::Parser::postFixData();
-    auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
-                                            arrayTypes.end(),
-                                            [&cornerLinesDataKeyword]( const auto& arrayType )
-                                            { return arrayType.first == cornerLinesDataKeyword; } );
+        const std::string cornerLinesDataKeyword = "cornerLines" + roff::Parser::postFixData();
+        auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
+                                                arrayTypes.end(),
+                                                [&cornerLinesDataKeyword]( const auto& arrayType )
+                                                { return arrayType.first == cornerLinesDataKeyword; } );
 
-    return cornerLinesDataItr != arrayTypes.end();
+        return cornerLinesDataItr != arrayTypes.end();
+    }
+    catch ( std::runtime_error& err )
+    {
+        RiaLogging::error( std::format( "Roff file parsing failed: {}", err.what() ) );
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

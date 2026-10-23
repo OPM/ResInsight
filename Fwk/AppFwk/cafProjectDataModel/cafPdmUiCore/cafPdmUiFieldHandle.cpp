@@ -72,6 +72,9 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
             PdmUiObjectHandle* uiObjHandle = uiObj( ownerObjectHandle );
             if ( uiObjHandle )
             {
+                // Keep the icon in sync with the toggle field before notifying the object
+                if ( fieldHandle == uiObjHandle->objectToggleField() ) uiObjHandle->updateUiIconFromToggleField();
+
                 uiObjHandle->fieldChangedByUi( fieldHandle, oldFieldValue, newFieldValue );
                 uiObjHandle->updateConnectedEditors();
 

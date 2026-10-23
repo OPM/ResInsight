@@ -27,6 +27,7 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
 #include "Rim3dOverlayInfoConfig.h"
@@ -751,9 +752,14 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
         cvf::UByteArray indexIncludeVisibility = ( *cellVisibility );
         cvf::UByteArray indexExcludeVisibility = ( *cellVisibility );
 
+        // Nested hybrid grid: IJK range filters are defined on the original grid IJK (main grid filters
+        // only), and every cell in every grid is evaluated using the original IJK it maps to.
+        const RigMainGrid* mainGrid               = grid->mainGrid();
+        const bool         useNestedHybridOrigIjk = mainGrid && mainGrid->nestedHybridLayout().has_value();
+
         // Build cell filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
-        cellFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, grid->gridIndex() );
+        cellFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, useNestedHybridOrigIjk ? 0 : grid->gridIndex() );
         cellFilterColl->updateCellVisibilityByIndex( &indexIncludeVisibility, &indexExcludeVisibility, grid->gridIndex() );
 
         const RigLocalGrid*       lgr = nullptr;
@@ -801,8 +807,33 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 size_t mainGridJ;
                 size_t mainGridK;
 
-                const bool isInSubGridArea = cell.subGrid() != nullptr;
-                grid->ijkFromCellIndex( cellIndex, &mainGridI, &mainGridJ, &mainGridK );
+                // Nested hybrid grid: LGR cells are evaluated directly against the main grid filter, and are
+                // part of a sub grid area (as their parent cell), so filters not propagated to sub grids skip them
+                const bool isInSubGridArea = cell.subGrid() != nullptr || ( useNestedHybridOrigIjk && lgr != nullptr );
+
+                bool hasRangeIjk = true;
+                if ( useNestedHybridOrigIjk )
+                {
+                    auto originalIjk = mainGrid->nestedHybridOriginalIjk( grid, cellIndex );
+                    hasRangeIjk      = originalIjk.has_value();
+                    if ( hasRangeIjk )
+                    {
+                        mainGridI = originalIjk->x();
+                        mainGridJ = originalIjk->y();
+                        mainGridK = originalIjk->z();
+                    }
+                }
+                else
+                {
+                    grid->ijkFromCellIndex( cellIndex, &mainGridI, &mainGridJ, &mainGridK );
+                }
+
+                // Cells without an original IJK (nested hybrid flat refined cells and padding) are never
+                // selected by an IJK range filter
+                const bool isRangeVisible = hasRangeIjk &&
+                                            gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                const bool isRangeExcluded = hasRangeIjk &&
+                                             gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
 
                 bool nativeRangeVisibility = false;
 
@@ -812,18 +843,16 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                     {
                         if ( useAndOperation )
                         {
-                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] &&
-                                                    gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] && isRangeVisible;
                         }
                         else
                         {
-                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] ||
-                                                    gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                            nativeRangeVisibility = indexIncludeVisibility[cellIndex] || isRangeVisible;
                         }
                     }
                     else
                     {
-                        nativeRangeVisibility = gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                        nativeRangeVisibility = isRangeVisible;
                     }
                 }
                 else
@@ -831,8 +860,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                     nativeRangeVisibility = indexIncludeVisibility[cellIndex];
                 }
 
-                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
+                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) && !isRangeExcluded &&
                                                  indexExcludeVisibility[cellIndex];
             }
         }

@@ -77,6 +77,7 @@
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGridCalculationCollection.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
@@ -179,6 +180,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_customEclipseCase_OBSOLETE, "CustomEclipseCase", "Custom Case" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    RiuTools::enableUpDownArrowsForComboBox( &m_eclipseCase );
     CAF_PDM_InitFieldNoDefault( &m_caseChangeBehaviour, "CaseChangeBehaviour", "Zoom Operation When Changing Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
@@ -531,6 +533,13 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         if ( previousSumoCase && previousSumoCase->reservoirViews().empty() && previousSumoCase->contourMapViews().empty() )
         {
             previousSumoCase->cancelPendingTransfers();
+        }
+
+        // Grid calculation results are not stored with the case, so compute them before the result
+        // definitions are updated, otherwise generated results are missing and the view is cleared.
+        if ( auto project = RimProject::current(); project && project->gridCalculationCollection() )
+        {
+            project->gridCalculationCollection()->ensureCalculationsAreComputed( m_eclipseCase );
         }
 
         propagateEclipseCaseToChildObjects();
@@ -1156,6 +1165,8 @@ void RimEclipseView::updateVisibleCellColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::appendWellsAndFracturesToModel()
 {
+    if ( !( eclipseCase() && eclipseCase()->eclipseCaseData() ) ) return;
+
     if ( nativeOrOverrideViewer() )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
@@ -1377,7 +1388,8 @@ void RimEclipseView::initAfterRead()
         m_refinementRegions = new RimRefinementRegionCollection();
     }
 
-    updateUiIconFromToggleField();
+    // Re-resolve the data filter source (case or ensemble) now that the view is attached to the tree.
+    propagateEclipseCaseToChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2253,19 +2265,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
     }
 
     return RimGridView::calculateValueOptions( fieldNeedingOptions );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimGridView::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( field == &m_eclipseCase )
-    {
-        RiuTools::enableUpDownArrowsForComboBox( attribute );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

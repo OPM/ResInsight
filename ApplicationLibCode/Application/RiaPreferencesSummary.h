@@ -122,7 +122,6 @@ public:
 
     cvf::Color3f historyCurveContrastColor() const;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initAfterRead() override;
 
     void appendGridFields( caf::PdmUiOrdering& uiOrdering );

@@ -17,33 +17,53 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimcProject.h"
+#include "RimcViewWindow.h"
 
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
+#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
-#include "RiaResultNames.h"
+#include "RiaRegressionTestRunner.h"
+#include "Summary/RiaSummaryTools.h"
 
+#include "EclipseCommands/RicImportEclipseCaseFeature.h"
+#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "RicImportFormationNamesFeature.h"
+#include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ViewLink/RicLinkVisibleViewsFeature.h"
 #include "ViewLink/RicUnLinkViewFeature.h"
 
+#include "RifReaderSettings.h"
+
+#include "Formations/RimFormationNames.h"
 #include "Rim3dView.h"
+#include "RimCalcScript.h"
+#include "RimCase.h"
 #include "RimCornerPointCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimValveTemplateCollection.h"
+#include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -116,6 +136,69 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryCase::exec
 QString RimProject_importSummaryCase::classKeywordReturnedType() const
 {
     return RimFileSummaryCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryEnsemble, "importSummaryEnsemble" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_importSummaryEnsemble::RimProject_importSummaryEnsemble( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Import Summary Ensemble", "", "", "Import summary files as one ensemble" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileNames, "FileNames", "", "", "", "Summary files (SMSPEC), one for each realization" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleName, "EnsembleName", "", "", "", "Ensemble name. Automatically generated if empty" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryEnsemble::execute()
+{
+    QStringList summaryFileNames;
+    for ( const QString& fileName : m_fileNames() )
+    {
+        QString absolutePath = fileName;
+        if ( !QFileInfo( absolutePath ).exists() )
+        {
+            absolutePath = QDir( RiaApplication::instance()->startDir() ).absoluteFilePath( fileName );
+        }
+        summaryFileNames.push_back( absolutePath );
+    }
+
+    if ( summaryFileNames.isEmpty() ) return std::unexpected( "No summary files specified." );
+
+    RiaEnsembleImportTools::CreateConfig createConfig{ .fileType = RiaDefines::FileType::SMSPEC, .ensembleOrGroup = true, .allowDialogs = false };
+    auto newCases = RiaEnsembleImportTools::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    if ( newCases.empty() ) return std::unexpected( "Unable to import any of the summary files." );
+
+    auto* mainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !mainCollection ) return std::unexpected( "No summary case collection found." );
+
+    auto ensemble = mainCollection->addEnsemble( newCases, m_ensembleName(), true );
+
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        summaryCase->updateAutoShortName();
+    }
+
+    // The name template is only used when auto naming is disabled
+    if ( !m_ensembleName().isEmpty() ) ensemble->setAutoName( false );
+    RiaSummaryTools::updateSummaryEnsembleNames();
+
+    mainCollection->updateConnectedEditors();
+
+    return ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_importSummaryEnsemble::classKeywordReturnedType() const
+{
+    return RimSummaryEnsemble::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
@@ -196,6 +279,49 @@ QString RimProject_surfaceFolder::classKeywordReturnedType() const
     return RimSurfaceCollection::classKeywordStatic();
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGenericView, "createGenericView" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGenericView::RimProject_createGenericView( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create Generic View", "", "", "Create a case-less 3D view" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createGenericView::execute()
+{
+    auto proj = RimProject::current();
+    if ( !proj ) return std::unexpected( QString( "No project is available." ) );
+
+    auto oilField = proj->activeOilField();
+    if ( !oilField || !oilField->genericViewCollection() ) return std::unexpected( QString( "No generic view collection is available." ) );
+
+    auto view = oilField->genericViewCollection()->addGenericView();
+    if ( !view ) return std::unexpected( QString( "Could not create generic view." ) );
+
+    if ( !m_name().isEmpty() ) view->nameConfig()->setCustomName( m_name() );
+
+    oilField->genericViewCollection()->updateAllRequiredEditors();
+    view->scheduleCreateDisplayModelAndRedraw();
+
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createGenericView::classKeywordReturnedType() const
+{
+    return RimGeneric3dView::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
 
 //--------------------------------------------------------------------------------------------------
@@ -264,22 +390,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 
     RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
 
-    if ( RiaGuiApplication::isRunning() )
-    {
-        if ( RimEclipseView* riv = grid->createAndAddReservoirView() )
-        {
-            riv->loadDataAndUpdate();
-
-            if ( !riv->cellResult()->hasResult() )
-            {
-                riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
-            }
-
-            analysisModels->updateConnectedEditors();
-
-            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
-        }
-    }
+    analysisModels->updateConnectedEditors();
 
     keyValueStore->remove( m_coordKey().toStdString() );
     keyValueStore->remove( m_zcornKey().toStdString() );
@@ -465,5 +576,433 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_unlinkViews::execute()
     if ( uniqueViews.empty() ) return std::unexpected( "At least one view is required." );
 
     RicUnLinkViewFeature::unlinkViews( uniqueViews );
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_exportSnapshots, "exportSnapshots" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_exportSnapshots::RimProject_exportSnapshots( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Snapshots", "", "", "Export snapshots of all 3D views and/or plots in the project" );
+
+    CAF_PDM_InitScriptableField( &m_contentType,
+                                 "ContentType",
+                                 RiaDefines::SnapshotContentType::ALL,
+                                 "Content Type",
+                                 "",
+                                 "",
+                                 "Export 3D views, plots or both" );
+    CAF_PDM_InitScriptableField( &m_exportFolder,
+                                 "ExportFolder",
+                                 QString(),
+                                 "Export Folder",
+                                 "",
+                                 "",
+                                 "Folder to export to. Defaults to the 'snapshots' folder next to the project file." );
+    CAF_PDM_InitScriptableField( &m_prefix, "Prefix", QString(), "Prefix", "", "", "Prefix for the generated file names" );
+    CAF_PDM_InitScriptableField( &m_width, "Width", -1, "Width", "", "", "Image width in pixels. Use -1 for the current size." );
+    CAF_PDM_InitScriptableField( &m_height, "Height", -1, "Height", "", "", "Image height in pixels. Use -1 for the current size." );
+    CAF_PDM_InitScriptableField( &m_plotFileFormat,
+                                 "PlotFileFormat",
+                                 RiaDefines::SnapshotFileFormat::PNG,
+                                 "Plot File Format",
+                                 "",
+                                 "",
+                                 "Output file format for plots. 3D views are always exported as PNG." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setContentType( RiaDefines::SnapshotContentType contentType )
+{
+    m_contentType = contentType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setPrefix( const QString& prefix )
+{
+    m_prefix = prefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setWidth( int width )
+{
+    m_width = width;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setHeight( int height )
+{
+    m_height = height;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setPlotFileFormat( RiaDefines::SnapshotFileFormat fileFormat )
+{
+    m_plotFileFormat = fileFormat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_exportSnapshots::execute()
+{
+    if ( !RiaGuiApplication::isRunning() ) return std::unexpected( "Snapshots cannot be exported without a GUI." );
+
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    const QString exportFolder = RimViewWindow_exportSnapshot::resolveExportFolder( m_exportFolder() );
+
+    int width  = m_width();
+    int height = m_height();
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+        width             = defaultSize.width();
+        height            = defaultSize.height();
+    }
+
+    const bool exportViews = m_contentType() != RiaDefines::SnapshotContentType::PLOTS;
+    const bool exportPlots = m_contentType() != RiaDefines::SnapshotContentType::VIEWS;
+
+    if ( exportViews )
+    {
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder, width, height, m_prefix() );
+    }
+
+    if ( exportPlots )
+    {
+        const bool    activateWidget = !RiaRegressionTestRunner::instance()->isRunningRegressionTests();
+        const QString fileSuffix     = m_plotFileFormat() == RiaDefines::SnapshotFileFormat::PDF ? ".pdf" : ".png";
+
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder, width, height, activateWidget, m_prefix(), -1, fileSuffix );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_loadCase, "loadCase" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_loadCase::RimProject_loadCase( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Load Case", "", "", "Load a grid case from file and add it to the project" );
+
+    CAF_PDM_InitScriptableField( &m_path,
+                                 "Path",
+                                 QString(),
+                                 "Path",
+                                 "",
+                                 "",
+                                 "Path to the grid file (EGRID, GRID, GRDECL or ROFF) or geomechanical case (ODB, INP or PVD)" );
+    CAF_PDM_InitScriptableField( &m_gridOnly, "GridOnly", false, "Grid Only", "", "", "Load the grid geometry only, without results" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_loadCase::setPath( const QString& path )
+{
+    m_path = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_loadCase::setGridOnly( bool gridOnly )
+{
+    m_gridOnly = gridOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_path().isEmpty() ) return std::unexpected( "No path specified." );
+
+    QString   absolutePath = m_path();
+    QFileInfo pathInfo( absolutePath );
+    if ( !pathInfo.exists() )
+    {
+        QDir startDir( RiaApplication::instance()->startDir() );
+        absolutePath = startDir.absoluteFilePath( m_path() );
+    }
+
+    if ( RiaDefines::isGeoMechFileType( RiaDefines::obtainFileTypeFromFileName( absolutePath ) ) )
+    {
+        if ( !RiaApplication::instance()->openOdbCaseFromFile( absolutePath ) )
+        {
+            return std::unexpected( QString( "Unable to load geomechanical case from %1" ).arg( absolutePath ) );
+        }
+        auto geoMechCases = project->activeOilField()->geoMechModels()->cases();
+        if ( geoMechCases.empty() )
+        {
+            return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+        }
+        return geoMechCases.back();
+    }
+
+    RifReaderSettings readerSettings = m_gridOnly() ? RiaPreferencesGrid::gridOnlyReaderSettings()
+                                                    : RiaPreferencesGrid::current()->readerSettings();
+
+    auto viewsBefore = RicImportEclipseCaseFeature::allEclipseViews( project );
+
+    const bool createPlot = false;
+    const bool createView = false;
+    auto       fileOpenMetaData =
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath }, createPlot, createView, readerSettings );
+
+    if ( fileOpenMetaData.createdCaseIds.empty() )
+    {
+        return std::unexpected( QString( "Unable to load case from %1" ).arg( absolutePath ) );
+    }
+
+    // Surfaces beside the grid (e.g. fractures), as the GUI import does
+    RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( QStringList{ absolutePath }, viewsBefore );
+
+    const int caseId = fileOpenMetaData.createdCaseIds.front();
+    for ( RimCase* rimCase : project->allGridCases() )
+    {
+        if ( rimCase && rimCase->caseId() == caseId ) return rimCase;
+    }
+
+    return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_loadCase::classKeywordReturnedType() const
+{
+    return RimCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridCaseGroup, "createGridCaseGroup" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGridCaseGroup::RimProject_createGridCaseGroup( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create Grid Case Group", "", "", "Create a grid case group from a list of grid files with identical grids" );
+
+    CAF_PDM_InitScriptableField( &m_casePaths, "CasePaths", std::vector<QString>(), "Case Paths", "", "", "Paths to the grid files" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_createGridCaseGroup::setCasePaths( const std::vector<QString>& casePaths )
+{
+    m_casePaths = casePaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridCaseGroup::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_casePaths().empty() ) return std::unexpected( "No case paths specified." );
+
+    QStringList casePaths;
+    for ( QString casePath : m_casePaths() )
+    {
+        QFileInfo casePathInfo( casePath );
+        if ( !casePathInfo.exists() )
+        {
+            QDir startDir( RiaApplication::instance()->startDir() );
+            casePath = startDir.absoluteFilePath( casePath );
+        }
+        casePaths.push_back( casePath );
+    }
+
+    RimIdenticalGridCaseGroup* caseGroup = nullptr;
+    if ( !RiaImportEclipseCaseTools::addEclipseCases( casePaths, &caseGroup ) || !caseGroup )
+    {
+        return std::unexpected( "Could not load grid case group" );
+    }
+
+    return caseGroup;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createGridCaseGroup::classKeywordReturnedType() const
+{
+    return RimIdenticalGridCaseGroup::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importFormationNames, "importFormationNames" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_importFormationNames::RimProject_importFormationNames( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Import Formation Names", "", "", "Import formation names from files and return the formation names object" );
+
+    CAF_PDM_InitScriptableField( &m_formationFiles,
+                                 "FormationFiles",
+                                 std::vector<QString>(),
+                                 "Formation Files",
+                                 "",
+                                 "",
+                                 "Formation files to import (.lyr, .fmu, ...)" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_importFormationNames::setFormationFiles( const std::vector<QString>& formationFiles )
+{
+    m_formationFiles = formationFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_importFormationNames::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_formationFiles().empty() ) return std::unexpected( "No formation files provided" );
+
+    QStringList formationFileList;
+    QStringList missingFiles;
+    for ( const QString& formationFile : m_formationFiles() )
+    {
+        if ( QFileInfo::exists( formationFile ) )
+        {
+            formationFileList.push_back( formationFile );
+        }
+        else
+        {
+            missingFiles.push_back( formationFile );
+        }
+    }
+
+    if ( !missingFiles.empty() ) return std::unexpected( QString( "%1 does not exist" ).arg( missingFiles.join( ", " ) ) );
+
+    RimFormationNames* formationNames = RicImportFormationNamesFeature::importFormationFiles( formationFileList );
+    if ( !formationNames ) return std::unexpected( "Could not import formation names" );
+
+    return formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_importFormationNames::classKeywordReturnedType() const
+{
+    return RimFormationNames::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_runOctaveScript, "runOctaveScript" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_runOctaveScript::RimProject_runOctaveScript( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Run Octave Script", "", "", "Run an Octave script once per case. Empty case list means all Eclipse cases." );
+
+    CAF_PDM_InitScriptableField( &m_path, "Path", QString(), "Path", "", "", "Path to the Octave script" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cases, "Cases", "Cases", "", "", "Cases to run the script for. Empty means all Eclipse cases." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_runOctaveScript::setPath( const QString& path )
+{
+    m_path = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_runOctaveScript::setCases( const std::vector<RimCase*>& cases )
+{
+    m_cases.setValue( cases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_runOctaveScript::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_path().isEmpty() ) return std::unexpected( "No script path specified." );
+    if ( !QFileInfo::exists( m_path() ) ) return std::unexpected( QString( "Script %1 does not exist" ).arg( m_path() ) );
+
+    std::vector<int> caseIds;
+    for ( RimCase* rimCase : m_cases.ptrReferencedObjectsByType() )
+    {
+        if ( rimCase ) caseIds.push_back( rimCase->caseId() );
+    }
+    if ( caseIds.empty() )
+    {
+        for ( RimEclipseCase* eclipseCase : project->eclipseCases() )
+        {
+            caseIds.push_back( eclipseCase->caseId() );
+        }
+    }
+
+    RiaApplication* app              = RiaApplication::instance();
+    QString         octavePath       = app->octavePath();
+    QStringList     processArguments = RimCalcScript::createCommandLineArguments( m_path() );
+
+    bool ok = false;
+    if ( caseIds.empty() )
+    {
+        ok = app->launchProcess( octavePath, processArguments, app->octaveProcessEnvironment() );
+    }
+    else
+    {
+        ok = app->launchProcessForMultipleCases( octavePath, processArguments, caseIds, app->octaveProcessEnvironment() );
+    }
+
+    if ( !ok ) return std::unexpected( QString( "Could not execute script %1" ).arg( m_path() ) );
+
+    app->waitForProcess();
     return nullptr;
 }

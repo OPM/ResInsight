@@ -28,6 +28,7 @@
 #include "RiaResultNames.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellLogCurveMerger.h"
+#include "RiaWellLogTrackDefines.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -47,6 +48,7 @@
 #include "Well/RigWellPathFormations.h"
 
 #include "Formations/RimFormationNames.h"
+#include "Formations/RimWellFormationsFile.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -131,6 +133,16 @@ void setColorShadingLegendFromFormationCase( RimWellLogRegionAnnotationSettings*
     QString legendName = formationNames->shortName();
     auto*   legend     = RimProject::current()->colorLegendCollection->findByName( legendName );
     if ( legend ) settings->setColorShadingLegend( legend );
+}
+
+// Palette color from the formation's position in the formations file, so a formation gets the same
+// unique color regardless of which other formations are present for the displayed well.
+cvf::Color3ub
+    paletteColorForFormation( const QString& name, size_t fallbackIndex, const QStringList& zoneOrder, const cvf::Color3ubArray& paletteColors )
+{
+    const int    fileIndex = zoneOrder.indexOf( name );
+    const size_t index     = fileIndex >= 0 ? static_cast<size_t>( fileIndex ) : fallbackIndex;
+    return paletteColors[index % paletteColors.size()];
 }
 } // namespace internal
 
@@ -664,7 +676,7 @@ void RimWellLogTrack::curveStackingChanged( const caf::SignalEmitter* emitter, b
 
     m_propertyAxisSettings->setAutoScaleEnabled( true );
     updatePropertyValueZoom();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -932,6 +944,8 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateAxisRangesFromPlotWidget()
 {
+    if ( !m_plotWidget ) return;
+
     auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( valueAxis() );
     auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( depthAxis() );
 
@@ -1292,6 +1306,41 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateWellPickFormationsData( RimWellPath* wellPath )
+{
+    m_formationSettings->setFormationSource( RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER );
+    m_formationSettings->setWellPathForSourceWellPath( wellPath );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Shows formation zone bands using the explicit top/base depths from a formations file, without
+/// requiring a well path trajectory (e.g. for an RFT well with no modelled well path).
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateFormationFileData( RimWellFormationsFile* wellFormationsFile, const QString& wellNameInFile )
+{
+    m_formationSettings->setFormationSource( RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY );
+    m_formationSettings->setWellPathForSourceWellPath( nullptr );
+    m_formationSettings->setWellFormationsFile( wellFormationsFile );
+    m_formationSettings->setWellNameInFormationsFile( wellNameInFile );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
 {
     CAF_ASSERT( "A well log track can be both vertical and horizontal, use setAutoScalePropertyValuesEnabled " );
@@ -1551,8 +1600,9 @@ void RimWellLogTrack::updateParentPlotZoom()
 void RimWellLogTrack::updateEditors()
 {
     updateConnectedEditors();
-    RimPlotWindow* plotWindow = firstAncestorOrThisOfTypeAsserted<RimPlotWindow>();
-    plotWindow->updateConnectedEditors();
+
+    // Also refresh the owning plot window (e.g. the RFT plot that embeds the track fields in its own UI)
+    if ( auto plotWindow = firstAncestorOfType<RimPlotWindow>() ) plotWindow->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1580,7 +1630,7 @@ void RimWellLogTrack::updatePlotWidgetFromAxisRanges()
 {
     updatePropertyValueZoom();
     updateDepthZoom();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1742,6 +1792,123 @@ QWidget* RimWellLogTrack::viewWidget()
 RiuQwtPlotWidget* RimWellLogTrack::viewer()
 {
     return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::formationShadingAlpha() const
+{
+    if ( !m_regionAnnotationSettings ) return 255;
+    return ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Well pick formation zones as drawn on the track: at the track's formation level, with RKB offset
+/// and in the plot's depth unit.
+//--------------------------------------------------------------------------------------------------
+std::vector<std::tuple<QString, double, double>> RimWellLogTrack::formationZoneDisplayRanges() const
+{
+    auto* plot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
+    if ( !plot ) return {};
+
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER &&
+         m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
+    {
+        return {};
+    }
+
+    auto formations = m_formationSettings->resolveWellPickFormations();
+    if ( !formations ) return {};
+
+    double rkbDiff = 0.0;
+    if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        // Picks-only wells have no trajectory
+        auto sourceWellPath = m_formationSettings->wellPathForSourceWellPath();
+        if ( sourceWellPath && sourceWellPath->wellPathGeometry() )
+        {
+            rkbDiff = sourceWellPath->wellPathGeometry()->rkbDiff();
+        }
+    }
+
+    const auto fromDepthUnit  = plot->caseDepthUnit();
+    const auto toDepthUnit    = plot->depthUnit();
+    const auto formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
+    auto       depthRanges    = formations->depthRangesUpToLevel( formationLevel, plot->depthType() );
+    for ( auto& [name, top, base] : depthRanges )
+    {
+        top  = RiaWellLogUnitTools<double>::convertDepth( top + rkbDiff, fromDepthUnit, toDepthUnit );
+        base = RiaWellLogUnitTools<double>::convertDepth( base + rkbDiff, fromDepthUnit, toDepthUnit );
+    }
+
+    return depthRanges;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Zone names in the order they appear in the formations file used by this track, if any
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellLogTrack::wellPickZoneOrder() const
+{
+    RimWellFormationsFile* file = nullptr;
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
+    {
+        file = m_formationSettings->wellFormationsFile();
+    }
+    else if ( auto wellPath = m_formationSettings->wellPathForSourceWellPath() )
+    {
+        file = wellPath->wellFormationsFile();
+    }
+
+    return file ? file->zoneOrder() : QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, cvf::Color3ub> RimWellLogTrack::formationZoneColors() const
+{
+    std::map<QString, cvf::Color3ub> colors;
+
+    auto* plot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
+    if ( !plot || !m_regionAnnotationSettings ) return colors;
+
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER &&
+         m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
+    {
+        return colors;
+    }
+
+    auto formations = m_formationSettings->resolveWellPickFormations();
+    if ( !formations ) return colors;
+
+    RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+    if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
+    if ( !legend ) return colors;
+
+    std::map<QString, cvf::Color3ub> nameToColor;
+    for ( auto* item : legend->colorLegendItems() )
+    {
+        nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+    }
+
+    // Same name-first, palette-index-second assignment as updateFormationNamesOnPlot()
+    const cvf::Color3ubArray paletteColors  = legend->colorArray();
+    const QStringList        zoneOrder      = wellPickZoneOrder();
+    const auto               formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
+    const auto               depthRanges    = formations->depthRangesUpToLevel( formationLevel, plot->depthType() );
+
+    for ( size_t i = 0; i < depthRanges.size(); i++ )
+    {
+        const QString& name = std::get<0>( depthRanges[i] );
+        auto           it   = nameToColor.find( name );
+        if ( it != nameToColor.end() )
+            colors.emplace( name, it->second );
+        else if ( paletteColors.size() > 0 )
+            colors.emplace( name, internal::paletteColorForFormation( name, i, zoneOrder, paletteColors ) );
+    }
+
+    return colors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2534,6 +2701,8 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 {
     removeRegionAnnotations();
 
+    if ( !m_plotWidget ) return;
+
     if ( m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::NO_ANNOTATIONS ) return;
 
     if ( m_annotationTool == nullptr )
@@ -2567,9 +2736,11 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     auto orientation = plot->depthOrientation();
 
-    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER )
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ||
+         m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICKS_NO_TRAJECTORY )
     {
-        if ( m_formationSettings->wellPathForSourceWellPath() == nullptr ) return;
+        auto formations = m_formationSettings->resolveWellPickFormations();
+        if ( !formations ) return;
 
         if ( plot->depthType() != RiaDefines::DepthType::MEASURED_DEPTH && plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
              plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
@@ -2577,30 +2748,87 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             return;
         }
 
-        std::vector<double> yValues;
-
-        const RigWellPathFormations* formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
-        if ( !formations ) return;
-
-        std::vector<QString> formationNamesToPlot;
-        auto                 formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
-        formations->depthAndFormationNamesUpToLevel( formationLevel,
-                                                     &formationNamesToPlot,
-                                                     &yValues,
-                                                     m_formationSettings->showFormationFluids(),
-                                                     plot->depthType() );
-
+        double rkbDiff = 0.0;
         if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
         {
-            for ( double& depthValue : yValues )
+            // Picks-only wells have no trajectory
+            auto sourceWellPath = m_formationSettings->wellPathForSourceWellPath();
+            if ( sourceWellPath && sourceWellPath->wellPathGeometry() )
             {
-                depthValue += m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+                rkbDiff = sourceWellPath->wellPathGeometry()->rkbDiff();
             }
         }
 
-        std::vector<double> convertedYValues = RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+        // Fluid contacts are single-depth picks (no zone thickness); keep these as simple pick lines.
+        // depthAndFormationNamesUpToLevel() only produces fluid picks when the formation level is NONE.
+        auto [fluidNamesToPlot, fluidYValues] = formations->depthAndFormationNamesUpToLevel( RigWellPathFormations::FormationLevel::NONE,
+                                                                                             m_formationSettings->showFormationFluids(),
+                                                                                             plot->depthType() );
+        for ( double& depthValue : fluidYValues )
+            depthValue += rkbDiff;
+        std::vector<double> convertedFluidYValues = RiaWellLogUnitTools<double>::convertDepths( fluidYValues, fromDepthUnit, toDepthUnit );
 
-        m_annotationTool->attachWellPicks( m_plotWidget->qwtPlot(), formationNamesToPlot, convertedYValues );
+        // attachWellPicks() clears all existing plot annotations, so call it first and add the
+        // shaded formation zones (if any) afterwards.
+        m_annotationTool->attachWellPicks( m_plotWidget->qwtPlot(), fluidNamesToPlot, convertedFluidYValues );
+
+        // Formations have a top/base depth range, so they can be drawn as shaded zones (or plain
+        // lines) using the same region-display machinery as the CASE-based formation names below.
+        auto depthRanges = formationZoneDisplayRanges();
+        if ( !depthRanges.empty() )
+        {
+            std::vector<QString>                   zoneNamesToPlot;
+            std::vector<std::pair<double, double>> convertedZoneYValues;
+            for ( const auto& [name, top, base] : depthRanges )
+            {
+                zoneNamesToPlot.push_back( name );
+                convertedZoneYValues.emplace_back( top, base );
+            }
+
+            // Build color table ordered by formation name to ensure correct color mapping
+            // when using a legend based on a LYR-file. Falls back to palette index for
+            // formations not found in the legend (e.g., when using a generic color palette).
+            RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+            if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
+
+            if ( legend )
+            {
+                std::map<QString, cvf::Color3ub> nameToColor;
+                for ( auto* item : legend->colorLegendItems() )
+                {
+                    nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+                }
+
+                cvf::Color3ubArray paletteColors = legend->colorArray();
+                size_t             colorCount    = std::max( size_t( 2 ), zoneNamesToPlot.size() );
+                cvf::Color3ubArray orderedColors( colorCount );
+                orderedColors.setAll( cvf::Color3ub::GRAY );
+
+                for ( size_t i = 0; i < zoneNamesToPlot.size(); i++ )
+                {
+                    auto it = nameToColor.find( zoneNamesToPlot[i] );
+                    if ( it != nameToColor.end() )
+                    {
+                        orderedColors.set( i, it->second );
+                    }
+                    else if ( paletteColors.size() > 0 )
+                    {
+                        orderedColors.set( i, internal::paletteColorForFormation( zoneNamesToPlot[i], i, wellPickZoneOrder(), paletteColors ) );
+                    }
+                }
+
+                caf::ColorTable colorTable( orderedColors );
+
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
+                                                      zoneNamesToPlot,
+                                                      orientation,
+                                                      convertedZoneYValues,
+                                                      m_regionAnnotationSettings->annotationDisplay(),
+                                                      colorTable,
+                                                      ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100,
+                                                      m_regionAnnotationSettings->showRegionLabels() );
+            }
+        }
     }
     else
     {
@@ -3119,7 +3347,7 @@ void RimWellLogTrack::removeRegionAnnotations()
 void RimWellLogTrack::doUpdateLayout()
 {
     updateFonts();
-    m_plotWidget->scheduleReplot();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

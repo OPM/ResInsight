@@ -640,6 +640,18 @@ QVariant PdmUiItem::attributeVariant( const QString& key, const QString& uiConfi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiItem::removeAttribute( const QString& key, const QString& uiConfigName )
+{
+    auto configIt = m_attributeMaps.find( uiConfigName );
+    if ( configIt != m_attributeMaps.end() )
+    {
+        configIt->second.erase( key );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::list<QString> PdmUiItem::attributeNames( const QString& uiConfigName ) const
 {
     std::list<QString> result;
@@ -685,6 +697,9 @@ void PdmUiItem::validateAttributes( const QString&           contextName,
     auto allAttributeNames = attributeNames( uiConfigName );
     for ( const auto& key : allAttributeNames )
     {
+        // Table view cell attributes are read by the table editor, not by the field editors
+        if ( key.startsWith( "tableView" ) ) continue;
+
         if ( supportedAttributes.find( key ) == supportedAttributes.end() )
         {
             CAF_PDM_LOG_WARNING(

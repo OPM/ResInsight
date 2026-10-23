@@ -16,6 +16,7 @@
         <file>AppLogo48x48.png</file>
         <file>Axes16x16.png</file>
         <file>AxesSync16x16.png</file>
+		<file>BatchMonitor.svg</file>
         <file>BottomAxis16x16.png</file>
         <file>Bullet.png</file>
         <file>CascadeWindows.svg</file>
@@ -133,6 +134,7 @@
         <file>RulerPoly.svg</file>
         <file>Save.svg</file>
         <file>SaveAs.svg</file>
+        <file>Segment.svg</file>
         <file>SnapShot.svg</file>
         <file>SnapShotSave.svg</file>
         <file>SnapShotSaveViews.svg</file>
@@ -237,6 +239,7 @@
         <file>Erase.svg</file>
         <file>Close.svg</file>
         <file>Refresh.svg</file>
+        <file>Download.svg</file>
         <file>CellFilter.png</file>
         <file>FilterFunction.svg</file>
         <file>FilterParameter.svg</file>
@@ -346,5 +349,13 @@
         <file>components/images/well.svg</file>
         <file>components/images/well-completion.svg</file>
         <file>components/images/well-completion-01.svg</file>
+    </qresource>
+    <qresource prefix="/codicons">
+        <file alias="calendar.svg">codicons/calendar.svg</file>
+        <file alias="check.svg">codicons/check.svg</file>
+        <file alias="file.svg">codicons/file.svg</file>
+        <file alias="folder.svg">codicons/folder.svg</file>
+        <file alias="symbol-numeric.svg">codicons/symbol-numeric.svg</file>
+        <file alias="symbol-string.svg">codicons/symbol-string.svg</file>
     </qresource>
 </RCC>

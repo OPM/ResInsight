@@ -21,11 +21,12 @@
 #include "RimKeywordEvent.h"
 #include "RimWellEvent.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventInsertDate.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
+#include "RimWellEventSegment.h"
 #include "RimWellEventState.h"
-#include "RimWellEventTubing.h"
 #include "RimWellEventType.h"
 #include "RimWellEventValve.h"
 #include "RimWellEventWellSpec.h"
@@ -52,6 +53,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimWellEventTimeline, "WellEventTimeline" );
@@ -168,7 +170,9 @@ std::vector<RimWellEvent*> RimWellEventTimeline::getEventsUpToDate( const QDateT
     }
 
     // Sort by date
-    std::sort( result.begin(), result.end(), []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
+    std::stable_sort( result.begin(),
+                      result.end(),
+                      []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
 
     return result;
 }
@@ -220,6 +224,50 @@ QDateTime RimWellEventTimeline::lastAppliedTimestamp() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellEvent*> RimWellEventTimeline::queryEvents( const EventQuery& query ) const
+{
+    auto keywordName = []( const RimWellEvent* event ) -> QString
+    {
+        if ( auto keywordEvent = dynamic_cast<const RimWellEventKeyword*>( event ) ) return keywordEvent->keywordName().toUpper();
+        if ( auto scheduleKeywordEvent = dynamic_cast<const RimKeywordEvent*>( event ) )
+            return scheduleKeywordEvent->keywordName().toUpper();
+        return {};
+    };
+
+    auto matchesType = [&]( const RimWellEvent* event )
+    {
+        if ( query.eventTypes.empty() && query.keywords.empty() ) return true;
+        if ( query.eventTypes.contains( event->eventType() ) ) return true;
+        if ( query.keywords.empty() ) return false;
+
+        const QString keyword = keywordName( event );
+        return !keyword.isEmpty() && query.keywords.contains( keyword );
+    };
+
+    std::vector<RimWellEvent*> result;
+    for ( auto& event : m_events )
+    {
+        if ( !event || !event->eventDate().isValid() ) continue;
+
+        const QDateTime date = event->eventDate();
+        if ( query.startDate.isValid() && date < query.startDate ) continue;
+        if ( query.endDate.isValid() && date > query.endDate ) continue;
+        if ( !query.wellPaths.empty() && !query.wellPaths.contains( event->wellPath() ) ) continue;
+        if ( !matchesType( event ) ) continue;
+
+        result.push_back( event );
+    }
+
+    std::stable_sort( result.begin(),
+                      result.end(),
+                      []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventPerf();
@@ -246,9 +294,9 @@ RimWellEventValve* RimWellEventTimeline::addValveEvent( RimWellPath* wellPath, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellEventTubing* RimWellEventTimeline::addTubingEvent( RimWellPath* wellPath, const QDateTime& date )
+RimWellEventSegment* RimWellEventTimeline::addSegmentEvent( RimWellPath* wellPath, const QDateTime& date )
 {
-    auto* event = new RimWellEventTubing();
+    auto* event = new RimWellEventSegment();
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
@@ -294,7 +342,8 @@ RimWellEventWellSpec* RimWellEventTimeline::addWellSpecEvent( RimWellPath* wellP
     if ( wellPath && wellPath->completionSettings() )
     {
         auto* settings = wellPath->completionSettings();
-        event->setBaselineData( { settings->groupName(), settings->allowWellCrossFlow(), settings->referenceDepth(), settings->wellType() } );
+        event->setBaselineData(
+            { settings->groupName(), settings->allowWellCrossFlow(), settings->referenceDepth(), settings->wellType(), settings->pressureDrop() } );
     }
 
     m_events.push_back( event );
@@ -349,6 +398,18 @@ RimKeywordEvent* RimWellEventTimeline::addKeywordEvent( const QDateTime& date, c
 RimWellEventRawText* RimWellEventTimeline::addRawTextEvent( const QDateTime& date )
 {
     auto* event = new RimWellEventRawText();
+    event->setEventDate( date );
+    m_events.push_back( event );
+    updateEditorsAfterEventChange();
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventInsertDate* RimWellEventTimeline::addInsertDateEvent( const QDateTime& date )
+{
+    auto* event = new RimWellEventInsertDate();
     event->setEventDate( date );
     m_events.push_back( event );
     updateEditorsAfterEventChange();
@@ -470,11 +531,11 @@ bool RimWellEventTimeline::applyEvent( RimWellPathCollection* wellPathCollection
                 }
                 break;
             }
-            case RimWellEvent::EventType::TUBING:
+            case RimWellEvent::EventType::SEGMENT:
             {
-                if ( auto* tubingEvent = dynamic_cast<RimWellEventTubing*>( event ) )
+                if ( auto* segmentEvent = dynamic_cast<RimWellEventSegment*>( event ) )
                 {
-                    return applyTubingEvent( *tubingEvent, *wellPath );
+                    return applySegmentEvent( *segmentEvent, *wellPath );
                 }
                 break;
             }
@@ -518,6 +579,7 @@ bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event
     settings->setAllowWellCrossFlow( data.allowCrossFlow );
     settings->setReferenceDepth( data.referenceDepth );
     settings->setWellType( data.wellType );
+    settings->setPressureDrop( data.pressureDrop );
     settings->updateConnectedEditors();
     return true;
 }
@@ -525,7 +587,7 @@ bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellEventTimeline::applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath )
+bool RimWellEventTimeline::applySegmentEvent( const RimWellEventSegment& event, RimWellPath& wellPath )
 {
     auto* segmentCollection = wellPath.segmentCollection();
     if ( !segmentCollection )
@@ -553,6 +615,23 @@ bool RimWellEventTimeline::applyTubingEvent( const RimWellEventTubing& event, Ri
         // Set the custom start date based on the event date
         interval->enableCustomStartDate( true );
         interval->setCustomStartDate( event.eventDate().date() );
+
+        // The event defines the complete segmentation of the interval
+        interval->setFixedSegmentLength( std::nullopt );
+        interval->setMinSegmentLength( std::nullopt );
+        interval->setMaxSegmentLength( std::nullopt );
+        interval->setMinSegmentLength( event.minSegmentLength() );
+        interval->setMaxSegmentLength( event.maxSegmentLength() );
+        interval->setFixedSegmentLength( event.fixedSegmentLength() );
+
+        // WELSEGS TOP_LENGTH is the reference MD, which must be the start of the first segment
+        double firstSegmentMD = std::numeric_limits<double>::infinity();
+        for ( auto* existingInterval : segmentCollection->intervals() )
+        {
+            firstSegmentMD = std::min( firstSegmentMD, existingInterval->startMD() );
+        }
+        segmentCollection->setReferenceMDType( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD );
+        segmentCollection->setManualReferenceMD( firstSegmentMD );
 
         segmentCollection->updateConnectedEditors();
         return true;

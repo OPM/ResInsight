@@ -100,6 +100,7 @@ public:
 
     void setShowPlotTitles( bool enable );
     bool showPlotTitles() const;
+    bool useCommonLegend() const;
 
     void zoomAll() override;
     void zoomAllYAxes();
@@ -128,7 +129,6 @@ protected:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -167,6 +167,7 @@ protected:
     caf::PdmField<ColumnCountEnum> m_columnCount;
     caf::PdmField<RowCountEnum>    m_rowsPerPage;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
+    caf::PdmField<bool>            m_useCommonLegend;
     RimFontSizeField               m_subTitleFontSize;
     RimFontSizeField               m_axisTitleFontSize;
     RimFontSizeField               m_axisValueFontSize;

@@ -51,7 +51,13 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
+#include "Workflow/RimWorkflow.h"
+#include "Workflow/RimWorkflowCollection.h"
+#include "Workflow/RimWorkflowFieldBinding.h"
+#include "Workflow/RimWorkflowJob.h"
+#include "Workflow/RimWorkflowTaskInput.h"
 
+#include "RiuBatchQueueMonitor.h"
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
@@ -70,6 +76,7 @@
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
+#include "RiuWorkflowEditorWidget.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -143,8 +150,6 @@ RiuMainWindow::RiuMainWindow()
     , m_holoLensToolBar( nullptr )
     , m_seismicHistogramPanel( nullptr )
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-
     setUpCentralDockWidget();
     createActions();
     createMenus();
@@ -238,6 +243,11 @@ QString RiuMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
+    if ( auto* project = RimProject::current(); project && project->workflowCollection() )
+    {
+        project->workflowCollection()->rescanWorkflows();
+    }
+
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
@@ -350,6 +360,12 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent( QCloseEvent* event )
 {
+    if ( hasBeenClosed() )
+    {
+        event->accept();
+        return;
+    }
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if ( !app->isMainPlotWindowVisible() )
@@ -360,6 +376,8 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
+
+    if ( m_batchMonitor ) m_batchMonitor->stopMonitoring();
 
     if ( auto proj = RimProject::current() )
     {
@@ -511,6 +529,10 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction( cmdFeatureMgr->action( "RicSaveEclipseInputActiveVisibleCellsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportVisibleWellPathsFeature" ) );
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
+    {
+        exportMenu->addAction( cmdFeatureMgr->action( "RicExportScheduleFeature" ) );
+    }
 
     // Save menu actions
     fileMenu->addSeparator();
@@ -618,15 +640,6 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( m_undoAction );
         toolbar->addAction( m_redoAction );
-    }
-
-    {
-        QToolBar* toolbar = addToolBar( tr( "Import" ) );
-        toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportGridModelFeature" ) );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
-        toolbar->hide();
     }
 
     {
@@ -962,6 +975,15 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Batch Queue Monitor", RiuDockWidgetTools::mainWindowBatchQueueMonitorName(), dockManager() );
+
+        m_batchMonitor = new RiuBatchQueueMonitor( dockWidget );
+        dockWidget->setWidget( m_batchMonitor );
+        dockManager()->addDockWidgetTabToArea( dockWidget, procAndMsgTabs );
+    }
+
+    {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::mainWindowMessagesName(), dockManager() );
 
         m_messagePanel = new RiuMessagePanel( dockWidget );
@@ -1278,6 +1300,11 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
 void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
     m_pdmRoot = pdmRoot;
+    if ( !pdmRoot )
+    {
+        if ( m_workflowEditor ) m_workflowEditor->clear();
+        updateWorkflowDockTitle();
+    }
 
     for ( auto tv : projectTreeViews() )
     {
@@ -1533,6 +1560,19 @@ void RiuMainWindow::selectedObjectsChanged()
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
+    if ( uiItems.size() == 1 )
+    {
+        if ( auto* workflow = dynamic_cast<RimWorkflow*>( firstSelectedObject ) )
+        {
+            const auto jobs = workflow->jobs();
+            showWorkflowGraph( workflow, jobs.empty() ? nullptr : jobs.front() );
+        }
+        else if ( auto* job = dynamic_cast<RimWorkflowJob*>( firstSelectedObject ) )
+        {
+            if ( auto* workflow = job->firstAncestorOrThisOfType<RimWorkflow>() ) showWorkflowGraph( workflow, job );
+        }
+    }
+
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -1585,6 +1625,132 @@ void RiuMainWindow::selectedObjectsChanged()
 
     // The update of quick access view is depending on active view, and must be done after the active view is set
     m_quickAccessView->showProperties( RimQuickAccessCollection::instance() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* binding )
+{
+    if ( !m_workflowEditor || !m_workflowEditor->job() || binding->firstAncestorOrThisOfType<RimWorkflowJob>() != m_workflowEditor->job() )
+        return;
+
+    if ( auto* task = binding->firstAncestorOrThisOfType<RimWorkflowTaskInput>() )
+    {
+        m_workflowEditor->graphView()->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
+    }
+    m_workflowEditor->updateTaskIssues();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
+{
+    if ( !m_workflowEditor || m_workflowEditor->job() != job ) return;
+    m_workflowEditor->updateJobState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Called by RimWorkflow after edits, undo, save and validation. A null workflow means the set of
+/// workflows changed (rescan).
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::workflowDefinitionChanged( RimWorkflow* workflow )
+{
+    if ( workflow ) workflow->updateConnectedEditors();
+    if ( !m_workflowEditor ) return;
+
+    RimWorkflow* displayed = m_workflowEditor->workflow();
+    if ( !displayed )
+    {
+        m_workflowEditor->clear();
+    }
+    else if ( !workflow || workflow == displayed )
+    {
+        RimWorkflowJob* job = m_workflowEditor->job();
+        if ( !job )
+        {
+            const auto jobs = displayed->jobs();
+            if ( !jobs.empty() ) job = jobs.front();
+        }
+        m_workflowEditor->setWorkflow( displayed, job );
+    }
+    updateWorkflowDockTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWorkflow* RiuMainWindow::displayedWorkflow() const
+{
+    return m_workflowEditor ? m_workflowEditor->workflow() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWorkflowEditorWidget* RiuMainWindow::workflowEditor() const
+{
+    return m_workflowEditor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job )
+{
+    if ( !m_workflowGraphDock )
+    {
+        m_workflowGraphDock = RiuDockWidgetTools::createDockWidget( "Workflow", "WorkflowGraph", dockManager() );
+        m_workflowEditor    = new RiuWorkflowEditorWidget( m_workflowGraphDock );
+        m_workflowGraphDock->setWidget( m_workflowEditor );
+        dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea,
+                                      m_workflowGraphDock,
+                                      dockManager()->centralWidget()->dockAreaWidget() );
+        connect( m_workflowEditor, &RiuWorkflowEditorWidget::taskSelected, this, &RiuMainWindow::showWorkflowTaskProperties );
+    }
+
+    m_workflowEditor->setWorkflow( workflow, job );
+    updateWorkflowDockTitle();
+    m_workflowGraphDock->toggleView( true );
+    m_workflowGraphDock->setAsCurrentTab();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the inputs of the selected graph node, or the job when the selection is cleared
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWorkflowTaskProperties( const QString& taskName )
+{
+    if ( !m_workflowEditor ) return;
+
+    RimWorkflowJob* job = m_workflowEditor->job();
+    if ( !job ) return;
+
+    if ( RimWorkflowTaskInput* task = taskName.isEmpty() ? nullptr : job->taskInput( taskName ) )
+    {
+        m_pdmUiPropertyView->showProperties( task );
+    }
+    else if ( dynamic_cast<RimWorkflowTaskInput*>( m_pdmUiPropertyView->currentObject() ) )
+    {
+        m_pdmUiPropertyView->showProperties( job );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateWorkflowDockTitle()
+{
+    if ( !m_workflowGraphDock ) return;
+
+    RimWorkflow* workflow = displayedWorkflow();
+    if ( !workflow )
+    {
+        m_workflowGraphDock->setWindowTitle( "Workflow" );
+        return;
+    }
+    const bool modified = workflow->isEditable() && workflow->isDirty();
+    m_workflowGraphDock->setWindowTitle( QString( "Workflow: %1%2" ).arg( workflow->name(), modified ? "*" : "" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2158,4 +2324,12 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
 RimViewWindow* RiuMainWindow::activeViewer()
 {
     return RiaApplication::instance()->activeReservoirView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::restartBatchMonitor()
+{
+    if ( m_batchMonitor ) m_batchMonitor->restartMonitoring();
 }

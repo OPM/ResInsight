@@ -21,10 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -60,19 +57,6 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
     {
         project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimMainPlotCollection::current()->updatePlotsWithFormations();
-
-        RimOilField* oilField = project->activeOilField();
-
-        if ( !oilField ) return;
-
-        if ( !oilField->wellPathCollection->allWellPaths().empty() )
-        {
-            RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
-            if ( wellPath )
-            {
-                Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
-            }
-        }
     }
 }
 

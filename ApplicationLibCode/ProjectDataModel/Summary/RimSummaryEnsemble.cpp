@@ -49,6 +49,7 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
 
@@ -64,9 +65,14 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
-    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Summary Case Group",
+                                                    ":/SummaryGroup16x16.png",
+                                                    "",
+                                                    "",
+                                                    "SummaryEnsemble",
+                                                    "A group of summary cases, typically an ensemble" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cases, "SummaryCases", "" );
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
     CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
@@ -76,6 +82,9 @@ RimSummaryEnsemble::RimSummaryEnsemble()
     QString defaultText = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
     QString tooltipText = QString( "Variables in template is supported, and will be replaced to create name. Example '%1'" ).arg( defaultText );
     CAF_PDM_InitField( &m_nameTemplateString, "NameTemplateString", defaultText, "Name Template", "", tooltipText );
+    m_nameTemplateString.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::PLACEHOLDER_TEXT,
+                                                       RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName() );
+    m_nameTemplateString.uiCapability()->setAttribute( caf::PdmUiLineEditor::Keys::NOTIFY_WHEN_TEXT_IS_EDITED, true );
 
     CAF_PDM_InitFieldNoDefault( &m_groupingMode, "GroupingMode", "Grouping Mode" );
 
@@ -261,6 +270,14 @@ void RimSummaryEnsemble::reloadCases()
 void RimSummaryEnsemble::setNameTemplate( const QString& name )
 {
     m_nameTemplateString = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::setAutoName( bool autoName )
+{
+    m_autoName = autoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -733,11 +750,14 @@ bool RimSummaryEnsemble::operator<( const RimSummaryEnsemble& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimSummaryEnsemble::unitSystem() const
 {
-    if ( m_cases.empty() )
+    // The first realization can be missing data, use the first realization with a known unit system
+    for ( auto* summaryCase : m_cases.childrenByType() )
     {
-        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+        auto unitSystem = summaryCase->unitsSystem();
+        if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ) return unitSystem;
     }
-    return m_cases[0]->unitsSystem();
+
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1004,6 +1024,8 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
     menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
     menuBuilder.addSeparator();
+    menuBuilder << "RicExportEnsembleParametersFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicReloadSummaryCaseFeature";
     menuBuilder << "RicReplaceSummaryEnsembleFeature";
 }
@@ -1069,32 +1091,18 @@ void RimSummaryEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+std::vector<caf::PdmUiTreeViewItemTag> RimSummaryEnsemble::treeItemTags()
 {
-    if ( field == &m_nameTemplateString )
-    {
-        if ( auto attr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
-        {
-            attr->placeholderText        = RiaDefines::key1VariableName() + "-" + RiaDefines::key2VariableName();
-            attr->notifyWhenTextIsEdited = true;
-        }
-    }
-}
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryEnsemble::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    if ( m_includeInAutoReload() )
     {
-        if ( m_includeInAutoReload() )
-        {
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/TimedRefresh.png" );
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        auto tag = caf::PdmUiTreeViewItemTag::create();
+        tag.icon = caf::IconProvider( ":/TimedRefresh.png" );
+        tags.push_back( tag );
     }
+
+    return tags;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1279,6 +1287,15 @@ void RimSummaryEnsemble::buildMetaData()
     clearChildNodes();
     buildChildNodes();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::onSummaryVectorsChanged()
+{
+    m_analyzer.reset();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

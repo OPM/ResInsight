@@ -36,9 +36,15 @@
 #include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
+#include "qwt_plot_item.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_widget.h"
+#include "qwt_text.h"
+
+#include <QCryptographicHash>
+#include <QImage>
+#include <QSet>
 
 #include <vector>
 
@@ -262,6 +268,46 @@ void RiuQwtPlotTools::updateLegendData( RiuQwtPlotLegend* legend, const std::vec
     QList<QwtLegendData> legendDataList = createLegendData( curves );
 
     legend->updateLegend( QVariant(), legendDataList );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Collect legend data, one entry per legend item, from the plots. Items with identical title and icon are merged.
+//--------------------------------------------------------------------------------------------------
+QList<QList<QwtLegendData>> RiuQwtPlotTools::uniqueLegendData( const std::vector<QwtPlot*>& plots )
+{
+    QList<QList<QwtLegendData>> uniqueData;
+    QSet<QString>               keys;
+
+    for ( QwtPlot* plot : plots )
+    {
+        if ( !plot ) continue;
+
+        for ( QwtPlotItem* item : plot->itemList() )
+        {
+            if ( !item->testItemAttribute( QwtPlotItem::Legend ) ) continue;
+
+            QList<QwtLegendData> legendData = item->legendData();
+            if ( legendData.isEmpty() ) continue;
+
+            QString title = legendData.first().value( QwtLegendData::TitleRole ).value<QwtText>().text();
+
+            // Include the icon in the key, so entries with the same title but different color or style are all kept
+            QString key  = title;
+            auto    icon = legendData.first().value( QwtLegendData::IconRole ).value<QwtGraphic>();
+            if ( !icon.isNull() )
+            {
+                QImage     image = icon.toImage( QSize( 32, 16 ).expandedTo( icon.defaultSize().toSize() ) );
+                QByteArray bytes( reinterpret_cast<const char*>( image.constBits() ), image.sizeInBytes() );
+                key += "|" + QString::fromLatin1( QCryptographicHash::hash( bytes, QCryptographicHash::Md5 ).toHex() );
+            }
+            if ( keys.contains( key ) ) continue;
+
+            keys.insert( key );
+            uniqueData.append( legendData );
+        }
+    }
+
+    return uniqueData;
 }
 
 //--------------------------------------------------------------------------------------------------

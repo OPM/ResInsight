@@ -40,9 +40,6 @@ public:
     double  mdStepSize() const;
 
 private:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-private:
     caf::PdmField<QString> m_exportFolder;
     caf::PdmField<double>  m_mdStepSize;
 };

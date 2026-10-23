@@ -18,21 +18,18 @@
 
 #include "RicfExportWellPathCompletions.h"
 
-#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimDialogData.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
-#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+#include "RimcEclipseCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -83,38 +80,20 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    RicExportCompletionDataSettingsUi exportSettings;
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
-    if ( m_timeStep < 0 )
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
+    if ( !eclipseCase )
     {
-        exportSettings.timeStep = 0;
-    }
-    else
-    {
-        exportSettings.timeStep = m_timeStep;
+        return RicfForwarding::errorResponse( QString( "Case with ID %1 is not an Eclipse case" ).arg( m_caseId() ), commandName );
     }
 
-    exportSettings.fileSplit     = m_fileSplit;
-    exportSettings.compdatExport = m_compdatExport;
-
-    exportSettings.performTransScaling    = m_performTransScaling;
-    exportSettings.transScalingTimeStep   = m_transScalingTimeStep;
-    exportSettings.transScalingWBHPSource = m_transScalingInitialWBHP;
-    exportSettings.transScalingWBHP       = m_transScalingWBHP;
-
-    exportSettings.includeMsw                  = m_includeMsw;
-    exportSettings.useLateralNTG               = m_useLateralNTG;
-    exportSettings.includePerforations         = m_includePerforations;
-    exportSettings.includeFishbones            = m_includeFishbones;
-    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
-    exportSettings.includeFractures            = m_includeFractures;
-
-    exportSettings.setExportDataSourceAsComment( m_exportDataSourceAsComments );
-    exportSettings.setExportWelspec( m_exportWelspec );
-
+    // Resolve the export folder and custom file name. The Rimc method requires an explicit folder.
     QString exportFolderPath;
+    QString customFileName;
     if ( m_customFileNameIncludingPath().isEmpty() )
     {
         exportFolderPath = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
@@ -125,10 +104,8 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     }
     else
     {
-        QFileInfo fi( m_customFileNameIncludingPath );
-        auto      fileName = fi.fileName();
-
-        exportSettings.setCustomFileName( fileName );
+        QFileInfo fi( m_customFileNameIncludingPath() );
+        customFileName = fi.fileName();
 
         auto pathCandidate = fi.path();
         if ( pathCandidate.size() > 2 )
@@ -137,51 +114,50 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         }
     }
 
-    exportSettings.folder = exportFolderPath;
-
-    {
-        auto eclipseCase = TOOLS::caseFromId( m_caseId() );
-        if ( !eclipseCase )
-        {
-            QString error = QString( "exportWellPathCompletions: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
-        exportSettings.caseToApply = eclipseCase;
-    }
-
     caf::PdmScriptResponse response;
 
+    // Resolve well path names to objects. Unknown names are warnings, matching the legacy behavior.
     std::vector<RimWellPath*> wellPaths;
-    if ( m_wellPathNames().empty() )
+    for ( const QString& wellPathName : m_wellPathNames() )
     {
-        for ( auto wellPath : RimProject::current()->activeOilField()->wellPathCollection->allWellPaths() )
+        RimWellPath* wellPath = RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
+        if ( wellPath )
         {
-            if ( wellPath->showWellPath() )
-            {
-                wellPaths.push_back( wellPath );
-            }
+            wellPaths.push_back( wellPath );
         }
-    }
-    else
-    {
-        for ( const QString& wellPathName : m_wellPathNames() )
+        else
         {
-            RimWellPath* wellPath = RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
-            if ( wellPath )
-            {
-                wellPaths.push_back( wellPath );
-            }
-            else
-            {
-                QString warning = QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
-                RiaLogging::warning( warning.toStdString() );
-                response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
-            }
+            QString warning = QString( "%1: Could not find well path with name %2" ).arg( commandName ).arg( wellPathName );
+            RiaLogging::warning( warning.toStdString() );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
         }
     }
 
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
+    // Legacy behavior: if names were given but none resolved, nothing is exported (not all visible wells)
+    if ( !m_wellPathNames().empty() && wellPaths.empty() ) return response;
+
+    RimEclipseCase_exportCompletions method( eclipseCase );
+    method.setWellPaths( wellPaths );
+    method.setTimeStep( m_timeStep() );
+    method.setExportFolder( exportFolderPath );
+    method.setCustomFileName( customFileName );
+    method.setFileSplit( m_fileSplit() );
+    method.setCompdatExport( m_compdatExport() );
+    method.setIncludeMsw( m_includeMsw() );
+    method.setUseNtgHorizontally( m_useLateralNTG() );
+    method.setIncludePerforations( m_includePerforations() );
+    method.setIncludeFishbones( m_includeFishbones() );
+    method.setIncludeFractures( m_includeFractures() );
+    method.setExcludeMainBoreForFishbones( m_excludeMainBoreForFishbones() );
+    method.setPerformTransScaling( m_performTransScaling() );
+    method.setTransScalingTimeStep( m_transScalingTimeStep() );
+    method.setTransScalingWbhpSource( m_transScalingInitialWBHP() );
+    method.setTransScalingWbhp( m_transScalingWBHP() );
+    method.setExportComments( m_exportDataSourceAsComments() );
+    method.setExportWelspec( m_exportWelspec() );
+
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
 
     return response;
 }

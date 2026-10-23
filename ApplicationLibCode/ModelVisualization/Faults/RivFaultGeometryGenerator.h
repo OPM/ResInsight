@@ -33,7 +33,7 @@ class Part;
 } // namespace cvf
 
 class RigNNCData;
-class RigConnectionContainer;
+class RigConnection;
 class RigFault;
 
 //==================================================================================================
@@ -64,7 +64,7 @@ private:
 
     bool hasConnection( size_t                             cellIdx,
                         cvf::StructGridInterface::FaceType face,
-                        const RigConnectionContainer&      conns,
+                        const std::vector<RigConnection>&  conns,
                         const std::vector<size_t>&         nncConnectionIndices );
 
 private:

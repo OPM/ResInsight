@@ -21,6 +21,7 @@
 #include "cafPdmNestedCollection.h"
 
 class RimPolygon;
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -38,16 +39,25 @@ class RimPolygonContainer : public caf::PdmNestedCollection<RimPolygonContainer,
 public:
     RimPolygonContainer();
 
-    // "Add Folder" should produce a real folder (RimPolygonCollection), not another container
-    // shell. Override here so the default base impl (new SelfT) is bypassed for both this class
-    // and any derivative that does not override it. The runtime instance is a RimPolygonCollection;
-    // the return type stays at RimPolygonContainer* to avoid pulling RimPolygonCollection.h into
-    // this header (which would create an include cycle).
+    // "Add Folder" should produce a real RimPolygonCollection, not another container shell.
+    // Return type stays RimPolygonContainer* to avoid an include cycle.
     RimPolygonContainer* addNewSubCollection() override;
 
-    // Default behavior recurses into sub-collections. Leaf containers (e.g., file-backed)
-    // override to load their own data; folder containers inherit the recursion.
+    // Default recurses into sub-collections; leaf containers override to load their own data.
     virtual void loadData();
+
+    // Whether this container's content genuinely varies per realization (only a cloud-backed
+    // address does). Default: false.
+    virtual bool supportsRealizationOverride() const;
+
+    // Realizations available for the override above. Default: empty.
+    virtual std::vector<int> availableRealizationIdsForOverride() const;
+
+    // Resolves an automatic "follow the view's own case" realization, only when the view's case
+    // genuinely matches this container's own data source. Returns -1 otherwise (fall back to this
+    // container's own default items). Default: always -1; only RimPolygonCloudAddress overrides
+    // this, to avoid applying an unrelated view's realization to a different field/ensemble.
+    virtual int resolveViewMatchingRealization( const Rim3dView* view ) const;
 
     // Renames the polygon if another polygon in this container already carries the same name.
     void ensureUniquePolygonName( RimPolygon* polygon );

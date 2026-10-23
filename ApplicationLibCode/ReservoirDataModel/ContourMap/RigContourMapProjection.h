@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RigContourMapCalculator.h"
+#include "RigContourMapPeakFinder.h"
 #include "RigContourPolygonsTools.h"
 
 #include "cvfArray.h"
@@ -92,7 +93,6 @@ public:
     virtual std::vector<std::vector<std::pair<size_t, double>>>
         generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation,
                              const std::vector<double>&                     weights,
-                             const std::set<int>&                           kLayers,
                              const std::vector<std::vector<cvf::Vec3d>>&    limitToPolygons );
 
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;
@@ -100,6 +100,10 @@ public:
     const std::vector<double>&                                 aggregatedResults() const;
     std::vector<double>                                        aggregatedVertexResultsFiltered() const;
     const std::vector<std::vector<std::pair<size_t, double>>>& projected3dGridIndices() const;
+
+    // Find the N most significant peaks (local maxima) in the aggregated result grid. Cells outside the value filter are ignored.
+    // Returned Peak::x/y are in local contour map coordinates (add origin3d().x()/y() for domain coordinates).
+    std::vector<RigContourMapPeakFinder::Peak> findPeaks( const RigContourMapPeakFinder::Settings& settings ) const;
 
     // Cell index and position conversion
     virtual std::vector<CellIndexAndResult> cellsAtIJ( unsigned int i, unsigned int j ) const;

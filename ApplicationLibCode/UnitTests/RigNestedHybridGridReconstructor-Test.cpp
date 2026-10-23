@@ -38,7 +38,14 @@
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
+#include "RimCellFilterTools.h"
+#include "RimCellRangeFilter.h"
 #include "RimEclipseResultCase.h"
+
+#include "Well/RigSimWellData.h"
+#include "Well/RigWellResultBranch.h"
+#include "Well/RigWellResultFrame.h"
+#include "Well/RigWellResultPoint.h"
 
 #include <QDir>
 #include <QFile>
@@ -170,6 +177,38 @@ protected:
 
         s_input = buildInput( dir );
 
+        // The restart file of this model has no well connections, so add a synthetic well with
+        // connections into a refined and an unrefined flat cell to check that they are re-pointed.
+        for ( size_t i = 0; i < s_input.refine.size(); i++ )
+        {
+            if ( s_input.refine[i] > 1 && s_wellRefinedFlatCell == cvf::UNDEFINED_SIZE_T ) s_wellRefinedFlatCell = i;
+            if ( s_input.refine[i] == 1 && s_wellUnrefinedFlatCell == cvf::UNDEFINED_SIZE_T ) s_wellUnrefinedFlatCell = i;
+        }
+        {
+            auto makePoint = []( size_t cellIndex )
+            {
+                RigWellResultPoint point;
+                point.setGridIndex( 0 );
+                point.setGridCellIndex( cellIndex );
+                return point;
+            };
+
+            RigWellResultBranch branch;
+            branch.setBranchResultPoints( { makePoint( s_wellRefinedFlatCell ), makePoint( s_wellUnrefinedFlatCell ) } );
+
+            RigWellResultFrame frame;
+            frame.setWellHead( makePoint( s_wellRefinedFlatCell ) );
+            frame.addWellResultBranch( branch );
+
+            cvf::ref<RigSimWellData> well = new RigSimWellData;
+            well->setWellName( "SYNTHETIC_NHG_WELL" );
+            well->m_wellCellsTimeSteps.push_back( frame );
+
+            cvf::Collection<RigSimWellData> wells = s_reservoir->wellResults();
+            wells.push_back( well.p() );
+            s_reservoir->setSimWellData( wells );
+        }
+
         QString err;
         if ( !RigNestedHybridGridReconstructor::reconstruct( s_reservoir.p(), s_input, &err ) )
         {
@@ -202,6 +241,8 @@ protected:
     static RigNestedHybridGridReconstructor::NestedHybridInput s_input;
     static RigEclipseResultAddress                             s_staticAddr;
     static size_t                                              s_activeCellsBeforeReconstruct;
+    static size_t                                              s_wellRefinedFlatCell;
+    static size_t                                              s_wellUnrefinedFlatCell;
     static bool                                                s_setupOk;
     static QString                                             s_setupError;
 };
@@ -212,7 +253,9 @@ cvf::ref<RifReaderEclipseOutput>                    RigNestedHybridGridReconstru
 RigNestedHybridGridReconstructor::NestedHybridInput RigNestedHybridGridReconstructorTest::s_input;
 RigEclipseResultAddress                             RigNestedHybridGridReconstructorTest::s_staticAddr;
 size_t                                              RigNestedHybridGridReconstructorTest::s_activeCellsBeforeReconstruct = 0;
-bool                                                RigNestedHybridGridReconstructorTest::s_setupOk                      = false;
+size_t                                              RigNestedHybridGridReconstructorTest::s_wellRefinedFlatCell   = cvf::UNDEFINED_SIZE_T;
+size_t                                              RigNestedHybridGridReconstructorTest::s_wellUnrefinedFlatCell = cvf::UNDEFINED_SIZE_T;
+bool                                                RigNestedHybridGridReconstructorTest::s_setupOk               = false;
 QString                                             RigNestedHybridGridReconstructorTest::s_setupError;
 
 //--------------------------------------------------------------------------------------------------
@@ -371,6 +414,16 @@ TEST_F( RigNestedHybridGridReconstructorTest, LgrNamesAreConsistent )
     EXPECT_EQ( namesByLevel["LGR_NHG_L2"].size(), 1 );
     EXPECT_EQ( namesByLevel["LGR_NHG_L3"].size(), 1 );
     EXPECT_GT( namesByLevel["LGR_NHG_L4"].size(), 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tree grouping: numbered component names collapse to their refinement level name.
+//--------------------------------------------------------------------------------------------------
+TEST( RigNestedHybridGridReconstructorNameTest, LevelGroupName )
+{
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR_NHG_L4_12" ), QString( "LGR_NHG_L4" ) );
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR_NHG_L2" ), QString( "LGR_NHG_L2" ) );
+    EXPECT_EQ( RigNestedHybridGridReconstructor::levelGroupName( "LGR1" ), QString( "LGR1" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -782,4 +835,205 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
         if ( ++verified >= 20 ) break;
     }
     EXPECT_GE( verified, 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The reconstruction records the original (coarse) grid layout: 15x24x12 coarse cells, with each
+/// coarse K layer spanning 8 flat K layers (96 / 12).
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, NestedHybridLayout )
+{
+    const auto& layout = grid()->nestedHybridLayout();
+    ASSERT_TRUE( layout.has_value() );
+
+    EXPECT_EQ( layout->originalCellCounts(), cvf::Vec3st( 15, 24, 12 ) );
+    EXPECT_EQ( layout->kFactor(), 8u );
+
+    auto host = layout->flatIjkFromOriginalIjk( caf::VecIjk0( 3, 4, 5 ) );
+    EXPECT_EQ( host, caf::VecIjk0( 3, 4, 40 ) );
+
+    auto original = layout->originalIjkFromFlatIjk( caf::VecIjk0( 3, 4, 47 ) );
+    ASSERT_TRUE( original.has_value() );
+    EXPECT_EQ( *original, caf::VecIjk0( 3, 4, 5 ) );
+
+    // Flat columns outside the original I/J extent hold refined cells or padding
+    EXPECT_FALSE( layout->originalIjkFromFlatIjk( caf::VecIjk0( 15, 0, 0 ) ).has_value() );
+    EXPECT_FALSE( layout->originalIjkFromFlatIjk( caf::VecIjk0( 0, 24, 0 ) ).has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The original IJK computed on demand (layout + parent cell chain) must agree with the OLDIJK
+/// sidecar: for every reconstructed LGR cell, for every unrefined coarse cell, and the scattered
+/// flat refined cells must have no original IJK.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, OriginalIjkFollowsOldIjk )
+{
+    RigMainGrid* mainGrid = grid();
+
+    auto oldIjk0 = []( size_t flat )
+    { return caf::VecIjk0( (size_t)( s_input.oldI[flat] - 1 ), (size_t)( s_input.oldJ[flat] - 1 ), (size_t)( s_input.oldK[flat] - 1 ) ); };
+
+    // LGR cells: original IJK equals OLDIJK of the flat cell they were built from
+    size_t lgrChecked = 0, lgrMismatch = 0;
+    for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+    {
+        size_t localIdx = 0;
+        auto   lgr      = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( lgrGlobal, &localIdx );
+        ASSERT_FALSE( lgr->isMainGrid() );
+
+        auto original = mainGrid->nestedHybridOriginalIjk( lgr, localIdx );
+        if ( !original || *original != oldIjk0( flat ) ) lgrMismatch++;
+        lgrChecked++;
+    }
+    EXPECT_GT( lgrChecked, 0u );
+    EXPECT_EQ( lgrMismatch, 0u );
+
+    // Main grid cells
+    const size_t nx = mainGrid->cellCountI();
+    const size_t ny = mainGrid->cellCountJ();
+
+    size_t coarseChecked = 0, coarseMismatch = 0, refinedWithIjk = 0;
+    for ( size_t f = 0; f < mainGrid->cellCount(); f++ )
+    {
+        auto original = mainGrid->nestedHybridOriginalIjk( mainGrid, f );
+
+        if ( s_input.refine[f] > 1 )
+        {
+            // Scattered refined cells (now represented by LGR cells) have no original IJK
+            if ( original ) refinedWithIjk++;
+            continue;
+        }
+
+        if ( s_input.oldI[f] < 1 ) continue;
+
+        const caf::VecIjk0 flatIjk( f % nx, ( f / nx ) % ny, f / ( nx * ny ) );
+        const caf::VecIjk0 expected = oldIjk0( f );
+        if ( flatIjk != grid()->nestedHybridLayout()->flatIjkFromOriginalIjk( expected ) ) continue; // padding
+
+        if ( !original || *original != expected ) coarseMismatch++;
+        coarseChecked++;
+    }
+    EXPECT_GT( coarseChecked, 0u );
+    EXPECT_EQ( coarseMismatch, 0u );
+    EXPECT_EQ( refinedWithIjk, 0u );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// IJK range filters on a nested hybrid grid refer to the original grid IJK. A slice selects every
+/// cell mapped to the original slice - unrefined cells and the cells of all refinement levels.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, RangeFilterUsesOriginalIjk )
+{
+    RigMainGrid* mainGrid = grid();
+    s_resultCase->setReservoirData( s_reservoir.p() );
+
+    RimCellRangeFilter rangeFilter;
+    rangeFilter.setCase( s_resultCase.get() );
+    EXPECT_TRUE( rangeFilter.usesNestedHybridOriginalIjk() );
+
+    // A filter targeting an LGR is redirected to the original grid
+    rangeFilter.setGridIndex( 2 );
+    EXPECT_EQ( rangeFilter.gridIndex(), 0 );
+
+    // Original IJK level of every reconstructed LGR cell (via its source flat cell)
+    std::map<size_t, int> lgrLevel; // LGR global cell index -> refinement level
+    for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+        lgrLevel[lgrGlobal] = s_input.refine[flat];
+
+    struct Slice
+    {
+        int axis;
+        int index; // 1-based original index
+    };
+
+    for ( const Slice& slice : { Slice{ 0, 10 }, Slice{ 1, 12 }, Slice{ 2, 5 } } )
+    {
+        rangeFilter.startIndexI = 1;
+        rangeFilter.startIndexJ = 1;
+        rangeFilter.startIndexK = 1;
+        rangeFilter.cellCountI  = 15;
+        rangeFilter.cellCountJ  = 24;
+        rangeFilter.cellCountK  = 12;
+        if ( slice.axis == 0 ) std::tie( rangeFilter.startIndexI.v(), rangeFilter.cellCountI.v() ) = std::make_pair( slice.index, 1 );
+        if ( slice.axis == 1 ) std::tie( rangeFilter.startIndexJ.v(), rangeFilter.cellCountJ.v() ) = std::make_pair( slice.index, 1 );
+        if ( slice.axis == 2 ) std::tie( rangeFilter.startIndexK.v(), rangeFilter.cellCountK.v() ) = std::make_pair( slice.index, 1 );
+
+        auto visibility = RimCellFilterTools::computeReservoirCellVisibility( &rangeFilter, s_resultCase.get(), 0 );
+        ASSERT_TRUE( visibility.notNull() );
+        ASSERT_EQ( visibility->size(), mainGrid->totalCellCount() );
+
+        // Every LGR cell is visible exactly when its OLDIJK lies in the slice
+        size_t           mismatch = 0;
+        std::set<int>    visibleLevels;
+        const std::array oldIjk = { &s_input.oldI, &s_input.oldJ, &s_input.oldK };
+        for ( const auto& [lgrGlobal, flat] : mainGrid->nestedHybridLgrSourceCells() )
+        {
+            const bool expected = ( *oldIjk[slice.axis] )[flat] == slice.index;
+            const bool visible  = visibility->val( lgrGlobal ) != 0;
+            if ( expected != visible ) mismatch++;
+            if ( visible ) visibleLevels.insert( lgrLevel[lgrGlobal] );
+        }
+        EXPECT_EQ( mismatch, 0u ) << "axis " << slice.axis;
+
+        // Main grid cells: only cells within the original columns, mapping to the slice, are visible
+        size_t mainVisible = 0, mainWrong = 0;
+        for ( size_t f = 0; f < mainGrid->cellCount(); f++ )
+        {
+            if ( !visibility->val( f ) ) continue;
+            mainVisible++;
+            auto original = mainGrid->nestedHybridOriginalIjk( mainGrid, f );
+            if ( !original || ( *original )[slice.axis] != (size_t)( slice.index - 1 ) ) mainWrong++;
+        }
+        EXPECT_GT( mainVisible, 0u ) << "axis " << slice.axis;
+        EXPECT_EQ( mainWrong, 0u ) << "axis " << slice.axis;
+
+        // The slices are chosen to cross more than one refinement level
+        EXPECT_GE( visibleLevels.size(), 2u ) << "axis " << slice.axis;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Simulation well connections into refined flat cells follow the cells into the reconstructed
+/// LGRs, so the hidden flat cells are not shown as well cells in the main grid. Connections into
+/// unrefined cells stay in the main grid.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, WellConnectionsFollowLgrCells )
+{
+    ASSERT_NE( s_wellRefinedFlatCell, cvf::UNDEFINED_SIZE_T );
+    ASSERT_NE( s_wellUnrefinedFlatCell, cvf::UNDEFINED_SIZE_T );
+
+    const RigSimWellData* well = nullptr;
+    for ( const auto& w : s_reservoir->wellResults() )
+        if ( w->m_wellName == "SYNTHETIC_NHG_WELL" ) well = w.p();
+    ASSERT_NE( well, nullptr );
+    ASSERT_EQ( well->m_wellCellsTimeSteps.size(), 1u );
+
+    const RigWellResultFrame& frame = well->m_wellCellsTimeSteps.front();
+
+    auto expectInLgrCellFrom = [&]( const RigWellResultPoint& point, size_t flatCell )
+    {
+        ASSERT_TRUE( point.isCell() );
+        ASSERT_GT( point.gridIndex(), 0u );
+        const RigGridBase* lgr = grid()->gridByIndex( point.gridIndex() );
+        ASSERT_LT( point.cellIndex(), lgr->cellCount() );
+
+        const auto& sourceCells = grid()->nestedHybridLgrSourceCells();
+        auto        it          = sourceCells.find( lgr->reservoirCellIndex( point.cellIndex() ) );
+        ASSERT_NE( it, sourceCells.end() );
+        EXPECT_EQ( it->second, flatCell );
+    };
+
+    expectInLgrCellFrom( frame.wellHead(), s_wellRefinedFlatCell );
+
+    const auto points = frame.allResultPoints();
+    ASSERT_EQ( points.size(), 2u );
+    expectInLgrCellFrom( points[0], s_wellRefinedFlatCell );
+    EXPECT_EQ( points[1].gridIndex(), 0u );
+    EXPECT_EQ( points[1].cellIndex(), s_wellUnrefinedFlatCell );
+
+    // The well cells used for visualization no longer include the hidden flat cell
+    const cvf::UByteArray* mainGridWellCells = s_reservoir->wellCellsInGrid( 0 );
+    ASSERT_NE( mainGridWellCells, nullptr );
+    EXPECT_FALSE( ( *mainGridWellCells )[s_wellRefinedFlatCell] );
+    EXPECT_TRUE( ( *mainGridWellCells )[s_wellUnrefinedFlatCell] );
 }

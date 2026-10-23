@@ -42,6 +42,7 @@ RicCreateDepthAdjustedLasFilesUi::RicCreateDepthAdjustedLasFilesUi()
 {
     CAF_PDM_InitField( &exportFolder, "ExportFolder", QString(), "Export Folder" );
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    exportFolder.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
 
     CAF_PDM_InitFieldNoDefault( &selectedCase, "SelectedCase", "Select Case" );
     CAF_PDM_InitFieldNoDefault( &sourceWell, "SourceWell", "Source Well" );
@@ -145,23 +146,6 @@ void RicCreateDepthAdjustedLasFilesUi::fieldChangedByUi( const caf::PdmFieldHand
     if ( changedField == &wellLogFile )
     {
         selectedResultProperties.v().clear();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicCreateDepthAdjustedLasFilesUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                              QString                    uiConfigName,
-                                                              caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &exportFolder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
     }
 }
 

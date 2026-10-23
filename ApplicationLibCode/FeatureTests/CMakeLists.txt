@@ -79,7 +79,6 @@ target_include_directories(
   ResInsight-featuretests
   PUBLIC ${CMAKE_BINARY_DIR}/Generated
          "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
-         ${RI_PRIVATE_INCLUDES}
          ${PROJECT_SOURCE_DIR}/Commands
          ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
          ${CMAKE_CURRENT_LIST_DIR}
@@ -130,6 +129,10 @@ if(MSVC)
       $<TARGET_FILE_DIR:ResInsight-featuretests>
     COMMAND_EXPAND_LISTS
   )
+
+  # Both targets deploy Qt DLLs into the same folder; serialize them to avoid
+  # concurrent writes failing with "permission denied" in parallel builds
+  add_dependencies(ResInsight-featuretests ResInsight)
 
   set_target_properties(
     ResInsight-featuretests PROPERTIES COMPILE_FLAGS "/wd4190"

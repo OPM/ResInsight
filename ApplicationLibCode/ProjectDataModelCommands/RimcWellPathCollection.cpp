@@ -21,18 +21,24 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "WellLogCommands/RicWellLogsImportFileFeature.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
 #include "RimEclipseCase.h"
 #include "RimModeledWellPath.h"
 #include "RimPointBasedWellPath.h"
 #include "RimProject.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimcDataContainerString.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfVector3.h"
+
+#include <QDir>
+#include <QFileInfo>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection_importWellPath, "ImportWellPath" );
 
@@ -208,4 +214,206 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_setMswNameG
     wellPathCollection->setMswWellPattern( m_mswNameGrouping() );
 
     return nullptr;
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Resolve explicit file paths (absolute, or relative to the folder / start dir) and all files in the folder matching
+/// the name filters. Missing files are reported as errors.
+//--------------------------------------------------------------------------------------------------
+std::expected<QStringList, QString> resolveImportFiles( const std::vector<QString>& files, const QString& folder, const QStringList& nameFilters )
+{
+    QStringList errorMessages;
+    QStringList resolvedFiles;
+
+    QDir baseDir = folder.isEmpty() ? QDir( RiaApplication::instance()->startDir() ) : QDir( folder );
+
+    if ( !folder.isEmpty() )
+    {
+        if ( baseDir.exists() )
+        {
+            for ( const QString& relativePath : baseDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot ) )
+            {
+                resolvedFiles.push_back( baseDir.absoluteFilePath( relativePath ) );
+            }
+        }
+        else
+        {
+            errorMessages << ( baseDir.absolutePath() + " does not exist" );
+        }
+    }
+
+    for ( const QString& file : files )
+    {
+        if ( QFileInfo::exists( file ) )
+        {
+            resolvedFiles.push_back( file );
+        }
+        else if ( QFileInfo::exists( baseDir.absoluteFilePath( file ) ) )
+        {
+            resolvedFiles.push_back( baseDir.absoluteFilePath( file ) );
+        }
+        else
+        {
+            errorMessages << ( file + " does not exist" );
+        }
+    }
+
+    if ( !errorMessages.empty() ) return std::unexpected( errorMessages.join( "\n" ) );
+
+    return resolvedFiles;
+}
+} // namespace
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimWellPathCollection_importWellPaths, "importWellPaths" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection_importWellPaths::RimWellPathCollection_importWellPaths( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Import Well Paths", "", "", "Import well paths from files and/or all well path files in a folder" );
+
+    CAF_PDM_InitScriptableField( &m_wellPathFiles, "WellPathFiles", std::vector<QString>(), "Well Path Files", "", "", "Well path files to import" );
+    CAF_PDM_InitScriptableField( &m_wellPathFolder,
+                                 "WellPathFolder",
+                                 QString(),
+                                 "Well Path Folder",
+                                 "",
+                                 "",
+                                 "Folder to import all well path files from. Also used to resolve relative file paths." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection_importWellPaths::setWellPathFiles( const std::vector<QString>& wellPathFiles )
+{
+    m_wellPathFiles = wellPathFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection_importWellPaths::setWellPathFolder( const QString& wellPathFolder )
+{
+    m_wellPathFolder = wellPathFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellPathCollection_importWellPaths::warnings() const
+{
+    return m_warnings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimWellPathCollection_importWellPaths::execute()
+{
+    m_warnings.clear();
+
+    auto wellPathCollection = self<RimWellPathCollection>();
+    if ( !wellPathCollection ) return std::unexpected( "No well path collection is available." );
+
+    auto files = resolveImportFiles( m_wellPathFiles(), m_wellPathFolder(), RicImportWellPaths::wellPathNameFilters() );
+    if ( !files ) return std::unexpected( files.error() );
+    if ( files->empty() ) return std::unexpected( "No well path files found" );
+
+    std::vector<RimWellPath*> importedWellPaths = RicImportWellPaths::importWellPaths( files.value(), &m_warnings );
+
+    auto* result = new RimcDataContainerString();
+    for ( RimWellPath* wellPath : importedWellPaths )
+    {
+        result->m_stringValues.v().push_back( wellPath->name() );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCollection_importWellPaths::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimWellPathCollection_importWellLogFiles, "importWellLogFiles" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection_importWellLogFiles::RimWellPathCollection_importWellLogFiles( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Import Well Log Files", "", "", "Import LAS files and attach them to the well paths with matching names" );
+
+    CAF_PDM_InitScriptableField( &m_wellLogFiles, "WellLogFiles", std::vector<QString>(), "Well Log Files", "", "", "Well log files to import" );
+    CAF_PDM_InitScriptableField( &m_wellLogFolder,
+                                 "WellLogFolder",
+                                 QString(),
+                                 "Well Log Folder",
+                                 "",
+                                 "",
+                                 "Folder to import all well log files from. Also used to resolve relative file paths." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection_importWellLogFiles::setWellLogFiles( const std::vector<QString>& wellLogFiles )
+{
+    m_wellLogFiles = wellLogFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection_importWellLogFiles::setWellLogFolder( const QString& wellLogFolder )
+{
+    m_wellLogFolder = wellLogFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellPathCollection_importWellLogFiles::warnings() const
+{
+    return m_warnings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimWellPathCollection_importWellLogFiles::execute()
+{
+    m_warnings.clear();
+
+    auto wellPathCollection = self<RimWellPathCollection>();
+    if ( !wellPathCollection ) return std::unexpected( "No well path collection is available." );
+
+    auto files = resolveImportFiles( m_wellLogFiles(), m_wellLogFolder(), RicWellLogsImportFileFeature::wellLogFileNameFilters() );
+    if ( !files ) return std::unexpected( files.error() );
+    if ( files->empty() ) return std::unexpected( "No well log files found" );
+
+    std::vector<RimWellLogLasFile*> importedFiles = RicWellLogsImportFileFeature::importWellLogFiles( files.value(), &m_warnings );
+
+    auto* result = new RimcDataContainerString();
+    for ( RimWellLogLasFile* wellLogFile : importedFiles )
+    {
+        result->m_stringValues.v().push_back( wellLogFile->wellName() );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCollection_importWellLogFiles::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }

@@ -185,6 +185,8 @@ RimDeltaSummaryCase::RimDeltaSummaryCase()
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+    m_fixedTimeStepIndex.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SINGLE_SELECTION_MODE, true );
+    m_fixedTimeStepIndex.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -691,22 +693,6 @@ void RimDeltaSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         for ( auto p : plotsToUpdate )
         {
             p->loadDataAndUpdate();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_fixedTimeStepIndex == field )
-    {
-        auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
-        if ( a )
-        {
-            a->singleSelectionMode = true;
-            a->showTextFilter      = true;
         }
     }
 }

@@ -26,6 +26,7 @@
 #include "ContourMap/RigContourPolygonsTools.h"
 #include "RigFloodingSettings.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -38,6 +39,7 @@ class RigContourMapGrid;
 class RimGridView;
 class RimRegularLegendConfig;
 class RigContourMapProjection;
+class RimContourMapPeaksCollection;
 
 //==================================================================================================
 ///
@@ -69,9 +71,6 @@ public:
     bool showContourLines() const;
     bool showContourLabels() const;
 
-    // k layer filter, only consider kLayers in the given set (0-based index)
-    void useKLayers( std::set<int> kLayers );
-
     virtual QString resultAggregationText() const;
 
     QString caseName() const;
@@ -102,6 +101,8 @@ public:
     const RigContourMapProjection* mapProjection() const;
     const RigContourMapGrid*       mapGrid() const;
 
+    RimContourMapPeaksCollection* peaksCollection() const;
+
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual void                updateGridInformation()                = 0;
@@ -127,7 +128,6 @@ protected:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -172,10 +172,10 @@ protected:
     caf::PdmField<double>                                  m_upperThreshold;
     caf::PdmField<double>                                  m_lowerThreshold;
 
-    std::set<int> m_selectedKLayers;
-
     std::unique_ptr<RigContourMapGrid>       m_contourMapGrid;
     std::unique_ptr<RigContourMapProjection> m_contourMapProjection;
+
+    caf::PdmChildField<RimContourMapPeaksCollection*> m_peaksCollection;
 
 private:
     double m_minResultAllTimeSteps;

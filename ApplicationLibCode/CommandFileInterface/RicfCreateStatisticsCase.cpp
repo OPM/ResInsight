@@ -18,18 +18,13 @@
 
 #include "RicfCreateStatisticsCase.h"
 
-#include "RimCaseCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimEclipseStatisticsCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimProject.h"
+#include "RicfCommandForwarding.h"
 
-#include "Riu3DMainWindowTools.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimcIdenticalGridCaseGroup.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafSelectionManager.h"
-
-#include <QAction>
 
 CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCaseResult, "createStatisticsCaseResult" );
 
@@ -57,20 +52,21 @@ RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateStatisticsCase::execute()
 {
-    RimProject* project = RimProject::current();
+    const QString commandName = classKeyword();
 
-    std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups = project->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
-    for ( auto gridCaseGroup : gridCaseGroups )
-    {
-        if ( gridCaseGroup->groupId() == m_caseGroupId() )
-        {
-            RimEclipseStatisticsCase* createdObject = gridCaseGroup->createAndAppendStatisticsCase();
-            project->assignCaseIdToCase( createdObject );
-            gridCaseGroup->updateConnectedEditors();
-            caf::PdmScriptResponse response;
-            response.setResult( new RicfCreateStatisticsCaseResult( createdObject->caseId() ) );
-            return response;
-        }
-    }
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Could not find grid case group" );
+    auto caseGroup = RicfForwarding::findCaseGroup( m_caseGroupId() );
+    if ( !caseGroup ) return RicfForwarding::errorResponse( caseGroup.error(), commandName );
+
+    RimcIdenticalGridCaseGroup_createStatisticsCase method( caseGroup.value() );
+    method.setPopulateResultSelection( true );
+
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
+
+    auto* statsCase = dynamic_cast<RimEclipseStatisticsCase*>( result.value() );
+    if ( !statsCase ) return RicfForwarding::errorResponse( "Created object is not a statistics case", commandName );
+
+    caf::PdmScriptResponse response;
+    response.setResult( new RicfCreateStatisticsCaseResult( statsCase->caseId() ) );
+    return response;
 }

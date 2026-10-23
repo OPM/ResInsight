@@ -182,15 +182,26 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     auto childArrayFH = childArrayFieldHandle();
 
-    PdmUiTableViewEditorAttribute editorAttrib;
-    bool                          editorAttribLoaded = false;
+    struct
+    {
+        int              tableSelectionLevel = 0;
+        int              rowSelectionLevel   = 1;
+        bool             enableHeaderText    = true;
+        std::vector<int> columnWidths;
+        int              minimumHeight = -1;
+        int              heightHint    = -1;
+        QColor           baseColor;
+        bool             alwaysEnforceResizePolicy = false;
+        ResizePolicy     resizePolicy              = NO_AUTOMATIC_RESIZE;
+        bool             enableDropTarget          = false;
+        bool             editOnSingleClick         = false;
+    } editorAttrib;
+    bool editorAttribLoaded = false;
 
     if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->uiCapability() )
     {
-        childArrayFH->ownerObject()->uiCapability()->editorAttribute( childArrayFH, uiConfigName, &editorAttrib );
         editorAttribLoaded = true;
 
-        // Override with map-based attributes if present (new system takes precedence)
         if ( auto uiItem = childArrayFH->uiCapability() )
         {
             if ( auto val = uiItem->attribute<int>( Keys::TABLE_SELECTION_LEVEL, uiConfigName ) )
@@ -225,7 +236,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             if ( auto val = uiItem->attribute<int>( Keys::RESIZE_POLICY, uiConfigName ) )
             {
-                editorAttrib.resizePolicy = static_cast<PdmUiTableViewEditorAttribute::ResizePolicy>( val.value() );
+                editorAttrib.resizePolicy = static_cast<ResizePolicy>( val.value() );
             }
 
             if ( auto val = uiItem->attribute<bool>( Keys::ENABLE_DROP_TARGET, uiConfigName ) )
@@ -361,12 +372,12 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( firstTimeConfiguringField || editorAttrib.alwaysEnforceResizePolicy )
     {
-        if ( editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT )
+        if ( editorAttrib.resizePolicy == RESIZE_TO_FIT_CONTENT )
         {
             // Set default column widths
             m_tableView->resizeColumnsToContents();
         }
-        else if ( editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER )
+        else if ( editorAttrib.resizePolicy == RESIZE_TO_FILL_CONTAINER )
         {
             m_tableView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
         }
@@ -582,38 +593,6 @@ caf::PdmChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
     }
 
     return fieldHandle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmUiTableViewPushButtonEditorAttribute::registerPushButtonTextForFieldKeyword( const QString& keyword,
-                                                                                     const QString& text )
-{
-    m_fieldKeywordAndPushButtonText[keyword] = text;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmUiTableViewPushButtonEditorAttribute::showPushButtonForFieldKeyword( const QString& keyword ) const
-{
-    if ( m_fieldKeywordAndPushButtonText.count( keyword ) > 0 ) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmUiTableViewPushButtonEditorAttribute::pushButtonText( const QString& keyword ) const
-{
-    if ( showPushButtonForFieldKeyword( keyword ) )
-    {
-        return m_fieldKeywordAndPushButtonText.at( keyword );
-    }
-
-    return "";
 }
 
 } // end namespace caf

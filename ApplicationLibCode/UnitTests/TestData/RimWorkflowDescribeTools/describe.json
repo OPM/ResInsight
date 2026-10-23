@@ -1,0 +1,453 @@
+{
+  "workflow": "synthetic",
+  "result_task": "merge",
+  "tasks": [
+    {
+      "name": "start",
+      "python_type": "pipeline.Start",
+      "depends_on": null,
+      "config_fields": [],
+      "provided_config_fields": [],
+      "missing_config_fields": [],
+      "config_values": {},
+      "required_input_fields": [],
+      "map": null,
+      "input_schema": {
+        "description": "Sentinel config for workflows where all root tasks use JobConfiguration.",
+        "properties": {},
+        "title": "EmptyConfig",
+        "type": "object"
+      },
+      "output_schema": {
+        "properties": {
+          "value": {
+            "not": {},
+            "title": "Value",
+            "x-taskmaestro-opaque": true,
+            "x-taskmaestro-python-type": "rips.generated.generated_classes.WellPath"
+          },
+          "count": {
+            "default": 0,
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "StartOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "greet_a",
+      "python_type": "pipeline.Greet",
+      "depends_on": {
+        "task": "start",
+        "field": null
+      },
+      "config_fields": [
+        "case",
+        "name",
+        "optional_count",
+        "out_dir",
+        "out_file",
+        "times",
+        "values",
+        "well_path",
+        "when"
+      ],
+      "provided_config_fields": [
+        "name",
+        "optional_count",
+        "out_dir",
+        "times",
+        "well_path"
+      ],
+      "missing_config_fields": [
+        "case",
+        "out_file",
+        "values",
+        "when"
+      ],
+      "config_values": {
+        "name": "alice",
+        "optional_count": null,
+        "out_dir": "/tmp",
+        "times": 3,
+        "well_path": {
+          "__resinsight_ref__": "WellPath",
+          "well_path_name": "B-2H"
+        }
+      },
+      "required_input_fields": [
+        "case",
+        "out_dir",
+        "times",
+        "well_path"
+      ],
+      "map": null,
+      "input_schema": {
+        "$defs": {
+          "GridCase": {
+            "properties": {
+              "value": {
+                "not": {},
+                "title": "Value",
+                "x-taskmaestro-opaque": true,
+                "x-taskmaestro-python-type": "rips.generated.generated_classes.Reservoir"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "GridCase",
+            "type": "object"
+          },
+          "WellPath": {
+            "properties": {
+              "value": {
+                "not": {},
+                "title": "Value",
+                "x-taskmaestro-opaque": true,
+                "x-taskmaestro-python-type": "rips.generated.generated_classes.WellPath"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "WellPath",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/WellPath"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "well_path": {
+            "$ref": "#/$defs/WellPath",
+            "description": "Well path to use"
+          },
+          "case": {
+            "$ref": "#/$defs/GridCase",
+            "description": "Case to use"
+          },
+          "name": {
+            "default": "world",
+            "description": "Person to greet",
+            "title": "Name",
+            "type": "string"
+          },
+          "times": {
+            "description": "How many times",
+            "minimum": 1,
+            "title": "Times",
+            "type": "integer"
+          },
+          "optional_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Optional Count"
+          },
+          "values": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "when": {
+            "default": "2024-01-01",
+            "description": "Greet date",
+            "format": "date",
+            "title": "When",
+            "type": "string"
+          },
+          "out_file": {
+            "default": "/tmp/hi.txt",
+            "description": "Where to write",
+            "format": "path",
+            "title": "Out File",
+            "type": "string"
+          },
+          "out_dir": {
+            "description": "Where to write logs",
+            "format": "directory-path",
+            "title": "Out Dir",
+            "type": "string"
+          }
+        },
+        "required": [
+          "well_path",
+          "case",
+          "times",
+          "out_dir"
+        ],
+        "title": "GreetInput",
+        "type": "object"
+      },
+      "output_schema": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "GreetOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "greet_b",
+      "python_type": "pipeline.Greet",
+      "depends_on": {
+        "task": "start",
+        "field": null
+      },
+      "config_fields": [
+        "case",
+        "name",
+        "optional_count",
+        "out_dir",
+        "out_file",
+        "times",
+        "values",
+        "well_path",
+        "when"
+      ],
+      "provided_config_fields": [],
+      "missing_config_fields": [
+        "case",
+        "name",
+        "optional_count",
+        "out_dir",
+        "out_file",
+        "times",
+        "values",
+        "well_path",
+        "when"
+      ],
+      "config_values": {},
+      "required_input_fields": [
+        "case",
+        "out_dir",
+        "times",
+        "well_path"
+      ],
+      "map": null,
+      "input_schema": {
+        "$defs": {
+          "GridCase": {
+            "properties": {
+              "value": {
+                "not": {},
+                "title": "Value",
+                "x-taskmaestro-opaque": true,
+                "x-taskmaestro-python-type": "rips.generated.generated_classes.Reservoir"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "GridCase",
+            "type": "object"
+          },
+          "WellPath": {
+            "properties": {
+              "value": {
+                "not": {},
+                "title": "Value",
+                "x-taskmaestro-opaque": true,
+                "x-taskmaestro-python-type": "rips.generated.generated_classes.WellPath"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "WellPath",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/WellPath"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "well_path": {
+            "$ref": "#/$defs/WellPath",
+            "description": "Well path to use"
+          },
+          "case": {
+            "$ref": "#/$defs/GridCase",
+            "description": "Case to use"
+          },
+          "name": {
+            "default": "world",
+            "description": "Person to greet",
+            "title": "Name",
+            "type": "string"
+          },
+          "times": {
+            "description": "How many times",
+            "minimum": 1,
+            "title": "Times",
+            "type": "integer"
+          },
+          "optional_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Optional Count"
+          },
+          "values": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "when": {
+            "default": "2024-01-01",
+            "description": "Greet date",
+            "format": "date",
+            "title": "When",
+            "type": "string"
+          },
+          "out_file": {
+            "default": "/tmp/hi.txt",
+            "description": "Where to write",
+            "format": "path",
+            "title": "Out File",
+            "type": "string"
+          },
+          "out_dir": {
+            "description": "Where to write logs",
+            "format": "directory-path",
+            "title": "Out Dir",
+            "type": "string"
+          }
+        },
+        "required": [
+          "well_path",
+          "case",
+          "times",
+          "out_dir"
+        ],
+        "title": "GreetInput",
+        "type": "object"
+      },
+      "output_schema": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "GreetOutput",
+        "type": "object"
+      }
+    },
+    {
+      "name": "merge",
+      "python_type": "pipeline.Merge",
+      "depends_on": {
+        "messages": {
+          "collect": {
+            "kind": "positional",
+            "members": [
+              {
+                "task": "greet_a",
+                "field": "message"
+              },
+              {
+                "task": "greet_b",
+                "field": "message"
+              }
+            ]
+          }
+        },
+        "count": {
+          "task": "start",
+          "field": "count"
+        }
+      },
+      "config_fields": [],
+      "provided_config_fields": [],
+      "missing_config_fields": [],
+      "config_values": {},
+      "required_input_fields": [
+        "count",
+        "messages"
+      ],
+      "map": null,
+      "input_schema": {
+        "properties": {
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "messages",
+          "count"
+        ],
+        "title": "MergeInput",
+        "type": "object"
+      },
+      "output_schema": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "GreetOutput",
+        "type": "object"
+      }
+    }
+  ]
+}

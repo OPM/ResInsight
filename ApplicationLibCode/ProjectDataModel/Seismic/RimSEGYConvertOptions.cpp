@@ -34,6 +34,7 @@ RimSEGYConvertOptions::RimSEGYConvertOptions()
 
     CAF_PDM_InitFieldNoDefault( &m_inputFilename, "InputFilename", "Input SEG-Y File" );
     CAF_PDM_InitFieldNoDefault( &m_outputFilename, "OutputFilename", "Output VDS File" );
+    m_outputFilename.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_SAVE_FILE_NAME, true );
 
     CAF_PDM_InitField( &m_sampleStartOverride, "SampleStartOverride", std::make_pair( false, 0.0 ), "Depth (Z) Offset Override" );
     CAF_PDM_InitField( &m_sampleUnit, "SampleUnit", QString( "m" ), "Depth (Z) Unit" );
@@ -70,21 +71,6 @@ void RimSEGYConvertOptions::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     convGrp->add( &m_headerFormatFilename );
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSEGYConvertOptions::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_outputFilename )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

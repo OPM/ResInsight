@@ -76,8 +76,24 @@ public:
 
     void setItemsEditable( bool isEditable ) { m_isItemsEditable = isEditable; }
 
+    void setIcons( const QList<QIcon>& icons ) { m_icons = icons; }
+
+    QVariant data( const QModelIndex& index, int role ) const override
+    {
+        if ( role == Qt::DecorationRole )
+        {
+            if ( index.isValid() && index.row() < m_icons.size() && !m_icons[index.row()].isNull() )
+            {
+                return m_icons[index.row()];
+            }
+            return QVariant();
+        }
+        return QStringListModel::data( index, role );
+    }
+
 private:
-    bool m_isItemsEditable;
+    bool         m_isItemsEditable;
+    QList<QIcon> m_icons;
 };
 
 //==================================================================================================
@@ -168,42 +184,20 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_isEditOperationsAvailable = true;
     }
 
-    PdmUiListEditorAttribute attributes;
-    caf::PdmUiObjectHandle*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-    if ( uiObject )
-    {
-        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
-    }
+    uiField()->validateAttributes( "PdmUiListEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
 
-    // Override with map-based attributes if present (new system takes precedence)
-    if ( auto uiItem = uiField() )
-    {
-        if ( auto val = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ) )
-        {
-            attributes.heightHint = val.value();
-        }
+    const int     heightHint = uiField()->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ).value_or( 2000 );
+    const QString qssState   = uiField()->attribute<QString>( Keys::QSS_STATE, uiConfigName ).value_or( QString() );
+    const bool    allowHorizontalScrollBar =
+        uiField()->attribute<bool>( Keys::ALLOW_HORIZONTAL_SCROLL_BAR, uiConfigName ).value_or( true );
 
-        if ( auto qssState = uiItem->attribute<QString>( Keys::QSS_STATE, uiConfigName ) )
-        {
-            attributes.qssState = qssState.value();
-        }
-
-        if ( auto val = uiItem->attribute<bool>( Keys::ALLOW_HORIZONTAL_SCROLL_BAR, uiConfigName ) )
-        {
-            attributes.allowHorizontalScrollBar = val.value();
-        }
-
-        // Validate: warn about unsupported attributes
-        uiItem->validateAttributes( "PdmUiListEditor", SUPPORTED_ATTRIBUTES, uiConfigName );
-    }
-
-    m_listView->setHeightHint( attributes.heightHint );
-    if ( !attributes.allowHorizontalScrollBar )
+    m_listView->setHeightHint( heightHint );
+    if ( !allowHorizontalScrollBar )
     {
         m_listView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
     }
 
-    m_listView->setProperty( "state", attributes.qssState );
+    m_listView->setProperty( "state", qssState );
     m_listView->style()->unpolish( m_listView );
     m_listView->style()->polish( m_listView );
 
@@ -216,6 +210,19 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         strListModel->setItemsEditable( false );
         QModelIndex currentItem = m_listView->selectionModel()->currentIndex();
         QStringList texts       = PdmOptionItemInfo::extractUiTexts( options );
+
+        QList<QIcon> icons;
+        for ( const auto& option : options )
+        {
+            auto icon = option.icon();
+            icons.push_back( icon ? *icon : QIcon() );
+        }
+        strListModel->setIcons( icons );
+
+        if ( auto iconSize = uiField()->attribute<QSize>( Keys::ICON_SIZE, uiConfigName ) )
+        {
+            m_listView->setIconSize( *iconSize );
+        }
         strListModel->setStringList( texts );
 
         QVariant fieldValue = uiField()->uiValue();
@@ -269,6 +276,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
         QVariant       fieldValue  = uiField()->uiValue();
         QStringList    texts       = fieldValue.toStringList();
         texts.push_back( "" );
+        strListModel->setIcons( {} );
         strListModel->setStringList( texts );
 
         strListModel->setItemsEditable( true );
@@ -535,18 +543,6 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 bool PdmUiListEditor::isMultiRowEditor() const
 {
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmUiListEditorAttribute::PdmUiListEditorAttribute()
-    : heightHint( 2000 )
-    , allowHorizontalScrollBar( true )
-{
-    QPalette myPalette;
-
-    baseColor = myPalette.color( QPalette::Active, QPalette::Base );
 }
 
 } // end namespace caf

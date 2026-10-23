@@ -7,11 +7,15 @@ the `scripts/ri-cloud-api` submodule, and ResInsight starts it after you sign in
 <python> -m uvicorn ri_cloud_api.main:app --host 127.0.0.1 --port <free port>
 ```
 
-`<python>` is the interpreter from *Preferences -> Scripting -> Python Executable Location*, the same
-one used for `rips`. ResInsight installs nothing itself, so that environment has to be ready up
-front. The service code always runs from its source folder -- a development build uses the submodule
-in place, an installed build a copy of it under `CloudServiceApi` -- so only the dependencies are
-strictly required in the environment.
+`<python>` is, by default, the interpreter from *Preferences -> Scripting -> Python Executable
+Location*, the same one used for `rips`. A dedicated interpreter can be configured instead under
+*Preferences -> RI Cloud API*: tick *Enable for Dedicated ri-cloud-api Environment* and point
+*Python Executable Location* in that tab at it -- useful when `rips` and `ri-cloud-api` need
+different, possibly conflicting, package versions. Leave the checkbox unticked to keep using the
+scripting environment. Either way, ResInsight installs nothing itself, so the chosen environment has
+to be ready up front. The service code always runs from its source folder -- a development build
+uses the submodule in place, an installed build a copy of it under `CloudServiceApi` -- so only the
+dependencies are strictly required in the environment.
 
 ## Prerequisites
 
@@ -25,10 +29,10 @@ strictly required in the environment.
 ## Python Environment
 
 - **Komodo**: the release already provides an environment with the required packages. Point *Python
-  Executable Location* at it and the service starts on its own; the rest of this document does not
-  apply.
-- **Custom**: install into the environment you already use for `rips`, or into a dedicated one that
-  *Python Executable Location* points at. The next section covers both.
+  Executable Location* (either tab, see above) at it and the service starts on its own; the rest of
+  this document does not apply.
+- **Custom**: install into the environment you already use for `rips`, or into a dedicated one
+  configured under *Preferences -> RI Cloud API*. The next section covers both.
 
 Use [uv](https://docs.astral.sh/uv/getting-started/installation/) and `uv sync` for an environment
 dedicated to the service, either of the other two recipes when it is shared with `rips`. All three
@@ -40,7 +44,9 @@ C:\venvs\venvRiCloudApi\Scripts\activate
 ```
 
 On Linux, `source ~/venvs/venvRiCloudApi/bin/activate`. Then set *Python Executable Location* to
-`C:\venvs\venvRiCloudApi\Scripts\python.exe`, or `~/venvs/venvRiCloudApi/bin/python`.
+`C:\venvs\venvRiCloudApi\Scripts\python.exe`, or `~/venvs/venvRiCloudApi/bin/python` -- under
+*Preferences -> RI Cloud API* with *Enable for Dedicated ri-cloud-api Environment* ticked for a
+dedicated environment, or under *Preferences -> Scripting* when it is shared with `rips`.
 
 Keep the environment out of the repository so `git clean` does not take it, and out of the install
 tree.
@@ -221,7 +227,8 @@ reports no problem even when the service cannot import.
 
 Service output is forwarded to the ResInsight log, prefixed `Cloud API service:`.
 
-- `no Python executable configured` -- *Python Executable Location* is empty.
+- `no Python executable configured` -- *Python Executable Location* is empty, in whichever tab is
+  active (*RI Cloud API* if its dedicated environment is enabled, otherwise *Scripting*).
 - `'ri_cloud_api' not found in any of: ...` -- submodule missing, or not reachable from *Shared
   Script Folder(s)*. The message lists every location probed. On an installed build it means
   `CloudServiceApi` is empty, because the submodule was not checked out when ResInsight was installed.
