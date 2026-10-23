@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCompletionEnums.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -65,19 +67,10 @@ public:
     };
     using HydrostaticDensityEnum = caf::AppEnum<HydrostaticDensity>;
 
-    enum class PressureDropType
-    {
-        HYDROSTATIC,
-        HYDROSTATIC_FRICTION,
-        HYDROSTATIC_FRICTION_ACCELERATION
-    };
+    using PressureDropType = RimCompletionEnums::PressureDropType;
     using PressureDropEnum = caf::AppEnum<PressureDropType>;
 
-    enum class LengthAndDepthType
-    {
-        ABS,
-        INC
-    };
+    using LengthAndDepthType = RimCompletionEnums::LengthAndDepthType;
     using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
 
 public:

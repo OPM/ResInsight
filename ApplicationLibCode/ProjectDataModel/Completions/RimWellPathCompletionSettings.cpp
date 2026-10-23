@@ -74,23 +74,6 @@ void RimWellPathCompletionSettings::HydrostaticDensityEnum::setUp()
     setDefault( RimWellPathCompletionSettings::SEGMENTED );
 }
 
-template <>
-void RimWellPathCompletionSettings::PressureDropEnum::setUp()
-{
-    addItem( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
-    addItem( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
-    setDefault( RimWellPathCompletionSettings::PressureDropType::HYDROSTATIC_FRICTION );
-}
-
-template <>
-void RimWellPathCompletionSettings::LengthAndDepthEnum::setUp()
-{
-    addItem( RimWellPathCompletionSettings::LengthAndDepthType::INC, "INC", "Incremental" );
-    addItem( RimWellPathCompletionSettings::LengthAndDepthType::ABS, "ABS", "Absolute" );
-    setDefault( RimWellPathCompletionSettings::LengthAndDepthType::ABS );
-}
-
 } // namespace caf
 
 namespace

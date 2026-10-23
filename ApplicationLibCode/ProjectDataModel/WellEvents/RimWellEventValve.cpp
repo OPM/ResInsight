@@ -27,14 +27,6 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimWellEventValve::State>::setUp()
-{
-    addItem( RimWellEventValve::State::OPEN, "OPEN", "Open" );
-    addItem( RimWellEventValve::State::SHUT, "SHUT", "Shut" );
-    setDefault( RimWellEventValve::State::OPEN );
-}
-
-template <>
 void caf::AppEnum<RimWellEventValve::ValveType>::setUp()
 {
     addItem( RimWellEventValve::ValveType::ICV, "ICV", "ICV" );

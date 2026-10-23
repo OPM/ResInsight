@@ -43,14 +43,6 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template <>
-void RimSegmentCollection::ReferenceMDEnum::setUp()
-{
-    addItem( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD, "GridEntryPoint", "Grid Entry Point", { "GridIntersectionRefMD" } );
-    addItem( RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD, "UserDefined", "User Defined", { "ManualRefMD" } );
-    setDefault( RimSegmentCollection::ReferenceMDType::AUTO_REFERENCE_MD );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

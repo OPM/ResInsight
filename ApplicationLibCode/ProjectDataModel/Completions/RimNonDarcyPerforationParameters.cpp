@@ -28,13 +28,13 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimNonDarcyPerforationParameters::NonDarcyFlowEnum>::setUp()
+void caf::AppEnum<RimCompletionEnums::NonDarcyFlowType>::setUp()
 {
-    addItem( RimNonDarcyPerforationParameters::NON_DARCY_NONE, "None", "None" );
-    addItem( RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
-    addItem( RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
+    addItem( RimCompletionEnums::NON_DARCY_NONE, "None", "None" );
+    addItem( RimCompletionEnums::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
+    addItem( RimCompletionEnums::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
 
-    setDefault( RimNonDarcyPerforationParameters::NON_DARCY_NONE );
+    setDefault( RimCompletionEnums::NON_DARCY_NONE );
 }
 } // namespace caf
 

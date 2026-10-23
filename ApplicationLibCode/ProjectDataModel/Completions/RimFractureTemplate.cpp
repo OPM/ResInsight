@@ -79,16 +79,6 @@ void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
-{
-    addItem( RimFractureTemplate::NON_DARCY_NONE, "None", "None" );
-    addItem( RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
-    addItem( RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
-
-    setDefault( RimFractureTemplate::NON_DARCY_NONE );
-}
-
-template <>
 void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
 {
     addItem( RimFractureTemplate::USER_DEFINED_BETA_FACTOR, "UserDefinedBetaFactor", "User Defined" );

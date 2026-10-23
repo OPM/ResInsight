@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RimCompletionEnums.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -41,11 +42,7 @@ class RimSegmentCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class ReferenceMDType
-    {
-        AUTO_REFERENCE_MD = 0,
-        MANUAL_REFERENCE_MD
-    };
+    using ReferenceMDType = RimCompletionEnums::ReferenceMDType;
 
     enum class CompsegsSegmentNumberType
     {

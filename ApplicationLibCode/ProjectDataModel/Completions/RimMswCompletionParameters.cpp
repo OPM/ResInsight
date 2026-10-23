@@ -37,28 +37,28 @@
 namespace caf
 {
 template <>
-void RimMswCompletionParameters::ReferenceMDEnum::setUp()
+void AppEnum<RimCompletionEnums::ReferenceMDType>::setUp()
 {
-    addItem( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD, "GridEntryPoint", "Grid Entry Point", { "GridIntersectionRefMD" } );
-    addItem( RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD, "UserDefined", "User Defined", { "ManualRefMD" } );
-    setDefault( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD );
+    addItem( RimCompletionEnums::ReferenceMDType::AUTO_REFERENCE_MD, "GridEntryPoint", "Grid Entry Point", { "GridIntersectionRefMD" } );
+    addItem( RimCompletionEnums::ReferenceMDType::MANUAL_REFERENCE_MD, "UserDefined", "User Defined", { "ManualRefMD" } );
+    setDefault( RimCompletionEnums::ReferenceMDType::AUTO_REFERENCE_MD );
 }
 
 template <>
-void RimMswCompletionParameters::PressureDropEnum::setUp()
+void AppEnum<RimCompletionEnums::PressureDropType>::setUp()
 {
-    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
-    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
-    setDefault( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION );
+    addItem( RimCompletionEnums::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
+    addItem( RimCompletionEnums::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
+    addItem( RimCompletionEnums::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
+    setDefault( RimCompletionEnums::PressureDropType::HYDROSTATIC_FRICTION );
 }
 
 template <>
-void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
+void AppEnum<RimCompletionEnums::LengthAndDepthType>::setUp()
 {
-    addItem( RimMswCompletionParameters::LengthAndDepthType::INC, "INC", "Incremental" );
-    addItem( RimMswCompletionParameters::LengthAndDepthType::ABS, "ABS", "Absolute" );
-    setDefault( RimMswCompletionParameters::LengthAndDepthType::ABS );
+    addItem( RimCompletionEnums::LengthAndDepthType::INC, "INC", "Incremental" );
+    addItem( RimCompletionEnums::LengthAndDepthType::ABS, "ABS", "Absolute" );
+    setDefault( RimCompletionEnums::LengthAndDepthType::ABS );
 }
 
 template <>

@@ -162,7 +162,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::map<QString, EnumClassDef>                enumDefByDataTypeName;
     std::map<QString, QString>                     enumClassNameByDataTypeName;
     std::map<QString, std::pair<QString, QString>> inferredEnumNameAndFieldByDataTypeName;
+    std::map<QString, std::pair<QString, QString>> enumTypeAndFieldByBaseName;
     std::set<QString>                              ambiguousEnumDataTypesReported;
+    std::set<QString>                              duplicateEnumClassNamesReported;
+    bool                                           duplicateEnumClassNameDetected = false;
     // Seed with names that are already bound at module scope in the generated file (imports
     // and module-level functions) so a generated enum cannot shadow them.
     std::set<QString> usedEnumClassNames = { "PdmObjectBase",
@@ -240,6 +243,27 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 ambiguousEnumDataTypesReported.insert( dataTypeName );
             }
             baseName = it->second.first;
+        }
+
+        QString fieldName = QString( "%1.%2" ).arg( field->ownerClass() ).arg( scriptability->scriptFieldName() );
+        auto [enumNameIt, inserted] =
+            enumTypeAndFieldByBaseName.emplace( baseName, std::make_pair( dataTypeName, fieldName ) );
+        if ( !inserted && enumNameIt->second.first != dataTypeName )
+        {
+            duplicateEnumClassNameDetected = true;
+            if ( !duplicateEnumClassNamesReported.count( baseName ) )
+            {
+                errorMessages.push_back( QString( "Duplicate Python enum class name '%1' is inferred for distinct enum "
+                                                  "types used by fields '%2' and '%3'. "
+                                                  "Register distinct names with caf::PdmScriptEnumNameRegistry, or "
+                                                  "move the enum to a shared header if both fields "
+                                                  "represent the same enum." )
+                                             .arg( baseName )
+                                             .arg( enumNameIt->second.second )
+                                             .arg( fieldName ) );
+                duplicateEnumClassNamesReported.insert( baseName );
+            }
+            return QString();
         }
 
         auto cached = enumClassNameByDataTypeName.find( dataTypeName );
@@ -783,6 +807,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         }
     }
 
+    if ( duplicateEnumClassNameDetected ) return QString();
     return generatedCode;
 }
 

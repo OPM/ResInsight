@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimWellEventEnums.h"
+
 #include "RimWellEvent.h"
 
 #include "cafAppEnum.h"
@@ -36,11 +38,7 @@ class RimWellEventPerf : public RimWellEvent
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class State
-    {
-        OPEN,
-        SHUT
-    };
+    using State = RimWellEventEnums::State;
 
     RimWellEventPerf();
     ~RimWellEventPerf() override;
