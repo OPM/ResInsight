@@ -402,24 +402,28 @@ void RimWellPathCollection::assignUnitSystem( RimWellPath* wellPath )
 {
     if ( !wellPath ) return;
 
-    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    using Unit = RiaDefines::EclipseUnitSystem;
 
+    if ( dynamic_cast<RimFileWellPath*>( wellPath ) )
+    {
+        // Files have no unit information, so use the case the well path is located in
+        wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
+        return;
+    }
+
+    Unit unitSystem = Unit::UNITS_UNKNOWN;
     if ( wellPath->wellPathTieIn() && wellPath->wellPathTieIn()->parentWell() )
     {
         // Laterals use the same unit system as their parent
         unitSystem = wellPath->wellPathTieIn()->parentWell()->unitSystem();
     }
-    else if ( dynamic_cast<RimFileWellPath*>( wellPath ) )
+    else if ( auto* project = firstAncestorOrThisOfType<RimProject>() )
     {
-        // Files have no unit information, so use the case the well path is located in
-        unitSystem = findUnitSystemForWellPath( wellPath );
-    }
-    else
-    {
-        unitSystem = RimProject::current()->commonUnitSystemForAllCases();
+        unitSystem = project->commonUnitSystemForAllCases();
     }
 
-    wellPath->setUnitSystem( unitSystem );
+    // Keep the current unit system if it can not be determined
+    if ( unitSystem != Unit::UNITS_UNKNOWN ) wellPath->setUnitSystem( unitSystem );
 }
 
 //--------------------------------------------------------------------------------------------------
