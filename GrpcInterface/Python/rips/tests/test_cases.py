@@ -470,3 +470,102 @@ def test_create_well_bore_stability_plot_is_geomech_only(
     case = rips_instance.project.load_case(case_path)
     assert not hasattr(case, "create_well_bore_stability_plot")
     assert hasattr(rips.GeoMechCase, "create_well_bore_stability_plot")
+
+
+def _write_small_vtk_case(folder):
+    # Two hexahedron cells sharing a face, with two time steps and one cell property
+    points = [(x, y, z) for x in range(3) for y in range(2) for z in range(2)]
+    point_index = {p: i for i, p in enumerate(points)}
+
+    def hex_connectivity(x0):
+        corners = [
+            (x0, 0, 0),
+            (x0 + 1, 0, 0),
+            (x0 + 1, 1, 0),
+            (x0, 1, 0),
+            (x0, 0, 1),
+            (x0 + 1, 0, 1),
+            (x0 + 1, 1, 1),
+            (x0, 1, 1),
+        ]
+        return [point_index[c] for c in corners]
+
+    connectivity = hex_connectivity(0) + hex_connectivity(1)
+    coordinates = "\n".join(f"{x} {y} {z}" for x, y, z in points)
+    displacements = "\n".join("0 0 0" for _ in points)
+    offsets = " ".join(str(8 * (i + 1)) for i in range(2))
+    types = " ".join("12" for _ in range(2))
+
+    property_values = [[0.1, 0.2], [0.3, 0.4]]
+    for step, values in enumerate(property_values):
+        vtu = f"""<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="{len(points)}" NumberOfCells="2">
+      <Points>
+        <DataArray type="Float64" Name="Coordinates" NumberOfComponents="3" format="ascii">
+{coordinates}
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii">{" ".join(map(str, connectivity))}</DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">{offsets}</DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii">{types}</DataArray>
+      </Cells>
+      <PointData>
+        <DataArray type="Float32" Name="disp" NumberOfComponents="3" format="ascii">
+{displacements}
+        </DataArray>
+      </PointData>
+      <CellData>
+        <DataArray type="Float32" Name="porosity" format="ascii">{" ".join(map(str, values))}</DataArray>
+      </CellData>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+"""
+        with open(os.path.join(folder, f"step_{step}.vtu"), "w") as f:
+            f.write(vtu)
+
+    pvd = """<?xml version="1.0"?>
+<VTKFile type="Collection" version="0.1">
+  <Collection>
+    <DataSet timestep="0" file="step_0.vtu"/>
+    <DataSet timestep="1" file="step_1.vtu"/>
+  </Collection>
+</VTKFile>
+"""
+    pvd_path = os.path.join(folder, "small.pvd")
+    with open(pvd_path, "w") as f:
+        f.write(pvd)
+    return pvd_path, property_values
+
+
+def test_geomech_case_results(rips_instance, initialize_test, tmp_path):
+    pvd_path, property_values = _write_small_vtk_case(str(tmp_path))
+    case = rips_instance.project.load_case(pvd_path)
+    assert isinstance(case, rips.GeoMechCase)
+
+    assert len(case.time_step_strings()) == 2
+
+    positions = rips.GeoMechResultPosition
+    names = case.result_names(positions.ELEMENT)
+    assert "porosity" in names
+
+    for time_step, expected in enumerate(property_values):
+        values = case.result_values(
+            "porosity", time_step=time_step, result_position=positions.ELEMENT
+        )
+        assert values == pytest.approx(expected)
+
+    # The last frame is the default, and is the only frame in this case
+    assert case.result_values(
+        "porosity", time_step=1, result_position=positions.ELEMENT, frame_index=0
+    ) == pytest.approx(property_values[1])
+
+    with pytest.raises(rips.RipsError):
+        case.result_values("porosity", time_step=2, result_position=positions.ELEMENT)
+    with pytest.raises(rips.RipsError):
+        case.result_values(
+            "porosity", time_step=0, result_position=positions.ELEMENT, frame_index=1
+        )

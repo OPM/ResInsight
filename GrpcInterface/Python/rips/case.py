@@ -54,6 +54,7 @@ from .resinsight_classes import (
     Case as Case,
     EclipseCase as EclipseCase,
     GeoMechCase as GeoMechCase,
+    GeoMechResultPosition as GeoMechResultPosition,
     PorosityModelType as PorosityModelType,
     PropertyDataType as PropertyDataType,
     PropertyType as PropertyType,
@@ -301,6 +302,76 @@ def time_steps(self) -> List[Case_pb2.TimeStepDate]:
 
     """
     return self.__case_stub.GetTimeSteps(self.__request()).dates
+
+
+@add_method(GeoMechCase)
+def time_step_strings(self: GeoMechCase) -> List[str]:
+    """Get the time step strings of this geomechanical case
+
+    Returns:
+        A list of time step strings, one per time step. The list index
+        matches the time_step argument of result_values().
+    """
+    return self.time_step_strings_internal().values
+
+
+@add_method(GeoMechCase)
+def result_names(
+    self: GeoMechCase,
+    result_position: GeoMechResultPosition = GeoMechResultPosition.ELEMENT_NODAL,
+) -> List[str]:
+    """Get the result names of this geomechanical case
+
+    Arguments:
+        result_position(GeoMechResultPosition): Result position, for example
+            GeoMechResultPosition.NODAL or GeoMechResultPosition.ELEMENT_NODAL.
+
+    Returns:
+        A list of names on the form "FIELD:COMPONENT", or "FIELD" for results
+        without components.
+    """
+    return self.result_names_internal(result_position=result_position).values
+
+
+@add_method(GeoMechCase)
+def result_values(
+    self: GeoMechCase,
+    field_name: str,
+    component_name: str = "",
+    time_step: int = 0,
+    result_position: GeoMechResultPosition = GeoMechResultPosition.ELEMENT_NODAL,
+    frame_index: int = -1,
+) -> List[float]:
+    """Read the values of a geomechanical result
+
+    Arguments:
+        field_name(str): Result field name, e.g. "ST" or "POR-Bar".
+        component_name(str): Result component name, e.g. "S1". Empty for results without components.
+        time_step(int): Zero-based time step index.
+        result_position(GeoMechResultPosition): Result position of the result.
+        frame_index(int): Zero-based frame index. Negative selects the last frame of the time step.
+
+    Returns:
+        The values of all parts, in the order used by ResInsight for the result position.
+        Values are NaN where the result is not defined.
+    """
+    project = self.ancestor(Project)
+    if project is None:
+        raise RipsError("Could not find parent project")
+
+    key = f"{uuid.uuid4()}_geomech_result"
+    try:
+        self.read_result_values_internal(
+            result_position=result_position,
+            field_name=field_name,
+            component_name=component_name,
+            time_step=time_step,
+            frame_index=frame_index,
+            key=key,
+        )
+        return project.key_values(key)  # type: ignore[attr-defined]
+    finally:
+        project.remove_key_values(key)  # type: ignore[attr-defined]
 
 
 @add_method(Case)

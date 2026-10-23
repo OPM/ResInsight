@@ -127,6 +127,7 @@ public:
     const RigFemPartCollection* parts() const;
     int                         partCount() const;
     int                         timeStepCount() const;
+    std::vector<std::string>    filteredTimeStepNames() const;
     int                         frameCount( int timeStepIndex ) const;
 
     int                                     totalSteps();
@@ -198,7 +199,6 @@ public:
 
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
-    std::vector<std::string>  filteredTimeStepNames() const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
