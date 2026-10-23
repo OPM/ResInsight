@@ -1343,7 +1343,7 @@ void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewOb
     // Well paths created from Python are added directly to the child field
     if ( containerForNewObject == &m_wellPaths && !m_wellPaths.empty() )
     {
-        assignUnitSystem( m_wellPaths.childrenByType().back() );
+        assignUnitSystem( m_wellPaths[m_wellPaths.size() - 1] );
     }
 
     rebuildWellPathNodes();
