@@ -152,11 +152,13 @@ class CollisionTestPdmObject : public caf::PdmObject
 public:
     CollisionTestPdmObject();
     static void setUseCollisionEnumField( bool useCollisionEnumField );
+    static void setUseReservedNameEnumField( bool useReservedNameEnumField );
 
     caf::PdmField<caf::AppEnum<CollisionTestEnum>> m_enumField;
 
 private:
     static bool s_useCollisionEnumField;
+    static bool s_useReservedNameEnumField;
 };
 
 class MyPdmDocument : public caf::PdmDocument
