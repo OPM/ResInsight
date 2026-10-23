@@ -387,9 +387,9 @@ std::expected<std::vector<RimFileWellPath*>, QString> RimWellPathCollection::add
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
+void RimWellPathCollection::addWellPath( RimWellPath* wellPath, bool assignUnit )
 {
-    assignUnitSystem( wellPath );
+    if ( assignUnit ) assignUnitSystem( wellPath );
     m_wellPaths.push_back( wellPath );
 
     rebuildWellPathNodes();
@@ -406,7 +406,7 @@ void RimWellPathCollection::assignUnitSystem( RimWellPath* wellPath )
 
     if ( dynamic_cast<RimFileWellPath*>( wellPath ) )
     {
-        // Files have no unit information, so use the case the well path is located in
+        // Files have no unit information, so use the case the well path overlaps. This is unknown if there is no overlap.
         wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
         return;
     }
