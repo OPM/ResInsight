@@ -28,4 +28,5 @@ multi_plot.append_subplot(ensembles=ensembles, address="FWPT")
 multi_plot.append_subplot(ensembles=ensembles, address="FGPT")
 
 multi_plot.number_of_columns = 2
+multi_plot.rows_per_page = 2
 multi_plot.update()

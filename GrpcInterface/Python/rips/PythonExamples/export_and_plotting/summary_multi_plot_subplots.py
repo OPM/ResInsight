@@ -27,6 +27,7 @@ multi_plot = summary_plot_collection.new_summary_multi_plot(
 multi_plot.append_subplot(summary_cases=[summary_cases[0]], address="FOPR")
 
 multi_plot.number_of_columns = 2
+multi_plot.rows_per_page = 2
 multi_plot.update()
 
 print("Number of subplots:", len(multi_plot.descendants(rips.SummaryPlot)))
