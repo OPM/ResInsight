@@ -125,6 +125,8 @@ std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
     }
     out << "\n";
 
+    file.setPermissions( file.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeUser );
+
     file.close();
 
     return { true, filename };
