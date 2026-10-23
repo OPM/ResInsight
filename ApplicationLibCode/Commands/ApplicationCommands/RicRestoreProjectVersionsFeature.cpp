@@ -20,6 +20,7 @@
 #include "RicRestoreProjectVersionsUi.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaProjectBackupTools.h"
 
 #include "RimProject.h"
@@ -34,7 +35,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
+#include <QInputDialog>
 #include <QMessageBox>
+
+#include <algorithm>
 
 CAF_CMD_SOURCE_INIT( RicRestoreProjectVersionsFeature, "RicRestoreProjectVersionsFeature" );
 
@@ -81,17 +85,55 @@ void RicRestoreProjectVersionsFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    int     numberOfFilesWritten = 0;
-    QString errorMessage;
-    if ( !RiaProjectBackupTools::extractVersionsToFolder( databaseFilePath, exportFolder, &numberOfFilesWritten, &errorMessage ) )
+    auto result = RiaProjectBackupTools::extractVersionsToFolder( databaseFilePath, exportFolder );
+    if ( !result )
     {
-        RiuMessageDialog::showError( RiuMainWindow::instance(), "Restore Previous Project Versions", errorMessage );
+        RiuMessageDialog::showError( RiuMainWindow::instance(), "Restore Previous Project Versions", result.error() );
         return;
     }
 
-    QMessageBox::information( RiuMainWindow::instance(),
-                              "Restore Previous Project Versions",
-                              QString( "Restored %1 project version(s) to:\n%2" ).arg( numberOfFilesWritten ).arg( exportFolder ) );
+    QStringList restoredFiles = result.value();
+
+    if ( restoredFiles.isEmpty() )
+    {
+        QMessageBox::information( RiuMainWindow::instance(),
+                                  "Restore Previous Project Versions",
+                                  QString( "No project versions were found in the backup database.\n%1" ).arg( databaseFilePath ) );
+        return;
+    }
+
+    // Newest version first
+    std::reverse( restoredFiles.begin(), restoredFiles.end() );
+
+    QStringList displayNames;
+    for ( const QString& file : restoredFiles )
+    {
+        displayNames.push_back( QFileInfo( file ).fileName() );
+    }
+
+    bool          accepted = false;
+    const QString selected = QInputDialog::getItem( RiuMainWindow::instance(),
+                                                    "Restore Previous Project Versions",
+                                                    QString( "Restored %1 project version(s) to:\n%2\n\nSelect a version to open:" )
+                                                        .arg( restoredFiles.size() )
+                                                        .arg( exportFolder ),
+                                                    displayNames,
+                                                    0,
+                                                    false,
+                                                    &accepted );
+    if ( !accepted ) return;
+
+    const int index = displayNames.indexOf( selected );
+    if ( index < 0 ) return;
+
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if ( !app->checkWithUserBeforeClose() ) return;
+
+    const QString fileToOpen = restoredFiles[index];
+    if ( app->loadProject( fileToOpen ) )
+    {
+        app->addToRecentFiles( fileToOpen );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,9 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
+
+#include <expected>
 
 //==================================================================================================
 //
@@ -27,8 +30,6 @@ namespace RiaProjectBackupTools
 {
 bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCount, const QString& content );
 
-bool extractVersionsToFolder( const QString& databaseFilePath,
-                              const QString& destinationFolder,
-                              int*           numberOfFilesWritten = nullptr,
-                              QString*       errorMessage         = nullptr );
+// Returns the paths of the restored files, or an error message
+std::expected<QStringList, QString> extractVersionsToFolder( const QString& databaseFilePath, const QString& destinationFolder );
 } // namespace RiaProjectBackupTools
