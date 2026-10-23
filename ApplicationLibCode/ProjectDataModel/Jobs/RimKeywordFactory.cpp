@@ -30,7 +30,7 @@
 #include "RigEclipseResultTools.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
-#include "RigSimulationInputTool.h"
+#include "RigSimulationInputNncTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimWellEventWellSpec.h"
@@ -752,7 +752,7 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputTool::TransformedNNCConnection>& connections )
+Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputNncTools::TransformedNNCConnection>& connections )
 {
     using E = Opm::ParserKeywords::EDITNNC;
 
