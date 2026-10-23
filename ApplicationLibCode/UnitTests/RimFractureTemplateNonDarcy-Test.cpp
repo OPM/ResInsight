@@ -91,10 +91,10 @@ TEST( RimFractureTemplateNonDarcy, EllipseIntersectionDataField )
     TestEllipseFractureTemplate tmpl( RiaDefines::EclipseUnitSystem::UNITS_FIELD );
     tmpl.useFractureData();
 
-    // Field defaults: width 0.5, permeability 80000 mD
-    EXPECT_DOUBLE_EQ( 0.5, tmpl.computeFractureWidth( nullptr ) );
+    // Field defaults: width 0.5 inches (reported in feet), permeability 80000 mD
+    EXPECT_NEAR( 0.5 / 12.0, tmpl.computeFractureWidth( nullptr ), 1.0e-12 );
     EXPECT_DOUBLE_EQ( 80000.0, tmpl.computeEffectivePermeability( nullptr ) );
-    EXPECT_NEAR( 40000.0, tmpl.computeKh( nullptr ), 1.0e-9 );
+    EXPECT_NEAR( 80000.0 * 0.5 / 12.0, tmpl.computeKh( nullptr ), 1.0e-9 );
 }
 
 TEST( RimFractureTemplateNonDarcy, RelativePermeabilityScalesEffectivePermeability )
@@ -149,8 +149,11 @@ TEST( RimFractureTemplateNonDarcy, ComputedDFactorUsesUnitDependentAlpha )
     field.useComputedDFactor( 1.0 );
     field.useUserDefinedWidth( 0.01 );
 
-    // Make everything but alpha, permeability and well diameter equal between the two templates
+    // Make everything but alpha, permeability and well radius equal between the two templates
     const double ratio = ( field.computeDFactor( nullptr ) / metric.computeDFactor( nullptr ) );
+
+    // The field well diameter is given in inches, but the radius used in the D-factor must be in feet
+    EXPECT_NEAR( field.wellDiameterValue() / 2.0 / 12.0, field.computeWellRadiusForDFactorCalculation( nullptr ), 1.0e-12 );
 
     const double alphaRatio = RiaDefines::nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem::UNITS_FIELD ) /
                               RiaDefines::nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem::UNITS_METRIC );

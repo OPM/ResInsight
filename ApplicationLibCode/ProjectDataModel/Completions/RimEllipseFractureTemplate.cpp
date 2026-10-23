@@ -244,7 +244,9 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
 WellFractureIntersectionData RimEllipseFractureTemplate::wellFractureIntersectionData( const RimFracture* fractureInstance ) const
 {
     WellFractureIntersectionData values;
-    values.m_width        = m_width;
+    // Width is in inches for field units, but length unit (feet) is required for conductivity and D-factor
+    values.m_width = ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD ) ? RiaEclipseUnitTools::inchToFeet( m_width )
+                                                                                              : m_width;
     values.m_permeability = m_permeability;
 
     return values;
