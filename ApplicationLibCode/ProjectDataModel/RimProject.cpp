@@ -1338,22 +1338,27 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
-    RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+    using Unit = RiaDefines::EclipseUnitSystem;
+
+    Unit commonUnitSystem = Unit::UNITS_UNKNOWN;
 
     for ( const auto& c : allGridCases() )
     {
+        // Cases that are not loaded, or have no unit information, do not take part in the comparison
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
-        if ( eclipseCase && eclipseCase->eclipseCaseData() )
+        if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) continue;
+
+        const Unit caseUnit = eclipseCase->eclipseCaseData()->unitsType();
+        if ( caseUnit == Unit::UNITS_UNKNOWN ) continue;
+
+        if ( commonUnitSystem == Unit::UNITS_UNKNOWN )
         {
-            if ( commonUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            {
-                commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
-            }
-            else if ( commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType() )
-            {
-                commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
-                break;
-            }
+            commonUnitSystem = caseUnit;
+        }
+        else if ( commonUnitSystem != caseUnit )
+        {
+            // Mixed unit systems: there is no common unit system
+            return Unit::UNITS_UNKNOWN;
         }
     }
 

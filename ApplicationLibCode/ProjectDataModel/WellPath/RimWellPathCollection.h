@@ -129,7 +129,8 @@ public:
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
     RimWellPath* tryFindMatchingWellPath( const QString& wellName ) const;
     void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    void         addWellPath( RimWellPath* wellPath );
+    // Set assignUnit to false for copies of existing well paths, as they already carry unit specific settings
+    void addWellPath( RimWellPath* wellPath, bool assignUnit = true );
 
     std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                            addWellPathFormations( const QStringList& filePaths );
@@ -174,6 +175,7 @@ private:
     std::expected<std::vector<RimFileWellPath*>, QString> addWellPathsForFile( const QString& filePath );
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
+    void                                        assignUnitSystem( RimWellPath* wellPath );
 
     std::vector<RimWellPath*>                    wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
     std::map<QString, std::vector<RimWellPath*>> wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;

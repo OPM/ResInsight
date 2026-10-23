@@ -111,7 +111,6 @@ RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasured
         newModeledWellPath->connectWellPaths( parentWellPath, parentWellMD );
 
         newModeledWellPath->geometryDefinition()->enableTargetPointPicking( true );
-        newModeledWellPath->setUnitSystem( parentWellPath->unitSystem() );
 
         newModeledWellPath->createWellPathGeometry();
 
