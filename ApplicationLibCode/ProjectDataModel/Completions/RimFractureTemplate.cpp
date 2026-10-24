@@ -634,7 +634,13 @@ double RimFractureTemplate::computeWellRadiusForDFactorCalculation( const RimFra
     }
     else
     {
+        // Well diameter is in meter for metric and inches for field. Radius must be in meter/feet to be consistent with
+        // fracture width and the unit dependent alpha
         radius = m_wellDiameter / 2.0;
+        if ( m_fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            radius = RiaEclipseUnitTools::inchToFeet( radius );
+        }
     }
 
     return radius;
