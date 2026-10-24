@@ -1,0 +1,52 @@
+<contours>
+<grid xCount="4" yCount="5" uom="m" cs="tvd" frac="1">
+<xs><![CDATA[0 
+50 100 150
+]]></xs>
+<ys><![CDATA[2035 2025 2015 2005 1995 ]]></ys>
+</grid>
+<properties>
+<property name="CONDUCTIVITY" uom="md-m">
+<time value="117.238">
+<depth>1995.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2005.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2015.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2025.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2035.00</depth>
+<![CDATA[300 300 300 300]]>
+</time>
+</property>
+<property name="Effective Width" uom="m">
+<time value="117.238">
+<depth>1995.00</depth>
+<![CDATA[0.01 0.01 0.01 0.01]]>
+<depth>2005.00</depth>
+<![CDATA[0.01 0.01 0.01 0.01]]>
+<depth>2015.00</depth>
+<![CDATA[0.01 0.01 0.01 0.01]]>
+<depth>2025.00</depth>
+<![CDATA[0.01 0.01 0.01 0.01]]>
+<depth>2035.00</depth>
+<![CDATA[0.01 0.01 0.01 0.01]]>
+</time>
+</property>
+<property name="Beta" uom="/m">
+<time value="117.238">
+<depth>1995.00</depth>
+<![CDATA[2.0265e8 2.0265e8 2.0265e8 2.0265e8]]>
+<depth>2005.00</depth>
+<![CDATA[2.0265e8 2.0265e8 2.0265e8 2.0265e8]]>
+<depth>2015.00</depth>
+<![CDATA[2.0265e8 2.0265e8 2.0265e8 2.0265e8]]>
+<depth>2025.00</depth>
+<![CDATA[2.0265e8 2.0265e8 2.0265e8 2.0265e8]]>
+<depth>2035.00</depth>
+<![CDATA[2.0265e8 2.0265e8 2.0265e8 2.0265e8]]>
+</time>
+</property>
+</properties>
+</contours>
