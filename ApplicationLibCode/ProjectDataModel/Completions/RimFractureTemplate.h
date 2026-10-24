@@ -136,7 +136,7 @@ public:
     FracOrientationEnum                         orientationType() const;
     float                                       azimuthAngle() const;
     float                                       skinFactor() const;
-    double                                      wellDiameter() const;
+    double                                      wellDiameter() const; // [m] for metric, [inches] for field
     FracConductivityEnum                        conductivityType() const;
     double                                      perforationLength() const;
     bool                                        useUserDefinedPerforationLength() const;
@@ -218,7 +218,7 @@ protected:
     caf::PdmField<bool>                                        m_userDefinedPerforationLength;
     caf::PdmField<double>                                      m_perforationLength;
     caf::PdmField<double>                                      m_perforationEfficiency;
-    caf::PdmField<double>                                      m_wellDiameter;
+    caf::PdmField<double>                                      m_wellDiameter; // [m] for metric, [inches] for field
     caf::PdmField<caf::AppEnum<FracConductivityEnum>>          m_conductivityType;
     caf::PdmChildField<RimFractureContainment*>                m_fractureContainment;
 

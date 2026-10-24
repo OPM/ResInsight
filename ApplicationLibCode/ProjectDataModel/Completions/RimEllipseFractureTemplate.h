@@ -58,6 +58,7 @@ public:
 
     double halfLength() const;
     double height() const;
+    // Width in template units: [m] for metric, [inches] for field
     double width() const;
 
     double computeLegacyWellDepthAtFracture() const;
@@ -89,6 +90,6 @@ private:
 private:
     caf::PdmField<double> m_halfLength;
     caf::PdmField<double> m_height;
-    caf::PdmField<double> m_width;
+    caf::PdmField<double> m_width; // [m] for metric, [inches] for field
     caf::PdmField<double> m_permeability;
 };
