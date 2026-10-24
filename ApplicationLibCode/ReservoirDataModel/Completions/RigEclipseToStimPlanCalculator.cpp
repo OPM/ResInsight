@@ -18,6 +18,7 @@
 
 #include "RigEclipseToStimPlanCalculator.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaThermalFractureDefines.h"
 #include "RiaWeightedMeanCalculator.h"
@@ -261,6 +262,10 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
     if ( ellipseFractureTemplate )
     {
         width = ellipseFractureTemplate->width();
+        if ( ellipseFractureTemplate->fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            width = RiaEclipseUnitTools::inchToFeet( width );
+        }
     }
 
     auto stimPlanFractureTemplate = dynamic_cast<const RimMeshFractureTemplate*>( m_fracture->fractureTemplate() );
