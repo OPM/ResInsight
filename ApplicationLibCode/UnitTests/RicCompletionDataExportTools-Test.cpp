@@ -18,7 +18,7 @@ namespace
 RigCompletionData
     makePerforation( double transmissibility, double diameter, double skin, double dFactor, double startMD = 100.0, double endMD = 110.0 )
 {
-    RigCompletionData completion( "W", RigCompletionDataGridCell( 0, nullptr ), startMD );
+    RigCompletionData completion( "W", RigCompletionDataGridCell(), startMD );
     completion.setTransAndWPImultBackgroundDataFromPerforation( transmissibility,
                                                                 skin,
                                                                 diameter,
@@ -29,11 +29,19 @@ RigCompletionData
     return completion;
 }
 
-const RicExportCompletionDataSettingsUi& explicitTransSettings()
+// Owns the PDM object locally, so it is not alive after the test environment is torn down
+struct ExplicitTransSettings
 {
-    static RicExportCompletionDataSettingsUi settings;
-    settings.compdatExport = RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES;
-    return settings;
+    ExplicitTransSettings() { m_settings.compdatExport = RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES; }
+
+    operator const RicExportCompletionDataSettingsUi&() const { return m_settings; }
+
+    RicExportCompletionDataSettingsUi m_settings;
+};
+
+ExplicitTransSettings explicitTransSettings()
+{
+    return {};
 }
 
 QString exportTable( void ( *exporter )( RifTextDataTableFormatter&, const QString&, const std::vector<RigCompletionData>& ),
@@ -113,7 +121,7 @@ TEST( RicCompletionDataExportTools, CombineIgnoresNegativeTransmissibility )
 TEST( RicCompletionDataExportTools, CombineDifferentWellsGivesUnexportedCompletion )
 {
     RigCompletionData other = makePerforation( 1.0, 0.2, 0.0, 1.0 );
-    RigCompletionData otherWell( "OTHER", RigCompletionDataGridCell( 0, nullptr ), 100.0 );
+    RigCompletionData otherWell( "OTHER", RigCompletionDataGridCell(), 100.0 );
     otherWell.setTransAndWPImultBackgroundDataFromPerforation( 1.0, 0.0, 0.2, 1.0, 1.0, RigCompletionData::CellDirection::DIR_K );
 
     const auto combined = RicCompletionDataExportTools::combineEclipseCellCompletions( { other, otherWell }, explicitTransSettings() );
@@ -124,12 +132,14 @@ TEST( RicCompletionDataExportTools, CombineDifferentWellsGivesUnexportedCompleti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RicCompletionDataExportTools, CombineHugeTransmissibilityGivesUnexportedCompletion )
+TEST( RicCompletionDataExportTools, CombineIgnoresInfiniteTransmissibility )
 {
     const auto combined = RicCompletionDataExportTools::combineEclipseCellCompletions( { makePerforation( HUGE_VAL, 0.2, 0.0, 1.0 ) },
                                                                                        explicitTransSettings() );
 
     EXPECT_DOUBLE_EQ( 0.0, combined.transmissibility() );
+    ASSERT_FALSE( combined.metadata().empty() );
+    EXPECT_EQ( "ERROR", combined.metadata().front().name );
 }
 
 //--------------------------------------------------------------------------------------------------

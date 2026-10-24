@@ -20,6 +20,7 @@
 
 #include "Commands/CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "CompletionExportCommands/RicCompletionDataExportTools.h"
 #include "CompletionExportCommands/RicTransmissibilityCalculator.h"
 
 #include "RiaFractureDefines.h"
@@ -177,7 +178,7 @@ std::optional<int> numberForAllOrders( std::vector<RigCompletionData> completion
         for ( size_t i : order )
             permuted.push_back( completions[i] );
 
-        auto number = RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( permuted );
+        auto number = RicCompletionDataExportTools::completionNumberForCell( permuted );
         if ( !firstSet )
         {
             first    = number;
@@ -232,7 +233,7 @@ TEST( RicWellPathExportCompletionDataFeatureImpl, CompletionNumberIgnoresContrib
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportCompletionDataFeatureImpl, CompletionNumberEmptyCompletionsGivesNoNumber )
 {
-    EXPECT_EQ( std::nullopt, RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( {} ) );
+    EXPECT_EQ( std::nullopt, RicCompletionDataExportTools::completionNumberForCell( {} ) );
 }
 
 class CompdatNonDarcyTest : public ::testing::TestWithParam<RiaDefines::EclipseUnitSystem>

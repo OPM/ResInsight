@@ -21,8 +21,6 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQStringFormatter.h"
-#include "RiaWeightedMeanCalculator.h"
-#include "RigStatisticsTools.h"
 #include "RiuMessageDialog.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
@@ -43,18 +41,14 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
+#include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPathIntersectionTools.h"
-
-#include "RicPerforationCellFilterEvaluator.h"
 
 #include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimFishbonesCollection.h"
-#include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationCollection.h"
-#include "RimPerforationInterval.h"
 #include "RimThermalFractureTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
@@ -389,39 +383,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
     }
 
     return completionsPerEclipseCell;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::optional<int> RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( const std::vector<RigCompletionData>& completions )
-{
-    // One perforation interval can cross the same cell more than once, so lengths are summed per number
-    std::map<int, double> overlapPerNumber;
-    for ( const auto& completion : completions )
-    {
-        const auto number = completion.completionNumber();
-        if ( !number.has_value() ) continue;
-
-        double length = 0.0;
-        if ( completion.startMD().has_value() && completion.endMD().has_value() )
-        {
-            length = std::max( 0.0, completion.endMD().value() - completion.startMD().value() );
-        }
-        overlapPerNumber[number.value()] += length;
-    }
-
-    if ( overlapPerNumber.empty() ) return std::nullopt;
-
-    // Iterating in ascending number order and requiring a strictly larger length makes ties go to the lowest number
-    const double tolerance = 1.0e-6;
-
-    auto best = overlapPerNumber.begin();
-    for ( auto it = std::next( best ); it != overlapPerNumber.end(); ++it )
-    {
-        if ( it->second > best->second + tolerance ) best = it;
-    }
-    return best->first;
 }
 
 //--------------------------------------------------------------------------------------------------

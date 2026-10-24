@@ -157,9 +157,10 @@ TEST( RimFractureTemplateNonDarcy, ComputedDFactorUsesUnitDependentAlpha )
 
     const double alphaRatio = RiaDefines::nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem::UNITS_FIELD ) /
                               RiaDefines::nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
-    const double permRatio = field.computeEffectivePermeability( nullptr ) / metric.computeEffectivePermeability( nullptr );
-    const double radiusRatio =
-        metric.computeWellRadiusForDFactorCalculation( nullptr ) / field.computeWellRadiusForDFactorCalculation( nullptr );
+    const double permRatio    = field.computeEffectivePermeability( nullptr ) / metric.computeEffectivePermeability( nullptr );
+    const double metricRadius = metric.wellDiameterValue() / 2.0; // [m]
+    const double fieldRadius  = field.wellDiameterValue() / 2.0 / 12.0; // inches -> [ft]
+    const double radiusRatio  = metricRadius / fieldRadius;
 
     EXPECT_NEAR( alphaRatio * permRatio * radiusRatio, ratio, ratio * 1.0e-12 );
 }

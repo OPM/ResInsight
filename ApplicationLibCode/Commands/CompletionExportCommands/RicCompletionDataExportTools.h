@@ -67,4 +67,8 @@ public:
                                       const std::vector<RigCompletionData>&             data );
 
     static RimWellPath* topLevelWellPath( const RigCompletionData& completion );
+
+    // Completion number for a cell with several contributions: the number with the largest summed MD overlap
+    // (endMD - startMD) wins, ties go to the lowest number. Independent of contribution order.
+    static std::optional<int> completionNumberForCell( const std::vector<RigCompletionData>& completions );
 };

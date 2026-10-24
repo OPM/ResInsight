@@ -46,9 +46,11 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 #include <limits>
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -135,8 +137,7 @@ RigCompletionData RicCompletionDataExportTools::combineEclipseCellCompletions( c
     {
         resultCompletion.setDepthRange( startMD.value(), endMD.value() );
     }
-    if ( auto completionNumber = RicWellPathExportCompletionDataFeatureImpl::completionNumberForCell( completions ) )
-        resultCompletion.setCompletionNumber( completionNumber.value() );
+    if ( auto completionNumber = completionNumberForCell( completions ) ) resultCompletion.setCompletionNumber( completionNumber.value() );
 
     double combinedDiameter   = diameterCalculator.weightedMean();
     double combinedSkinFactor = skinFactorCalculator.weightedMean();
@@ -160,15 +161,6 @@ RigCompletionData RicCompletionDataExportTools::combineEclipseCellCompletions( c
             {
                 QString errorMessage =
                     QString( "Cannot combine completions of different types in same cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-                RiaLogging::error( errorMessage.toStdString() );
-                resultCompletion.addMetadata( "ERROR", errorMessage );
-                return resultCompletion; // Returning empty completion, should not be exported
-            }
-
-            if ( completion.transmissibility() == HUGE_VAL )
-            {
-                QString errorMessage =
-                    QString( "Transmissibility calculation has failed for cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
                 RiaLogging::error( errorMessage.toStdString() );
                 resultCompletion.addMetadata( "ERROR", errorMessage );
                 return resultCompletion; // Returning empty completion, should not be exported
@@ -677,4 +669,37 @@ RimWellPath* RicCompletionDataExportTools::topLevelWellPath( const RigCompletion
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<int> RicCompletionDataExportTools::completionNumberForCell( const std::vector<RigCompletionData>& completions )
+{
+    // One perforation interval can cross the same cell more than once, so lengths are summed per number
+    std::map<int, double> overlapPerNumber;
+    for ( const auto& completion : completions )
+    {
+        const auto number = completion.completionNumber();
+        if ( !number.has_value() ) continue;
+
+        double length = 0.0;
+        if ( completion.startMD().has_value() && completion.endMD().has_value() )
+        {
+            length = std::max( 0.0, completion.endMD().value() - completion.startMD().value() );
+        }
+        overlapPerNumber[number.value()] += length;
+    }
+
+    if ( overlapPerNumber.empty() ) return std::nullopt;
+
+    // Iterating in ascending number order and requiring a strictly larger length makes ties go to the lowest number
+    const double tolerance = 1.0e-6;
+
+    auto best = overlapPerNumber.begin();
+    for ( auto it = std::next( best ); it != overlapPerNumber.end(); ++it )
+    {
+        if ( it->second > best->second + tolerance ) best = it;
+    }
+    return best->first;
 }
