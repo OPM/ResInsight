@@ -249,13 +249,18 @@ double RicTransmissibilityCalculator::calculateDFactor( RimEclipseCase*         
                                               porosity,
                                               nonDarcyParameters->porosityScalingFactor() );
 
-    const double alpha = RiaDefines::nonDarcyFlowAlpha( eclipseCase->eclipseCaseData()->unitsType() );
+    const auto   unitsType = eclipseCase->eclipseCaseData()->unitsType();
+    const double alpha     = RiaDefines::nonDarcyFlowAlpha( unitsType );
+
+    // The well radius is entered in meters, while the field alpha expects feet
+    double wellRadius = nonDarcyParameters->wellRadius();
+    if ( unitsType == RiaDefines::EclipseUnitSystem::UNITS_FIELD ) wellRadius = RiaEclipseUnitTools::meterToFeet( wellRadius );
 
     return EQ::dFactor( alpha,
                         betaFactor,
                         effectivePermeability,
                         effectiveH,
-                        nonDarcyParameters->wellRadius(),
+                        wellRadius,
                         nonDarcyParameters->relativeGasDensity(),
                         nonDarcyParameters->gasViscosity() );
 }
