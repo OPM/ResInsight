@@ -456,7 +456,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 menuBuilder << "RicIntersectionBoxYSliceFeature";
                 menuBuilder << "RicIntersectionBoxZSliceFeature";
 
-                if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView ) )
+                if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+                     eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
                 {
                     // I/J/K intersections follow the main grid, so map the picked cell to the main grid
                     const RigGridBase* grid = eclipseView->eclipseCase()->eclipseCaseData()->grid( m_currentGridIdx );
@@ -465,7 +466,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                         size_t mainGridCellIndex = grid->cell( m_currentCellIndex ).mainGridCellIndex();
 
                         size_t i, j, k;
-                        if ( eclipseView->mainGrid()->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) )
+                        if ( eclipseView->mainGrid() && eclipseView->mainGrid()->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) )
                         {
                             QVariantList iIntersectionList = { 0, static_cast<int>( i ) };
                             QVariantList jIntersectionList = { 1, static_cast<int>( j ) };
