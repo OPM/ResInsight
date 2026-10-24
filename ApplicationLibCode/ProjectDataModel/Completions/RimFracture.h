@@ -84,7 +84,7 @@ public:
 
     void setStimPlanTimeIndexToPlot( int timeIndex );
 
-    double                        wellRadius() const;
+    double                        wellRadius() const; // [m] for metric, [ft] for field (converted from inches)
     cvf::Vec3d                    anchorPosition() const;
     void                          setAnchorPosition( const cvf::Vec3d& pos );
     RiaDefines::EclipseUnitSystem fractureUnit() const;
@@ -178,7 +178,7 @@ protected:
     caf::PdmField<double> m_azimuth;
     caf::PdmField<double> m_perforationLength;
     caf::PdmField<double> m_perforationEfficiency;
-    caf::PdmField<double> m_wellDiameter;
+    caf::PdmField<double> m_wellDiameter; // [m] for metric, [inches] for field
     caf::PdmField<int>    m_stimPlanTimeIndexToPlot;
 
 private:
