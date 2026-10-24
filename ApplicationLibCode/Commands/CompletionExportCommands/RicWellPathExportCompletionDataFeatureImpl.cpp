@@ -41,8 +41,8 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "Well/RigWellPath.h"
 #include "Well/RigWellLogExtractor.h"
+#include "Well/RigWellPath.h"
 #include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimCellFilter.h"
