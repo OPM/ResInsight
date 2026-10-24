@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCompletionDataExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswCompletionsImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionsFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.cpp
