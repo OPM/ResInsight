@@ -18,6 +18,7 @@
 
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaRegressionTestRunner.h"
 
 #include "RicExportFractureCompletionsImpl.h"
@@ -386,7 +387,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText( con
         formatter.add( isFieldUnits ? "[ft]" : "[m]" ); // Height
         formatter.add( "[mD]" ); // Kf
         formatter.add( isFieldUnits ? "[in]" : "[m]" ); // Wf
-        formatter.add( isFieldUnits ? "[ft]" : "[m]" ); // WDiam
+        formatter.add( isFieldUnits ? "[in]" : "[m]" ); // WDiam
         formatter.add( "[] " ); // Skin
         formatter.rowCompleted();
     }
@@ -401,7 +402,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText( con
         formatter.add( ellipseTemplate->halfLength() );
         formatter.add( ellipseTemplate->height() );
 
-        formatter.add( RigTransmissibilityEquations::permeability( ellipseTemplate->conductivity(), ellipseTemplate->width() ) );
+        // Conductivity is in mD*ft for field units, while the field width is in inches
+        const double widthInLengthUnit = isFieldUnits ? RiaEclipseUnitTools::inchToFeet( ellipseTemplate->width() ) : ellipseTemplate->width();
+        formatter.add( RigTransmissibilityEquations::permeability( ellipseTemplate->conductivity(), widthInLengthUnit ) );
         formatter.add( ellipseTemplate->width() );
 
         formatter.add( ellipseTemplate->wellDiameter() );
