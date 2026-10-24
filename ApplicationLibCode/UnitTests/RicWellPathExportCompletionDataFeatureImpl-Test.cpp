@@ -22,6 +22,7 @@
 
 #include "CompletionExportCommands/RicCompletionDataExportTools.h"
 #include "CompletionExportCommands/RicTransmissibilityCalculator.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "RiaFractureDefines.h"
 #include "RifReaderMockModel.h"
@@ -319,11 +320,16 @@ TEST_P( CompdatNonDarcyTest, WithComputedDFactor )
                                                                                  0.2,
                                                                                  params->porosityScalingFactor() );
 
+        // The radius parameter is entered in meters; the field alpha expects feet
+        const double radiusForDFactor = ( GetParam() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+                                            ? params->wellRadius() * RiaEclipseUnitTools::feetPerMeter()
+                                            : params->wellRadius();
+
         const double expected = RigPerforationTransmissibilityEquations::dFactor( alpha,
                                                                                   beta,
                                                                                   effectiveK,
                                                                                   data.effectiveH(),
-                                                                                  params->wellRadius(),
+                                                                                  radiusForDFactor,
                                                                                   params->relativeGasDensity(),
                                                                                   params->gasViscosity() );
 
