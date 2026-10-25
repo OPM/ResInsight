@@ -114,6 +114,7 @@ public:
     static bool isReportingCrash();
     void        setErrorCallback( ErrorCallback callback );
     void        setUsername( const std::string& username );
+    void        setGraphicsInfo( const std::map<std::string, std::string>& graphicsInfo );
 
     // Performance and memory management
     void   setMaxQueueSize( size_t maxEvents );
@@ -193,6 +194,9 @@ private:
     bool        m_backpressureEnabled{ true };
     size_t      m_memoryThresholdMB{ 50 };
     std::string m_userHash;
+
+    // Graphics environment attached to all events, see RiaGraphicsEnvironmentTools
+    std::map<std::string, std::string> m_graphicsInfo;
 
     // Error handling
     ErrorCallback                         m_errorCallback;

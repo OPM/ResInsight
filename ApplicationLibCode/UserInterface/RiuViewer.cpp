@@ -23,7 +23,9 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaColorTools.h"
+#include "RiaGraphicsEnvironmentTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -1142,6 +1144,26 @@ RiuViewerToViewInterface* RiuViewer::ownerReservoirView()
 RimViewWindow* RiuViewer::ownerViewWindow() const
 {
     return dynamic_cast<RimViewWindow*>( m_rimView.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::onWidgetOpenGLReady()
+{
+    caf::Viewer::onWidgetOpenGLReady();
+
+    // Report the OpenGL driver once per session. The context is current here, so no extra context is created.
+    static bool isOpenGLInfoReported = false;
+    if ( !isOpenGLInfoReported )
+    {
+        auto glInfo = RiaGraphicsEnvironmentTools::currentOpenGLContextInfo();
+        if ( glInfo.empty() ) return;
+
+        isOpenGLInfoReported = true;
+        RiaOpenTelemetryManager::instance().setGraphicsInfo( glInfo );
+        RiaOpenTelemetryManager::instance().reportEventAsync( "app.opengl_initialized", glInfo );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
