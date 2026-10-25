@@ -421,8 +421,8 @@ namespace
 enum class SummaryLegendDimension
 {
     CASE,
-    WELL,
-    VECTOR
+    VECTOR,
+    OBJECT // Well, group, region, network, block, aquifer, ... (see RifEclipseSummaryAddress::itemUiText())
 };
 
 QString dimensionValue( RimSummaryCurve* curve, SummaryLegendDimension dimension )
@@ -431,10 +431,10 @@ QString dimensionValue( RimSummaryCurve* curve, SummaryLegendDimension dimension
     {
         case SummaryLegendDimension::CASE:
             return curve->summaryCaseY()->displayCaseName();
-        case SummaryLegendDimension::WELL:
-            return QString::fromStdString( curve->summaryAddressY().wellName() );
         case SummaryLegendDimension::VECTOR:
             return QString::fromStdString( curve->summaryAddressY().vectorName() );
+        case SummaryLegendDimension::OBJECT:
+            return QString::fromStdString( curve->summaryAddressY().itemUiText() );
     }
     return {};
 }
@@ -469,8 +469,9 @@ std::map<T, QString> labelsForProperties( const std::vector<RimSummaryCurve*>& c
 
 //--------------------------------------------------------------------------------------------------
 /// Create a color legend and a symbol legend when the curve color is given by one summary dimension (case,
-/// well or vector) and the curve symbol by another, e.g. one color per vector and one symbol per case. This
-/// gives (color count + symbol count) entries instead of one entry per color/symbol combination.
+/// vector or object, e.g. well, group or region) and the curve symbol by another, e.g. one color per vector
+/// and one symbol per case. This gives (color count + symbol count) entries instead of one entry per
+/// color/symbol combination.
 ///
 /// Returns false if the curves are not plain summary curves, or if no such pair of dimensions is found.
 //--------------------------------------------------------------------------------------------------
@@ -481,6 +482,7 @@ bool RiuQwtPlotTools::createColorAndSymbolLegendData( const std::vector<RimPlotC
     std::vector<RimSummaryCurve*>         summaryCurves;
     std::vector<RifEclipseSummaryAddress> addresses;
     std::set<QString>                     caseNames;
+    std::set<std::string>                 objectNames;
 
     for ( auto curve : curves )
     {
@@ -491,6 +493,7 @@ bool RiuQwtPlotTools::createColorAndSymbolLegendData( const std::vector<RimPlotC
         summaryCurves.push_back( summaryCurve );
         addresses.push_back( summaryCurve->summaryAddressY() );
         caseNames.insert( summaryCurve->summaryCaseY()->displayCaseName() );
+        objectNames.insert( summaryCurve->summaryAddressY().itemUiText() );
     }
 
     RiaSummaryAddressAnalyzer analyzer;
@@ -500,10 +503,9 @@ bool RiuQwtPlotTools::createColorAndSymbolLegendData( const std::vector<RimPlotC
     std::vector<SummaryLegendDimension> dimensions;
     if ( caseNames.size() > 1 ) dimensions.push_back( SummaryLegendDimension::CASE );
     if ( analyzer.quantities().size() > 1 ) dimensions.push_back( SummaryLegendDimension::VECTOR );
-    if ( analyzer.wellNames().size() > 1 && analyzer.categories() == std::set{ RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL } )
-    {
-        dimensions.push_back( SummaryLegendDimension::WELL );
-    }
+
+    // Field and other addresses without an object have no object text to use as a legend label
+    if ( objectNames.size() > 1 && !objectNames.contains( "" ) ) dimensions.push_back( SummaryLegendDimension::OBJECT );
 
     auto curveColor  = []( RimSummaryCurve* curve ) { return curve->color(); };
     auto curveSymbol = []( RimSummaryCurve* curve ) { return curve->symbol(); };
