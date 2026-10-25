@@ -23,7 +23,12 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuPlotAxis.h"
 
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+
+#include "RimEnsembleCurveSet.h"
 #include "RimPlotCurve.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
 
 #include "RiuGuiTheme.h"
 #include "RiuPlotCurveSymbolImageCreator.h"
@@ -44,8 +49,11 @@
 
 #include <QCryptographicHash>
 #include <QImage>
+#include <QPainterPath>
 #include <QSet>
 
+#include <map>
+#include <set>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -311,6 +319,64 @@ QList<QList<QwtLegendData>> RiuQwtPlotTools::uniqueLegendData( const std::vector
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Draw a legend icon consisting of an optional horizontal line and/or an optional symbol.
+//--------------------------------------------------------------------------------------------------
+static QwtGraphic createCurveLegendIcon( const QSize&                        size,
+                                         bool                                drawLine,
+                                         const QColor&                       lineColor,
+                                         RiuPlotCurveSymbol::PointSymbolEnum symbol,
+                                         const QColor&                       symbolColor )
+{
+    QwtGraphic graphic;
+    graphic.setDefaultSize( size );
+    graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+    QPainter painter( &graphic );
+    painter.setRenderHint( QPainter::Antialiasing );
+
+    // QwtGraphic computes its own bounding rect from the actually painted content (see
+    // QwtGraphic::drawImage()/drawPath()), and the legend later rescales that bounding rect to fill its
+    // fixed icon slot. Without this, a symbol painted smaller than the full icon ends up with a smaller
+    // bounding rect that gets rescaled back up to fill the icon slot, defeating the size reduction below.
+    // Draw an invisible full-size rect first to pin the bounding rect to the full icon size.
+    QPainterPath boundsPath;
+    boundsPath.addRect( 0.0, 0.0, size.width(), size.height() );
+    painter.setPen( Qt::NoPen );
+    painter.setBrush( Qt::NoBrush );
+    painter.drawPath( boundsPath );
+
+    if ( drawLine )
+    {
+        // A bit thicker than a plain hairline, so colored curve lines are as visually prominent as curve symbols.
+        const double lineWidth = 3.0;
+
+        QPen pn;
+        pn.setCapStyle( Qt::FlatCap );
+        pn.setColor( lineColor );
+        pn.setWidthF( lineWidth );
+
+        painter.setPen( pn );
+
+        const double y = 0.5 * size.height();
+        QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
+    }
+
+    if ( symbol != RiuPlotCurveSymbol::SYMBOL_NONE )
+    {
+        // Draw the symbol clearly smaller than the full icon, so it does not dominate the icon visually.
+        const double symbolScale = 0.45;
+        QSize        symbolSize( static_cast<int>( size.width() * symbolScale ), static_cast<int>( size.height() * symbolScale ) );
+
+        auto image = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, symbolSize, symbolColor );
+
+        QPoint p( ( size.width() - symbolSize.width() ) / 2, ( size.height() - symbolSize.height() ) / 2 );
+        painter.drawImage( p, image );
+    }
+
+    return graphic;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlotCurve*>& curves )
@@ -327,35 +393,8 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
         auto size = icon->availableSizes().first();
         // see QwtPlotCurve::legendIcon
 
-        QwtGraphic graphic;
-        {
-            graphic.setDefaultSize( size );
-            graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
-
-            QPainter painter( &graphic );
-            painter.setRenderHint( QPainter::Antialiasing );
-
-            {
-                QPen pn;
-                pn.setCapStyle( Qt::FlatCap );
-                pn.setColor( RiaColorTools::toQColor( c->color() ) );
-
-                painter.setPen( pn );
-
-                const double y = 0.5 * size.height();
-                QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
-            }
-
-            if ( c->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
-            {
-                auto image = RiuPlotCurveSymbolImageCreator::createSymbolImage( c->symbol(),
-                                                                                QSize( size.width() / 2, size.height() / 2 ),
-                                                                                RiaColorTools::toQColor( c->color() ) );
-
-                QPoint p( size.width() / 4, size.height() / 4 );
-                painter.drawImage( p, image );
-            }
-        }
+        QColor     curveColor = RiaColorTools::toQColor( c->color() );
+        QwtGraphic graphic    = createCurveLegendIcon( size, /*drawLine=*/true, curveColor, c->symbol(), curveColor );
 
         QVariant v = QVariant::fromValue( graphic );
         test.setValue( QwtLegendData::Role::IconRole, v );
@@ -364,6 +403,147 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
     }
 
     return legendDataList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static QwtLegendData createLegendEntry( const QString& title, const QwtGraphic& icon )
+{
+    QwtLegendData entry;
+    entry.setValue( QwtLegendData::Role::TitleRole, title );
+    entry.setValue( QwtLegendData::Role::IconRole, QVariant::fromValue( icon ) );
+    return entry;
+}
+
+namespace
+{
+enum class SummaryLegendDimension
+{
+    CASE,
+    WELL,
+    VECTOR
+};
+
+QString dimensionValue( RimSummaryCurve* curve, SummaryLegendDimension dimension )
+{
+    switch ( dimension )
+    {
+        case SummaryLegendDimension::CASE:
+            return curve->summaryCaseY()->displayCaseName();
+        case SummaryLegendDimension::WELL:
+            return QString::fromStdString( curve->summaryAddressY().wellName() );
+        case SummaryLegendDimension::VECTOR:
+            return QString::fromStdString( curve->summaryAddressY().vectorName() );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns a legend label for each curve property (color or symbol), if the property is given by the
+/// dimension (each dimension value has one property). Dimension values sharing a property are combined
+/// into one label. Returns an empty map if the property is not given by the dimension, or does not vary.
+//--------------------------------------------------------------------------------------------------
+template <typename T, typename PropertyFunc>
+std::map<T, QString> labelsForProperties( const std::vector<RimSummaryCurve*>& curves, SummaryLegendDimension dimension, PropertyFunc property )
+{
+    std::map<QString, T> propertyForValue;
+    for ( auto curve : curves )
+    {
+        auto it = propertyForValue.emplace( dimensionValue( curve, dimension ), property( curve ) ).first;
+        if ( it->second != property( curve ) ) return {};
+    }
+
+    std::map<T, QStringList> valuesForProperty;
+    for ( const auto& [value, prop] : propertyForValue )
+        valuesForProperty[prop].push_back( value );
+    if ( valuesForProperty.size() < 2 ) return {};
+
+    std::map<T, QString> labels;
+    for ( const auto& [prop, values] : valuesForProperty )
+        labels[prop] = values.join( ", " );
+
+    return labels;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Create a color legend and a symbol legend when the curve color is given by one summary dimension (case,
+/// well or vector) and the curve symbol by another, e.g. one color per vector and one symbol per case. This
+/// gives (color count + symbol count) entries instead of one entry per color/symbol combination.
+///
+/// Returns false if the curves are not plain summary curves, or if no such pair of dimensions is found.
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotTools::createColorAndSymbolLegendData( const std::vector<RimPlotCurve*>& curves,
+                                                      QList<QList<QwtLegendData>>&      colorLegendData,
+                                                      QList<QList<QwtLegendData>>&      symbolLegendData )
+{
+    std::vector<RimSummaryCurve*>         summaryCurves;
+    std::vector<RifEclipseSummaryAddress> addresses;
+    std::set<QString>                     caseNames;
+
+    for ( auto curve : curves )
+    {
+        auto summaryCurve = dynamic_cast<RimSummaryCurve*>( curve );
+        if ( !summaryCurve || !summaryCurve->summaryCaseY() ) return false;
+        if ( summaryCurve->firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return false;
+
+        summaryCurves.push_back( summaryCurve );
+        addresses.push_back( summaryCurve->summaryAddressY() );
+        caseNames.insert( summaryCurve->summaryCaseY()->displayCaseName() );
+    }
+
+    RiaSummaryAddressAnalyzer analyzer;
+    analyzer.appendAddresses( addresses );
+
+    // Candidate dimensions are the ones with more than one value, in order of preference for the color legend
+    std::vector<SummaryLegendDimension> dimensions;
+    if ( caseNames.size() > 1 ) dimensions.push_back( SummaryLegendDimension::CASE );
+    if ( analyzer.quantities().size() > 1 ) dimensions.push_back( SummaryLegendDimension::VECTOR );
+    if ( analyzer.wellNames().size() > 1 && analyzer.categories() == std::set{ RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL } )
+    {
+        dimensions.push_back( SummaryLegendDimension::WELL );
+    }
+
+    auto curveColor  = []( RimSummaryCurve* curve ) { return curve->color(); };
+    auto curveSymbol = []( RimSummaryCurve* curve ) { return curve->symbol(); };
+
+    for ( auto colorDimension : dimensions )
+    {
+        auto colors = labelsForProperties<cvf::Color3f>( summaryCurves, colorDimension, curveColor );
+        if ( colors.empty() ) continue;
+
+        for ( auto symbolDimension : dimensions )
+        {
+            if ( symbolDimension == colorDimension ) continue;
+
+            auto symbols = labelsForProperties<RiuPlotCurveSymbol::PointSymbolEnum>( summaryCurves, symbolDimension, curveSymbol );
+            if ( symbols.empty() ) continue;
+
+            // Same square icon size as the regular curve legend icons (see RimPlotCurve::updateUiIconFromPlotSymbol())
+            const QSize iconSize( 24, 24 );
+
+            for ( const auto& [color, label] : colors )
+            {
+                const QColor lineColor = RiaColorTools::toQColor( color );
+                colorLegendData.push_back(
+                    { createLegendEntry( label,
+                                         createCurveLegendIcon( iconSize, true, lineColor, RiuPlotCurveSymbol::SYMBOL_NONE, lineColor ) ) } );
+            }
+
+            // Neutral symbol color, as color is given by the color legend
+            const QColor symbolColor( 60, 60, 60 );
+            for ( const auto& [symbol, label] : symbols )
+            {
+                symbolLegendData.push_back(
+                    { createLegendEntry( label, createCurveLegendIcon( iconSize, false, symbolColor, symbol, symbolColor ) ) } );
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
