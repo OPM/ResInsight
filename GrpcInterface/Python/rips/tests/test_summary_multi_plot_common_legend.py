@@ -46,7 +46,9 @@ def _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, prefix):
     os.makedirs(snapshot_dir, exist_ok=True)
     # Explicit width/height, as the plot widget may not have a usable size
     # yet when running headless inside the shared test session.
-    multi_plot.export_snapshot(export_folder=snapshot_dir, prefix=prefix, width=1000, height=700)
+    multi_plot.export_snapshot(
+        export_folder=snapshot_dir, prefix=prefix, width=1000, height=700
+    )
 
     files = os.listdir(snapshot_dir)
     assert files, "export_snapshot did not produce any file"
@@ -60,7 +62,9 @@ def test_common_legend_split_by_case_and_well(rips_instance, initialize_test, tm
     case_b = _import_case(rips_instance, tmp_path, "case_b")
 
     collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
-    collection.new_summary_plot(summary_cases=[case_a, case_b], address="WOPR:P1;WOPR:P2")
+    collection.new_summary_plot(
+        summary_cases=[case_a, case_b], address="WOPR:P1;WOPR:P2"
+    )
 
     multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
     multi_plot.use_common_legend = True
@@ -76,14 +80,18 @@ def test_common_legend_split_by_case_and_well(rips_instance, initialize_test, tm
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "case_and_well")
 
 
-def test_common_legend_split_by_vector_and_case(rips_instance, initialize_test, tmp_path):
+def test_common_legend_split_by_vector_and_case(
+    rips_instance, initialize_test, tmp_path
+):
     """Two cases x two vectors, one well: the common legend must be able to
     split into a color legend (per case) and a symbol legend (per vector)."""
     case_a = _import_case(rips_instance, tmp_path, "case_a")
     case_b = _import_case(rips_instance, tmp_path, "case_b")
 
     collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
-    collection.new_summary_plot(summary_cases=[case_a, case_b], address="WOPR:P1;WBHP:P1")
+    collection.new_summary_plot(
+        summary_cases=[case_a, case_b], address="WOPR:P1;WBHP:P1"
+    )
 
     multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
     multi_plot.use_common_legend = True
@@ -99,7 +107,9 @@ def test_common_legend_split_by_vector_and_case(rips_instance, initialize_test, 
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "vector_and_case")
 
 
-def test_common_legend_split_by_vector_and_well(rips_instance, initialize_test, tmp_path):
+def test_common_legend_split_by_vector_and_well(
+    rips_instance, initialize_test, tmp_path
+):
     """One case, two vectors x two wells: the common legend must be able to
     split into a color legend (per vector) and a symbol legend (per well)."""
     case_a = _import_case(rips_instance, tmp_path, "case_a")
@@ -123,7 +133,9 @@ def test_common_legend_split_by_vector_and_well(rips_instance, initialize_test, 
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "vector_and_well")
 
 
-def test_common_legend_split_by_case_and_group(rips_instance, initialize_test, tmp_path):
+def test_common_legend_split_by_case_and_group(
+    rips_instance, initialize_test, tmp_path
+):
     """Two cases x two groups, one vector: the common legend must be able to
     split into a color legend (per case) and a symbol legend (per group).
     The OBJECT dimension used for the symbol/color legend is generic and
@@ -132,7 +144,9 @@ def test_common_legend_split_by_case_and_group(rips_instance, initialize_test, t
     case_b = _import_case(rips_instance, tmp_path, "case_b")
 
     collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
-    collection.new_summary_plot(summary_cases=[case_a, case_b], address="GOPR:WIA;GOPR:PRODA")
+    collection.new_summary_plot(
+        summary_cases=[case_a, case_b], address="GOPR:WIA;GOPR:PRODA"
+    )
 
     multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
     multi_plot.use_common_legend = True
@@ -145,7 +159,9 @@ def test_common_legend_split_by_case_and_group(rips_instance, initialize_test, t
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "case_and_group")
 
 
-def test_common_legend_split_by_vector_and_group(rips_instance, initialize_test, tmp_path):
+def test_common_legend_split_by_vector_and_group(
+    rips_instance, initialize_test, tmp_path
+):
     """One case, two vectors x two groups: the common legend must be able to
     split into a color legend (per vector) and a symbol legend (per group)."""
     case_a = _import_case(rips_instance, tmp_path, "case_a")
@@ -166,7 +182,9 @@ def test_common_legend_split_by_vector_and_group(rips_instance, initialize_test,
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "vector_and_group")
 
 
-def test_common_legend_split_by_case_and_region(rips_instance, initialize_test, tmp_path):
+def test_common_legend_split_by_case_and_region(
+    rips_instance, initialize_test, tmp_path
+):
     """Two cases x two regions, one vector: the common legend must be able
     to split into a color legend (per case) and a symbol legend (per
     region). The OBJECT dimension used for the symbol/color legend is
