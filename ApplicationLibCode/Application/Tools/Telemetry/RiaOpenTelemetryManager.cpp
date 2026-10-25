@@ -305,6 +305,9 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
             enrichedAttributes["user.hash"] = m_userHash;
         }
 
+        // Do not overwrite attributes given by the caller
+        enrichedAttributes.insert( m_graphicsInfo.begin(), m_graphicsInfo.end() );
+
         addOsInfo( enrichedAttributes );
     }
 
@@ -391,11 +394,18 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     addOsInfo( attributes );
 
     // Add hashed username so crashes can be grouped per user without revealing the cleartext name.
+    // Add graphics environment, as many crashes are aborts inside the OpenGL driver.
     {
-        std::lock_guard<std::mutex> lock( m_configMutex );
-        if ( !m_userHash.empty() )
+        // try_lock: a crash on a thread holding the mutex would otherwise deadlock the handler
+        std::unique_lock<std::mutex> lock( m_configMutex, std::try_to_lock );
+        if ( lock.owns_lock() )
         {
-            attributes["user.hash"] = m_userHash;
+            if ( !m_userHash.empty() )
+            {
+                attributes["user.hash"] = m_userHash;
+            }
+
+            attributes.insert( m_graphicsInfo.begin(), m_graphicsInfo.end() );
         }
     }
 
@@ -478,6 +488,18 @@ void RiaOpenTelemetryManager::setUsername( const std::string& username )
     // Hash at the boundary so the cleartext username is never retained in memory.
     std::lock_guard<std::mutex> lock( m_configMutex );
     m_userHash = hashUsername( username );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Merge graphics information into the attributes attached to all events. Existing keys are replaced.
+//--------------------------------------------------------------------------------------------------
+void RiaOpenTelemetryManager::setGraphicsInfo( const std::map<std::string, std::string>& graphicsInfo )
+{
+    std::lock_guard<std::mutex> lock( m_configMutex );
+    for ( const auto& [key, value] : graphicsInfo )
+    {
+        m_graphicsInfo[key] = value;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

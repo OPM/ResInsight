@@ -265,6 +265,8 @@ set(OPENTELEMETRY_FILES
     Application/RiaPreferencesOpenTelemetry.cpp
     Application/Tools/Telemetry/RiaOpenTelemetryManager.h
     Application/Tools/Telemetry/RiaOpenTelemetryManager.cpp
+    Application/Tools/Telemetry/RiaGraphicsEnvironmentTools.h
+    Application/Tools/Telemetry/RiaGraphicsEnvironmentTools.cpp
 )
 list(APPEND CPP_SOURCES ${OPENTELEMETRY_FILES})
 

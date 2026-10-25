@@ -18,6 +18,7 @@
 
 #include "RiaApplication.h"
 #include "RiaArgumentParser.h"
+#include "RiaGraphicsEnvironmentTools.h"
 #include "RiaMainTools.h"
 #include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
@@ -157,6 +158,12 @@ int main( int argc, char* argv[] )
         bool                               isConsoleMode = ( dynamic_cast<RiaGuiApplication*>( app.get() ) == nullptr );
         attributes["app.console_mode"]                   = RiaStdStringTools::boolToString( isConsoleMode );
         attributes["app.version"]                        = RiaApplication::getVersionStringApp( false );
+
+        if ( !isConsoleMode )
+        {
+            RiaOpenTelemetryManager::instance().setGraphicsInfo( RiaGraphicsEnvironmentTools::displayEnvironment() );
+        }
+
         RiaOpenTelemetryManager::instance().reportEventAsync( "app.started", attributes );
     }
 
