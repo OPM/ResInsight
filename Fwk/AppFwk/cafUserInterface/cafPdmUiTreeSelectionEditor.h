@@ -139,12 +139,12 @@ private:
     PdmUiTreeSelectionQModel* m_model;
     QSortFilterProxyModel*    m_proxyModel;
 
-    bool                 m_showTextFilter          = true;
-    bool                 m_showToggleAllCheckbox   = true;
-    bool                 m_singleSelectionMode     = false;
-    bool                 m_showCheckBoxes          = true;
-    bool                 m_showContextMenu         = true;
-    int                  m_heightHint              = -1;
+    bool                 m_showTextFilter        = true;
+    bool                 m_showToggleAllCheckbox = true;
+    bool                 m_singleSelectionMode   = false;
+    bool                 m_showCheckBoxes        = true;
+    bool                 m_showContextMenu       = true;
+    int                  m_heightHint            = -1;
     QSize                m_iconSize;
     caf::PdmFieldHandle* m_currentIndexFieldHandle = nullptr;
 
