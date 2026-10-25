@@ -436,11 +436,14 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
         }
     }
 
-    if ( m_commonLegend && !m_commonLegend->isHidden() )
+    // The common legends are direct children of the page, not of the plot widget frame
+    for ( RiuQwtPlotLegend* commonLegend : { m_commonLegend.data(), m_commonSymbolLegend.data() } )
     {
-        // The common legend is a direct child of the page, not of the plot widget frame
-        QPoint renderOffset = m_commonLegend->frameGeometry().topLeft() - marginOffset;
-        m_commonLegend->render( painter, renderOffset );
+        if ( commonLegend && !commonLegend->isHidden() )
+        {
+            QPoint renderOffset = commonLegend->frameGeometry().topLeft() - marginOffset;
+            commonLegend->render( painter, renderOffset );
+        }
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
