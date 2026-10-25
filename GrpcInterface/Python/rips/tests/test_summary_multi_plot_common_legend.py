@@ -123,6 +123,71 @@ def test_common_legend_split_by_vector_and_well(rips_instance, initialize_test, 
     _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "vector_and_well")
 
 
+def test_common_legend_split_by_case_and_group(rips_instance, initialize_test, tmp_path):
+    """Two cases x two groups, one vector: the common legend must be able to
+    split into a color legend (per case) and a symbol legend (per group).
+    The OBJECT dimension used for the symbol/color legend is generic and
+    covers groups, not just wells."""
+    case_a = _import_case(rips_instance, tmp_path, "case_a")
+    case_b = _import_case(rips_instance, tmp_path, "case_b")
+
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    collection.new_summary_plot(summary_cases=[case_a, case_b], address="GOPR:WIA;GOPR:PRODA")
+
+    multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
+    multi_plot.use_common_legend = True
+    multi_plot.update()
+
+    summary_plot = rips_instance.project.descendants(rips.SummaryPlot)[-1]
+    curves = summary_plot.descendants(SummaryCurve)
+    assert len(curves) == 4  # 2 cases x 2 groups
+
+    _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "case_and_group")
+
+
+def test_common_legend_split_by_vector_and_group(rips_instance, initialize_test, tmp_path):
+    """One case, two vectors x two groups: the common legend must be able to
+    split into a color legend (per vector) and a symbol legend (per group)."""
+    case_a = _import_case(rips_instance, tmp_path, "case_a")
+
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    collection.new_summary_plot(
+        summary_cases=[case_a], address="GOPR:WIA;GOPR:PRODA;GWCT:WIA;GWCT:PRODA"
+    )
+
+    multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
+    multi_plot.use_common_legend = True
+    multi_plot.update()
+
+    summary_plot = rips_instance.project.descendants(rips.SummaryPlot)[-1]
+    curves = summary_plot.descendants(SummaryCurve)
+    assert len(curves) == 4  # 2 vectors x 2 groups
+
+    _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "vector_and_group")
+
+
+def test_common_legend_split_by_case_and_region(rips_instance, initialize_test, tmp_path):
+    """Two cases x two regions, one vector: the common legend must be able
+    to split into a color legend (per case) and a symbol legend (per
+    region). The OBJECT dimension used for the symbol/color legend is
+    generic and covers regions, not just wells."""
+    case_a = _import_case(rips_instance, tmp_path, "case_a")
+    case_b = _import_case(rips_instance, tmp_path, "case_b")
+
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    collection.new_summary_plot(summary_cases=[case_a, case_b], address="ROIP:1;ROIP:2")
+
+    multi_plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
+    multi_plot.use_common_legend = True
+    multi_plot.update()
+
+    summary_plot = rips_instance.project.descendants(rips.SummaryPlot)[-1]
+    curves = summary_plot.descendants(SummaryCurve)
+    assert len(curves) == 4  # 2 cases x 2 regions
+
+    _export_snapshot_if_gui(rips_instance, multi_plot, tmp_path, "case_and_region")
+
+
 def test_use_common_legend_is_scriptable(rips_instance, initialize_test, tmp_path):
     """The use_common_legend field round-trips through update() independent
     of any particular curve layout."""
