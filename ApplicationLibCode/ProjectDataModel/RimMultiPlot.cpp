@@ -71,13 +71,13 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
 
-    CAF_PDM_InitField( &m_useCommonLegend,
-                       "UseCommonLegend",
-                       false,
-                       "Use Common Legend",
-                       "",
-                       "Show one legend above the sub plots, merging identical entries. Useful when all sub plots share the same legend "
-                       "entries." );
+    CAF_PDM_InitScriptableField( &m_useCommonLegend,
+                                 "UseCommonLegend",
+                                 false,
+                                 "Use Common Legend",
+                                 "",
+                                 "Show one legend above the sub plots, merging identical entries. Useful when all sub plots share the "
+                                 "same legend entries." );
 
     CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size" );
     m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
