@@ -19,6 +19,7 @@
 #include "RimSummaryMultiPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
@@ -38,11 +39,13 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimAnnotationLineAppearance.h"
+#include "RimCurveStyleRules.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimPlotAxisProperties.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
@@ -56,6 +59,7 @@
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryMultiPlotBook.h"
@@ -89,9 +93,49 @@ void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::REALIZATIONS, "REALIZATIONS", "All Realizations" );
     setDefault( RimSummaryMultiPlot::AxisRangeAggregation::NONE );
 }
+
+template <>
+void AppEnum<RimSummaryMultiPlot::GlobalAppearance>::setUp()
+{
+    addItem( RimSummaryMultiPlot::GlobalAppearance::LOCAL, "LOCAL", "Local" );
+    addItem( RimSummaryMultiPlot::GlobalAppearance::GLOBAL, "GLOBAL", "Global" );
+    setDefault( RimSummaryMultiPlot::GlobalAppearance::LOCAL );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setGlobalAppearance( GlobalAppearance appearance )
+{
+    m_globalAppearance = appearance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot::GlobalAppearance RimSummaryMultiPlot::globalAppearance() const
+{
+    return m_globalAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::useGlobalColor() const
+{
+    return m_globalAppearance() == GlobalAppearance::GLOBAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::useGlobalSymbol() const
+{
+    return m_globalAppearance() == GlobalAppearance::GLOBAL;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -122,6 +166,9 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
     m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
+
+    CAF_PDM_InitField( &m_showCurveAppearance, "ShowCurveAppearance", false, "", "", "Show Curve Appearance" );
+    m_showCurveAppearance.uiCapability()->setUiIconFromResourceString( ":/Legend.png" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
@@ -169,6 +216,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
+
+    CAF_PDM_InitFieldNoDefault( &m_globalAppearance, "GlobalAppearance", "Curve Appearance" );
 
     CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Filter Threshold" );
 
@@ -442,6 +491,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
     subPlotSettingsGroup->add( &m_subTitleFontSize );
 
+    auto appearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
+    appearanceGroup->add( &m_globalAppearance );
+
     auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
     legendsGroup->setCollapsedByDefault();
     legendsGroup->add( &m_showPlotLegends );
@@ -497,6 +549,18 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         syncAxisRanges();
         analyzePlotsAndAdjustAppearanceSettings();
         zoomAll();
+    }
+    else if ( changedField == &m_globalAppearance )
+    {
+        if ( auto rules = RimProject::current() ? RimProject::current()->curveStyleRules() : nullptr )
+        {
+            rules->applyGlobalAppearance( summaryPlots() );
+        }
+    }
+    else if ( changedField == &m_showCurveAppearance )
+    {
+        m_showCurveAppearance = false;
+        if ( auto window = RiaGuiApplication::instance()->mainPlotWindow() ) window->showCurveAppearance();
     }
     else if ( changedField == &m_createPlotDuplicate )
     {
@@ -685,6 +749,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     toolBarFields.push_back( &m_appendNextCurve );
 
     toolBarFields.push_back( &m_createPlotDuplicate );
+    toolBarFields.push_back( &m_showCurveAppearance );
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );

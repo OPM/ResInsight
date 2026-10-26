@@ -188,6 +188,10 @@ public:
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
     void   applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate );
     bool   useGlobalCurveAppearance() const;
+    bool   useGlobalColor() const;
+    bool   useGlobalSymbol() const;
+    bool   controlsGlobalColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
+    bool   controlsGlobalSymbol( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
     void   updateCurveAppearanceFromGlobalSettings();
     void   applyGlobalCurveAppearance();
 

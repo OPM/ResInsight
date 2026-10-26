@@ -1434,9 +1434,8 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
         auto       plot          = firstAncestorOrThisOfType<RimSummaryPlot>();
-        auto       rules         = RimProject::current() ? RimProject::current()->curveStyleRules() : nullptr;
         const auto caseName      = summaryEnsemble() ? summaryEnsemble()->name().toStdString() : std::string();
-        const bool isColorGlobal = plot && plot->useGlobalCurveAppearance() && rules && rules->controlsColor( summaryAddressY(), caseName );
+        const bool isColorGlobal = plot && plot->controlsGlobalColor( summaryAddressY(), caseName );
         m_mainEnsembleColor.uiCapability()->setUiReadOnly( isColorGlobal );
         colorsGroup->add( &m_mainEnsembleColor );
         if ( isColorGlobal )

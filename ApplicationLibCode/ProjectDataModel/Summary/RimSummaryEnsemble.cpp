@@ -33,6 +33,8 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimCurveStyleRule.h"
+#include "RimCurveStyleRules.h"
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
@@ -1100,6 +1102,12 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSummaryEnsemble::treeItemTags()
         auto tag = caf::PdmUiTreeViewItemTag::create();
         tag.icon = caf::IconProvider( ":/TimedRefresh.png" );
         tags.push_back( tag );
+    }
+
+    if ( auto project = RimProject::current(); project && project->curveStyleRules() )
+    {
+        const auto globalTags = project->curveStyleRules()->curveStyleRuleTags( RimCurveStyleRule::Dimension::CASE, name() );
+        tags.insert( tags.end(), globalTags.begin(), globalTags.end() );
     }
 
     return tags;

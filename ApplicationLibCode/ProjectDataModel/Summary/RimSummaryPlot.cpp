@@ -54,6 +54,7 @@
 #include "RimSummaryCurvesData.h"
 #include "RimSummaryDeclineCurve.h"
 #include "RimSummaryEnsemble.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
@@ -917,7 +918,6 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
     {
         RimCurveStyleRule::AvailableNamesCache namesCache;
 
-        const auto             rules = RimProject::current()->curveStyleRules();
         const DimensionIndexer colorIndexer( settings->colorDimension(), allCurveDefs );
         const DimensionIndexer symbolIndexer( settings->symbolDimension(), allCurveDefs );
 
@@ -927,25 +927,43 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
             const auto caseName = DimensionIndexer::caseName( curve->summaryCaseY() );
 
             // Curves without a value for the selected dimensions keep their own appearance and stay editable
-            if ( !rules->controlsColor( address, caseName ) && !rules->controlsSymbol( address, caseName ) ) continue;
+            const bool controlsColor  = controlsGlobalColor( address, caseName );
+            const bool controlsSymbol = controlsGlobalSymbol( address, caseName );
+            // A property without a global dimension is assigned locally, as when global appearance is off
+            const bool localColor  = useGlobalColor() && settings->colorDimension() == RimCurveStyleRule::Dimension::NONE;
+            const bool localSymbol = useGlobalSymbol() && settings->symbolDimension() == RimCurveStyleRule::Dimension::NONE;
+            if ( !controlsColor && !controlsSymbol && !localColor && !localSymbol ) continue;
 
-            const auto originalColor = curve->color();
+            auto originalColor  = curve->color();
+            auto originalSymbol = curve->symbol();
             curve->resetAppearance();
 
-            // Curves where only the symbol is assigned globally keep their color
-            if ( !rules->controlsColor( address, caseName ) )
+            if ( localColor || localSymbol )
+            {
+                RimSummaryCurveAppearanceCalculator( allCurveDefs ).setupCurveLook( curve );
+                if ( localColor ) originalColor = curve->color();
+                if ( localSymbol ) originalSymbol = curve->symbol();
+                curve->resetAppearance();
+            }
+
+            // Properties not assigned globally keep their value
+            if ( !controlsColor )
                 curve->setColor( originalColor );
             else if ( auto color = globalColor( colorIndexer, address, caseName ) )
                 curve->setColor( *color );
 
-            const int symbolIndex = symbolIndexer.index( address, caseName );
-            if ( symbolIndex >= 0 ) curve->setSymbol( RimSummaryCurveAppearanceCalculator::cycledSymbol( symbolIndex ) );
+            if ( !controlsSymbol )
+                curve->setSymbol( originalSymbol );
+            else if ( const int symbolIndex = symbolIndexer.index( address, caseName ); symbolIndex >= 0 )
+                curve->setSymbol( RimSummaryCurveAppearanceCalculator::cycledSymbol( symbolIndex ) );
 
             curve->setCurveAppearanceFromCaseType();
 
             for ( auto rule : rulesForCurve( curve ) )
             {
-                rule->applyToCurve( curve, rule->dimension() == settings->colorDimension(), rule->dimension() == settings->symbolDimension() );
+                rule->applyToCurve( curve,
+                                    controlsColor && rule->dimension() == settings->colorDimension(),
+                                    controlsSymbol && rule->dimension() == settings->symbolDimension() );
             }
         }
 
@@ -966,10 +984,43 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::useGlobalCurveAppearance() const
 {
-    auto project = RimProject::current();
-    if ( !project || !project->curveStyleRules() ) return false;
+    return useGlobalColor() || useGlobalSymbol();
+}
 
-    return project->curveStyleRules()->useGlobalAppearance();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::useGlobalColor() const
+{
+    auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    return multiPlot && multiPlot->useGlobalColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::useGlobalSymbol() const
+{
+    auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    return multiPlot && multiPlot->useGlobalSymbol();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether the global appearance assigns the color of a curve with the given address and case in this plot
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::controlsGlobalColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
+{
+    auto project = RimProject::current();
+    return useGlobalColor() && project && project->curveStyleRules() && project->curveStyleRules()->controlsColor( address, caseName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::controlsGlobalSymbol( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
+{
+    auto project = RimProject::current();
+    return useGlobalSymbol() && project && project->curveStyleRules() && project->curveStyleRules()->controlsSymbol( address, caseName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -981,6 +1032,23 @@ void RimSummaryPlot::updateCurveAppearanceFromGlobalSettings()
 
     applyGlobalCurveAppearance();
     loadDataAndUpdate();
+
+    auto* qwtWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
+    auto  project   = RimProject::current();
+    if ( !qwtWidget || !project || !project->curveStyleRules() ) return;
+
+    std::vector<RimPlotCurve*> highlightedCurves;
+    for ( auto curve : summaryCurves() )
+    {
+        if ( project->curveStyleRules()->isHighlighted( curve->summaryAddressY(), RimCurveStyleSettings::caseName( curve->summaryCaseY() ) ) )
+        {
+            highlightedCurves.push_back( curve );
+        }
+    }
+
+    qwtWidget->resetPlotItemHighlighting( false );
+    if ( !highlightedCurves.empty() ) qwtWidget->highlightCurvesUpdateOrder( highlightedCurves );
+    qwtWidget->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1006,11 +1074,13 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
     // Indices depend on all curve sets in the plot, so all must be updated to stay consistent
     RimCurveStyleRule::AvailableNamesCache namesCache;
     std::optional<DimensionIndexer>        globalColorIndexer;
-    if ( useGlobalCurveAppearance() )
+    auto                                   project             = RimProject::current();
+    const bool                             colorDimensionIsSet = useGlobalColor() && project && project->curveStyleRules() &&
+                                     project->curveStyleRules()->settings()->colorDimension() != RimCurveStyleRule::Dimension::NONE;
+    if ( colorDimensionIsSet )
     {
         ensembleCurvesToUpdate = ensembleCurveSetCollection()->curveSets();
-        globalColorIndexer.emplace( RimProject::current()->curveStyleRules()->settings()->colorDimension(),
-                                    summaryAndEnsembleCurveDefinitions() );
+        globalColorIndexer.emplace( project->curveStyleRules()->settings()->colorDimension(), summaryAndEnsembleCurveDefinitions() );
     }
 
     std::vector<QColor> usedColors;
