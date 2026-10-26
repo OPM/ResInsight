@@ -72,6 +72,7 @@
 #include <QString>
 
 #include <numeric>
+#include <optional>
 #include <vector>
 
 namespace caf
@@ -697,7 +698,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             return;
         }
 
-        RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
+        if ( wellLogPlot )
+        {
+            displayUnit = wellLogPlot->depthUnit();
+        }
+
+        RiaDefines::EclipseUnitSystem            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        std::optional<RiaDefines::DepthUnitType> dataDepthUnit;
         if ( m_eclipseCase )
         {
             // TODO: If no grid data, but only RFT data is loaded, we do not have any way to
@@ -717,8 +725,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else if ( m_observedFmuRftData )
         {
-            // TODO: Read unit system somewhere for FMU RFT Data
-            unitSystem     = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+            // Observed FMU data must never be unit converted, so treat the depth values as already being in the display unit
+            dataDepthUnit  = displayUnit;
             perPointLabels = this->perPointLabels();
         }
         else if ( m_pressureDepthData )
@@ -759,15 +767,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                        measuredDepthVector,
                                        tvDepthVector,
                                        rkbDiff,
-                                       RiaDefines::fromEclipseUnit( unitSystem ),
+                                       dataDepthUnit.value_or( RiaDefines::fromEclipseUnit( unitSystem ) ),
                                        false,
                                        useLogarithmicScale );
-
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
-        if ( wellLogPlot )
-        {
-            displayUnit = wellLogPlot->depthUnit();
-        }
 
         if ( m_plotCurve )
         {
