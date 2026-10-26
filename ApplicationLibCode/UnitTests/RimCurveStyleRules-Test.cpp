@@ -32,11 +32,13 @@ TEST( RimCurveStyleRulesTest, RulesForOrderedByDimension )
 
     const auto matching = rules.rulesFor( RifEclipseSummaryAddress::wellAddress( "WOPR", "A-1" ), "case" );
 
-    ASSERT_EQ( 2u, matching.size() );
-    EXPECT_EQ( caseRule, matching[0] );
-    EXPECT_EQ( wellRule, matching[1] );
+    // The two base styles come first, followed by the item rules ordered by dimension
+    ASSERT_EQ( 4u, matching.size() );
+    EXPECT_EQ( caseRule, matching[2] );
+    EXPECT_EQ( wellRule, matching[3] );
 
-    EXPECT_TRUE( rules.rulesFor( RifEclipseSummaryAddress::wellAddress( "WOPR", "A-1" ), "auto case" ).size() == 1 );
+    // The base styles and the well rule apply, as there is no custom rule for the case
+    EXPECT_EQ( 3u, rules.rulesFor( RifEclipseSummaryAddress::wellAddress( "WOPR", "A-1" ), "auto case" ).size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,10 +76,6 @@ TEST( RimCurveStyleRulesTest, ControlsOnlyCurvesWithValueForDimension )
 
     const auto wellAddress  = RifEclipseSummaryAddress::wellAddress( "WOPR", "A-1" );
     const auto fieldAddress = RifEclipseSummaryAddress::fieldAddress( "FOPT" );
-
-    EXPECT_FALSE( rules.controlsColor( wellAddress, "case" ) );
-
-    rules.setUseGlobalAppearance( true );
 
     EXPECT_TRUE( rules.controlsColor( wellAddress, "case" ) );
     EXPECT_FALSE( rules.controlsColor( fieldAddress, "case" ) );

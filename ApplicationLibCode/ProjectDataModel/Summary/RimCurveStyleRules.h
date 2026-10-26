@@ -27,6 +27,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cvfColor3.h"
 
@@ -67,6 +68,9 @@ public:
 
     // Whether the global appearance assigns the color or symbol of a curve with the given address and case
     bool controlsColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
+
+    // Whether the curve belongs to an item checked as highlighted for the color or symbol dimension
+    bool isHighlighted( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
     bool controlsSymbol( const RifEclipseSummaryAddress& address, const std::string& caseName ) const;
 
     // Index used to pick the palette color and symbol for a case or well name. Indices are kept in the project so that
@@ -81,14 +85,19 @@ public:
     // Configures a field as a label with a link that shows the global curve appearance
     static void addGlobalAppearanceLink( caf::PdmUiOrdering& uiOrdering, const QString& text );
 
-    // The global appearance applies to all summary plots in the project
-    bool useGlobalAppearance() const;
-    void setUseGlobalAppearance( bool enable );
+    // Global appearance is selected per summary multi plot
+    bool isGlobalColorUsed() const;
+    bool isGlobalSymbolUsed() const;
+
+    // Tags for the data source tree showing the global color and symbol assigned to an item
+    std::vector<caf::PdmUiTreeViewItemTag> curveStyleRuleTags( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
+    void                                   applyGlobalAppearance( const std::vector<RimSummaryPlot*>& plots );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
 
 public:
     enum class AppearanceType
@@ -98,14 +107,23 @@ public:
     };
 
 private:
-    void               assignedAppearance( const QString&                                              name,
+    void               assignedAppearance( RimCurveStyleRule::Dimension                                dimension,
+                                           const QString&                                              name,
                                            int                                                         index,
                                            const std::map<QString, RimCurveStyleRule::PlotAppearance>& plotAppearances,
                                            std::optional<cvf::Color3f>&                                color,
                                            std::optional<RiuPlotCurveSymbol::PointSymbolEnum>&         symbol ) const;
     RimCurveStyleRule* findRule( RimCurveStyleRule::Dimension dimension, const QString& name ) const;
-    QString            currentItemName() const;
-    bool               updateSelectedItem();
+    void               setUpBaseStyles();
+
+    // The names of the highlighted items for the current dimension, as edited with checkboxes
+    std::vector<QString> highlightedItems() const;
+    void                 setHighlightedItems( const std::vector<QString>& names );
+
+    int  symbolSize() const;
+    void setSymbolSize( const int& size );
+    void connectAllPlots( bool connect );
+    void updateSummaryCaseTags();
 
     // The dimension controlling the selected appearance type, as stored in the global settings
     caf::AppEnum<RimCurveStyleRule::Dimension> currentDimension() const;
@@ -114,13 +132,11 @@ private:
     caf::PdmField<std::vector<QString>>*       itemOrder( RimCurveStyleRule::Dimension dimension );
     const caf::PdmField<std::vector<QString>>* itemOrder( RimCurveStyleRule::Dimension dimension ) const;
 
-    void applyGlobalAppearanceMode();
     void saveAppearance( RimSummaryPlot* plot );
-    void restoreAppearances();
+    void restoreAppearances( const std::vector<RimSummaryPlot*>& plots, bool applyDefaultsToUnsaved );
 
     // The curve appearance before the global appearance was enabled, restored when disabled
     caf::PdmChildArrayField<RimSavedCurveAppearance*> m_savedAppearances;
-    caf::PdmField<bool>                               m_useGlobalAppearance;
 
     caf::PdmChildField<RimCurveStyleSettings*>                          m_settings;
     caf::PdmChildArrayField<RimCurveStyleRule*>                         m_rules;
@@ -130,8 +146,18 @@ private:
     caf::PdmProxyValueField<caf::AppEnum<RimCurveStyleRule::Dimension>> m_currentType;
     caf::PdmPtrField<RimColorLegend*>                                   m_autoColorLegend;
     caf::PdmField<int>                                                  m_symbolLegend;
-    caf::PdmField<int>                                                  m_currentItemIndex;
+    caf::PdmProxyValueField<std::vector<QString>>                       m_highlightedItems;
+    caf::PdmProxyValueField<int>                                        m_symbolSize;
 
-    // Edited in the dock window for the selected item. Not stored, custom settings are copied to a rule in m_rules.
-    caf::PdmChildField<RimCurveStyleRule*> m_selectedItem;
+    // The style shared by all items controlled by color, and the symbol size shared by all items controlled by symbol
+    caf::PdmChildField<RimCurveStyleRule*> m_colorBaseStyle;
+    caf::PdmChildField<RimCurveStyleRule*> m_symbolBaseStyle;
+
+    // Colors and symbols shown as tags in the data source tree, built on demand and cleared when the rules change
+    struct TagAppearance
+    {
+        std::optional<cvf::Color3f>                        color;
+        std::optional<RiuPlotCurveSymbol::PointSymbolEnum> symbol;
+    };
+    mutable std::map<RimCurveStyleRule::Dimension, std::map<QString, TagAppearance>> m_tagCache;
 };

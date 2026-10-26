@@ -27,9 +27,13 @@
 #include "RimCurveStyleSettings.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryEnsemble.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotCurveSymbolImageCreator.h"
@@ -37,6 +41,7 @@
 
 #include "cafPdmUiLabel.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 #include <map>
@@ -56,19 +61,22 @@ void caf::AppEnum<RimCurveStyleRules::AppearanceType>::setUp()
 }
 } // namespace caf
 
+namespace
+{
+std::vector<RimSummaryMultiPlot*> summaryMultiPlots()
+{
+    auto plotCollection = RimMainPlotCollection::current();
+    if ( !plotCollection || !plotCollection->summaryMultiPlotCollection() ) return {};
+
+    return plotCollection->summaryMultiPlotCollection()->multiPlots();
+}
+} // namespace
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCurveStyleRules::RimCurveStyleRules()
 {
     CAF_PDM_InitObject( "Curve Style Rules" );
-
-    CAF_PDM_InitField( &m_useGlobalAppearance,
-                       "UseGlobalAppearance",
-                       false,
-                       "Use Global Curve Appearance",
-                       "",
-                       "Assign curve appearance in all summary plots from the global curve appearance definition" );
 
     CAF_PDM_InitFieldNoDefault( &m_settings, "Settings", "Settings" );
     m_settings.uiCapability()->setUiTreeChildrenHidden( true );
@@ -78,21 +86,30 @@ RimCurveStyleRules::RimCurveStyleRules()
     CAF_PDM_InitFieldNoDefault( &m_savedAppearances, "SavedAppearances", "Saved Appearances" );
     m_savedAppearances.uiCapability()->setUiTreeChildrenHidden( true );
     m_savedAppearances.uiCapability()->setUiHidden( true );
+    // Only valid during the session, so not stored in the project file
+    m_savedAppearances.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_rules, "Rules", "Rules" );
     m_rules.uiCapability()->setUiTreeChildrenHidden( true );
     m_rules.uiCapability()->setUiHidden( true );
+    m_rules.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_caseOrder, "CaseOrder", "Case Order" );
     m_caseOrder.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_wellOrder, "WellOrder", "Well Order" );
     m_wellOrder.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedItem, "SelectedItem", "Selected Item" );
-    m_selectedItem.uiCapability()->setUiTreeChildrenHidden( true );
-    m_selectedItem.uiCapability()->setUiHidden( true );
-    m_selectedItem.xmlCapability()->disableIO();
-    m_selectedItem = new RimCurveStyleRule;
+    CAF_PDM_InitFieldNoDefault( &m_colorBaseStyle, "ColorBaseStyle", "Color Base Style" );
+    m_colorBaseStyle.uiCapability()->setUiTreeChildrenHidden( true );
+    m_colorBaseStyle.uiCapability()->setUiHidden( true );
+    m_colorBaseStyle = new RimCurveStyleRule;
+
+    CAF_PDM_InitFieldNoDefault( &m_symbolBaseStyle, "SymbolBaseStyle", "Symbol Base Style" );
+    m_symbolBaseStyle.uiCapability()->setUiTreeChildrenHidden( true );
+    m_symbolBaseStyle.uiCapability()->setUiHidden( true );
+    m_symbolBaseStyle = new RimCurveStyleRule;
+
+    setUpBaseStyles();
 
     CAF_PDM_InitFieldNoDefault( &m_appearanceType, "AppearanceType", "Appearance Property" );
     m_appearanceType.xmlCapability()->disableIO();
@@ -111,12 +128,94 @@ RimCurveStyleRules::RimCurveStyleRules()
     m_currentType.registerSetMethod( this, &RimCurveStyleRules::setCurrentDimension );
     m_currentType.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_currentItemIndex, "CurrentItemIndex", 0, "Items" );
-    m_currentItemIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    m_currentItemIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
-    m_currentItemIndex.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::HEIGHT_HINT, 200 );
-    m_currentItemIndex.uiCapability()->setAttribute( caf::PdmUiListEditor::Keys::ICON_SIZE, QSize( 52, 16 ) );
-    m_currentItemIndex.xmlCapability()->disableIO();
+    // Checked items are highlighted
+    CAF_PDM_InitFieldNoDefault( &m_highlightedItems, "HighlightedItems", "Items" );
+    m_highlightedItems.registerGetMethod( this, &RimCurveStyleRules::highlightedItems );
+    m_highlightedItems.registerSetMethod( this, &RimCurveStyleRules::setHighlightedItems );
+    m_highlightedItems.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_highlightedItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_highlightedItems.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TEXT_FILTER, false );
+    m_highlightedItems.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::SHOW_TOGGLE_ALL_CHECKBOX, false );
+    m_highlightedItems.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::HEIGHT_HINT, 200 );
+    m_highlightedItems.uiCapability()->setAttribute( caf::PdmUiTreeSelectionEditor::Keys::ICON_SIZE, QSize( 33, 16 ) );
+    m_highlightedItems.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_symbolSize, "SymbolSize", "Symbol Size" );
+    m_symbolSize.registerGetMethod( this, &RimCurveStyleRules::symbolSize );
+    m_symbolSize.registerSetMethod( this, &RimCurveStyleRules::setSymbolSize );
+    m_symbolSize.xmlCapability()->disableIO();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::initAfterRead()
+{
+    setUpBaseStyles();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::setUpBaseStyles()
+{
+    if ( m_colorBaseStyle() ) m_colorBaseStyle()->setBaseKind( RimCurveStyleRule::BaseKind::COLOR );
+    if ( m_symbolBaseStyle() ) m_symbolBaseStyle()->setBaseKind( RimCurveStyleRule::BaseKind::SYMBOL );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The names of the highlighted items of the current dimension
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimCurveStyleRules::highlightedItems() const
+{
+    std::vector<QString> names;
+    for ( auto rule : m_rules )
+    {
+        if ( rule->dimension() == m_currentType() && rule->isHighlighted() ) names.push_back( rule->itemName() );
+    }
+
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Rules are only kept for items that are highlighted or custom
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::setHighlightedItems( const std::vector<QString>& names )
+{
+    const std::set<QString> highlighted( names.begin(), names.end() );
+
+    for ( const auto& name : RimCurveStyleRule::availableNames( m_currentType() ) )
+    {
+        if ( highlighted.contains( name ) )
+        {
+            findOrCreateRule( m_currentType(), name )->setHighlighted( true );
+        }
+        else if ( auto rule = findRule( m_currentType(), name ) )
+        {
+            rule->setHighlighted( false );
+            if ( !rule->isCustom() )
+            {
+                m_rules.removeChild( rule );
+                delete rule;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCurveStyleRules::symbolSize() const
+{
+    return m_symbolBaseStyle() ? m_symbolBaseStyle()->symbolSize() : 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::setSymbolSize( const int& size )
+{
+    if ( m_symbolBaseStyle() ) m_symbolBaseStyle()->setSymbolSize( size );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,23 +257,39 @@ std::vector<const RimCurveStyleRule*> RimCurveStyleRules::rulesFor( const RifEcl
     const auto colorDimension  = m_settings->colorDimension();
     const auto symbolDimension = m_settings->symbolDimension();
 
-    std::vector<const RimCurveStyleRule*> result;
+    std::vector<const RimCurveStyleRule*> others;
     for ( auto rule : m_rules )
     {
-        if ( !rule->isCustom() ) continue;
+        if ( !rule->isCustom() && !rule->isHighlighted() ) continue;
 
         const auto dimension = rule->dimension();
         if ( dimension != colorDimension && dimension != symbolDimension ) continue;
 
         const auto value = RimCurveStyleSettings::dimensionValue( dimension, address, caseName );
-        if ( !value.empty() && QString::fromStdString( value ) == rule->itemName() ) result.push_back( rule );
+        if ( !value.empty() && QString::fromStdString( value ) == rule->itemName() ) others.push_back( rule );
     }
 
     // Fixed precedence by dimension, so the result does not depend on the order the rules were created in
-    std::stable_sort( result.begin(),
-                      result.end(),
+    std::stable_sort( others.begin(),
+                      others.end(),
                       []( const RimCurveStyleRule* a, const RimCurveStyleRule* b ) { return a->dimension() < b->dimension(); } );
 
+    // The base styles are applied first, as the rules for specific items build on them
+    std::vector<const RimCurveStyleRule*> result;
+    if ( m_colorBaseStyle() && colorDimension != RimCurveStyleRule::Dimension::NONE &&
+         !RimCurveStyleSettings::dimensionValue( colorDimension, address, caseName ).empty() )
+    {
+        m_colorBaseStyle()->setDimension( colorDimension );
+        result.push_back( m_colorBaseStyle() );
+    }
+    if ( m_symbolBaseStyle() && symbolDimension != RimCurveStyleRule::Dimension::NONE &&
+         !RimCurveStyleSettings::dimensionValue( symbolDimension, address, caseName ).empty() )
+    {
+        m_symbolBaseStyle()->setDimension( symbolDimension );
+        result.push_back( m_symbolBaseStyle() );
+    }
+
+    result.insert( result.end(), others.begin(), others.end() );
     return result;
 }
 
@@ -191,6 +306,30 @@ void RimCurveStyleRules::rulesChanged()
     {
         plot->updateCurveAppearanceFromGlobalSettings();
     }
+
+    // The data source tree shows a tag with the global color of each case
+    updateSummaryCaseTags();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::updateSummaryCaseTags()
+{
+    m_tagCache.clear();
+
+    auto project = RimProject::current();
+    if ( !project ) return;
+
+    for ( auto summaryCase : project->allSummaryCases() )
+    {
+        summaryCase->updateConnectedEditors();
+    }
+
+    for ( auto ensemble : project->summaryEnsembles() )
+    {
+        ensemble->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,16 +337,20 @@ void RimCurveStyleRules::rulesChanged()
 //--------------------------------------------------------------------------------------------------
 void RimCurveStyleRules::ruleChanged( RimCurveStyleRule* rule )
 {
-    if ( rule == m_selectedItem() )
-    {
-        // Rules are only stored for items that have been made custom
-        auto stored = rule->isCustom() ? findOrCreateRule( rule->dimension(), rule->itemName() )
-                                       : findRule( rule->dimension(), rule->itemName() );
-        if ( stored ) stored->copySettingsFrom( *rule );
-    }
-
     rulesChanged();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCurveStyleRules::isHighlighted( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
+{
+    for ( auto rule : rulesFor( address, caseName ) )
+    {
+        if ( rule->isHighlighted() ) return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +359,7 @@ void RimCurveStyleRules::ruleChanged( RimCurveStyleRule* rule )
 bool RimCurveStyleRules::controlsColor( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
 {
     const auto dimension = m_settings->colorDimension();
-    if ( !m_useGlobalAppearance() || dimension == RimCurveStyleRule::Dimension::NONE ) return false;
+    if ( dimension == RimCurveStyleRule::Dimension::NONE ) return false;
 
     return !RimCurveStyleSettings::dimensionValue( dimension, address, caseName ).empty();
 }
@@ -227,7 +370,7 @@ bool RimCurveStyleRules::controlsColor( const RifEclipseSummaryAddress& address,
 bool RimCurveStyleRules::controlsSymbol( const RifEclipseSummaryAddress& address, const std::string& caseName ) const
 {
     const auto dimension = m_settings->symbolDimension();
-    if ( !m_useGlobalAppearance() || dimension == RimCurveStyleRule::Dimension::NONE ) return false;
+    if ( dimension == RimCurveStyleRule::Dimension::NONE ) return false;
 
     return !RimCurveStyleSettings::dimensionValue( dimension, address, caseName ).empty();
 }
@@ -308,57 +451,143 @@ void RimCurveStyleRules::addGlobalAppearanceLink( caf::PdmUiOrdering& uiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCurveStyleRules::useGlobalAppearance() const
+bool RimCurveStyleRules::isGlobalColorUsed() const
 {
-    return m_useGlobalAppearance();
+    for ( auto multiPlot : summaryMultiPlots() )
+    {
+        if ( multiPlot->useGlobalColor() ) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::setUseGlobalAppearance( bool enable )
+bool RimCurveStyleRules::isGlobalSymbolUsed() const
 {
-    if ( m_useGlobalAppearance() == enable ) return;
+    for ( auto multiPlot : summaryMultiPlots() )
+    {
+        if ( multiPlot->useGlobalSymbol() ) return true;
+    }
 
-    m_useGlobalAppearance = enable;
-    applyGlobalAppearanceMode();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Applies the global appearance to all plots when enabled, and restores the original appearance when disabled
+/// Tags showing the color and symbol assigned to an item of the dimension, for the data source tree.
+/// The assigned appearances are found once per dimension, as it can require scanning all summary addresses and plots.
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::applyGlobalAppearanceMode()
+std::vector<caf::PdmUiTreeViewItemTag> RimCurveStyleRules::curveStyleRuleTags( RimCurveStyleRule::Dimension dimension, const QString& name ) const
 {
-    auto project = RimProject::current();
-    if ( !project ) return;
+    std::vector<caf::PdmUiTreeViewItemTag> tags;
+    if ( name.isEmpty() || !m_settings() ) return tags;
 
-    if ( m_useGlobalAppearance() )
+    const bool useColor  = m_settings()->colorDimension() == dimension && isGlobalColorUsed();
+    const bool useSymbol = m_settings()->symbolDimension() == dimension && isGlobalSymbolUsed();
+    if ( !useColor && !useSymbol ) return tags;
+
+    auto cacheIt = m_tagCache.find( dimension );
+    // Items added after the cache was built are not in the cache, rebuild to include them
+    if ( cacheIt == m_tagCache.end() || !cacheIt->second.contains( name ) )
     {
         RimCurveStyleRule::AvailableNamesCache namesCache;
 
-        m_savedAppearances.deleteChildren();
-        for ( auto plot : project->descendantsIncludingThisOfType<RimSummaryPlot>() )
+        std::map<QString, TagAppearance> appearances;
+
+        const auto plotAppearances = RimCurveStyleRule::appearancesFromPlots( dimension );
+        const auto indices         = itemIndices( dimension );
+        for ( const auto& itemName : RimCurveStyleRule::availableNames( dimension ) )
         {
-            saveAppearance( plot );
-            plot->updateCurveAppearanceFromGlobalSettings();
+            const auto indexIt = indices.find( itemName );
+            const int  index   = indexIt != indices.end() ? indexIt->second : static_cast<int>( appearances.size() );
+
+            TagAppearance appearance;
+            assignedAppearance( dimension, itemName, index, plotAppearances, appearance.color, appearance.symbol );
+
+            if ( const auto rule = findRule( dimension, itemName ); rule && rule->isCustom() )
+            {
+                if ( rule->overriddenColor() ) appearance.color = rule->overriddenColor();
+                if ( rule->overriddenSymbol() ) appearance.symbol = rule->overriddenSymbol();
+            }
+
+            appearances[itemName] = appearance;
         }
-    }
-    else
-    {
-        restoreAppearances();
-        m_savedAppearances.deleteChildren();
+
+        // Names without an assigned appearance get an empty entry, to avoid rebuilding the cache on every repaint
+        if ( !appearances.contains( name ) ) appearances[name] = TagAppearance();
+
+        cacheIt = m_tagCache.insert_or_assign( dimension, std::move( appearances ) ).first;
     }
 
+    const auto appearanceIt = cacheIt->second.find( name );
+    if ( appearanceIt == cacheIt->second.end() ) return tags;
+
+    if ( useColor && appearanceIt->second.color )
+    {
+        auto tag    = caf::PdmUiTreeViewItemTag::create();
+        tag.icon    = RimCurveStyleRule::swatchIcon( *appearanceIt->second.color );
+        tag.toolTip = "Global curve color";
+        tags.push_back( tag );
+    }
+
+    if ( useSymbol && appearanceIt->second.symbol )
+    {
+        const auto image =
+            RiuPlotCurveSymbolImageCreator::createSymbolImage( *appearanceIt->second.symbol, QSize( 14, 14 ), QColor( Qt::gray ) );
+
+        auto tag    = caf::PdmUiTreeViewItemTag::create();
+        tag.icon    = caf::IconProvider( QPixmap::fromImage( image ) );
+        tag.toolTip = "Global curve symbol";
+        tags.push_back( tag );
+    }
+
+    return tags;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Applies the global appearance to the plots when enabled for them, and restores the original appearance when disabled
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::applyGlobalAppearance( const std::vector<RimSummaryPlot*>& plots )
+{
+    RimCurveStyleRule::AvailableNamesCache namesCache;
+
+    // Restore saved appearances first, so properties no longer controlled globally (e.g. color when changing from color
+    // and symbol to symbol only) go back to their original values before the global appearance is applied again.
+    // Plots still using the global appearance keep curves without a saved appearance as they are.
+    std::vector<RimSummaryPlot*> enabledPlots;
+    std::vector<RimSummaryPlot*> disabledPlots;
+    for ( auto plot : plots )
+        ( plot->useGlobalCurveAppearance() ? enabledPlots : disabledPlots ).push_back( plot );
+
+    restoreAppearances( enabledPlots, false );
+    restoreAppearances( disabledPlots, true );
+
+    for ( auto plot : enabledPlots )
+    {
+        saveAppearance( plot );
+        plot->updateCurveAppearanceFromGlobalSettings();
+    }
+
+    updateSummaryCaseTags();
     updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Appearances saved earlier are kept, they are the appearance before the global appearance was used
 //--------------------------------------------------------------------------------------------------
 void RimCurveStyleRules::saveAppearance( RimSummaryPlot* plot )
 {
+    std::set<caf::PdmObject*> alreadySaved;
+    for ( auto saved : m_savedAppearances )
+    {
+        if ( auto object = saved->object() ) alreadySaved.insert( object );
+    }
+
     for ( auto curve : plot->summaryCurves() )
     {
+        if ( alreadySaved.contains( curve ) ) continue;
+
         auto saved = new RimSavedCurveAppearance;
         saved->setCurve( curve );
         m_savedAppearances.push_back( saved );
@@ -366,6 +595,8 @@ void RimCurveStyleRules::saveAppearance( RimSummaryPlot* plot )
 
     for ( auto curveSet : plot->ensembleCurveSetCollection()->curveSets() )
     {
+        if ( alreadySaved.contains( curveSet ) ) continue;
+
         auto saved = new RimSavedCurveAppearance;
         saved->setEnsembleCurveSet( curveSet );
         m_savedAppearances.push_back( saved );
@@ -376,18 +607,37 @@ void RimCurveStyleRules::saveAppearance( RimSummaryPlot* plot )
 /// Curves without a saved appearance, typically created while the global appearance was enabled, get the
 /// calculated default appearance
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::restoreAppearances()
+void RimCurveStyleRules::restoreAppearances( const std::vector<RimSummaryPlot*>& plots, bool applyDefaultsToUnsaved )
 {
-    auto project = RimProject::current();
-    if ( !project ) return;
-
-    std::set<caf::PdmObject*> restored;
-    for ( auto saved : m_savedAppearances )
+    std::set<caf::PdmObject*> plotObjects;
+    for ( auto plot : plots )
     {
-        if ( auto object = saved->restore() ) restored.insert( object );
+        for ( auto curve : plot->summaryCurves() )
+            plotObjects.insert( curve );
+        for ( auto curveSet : plot->ensembleCurveSetCollection()->curveSets() )
+            plotObjects.insert( curveSet );
     }
 
-    for ( auto plot : project->descendantsIncludingThisOfType<RimSummaryPlot>() )
+    std::set<caf::PdmObject*>             restored;
+    std::vector<RimSavedCurveAppearance*> consumed;
+    for ( auto saved : m_savedAppearances )
+    {
+        const auto object = saved->object();
+        if ( !object || !plotObjects.contains( object ) ) continue;
+
+        if ( saved->restore() ) restored.insert( object );
+        consumed.push_back( saved );
+    }
+
+    for ( auto saved : consumed )
+    {
+        m_savedAppearances.removeChild( saved );
+        delete saved;
+    }
+
+    if ( !applyDefaultsToUnsaved ) return;
+
+    for ( auto plot : plots )
     {
         std::vector<RimSummaryCurve*> curves;
         for ( auto curve : plot->summaryCurves() )
@@ -430,13 +680,26 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
 
     if ( fieldNeedingOptions == &m_autoColorLegend )
     {
-        options.push_back( caf::PdmOptionItemInfo( "Default Palette", nullptr ) );
         if ( auto project = RimProject::current() )
         {
-            for ( auto legend : project->colorLegendCollection()->allColorLegends() )
+            auto collection    = project->colorLegendCollection();
+            auto defaultLegend = collection->findByName( RimColorLegendCollection::summaryCurveColorLegendName() );
+
+            // Not set (null) means the default palette, which is shown with the icon of the standard summary curve legend
+            options.push_back( caf::PdmOptionItemInfo( "Default Palette",
+                                                       nullptr,
+                                                       false,
+                                                       defaultLegend ? defaultLegend->paletteIconProvider() : caf::IconProvider() ) );
+
+            for ( auto legend : collection->allColorLegends() )
             {
+                if ( legend == defaultLegend ) continue;
                 options.push_back( caf::PdmOptionItemInfo( legend->colorLegendName(), legend, false, legend->paletteIconProvider() ) );
             }
+        }
+        else
+        {
+            options.push_back( caf::PdmOptionItemInfo( "Default Palette", nullptr ) );
         }
     }
     else if ( fieldNeedingOptions == &m_symbolLegend )
@@ -445,7 +708,7 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
         for ( int i = 0; i < count; i++ )
         {
             const auto symbol = RimSummaryCurveAppearanceCalculator::cycledSymbol( i );
-            const auto image  = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, QSize( 14, 14 ), QColor( Qt::black ) );
+            const auto image  = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, QSize( 14, 14 ), QColor( Qt::gray ) );
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::uiText( symbol ),
                                                        i,
                                                        false,
@@ -461,7 +724,7 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<D>::uiText( dimension ), static_cast<int>( dimension ) ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_currentItemIndex )
+    else if ( fieldNeedingOptions == &m_highlightedItems )
     {
         RimCurveStyleRule::AvailableNamesCache namesCache;
 
@@ -478,16 +741,16 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
 
             std::optional<cvf::Color3f>                        autoColor;
             std::optional<RiuPlotCurveSymbol::PointSymbolEnum> autoSymbol;
-            assignedAppearance( name, index, plotAppearances, autoColor, autoSymbol );
+            assignedAppearance( m_currentType(), name, index, plotAppearances, autoColor, autoSymbol );
 
             std::optional<cvf::Color3f> color;
             if ( isColorDim && autoColor ) color = isCustom ? customRule->overriddenColor().value_or( *autoColor ) : autoColor;
 
             std::optional<RiuPlotCurveSymbol::PointSymbolEnum> symbol;
             if ( isSymbolDim && autoSymbol ) symbol = isCustom ? customRule->overriddenSymbol().value_or( *autoSymbol ) : autoSymbol;
+
             const auto icon = RimCurveStyleRule::dimensionColorIcon( m_currentType(), color, symbol );
-            options.push_back(
-                caf::PdmOptionItemInfo( isCustom ? name + "  [Custom]" : name + "  [Auto]", static_cast<int>( options.size() ), false, icon ) );
+            options.push_back( caf::PdmOptionItemInfo( name, name, false, icon ) );
         }
     }
 
@@ -497,20 +760,21 @@ QList<caf::PdmOptionItemInfo> RimCurveStyleRules::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 /// The color and symbol the global appearance assigns to the item at the given position
 //--------------------------------------------------------------------------------------------------
-void RimCurveStyleRules::assignedAppearance( const QString&                                              name,
+void RimCurveStyleRules::assignedAppearance( RimCurveStyleRule::Dimension                                dimension,
+                                             const QString&                                              name,
                                              int                                                         index,
                                              const std::map<QString, RimCurveStyleRule::PlotAppearance>& plotAppearances,
                                              std::optional<cvf::Color3f>&                                color,
                                              std::optional<RiuPlotCurveSymbol::PointSymbolEnum>&         symbol ) const
 {
-    const bool projectWide = m_currentType() == RimCurveStyleRule::Dimension::CASE || m_currentType() == RimCurveStyleRule::Dimension::WELL;
+    const bool projectWide = dimension == RimCurveStyleRule::Dimension::CASE || dimension == RimCurveStyleRule::Dimension::WELL;
 
     const auto fromPlots = plotAppearances.find( name );
     const bool inPlots   = fromPlots != plotAppearances.end();
 
-    if ( projectWide ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index );
+    if ( projectWide ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index, true );
     if ( !color && inPlots ) color = fromPlots->second.color;
-    if ( !color ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index );
+    if ( !color ) color = RimSummaryCurveAppearanceCalculator::cycledPaletteColor( index, true );
 
     if ( projectWide ) symbol = RimSummaryCurveAppearanceCalculator::cycledSymbol( index );
     if ( !symbol && inPlots ) symbol = fromPlots->second.symbol;
@@ -537,37 +801,16 @@ void RimCurveStyleRules::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimCurveStyleRule::AvailableNamesCache namesCache;
 
-    if ( changedField == &m_useGlobalAppearance )
-    {
-        applyGlobalAppearanceMode();
-        return;
-    }
-
     if ( changedField == &m_autoColorLegend )
     {
         rulesChanged();
     }
-    else if ( changedField == &m_appearanceType )
+    else if ( changedField == &m_currentType || changedField == &m_highlightedItems || changedField == &m_symbolSize )
     {
-        m_currentItemIndex = 0;
-    }
-    else if ( changedField == &m_currentType )
-    {
-        m_currentItemIndex = 0;
         rulesChanged();
     }
 
     updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCurveStyleRules::currentItemName() const
-{
-    const auto names = RimCurveStyleRule::availableNames( m_currentType() );
-    const int  index = m_currentItemIndex();
-    return index >= 0 && index < names.size() ? names[index] : QString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -596,64 +839,57 @@ void RimCurveStyleRules::setCurrentDimension( const caf::AppEnum<RimCurveStyleRu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Shows the stored custom settings of the selected item, or the appearance assigned automatically. Only the
-/// selected item object is changed, it is not stored in the project.
-//--------------------------------------------------------------------------------------------------
-bool RimCurveStyleRules::updateSelectedItem()
-{
-    const QString itemName = currentItemName();
-    if ( itemName.isEmpty() ) return false;
-
-    auto selected = m_selectedItem();
-    selected->setDimension( m_currentType() );
-    selected->setItemName( itemName );
-
-    auto stored = findRule( m_currentType(), itemName );
-    if ( stored && stored->isCustom() )
-    {
-        selected->copySettingsFrom( *stored );
-        return true;
-    }
-
-    const auto indices = itemIndices( m_currentType() );
-    const auto indexIt = indices.find( itemName );
-    const int  index   = indexIt != indices.end() ? indexIt->second : m_currentItemIndex();
-
-    std::optional<cvf::Color3f>                        autoColor;
-    std::optional<RiuPlotCurveSymbol::PointSymbolEnum> autoSymbol;
-    assignedAppearance( itemName, index, RimCurveStyleRule::appearancesFromPlots( m_currentType() ), autoColor, autoSymbol );
-
-    selected->setCustom( false );
-    selected->setAutoAssigned( m_appearanceType() == AppearanceType::COLOR ? autoColor : std::nullopt,
-                               m_appearanceType() == AppearanceType::SYMBOL ? autoSymbol : std::nullopt );
-    selected->updateAppearanceFromCurves();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimCurveStyleRules::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimCurveStyleRule::AvailableNamesCache namesCache;
 
-    uiOrdering.add( &m_useGlobalAppearance );
     uiOrdering.add( &m_appearanceType );
     uiOrdering.add( &m_currentType );
+
+    if ( m_appearanceType() == AppearanceType::COLOR )
+    {
+        // Defines the style shared by all items, the color is assigned by the palette
+        m_colorBaseStyle()->appendBaseStyleToUiOrdering( uiOrdering );
+    }
+    else
+    {
+        uiOrdering.add( &m_symbolSize );
+    }
 
     auto rulesGroup = uiOrdering.addNewGroup( "Assigned Appearance" );
     if ( m_appearanceType() == AppearanceType::COLOR )
         rulesGroup->add( &m_autoColorLegend );
     else
         rulesGroup->add( &m_symbolLegend );
-    rulesGroup->add( &m_currentItemIndex );
+    rulesGroup->add( &m_highlightedItems );
+    rulesGroup->addNewLabel( "Checked items are highlighted in the plots, while other curves are dimmed." );
 
-    if ( updateSelectedItem() )
-    {
-        auto appearanceGroup = uiOrdering.addNewGroup( "Selected Item" );
-        m_selectedItem->appendFieldsToUiOrdering( uiConfigName, *appearanceGroup );
-    }
+    auto advancedGroup = uiOrdering.addNewGroup( "Advanced" );
+    advancedGroup->setCollapsedByDefault();
+    advancedGroup->addNewButton( "Connect All Plots to Global", [this]() { connectAllPlots( true ); } );
+    advancedGroup->addNewButton( "Disconnect All Plots", [this]() { connectAllPlots( false ); } );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sets all summary multi plots to use global color and symbol, or to use local appearance
+//--------------------------------------------------------------------------------------------------
+void RimCurveStyleRules::connectAllPlots( bool connect )
+{
+    const auto appearance = connect ? RimSummaryMultiPlot::GlobalAppearance::GLOBAL : RimSummaryMultiPlot::GlobalAppearance::LOCAL;
+
+    std::vector<RimSummaryPlot*> plots;
+    for ( auto multiPlot : summaryMultiPlots() )
+    {
+        multiPlot->setGlobalAppearance( appearance );
+        multiPlot->updateConnectedEditors();
+
+        for ( auto plot : multiPlot->summaryPlots() )
+            plots.push_back( plot );
+    }
+
+    applyGlobalAppearance( plots );
 }
