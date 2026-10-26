@@ -18,6 +18,7 @@
 
 #include "RimWorkflowDescribeTools.h"
 
+#include "RimWorkflowDefinitionTools.h"
 #include "RimWorkflowPortCompatibility.h"
 #include "RimWorkflowSchemaTools.h"
 
@@ -57,6 +58,21 @@ void appendDependencyEdges( QJsonArray& edges, const QString& taskName, const QJ
     for ( auto it = deps.begin(); it != deps.end(); ++it )
     {
         const QJsonObject ref = it.value().toObject();
+        if ( ref.value( "first_of" ).isArray() )
+        {
+            int position = 0;
+            for ( const QJsonValue& member : ref.value( "first_of" ).toArray() )
+            {
+                const qsizetype count = edges.size();
+                appendEdge( edges, member.toObject(), taskName, it.key() );
+                if ( edges.size() == count ) continue;
+                QJsonObject edge = edges.last().toObject();
+                edge["collect"]  = "first_of";
+                edge["label"]    = RimWorkflowDefinitionTools::firstOfLabel( ++position );
+                edges.replace( edges.size() - 1, edge );
+            }
+            continue;
+        }
         if ( !ref.contains( "collect" ) )
         {
             appendEdge( edges, ref, taskName, it.key() );
@@ -75,6 +91,40 @@ void appendDependencyEdges( QJsonArray& edges, const QString& taskName, const QJ
                 appendEdge( edges, member.toObject(), taskName, it.key() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The control edge of a run condition, `when: {task, field, op, values}` in describe
+//--------------------------------------------------------------------------------------------------
+void appendGuardEdge( QJsonArray& edges, const QString& taskName, const QJsonValue& when, const QStringList& switches )
+{
+    const QJsonObject spec = when.toObject();
+    if ( spec.isEmpty() ) return;
+
+    using Op = RimWorkflowTaskGuard::Op;
+    RimWorkflowTaskGuard guard;
+    guard.source      = spec.value( "task" ).toString();
+    guard.values      = spec.value( "values" ).toArray();
+    const bool branch = switches.contains( guard.source ) && spec.value( "field" ).toString() == "branch";
+    guard.field       = branch ? QString() : spec.value( "field" ).toString();
+    const QString op  = spec.value( "op" ).toString();
+    if ( op == "otherwise" )
+        guard.op = Op::Otherwise;
+    else if ( op == "truthy" )
+        guard.op = Op::Truthy;
+    else if ( op == "falsy" )
+        guard.op = Op::Falsy;
+    else if ( branch )
+        guard.op = Op::Case;
+    else
+        // Describe reports equals as `in` with one value, like taskmaestro writes it back
+        guard.op = guard.values.size() == 1 ? Op::Equals : Op::In;
+    if ( guard.source.isEmpty() ) return;
+
+    edges.append( QJsonObject{ { "from", guard.source },
+                               { "to", taskName },
+                               { "kind", "when" },
+                               { "label", RimWorkflowDefinitionTools::guardLabel( guard ) } } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +169,9 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
                         { "input_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::inputPorts( task ) ) },
                         { "output_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::outputPorts( task ) ) },
                         { "input_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::inputPorts( task ) ) },
-                        { "output_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::outputPorts( task ) ) } };
+                        { "output_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::outputPorts( task ) ) },
+                        { "switch", task.value( "branches" ).isArray() },
+                        { "branches", task.value( "branches" ).toArray() } };
 }
 } // namespace
 
@@ -128,6 +180,12 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
 //--------------------------------------------------------------------------------------------------
 QJsonObject RimWorkflowDescribeTools::graphFromDescribe( const QJsonObject& describe )
 {
+    QStringList switches;
+    for ( const QJsonValue& value : describe.value( "tasks" ).toArray() )
+    {
+        if ( value.toObject().value( "branches" ).isArray() ) switches.append( value.toObject().value( "name" ).toString() );
+    }
+
     QJsonArray tasks;
     QJsonArray edges;
     for ( const QJsonValue& value : describe.value( "tasks" ).toArray() )
@@ -135,6 +193,7 @@ QJsonObject RimWorkflowDescribeTools::graphFromDescribe( const QJsonObject& desc
         const QJsonObject task = value.toObject();
         tasks.append( taskFromDescribe( task ) );
         appendDependencyEdges( edges, task.value( "name" ).toString(), task.value( "depends_on" ) );
+        appendGuardEdge( edges, task.value( "name" ).toString(), task.value( "when" ), switches );
     }
 
     return QJsonObject{ { "name", describe.value( "workflow" ).toString() }, { "description", "" }, { "tasks", tasks }, { "edges", edges } };

@@ -72,6 +72,8 @@ public:
     void setOptionalInputConfigured( const QString& taskName, const QString& field, bool configured );
     void editTaskMap( const QString& taskName );
     void removeTaskMap( const QString& taskName );
+    void editTaskGuard( const QString& taskName );
+    void removeTaskGuard( const QString& taskName );
     void renameCollectKey( const RiuWorkflowGraphView::ItemRef& edge );
     void moveCollectMember( const RiuWorkflowGraphView::ItemRef& edge, int delta );
     void connectPorts( const QString& from, const QString& output, const QString& to, const QString& input );
@@ -86,6 +88,7 @@ private:
     void showContextMenu( const RiuWorkflowGraphView::ItemRef& item, const QPoint& globalPos, const QPointF& scenePos );
     void appendAddTaskMenu( QMenu* menu, const QPointF& scenePos );
     void appendMapMenu( QMenu* menu, const QString& taskName );
+    void appendConditionMenu( QMenu* menu, const QString& taskName );
     void appendCollectMenu( QMenu* menu, const RiuWorkflowGraphView::ItemRef& item );
     bool canEdit();
     void renameNodePositions( const QMap<QString, QString>& renames );

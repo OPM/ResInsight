@@ -242,6 +242,76 @@ def test_round_trip_whole_output_dependency(tmp_path: Path) -> None:
     assert "result_task" not in text
 
 
+CONDITIONAL_WORKFLOW = f"""\
+workflow:
+  name: sizes
+  result_task: tm_helper_conditional.Report
+  tasks:
+    - task: {PIPELINE}.Start
+      config_fields: [value]
+    - task: tm_helper_conditional.ChooseSize
+      depends_on: {PIPELINE}.Start
+    - task: tm_helper_conditional.IsPositive
+      depends_on: {PIPELINE}.Start
+    - task: {PIPELINE}.Double
+      name: double_large
+      depends_on: {PIPELINE}.Start
+      when: {{switch: tm_helper_conditional.ChooseSize, case: [large, huge]}}
+    - task: {PIPELINE}.Double
+      name: double_small
+      depends_on: {PIPELINE}.Start
+      when: {{switch: tm_helper_conditional.ChooseSize, otherwise: true}}
+    - task: {PIPELINE}.Double
+      name: double_positive
+      depends_on: {PIPELINE}.Start
+      when: {{switch: tm_helper_conditional.IsPositive, case: true}}
+    - task: {PIPELINE}.Constant
+      when: {{switch: tm_helper_conditional.IsPositive, case: false}}
+    - task: {PIPELINE}.Special
+      depends_on: {PIPELINE}.Start
+      when: {{ref: [{PIPELINE}.Start, value], in: [1.0, 2.0]}}
+    - task: tm_helper_conditional.Report
+      depends_on:
+        sized:
+          first_of: [double_large, double_small]
+        signed:
+          first_of: [double_positive, {PIPELINE}.Constant]
+"""
+
+
+def test_round_trip_conditional_branches(tmp_path: Path) -> None:
+    pytest.importorskip("taskmaestro.conditions")
+    source = _write_workflow(
+        tmp_path / "src", CONDITIONAL_WORKFLOW, "start:\n  value: 2.0\n"
+    )
+    first, _ = _round_trip(source, tmp_path / "out")
+    when = {node["name"]: node.get("when") for node in first["nodes"]}
+    assert when["double_large"] == {"switch": "choose_size", "case": ["large", "huge"]}
+    assert when["double_small"] == {"switch": "choose_size", "otherwise": True}
+    assert when["double_positive"] == {"switch": "is_positive", "case": True}
+    assert when["special"] == {"ref": ["start", "value"], "in": [1.0, 2.0]}
+    first_of = [
+        (edge["from"], edge["input"])
+        for edge in first["edges"]
+        if edge.get("collect") == "first_of"
+    ]
+    assert first_of == [
+        ("double_large", "sized"),
+        ("double_small", "sized"),
+        ("double_positive", "signed"),
+        ("constant", "signed"),
+    ]
+    switch_output = first["task_types"]["tm_helper_conditional.ChooseSize"][
+        "output_schema"
+    ]
+    assert "taskmaestro.conditions.Branch" in switch_output["x-ri-python-bases"]
+    assert switch_output["properties"]["branch"]["enum"] == ["small", "large", "huge"]
+
+    tasks = {task["name"]: task for task in first["describe"]["tasks"]}
+    assert tasks["is_positive"]["branches"] == [True, False]
+    assert tasks["double_small"]["when"]["values"] == ["small"]
+
+
 # --- References ---
 
 

@@ -1,0 +1,1084 @@
+{
+  "format": 1,
+  "name": "sizes",
+  "result_task": "report",
+  "editable": true,
+  "readonly_reasons": [],
+  "warnings": [],
+  "source": {
+    "workflow_yaml": "test_data/taskmaestro_workflows/conditional/workflow.yaml",
+    "input_yaml": "test_data/taskmaestro_workflows/conditional/input.yaml",
+    "registered_id": null
+  },
+  "header_comment": "",
+  "passthrough": {},
+  "nodes": [
+    {
+      "name": "start",
+      "task": "tm_helper_pipeline.Start",
+      "config_fields": [
+        "value"
+      ]
+    },
+    {
+      "name": "choose_size",
+      "task": "tm_helper_conditional.ChooseSize",
+      "config_fields": []
+    },
+    {
+      "name": "is_positive",
+      "task": "tm_helper_conditional.IsPositive",
+      "config_fields": []
+    },
+    {
+      "name": "double_large",
+      "task": "tm_helper_pipeline.Double",
+      "config_fields": [],
+      "when": {
+        "switch": "choose_size",
+        "case": [
+          "large",
+          "huge"
+        ]
+      }
+    },
+    {
+      "name": "double_small",
+      "task": "tm_helper_pipeline.Double",
+      "config_fields": [],
+      "when": {
+        "switch": "choose_size",
+        "otherwise": true
+      }
+    },
+    {
+      "name": "double_positive",
+      "task": "tm_helper_pipeline.Double",
+      "config_fields": [],
+      "when": {
+        "switch": "is_positive",
+        "case": true
+      }
+    },
+    {
+      "name": "constant",
+      "task": "tm_helper_pipeline.Constant",
+      "config_fields": [],
+      "when": {
+        "switch": "is_positive",
+        "case": false
+      }
+    },
+    {
+      "name": "special",
+      "task": "tm_helper_pipeline.Special",
+      "config_fields": [],
+      "when": {
+        "ref": [
+          "start",
+          "value"
+        ],
+        "in": [
+          1.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "name": "report",
+      "task": "tm_helper_conditional.Report",
+      "config_fields": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "start",
+      "output": null,
+      "to": "choose_size",
+      "input": null
+    },
+    {
+      "from": "start",
+      "output": null,
+      "to": "is_positive",
+      "input": null
+    },
+    {
+      "from": "start",
+      "output": null,
+      "to": "double_large",
+      "input": null
+    },
+    {
+      "from": "start",
+      "output": null,
+      "to": "double_small",
+      "input": null
+    },
+    {
+      "from": "start",
+      "output": null,
+      "to": "double_positive",
+      "input": null
+    },
+    {
+      "from": "start",
+      "output": null,
+      "to": "special",
+      "input": null
+    },
+    {
+      "from": "double_large",
+      "output": null,
+      "to": "report",
+      "input": "sized",
+      "collect": "first_of",
+      "key": null
+    },
+    {
+      "from": "double_small",
+      "output": null,
+      "to": "report",
+      "input": "sized",
+      "collect": "first_of",
+      "key": null
+    },
+    {
+      "from": "double_positive",
+      "output": null,
+      "to": "report",
+      "input": "signed",
+      "collect": "first_of",
+      "key": null
+    },
+    {
+      "from": "constant",
+      "output": null,
+      "to": "report",
+      "input": "signed",
+      "collect": "first_of",
+      "key": null
+    }
+  ],
+  "inputs": {
+    "start": {
+      "value": 2.0
+    },
+    "choose_size": {},
+    "is_positive": {},
+    "double_large": {},
+    "double_small": {},
+    "double_positive": {},
+    "constant": {},
+    "special": {},
+    "report": {}
+  },
+  "task_types": {
+    "tm_helper_pipeline.Start": {
+      "id": "tm_helper_pipeline.Start",
+      "name": "start",
+      "python_type": "tm_helper_pipeline.Start",
+      "description": "Produce the configured value.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "Configured start value.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "StartInput",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.StartInput"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.StartInput"
+      },
+      "output_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      }
+    },
+    "tm_helper_conditional.ChooseSize": {
+      "id": "tm_helper_conditional.ChooseSize",
+      "name": "choose_size",
+      "python_type": "tm_helper_conditional.ChooseSize",
+      "description": "Pick a size label from a number.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      },
+      "output_schema": {
+        "properties": {
+          "branch": {
+            "enum": [
+              "small",
+              "large",
+              "huge"
+            ],
+            "title": "Branch",
+            "type": "string"
+          }
+        },
+        "required": [
+          "branch"
+        ],
+        "title": "ChooseSizeBranch",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_conditional.ChooseSizeBranch",
+          "taskmaestro.conditions.Branch"
+        ],
+        "x-ri-python-type": "tm_helper_conditional.ChooseSizeBranch"
+      }
+    },
+    "tm_helper_conditional.IsPositive": {
+      "id": "tm_helper_conditional.IsPositive",
+      "name": "is_positive",
+      "python_type": "tm_helper_conditional.IsPositive",
+      "description": "True when the number is positive.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      },
+      "output_schema": {
+        "properties": {
+          "branch": {
+            "title": "Branch",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "branch"
+        ],
+        "title": "IsPositiveBranch",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_conditional.IsPositiveBranch",
+          "taskmaestro.conditions.Branch"
+        ],
+        "x-ri-python-type": "tm_helper_conditional.IsPositiveBranch"
+      }
+    },
+    "tm_helper_pipeline.Double": {
+      "id": "tm_helper_pipeline.Double",
+      "name": "double",
+      "python_type": "tm_helper_pipeline.Double",
+      "description": "Double a number.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      },
+      "output_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      }
+    },
+    "tm_helper_pipeline.Constant": {
+      "id": "tm_helper_pipeline.Constant",
+      "name": "constant",
+      "python_type": "tm_helper_pipeline.Constant",
+      "description": "Produce the number one.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "Sentinel config for workflows where all root tasks use JobConfiguration.",
+        "properties": {},
+        "title": "EmptyConfig",
+        "type": "object",
+        "x-ri-python-bases": [
+          "taskmaestro.job.EmptyConfig"
+        ],
+        "x-ri-python-type": "taskmaestro.job.EmptyConfig"
+      },
+      "output_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      }
+    },
+    "tm_helper_pipeline.Special": {
+      "id": "tm_helper_pipeline.Special",
+      "name": "special",
+      "python_type": "tm_helper_pipeline.Special",
+      "description": "Produce a SpecialNumber.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      },
+      "output_schema": {
+        "description": "A number subclass, compatible with Number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "SpecialNumber",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.SpecialNumber",
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.SpecialNumber"
+      }
+    },
+    "tm_helper_conditional.Report": {
+      "id": "tm_helper_conditional.Report",
+      "name": "report",
+      "python_type": "tm_helper_conditional.Report",
+      "description": "Add the two numbers.",
+      "timeout_seconds": null,
+      "input_schema": {
+        "$defs": {
+          "Number": {
+            "description": "A single number.",
+            "properties": {
+              "value": {
+                "title": "Value",
+                "type": "number"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "title": "Number",
+            "type": "object",
+            "x-ri-python-bases": [
+              "tm_helper_pipeline.Number"
+            ],
+            "x-ri-python-type": "tm_helper_pipeline.Number"
+          }
+        },
+        "description": "Two numbers, each taken from whichever branch ran.",
+        "properties": {
+          "sized": {
+            "$ref": "#/$defs/Number"
+          },
+          "signed": {
+            "$ref": "#/$defs/Number"
+          }
+        },
+        "required": [
+          "sized",
+          "signed"
+        ],
+        "title": "ReportInput",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_conditional.ReportInput"
+        ],
+        "x-ri-python-type": "tm_helper_conditional.ReportInput"
+      },
+      "output_schema": {
+        "description": "A single number.",
+        "properties": {
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "Number",
+        "type": "object",
+        "x-ri-python-bases": [
+          "tm_helper_pipeline.Number"
+        ],
+        "x-ri-python-type": "tm_helper_pipeline.Number"
+      }
+    }
+  },
+  "describe": {
+    "workflow": "sizes",
+    "result_task": "report",
+    "tasks": [
+      {
+        "name": "start",
+        "python_type": "tm_helper_pipeline.Start",
+        "depends_on": null,
+        "config_fields": [
+          "value"
+        ],
+        "provided_config_fields": [
+          "value"
+        ],
+        "missing_config_fields": [],
+        "config_values": {
+          "value": 2.0
+        },
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": null,
+        "branches": null,
+        "input_schema": {
+          "description": "Configured start value.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "StartInput",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.StartInput"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.StartInput"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "choose_size",
+        "python_type": "tm_helper_conditional.ChooseSize",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": null,
+        "branches": [
+          "small",
+          "large",
+          "huge"
+        ],
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "properties": {
+            "branch": {
+              "enum": [
+                "small",
+                "large",
+                "huge"
+              ],
+              "title": "Branch",
+              "type": "string"
+            }
+          },
+          "required": [
+            "branch"
+          ],
+          "title": "ChooseSizeBranch",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_conditional.ChooseSizeBranch",
+            "taskmaestro.conditions.Branch"
+          ],
+          "x-ri-python-type": "tm_helper_conditional.ChooseSizeBranch"
+        }
+      },
+      {
+        "name": "double_large",
+        "python_type": "tm_helper_pipeline.Double",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": {
+          "task": "choose_size",
+          "field": "branch",
+          "op": "in",
+          "values": [
+            "large",
+            "huge"
+          ]
+        },
+        "branches": null,
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "double_small",
+        "python_type": "tm_helper_pipeline.Double",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": {
+          "task": "choose_size",
+          "field": "branch",
+          "op": "otherwise",
+          "values": [
+            "small"
+          ]
+        },
+        "branches": null,
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "is_positive",
+        "python_type": "tm_helper_conditional.IsPositive",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": null,
+        "branches": [
+          true,
+          false
+        ],
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "properties": {
+            "branch": {
+              "title": "Branch",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "branch"
+          ],
+          "title": "IsPositiveBranch",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_conditional.IsPositiveBranch",
+            "taskmaestro.conditions.Branch"
+          ],
+          "x-ri-python-type": "tm_helper_conditional.IsPositiveBranch"
+        }
+      },
+      {
+        "name": "constant",
+        "python_type": "tm_helper_pipeline.Constant",
+        "depends_on": null,
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [],
+        "map": null,
+        "when": {
+          "task": "is_positive",
+          "field": "branch",
+          "op": "in",
+          "values": [
+            false
+          ]
+        },
+        "branches": null,
+        "input_schema": {
+          "description": "Sentinel config for workflows where all root tasks use JobConfiguration.",
+          "properties": {},
+          "title": "EmptyConfig",
+          "type": "object",
+          "x-ri-python-bases": [
+            "taskmaestro.job.EmptyConfig"
+          ],
+          "x-ri-python-type": "taskmaestro.job.EmptyConfig"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "double_positive",
+        "python_type": "tm_helper_pipeline.Double",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": {
+          "task": "is_positive",
+          "field": "branch",
+          "op": "in",
+          "values": [
+            true
+          ]
+        },
+        "branches": null,
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "report",
+        "python_type": "tm_helper_conditional.Report",
+        "depends_on": {
+          "sized": {
+            "first_of": [
+              {
+                "task": "double_large",
+                "field": null
+              },
+              {
+                "task": "double_small",
+                "field": null
+              }
+            ]
+          },
+          "signed": {
+            "first_of": [
+              {
+                "task": "double_positive",
+                "field": null
+              },
+              {
+                "task": "constant",
+                "field": null
+              }
+            ]
+          }
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "signed",
+          "sized"
+        ],
+        "map": null,
+        "when": null,
+        "branches": null,
+        "input_schema": {
+          "$defs": {
+            "Number": {
+              "description": "A single number.",
+              "properties": {
+                "value": {
+                  "title": "Value",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "title": "Number",
+              "type": "object",
+              "x-ri-python-bases": [
+                "tm_helper_pipeline.Number"
+              ],
+              "x-ri-python-type": "tm_helper_pipeline.Number"
+            }
+          },
+          "description": "Two numbers, each taken from whichever branch ran.",
+          "properties": {
+            "sized": {
+              "$ref": "#/$defs/Number"
+            },
+            "signed": {
+              "$ref": "#/$defs/Number"
+            }
+          },
+          "required": [
+            "sized",
+            "signed"
+          ],
+          "title": "ReportInput",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_conditional.ReportInput"
+          ],
+          "x-ri-python-type": "tm_helper_conditional.ReportInput"
+        },
+        "output_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        }
+      },
+      {
+        "name": "special",
+        "python_type": "tm_helper_pipeline.Special",
+        "depends_on": {
+          "task": "start",
+          "field": null
+        },
+        "config_fields": [],
+        "provided_config_fields": [],
+        "missing_config_fields": [],
+        "config_values": {},
+        "required_input_fields": [
+          "value"
+        ],
+        "map": null,
+        "when": {
+          "task": "start",
+          "field": "value",
+          "op": "in",
+          "values": [
+            1.0,
+            2.0
+          ]
+        },
+        "branches": null,
+        "input_schema": {
+          "description": "A single number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "Number",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.Number"
+        },
+        "output_schema": {
+          "description": "A number subclass, compatible with Number.",
+          "properties": {
+            "value": {
+              "title": "Value",
+              "type": "number"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "title": "SpecialNumber",
+          "type": "object",
+          "x-ri-python-bases": [
+            "tm_helper_pipeline.SpecialNumber",
+            "tm_helper_pipeline.Number"
+          ],
+          "x-ri-python-type": "tm_helper_pipeline.SpecialNumber"
+        }
+      }
+    ],
+    "source": {
+      "kind": "yaml",
+      "path": "test_data/taskmaestro_workflows/conditional/workflow.yaml"
+    }
+  },
+  "describe_error": null,
+  "status": "ok"
+}

@@ -20,6 +20,7 @@
 
 #include "RiaTestDataDirectory.h"
 #include "RimWorkflowDefinitionTools.h"
+#include "RimWorkflowDescribeTools.h"
 #include "RimWorkflowPortCompatibility.h"
 #include "RimWorkflowTaskCatalog.h"
 
@@ -34,6 +35,9 @@
 //   python -m rips.taskmaestro_helper load rips/tests/test_data/taskmaestro_workflows/resinsight_completions --describe > completions.json
 //   python -m rips.taskmaestro_helper load rips/tests/test_data/taskmaestro_workflows/resinsight_load_data --describe > load_data.json
 //   python -m rips.taskmaestro_helper catalog > catalog.json
+// conditional.json needs taskmaestro with conditions support and the test workflows on PYTHONPATH:
+//   PYTHONPATH=.:rips/tests/test_data/taskmaestro_workflows python -m rips.taskmaestro_helper load
+//       rips/tests/test_data/taskmaestro_workflows/conditional --describe > conditional.json
 //
 namespace
 {
@@ -607,4 +611,340 @@ TEST( RimWorkflowDefinitionEdit, mapTask )
     EXPECT_FALSE( definition.findNode( "a" )->map.has_value() );
     EXPECT_EQ( QStringList( { "name", "factor" } ), definition.findNode( "a" )->configFields );
     EXPECT_FALSE( definition.inputs.value( "a" ).toObject().contains( "cases" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, fromJsonAndRoundTrip )
+{
+    using Op                 = RimWorkflowTaskGuard::Op;
+    const auto definition    = definitionFixture( "conditional" );
+    const auto guardOf       = [&definition]( const QString& name ) { return definition.findNode( name )->when; };
+    const auto largeGuard    = guardOf( "double_large" );
+    const auto smallGuard    = guardOf( "double_small" );
+    const auto positiveGuard = guardOf( "double_positive" );
+    const auto specialGuard  = guardOf( "special" );
+
+    EXPECT_TRUE( definition.editable );
+    EXPECT_TRUE( RimWorkflowDefinitionTools::structuralReadOnlyReasons( definition ).isEmpty() );
+    ASSERT_TRUE( largeGuard && smallGuard && positiveGuard && specialGuard );
+    EXPECT_EQ( ( RimWorkflowTaskGuard{ .source = "choose_size", .op = Op::Case, .values = { "large", "huge" }, .caseAsList = true } ),
+               *largeGuard );
+    EXPECT_EQ( ( RimWorkflowTaskGuard{ .source = "choose_size", .op = Op::Otherwise } ), *smallGuard );
+    EXPECT_EQ( ( RimWorkflowTaskGuard{ .source = "is_positive", .op = Op::Case, .values = { true } } ), *positiveGuard );
+    EXPECT_EQ( ( RimWorkflowTaskGuard{ .source = "start", .field = "value", .op = Op::In, .values = { 1.0, 2.0 } } ), *specialGuard );
+    EXPECT_FALSE( guardOf( "report" ).has_value() );
+
+    int firstOf = 0;
+    for ( const auto& edge : definition.edges )
+    {
+        if ( edge.to == "report" ) EXPECT_TRUE( edge.isFirstOf() );
+        if ( edge.isFirstOf() ) ++firstOf;
+    }
+    EXPECT_EQ( 4, firstOf );
+
+    // The YAML forms of the guards and the order of the alternatives survive a round trip
+    const QJsonObject json = RimWorkflowDefinitionTools::toJson( definition );
+    // Written nodes also carry ResInsight's explicit config field marker
+    QJsonArray writtenNodes;
+    for ( const QJsonValue& node : json.value( "nodes" ).toArray() )
+    {
+        QJsonObject object = node.toObject();
+        object.remove( "x_ri_explicit_config_fields" );
+        writtenNodes.append( object );
+    }
+    EXPECT_EQ( fixture( "conditional" ).value( "nodes" ).toArray(), writtenNodes );
+    EXPECT_EQ( fixture( "conditional" ).value( "edges" ), json.value( "edges" ) );
+    const auto roundTrip = RimWorkflowDefinitionTools::fromJson( json );
+    ASSERT_TRUE( roundTrip.has_value() );
+    EXPECT_EQ( definition, roundTrip.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, validFixtureAndSinks )
+{
+    const auto definition = definitionFixture( "conditional" );
+    EXPECT_TRUE( RimWorkflowDefinitionTools::validate( definition ).empty() )
+        << issueMessages( RimWorkflowDefinitionTools::validate( definition ) ).join( "\n" ).toStdString();
+    EXPECT_EQ( definition, RimWorkflowDefinitionTools::normalize( definition ) );
+
+    // Switch tasks used only by run conditions are not end tasks
+    QStringList sinks = RimWorkflowDefinitionTools::sinkTasks( definition );
+    sinks.sort();
+    EXPECT_EQ( QStringList( { "report", "special" } ), sinks );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, switchBranches )
+{
+    const auto definition = definitionFixture( "conditional" );
+    const auto typeOf     = [&definition]( const QString& name ) { return definition.taskType( definition.findNode( name )->taskId ); };
+
+    EXPECT_TRUE( RimWorkflowDefinitionTools::isSwitchTask( typeOf( "choose_size" ) ) );
+    EXPECT_TRUE( RimWorkflowDefinitionTools::isSwitchTask( typeOf( "is_positive" ) ) );
+    EXPECT_FALSE( RimWorkflowDefinitionTools::isSwitchTask( typeOf( "start" ) ) );
+    EXPECT_EQ( QJsonArray( { "small", "large", "huge" } ), RimWorkflowDefinitionTools::switchBranches( typeOf( "choose_size" ) ) );
+    EXPECT_EQ( QJsonArray( { true, false } ), RimWorkflowDefinitionTools::switchBranches( typeOf( "is_positive" ) ) );
+    EXPECT_TRUE( RimWorkflowDefinitionTools::switchBranches( typeOf( "start" ) ).isEmpty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, checkTaskGuard )
+{
+    using Op              = RimWorkflowTaskGuard::Op;
+    const auto definition = definitionFixture( "conditional" );
+    const auto check      = [&definition]( const QString& node, const RimWorkflowTaskGuard& guard )
+    {
+        const auto result = RimWorkflowDefinitionTools::checkTaskGuard( definition, node, guard );
+        return result ? QString() : result.error();
+    };
+
+    EXPECT_EQ( "", check( "special", { .source = "choose_size", .op = Op::Case, .values = { "small" } } ) );
+    EXPECT_EQ( "", check( "special", { .source = "start", .field = "value", .op = Op::Equals, .values = { 3 } } ) );
+    EXPECT_EQ( "", check( "special", { .source = "choose_size", .op = Op::Otherwise } ) );
+
+    EXPECT_TRUE( check( "special", { .source = "missing", .op = Op::Otherwise } ).contains( "unknown task" ) );
+    EXPECT_TRUE( check( "special", { .source = "special", .field = "value", .op = Op::Truthy } ).contains( "its own output" ) );
+    EXPECT_TRUE( check( "special", { .source = "choose_size", .op = Op::Case, .values = { "tiny" } } ).contains( "not a valid value" ) );
+    EXPECT_TRUE( check( "special", { .source = "choose_size", .op = Op::Case } ).contains( "at least one branch" ) );
+    EXPECT_TRUE( check( "special", { .source = "start", .op = Op::Case, .values = { 1 } } ).contains( "not a switch task" ) );
+    EXPECT_TRUE( check( "special", { .source = "start", .field = "value", .op = Op::Otherwise } ).contains( "requires a switch" ) );
+    EXPECT_TRUE( check( "special", { .source = "start", .field = "value", .op = Op::Truthy } ).contains( "bool or optional" ) );
+    EXPECT_TRUE(
+        check( "special", { .source = "start", .field = "value", .op = Op::Equals, .values = { "text" } } ).contains( "not a valid value" ) );
+    EXPECT_TRUE( check( "special", { .source = "start", .field = "missing", .op = Op::Truthy } ).contains( "no output field" ) );
+    EXPECT_TRUE( check( "choose_size", { .source = "report", .field = "sized", .op = Op::Truthy } ).contains( "cycle" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, validateSwitchCoverage )
+{
+    using Op              = RimWorkflowTaskGuard::Op;
+    const auto definition = definitionFixture( "conditional" );
+
+    // Without the otherwise branch, `small` is not handled by any task
+    const auto uncovered = edited( RimWorkflowDefinitionTools::setTaskGuard( definition, "double_small", std::nullopt ) );
+    EXPECT_TRUE( issueMessages( RimWorkflowDefinitionTools::validate( uncovered ) ).join( "\n" ).contains( "small" ) );
+
+    // An otherwise branch that can never match
+    const auto allLabels = edited( RimWorkflowDefinitionTools::setTaskGuard( definition,
+                                                                             "double_large",
+                                                                             RimWorkflowTaskGuard{ .source = "choose_size",
+                                                                                                   .op     = Op::Case,
+                                                                                                   .values = { "small", "large", "huge" } } ) );
+    const auto issues    = RimWorkflowDefinitionTools::validate( allLabels );
+    ASSERT_FALSE( issues.empty() );
+    EXPECT_EQ( "choose_size", issues.front().task );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, guardsFollowRenamesAndRemovals )
+{
+    const auto definition = definitionFixture( "conditional" );
+
+    const auto renamed = edited( RimWorkflowDefinitionTools::renameTask( definition, "choose_size", "picker" ) );
+    EXPECT_EQ( "picker", renamed.findNode( "double_large" )->when->source );
+    EXPECT_EQ( "picker", renamed.findNode( "double_small" )->when->source );
+
+    const auto removed = edited( RimWorkflowDefinitionTools::removeTask( definition, "is_positive" ) );
+    EXPECT_FALSE( removed.findNode( "double_positive" )->when.has_value() );
+    EXPECT_FALSE( removed.findNode( "constant" )->when.has_value() );
+    EXPECT_TRUE( removed.findNode( "double_large" )->when.has_value() );
+
+    const auto cleared = edited( RimWorkflowDefinitionTools::setTaskGuard( definition, "special", std::nullopt ) );
+    EXPECT_FALSE( cleared.findNode( "special" )->when.has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, firstOfAlternatives )
+{
+    using Collect         = RimWorkflowDefinitionEdge::Collect;
+    const auto definition = definitionFixture( "conditional" );
+
+    // Removing one of two alternatives leaves a plain connection
+    const auto single =
+        edited( RimWorkflowDefinitionTools::disconnect( definition, { .from = "double_small", .to = "report", .input = "sized" } ) );
+    EXPECT_TRUE( hasEdge( single, { .from = "double_large", .to = "report", .input = "sized" } ) );
+
+    // ... and adding an alternative to it makes the connection the first alternative
+    const auto again =
+        edited( RimWorkflowDefinitionTools::addFirstOfMember( single, { .from = "double_small", .to = "report", .input = "sized" } ) );
+    EXPECT_TRUE( hasEdge( again, { .from = "double_large", .to = "report", .input = "sized", .collect = Collect::FirstOf } ) );
+    EXPECT_TRUE( hasEdge( again, { .from = "double_small", .to = "report", .input = "sized", .collect = Collect::FirstOf } ) );
+    EXPECT_EQ( definition, again );
+
+    const auto third =
+        edited( RimWorkflowDefinitionTools::addFirstOfMember( definition, { .from = "double_positive", .to = "report", .input = "sized" } ) );
+    EXPECT_TRUE( hasEdge( third, { .from = "double_positive", .to = "report", .input = "sized", .collect = Collect::FirstOf } ) );
+    const auto moved = edited(
+        RimWorkflowDefinitionTools::moveCollectMember( third,
+                                                       { .from = "double_positive", .to = "report", .input = "sized", .collect = Collect::FirstOf },
+                                                       -2 ) );
+    for ( const auto& edge : moved.edges )
+    {
+        if ( edge.input != "sized" ) continue;
+        EXPECT_EQ( "double_positive", edge.from );
+        break;
+    }
+
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::addFirstOfMember( definition, { .from = "start", .to = "special", .input = "value" } ).has_value() );
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::addFirstOfMember( definition, { .from = "double_small", .to = "report", .input = "sized" } ).has_value() );
+
+    // A plain connection replaces all alternatives
+    const auto replaced =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "double_positive", .to = "report", .input = "sized" } ) );
+    EXPECT_FALSE( hasEdge( replaced, { .from = "double_large", .to = "report", .input = "sized", .collect = Collect::FirstOf } ) );
+    EXPECT_TRUE( hasEdge( replaced, { .from = "double_positive", .to = "report", .input = "sized" } ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, graphFromDefinition )
+{
+    const auto        definition = definitionFixture( "conditional" );
+    const QJsonObject graph      = RimWorkflowDefinitionTools::graphFromDefinition( definition, true );
+
+    EXPECT_TRUE( definitionTaskByName( graph, "choose_size" ).value( "switch" ).toBool() );
+    EXPECT_EQ( QJsonArray( { "small", "large", "huge" } ), definitionTaskByName( graph, "choose_size" ).value( "branches" ).toArray() );
+    EXPECT_FALSE( definitionTaskByName( graph, "start" ).value( "switch" ).toBool() );
+    EXPECT_EQ( "large, huge", definitionTaskByName( graph, "double_large" ).value( "when_label" ).toString() );
+
+    QMap<QString, QString> conditions;
+    QMap<QString, QString> alternatives;
+    for ( const QJsonValue& value : graph.value( "edges" ).toArray() )
+    {
+        const QJsonObject edge = value.toObject();
+        if ( edge.value( "kind" ).toString() == "when" )
+            conditions.insert( edge.value( "to" ).toString(), edge.value( "from" ).toString() + ": " + edge.value( "label" ).toString() );
+        if ( edge.value( "collect" ).toString() == "first_of" )
+            alternatives.insert( edge.value( "from" ).toString(), edge.value( "label" ).toString() );
+    }
+    const QMap<QString, QString> expectedConditions{ { "double_large", "choose_size: large, huge" },
+                                                     { "double_small", "choose_size: otherwise" },
+                                                     { "double_positive", "is_positive: true" },
+                                                     { "constant", "is_positive: false" },
+                                                     { "special", "start: value in {1, 2}" } };
+    EXPECT_EQ( expectedConditions, conditions );
+    const QMap<QString, QString> expectedAlternatives{ { "double_large", "1st" },
+                                                       { "double_small", "2nd" },
+                                                       { "double_positive", "1st" },
+                                                       { "constant", "2nd" } };
+    EXPECT_EQ( expectedAlternatives, alternatives );
+
+    for ( const QJsonValue& port : definitionTaskByName( graph, "report" ).value( "input_ports" ).toArray() )
+    {
+        const QString name = port.toObject().value( "name" ).toString();
+        if ( name == "sized" || name == "signed" ) EXPECT_TRUE( port.toObject().value( "first_of" ).toBool() ) << name.toStdString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, graphFromDescribe )
+{
+    const QJsonObject graph = RimWorkflowDescribeTools::graphFromDescribe( fixture( "conditional" ).value( "describe" ).toObject() );
+
+    EXPECT_TRUE( definitionTaskByName( graph, "choose_size" ).value( "switch" ).toBool() );
+    EXPECT_FALSE( definitionTaskByName( graph, "report" ).value( "switch" ).toBool() );
+
+    QStringList conditions;
+    QStringList alternatives;
+    for ( const QJsonValue& value : graph.value( "edges" ).toArray() )
+    {
+        const QJsonObject edge = value.toObject();
+        if ( edge.value( "kind" ).toString() == "when" )
+            conditions.append(
+                QString( "%1->%2: %3" ).arg( edge.value( "from" ).toString(), edge.value( "to" ).toString(), edge.value( "label" ).toString() ) );
+        if ( edge.value( "collect" ).toString() == "first_of" )
+            alternatives.append( QString( "%1->%2.%3 %4" )
+                                     .arg( edge.value( "from" ).toString(),
+                                           edge.value( "to" ).toString(),
+                                           edge.value( "input" ).toString(),
+                                           edge.value( "label" ).toString() ) );
+    }
+    conditions.sort();
+    alternatives.sort();
+    EXPECT_EQ( QStringList( { "choose_size->double_large: large, huge",
+                              "choose_size->double_small: otherwise",
+                              "is_positive->constant: false",
+                              "is_positive->double_positive: true",
+                              "start->special: value in {1, 2}" } ),
+               conditions );
+    EXPECT_EQ( QStringList( { "constant->report.signed 2nd",
+                              "double_large->report.sized 1st",
+                              "double_positive->report.signed 1st",
+                              "double_small->report.sized 2nd" } ),
+               alternatives );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, guardValuesText )
+{
+    using RimWorkflowDefinitionTools::guardValuesFromText;
+    using RimWorkflowDefinitionTools::guardValuesToText;
+    const QJsonObject numberField{ { "type", "number" } };
+    const QJsonObject stringField{ { "type", "string" } };
+
+    EXPECT_EQ( QJsonArray( { 1, "a", true } ), guardValuesFromText( "1, a, true", numberField ) );
+    EXPECT_EQ( QJsonArray( { "1", "a", "true" } ), guardValuesFromText( "1, a, true", stringField ) );
+
+    // Quoted values are strings and may contain commas and escaped quotes
+    EXPECT_EQ( QJsonArray( { "a, b", "1", "say \"hi\"" } ), guardValuesFromText( "\"a, b\", \"1\", \"say \\\"hi\\\"\"", numberField ) );
+    EXPECT_EQ( QJsonArray( { "a, b", "c" } ), guardValuesFromText( "\"a, b\", c", stringField ) );
+
+    // Values read back as written, with strings quoted only when needed
+    const QJsonArray values{ "1", "a, b", "text", 2.5, false, QJsonValue::Null, "say \"hi\"" };
+    EXPECT_EQ( values, guardValuesFromText( guardValuesToText( values, numberField ), numberField ) );
+    const QJsonArray strings{ "1", "a, b", "text", "\"quoted\"", "say \"hi\"" };
+    EXPECT_EQ( strings, guardValuesFromText( guardValuesToText( strings, stringField ), stringField ) );
+    EXPECT_EQ( "\"1\", text", guardValuesToText( QJsonArray( { "1", "text" } ), numberField ) );
+    EXPECT_EQ( "1, text", guardValuesToText( QJsonArray( { "1", "text" } ), stringField ) );
+
+    // A string Literal has enum or const but no type
+    EXPECT_EQ( QJsonArray( { "1", "true" } ), guardValuesFromText( "1, true", QJsonObject{ { "enum", QJsonArray( { "1", "true" } ) } } ) );
+    EXPECT_EQ( QJsonArray( { "1" } ), guardValuesFromText( "1", QJsonObject{ { "const", "1" } } ) );
+    EXPECT_EQ( QJsonArray( { 1 } ), guardValuesFromText( "1", QJsonObject{ { "enum", QJsonArray( { 1, "a" } ) } } ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, malformedFieldRef )
+{
+    QJsonObject json  = fixture( "conditional" );
+    QJsonArray  nodes = json.value( "nodes" ).toArray();
+    for ( qsizetype i = 0; i < nodes.size(); ++i )
+    {
+        QJsonObject node = nodes.at( i ).toObject();
+        if ( node.value( "name" ) != "double_large" ) continue;
+        node["when"] = QJsonObject{ { "ref", QJsonArray( { "choose_size" } ) }, { "truthy", true } };
+        nodes.replace( i, node );
+    }
+    json["nodes"] = nodes;
+
+    const auto definition = RimWorkflowDefinitionTools::fromJson( json );
+    ASSERT_TRUE( definition.has_value() );
+    const auto guard = definition->findNode( "double_large" )->when;
+    ASSERT_TRUE( guard.has_value() );
+    EXPECT_FALSE( guard->isSwitchBranch() );
+    EXPECT_TRUE( issueMessages( RimWorkflowDefinitionTools::validate( *definition ) ).join( "\n" ).contains( "task and an output field" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowConditional, switchWithoutCase )
+{
+    QJsonObject json  = fixture( "conditional" );
+    QJsonArray  nodes = json.value( "nodes" ).toArray();
+    for ( qsizetype i = 0; i < nodes.size(); ++i )
+    {
+        QJsonObject node = nodes.at( i ).toObject();
+        if ( node.value( "name" ) != "double_large" ) continue;
+        node["when"] = QJsonObject{ { "switch", "choose_size" } };
+        nodes.replace( i, node );
+    }
+    json["nodes"] = nodes;
+
+    const auto definition = RimWorkflowDefinitionTools::fromJson( json );
+    ASSERT_TRUE( definition.has_value() );
+    const auto guard = definition->findNode( "double_large" )->when;
+    ASSERT_TRUE( guard.has_value() );
+    EXPECT_TRUE( guard->values.isEmpty() );
+    EXPECT_TRUE( issueMessages( RimWorkflowDefinitionTools::validate( *definition ) ).join( "\n" ).contains( "at least one branch" ) );
 }

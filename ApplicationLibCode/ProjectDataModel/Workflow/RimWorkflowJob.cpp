@@ -189,7 +189,8 @@ QString RimWorkflowJob::runStatus() const
 //--------------------------------------------------------------------------------------------------
 void RimWorkflowJob::updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error )
 {
-    if ( runId != m_runId || ( state != "running" && state != "completed" && state != "failed" ) ) return;
+    static const QStringList knownStates{ "running", "completed", "failed", "skipped" };
+    if ( runId != m_runId || !knownStates.contains( state ) ) return;
     auto* workflow = firstAncestorOrThisOfType<RimWorkflow>();
     if ( !workflow ) return;
     bool knownTask = false;
@@ -206,6 +207,9 @@ void RimWorkflowJob::updateTaskState( const QString& runId, const QString& taskN
         m_taskErrors[taskName] = error;
         m_runStatus            = "Failed: " + error;
     }
+
+    // A task whose run condition did not hold, or whose alternatives (first of) were all skipped
+    if ( state == "skipped" && !error.isEmpty() ) m_taskErrors[taskName] = "Skipped: " + error;
     if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 }
 
@@ -349,7 +353,7 @@ void RimWorkflowJob::syncTaskInputs( const QJsonArray& graphTasks, const QMap<QS
         for ( RimWorkflowFieldBinding* binding : removed->items() )
         {
             const QJsonValue value = binding->toJsonValue();
-            if ( !value.isNull() )
+            if ( !value.isNull() || binding->isExplicitNull() )
                 detached.insert( name + "/" + RimWorkflowTaskInput::detachedKey( binding->fieldName(), binding->classKeyword() ), value );
         }
         delete removed;

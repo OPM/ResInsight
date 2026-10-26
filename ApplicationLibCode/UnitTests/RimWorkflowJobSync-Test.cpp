@@ -23,6 +23,7 @@
 #include "RimWorkflowDefinitionTools.h"
 #include "RimWorkflowHelperProcess.h"
 #include "RimWorkflowJob.h"
+#include "RimWorkflowSchemaTools.h"
 #include "RimWorkflowTaskInput.h"
 #include "RimWorkflowValidationTools.h"
 
@@ -119,6 +120,59 @@ TEST( RimWorkflowJobSync, valuesFollowRenamesAndRemovals )
     job.syncTaskInputs( graphTasks( removed.value() ), { { "load_grid", "load_model" } } );
     job.syncTaskInputs( graphTasks( restored ) );
     EXPECT_EQ( "/path/to/grid.roff", pathValue( job, "load_model" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowJobSync, untypedFieldValuesAreLiterals )
+{
+    const QString explicitNull = RimWorkflowSchemaTools::explicitNullKey();
+
+    // Text entered before the fields were untyped is read as a literal
+    RimWorkflowTaskInput input;
+    input.buildFromSchema( QJsonArray{ QJsonObject{ { "name", "flag" }, { "type", "string" }, { "default", "False" } },
+                                       QJsonObject{ { "name", "nothing" }, { "type", "string" }, { "default", "None" } },
+                                       QJsonObject{ { "name", "text" }, { "type", "string" }, { "default", "False" } } } );
+    const QJsonArray          untyped{ QJsonObject{ { "name", "flag" }, { "type", "any" } },
+                              QJsonObject{ { "name", "nothing" }, { "type", "any" } },
+                              QJsonObject{ { "name", "text" }, { "type", "string" } } };
+    QMap<QString, QJsonValue> detached;
+    input.syncFromSchema( untyped, detached );
+
+    const QJsonObject expected{ { "flag", false }, { "nothing", QJsonValue::Null }, { "text", "False" } };
+    EXPECT_EQ( expected, input.jsonValues() );
+
+    // Values, including an entered None, survive a sync
+    input.syncFromSchema( untyped, detached );
+    EXPECT_EQ( expected, input.jsonValues() );
+
+    // ... and a removal and return of the fields
+    input.syncFromSchema( QJsonArray{}, detached );
+    EXPECT_TRUE( input.jsonValues().isEmpty() );
+    input.syncFromSchema( untyped, detached );
+    EXPECT_EQ( expected, input.jsonValues() );
+
+    // New bindings keep the type of typed values; a model default of None is not a value
+    RimWorkflowTaskInput typed;
+    typed.buildFromSchema(
+        QJsonArray{ QJsonObject{ { "name", "quoted" }, { "type", "any" }, { "default", "true" } },
+                    QJsonObject{ { "name", "number" }, { "type", "any" }, { "default", "1" } },
+                    QJsonObject{ { "name", "flag" }, { "type", "any" }, { "default", true } },
+                    QJsonObject{ { "name", "model_none" }, { "type", "any" }, { "default", QJsonValue::Null } },
+                    QJsonObject{ { "name", "entered_none" }, { "type", "any" }, { "default", QJsonValue::Null }, { explicitNull, true } } } );
+    const QJsonObject expectedTyped{ { "quoted", "true" }, { "number", "1" }, { "flag", true }, { "entered_none", QJsonValue::Null } };
+    EXPECT_EQ( expectedTyped, typed.jsonValues() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowJobSync, inputYamlNullIsExplicit )
+{
+    const QJsonObject inputSchema{ { "properties", QJsonObject{ { "value", QJsonObject{ { "default", QJsonValue::Null } } } } } };
+    const QString     explicitNull = RimWorkflowSchemaTools::explicitNullKey();
+
+    EXPECT_FALSE( RimWorkflowSchemaTools::configFieldSchema( "value", inputSchema, {}, {} ).value( explicitNull ).toBool() );
+    EXPECT_TRUE( RimWorkflowSchemaTools::configFieldSchema( "value", inputSchema, {}, QJsonObject{ { "value", QJsonValue::Null } } )
+                     .value( explicitNull )
+                     .toBool() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,6 +110,23 @@ for Undo, Redo, Save, Save As, and Duplicate as Editable.
   once per item of a mapping. Choose the inputs that receive the key and the
   value of each item. The items are entered in the property view, either as
   JSON or by selecting cases, well paths or views. **Remove Map** undoes it.
+- **Conditional branches:** right-click a task and choose **Run When…** to
+  run it only for some branches of a switch task (drawn as a diamond), or
+  when a field of another task has a given value. The condition is drawn as
+  a dashed purple arrow. Right-click the task or the arrow to edit or remove
+  it. Tasks that did not run are shown greyed out as *skipped*. This
+  requires a taskmaestro version with conditional branch support. For simple
+  conditions, add **condition.compare** (value compared to a threshold),
+  **condition.is_true** or **condition.path_exists** from the palette,
+  connect its input and use **Run When…** with *true* or *false* on the
+  tasks that should depend on it. Fields that accept any value (such as
+  the value of **condition.is_true**) read the text as a literal: `false`,
+  `0`, `None`/`null`, numbers and JSON are typed values; other text is a
+  string (quote it, e.g. `"false"`, to keep it as text).
+- **Alternatives (first of):** dropping a connection on an input that is
+  already connected asks whether to replace the connection or add the new
+  one as an alternative. The input then takes the first alternative whose
+  task ran. Right-click an alternative to **Move Earlier/Later**.
 - **Rename, Set as Result Task, Delete:** right-click a task or connection.
   F2 renames and Del deletes the selection. Ctrl+Z and Ctrl+Y undo and redo.
 

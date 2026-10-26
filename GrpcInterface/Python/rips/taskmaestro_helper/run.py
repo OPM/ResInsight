@@ -27,7 +27,12 @@ PROGRESS_PREFIX = "@@RI_WORKFLOW_EVENT@@"
 
 
 def _emit_progress(
-    run_id: str, task: str, state: str, error: str = "", item: str | None = None
+    run_id: str,
+    task: str,
+    state: str,
+    error: str = "",
+    item: str | None = None,
+    reason: str = "",
 ) -> None:
     payload = {"event": "task_state", "run_id": run_id, "task": task, "state": state}
     if item is not None:
@@ -36,6 +41,8 @@ def _emit_progress(
         payload["item"] = item
     if error:
         payload["error"] = error
+    if reason:
+        payload["reason"] = reason
     sys.stdout.write(PROGRESS_PREFIX + json.dumps(payload) + "\n")
     sys.stdout.flush()
 
@@ -54,6 +61,10 @@ class ProgressHook:
 
     def on_task_fail(self, job: Any, task: Any, error: Exception) -> None:
         _emit_progress(self.run_id, task.name, "failed", str(error))
+
+    def on_task_skip(self, job: Any, task_name: str, reason: str) -> None:
+        # Conditional branches: the task never starts, so only its name is known
+        _emit_progress(self.run_id, task_name, "skipped", reason=reason)
 
     def on_map_item_start(self, job: Any, task: Any, key: str) -> None:
         _emit_progress(self.run_id, task.name, "running", item=key)

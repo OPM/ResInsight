@@ -34,7 +34,9 @@
 #include "Workflow/RimWorkflowValidationTools.h"
 
 #include <QAction>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QCursor>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -42,9 +44,11 @@
 #include <QJsonArray>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMenu>
 #include <QPushButton>
 #include <QSplitter>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 
 #include <functional>
@@ -290,7 +294,8 @@ void RiuWorkflowEditorWidget::updateTaskIssues()
             {
                 for ( const RimWorkflowFieldBinding* binding : taskInput->items() )
                 {
-                    if ( binding && binding->fieldName() == fieldName ) hasValue = !binding->toJsonValue().isNull();
+                    if ( binding && binding->fieldName() == fieldName )
+                        hasValue = !binding->toJsonValue().isNull() || binding->isExplicitNull();
                 }
             }
             fieldHasValue[fieldName] = hasValue || !schema.value( "required" ).toBool();
@@ -369,6 +374,10 @@ void RiuWorkflowEditorWidget::deleteItem( const RiuWorkflowGraphView::ItemRef& i
         const RimWorkflowDefinitionEdge edge{ .from = item.from, .output = item.output, .to = item.to, .input = item.input };
         applyEdit( RimWorkflowDefinitionTools::disconnect( m_workflow->definition(), edge ) );
     }
+    else if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Condition )
+    {
+        applyEdit( RimWorkflowDefinitionTools::setTaskGuard( m_workflow->definition(), item.to, std::nullopt ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,6 +441,26 @@ void RiuWorkflowEditorWidget::connectPorts( const QString& from, const QString& 
 {
     if ( !canEdit() ) return;
     const RimWorkflowDefinitionEdge edge{ .from = from, .output = output, .to = to, .input = input };
+
+    // A connected input may instead take the new output as an alternative, used when the earlier ones did not run
+    auto alternative = RimWorkflowDefinitionTools::addFirstOfMember( m_workflow->definition(), edge );
+    if ( alternative )
+    {
+        QMenu    menu;
+        QAction* replace = menu.addAction( "Replace Connection" );
+        replace->setToolTip( QString( "Connect %1 to %2.%3 instead of the current connection" ).arg( from, to, input ) );
+        QAction* add = menu.addAction( "Add as Alternative (First Of)" );
+        add->setToolTip( QString( "%1.%2 takes the output of the first connected task that ran" ).arg( to, input ) );
+        menu.setToolTipsVisible( true );
+
+        QAction* chosen = menu.exec( QCursor::pos() );
+        if ( !chosen || !canEdit() ) return;
+        if ( chosen == add )
+        {
+            applyEdit( RimWorkflowDefinitionTools::addFirstOfMember( m_workflow->definition(), edge ) );
+            return;
+        }
+    }
     applyEdit( RimWorkflowDefinitionTools::connect( m_workflow->definition(), edge ) );
 }
 
@@ -562,6 +591,244 @@ void RiuWorkflowEditorWidget::removeTaskMap( const QString& taskName )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Run the task only for some branches of a switch task, or when an output field of another task
+/// has a value. The dialog edits the current condition, if any.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::editTaskGuard( const QString& taskName )
+{
+    using Op = RimWorkflowTaskGuard::Op;
+    if ( !canEdit() ) return;
+
+    // A copy, as the workflow may change or be deleted while the dialog is open
+    const RimWorkflowDefinition      definition = m_workflow->definition();
+    const RimWorkflowDefinitionNode* node       = definition.findNode( taskName );
+    if ( !node ) return;
+
+    QStringList sources;
+    for ( const auto& other : definition.nodes )
+    {
+        if ( other.name != taskName ) sources.append( other.name );
+    }
+    if ( sources.isEmpty() )
+    {
+        showMessage( QString( "Add a task for '%1' to depend on first" ).arg( taskName ) );
+        return;
+    }
+
+    // Default to the first switch task, the usual source of a run condition
+    QString defaultSource = sources.front();
+    for ( const QString& name : sources )
+    {
+        if ( RimWorkflowDefinitionTools::isSwitchTask( definition.taskType( definition.findNode( name )->taskId ) ) )
+        {
+            defaultSource = name;
+            break;
+        }
+    }
+    const RimWorkflowTaskGuard current = node->when.value_or( RimWorkflowTaskGuard{ .source = defaultSource } );
+
+    QDialog dialog( this );
+    dialog.setWindowTitle( QString( "Run When - %1" ).arg( taskName ) );
+    auto* form = new QFormLayout( &dialog );
+    form->addRow( new QLabel( QString( "'%1' runs only when the condition holds; otherwise it is skipped, "
+                                       "and so are the tasks that need its output." )
+                                  .arg( taskName ),
+                              &dialog ) );
+
+    auto* sourceCombo = new QComboBox( &dialog );
+    sourceCombo->addItems( sources );
+    sourceCombo->setCurrentText( sources.contains( current.source ) ? current.source : defaultSource );
+    sourceCombo->setToolTip( "The task whose output decides whether this task runs" );
+    form->addRow( "Depends on:", sourceCombo );
+
+    auto* fieldCombo = new QComboBox( &dialog );
+    fieldCombo->setToolTip( "The branch of a switch task, or an output field to test" );
+    form->addRow( "Test:", fieldCombo );
+
+    auto* pages = new QStackedWidget( &dialog );
+    form->addRow( pages );
+
+    // Page 0: branches of a switch task
+    auto* branchPage   = new QWidget( pages );
+    auto* branchLayout = new QVBoxLayout( branchPage );
+    branchLayout->setContentsMargins( 0, 0, 0, 0 );
+    auto* branchList = new QListWidget( branchPage );
+    branchList->setToolTip( "Run for any of the checked branches" );
+    auto* otherwiseCheck = new QCheckBox( "Otherwise (no other condition on the switch matches)", branchPage );
+    branchLayout->addWidget( branchList );
+    branchLayout->addWidget( otherwiseCheck );
+    pages->addWidget( branchPage );
+
+    // Page 1: a field value
+    auto* valuePage = new QWidget( pages );
+    auto* valueForm = new QFormLayout( valuePage );
+    valueForm->setContentsMargins( 0, 0, 0, 0 );
+    auto* opCombo = new QComboBox( valuePage );
+    opCombo->addItem( "equals", static_cast<int>( Op::Equals ) );
+    opCombo->addItem( "is one of", static_cast<int>( Op::In ) );
+    opCombo->addItem( "is true", static_cast<int>( Op::Truthy ) );
+    opCombo->addItem( "is false or empty", static_cast<int>( Op::Falsy ) );
+    auto* valuesEdit = new QLineEdit( valuePage );
+    valuesEdit->setPlaceholderText( "value, or several separated by commas" );
+    valueForm->addRow( "Condition:", opCombo );
+    valueForm->addRow( "Value:", valuesEdit );
+    pages->addWidget( valuePage );
+
+    auto* errorLabel = new QLabel( &dialog );
+    errorLabel->setStyleSheet( "color: #b00020;" );
+    errorLabel->setWordWrap( true );
+    form->addRow( errorLabel );
+
+    auto* buttons = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog );
+    form->addRow( buttons );
+
+    auto sourceIsSwitch = [&]()
+    {
+        const auto* source = definition.findNode( sourceCombo->currentText() );
+        return source && RimWorkflowDefinitionTools::isSwitchTask( definition.taskType( source->taskId ) );
+    };
+    auto isBranchSelected = [&]() { return sourceIsSwitch() && fieldCombo->currentIndex() == 0; };
+
+    // A condition that picks branches: a case, or equals/in on the branch of the switch
+    auto isBranchValueGuard = []( const RimWorkflowTaskGuard& guard )
+    {
+        const bool onBranch = guard.isSwitchBranch() || guard.field == "branch";
+        return onBranch && ( guard.op == Op::Case || guard.op == Op::Equals || guard.op == Op::In );
+    };
+
+    auto guardFromDialog = [&]()
+    {
+        RimWorkflowTaskGuard guard{ .source = sourceCombo->currentText() };
+        if ( isBranchSelected() )
+        {
+            if ( otherwiseCheck->isChecked() )
+            {
+                guard.op = Op::Otherwise;
+                return guard;
+            }
+            for ( int row = 0; row < branchList->count(); ++row )
+            {
+                const QListWidgetItem* item = branchList->item( row );
+                if ( item->checkState() == Qt::Checked ) guard.values.append( QJsonValue::fromVariant( item->data( Qt::UserRole ) ) );
+            }
+
+            // Keep the `ref: ..., equals/in: ...` form of an existing condition on the branch
+            if ( guard.source == current.source && isBranchValueGuard( current ) && current.op != Op::Case )
+            {
+                guard.field = current.field;
+                guard.op    = current.op == Op::Equals && guard.values.size() == 1 ? Op::Equals : Op::In;
+                return guard;
+            }
+            guard.op         = Op::Case;
+            guard.caseAsList = guard.values.size() > 1 || ( current.op == Op::Case && current.caseAsList );
+            return guard;
+        }
+
+        guard.field = fieldCombo->currentText();
+        guard.op    = static_cast<Op>( opCombo->currentData().toInt() );
+        if ( guard.op == Op::Equals || guard.op == Op::In )
+        {
+            guard.values = RimWorkflowDefinitionTools::guardValuesFromText( valuesEdit->text(),
+                                                                            RimWorkflowDefinitionTools::guardFieldSchema( definition,
+                                                                                                                          guard.source,
+                                                                                                                          guard.field ) );
+        }
+        return guard;
+    };
+
+    auto updateValidity = [&]()
+    {
+        const bool branch = isBranchSelected();
+        pages->setCurrentIndex( branch ? 0 : 1 );
+        branchList->setEnabled( !otherwiseCheck->isChecked() );
+        const auto op = static_cast<Op>( opCombo->currentData().toInt() );
+        valuesEdit->setEnabled( op == Op::Equals || op == Op::In );
+
+        const auto valid = RimWorkflowDefinitionTools::checkTaskGuard( definition, taskName, guardFromDialog() );
+        errorLabel->setText( valid ? QString() : valid.error() );
+        errorLabel->setVisible( !valid );
+        buttons->button( QDialogButtonBox::Ok )->setEnabled( valid.has_value() );
+    };
+
+    auto fillBranches = [&]( const RimWorkflowTaskGuard& checked )
+    {
+        const QSignalBlocker blocker( branchList );
+        branchList->clear();
+        const auto* source = definition.findNode( sourceCombo->currentText() );
+        if ( !source ) return;
+        for ( const QJsonValue& label : RimWorkflowDefinitionTools::switchBranches( definition.taskType( source->taskId ) ) )
+        {
+            auto* item = new QListWidgetItem( RimWorkflowDefinitionTools::guardValueText( label ), branchList );
+            item->setData( Qt::UserRole, label.toVariant() );
+            item->setFlags( item->flags() | Qt::ItemIsUserCheckable );
+            const bool isChecked = checked.source == source->name && isBranchValueGuard( checked ) && checked.values.contains( label );
+            item->setCheckState( isChecked ? Qt::Checked : Qt::Unchecked );
+        }
+    };
+
+    auto fillFields = [&]( const RimWorkflowTaskGuard& selected )
+    {
+        const QSignalBlocker blocker( fieldCombo );
+        fieldCombo->clear();
+        if ( sourceIsSwitch() ) fieldCombo->addItem( "branch (switch)" );
+        for ( const QString& field : RimWorkflowDefinitionTools::guardFields( definition, sourceCombo->currentText() ) )
+        {
+            if ( sourceIsSwitch() && field == "branch" ) continue;
+            fieldCombo->addItem( field );
+        }
+        const bool sameSource = selected.source == sourceCombo->currentText();
+        if ( sameSource && !selected.isSwitchBranch() ) fieldCombo->setCurrentText( selected.field );
+        fillBranches( sameSource ? selected : RimWorkflowTaskGuard{} );
+        otherwiseCheck->setChecked( sameSource && selected.op == Op::Otherwise );
+    };
+
+    if ( !current.isSwitchBranch() )
+    {
+        opCombo->setCurrentIndex( std::max( 0, opCombo->findData( static_cast<int>( current.op ) ) ) );
+        valuesEdit->setText( RimWorkflowDefinitionTools::guardValuesToText( current.values,
+                                                                            RimWorkflowDefinitionTools::guardFieldSchema( definition,
+                                                                                                                          current.source,
+                                                                                                                          current.field ) ) );
+    }
+    fillFields( current );
+
+    QObject::connect( sourceCombo,
+                      &QComboBox::currentIndexChanged,
+                      &dialog,
+                      [&]()
+                      {
+                          fillFields( current );
+                          updateValidity();
+                      } );
+    QObject::connect( fieldCombo, &QComboBox::currentIndexChanged, &dialog, updateValidity );
+    QObject::connect( opCombo, &QComboBox::currentIndexChanged, &dialog, updateValidity );
+    QObject::connect( valuesEdit, &QLineEdit::textChanged, &dialog, updateValidity );
+    QObject::connect( branchList, &QListWidget::itemChanged, &dialog, updateValidity );
+    QObject::connect( otherwiseCheck, &QCheckBox::toggled, &dialog, updateValidity );
+    QObject::connect( buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept );
+    QObject::connect( buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject );
+    updateValidity();
+
+    if ( dialog.exec() != QDialog::Accepted || !canEdit() ) return;
+
+    const RimWorkflowDefinitionNode* currentNode = m_workflow->definition().findNode( taskName );
+    if ( !currentNode ) return;
+
+    const RimWorkflowTaskGuard guard = guardFromDialog();
+    if ( currentNode->when && *currentNode->when == guard ) return;
+    applyEdit( RimWorkflowDefinitionTools::setTaskGuard( m_workflow->definition(), taskName, guard ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::removeTaskGuard( const QString& taskName )
+{
+    if ( !canEdit() ) return;
+    applyEdit( RimWorkflowDefinitionTools::setTaskGuard( m_workflow->definition(), taskName, std::nullopt ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::renameCollectKey( const RiuWorkflowGraphView::ItemRef& item )
@@ -645,6 +912,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
                           m_workflow->definition().resultTask.isEmpty() );
         appendOptionalInputsMenu( &menu, task );
         appendMapMenu( &menu, task );
+        appendConditionMenu( &menu, task );
         menu.addSeparator();
         addMenuAction( &menu, "Delete Task", [this, item]() { deleteItem( item ); }, ":/Erase.svg" );
     }
@@ -652,6 +920,12 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
     {
         appendCollectMenu( &menu, item );
         addMenuAction( &menu, "Delete Connection", [this, item]() { deleteItem( item ); }, ":/Erase.svg" );
+    }
+    else if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Condition && editable )
+    {
+        const QString task = item.to;
+        addMenuAction( &menu, "Edit Condition...", [this, task]() { editTaskGuard( task ); } );
+        addMenuAction( &menu, "Remove Condition", [this, task]() { removeTaskGuard( task ); }, ":/Erase.svg" );
     }
     else
     {
@@ -730,12 +1004,25 @@ void RiuWorkflowEditorWidget::appendMapMenu( QMenu* menu, const QString& taskNam
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendConditionMenu( QMenu* menu, const QString& taskName )
+{
+    const RimWorkflowDefinitionNode* node = m_workflow->definition().findNode( taskName );
+    if ( !node ) return;
+
+    addMenuAction( menu, node->when ? "Edit Condition..." : "Run When...", [this, taskName]() { editTaskGuard( taskName ); } )
+        ->setToolTip( "Run the task only for some branches of a switch task, or when an output of another task has a value" );
+    if ( node->when ) addMenuAction( menu, "Remove Condition", [this, taskName]() { removeTaskGuard( taskName ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Collected connections: dict members have a key, list members an order
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::appendCollectMenu( QMenu* menu, const RiuWorkflowGraphView::ItemRef& item )
 {
     const RimWorkflowDefinitionEdge* edge = findEdge( item );
-    if ( !edge || !edge->isCollected() ) return;
+    if ( !edge || ( !edge->isCollected() && !edge->isFirstOf() ) ) return;
 
     if ( edge->collect == RimWorkflowDefinitionEdge::Collect::Dict )
     {
@@ -747,7 +1034,7 @@ void RiuWorkflowEditorWidget::appendCollectMenu( QMenu* menu, const RiuWorkflowG
         int count = 0;
         for ( const auto& other : m_workflow->definition().edges )
         {
-            if ( other.to != edge->to || other.input != edge->input || !other.isCollected() ) continue;
+            if ( other.to != edge->to || other.input != edge->input || other.collect != edge->collect ) continue;
             if ( &other == edge ) index = count;
             ++count;
         }
