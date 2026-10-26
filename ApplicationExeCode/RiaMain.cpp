@@ -75,6 +75,8 @@ void riaFilteredMessageHandler( QtMsgType type, const QMessageLogContext& contex
         return;
     }
 
+    RiaMainTools::recordQtMessage( type, msg );
+
     if ( g_previousMessageHandler )
     {
         g_previousMessageHandler( type, context, msg );

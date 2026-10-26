@@ -24,6 +24,7 @@
 #include "RifJsonEncodeDecode.h"
 
 #include <QCryptographicHash>
+#include <QElapsedTimer>
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -432,14 +433,16 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
 
         auto* prefs          = RiaPreferencesOpenTelemetry::current();
         int   timeoutMs      = prefs ? prefs->connectionTimeoutMs() : 5000;
-        int   elapsedMs      = 0;
         int   pollIntervalMs = 50;
-        while ( m_pendingReplies.load() > 0 && elapsedMs < timeoutMs )
+
+        // Measure real elapsed time: each loop.exec() can take longer than the poll interval
+        QElapsedTimer timer;
+        timer.start();
+        while ( m_pendingReplies.load() > 0 && timer.elapsed() < timeoutMs )
         {
             QEventLoop loop;
             QTimer::singleShot( pollIntervalMs, &loop, &QEventLoop::quit );
             loop.exec( QEventLoop::ExcludeUserInputEvents );
-            elapsedMs += pollIntervalMs;
         }
     }
 

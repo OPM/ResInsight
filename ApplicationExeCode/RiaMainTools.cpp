@@ -21,6 +21,7 @@
 #include "RiaFileLogger.h"
 #include "RiaLogging.h"
 #include "RiaOpenTelemetryManager.h"
+#include "RiaPreferencesOpenTelemetry.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketCommand.h"
 #include "RiaVersionInfo.h"
@@ -31,12 +32,18 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QDir>
+#include <QString>
 
+#include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <csignal>
+#include <cstdlib>
+#include <deque>
 #include <exception>
 #include <map>
 #include <sstream>
+#include <thread>
 #include <typeinfo>
 #include <version>
 
@@ -57,6 +64,7 @@
 
 #ifndef WIN32
 #include <signal.h>
+#include <unistd.h>
 // macOS marks <ucontext.h> as deprecated and the mcontext layout
 // (gregs[REG_RIP]) is Linux-only — skip the program-counter capture
 // path on Apple platforms.  See #14045.
@@ -160,7 +168,59 @@ static std::string signalCodeDescription( int signo, int siCode )
 #endif
 } // namespace internal
 
-static std::atomic<bool> s_crashHandlingInProgress( false );
+static std::atomic<bool>            s_crashHandlingInProgress( false );
+static std::atomic<std::thread::id> s_crashHandlingThread;
+
+static constexpr size_t        s_maxRecordedQtMessages = 5;
+static constexpr int           s_maxQtMessageLength    = 300;
+static std::atomic_flag        s_qtMessageLock         = ATOMIC_FLAG_INIT;
+static std::deque<std::string> s_recentQtMessages;
+
+//--------------------------------------------------------------------------------------------------
+/// Crash logging is not async-signal-safe and may deadlock. Arm a watchdog so the process is
+/// killed by SIGALRM (default action) instead of lingering as a hung process using CPU.
+/// The timeout covers the telemetry flush (connection timeout) plus a margin for symbol resolution.
+//--------------------------------------------------------------------------------------------------
+static void startCrashWatchdog()
+{
+#ifndef WIN32
+    unsigned int timeoutSeconds = 15;
+    if ( auto* prefs = RiaPreferencesOpenTelemetry::current() )
+    {
+        timeoutSeconds = std::max( timeoutSeconds, static_cast<unsigned int>( prefs->connectionTimeoutMs() / 1000 + 10 ) );
+    }
+
+    signal( SIGALRM, SIG_DFL );
+    alarm( timeoutSeconds );
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Must be the first thing done in every crash handler, before any allocation or formatting, so that
+/// the watchdog is armed and nested crashes are caught before they can recurse.
+///
+/// A nested crash on the handling thread (e.g. a paint event during the telemetry flush) exits
+/// immediately. A crash on another thread is parked so the first crash report can complete; the
+/// watchdog still bounds how long that takes. See #15035.
+//--------------------------------------------------------------------------------------------------
+static void enterCrashHandling()
+{
+    if ( s_crashHandlingInProgress.exchange( true ) )
+    {
+        if ( s_crashHandlingThread.load() != std::this_thread::get_id() )
+        {
+            for ( ;; )
+            {
+                std::this_thread::sleep_for( std::chrono::hours( 1 ) );
+            }
+        }
+
+        std::_Exit( 1 );
+    }
+
+    s_crashHandlingThread = std::this_thread::get_id();
+    startCrashWatchdog();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Shared crash logging: writes to file logger and OpenTelemetry.
@@ -170,12 +230,30 @@ static std::atomic<bool> s_crashHandlingInProgress( false );
 /// expected on Windows. Behavior on Linux is undefined, but will work in most cases.
 /// https://github.com/gabime/spdlog/issues/1607
 //--------------------------------------------------------------------------------------------------
-static void performCrashLogging( int signalCode, const std::map<std::string, std::string>& extraAttrs )
+static void performCrashLogging( int signalCode, const std::map<std::string, std::string>& crashAttrs )
 {
     // Block timer-driven application logic (e.g. gRPC idle processing) for the rest of the process
     // lifetime: the telemetry flush below pumps the event loop, and a timer slot firing there could
     // close the project and destroy objects the crashed code still uses, causing a nested crash.
-    s_crashHandlingInProgress = true;
+    // The flag is set by enterCrashHandling(), which every crash handler calls first.
+
+    auto extraAttrs = crashAttrs;
+    {
+        // Spin lock with try-semantics: the crash may have happened while this thread was recording a message
+        if ( !s_qtMessageLock.test_and_set( std::memory_order_acquire ) )
+        {
+            if ( !s_recentQtMessages.empty() )
+            {
+                std::string joined;
+                for ( const auto& message : s_recentQtMessages )
+                {
+                    joined += message + "\n";
+                }
+                extraAttrs["crash.last_qt_messages"] = joined;
+            }
+            s_qtMessageLock.clear( std::memory_order_release );
+        }
+    }
 
 #if RIA_HAS_STD_STACKTRACE
     auto st = std::stacktrace::current();
@@ -226,6 +304,8 @@ static void performCrashLogging( int signalCode, const std::map<std::string, std
 //--------------------------------------------------------------------------------------------------
 void manageTerminate()
 {
+    enterCrashHandling();
+
     std::map<std::string, std::string> extraAttrs;
 
     if ( auto ex = std::current_exception() )
@@ -249,7 +329,10 @@ void manageTerminate()
     // prior unwind) that trace still includes the original throw site.
     performCrashLogging( SIGABRT, extraAttrs );
 
-    std::abort(); // preserve default terminate behavior (core dump, exit status)
+    // Restore the default action so abort() produces a core dump and a SIGABRT exit status instead of
+    // being caught by the crash handler, which would exit silently as a nested crash.
+    signal( SIGABRT, SIG_DFL );
+    std::abort();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,8 +340,10 @@ void manageTerminate()
 //--------------------------------------------------------------------------------------------------
 void manageSegFailure( int signalCode )
 {
+    enterCrashHandling();
     performCrashLogging( signalCode, {} );
-    exit( 1 );
+    // _Exit skips atexit handlers and static destructors, which can crash again after a fault (#15035)
+    std::_Exit( 1 );
 }
 
 #ifndef WIN32
@@ -268,6 +353,8 @@ void manageSegFailure( int signalCode )
 //--------------------------------------------------------------------------------------------------
 void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext )
 {
+    enterCrashHandling();
+
     std::map<std::string, std::string> extraAttrs;
 
     if ( info )
@@ -311,7 +398,8 @@ void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext )
 #endif
 
     performCrashLogging( signalCode, extraAttrs );
-    exit( 1 );
+    // _Exit skips atexit handlers and static destructors, which can crash again after a fault (#15035)
+    std::_Exit( 1 );
 }
 #endif
 
@@ -323,6 +411,28 @@ namespace RiaMainTools
 bool isCrashHandlingInProgress()
 {
     return s_crashHandlingInProgress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void recordQtMessage( QtMsgType type, const QString& msg )
+{
+    if ( type == QtDebugMsg || type == QtInfoMsg ) return;
+
+    // Spin lock with try-semantics: this may be called from any thread, and must never block the message handler
+    if ( s_qtMessageLock.test_and_set( std::memory_order_acquire ) ) return;
+
+    auto text = msg.left( s_maxQtMessageLength ).toStdString();
+
+    // Skip repeats of the previous message, so a warning in a hot loop cannot flush out the earlier context
+    if ( s_recentQtMessages.empty() || s_recentQtMessages.back() != text )
+    {
+        s_recentQtMessages.push_back( std::move( text ) );
+        if ( s_recentQtMessages.size() > s_maxRecordedQtMessages ) s_recentQtMessages.pop_front();
+    }
+
+    s_qtMessageLock.clear( std::memory_order_release );
 }
 
 //--------------------------------------------------------------------------------------------------

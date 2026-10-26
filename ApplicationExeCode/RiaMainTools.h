@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <QtGlobal>
+
+class QString;
+
 namespace RiaMainTools
 {
 void initializeSingletons();
@@ -27,4 +31,8 @@ void deleteStaleSettingsLockFiles();
 // telemetry, so timer-driven application logic must check this flag and stay idle to avoid
 // re-entering or tearing down objects the crashed code still uses.
 bool isCrashHandlingInProgress();
+
+// Remember the latest Qt warning/critical/fatal messages. They are included in crash reports, as
+// Qt prints the reason for an abort (e.g. lost GL context) to stderr right before aborting.
+void recordQtMessage( QtMsgType type, const QString& msg );
 }; // namespace RiaMainTools
