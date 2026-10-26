@@ -108,12 +108,26 @@ public:
     // The custom symbol, if the rule is custom
     std::optional<RiuPlotCurveSymbol::PointSymbolEnum> overriddenSymbol() const;
 
-    // Adds the mode, color and symbol fields, to be edited for the object selected in the collection
-    void appendFieldsToUiOrdering( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    // Base rules hold the style shared by all items, they are not tied to a specific item. The color base defines line
+    // style and thickness for items controlled by color, the symbol base the symbol size.
+    enum class BaseKind
+    {
+        NONE,
+        COLOR,
+        SYMBOL
+    };
+    void setBaseKind( BaseKind kind );
 
-    // The properties currently assigned automatically by the global appearance, shown while the item is Auto
-    void setAutoAssigned( const std::optional<cvf::Color3f>& color, const std::optional<RiuPlotCurveSymbol::PointSymbolEnum>& symbol );
-    void updateAppearanceFromCurves();
+    // Adds the line style and thickness fields of the color base rule
+    void appendBaseStyleToUiOrdering( caf::PdmUiOrdering& uiOrdering );
+
+    // The symbol base rule. Setting the size also sets a matching symbol skip distance
+    int  symbolSize() const;
+    void setSymbolSize( int size );
+
+    // Highlighted items are highlighted in the plots
+    bool isHighlighted() const;
+    void setHighlighted( bool highlighted );
 
     // The custom color, if the rule is custom
     std::optional<cvf::Color3f> overriddenColor() const;
@@ -125,18 +139,17 @@ protected:
     void                          initAfterRead() override;
 
 private:
-    void copyAppearanceFromCurves();
-    void connectAppearanceSignal();
+    void setUpAppearance();
     void onAppearanceChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<caf::AppEnum<Dimension>> m_dimension;
     caf::PdmField<QString>                 m_itemName;
     caf::PdmField<caf::AppEnum<Mode>>      m_mode;
+    caf::PdmField<bool>                    m_highlighted;
 
     // Color, symbol, line and fill settings that can be overridden
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
-    std::optional<cvf::Color3f>                        m_autoColor;
-    std::optional<RiuPlotCurveSymbol::PointSymbolEnum> m_autoSymbol;
+    BaseKind m_baseKind = BaseKind::NONE;
 };

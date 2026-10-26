@@ -41,6 +41,9 @@ public:
     void setCurve( RimPlotCurve* curve );
     void setEnsembleCurveSet( RimEnsembleCurveSet* curveSet );
 
+    // The saved curve or curve set, nullptr if it no longer exists
+    caf::PdmObject* object() const;
+
     // Restores the saved appearance and returns the curve or curve set, nullptr if it no longer exists
     caf::PdmObject* restore() const;
 
