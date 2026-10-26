@@ -46,10 +46,11 @@ public:
     RimColorLegendCollection();
     ~RimColorLegendCollection() override;
 
-    void createStandardColorLegends();
-    void appendCustomColorLegend( RimColorLegend* customColorLegend );
-    bool isStandardColorLegend( RimColorLegend* colorLegend );
-    void deleteCustomColorLegends();
+    void           createStandardColorLegends();
+    static QString summaryCurveColorLegendName();
+    void           appendCustomColorLegend( RimColorLegend* customColorLegend );
+    bool           isStandardColorLegend( RimColorLegend* colorLegend );
+    void           deleteCustomColorLegends();
 
     RimColorLegend* updateColorLegend( const RimCase*                   rimCase,
                                        const QString&                   resultName,
@@ -77,6 +78,7 @@ protected:
 private:
     RimColorLegendItem* createColorLegendItem( const QString& name, int r, int g, int b ) const;
     RimColorLegend*     createRockTypeColorLegend() const;
+    RimColorLegend*     createSummaryCurveColorLegend() const;
 
     static QString createLookupKey( const RimCase* rimCase, const QString& resultName );
 

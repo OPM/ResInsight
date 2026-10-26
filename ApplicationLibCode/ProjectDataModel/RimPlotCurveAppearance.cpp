@@ -20,6 +20,8 @@
 
 #include "RiaColorTools.h"
 
+#include "RiuTools.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -107,6 +109,12 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
 
     CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness" );
     m_curveThickness.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    RiuTools::enableUpDownArrowsForComboBox( &m_curveThickness );
+    // The previous button lowers the thickness and the next button raises it
+    m_curveThickness.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREVIOUS_ICON, QIcon( ":/ComboBoxDown.svg" ) );
+    m_curveThickness.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_ICON, QIcon( ":/ComboBoxUp.svg" ) );
+    m_curveThickness.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREV_BUTTON_TEXT, QString( "Decrease line thickness" ) );
+    m_curveThickness.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_BUTTON_TEXT, QString( "Increase line thickness" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation" );
     CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style" );
@@ -206,16 +214,20 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_curveColor.uiCapability()->setUiHidden( !m_colorVisible );
     m_curveColorOpacity.uiCapability()->setUiHidden( !m_colorVisible );
 
-    uiOrdering.add( &m_pointSymbol );
-    if ( RiuPlotCurveSymbol::isFilledSymbol( m_pointSymbol() ) )
+    if ( m_symbolVisible )
     {
-        uiOrdering.add( &m_symbolEdgeColor );
+        uiOrdering.add( &m_pointSymbol );
+        if ( m_colorVisible && RiuPlotCurveSymbol::isFilledSymbol( m_pointSymbol() ) )
+        {
+            uiOrdering.add( &m_symbolEdgeColor );
+        }
+        uiOrdering.add( &m_symbolSize );
+        uiOrdering.add( &m_symbolSkipPixelDistance );
     }
-    uiOrdering.add( &m_symbolSize );
-    uiOrdering.add( &m_symbolSkipPixelDistance );
     uiOrdering.add( &m_lineStyle );
     uiOrdering.add( &m_curveThickness );
-
+    m_lineStyle.uiCapability()->setUiHidden( !m_lineVisible );
+    m_curveThickness.uiCapability()->setUiHidden( !m_lineVisible );
     if ( m_curveFittingToleranceVisible )
     {
         uiOrdering.add( &m_curveFittingTolerance );
@@ -535,6 +547,22 @@ float RimPlotCurveAppearance::curveFittingTolerance() const
 void RimPlotCurveAppearance::setColorVisible( bool isVisible )
 {
     m_colorVisible = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setSymbolVisible( bool isVisible )
+{
+    m_symbolVisible = isVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setLineVisible( bool isVisible )
+{
+    m_lineVisible = isVisible;
 }
 
 //--------------------------------------------------------------------------------------------------
