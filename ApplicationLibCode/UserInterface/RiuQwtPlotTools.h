@@ -68,7 +68,12 @@ public:
     static void                        updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves );
     static QList<QwtLegendData>        createLegendData( const std::vector<RimPlotCurve*>& curves );
     static QList<QList<QwtLegendData>> uniqueLegendData( const std::vector<QwtPlot*>& plots );
-    static QwtAxis::Position           toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
+
+    static bool createColorAndSymbolLegendData( const std::vector<RimPlotCurve*>& curves,
+                                                QList<QList<QwtLegendData>>&      colorLegendData,
+                                                QList<QList<QwtLegendData>>&      symbolLegendData );
+
+    static QwtAxis::Position toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
 
     static RiaDefines::PlotAxis fromQwtPlotAxis( QwtAxis::Position );
 
