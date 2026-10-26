@@ -436,11 +436,14 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
         }
     }
 
-    if ( m_commonLegend && !m_commonLegend->isHidden() )
+    // The common legends are direct children of the page, not of the plot widget frame
+    for ( RiuQwtPlotLegend* commonLegend : { m_commonLegend.data(), m_commonSymbolLegend.data() } )
     {
-        // The common legend is a direct child of the page, not of the plot widget frame
-        QPoint renderOffset = m_commonLegend->frameGeometry().topLeft() - marginOffset;
-        m_commonLegend->render( painter, renderOffset );
+        if ( commonLegend && !commonLegend->isHidden() )
+        {
+            QPoint renderOffset = commonLegend->frameGeometry().topLeft() - marginOffset;
+            commonLegend->render( painter, renderOffset );
+        }
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
@@ -716,61 +719,90 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 
 //--------------------------------------------------------------------------------------------------
 /// Build one legend from the legend data of all sub plots. Entries with identical title and icon are merged.
+///
+/// For summary curves where the color is given by one dimension (e.g. vector) and the symbol by another (e.g.
+/// case), one color legend and one symbol legend are shown instead, to avoid one entry per combination.
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::updateCommonLegend()
 {
     if ( m_commonLegend ) m_layout->removeWidget( m_commonLegend );
+    if ( m_commonSymbolLegend ) m_layout->removeWidget( m_commonSymbolLegend );
+
+    QList<QList<QwtLegendData>> legendData;
+    QList<QList<QwtLegendData>> symbolLegendData;
 
     bool isActive = useCommonLegend( m_plotDefinition ) && m_hostsCommonLegend && m_plotDefinition->legendsVisible();
-    if ( !isActive )
+    if ( isActive )
     {
-        if ( m_commonLegend ) m_commonLegend->hide();
-        return;
-    }
-
-    if ( !m_commonLegend )
-    {
-        m_commonLegend = new RiuQwtPlotLegend( this );
-        m_commonLegend->horizontalScrollBar()->setVisible( false );
-        m_commonLegend->verticalScrollBar()->setVisible( false );
-        m_commonLegend->setDefaultItemMode( QwtLegendData::ReadOnly );
-        m_commonLegend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
-        m_commonLegend->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
-    }
-
-    for ( int i = 0; i < m_commonLegendItemCount; i++ )
-    {
-        m_commonLegend->updateLegend( QVariant( i ), {} );
-    }
-    m_commonLegendItemCount = 0;
-
-    std::vector<QwtPlot*> qwtPlots;
-    for ( auto plotWidget : visiblePlotWidgets() )
-    {
-        if ( plotWidget->plotDefinition() && !plotWidget->plotDefinition()->legendsVisible() ) continue;
-
-        if ( auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget.data() ) )
+        std::vector<QwtPlot*>      qwtPlots;
+        std::vector<RimPlotCurve*> curves;
+        for ( auto plotWidget : visiblePlotWidgets() )
         {
-            qwtPlots.push_back( qwtPlotWidget->qwtPlot() );
+            auto plot = plotWidget->plotDefinition();
+            if ( plot && !plot->legendsVisible() ) continue;
+
+            if ( plot )
+            {
+                auto plotCurves = plot->visibleCurvesForLegend();
+                curves.insert( curves.end(), plotCurves.begin(), plotCurves.end() );
+            }
+
+            if ( auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget.data() ) )
+            {
+                qwtPlots.push_back( qwtPlotWidget->qwtPlot() );
+            }
+        }
+
+        if ( !RiuQwtPlotTools::createColorAndSymbolLegendData( curves, legendData, symbolLegendData ) )
+        {
+            legendData = RiuQwtPlotTools::uniqueLegendData( qwtPlots );
         }
     }
 
-    for ( const auto& legendData : RiuQwtPlotTools::uniqueLegendData( qwtPlots ) )
-    {
-        m_commonLegend->updateLegend( QVariant( m_commonLegendItemCount++ ), legendData );
-    }
+    // The common legends are placed below the title, centered above all sub plots
+    updateCommonLegendWidget( m_commonLegend, m_commonLegendItemCount, legendData, 1 );
+    updateCommonLegendWidget( m_commonSymbolLegend, m_commonSymbolLegendItemCount, symbolLegendData, 2 );
+}
 
-    if ( m_commonLegendItemCount == 0 )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateCommonLegendWidget( QPointer<RiuQwtPlotLegend>&        legend,
+                                                 int&                               itemCount,
+                                                 const QList<QList<QwtLegendData>>& legendData,
+                                                 int                                layoutIndex )
+{
+    if ( legendData.isEmpty() )
     {
-        m_commonLegend->hide();
+        if ( legend ) legend->hide();
         return;
     }
 
-    // The common legend is placed below the title, centered above all sub plots
-    m_layout->insertWidget( 1, m_commonLegend, 0, Qt::AlignHCenter );
-    updateLegendColumns( m_commonLegend );
-    updateLegendFont( m_commonLegend );
-    m_commonLegend->show();
+    if ( !legend )
+    {
+        legend = new RiuQwtPlotLegend( this );
+        legend->horizontalScrollBar()->setVisible( false );
+        legend->verticalScrollBar()->setVisible( false );
+        legend->setDefaultItemMode( QwtLegendData::ReadOnly );
+        legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+        legend->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    }
+
+    for ( int i = 0; i < itemCount; i++ )
+    {
+        legend->updateLegend( QVariant( i ), {} );
+    }
+    itemCount = 0;
+
+    for ( const auto& data : legendData )
+    {
+        legend->updateLegend( QVariant( itemCount++ ), data );
+    }
+
+    m_layout->insertWidget( layoutIndex, legend, 0, Qt::AlignHCenter );
+    updateLegendColumns( legend );
+    updateLegendFont( legend );
+    legend->show();
 }
 
 //--------------------------------------------------------------------------------------------------

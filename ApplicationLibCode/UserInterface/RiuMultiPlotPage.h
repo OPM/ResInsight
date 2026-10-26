@@ -186,10 +186,18 @@ protected:
 
     bool showSubPlotLegends() const;
     void updateCommonLegend();
+    void updateCommonLegendWidget( QPointer<RiuQwtPlotLegend>&        legend,
+                                   int&                               itemCount,
+                                   const QList<QList<QwtLegendData>>& legendData,
+                                   int                                layoutIndex );
 
     // Owned by Qt as a child widget of this page; QPointer only observes it
     QPointer<RiuQwtPlotLegend> m_commonLegend;
     int                        m_commonLegendItemCount = 0;
+
+    // Symbol legend, used when m_commonLegend shows only the curve colors
+    QPointer<RiuQwtPlotLegend> m_commonSymbolLegend;
+    int                        m_commonSymbolLegendItemCount = 0;
 
     std::map<RiuQwtPlotLegend*, int> m_childCountForAdjustSizeOperation;
 
