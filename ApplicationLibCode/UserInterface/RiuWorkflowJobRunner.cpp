@@ -163,10 +163,12 @@ void RiuWorkflowJobRunner::drainLines( QByteArray& buffer, RILogLevel level )
                 if ( event.value( "event" ) == "task_state" && event.value( "run_id" ).isString() && event.value( "task" ).isString() &&
                      event.value( "state" ).isString() )
                 {
+                    // Skipped tasks report a reason instead of an error
+                    const QString message = event.contains( "error" ) ? event.value( "error" ).toString() : event.value( "reason" ).toString();
                     emit taskStateChanged( event.value( "run_id" ).toString(),
                                            event.value( "task" ).toString(),
                                            event.value( "state" ).toString(),
-                                           event.value( "error" ).toString() );
+                                           message );
                     continue;
                 }
                 if ( event.value( "event" ) == "map_item_state" && event.value( "run_id" ).isString() && event.value( "task" ).isString() &&

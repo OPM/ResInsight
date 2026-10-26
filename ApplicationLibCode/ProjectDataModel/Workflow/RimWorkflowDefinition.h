@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QString>
@@ -42,6 +43,40 @@ struct RimWorkflowTaskMap
 };
 
 //==================================================================================================
+/// A run condition (`when:` in YAML). The guarded task runs only when the condition holds and is
+/// skipped otherwise. An empty field refers to the `branch` output of the switch task `source`.
+/// `Case` and `In` match any of `values`; `Equals` matches its single value; `Otherwise` matches
+/// the switch branches no other guard claims. The flags keep the YAML form for a lossless save.
+//==================================================================================================
+struct RimWorkflowTaskGuard
+{
+    enum class Op
+    {
+        Case,
+        Otherwise,
+        Equals,
+        In,
+        Truthy,
+        Falsy
+    };
+
+    QString    source{};
+    QString    field{};
+    Op         op = Op::Case;
+    QJsonArray values{};
+
+    // `case: [a, b]` rather than `case: a`
+    bool caseAsList = false;
+
+    // A `ref` array that is not a [task, field] pair; reported by validation
+    bool malformedRef = false;
+
+    bool isSwitchBranch() const;
+
+    bool operator==( const RimWorkflowTaskGuard& other ) const = default;
+};
+
+//==================================================================================================
 /// One task instance in a workflow
 //==================================================================================================
 struct RimWorkflowDefinitionNode
@@ -55,6 +90,8 @@ struct RimWorkflowDefinitionNode
 
     std::optional<RimWorkflowTaskMap> map{};
 
+    std::optional<RimWorkflowTaskGuard> when{};
+
     // Keys of the YAML entry the editor does not model (nested workflow); kept for read-only display
     QJsonObject extra{};
 
@@ -64,7 +101,8 @@ struct RimWorkflowDefinitionNode
 //==================================================================================================
 /// A connection between two tasks. An empty output or input means the whole model.
 /// Several edges can collect outputs into one `list[T]` or `dict[str, T]` input (`collect:` in
-/// YAML). List members are ordered like the edges; dict members have a key.
+/// YAML). List members are ordered like the edges; dict members have a key. isCollected() is true
+/// for list and dict members only. `FirstOf` edges are alternatives for one input: the first member whose task ran provides it.
 //==================================================================================================
 struct RimWorkflowDefinitionEdge
 {
@@ -72,7 +110,8 @@ struct RimWorkflowDefinitionEdge
     {
         None,
         List,
-        Dict
+        Dict,
+        FirstOf
     };
 
     QString from{};
@@ -85,6 +124,7 @@ struct RimWorkflowDefinitionEdge
     bool isWholeInput() const;
     bool isWholeOutput() const;
     bool isCollected() const;
+    bool isFirstOf() const;
     bool sameConnection( const RimWorkflowDefinitionEdge& other ) const;
 
     bool operator==( const RimWorkflowDefinitionEdge& other ) const = default;

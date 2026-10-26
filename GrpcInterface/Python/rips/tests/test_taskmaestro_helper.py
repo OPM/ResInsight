@@ -206,6 +206,67 @@ def test_progress_hook_reports_mapped_items(
     assert events[4]["error"] == "negative"
 
 
+def test_progress_hook_reports_skipped_branch(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    pytest.importorskip("taskmaestro.conditions")
+    from pydantic import BaseModel
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import (
+        ConditionTask,
+        EmptyConfig,
+        ExecutionContext,
+        Job,
+        Runner,
+        Task,
+        Workflow,
+        first_of,
+    )
+
+    class Value(BaseModel):
+        value: int
+
+    class Join(BaseModel):
+        value: Value
+
+    class Source(Task[EmptyConfig, Value]):
+        def run(self, input: EmptyConfig, ctx: ExecutionContext) -> Value:
+            return Value(value=1)
+
+    class Positive(ConditionTask[Value]):
+        def decide(self, input: Value, ctx: ExecutionContext) -> bool:
+            return input.value > 0
+
+    class Copy(Task[Value, Value]):
+        def run(self, input: Value, ctx: ExecutionContext) -> Value:
+            return input
+
+    class Take(Task[Join, Value]):
+        def run(self, input: Join, ctx: ExecutionContext) -> Value:
+            return input.value
+
+    builder = Workflow.builder("branches")
+    source = builder.task(Source, name="source")
+    check = builder.task(Positive, name="check", depends_on=source)
+    yes = builder.task(Copy, name="yes", depends_on=source, when=check.if_true())
+    no = builder.task(Copy, name="no", depends_on=source, when=check.if_false())
+    builder.task(Take, name="take", value=first_of(yes, no))
+    Runner(hooks=[ProgressHook("run-branch")]).run(
+        Job(builder.build(), EmptyConfig()), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    skipped = [event for event in events if event["state"] == "skipped"]
+    assert [event["task"] for event in skipped] == ["no"]
+    assert skipped[0]["run_id"] == "run-branch"
+    assert skipped[0]["reason"]
+    assert ("no", "running") not in [(e["task"], e["state"]) for e in events]
+    assert ("take", "completed") in [(e["task"], e["state"]) for e in events]
+
+
 def test_run_helper_emits_progress_without_grpc(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

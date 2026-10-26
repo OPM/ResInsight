@@ -55,6 +55,7 @@ public:
     bool        isRunning() const;
 
     QMap<QString, QString> taskStates() const;
+    // Error of a failed task, or the reason a task was skipped
     QMap<QString, QString> taskErrors() const;
     QString                runStatus() const;
     void                   updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error );

@@ -58,7 +58,8 @@ public:
         {
             None,
             Task,
-            Edge
+            Edge,
+            Condition // The run condition of `to`, a control edge from `from`
         };
 
         Kind    kind = Kind::None;
@@ -70,6 +71,7 @@ public:
 
         static ItemRef forTask( const QString& taskName );
         static ItemRef forEdge( const QString& from, const QString& output, const QString& to, const QString& input );
+        static ItemRef forCondition( const QString& from, const QString& to );
     };
 
     // Returns why a connection is not possible. Fields are empty for the whole input or output.

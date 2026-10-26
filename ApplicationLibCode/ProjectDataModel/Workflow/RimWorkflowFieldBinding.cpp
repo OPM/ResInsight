@@ -121,7 +121,23 @@ bool RimWorkflowFieldBinding::hasValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWorkflowFieldBinding::setHasValue( bool hasValue )
+{
+    m_hasValue = hasValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWorkflowFieldBinding::isObjectReference() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether a null value is an entered value (None) rather than a value that is not set
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowFieldBinding::isExplicitNull() const
 {
     return false;
 }

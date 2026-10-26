@@ -1,0 +1,33 @@
+workflow:
+  name: sizes
+  result_task: tm_helper_conditional.Report
+  tasks:
+    - task: tm_helper_pipeline.Start
+      config_fields: [value]
+    - task: tm_helper_conditional.ChooseSize
+      depends_on: tm_helper_pipeline.Start
+    - task: tm_helper_conditional.IsPositive
+      depends_on: tm_helper_pipeline.Start
+    - task: tm_helper_pipeline.Double
+      name: double_large
+      depends_on: tm_helper_pipeline.Start
+      when: {switch: tm_helper_conditional.ChooseSize, case: [large, huge]}
+    - task: tm_helper_pipeline.Double
+      name: double_small
+      depends_on: tm_helper_pipeline.Start
+      when: {switch: tm_helper_conditional.ChooseSize, otherwise: true}
+    - task: tm_helper_pipeline.Double
+      name: double_positive
+      depends_on: tm_helper_pipeline.Start
+      when: {switch: tm_helper_conditional.IsPositive, case: true}
+    - task: tm_helper_pipeline.Constant
+      when: {switch: tm_helper_conditional.IsPositive, case: false}
+    - task: tm_helper_pipeline.Special
+      depends_on: tm_helper_pipeline.Start
+      when: {ref: [tm_helper_pipeline.Start, value], in: [1.0, 2.0]}
+    - task: tm_helper_conditional.Report
+      depends_on:
+        sized:
+          first_of: [double_large, double_small]
+        signed:
+          first_of: [double_positive, tm_helper_pipeline.Constant]

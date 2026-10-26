@@ -485,7 +485,7 @@ QStringList RimWorkflowPortCompatibility::coveredByWholeOutput( const QJsonObjec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Whether adding the connection from -> to closes a cycle
+/// Whether adding the connection from -> to closes a cycle. Run conditions count as connections.
 //--------------------------------------------------------------------------------------------------
 bool RimWorkflowPortCompatibility::wouldCreateCycle( const RimWorkflowDefinition& definition, const QString& from, const QString& to )
 {
@@ -502,6 +502,10 @@ bool RimWorkflowPortCompatibility::wouldCreateCycle( const RimWorkflowDefinition
         for ( const auto& edge : definition.edges )
         {
             if ( edge.from == current ) pending.append( edge.to );
+        }
+        for ( const auto& node : definition.nodes )
+        {
+            if ( node.when && node.when->source == current ) pending.append( node.name );
         }
     }
     return false;
@@ -711,6 +715,31 @@ std::expected<void, QString> RimWorkflowPortCompatibility::checkCollectMember( c
         return std::unexpected(
             QString( "%1 is %2, but the members of %3.%4 must be %5" )
                 .arg( source, producedPort->typeName, edge.to, edge.input, typeName( target->second, expectedPort->rootSchema ) ) );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Type check of one alternative of a `first_of` input: it must fill the input on its own
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimWorkflowPortCompatibility::checkFirstOfMember( const RimWorkflowDefinition&     definition,
+                                                                               const RimWorkflowDefinitionEdge& edge )
+{
+    const QJsonObject upstreamType   = definition.taskTypeForNode( edge.from );
+    const QJsonObject downstreamType = definition.taskTypeForNode( edge.to );
+    if ( upstreamType.isEmpty() || downstreamType.isEmpty() ) return {};
+
+    const auto producedPort = outputPort( upstreamType, edge.output );
+    if ( !producedPort ) return std::unexpected( QString( "'%1' has no output '%2'" ).arg( edge.from, edge.output ) );
+    const auto expectedPort = inputPort( downstreamType, edge.input );
+    if ( !expectedPort || expectedPort->isWhole() )
+        return std::unexpected( QString( "Alternatives (first of) need a named input; '%1' has no input '%2'" ).arg( edge.to, edge.input ) );
+
+    if ( !isCompatible( *producedPort, *expectedPort ) )
+    {
+        const QString source = edge.output.isEmpty() ? edge.from : edge.from + "." + edge.output;
+        return std::unexpected(
+            QString( "%1 is %2, but %3.%4 expects %5" ).arg( source, producedPort->typeName, edge.to, edge.input, expectedPort->typeName ) );
     }
     return {};
 }
