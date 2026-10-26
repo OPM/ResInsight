@@ -1,0 +1,49 @@
+name: OCR review via Copilot
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  copilot-requests: write
+
+concurrency:
+  group: ocr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # OCR needs history for merge-base
+
+      - name: Install Copilot CLI and OCR
+        run: npm install -g @github/copilot@1.0.103 @alibaba-group/open-code-review@1.13.3
+
+      - name: Install OCR delegation skill
+        run: |
+          git clone --depth 1 --branch v1.13.3 \
+            https://github.com/alibaba/open-code-review /tmp/ocr
+          mkdir -p ~/.copilot/skills
+          cp -r /tmp/ocr/skills/open-code-review-delegate ~/.copilot/skills/
+
+      - name: Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_MODEL: ${{ vars.COPILOT_REVIEW_MODEL || 'claude-sonnet-4.5' }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          copilot -s -p "Use the open-code-review-delegate skill to review \
+          the changes in range mode with --from $BASE --to $HEAD. \
+          Follow the rules OCR returns for each file. Do not modify any files. \
+          Output only the findings as markdown, grouped by file, with line numbers." \
+            --allow-tool 'shell(ocr:*)' --allow-tool 'shell(git:*)' > review.md
+
+      - name: Post review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr review ${{ github.event.pull_request.number }} --comment --body-file review.md
