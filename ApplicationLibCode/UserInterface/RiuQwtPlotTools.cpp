@@ -44,6 +44,7 @@
 
 #include <QCryptographicHash>
 #include <QImage>
+#include <QPainterPath>
 #include <QSet>
 
 #include <vector>
@@ -311,6 +312,64 @@ QList<QList<QwtLegendData>> RiuQwtPlotTools::uniqueLegendData( const std::vector
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Draw a legend icon consisting of an optional horizontal line and/or an optional symbol.
+//--------------------------------------------------------------------------------------------------
+static QwtGraphic createCurveLegendIcon( const QSize&                        size,
+                                         bool                                drawLine,
+                                         const QColor&                       lineColor,
+                                         RiuPlotCurveSymbol::PointSymbolEnum symbol,
+                                         const QColor&                       symbolColor )
+{
+    QwtGraphic graphic;
+    graphic.setDefaultSize( size );
+    graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+    QPainter painter( &graphic );
+    painter.setRenderHint( QPainter::Antialiasing );
+
+    // QwtGraphic computes its own bounding rect from the actually painted content (see
+    // QwtGraphic::drawImage()/drawPath()), and the legend later rescales that bounding rect to fill its
+    // fixed icon slot. Without this, a symbol painted smaller than the full icon ends up with a smaller
+    // bounding rect that gets rescaled back up to fill the icon slot, defeating the size reduction below.
+    // Draw an invisible full-size rect first to pin the bounding rect to the full icon size.
+    QPainterPath boundsPath;
+    boundsPath.addRect( 0.0, 0.0, size.width(), size.height() );
+    painter.setPen( Qt::NoPen );
+    painter.setBrush( Qt::NoBrush );
+    painter.drawPath( boundsPath );
+
+    if ( drawLine )
+    {
+        // A bit thicker than a plain hairline, so colored curve lines are as visually prominent as curve symbols.
+        const double lineWidth = 3.0;
+
+        QPen pn;
+        pn.setCapStyle( Qt::FlatCap );
+        pn.setColor( lineColor );
+        pn.setWidthF( lineWidth );
+
+        painter.setPen( pn );
+
+        const double y = 0.5 * size.height();
+        QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
+    }
+
+    if ( symbol != RiuPlotCurveSymbol::SYMBOL_NONE )
+    {
+        // Draw the symbol clearly smaller than the full icon, so it does not dominate the icon visually.
+        const double symbolScale = 0.45;
+        QSize        symbolSize( static_cast<int>( size.width() * symbolScale ), static_cast<int>( size.height() * symbolScale ) );
+
+        auto image = RiuPlotCurveSymbolImageCreator::createSymbolImage( symbol, symbolSize, symbolColor );
+
+        QPoint p( ( size.width() - symbolSize.width() ) / 2, ( size.height() - symbolSize.height() ) / 2 );
+        painter.drawImage( p, image );
+    }
+
+    return graphic;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlotCurve*>& curves )
@@ -327,35 +386,8 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
         auto size = icon->availableSizes().first();
         // see QwtPlotCurve::legendIcon
 
-        QwtGraphic graphic;
-        {
-            graphic.setDefaultSize( size );
-            graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
-
-            QPainter painter( &graphic );
-            painter.setRenderHint( QPainter::Antialiasing );
-
-            {
-                QPen pn;
-                pn.setCapStyle( Qt::FlatCap );
-                pn.setColor( RiaColorTools::toQColor( c->color() ) );
-
-                painter.setPen( pn );
-
-                const double y = 0.5 * size.height();
-                QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
-            }
-
-            if ( c->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
-            {
-                auto image = RiuPlotCurveSymbolImageCreator::createSymbolImage( c->symbol(),
-                                                                                QSize( size.width() / 2, size.height() / 2 ),
-                                                                                RiaColorTools::toQColor( c->color() ) );
-
-                QPoint p( size.width() / 4, size.height() / 4 );
-                painter.drawImage( p, image );
-            }
-        }
+        QColor     curveColor = RiaColorTools::toQColor( c->color() );
+        QwtGraphic graphic    = createCurveLegendIcon( size, /*drawLine=*/true, curveColor, c->symbol(), curveColor );
 
         QVariant v = QVariant::fromValue( graphic );
         test.setValue( QwtLegendData::Role::IconRole, v );
