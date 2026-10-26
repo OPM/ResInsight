@@ -53,8 +53,19 @@ public:
         REALIZATIONS
     };
 
+    enum class GlobalAppearance
+    {
+        LOCAL,
+        GLOBAL
+    };
+
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
+
+    GlobalAppearance globalAppearance() const;
+    void             setGlobalAppearance( GlobalAppearance appearance );
+    bool             useGlobalColor() const;
+    bool             useGlobalSymbol() const;
 
     const RimSummaryNameHelper* nameHelper() const;
 
@@ -164,6 +175,7 @@ private:
     caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
+    caf::PdmField<bool> m_showCurveAppearance;
     caf::PdmField<bool> m_linkSubPlotAxes;
     caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
@@ -183,6 +195,7 @@ private:
     caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_defaultStepDimension;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
+    caf::PdmField<caf::AppEnum<GlobalAppearance>>     m_globalAppearance;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
