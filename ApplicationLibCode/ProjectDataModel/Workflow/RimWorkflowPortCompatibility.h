@@ -84,4 +84,5 @@ std::expected<RimWorkflowDefinitionEdge, QString> resolveConnection( const RimWo
 std::expected<void, QString>
     canConnect( const RimWorkflowDefinition& definition, const QString& from, const QString& output, const QString& to, const QString& input );
 std::expected<void, QString> checkCollectMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
+std::expected<void, QString> checkFirstOfMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
 } // namespace RimWorkflowPortCompatibility

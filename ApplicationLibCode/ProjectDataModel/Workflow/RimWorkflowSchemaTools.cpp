@@ -19,8 +19,11 @@
 #include "RimWorkflowSchemaTools.h"
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonValue>
 #include <QMap>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -129,7 +132,61 @@ QString RimWorkflowSchemaTools::jsonType( const QJsonObject& typeSchema )
 {
     const QString type = typeSchema.value( "type" ).toString();
     if ( type == "boolean" || type == "integer" || type == "number" || type == "array" ) return type;
-    return "string";
+
+    // int | float
+    const QJsonArray anyOf = typeSchema.value( "anyOf" ).toArray();
+    if ( !anyOf.isEmpty() && std::all_of( anyOf.begin(),
+                                          anyOf.end(),
+                                          []( const QJsonValue& arm )
+                                          {
+                                              const QString armType = arm.toObject().value( "type" ).toString();
+                                              return armType == "integer" || armType == "number";
+                                          } ) )
+        return "number";
+
+    // Any: the value is typed as a literal
+    for ( const char* key : { "type", "anyOf", "oneOf", "allOf", "enum", "const", "$ref", "properties", "items" } )
+    {
+        if ( typeSchema.contains( key ) ) return "string";
+    }
+    return "any";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A value typed for an untyped (Any) field, read like a YAML scalar: true/false, numbers,
+/// null/None/~ and JSON arrays, objects and quoted strings. Other text is a string; empty text is null.
+//--------------------------------------------------------------------------------------------------
+QJsonValue RimWorkflowSchemaTools::literalFromText( const QString& text )
+{
+    const QString token = text.trimmed();
+    const QString lower = token.toLower();
+    if ( token.isEmpty() || lower == "null" || lower == "none" || token == "~" ) return QJsonValue( QJsonValue::Null );
+    if ( lower == "true" ) return true;
+    if ( lower == "false" ) return false;
+
+    const QJsonDocument document = QJsonDocument::fromJson( ( "[" + token + "]" ).toUtf8() );
+    if ( document.isArray() && document.array().size() == 1 ) return document.array().first();
+    return token;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowSchemaTools::explicitNullKey()
+{
+    return "explicit_null";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The text that `literalFromText` reads back as `value`; null is written as `null`
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowSchemaTools::textFromLiteral( const QJsonValue& value )
+{
+    if ( value.isString() && literalFromText( value.toString() ) == value ) return value.toString();
+    if ( value.isUndefined() ) return {};
+
+    const QByteArray json = QJsonDocument( QJsonArray{ value } ).toJson( QJsonDocument::Compact );
+    return QString::fromUtf8( json.mid( 1, json.size() - 2 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +309,11 @@ QJsonObject RimWorkflowSchemaTools::configFieldSchema( const QString&     fieldN
 
     // Prefer the value already in input.yaml; fall back to the model default
     if ( configValues.contains( fieldName ) )
+    {
         entry["default"] = configValues.value( fieldName );
+        // A null in input.yaml is an entered None, unlike a model default of None
+        if ( entry["default"].isNull() ) entry[explicitNullKey()] = true;
+    }
     else if ( property.contains( "default" ) )
         entry["default"] = property.value( "default" );
 

@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QString>
 #include <QStringList>
 
@@ -38,6 +39,11 @@ QString     resinsightTypeFromPythonType( const QString& pythonType );
 QStringList requiredFields( const QJsonObject& modelSchema );
 QStringList propertyNames( const QJsonObject& modelSchema );
 bool        isConfigurable( const QJsonObject& property, const QJsonObject& rootSchema );
+QJsonValue  literalFromText( const QString& text );
+QString     textFromLiteral( const QJsonValue& value );
+
+// Config field schema key: a null default is an entered None rather than an unset value
+QString explicitNullKey();
 
 QJsonObject configFieldSchema( const QString&     fieldName,
                                const QJsonObject& inputSchema,

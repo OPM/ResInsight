@@ -210,6 +210,65 @@ object, or a multi-selection of cases, well paths or views keyed by name.
 During a run the helper emits `map_item_state` events; the node shows
 "done/seen" counts and failures, and the tooltip lists each item.
 
+### Conditional branches
+
+Conditional branches need a taskmaestro with `taskmaestro.conditions`
+(`SwitchTask`, `ConditionTask`). A switch task outputs a `Branch` whose
+`branch` field holds the chosen label; describe lists the labels as the
+task's `branches`.
+
+In the definition a node may carry a `when` guard, stored as
+`RimWorkflowTaskGuard` (`source`, `field`, `op`, `values`):
+
+| YAML form                          | `op`               |
+|------------------------------------|--------------------|
+| `{switch: s, case: a}` or `[a, b]` | `Case`             |
+| `{switch: s, otherwise: true}`     | `Otherwise`        |
+| `{ref: [t, f], equals: v}`         | `Equals`           |
+| `{ref: [t, f], in: [v, …]}`        | `In`               |
+| `{ref: [t, f], truthy: true/false}`| `Truthy` / `Falsy` |
+
+A guard is a control dependency, not data. It orders the guarded task after
+its source for cycle checks and layout, and a source that is used only by
+guards is not a sink. `first_of` joins are edges with
+`collect: "first_of"`. The input takes the output of the first alternative,
+in edge order, whose task ran.
+
+Edits: `setTaskGuard` and `checkTaskGuard` set and check a guard.
+`addFirstOfMember` turns an existing plain connection into the first
+alternative. `disconnect` collapses a single remaining alternative back
+to a plain edge, and `connect` replaces all alternatives. `moveCollectMember`
+reorders alternatives. `renameTask` updates guards and `removeTask` drops
+them.
+
+`validate` checks the following:
+
+- the guard's source exists and is not the task itself;
+- the guard does not test a field of a mapped task;
+- the field exists;
+- values match the field schema;
+- case labels are among the `branches`;
+- `otherwise` is used only on switches;
+- truthy and falsy are used only on bool or optional fields;
+- every switch label is covered when a switch has guards;
+- `first_of` members are type compatible and not mixed with other edges.
+
+Drawing:
+
+- Switch tasks (`switch: true` in the graph JSON) are diamonds and show their
+  labels.
+- Guards are purple dash-dot control edges from the bottom of the source to
+  the top of the guarded task, labelled with `when_label`.
+- `first_of` inputs have a dotted ring, and their edges are labelled `1st`,
+  `2nd`, ….
+- Right-click a task for Run When… and Remove Condition, or a control edge
+  for Edit Condition…. Dropping a compatible output on a wired input asks
+  whether to replace the connection or add it as an alternative.
+
+When running, the helper's `on_task_skip` hook emits a `task_state` event
+with `state: "skipped"` and a `reason`. Skipped tasks are drawn greyed and
+dashed, with the reason in the tooltip.
+
 Selecting a task shows its `RimWorkflowTaskInput` from the displayed job in
 the property view. Editing is locked while a job of the workflow is running.
 During a run, task states are drawn on the nodes.

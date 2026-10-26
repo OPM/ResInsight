@@ -20,6 +20,7 @@
 
 #include "RimWorkflowDefinition.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QMap>
 #include <QString>
@@ -76,12 +77,27 @@ EditResult moveCollectMember( const RimWorkflowDefinition& definition, const Rim
 EditResult setTaskMap( const RimWorkflowDefinition& definition, const QString& nodeName, const std::optional<RimWorkflowTaskMap>& map );
 std::expected<void, QString> checkTaskMap( const RimWorkflowDefinition& definition, const QString& nodeName, const RimWorkflowTaskMap& map );
 QJsonObject mapOverSchema( const RimWorkflowDefinition& definition, const QString& nodeName );
-EditResult  renameTask( const RimWorkflowDefinition& definition, const QString& oldName, const QString& newName );
-EditResult  renameWorkflow( const RimWorkflowDefinition& definition, const QString& newName );
-EditResult  setResultTask( const RimWorkflowDefinition& definition, const QString& nodeName );
+EditResult setTaskGuard( const RimWorkflowDefinition& definition, const QString& nodeName, const std::optional<RimWorkflowTaskGuard>& guard );
+std::expected<void, QString>
+           checkTaskGuard( const RimWorkflowDefinition& definition, const QString& nodeName, const RimWorkflowTaskGuard& guard );
+EditResult addFirstOfMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
+EditResult renameTask( const RimWorkflowDefinition& definition, const QString& oldName, const QString& newName );
+EditResult renameWorkflow( const RimWorkflowDefinition& definition, const QString& newName );
+EditResult setResultTask( const RimWorkflowDefinition& definition, const QString& nodeName );
 EditResult setOptionalInputConfigured( const RimWorkflowDefinition& definition, const QString& nodeName, const QString& field, bool configured );
 RimWorkflowDefinition
     autoWireResInsightInputs( const RimWorkflowDefinition& definition, const RimWorkflowTaskCatalog& catalog, const QString& nodeName );
+
+// Conditional branches
+bool        isSwitchTask( const QJsonObject& taskType );
+QJsonArray  switchBranches( const QJsonObject& taskType );
+QStringList guardFields( const RimWorkflowDefinition& definition, const QString& sourceName );
+QJsonObject guardFieldSchema( const RimWorkflowDefinition& definition, const QString& sourceName, const QString& field );
+QString     guardValueText( const QJsonValue& value );
+QJsonArray  guardValuesFromText( const QString& text, const QJsonObject& fieldSchema );
+QString     guardValuesToText( const QJsonArray& values, const QJsonObject& fieldSchema );
+QString     guardLabel( const RimWorkflowTaskGuard& guard );
+QString     firstOfLabel( int position );
 
 // Validation and display
 std::vector<RimWorkflowIssue> validate( const RimWorkflowDefinition& definition );

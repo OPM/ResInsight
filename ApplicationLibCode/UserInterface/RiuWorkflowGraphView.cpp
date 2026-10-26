@@ -80,6 +80,10 @@ const QColor warningColor( 200, 130, 20 );
 const QColor edgeColor( 75, 95, 115 );
 const QColor selectedEdgeColor( 30, 120, 220 );
 const QColor mapColor( 95, 80, 160 );
+const QColor conditionColor( 135, 75, 150 );
+
+constexpr qreal diamondMinHeight = 130.0;
+constexpr qreal diamondPortStep  = 24.0;
 
 QString keyForField( const QString& field )
 {
@@ -149,6 +153,7 @@ struct PortInfo
     QString iconResource{};
     Style   style   = Style::Normal;
     bool    collect = false;
+    bool    firstOf = false;
 };
 
 //==================================================================================================
@@ -194,10 +199,15 @@ public:
                const std::vector<PortInfo>& inputs,
                const std::vector<PortInfo>& outputs,
                bool                         isConfig = false,
-               const QString&               subtitle = {} );
+               const QString&               subtitle = {},
+               bool                         diamond  = false );
 
     qreal                  height() const;
     QPointF                portPosition( const QString& key, bool output ) const;
+    QPointF                controlAnchor( bool outgoing ) const;
+    void                   setBranches( const QStringList& branches );
+    void                   paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget ) override;
+    QPainterPath           shape() const override;
     void                   addEdge( GraphEdge* edge );
     QString                name() const;
     bool                   isConfig() const;
@@ -214,32 +224,36 @@ protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
 
 private:
-    void addPorts( const std::vector<PortInfo>& ports, bool output );
-    void applyStyle();
+    void      addPorts( const std::vector<PortInfo>& ports, bool output );
+    void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
+    void      applyStyle();
+    QPolygonF diamondPolygon( const QRectF& bounds ) const;
 
-    QString                           m_name;
-    bool                              m_isConfig;
-    qreal                             m_width;
-    QMap<QString, PortItem*>          m_inputs;
-    QMap<QString, PortItem*>          m_outputs;
-    QMap<QString, QGraphicsTextItem*> m_configValues;
-    QMap<QString, qreal>              m_configValueRight; // Where the value must end to stay clear of the type
-    std::vector<GraphEdge*>           m_edges;
-    QGraphicsTextItem*                m_title      = nullptr;
-    QGraphicsTextItem*                m_stateLabel = nullptr;
-    QGraphicsTextItem*                m_issueLabel = nullptr;
-    QGraphicsTextItem*                m_subtitle   = nullptr;
-    std::vector<QGraphicsRectItem*>   m_stack;
-    qreal                             m_portTop = portTop;
-    QMap<QString, QString>            m_itemStates;
-    QMap<QString, QString>            m_itemErrors;
-    QString                           m_state;
-    QString                           m_stateError;
-    QString                           m_baseToolTip;
-    QString                           m_issueText;
-    int                               m_errorCount   = 0;
-    int                               m_warningCount = 0;
-    bool                              m_unknownType  = false;
+    QString                                  m_name;
+    bool                                     m_isConfig;
+    bool                                     m_diamond;
+    qreal                                    m_width;
+    QMap<QString, PortItem*>                 m_inputs;
+    QMap<QString, PortItem*>                 m_outputs;
+    QMap<QString, QGraphicsTextItem*>        m_configValues;
+    QMap<QString, qreal>                     m_configValueRight; // Where the value must end to stay clear of the type
+    std::vector<GraphEdge*>                  m_edges;
+    QGraphicsTextItem*                       m_title      = nullptr;
+    QGraphicsTextItem*                       m_stateLabel = nullptr;
+    QGraphicsTextItem*                       m_issueLabel = nullptr;
+    QGraphicsTextItem*                       m_subtitle   = nullptr;
+    QGraphicsTextItem*                       m_branches   = nullptr;
+    std::vector<QAbstractGraphicsShapeItem*> m_stack;
+    qreal                                    m_portTop = portTop;
+    QMap<QString, QString>                   m_itemStates;
+    QMap<QString, QString>                   m_itemErrors;
+    QString                                  m_state;
+    QString                                  m_stateError;
+    QString                                  m_baseToolTip;
+    QString                                  m_issueText;
+    int                                      m_errorCount   = 0;
+    int                                      m_warningCount = 0;
+    bool                                     m_unknownType  = false;
 };
 
 //==================================================================================================
@@ -249,10 +263,13 @@ class GraphEdge : public QGraphicsPathItem
 {
 public:
     GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey, bool isConfig, bool selectable );
+    // A control edge: `to` only runs when the condition on the output of `from` holds
+    GraphEdge( GraphNode* from, GraphNode* to, const QString& condition, bool selectable );
 
     void         updatePath();
     QPainterPath shape() const override;
     bool         isConfig() const { return m_isConfig; }
+    bool         isControl() const { return m_isControl; }
     GraphNode*   fromNode() const { return m_from; }
     GraphNode*   toNode() const { return m_to; }
     QString      outputField() const { return fieldForKey( m_outputKey ); }
@@ -270,6 +287,7 @@ private:
     QString               m_outputKey;
     QString               m_inputKey;
     bool                  m_isConfig;
+    bool                  m_isControl = false;
     QGraphicsPolygonItem* m_arrow;
     QGraphicsTextItem*    m_label = nullptr;
 };
@@ -339,12 +357,12 @@ PortItem::PortItem( GraphNode* node, const PortInfo& info, bool output, bool con
     setAcceptedMouseButtons( Qt::NoButton );
     setZValue( 2 );
 
-    // An outer ring marks inputs that collect several connections
-    if ( info.collect )
+    // An outer ring marks inputs that collect several connections, a dashed one alternatives
+    if ( info.collect || info.firstOf )
     {
         const qreal ring  = portRadius + 3.0;
         auto*       outer = new QGraphicsEllipseItem( center.x() - ring, center.y() - ring, 2 * ring, 2 * ring, node );
-        outer->setPen( QPen( color, 1.2 ) );
+        outer->setPen( QPen( color, 1.2, info.firstOf ? Qt::DotLine : Qt::SolidLine ) );
         outer->setBrush( Qt::NoBrush );
         outer->setAcceptedMouseButtons( Qt::NoButton );
         outer->setZValue( 1.5 );
@@ -385,15 +403,20 @@ GraphNode::GraphNode( const QString&               name,
                       const std::vector<PortInfo>& inputs,
                       const std::vector<PortInfo>& outputs,
                       bool                         isConfig,
-                      const QString&               subtitle )
+                      const QString&               subtitle,
+                      bool                         diamond )
     : m_name( name )
     , m_isConfig( isConfig )
+    , m_diamond( diamond && !isConfig )
     , m_width( isConfig ? configWidth : nodeWidth )
     , m_portTop( subtitle.isEmpty() ? portTop : portTop + subtitleGap )
     , m_baseToolTip( name )
 {
     const qsizetype rows = std::max( { qsizetype( 1 ), qsizetype( inputs.size() ), qsizetype( outputs.size() ) } );
-    setRect( 0, 0, m_width, m_portTop + portStep * rows + 12 );
+    if ( m_diamond )
+        setRect( 0, 0, m_width, std::max( diamondMinHeight, ( rows - 1 ) * diamondPortStep + 60.0 ) );
+    else
+        setRect( 0, 0, m_width, m_portTop + portStep * rows + 12 );
     setFlags( ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges );
     setZValue( 1 );
 
@@ -416,7 +439,8 @@ GraphNode::GraphNode( const QString&               name,
 
         m_issueLabel = new QGraphicsTextItem( this );
         m_issueLabel->setFont( font );
-        m_issueLabel->setPos( 8, rect().height() - 2 );
+        // A diamond has its badge beside the bottom vertex, where control edges leave
+        m_issueLabel->setPos( m_diamond ? m_width / 2 + 10 : 8, rect().height() - ( m_diamond ? 16 : 2 ) );
         m_issueLabel->setAcceptedMouseButtons( Qt::NoButton );
     }
 
@@ -425,7 +449,12 @@ GraphNode::GraphNode( const QString&               name,
     {
         for ( int depth = 2; depth >= 1; --depth )
         {
-            auto* card = new QGraphicsRectItem( rect().translated( depth * stackOffset, depth * stackOffset ), this );
+            const QRectF                bounds = rect().translated( depth * stackOffset, depth * stackOffset );
+            QAbstractGraphicsShapeItem* card   = nullptr;
+            if ( m_diamond )
+                card = new QGraphicsPolygonItem( diamondPolygon( bounds ), this );
+            else
+                card = new QGraphicsRectItem( bounds, this );
             card->setFlag( ItemStacksBehindParent );
             card->setAcceptedMouseButtons( Qt::NoButton );
             m_stack.push_back( card );
@@ -437,13 +466,24 @@ GraphNode::GraphNode( const QString&               name,
         font.setItalic( true );
         m_subtitle->setFont( font );
         m_subtitle->setDefaultTextColor( mapColor );
-        m_subtitle->setPlainText( QFontMetrics( font ).elidedText( subtitle, Qt::ElideRight, m_width - 20 ) );
-        m_subtitle->setPos( 10, 24 );
+        m_subtitle->setPlainText( QFontMetrics( font ).elidedText( subtitle, Qt::ElideRight, m_diamond ? 100 : m_width - 20 ) );
+        if ( m_diamond )
+            m_subtitle->setPos( ( m_width - m_subtitle->boundingRect().width() ) / 2, rect().height() / 2 - 42 );
+        else
+            m_subtitle->setPos( 10, 24 );
         m_subtitle->setAcceptedMouseButtons( Qt::NoButton );
     }
 
-    addPorts( inputs, false );
-    addPorts( outputs, true );
+    if ( m_diamond )
+    {
+        addDiamondPorts( inputs, false );
+        addDiamondPorts( outputs, true );
+    }
+    else
+    {
+        addPorts( inputs, false );
+        addPorts( outputs, true );
+    }
     setTitle( isConfig ? "Config: " + name : name, {} );
 }
 
@@ -460,8 +500,10 @@ qreal GraphNode::height() const
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setTitle( const QString& title, const QString& toolTip )
 {
-    m_title->setPlainText( QFontMetrics( m_title->font() ).elidedText( title, Qt::ElideRight, m_width - ( m_isConfig ? 20 : 100 ) ) );
+    const qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : 100 );
+    m_title->setPlainText( QFontMetrics( m_title->font() ).elidedText( title, Qt::ElideRight, static_cast<int>( available ) ) );
     m_title->setToolTip( title );
+    if ( m_diamond ) m_title->setPos( ( m_width - m_title->boundingRect().width() ) / 2, rect().height() / 2 - 24 );
     if ( !toolTip.isEmpty() ) m_baseToolTip = toolTip;
     applyStyle();
 }
@@ -532,6 +574,91 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
             if ( m_isConfig && output ) m_configValueRight.insert( fieldForKey( info.key ), typeLeft );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Ports of a switch task sit on the left and right sides of its diamond, labels go in tooltips
+//--------------------------------------------------------------------------------------------------
+void GraphNode::addDiamondPorts( const std::vector<PortInfo>& ports, bool output )
+{
+    auto&       portMap    = output ? m_outputs : m_inputs;
+    const qreal halfHeight = rect().height() / 2;
+    for ( size_t row = 0; row < ports.size(); ++row )
+    {
+        const qreal offset = ( row - ( ports.size() - 1 ) / 2.0 ) * diamondPortStep;
+        const qreal inset  = m_width / 2 * std::abs( offset ) / halfHeight;
+        const qreal x      = output ? m_width - inset : inset;
+        portMap.insert( ports[row].key, new PortItem( this, ports[row], output, false, QPointF( x, halfHeight + offset ) ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPolygonF GraphNode::diamondPolygon( const QRectF& bounds ) const
+{
+    return QPolygonF{ QPointF( bounds.left(), bounds.center().y() ),
+                      QPointF( bounds.center().x(), bounds.top() ),
+                      QPointF( bounds.right(), bounds.center().y() ),
+                      QPointF( bounds.center().x(), bounds.bottom() ),
+                      QPointF( bounds.left(), bounds.center().y() ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void GraphNode::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
+{
+    if ( !m_diamond )
+    {
+        QGraphicsRectItem::paint( painter, option, widget );
+        return;
+    }
+    painter->setPen( pen() );
+    painter->setBrush( brush() );
+    painter->drawPolygon( diamondPolygon( rect() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPainterPath GraphNode::shape() const
+{
+    if ( !m_diamond ) return QGraphicsRectItem::shape();
+    QPainterPath path;
+    path.addPolygon( diamondPolygon( rect() ) );
+    return path;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Where control edges leave (the bottom) or enter (the top) the node, in scene coordinates
+//--------------------------------------------------------------------------------------------------
+QPointF GraphNode::controlAnchor( bool outgoing ) const
+{
+    return mapToScene( QPointF( m_width / 2, outgoing ? rect().height() : 0.0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The branch labels of a switch task, shown below its name
+//--------------------------------------------------------------------------------------------------
+void GraphNode::setBranches( const QStringList& branches )
+{
+    if ( branches.isEmpty() ) return;
+    if ( !m_branches )
+    {
+        m_branches = new QGraphicsTextItem( this );
+        QFont font;
+        font.setPointSize( 8 );
+        font.setItalic( true );
+        m_branches->setFont( font );
+        m_branches->setDefaultTextColor( conditionColor );
+        m_branches->setAcceptedMouseButtons( Qt::NoButton );
+    }
+    const QString text = branches.join( " | " );
+    m_branches->setPlainText( QFontMetrics( m_branches->font() ).elidedText( text, Qt::ElideRight, static_cast<int>( m_width * 0.5 ) ) );
+    m_branches->setToolTip( "Branches: " + branches.join( ", " ) );
+    const qreal x = m_diamond ? ( m_width - m_branches->boundingRect().width() ) / 2 : 10;
+    m_branches->setPos( x, m_diamond ? rect().height() / 2 - 4 : 24 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -686,6 +813,12 @@ void GraphNode::applyStyle()
         border     = QColor( 140, 85, 50 );
         background = QColor( 245, 228, 210 );
     }
+    else if ( m_state == "skipped" )
+    {
+        border     = QColor( 150, 150, 150 );
+        background = QColor( 240, 240, 240 );
+        style      = Qt::DashLine;
+    }
     else if ( m_errorCount > 0 || m_warningCount > 0 )
     {
         border = m_errorCount > 0 ? errorColor : warningColor;
@@ -698,7 +831,7 @@ void GraphNode::applyStyle()
     pen.setStyle( style );
     setPen( pen );
     setBrush( background );
-    for ( QGraphicsRectItem* card : m_stack )
+    for ( QAbstractGraphicsShapeItem* card : m_stack )
     {
         card->setPen( QPen( border, 1.0 ) );
         card->setBrush( background.darker( 104 ) );
@@ -722,7 +855,10 @@ void GraphNode::applyStyle()
         }
         m_stateLabel->setDefaultTextColor( border );
         m_stateLabel->setPlainText( text );
-        m_stateLabel->setPos( m_width - m_stateLabel->boundingRect().width() - 6, 5 );
+        if ( m_diamond )
+            m_stateLabel->setPos( ( m_width - m_stateLabel->boundingRect().width() ) / 2, rect().height() / 2 + 12 );
+        else
+            m_stateLabel->setPos( m_width - m_stateLabel->boundingRect().width() - 6, 5 );
     }
 
     if ( m_issueLabel )
@@ -750,6 +886,7 @@ void GraphNode::applyStyle()
     }
     if ( !m_issueText.isEmpty() ) toolTip << m_issueText;
     setToolTip( toolTip.join( "\n\n" ) );
+    setOpacity( m_state == "skipped" ? 0.6 : 1.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,6 +966,27 @@ GraphEdge::GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+GraphEdge::GraphEdge( GraphNode* from, GraphNode* to, const QString& condition, bool selectable )
+    : m_from( from )
+    , m_to( to )
+    , m_isConfig( false )
+    , m_isControl( true )
+    , m_arrow( new QGraphicsPolygonItem( this ) )
+{
+    setZValue( -1 );
+    if ( selectable ) setFlag( ItemIsSelectable );
+    setToolTip( QString( "'%1' runs only when %2 of '%3' matches; otherwise it is skipped" ).arg( to->name(), condition, from->name() ) );
+    m_arrow->setPen( Qt::NoPen );
+    applyPen();
+    m_from->addEdge( this );
+    m_to->addEdge( this );
+    updatePath();
+    setLabel( condition, toolTip() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// A label near the target, such as the index or key of a collected member
 //--------------------------------------------------------------------------------------------------
 void GraphEdge::setLabel( const QString& label, const QString& toolTip )
@@ -840,7 +998,7 @@ void GraphEdge::setLabel( const QString& label, const QString& toolTip )
         QFont font;
         font.setPointSize( 8 );
         m_label->setFont( font );
-        m_label->setDefaultTextColor( edgeColor );
+        m_label->setDefaultTextColor( m_isControl ? conditionColor : edgeColor );
         m_label->setAcceptedMouseButtons( Qt::NoButton );
     }
     m_label->setPlainText( label );
@@ -853,9 +1011,10 @@ void GraphEdge::setLabel( const QString& label, const QString& toolTip )
 //--------------------------------------------------------------------------------------------------
 void GraphEdge::applyPen()
 {
-    const QColor color = isSelected() ? selectedEdgeColor : ( m_isConfig ? configPortColor : edgeColor );
+    const QColor color = isSelected() ? selectedEdgeColor : ( m_isConfig ? configPortColor : m_isControl ? conditionColor : edgeColor );
     QPen         pen( color, isSelected() ? 3.0 : 1.7 );
     if ( m_isConfig ) pen.setStyle( Qt::DashLine );
+    if ( m_isControl ) pen.setStyle( Qt::DashDotLine );
     setPen( pen );
     m_arrow->setBrush( color );
 }
@@ -865,6 +1024,23 @@ void GraphEdge::applyPen()
 //--------------------------------------------------------------------------------------------------
 void GraphEdge::updatePath()
 {
+    if ( m_isControl )
+    {
+        const QPointF start = m_from->controlAnchor( true );
+        const QPointF end   = m_to->controlAnchor( false );
+        const qreal   bend  = std::max( 40.0, std::abs( end.y() - start.y() ) / 2.0 );
+        QPainterPath  path( start );
+        path.cubicTo( start + QPointF( 0, bend ), end - QPointF( 0, bend ), end );
+        setPath( path );
+        m_arrow->setPolygon( QPolygonF{ end, end + QPointF( -5, -9 ), end + QPointF( 5, -9 ) } );
+        if ( m_label )
+        {
+            const QPointF anchor = path.pointAtPercent( 0.5 );
+            m_label->setPos( anchor.x() + 4, anchor.y() - m_label->boundingRect().height() / 2 );
+        }
+        return;
+    }
+
     const QPointF start = m_from->portPosition( m_outputKey, true );
     const QPointF end   = m_to->portPosition( m_inputKey, false );
     const qreal   bend  = std::max( 35.0, std::abs( end.x() - start.x() ) / 2.0 );
@@ -963,6 +1139,11 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         toolTip << ( required ? "Required" : "Optional" );
         if ( port.value( "configured" ).toBool() ) toolTip << "Set in the job configuration";
         if ( port.value( "covered" ).toBool() ) toolTip << "Provided by a whole-output connection";
+        if ( port.value( "first_of" ).toBool() )
+        {
+            info.firstOf = true;
+            toolTip << "Alternatives: the output of the first connected task that ran is used";
+        }
         if ( !port.value( "collect" ).toString().isEmpty() )
         {
             info.collect = true;
@@ -981,6 +1162,7 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
     for ( const QJsonValue& value : edges )
     {
         const QJsonObject edge = value.toObject();
+        if ( edge.value( "kind" ).toString() == "when" ) continue;
         if ( edge.value( "to" ).toString() == name && edge.value( "input" ).toString().isEmpty() && !hasWholeInput )
         {
             inputs.insert( inputs.begin(), wholeModelPort( task, false ) );
@@ -1180,7 +1362,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QString     from = edge.value( "from" ).toString();
         const QString     to   = edge.value( "to" ).toString();
         layoutEdges.emplace_back( from, to );
-        if ( !taskData.contains( from ) || !taskData.contains( to ) || from == to ) continue;
+        if ( !taskData.contains( from ) || !taskData.contains( to ) || from == to || edge.value( "kind" ).toString() == "when" ) continue;
         usedInputs[to].append( keyForField( edge.value( "input" ).toString() ) );
         usedOutputs[from].append( keyForField( edge.value( "output" ).toString() ) );
     }
@@ -1224,7 +1406,15 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QJsonObject map = data.value( "map" ).toObject();
         QString           subtitle;
         if ( !map.isEmpty() ) subtitle = QString::fromUtf8( "⟳ map over %1" ).arg( map.value( "over" ).toString() );
-        auto* node = new GraphNode( name, inputs, outputs, false, subtitle );
+        const bool isSwitch = data.value( "switch" ).toBool();
+        auto*      node     = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch );
+        if ( isSwitch )
+        {
+            QStringList branches;
+            for ( const QJsonValue& branch : data.value( "branches" ).toArray() )
+                branches.append( branch.toVariant().toString() );
+            node->setBranches( branches );
+        }
         if ( !map.isEmpty() )
         {
             QStringList mapToolTip{
@@ -1245,6 +1435,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         if ( !description.isEmpty() ) toolTip << description;
         const bool unknownType = data.contains( "known_type" ) && !data.value( "known_type" ).toBool();
         if ( name == result ) toolTip << "Result task: its output is the result of the workflow";
+        if ( isSwitch ) toolTip << "Switch: picks a branch; tasks with a run condition on it run only for their branches";
         if ( unknownType ) toolTip << "Unknown task type: the package providing it is not installed";
         node->setTitle( name == result ? QString::fromUtf8( "\u2605 " ) + name : name, toolTip.join( "\n" ) );
         node->setUnknownType( unknownType );
@@ -1331,13 +1522,24 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QString     from = edge.value( "from" ).toString();
         const QString     to   = edge.value( "to" ).toString();
         if ( !m_taskNodes.contains( from ) || !m_taskNodes.contains( to ) || from == to ) continue;
+        if ( edge.value( "kind" ).toString() == "when" )
+        {
+            m_scene->addItem(
+                new GraphEdge( m_taskNodes.value( from ), m_taskNodes.value( to ), edge.value( "label" ).toString(), selectableEdges ) );
+            continue;
+        }
         auto* graphEdge = new GraphEdge( m_taskNodes.value( from ),
                                          keyForField( edge.value( "output" ).toString() ),
                                          m_taskNodes.value( to ),
                                          keyForField( edge.value( "input" ).toString() ),
                                          false,
                                          selectableEdges );
-        if ( edge.contains( "collect" ) )
+        if ( edge.value( "collect" ).toString() == "first_of" )
+        {
+            graphEdge->setLabel( edge.value( "label" ).toString(),
+                                 QString( "Alternative %1: used when no earlier alternative ran" ).arg( edge.value( "label" ).toString() ) );
+        }
+        else if ( edge.contains( "collect" ) )
         {
             const bool keyed = edge.value( "collect" ).toString() == "dict";
             graphEdge->setLabel( edge.value( "label" ).toString(),
@@ -1432,6 +1634,18 @@ RiuWorkflowGraphView::ItemRef
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuWorkflowGraphView::ItemRef RiuWorkflowGraphView::ItemRef::forCondition( const QString& from, const QString& to )
+{
+    ItemRef item;
+    item.kind = Kind::Condition;
+    item.from = from;
+    item.to   = to;
+    return item;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuWorkflowGraphView::ItemRef RiuWorkflowGraphView::selectedItem() const
 {
     for ( QGraphicsItem* item : m_scene->selectedItems() )
@@ -1439,6 +1653,7 @@ RiuWorkflowGraphView::ItemRef RiuWorkflowGraphView::selectedItem() const
         if ( auto* node = dynamic_cast<GraphNode*>( item ) ) return ItemRef::forTask( node->name() );
         if ( auto* edge = dynamic_cast<GraphEdge*>( item ); edge && !edge->isConfig() )
         {
+            if ( edge->isControl() ) return ItemRef::forCondition( edge->fromNode()->name(), edge->toNode()->name() );
             return ItemRef::forEdge( edge->fromNode()->name(), edge->outputField(), edge->toNode()->name(), edge->inputField() );
         }
     }
@@ -1540,6 +1755,7 @@ RiuWorkflowGraphView::ItemRef RiuWorkflowGraphView::itemRefAt( const QPoint& vie
             if ( auto* edge = dynamic_cast<GraphEdge*>( current ) )
             {
                 if ( edge->isConfig() ) break;
+                if ( edge->isControl() ) return ItemRef::forCondition( edge->fromNode()->name(), edge->toNode()->name() );
                 return ItemRef::forEdge( edge->fromNode()->name(), edge->outputField(), edge->toNode()->name(), edge->inputField() );
             }
             current = current->parentItem();

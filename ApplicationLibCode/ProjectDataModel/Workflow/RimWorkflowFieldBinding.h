@@ -40,6 +40,7 @@ public:
     virtual void       applySchema( const QJsonObject& fieldSchema );
     virtual QJsonValue toJsonValue() const = 0;
     virtual bool       isObjectReference() const;
+    virtual bool       isExplicitNull() const;
     virtual QString    displayValue() const;
 
     virtual caf::PdmFieldHandle* valueField() = 0;
@@ -48,6 +49,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     bool hasValue() const;
+    void setHasValue( bool hasValue );
 
     caf::PdmField<QString> m_fieldName;
     caf::PdmField<QString> m_description;

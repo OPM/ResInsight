@@ -29,9 +29,11 @@ public:
 
     void       applySchema( const QJsonObject& fieldSchema ) override;
     QJsonValue toJsonValue() const override;
+    bool       isExplicitNull() const override;
 
     caf::PdmFieldHandle* valueField() override { return &m_value; }
 
 private:
     caf::PdmField<QString> m_value;
+    caf::PdmField<bool>    m_isLiteral;
 };

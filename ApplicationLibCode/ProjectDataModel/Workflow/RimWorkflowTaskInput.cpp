@@ -25,6 +25,7 @@
 #include "RimWorkflowFloatBinding.h"
 #include "RimWorkflowIntBinding.h"
 #include "RimWorkflowMappingBinding.h"
+#include "RimWorkflowSchemaTools.h"
 #include "RimWorkflowStringBinding.h"
 #include "RimWorkflowVec3Binding.h"
 #include "RimWorkflowViewBinding.h"
@@ -185,16 +186,22 @@ void RimWorkflowTaskInput::syncFromSchema( const QJsonArray& configFields, QMap<
         {
             const QJsonValue current = binding->toJsonValue();
             // Keep a cleared value cleared instead of restoring the default
-            if ( current.isNull() )
+            if ( current.isNull() && !binding->isExplicitNull() )
                 schema.remove( "default" );
             else
                 schema["default"] = current;
+            schema[RimWorkflowSchemaTools::explicitNullKey()] = binding->isExplicitNull();
         }
         else
         {
             binding           = createBinding( schema );
             const QString key = detachedKey( field, keyword );
-            if ( detachedValues.contains( key ) ) schema["default"] = detachedValues.take( key );
+            if ( detachedValues.contains( key ) )
+            {
+                // Only values that were set are detached, so a null is an entered None
+                schema["default"]                                 = detachedValues.take( key );
+                schema[RimWorkflowSchemaTools::explicitNullKey()] = schema["default"].isNull();
+            }
         }
         binding->applySchema( schema );
         addItem( binding );
@@ -204,7 +211,8 @@ void RimWorkflowTaskInput::syncFromSchema( const QJsonArray& configFields, QMap<
     {
         if ( !removed ) continue;
         const QJsonValue value = removed->toJsonValue();
-        if ( !value.isNull() ) detachedValues.insert( detachedKey( removed->fieldName(), removed->classKeyword() ), value );
+        if ( !value.isNull() || removed->isExplicitNull() )
+            detachedValues.insert( detachedKey( removed->fieldName(), removed->classKeyword() ), value );
         delete removed;
     }
 }
@@ -218,7 +226,7 @@ QJsonObject RimWorkflowTaskInput::jsonValues() const
     for ( const RimWorkflowFieldBinding* binding : items() )
     {
         const QJsonValue value = binding->toJsonValue();
-        if ( !value.isNull() ) values.insert( binding->fieldName(), value );
+        if ( !value.isNull() || binding->isExplicitNull() ) values.insert( binding->fieldName(), value );
     }
     return values;
 }
@@ -233,7 +241,7 @@ QJsonObject RimWorkflowTaskInput::literalValues() const
     {
         if ( binding->isObjectReference() ) continue;
         const QJsonValue value = binding->toJsonValue();
-        if ( !value.isNull() ) values.insert( binding->fieldName(), value );
+        if ( !value.isNull() || binding->isExplicitNull() ) values.insert( binding->fieldName(), value );
     }
     return values;
 }

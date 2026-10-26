@@ -2,6 +2,7 @@
 
 #include "RiaTestDataDirectory.h"
 #include "RimWorkflowDescribeTools.h"
+#include "RimWorkflowSchemaTools.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -156,6 +157,51 @@ TEST( RimWorkflowDescribeTools, vec3FieldIsRecognizedStructurally )
     EXPECT_EQ( "object", referencePoint.value( "type" ).toString() );
     EXPECT_EQ( "Vec3", referencePoint.value( "resinsight_type" ).toString() );
     EXPECT_TRUE( referencePoint.value( "required" ).toBool() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDescribeTools, numericUnionFieldIsNumber )
+{
+    const QJsonObject inputSchema{
+        { "properties",
+          QJsonObject{ { "value",
+                         QJsonObject{ { "anyOf", QJsonArray{ QJsonObject{ { "type", "integer" } }, QJsonObject{ { "type", "number" } } } } } },
+                       { "mixed",
+                         QJsonObject{ { "anyOf", QJsonArray{ QJsonObject{ { "type", "integer" } }, QJsonObject{ { "type", "string" } } } } } } } } };
+
+    EXPECT_EQ( "number", RimWorkflowSchemaTools::configFieldSchema( "value", inputSchema, {}, {} ).value( "type" ).toString() );
+    EXPECT_EQ( "string", RimWorkflowSchemaTools::configFieldSchema( "mixed", inputSchema, {}, {} ).value( "type" ).toString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDescribeTools, untypedFieldIsLiteral )
+{
+    const QJsonObject inputSchema{
+        { "properties", QJsonObject{ { "value", QJsonObject{ { "title", "Value" }, { "description", "Value to test" } } } } } };
+    EXPECT_EQ( "any", RimWorkflowSchemaTools::configFieldSchema( "value", inputSchema, {}, {} ).value( "type" ).toString() );
+
+    using RimWorkflowSchemaTools::literalFromText;
+    EXPECT_EQ( QJsonValue( false ), literalFromText( "False" ) );
+    EXPECT_EQ( QJsonValue( true ), literalFromText( " true " ) );
+    EXPECT_EQ( QJsonValue( 0 ), literalFromText( "0" ) );
+    EXPECT_EQ( QJsonValue( 2.5 ), literalFromText( "2.5" ) );
+    EXPECT_TRUE( literalFromText( "None" ).isNull() );
+    EXPECT_TRUE( literalFromText( "" ).isNull() );
+    EXPECT_EQ( QJsonValue( "text" ), literalFromText( "text" ) );
+    EXPECT_EQ( QJsonValue( "true" ), literalFromText( "\"true\"" ) );
+    EXPECT_EQ( QJsonValue( QJsonArray( { 1, "a" } ) ), literalFromText( "[1, \"a\"]" ) );
+
+    for ( const QJsonValue& value : { QJsonValue( false ),
+                                      QJsonValue( 3 ),
+                                      QJsonValue( "text" ),
+                                      QJsonValue( "true" ),
+                                      QJsonValue( "0" ),
+                                      QJsonValue( QJsonValue::Null ),
+                                      QJsonValue( QJsonObject{ { "a", 1 } } ) } )
+    {
+        EXPECT_EQ( value, literalFromText( RimWorkflowSchemaTools::textFromLiteral( value ) ) )
+            << RimWorkflowSchemaTools::textFromLiteral( value ).toStdString();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
