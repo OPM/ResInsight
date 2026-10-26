@@ -217,6 +217,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_showCheckBoxes      = uiItem->attribute<bool>( Keys::SHOW_CHECK_BOXES, uiConfigName ).value_or( true );
         m_showContextMenu     = uiItem->attribute<bool>( Keys::SHOW_CONTEXT_MENU, uiConfigName ).value_or( true );
         m_heightHint          = uiItem->attribute<int>( Keys::HEIGHT_HINT, uiConfigName ).value_or( -1 );
+        m_iconSize            = uiItem->attribute<QSize>( Keys::ICON_SIZE, uiConfigName ).value_or( QSize() );
         m_currentIndexFieldHandle =
             uiItem->attribute<caf::PdmFieldHandle*>( Keys::CURRENT_INDEX_FIELD_HANDLE, uiConfigName ).value_or( nullptr );
 
@@ -307,6 +308,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
 
     // If the tree doesn't have grand children we treat this as a straight list
     m_treeView->setRootIsDecorated( m_model->hasGrandChildren() );
+    if ( m_iconSize.isValid() ) m_treeView->setIconSize( m_iconSize );
 
     m_model->resetUiValueCache();
 
