@@ -488,15 +488,15 @@ void RimSummaryCurveAppearanceCalculator::setOneCurveAppearance( CurveAppearance
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor( int colorIndex )
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor( int colorIndex, bool forceGlobalPalette )
 {
     if ( colorIndex < 0 ) return cvf::Color3f::BLACK;
 
-    // The palette selected for the global appearance is only used by plots using it
+    // The palette selected for the global appearance is only used by plots using it, or when previewing the global appearance
     if ( auto project = RimProject::current() )
     {
         auto rules = project->curveStyleRules();
-        if ( rules && rules->useGlobalAppearance() )
+        if ( rules && ( forceGlobalPalette || rules->isGlobalColorUsed() ) )
         {
             if ( auto legendColor = rules->autoLegendColor( colorIndex ) ) return *legendColor;
         }

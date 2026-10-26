@@ -21,6 +21,10 @@
 #include "RiaLogging.h"
 #include "Summary/RiaSummaryDefines.h"
 
+#include "RimCurveStyleRules.h"
+#include "RimCurveStyleSettings.h"
+#include "RimProject.h"
+
 #include <QRegularExpression>
 
 namespace caf
@@ -143,6 +147,18 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 
     setUiName( m_vectorName );
     setUiIconFromResourceString( iconResourceText() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tag showing the global color and symbol assigned to the vector
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiTreeViewItemTag> RimSummaryAddress::treeItemTags()
+{
+    auto project = RimProject::current();
+    if ( !project || !project->curveStyleRules() ) return {};
+
+    const auto value = RimCurveStyleSettings::dimensionValue( RimCurveStyleSettings::Dimension::VECTOR, address(), "" );
+    return project->curveStyleRules()->curveStyleRuleTags( RimCurveStyleSettings::Dimension::VECTOR, QString::fromStdString( value ) );
 }
 
 //--------------------------------------------------------------------------------------------------

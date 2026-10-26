@@ -91,6 +91,8 @@ public:
 
     std::vector<RimSummaryAddressCollection*> subFolders() const;
 
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+
 private:
     RimSummaryAddressCollection* getOrCreateSubfolder( const QString         folderName,
                                                        CollectionContentType createFolderType = CollectionContentType::NOT_DEFINED );

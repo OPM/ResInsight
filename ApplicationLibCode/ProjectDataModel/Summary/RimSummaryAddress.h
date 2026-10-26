@@ -64,6 +64,8 @@ protected:
     QString iconResourceText() const;
     void    initAfterRead() override;
 
+    std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>>  m_statistics;
