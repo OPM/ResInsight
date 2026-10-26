@@ -23,7 +23,12 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuPlotAxis.h"
 
+#include "Summary/RiaSummaryAddressAnalyzer.h"
+
+#include "RimEnsembleCurveSet.h"
 #include "RimPlotCurve.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
 
 #include "RiuGuiTheme.h"
 #include "RiuPlotCurveSymbolImageCreator.h"
@@ -47,6 +52,8 @@
 #include <QPainterPath>
 #include <QSet>
 
+#include <map>
+#include <set>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -396,6 +403,149 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
     }
 
     return legendDataList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static QwtLegendData createLegendEntry( const QString& title, const QwtGraphic& icon )
+{
+    QwtLegendData entry;
+    entry.setValue( QwtLegendData::Role::TitleRole, title );
+    entry.setValue( QwtLegendData::Role::IconRole, QVariant::fromValue( icon ) );
+    return entry;
+}
+
+namespace
+{
+enum class SummaryLegendDimension
+{
+    CASE,
+    VECTOR,
+    OBJECT // Well, group, region, network, block, aquifer, ... (see RifEclipseSummaryAddress::itemUiText())
+};
+
+QString dimensionValue( RimSummaryCurve* curve, SummaryLegendDimension dimension )
+{
+    switch ( dimension )
+    {
+        case SummaryLegendDimension::CASE:
+            return curve->summaryCaseY()->displayCaseName();
+        case SummaryLegendDimension::VECTOR:
+            return QString::fromStdString( curve->summaryAddressY().vectorName() );
+        case SummaryLegendDimension::OBJECT:
+            return QString::fromStdString( curve->summaryAddressY().itemUiText() );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns a legend label for each curve property (color or symbol), if the property is given by the
+/// dimension (each dimension value has one property). Dimension values sharing a property are combined
+/// into one label. Returns an empty map if the property is not given by the dimension, or does not vary.
+//--------------------------------------------------------------------------------------------------
+template <typename T, typename PropertyFunc>
+std::map<T, QString> labelsForProperties( const std::vector<RimSummaryCurve*>& curves, SummaryLegendDimension dimension, PropertyFunc property )
+{
+    std::map<QString, T> propertyForValue;
+    for ( auto curve : curves )
+    {
+        auto it = propertyForValue.emplace( dimensionValue( curve, dimension ), property( curve ) ).first;
+        if ( it->second != property( curve ) ) return {};
+    }
+
+    std::map<T, QStringList> valuesForProperty;
+    for ( const auto& [value, prop] : propertyForValue )
+        valuesForProperty[prop].push_back( value );
+    if ( valuesForProperty.size() < 2 ) return {};
+
+    std::map<T, QString> labels;
+    for ( const auto& [prop, values] : valuesForProperty )
+        labels[prop] = values.join( ", " );
+
+    return labels;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Create a color legend and a symbol legend when the curve color is given by one summary dimension (case,
+/// vector or object, e.g. well, group or region) and the curve symbol by another, e.g. one color per vector
+/// and one symbol per case. This gives (color count + symbol count) entries instead of one entry per
+/// color/symbol combination.
+///
+/// Returns false if the curves are not plain summary curves, or if no such pair of dimensions is found.
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotTools::createColorAndSymbolLegendData( const std::vector<RimPlotCurve*>& curves,
+                                                      QList<QList<QwtLegendData>>&      colorLegendData,
+                                                      QList<QList<QwtLegendData>>&      symbolLegendData )
+{
+    std::vector<RimSummaryCurve*>         summaryCurves;
+    std::vector<RifEclipseSummaryAddress> addresses;
+    std::set<QString>                     caseNames;
+    std::set<std::string>                 objectNames;
+
+    for ( auto curve : curves )
+    {
+        auto summaryCurve = dynamic_cast<RimSummaryCurve*>( curve );
+        if ( !summaryCurve || !summaryCurve->summaryCaseY() ) return false;
+        if ( summaryCurve->firstAncestorOrThisOfType<RimEnsembleCurveSet>() ) return false;
+
+        summaryCurves.push_back( summaryCurve );
+        addresses.push_back( summaryCurve->summaryAddressY() );
+        caseNames.insert( summaryCurve->summaryCaseY()->displayCaseName() );
+        objectNames.insert( summaryCurve->summaryAddressY().itemUiText() );
+    }
+
+    RiaSummaryAddressAnalyzer analyzer;
+    analyzer.appendAddresses( addresses );
+
+    // Candidate dimensions are the ones with more than one value, in order of preference for the color legend
+    std::vector<SummaryLegendDimension> dimensions;
+    if ( caseNames.size() > 1 ) dimensions.push_back( SummaryLegendDimension::CASE );
+    if ( analyzer.quantities().size() > 1 ) dimensions.push_back( SummaryLegendDimension::VECTOR );
+
+    // Field and other addresses without an object have no object text to use as a legend label
+    if ( objectNames.size() > 1 && !objectNames.contains( "" ) ) dimensions.push_back( SummaryLegendDimension::OBJECT );
+
+    auto curveColor  = []( RimSummaryCurve* curve ) { return curve->color(); };
+    auto curveSymbol = []( RimSummaryCurve* curve ) { return curve->symbol(); };
+
+    for ( auto colorDimension : dimensions )
+    {
+        auto colors = labelsForProperties<cvf::Color3f>( summaryCurves, colorDimension, curveColor );
+        if ( colors.empty() ) continue;
+
+        for ( auto symbolDimension : dimensions )
+        {
+            if ( symbolDimension == colorDimension ) continue;
+
+            auto symbols = labelsForProperties<RiuPlotCurveSymbol::PointSymbolEnum>( summaryCurves, symbolDimension, curveSymbol );
+            if ( symbols.empty() ) continue;
+
+            // Same square icon size as the regular curve legend icons (see RimPlotCurve::updateUiIconFromPlotSymbol())
+            const QSize iconSize( 24, 24 );
+
+            for ( const auto& [color, label] : colors )
+            {
+                const QColor lineColor = RiaColorTools::toQColor( color );
+                colorLegendData.push_back(
+                    { createLegendEntry( label,
+                                         createCurveLegendIcon( iconSize, true, lineColor, RiuPlotCurveSymbol::SYMBOL_NONE, lineColor ) ) } );
+            }
+
+            // Neutral symbol color, as color is given by the color legend
+            const QColor symbolColor( 60, 60, 60 );
+            for ( const auto& [symbol, label] : symbols )
+            {
+                symbolLegendData.push_back(
+                    { createLegendEntry( label, createCurveLegendIcon( iconSize, false, symbolColor, symbol, symbolColor ) ) } );
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
