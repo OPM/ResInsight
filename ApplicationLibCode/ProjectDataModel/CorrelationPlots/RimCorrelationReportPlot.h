@@ -22,6 +22,7 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
@@ -35,6 +36,8 @@ class RimSummaryEnsemble;
 class RimCorrelationPlot;
 class RiaSummaryCurveDefinition;
 class RimSummaryPlot;
+class RimEnsembleCurveSet;
+class RifEclipseSummaryAddress;
 namespace ads
 {
 class CDockManager;
@@ -90,6 +93,7 @@ private:
     void updateDockTitleBarsVisibility();
     void syncSharedPropertiesToMatrixPlotFrom( RimAbstractCorrelationPlot* source );
     void updateSummaryPlotTimeAnnotation();
+    void updateSummaryPlotHistoryCurve( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address );
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -98,6 +102,7 @@ private:
     caf::PdmChildField<RimCorrelationPlot*>          m_correlationPlot;
     caf::PdmChildField<RimParameterResultCrossPlot*> m_parameterResultCrossPlot;
     caf::PdmChildField<RimSummaryPlot*>              m_summaryPlot;
+    caf::PdmPointer<RimEnsembleCurveSet>             m_historyCurveSet;
 
     RimFontSizeField m_subTitleFontSize;
     RimFontSizeField m_labelFontSize;
