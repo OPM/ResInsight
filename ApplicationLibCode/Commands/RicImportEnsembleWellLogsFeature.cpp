@@ -116,7 +116,7 @@ RimEnsembleWellLogs* RicImportEnsembleWellLogsFeature::createSingleEnsembleWellL
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleWellLogsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/LasFile16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/WellLogFile.svg" ) );
     actionToSetup->setText( "Import Ensemble Well Logs" );
 }
 

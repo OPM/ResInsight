@@ -40,9 +40,12 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMap>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QScopedValueRollback>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QTextEdit>
@@ -570,6 +573,99 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     QModelIndex index = m_filePathModel.index( 0, 0 );
     m_fileTreeView->expand( index );
+
+    if ( m_fileType == RicRecursiveFileSearchDialog::FileType::LAS || m_fileType == RicRecursiveFileSearchDialog::FileType::EGRID )
+    {
+        const QStringList warnings = uncheckFilenameOutliers();
+        if ( !warnings.isEmpty() )
+        {
+            QMessageBox::warning( this, "Multiple Filenames Found", warnings.join( "\n\n" ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Strip trailing realization number and separator from a filename stem, e.g. "WELL_001" -> "WELL"
+//--------------------------------------------------------------------------------------------------
+static QString stripTrailingRealizationNumber( const QString& name )
+{
+    static const QRegularExpression re( "[_\\-]?\\d+$" );
+    QString                         stripped = name;
+    stripped.remove( re );
+    return stripped;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Within each ensemble, keep only files with the most common filename (ignoring trailing realization number)
+//--------------------------------------------------------------------------------------------------
+QStringList RicRecursiveFileSearchDialog::uncheckFilenameOutliers()
+{
+    QStringList warnings;
+
+    auto* rootItem = m_filePathModel.invisibleRootItem();
+    for ( int i = 0; i < rootItem->rowCount(); ++i )
+    {
+        auto* ensembleItem = rootItem->child( i );
+        if ( !ensembleItem ) continue;
+
+        auto canonicalName = []( QStandardItem* item )
+        {
+            QString path = QDir::fromNativeSeparators( item->text() );
+            return stripTrailingRealizationNumber( QFileInfo( path ).completeBaseName() );
+        };
+
+        QMap<QString, int> canonicalCounts;
+        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
+        {
+            if ( auto* childItem = ensembleItem->child( j ) ) canonicalCounts[canonicalName( childItem )]++;
+        }
+
+        if ( canonicalCounts.size() <= 1 ) continue;
+
+        QString mostCommon;
+        int     maxCount = 0;
+        bool    isTie    = false;
+        for ( auto it = canonicalCounts.constBegin(); it != canonicalCounts.constEnd(); ++it )
+        {
+            if ( it.value() > maxCount )
+            {
+                maxCount   = it.value();
+                mostCommon = it.key();
+                isTie      = false;
+            }
+            else if ( it.value() == maxCount )
+            {
+                isTie = true;
+            }
+        }
+
+        // No clear majority: keep the selection unchanged
+        if ( isTie ) continue;
+
+        QStringList                outlierNames;
+        QScopedValueRollback<bool> blockGuard( m_blockUpdateOfOtherItems, true );
+        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
+        {
+            auto* childItem = ensembleItem->child( j );
+            if ( !childItem ) continue;
+
+            QString canonical = canonicalName( childItem );
+            if ( canonical != mostCommon )
+            {
+                childItem->setCheckState( Qt::Unchecked );
+                if ( !outlierNames.contains( canonical ) ) outlierNames.append( canonical );
+            }
+        }
+        warnings.append( QString( "Ensemble '%1' contains multiple filenames:\n'%2'\n\n"
+                                  "Only '%3' (%4 files) is selected. Deselected: '%5'." )
+                             .arg( ensembleItem->text() )
+                             .arg( canonicalCounts.keys().join( "', '" ) )
+                             .arg( mostCommon )
+                             .arg( maxCount )
+                             .arg( outlierNames.join( ", " ) ) );
+    }
+
+    return warnings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1098,6 +1194,12 @@ void RicRecursiveFileSearchDialog::slotFilterTreeViewClicked()
                 }
             }
         }
+    }
+
+    if ( m_fileType == RicRecursiveFileSearchDialog::FileType::LAS || m_fileType == RicRecursiveFileSearchDialog::FileType::EGRID )
+    {
+        // Re-apply, as the checks above select all items below checked ensembles
+        uncheckFilenameOutliers();
     }
 }
 

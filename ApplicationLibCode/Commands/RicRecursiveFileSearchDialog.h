@@ -112,6 +112,8 @@ private:
     void clearFileList();
     void addToTreeView( const QString& ensembleName, const QStringList& fileNames );
 
+    QStringList uncheckFilenameOutliers();
+
     // File search methods
 
     QStringList    findMatchingFiles();
