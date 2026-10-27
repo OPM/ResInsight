@@ -1924,6 +1924,7 @@ void RimSummaryMultiPlot::updateReadOutLines( double qwtTimeValue, double yValue
             if ( summaryCurves.empty() )
             {
                 summaryCurves = plot->summaryCurves();
+                std::erase_if( summaryCurves, []( const RimSummaryCurve* curve ) { return !curve->isChecked(); } );
             }
 
             auto annotationAxis = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) );
