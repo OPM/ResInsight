@@ -105,8 +105,5 @@ private:
 namespace caf
 {
 template <>
-void caf::AppEnum<RimWellEventValve::State>::setUp();
-
-template <>
 void caf::AppEnum<RimWellEventValve::ValveType>::setUp();
 } // namespace caf

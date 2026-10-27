@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEvent.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellEventEnums.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventPerf.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventRawText.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventInsertDate.cpp
