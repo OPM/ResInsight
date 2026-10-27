@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaHashTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
@@ -86,6 +87,8 @@
 #include "cafSelectionManager.h"
 
 #include <algorithm>
+#include <cmath>
+#include <map>
 #include <memory>
 #include <utility>
 
@@ -180,6 +183,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField( &m_lineStyle, "LineStyle", LineStyle( defaultLineStyle ), "Line Style" );
     CAF_PDM_InitField( &m_pointSymbol, "PointSymbol", PointSymbol( defaultSymbol ), "Symbol" );
     CAF_PDM_InitField( &m_symbolSize, "SymbolSize", defaultSymbolSize, "Symbol Size" );
+    CAF_PDM_InitField( &m_historyLineThickness, "HistoryLineThickness", 3, "Line Thickness" );
 
     auto defaultStatisticsPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     CAF_PDM_InitFieldNoDefault( &m_statisticsUseCustomAppearance, "StatisticsUseCustomAppearance", "Appearance" );
@@ -686,11 +690,92 @@ void RimEnsembleCurveSet::findOrAssignLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
+bool RimEnsembleCurveSet::isHistoryVectorCurveSet() const
 {
-    setSummaryAddressY( address );
-    m_statistics->setShowStatisticsCurves( !address.isHistoryVector() );
-    m_statistics->updateAllRequiredEditors();
+    return m_yValuesSummaryAddress->address().isHistoryVector();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the first realization containing the history vector. All realizations are checked, and a
+/// warning is logged if the vector is missing in some realizations or has different values.
+//--------------------------------------------------------------------------------------------------
+static RimSummaryCase* findHistoryCaseAndReportQc( const std::vector<RimSummaryCase*>& allCases,
+                                                   const RifEclipseSummaryAddress&     address,
+                                                   const QString&                      ensembleName )
+{
+    RimSummaryCase*          referenceCase = nullptr;
+    std::map<time_t, double> referenceCurve;
+    QStringList              missingCases;
+    QStringList              differingCases;
+
+    for ( auto summaryCase : allCases )
+    {
+        if ( !summaryCase ) continue;
+
+        auto reader = summaryCase->summaryReader();
+        if ( !reader || !reader->hasAddress( address ) )
+        {
+            missingCases.push_back( summaryCase->displayCaseName() );
+            continue;
+        }
+
+        auto [isOk, values] = reader->values( address );
+        auto timeSteps      = reader->timeSteps( address );
+        if ( !isOk || values.empty() || values.size() != timeSteps.size() )
+        {
+            missingCases.push_back( summaryCase->displayCaseName() );
+            continue;
+        }
+
+        std::map<time_t, double> curve;
+        for ( size_t i = 0; i < values.size(); i++ )
+            curve[timeSteps[i]] = values[i];
+
+        if ( !referenceCase )
+        {
+            referenceCase  = summaryCase;
+            referenceCurve = std::move( curve );
+            continue;
+        }
+
+        // Compare values at common time steps, using a relative tolerance to ignore floating point noise
+        bool isDifferent   = false;
+        bool hasCommonTime = false;
+        for ( const auto& [time, value] : curve )
+        {
+            auto it = referenceCurve.find( time );
+            if ( it == referenceCurve.end() ) continue;
+
+            hasCommonTime         = true;
+            const double refValue = it->second;
+            if ( std::isnan( value ) && std::isnan( refValue ) ) continue;
+            if ( std::fabs( value - refValue ) > 1.0e-5 * std::max( std::fabs( value ), std::fabs( refValue ) ) )
+            {
+                isDifferent = true;
+                break;
+            }
+        }
+
+        if ( isDifferent || !hasCommonTime ) differingCases.push_back( summaryCase->displayCaseName() );
+    }
+
+    if ( !missingCases.isEmpty() || !differingCases.isEmpty() )
+    {
+        QString text =
+            QString( "History vector '%1' QC for ensemble '%2'." ).arg( QString::fromStdString( address.uiText() ) ).arg( ensembleName );
+
+        if ( referenceCase ) text += QString( " Plotted realization: %1." ).arg( referenceCase->displayCaseName() );
+        if ( !missingCases.isEmpty() )
+            text += QString( " Realizations missing the vector (%1): %2." ).arg( missingCases.size() ).arg( missingCases.join( ", " ) );
+        if ( !differingCases.isEmpty() )
+            text += QString( " Realizations with curve values different from the plotted realization (%1): %2." )
+                        .arg( differingCases.size() )
+                        .arg( differingCases.join( ", " ) );
+
+        RiaLogging::warning( text.toStdString() );
+    }
+
+    return referenceCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -875,7 +960,16 @@ void RimEnsembleCurveSet::updateAllCurves()
 
         m_isCurveSetFiltered = filteredCases.size() < allCases.size();
 
-        updateEnsembleCurves( filteredCases );
+        // History vectors are expected to be identical in all realizations, so only one realization is plotted
+        std::vector<RimSummaryCase*> casesToPlot = filteredCases;
+        if ( isHistoryVectorCurveSet() && !allCases.empty() )
+        {
+            casesToPlot.clear();
+            if ( auto historyCase = findHistoryCaseAndReportQc( allCases, addr->address(), group->name() ) )
+                casesToPlot.push_back( historyCase );
+        }
+
+        updateEnsembleCurves( casesToPlot );
         updateStatisticsCurves( m_statistics->basedOnFilteredCases() ? filteredCases : allCases );
     }
 
@@ -1002,9 +1096,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         plot->zoomAll();
     }
     else if ( changedField == &m_resampling || changedField == &m_useCustomAppearance || changedField == &m_lineStyle ||
-              changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_statisticsLineStyle ||
-              changedField == &m_statisticsPointSymbol || changedField == &m_statisticsSymbolSize ||
-              changedField == &m_statisticsUseCustomAppearance )
+              changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_historyLineThickness ||
+              changedField == &m_statisticsLineStyle || changedField == &m_statisticsPointSymbol ||
+              changedField == &m_statisticsSymbolSize || changedField == &m_statisticsUseCustomAppearance )
     {
         updateAllCurves();
     }
@@ -1279,6 +1373,13 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         }
     }
 
+    if ( isHistoryVectorCurveSet() )
+    {
+        // Statistics are not computed for history vectors
+        uiOrdering.skipRemainingFields( true );
+        return;
+    }
+
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
     m_statistics->defaultUiOrdering( isXAxisSummaryVector(), *statGroup );
 
@@ -1429,7 +1530,14 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Appearance" );
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryEnsemble() );
     colorsGroup->add( &m_colorMode );
-    colorsGroup->add( &m_colorOpacity );
+    if ( isHistoryVectorCurveSet() )
+    {
+        colorsGroup->add( &m_historyLineThickness );
+    }
+    else
+    {
+        colorsGroup->add( &m_colorOpacity );
+    }
 
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
@@ -2012,10 +2120,12 @@ void RimEnsembleCurveSet::updateCurveColors()
 
     // Apply the colors
     if ( caseColors.size() != curvesToColor.size() ) return;
+    const bool isHistory = isHistoryVectorCurveSet();
     for ( size_t i = 0; i < curvesToColor.size(); i++ )
     {
-        curvesToColor[i]->setColor( caseColors[i] );
-        curvesToColor[i]->setCurveColorOpacity( m_colorOpacity() );
+        // History curves are drawn with the unblended main color and full opacity
+        curvesToColor[i]->setColor( isHistory ? m_mainEnsembleColor() : caseColors[i] );
+        curvesToColor[i]->setCurveColorOpacity( isHistory ? 1.0 : m_colorOpacity() );
         curvesToColor[i]->updateCurveAppearance();
     }
 
@@ -2141,6 +2251,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 for ( auto c : realizationCurves() )
                 {
                     c->setCheckState( true );
+                    if ( isHistoryVectorCurveSet() ) c->setLineThickness( m_historyLineThickness() );
                     bool updatePlot = false;
                     c->updateCurveVisibility( updatePlot );
 
@@ -2206,7 +2317,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
     RimSummaryAddress*  addr  = m_yValuesSummaryAddress();
 
-    if ( m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    if ( m_disableStatisticCurves || isHistoryVectorCurveSet() || !group ||
+         addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         return;
 
     // Calculate
@@ -2830,7 +2942,7 @@ void RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumC
         int lineThickness = 1;
         if ( addr.address().isHistoryVector() )
         {
-            lineThickness = 2;
+            lineThickness = m_historyLineThickness();
             curve->setCurveAppearanceFromCaseType();
         }
         curve->setLineThickness( lineThickness );

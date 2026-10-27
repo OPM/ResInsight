@@ -79,7 +79,7 @@ RimEnsembleCurveSet* createCurveSet( RimSummaryEnsemble* ensemble, const RifEcli
     auto curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryEnsemble( ensemble );
-    curveSet->setSummaryAddressYAndStatisticsFlag( addr );
+    curveSet->setSummaryAddressY( addr );
 
     return curveSet;
 }
