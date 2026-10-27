@@ -36,6 +36,9 @@ public:
     std::vector<int> sortedIndexes() const;
     bool             hasIndex( int kIndex ) const;
 
+    // False for NaN, infinity and values that cannot safely be converted to an int K index
+    static bool isValidKIndexValue( double value );
+
 private:
     std::map<int, std::pair<double, double>> m_mdOffsets;
     std::map<int, std::pair<double, double>> m_tvdOffsets;

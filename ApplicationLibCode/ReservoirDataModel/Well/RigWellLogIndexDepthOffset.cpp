@@ -18,7 +18,16 @@
 #include "RigWellLogIndexDepthOffset.h"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogIndexDepthOffset::isValidKIndexValue( double value )
+{
+    return std::isfinite( value ) && value >= 0.0 && value <= 1.0e6;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
