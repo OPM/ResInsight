@@ -92,7 +92,8 @@
         <file>IntersectionYPlane16x16.png</file>
         <file>IntersectionZPlane16x16.png</file>
         <file>LGR16x16.png</file>
-        <file>LasFile16x16.png</file>
+        <file>WellLogFile.svg</file>
+        <file>WellLogChannel.svg</file>
         <file>LeftAxis16x16.png</file>
         <file>Legend.png</file>
         <file>LinkView.svg</file>
