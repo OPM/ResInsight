@@ -40,15 +40,15 @@
 
 namespace
 {
-struct MockCase
+struct PorvMockCase
 {
     std::unique_ptr<RimEclipseResultCase> resultCase;
     cvf::ref<RigEclipseCaseData>          caseData;
 };
 
-MockCase createMockCase( const std::set<RiaDefines::PhaseType>& phases )
+PorvMockCase createPorvMockCase( const std::set<RiaDefines::PhaseType>& phases )
 {
-    MockCase mockCase;
+    PorvMockCase mockCase;
     mockCase.resultCase.reset( new RimEclipseResultCase );
     mockCase.caseData = new RigEclipseCaseData( mockCase.resultCase.get() );
 
@@ -105,8 +105,8 @@ void addDynamicResult( RigCaseCellResultsData* cellResults, const QString& resul
 //--------------------------------------------------------------------------------------------------
 TEST( RigPorvSoilSgasResultCalculatorTest, ComputeRiPorvSoilPerTimeStep )
 {
-    MockCase mockCase =
-        createMockCase( { RiaDefines::PhaseType::OIL_PHASE, RiaDefines::PhaseType::GAS_PHASE, RiaDefines::PhaseType::WATER_PHASE } );
+    PorvMockCase mockCase =
+        createPorvMockCase( { RiaDefines::PhaseType::OIL_PHASE, RiaDefines::PhaseType::GAS_PHASE, RiaDefines::PhaseType::WATER_PHASE } );
 
     RigCaseCellResultsData* cellResults = mockCase.caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( cellResults, nullptr );
@@ -146,11 +146,11 @@ TEST( RigPorvSoilSgasResultCalculatorTest, ComputeRiPorvSoilPerTimeStep )
 //--------------------------------------------------------------------------------------------------
 TEST( RigPorvSoilSgasResultCalculatorTest, EnsembleStatisticsForRiPorvSoil )
 {
-    std::vector<MockCase> sourceMockCases;
+    std::vector<PorvMockCase> sourceMockCases;
     for ( int caseIdx = 0; caseIdx < 2; caseIdx++ )
     {
-        MockCase mockCase =
-            createMockCase( { RiaDefines::PhaseType::OIL_PHASE, RiaDefines::PhaseType::GAS_PHASE, RiaDefines::PhaseType::WATER_PHASE } );
+        PorvMockCase mockCase =
+            createPorvMockCase( { RiaDefines::PhaseType::OIL_PHASE, RiaDefines::PhaseType::GAS_PHASE, RiaDefines::PhaseType::WATER_PHASE } );
 
         RigCaseCellResultsData* cellResults = mockCase.caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         const size_t            cellCount   = cellResults->activeCellInfo()->reservoirActiveCellCount();
@@ -176,7 +176,7 @@ TEST( RigPorvSoilSgasResultCalculatorTest, EnsembleStatisticsForRiPorvSoil )
         sourceCases.push_back( mockCase.resultCase.get() );
     }
 
-    MockCase destinationMockCase = createMockCase( { RiaDefines::PhaseType::OIL_PHASE } );
+    PorvMockCase destinationMockCase = createPorvMockCase( { RiaDefines::PhaseType::OIL_PHASE } );
 
     RimStatisticsConfig statisticsConfig;
 

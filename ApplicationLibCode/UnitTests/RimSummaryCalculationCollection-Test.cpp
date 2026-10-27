@@ -20,7 +20,7 @@ namespace
 //--------------------------------------------------------------------------------------------------
 /// Create a calculation producing a single field address
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* createFieldCalculation()
+RimSummaryCalculation* createCollectionFieldCalculation()
 {
     auto* calculation = dynamic_cast<RimSummaryCalculation*>( RimProject::current()->calculationCollection()->addCalculation() );
 
@@ -75,7 +75,7 @@ TEST_F( RimSummaryCalculationCollectionTest, RefreshCalculatedAddressesForAllRea
 
     mainCollection()->addEnsemble( summaryCases, "Ensemble", true );
 
-    auto* calculation = createFieldCalculation();
+    auto* calculation = createCollectionFieldCalculation();
 
     std::vector<int> refreshCountAfterCreate;
     for ( auto* mockCase : mockCases )
