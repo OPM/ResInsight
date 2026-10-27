@@ -35,4 +35,6 @@ public:
 
     void addEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
     void loadDataAndUpdate();
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 };

@@ -792,7 +792,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 }
 
                 RimWellPath* wellPath = RimProject::current()->wellPathByName( wellLogFile->wellName() );
-                if ( wellPathFormations ) wellPath->setFormationsGeometry( *wellPathFormations );
+                if ( wellPath && wellPathFormations ) wellPath->setFormationsGeometry( *wellPathFormations );
 
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
@@ -978,7 +978,7 @@ void RimEnsembleWellLogCurveSet::setFilterByEnsembleCurveSet( RimEnsembleCurveSe
 void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 {
     auto plotTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
-    plotTrack->viewer()->setPlotTitle( name() );
+    plotTrack->viewer()->setPlotTitle( plotTrack->description() );
 
     updateEnsembleLegendItem();
 

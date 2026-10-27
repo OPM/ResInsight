@@ -21,6 +21,7 @@
 #include "RimNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmProxyValueField.h"
 
 class RimWellLogLasFile;
 
@@ -40,6 +41,15 @@ public:
 
     void loadDataAndUpdate();
 
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+private:
+    QString summaryText() const;
+
 private:
     caf::PdmChildArrayField<RimWellLogLasFile*> m_wellLogFiles;
+    caf::PdmProxyValueField<QString>            m_summary;
 };

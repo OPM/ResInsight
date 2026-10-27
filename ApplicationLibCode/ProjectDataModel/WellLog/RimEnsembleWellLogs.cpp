@@ -20,10 +20,16 @@
 
 #include "RiaLogging.h"
 
+#include "RimWellLogChannel.h"
 #include "RimWellLogLasFile.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeOrdering.h"
+
+#include <map>
 
 CAF_PDM_SOURCE_INIT( RimEnsembleWellLogs, "EnsembleWellLogs" );
 
@@ -32,9 +38,71 @@ CAF_PDM_SOURCE_INIT( RimEnsembleWellLogs, "EnsembleWellLogs" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogs::RimEnsembleWellLogs()
 {
-    CAF_PDM_InitScriptableObject( "Ensemble Well Logs" );
+    CAF_PDM_InitScriptableObject( "Ensemble Well Logs", ":/WellLogFile.svg" );
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_summary, "Summary", "Summary" );
+    m_summary.registerGetMethod( this, &RimEnsembleWellLogs::summaryText );
+    m_summary.uiCapability()->setUiReadOnly( true );
+    m_summary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_summary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_summary.xmlCapability()->disableIO();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleWellLogs::summaryText() const
+{
+    const auto files = wellLogFiles();
+
+    std::map<QString, size_t> fileCountPerChannel;
+    for ( const auto* file : files )
+    {
+        for ( const auto* channel : file->wellLogChannels() )
+        {
+            fileCountPerChannel[channel->name()]++;
+        }
+    }
+
+    QString text = QString( "Number of files: %1\n" ).arg( files.size() );
+    text += QString( "Number of channels: %1\n" ).arg( fileCountPerChannel.size() );
+
+    if ( !fileCountPerChannel.empty() )
+    {
+        text += "\nChannels (number of files containing channel):\n";
+        for ( const auto& [name, count] : fileCountPerChannel )
+        {
+            text += QString( "  %1 (%2)\n" ).arg( name ).arg( count );
+        }
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogs::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_summary );
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogs::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    // List the LAS files, but not their child objects (well log channels)
+    for ( auto* file : wellLogFiles() )
+    {
+        uiTreeOrdering.add( file )->skipRemainingChildren( true );
+    }
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,4 +142,14 @@ void RimEnsembleWellLogs::loadDataAndUpdate()
             RiaLogging::warning( errorMessage.toStdString() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogs::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewEnsembleWellLogPlotFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicDeleteItemFeature";
 }

@@ -20,6 +20,7 @@
 
 #include "RimEnsembleWellLogs.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleWellLogsCollection, "EnsembleWellLogsCollection" );
@@ -29,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleWellLogsCollection, "EnsembleWellLogsCollection"
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Well Logs", ":/LasFile16x16.png" );
+    CAF_PDM_InitObject( "Ensemble Well Logs", ":/WellLogFile.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_items, "EnsembleWellLogsCollection", "" );
 }
@@ -59,4 +60,12 @@ void RimEnsembleWellLogsCollection::loadDataAndUpdate()
     {
         e->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogsCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicImportEnsembleWellLogsFeature";
 }
