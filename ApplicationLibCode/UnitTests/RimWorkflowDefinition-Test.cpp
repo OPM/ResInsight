@@ -56,7 +56,7 @@ RimWorkflowTaskCatalog catalogFixture()
     return RimWorkflowTaskCatalog::fromJson( fixture( "catalog" ) );
 }
 
-QJsonObject taskByName( const QJsonObject& graph, const QString& name )
+QJsonObject definitionTaskByName( const QJsonObject& graph, const QString& name )
 {
     for ( const QJsonValue& task : graph.value( "tasks" ).toArray() )
     {
@@ -147,7 +147,7 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
     EXPECT_EQ( 13, graph.value( "edges" ).toArray().size() );
     EXPECT_TRUE( graph.value( "issues" ).toArray().isEmpty() );
 
-    const QJsonObject exportTask = taskByName( graph, "export_completions" );
+    const QJsonObject exportTask = definitionTaskByName( graph, "export_completions" );
     EXPECT_TRUE( exportTask.value( "is_result" ).toBool() );
     EXPECT_EQ( 2, exportTask.value( "config_fields" ).toArray().size() );
     EXPECT_EQ( QJsonArray( { "export_file", "well_path_names" } ), exportTask.value( "outputs" ).toArray() );
@@ -167,8 +167,9 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
     const QJsonObject exportIcons = exportTask.value( "input_icons" ).toObject();
     EXPECT_EQ( ":/AppLogo48x48.png", exportIcons.value( "resinsight" ).toString() );
     EXPECT_EQ( ":/codicons/symbol-string.svg", exportTask.value( "output_icons" ).toObject().value( "export_file" ).toString() );
-    EXPECT_EQ( ":/Case48x48.png", taskByName( graph, "select_eclipse_case" ).value( "output_icons" ).toObject().value( "" ).toString() );
-    EXPECT_EQ( ":/Well.svg", taskByName( graph, "select_well_path_1" ).value( "output_icons" ).toObject().value( "" ).toString() );
+    EXPECT_EQ( ":/Case48x48.png",
+               definitionTaskByName( graph, "select_eclipse_case" ).value( "output_icons" ).toObject().value( "" ).toString() );
+    EXPECT_EQ( ":/Well.svg", definitionTaskByName( graph, "select_well_path_1" ).value( "output_icons" ).toObject().value( "" ).toString() );
     EXPECT_EQ( ":/Case48x48.png",
                RimWorkflowPortCompatibility::iconResource( QJsonObject{ { "x-ri-python-type", "rips.generated.generated_classes.Reservoir" } },
                                                            {} ) );
@@ -198,7 +199,7 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
         valueIcon( { { "type", "object" }, { "properties", QJsonObject{ { "a", QJsonObject{ { "type", "string" } } } } } } ).isEmpty() );
 
     // The connect task's opaque `value` is not a port of its own
-    const QJsonObject connect = taskByName( graph, "connect_to_resinsight" );
+    const QJsonObject connect = definitionTaskByName( graph, "connect_to_resinsight" );
     EXPECT_TRUE( connect.value( "outputs" ).toArray().isEmpty() );
     EXPECT_FALSE( connect.value( "accepts_input" ).toBool() );
 
@@ -321,7 +322,7 @@ TEST( RimWorkflowDefinitionEdit, connectionsUpdateConfigFields )
     EXPECT_TRUE( mustConnect ) << issueMessages( issues ).join( "\n" ).toStdString();
 
     const auto graph = RimWorkflowDefinitionTools::graphFromDefinition( definition, true );
-    EXPECT_FALSE( taskByName( graph, "export_completions" ).value( "issues" ).toArray().isEmpty() );
+    EXPECT_FALSE( definitionTaskByName( graph, "export_completions" ).value( "issues" ).toArray().isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,7 +569,7 @@ TEST( RimWorkflowDefinitionEdit, mapTask )
     EXPECT_FALSE( RimWorkflowPortCompatibility::canConnect( definition, "b", "", "a", "" ) );
 
     // The mapping is a config value shown as an input port
-    const QJsonObject task = taskByName( RimWorkflowDefinitionTools::graphFromDefinition( definition, true ), "a" );
+    const QJsonObject task = definitionTaskByName( RimWorkflowDefinitionTools::graphFromDefinition( definition, true ), "a" );
     EXPECT_EQ( "items", task.value( "map" ).toObject().value( "over" ).toString() );
     EXPECT_EQ( "dict[str, float]", task.value( "input_types" ).toObject().value( "items" ).toString() );
     bool hasOverField = false;
