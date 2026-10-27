@@ -40,7 +40,6 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMap>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
@@ -135,7 +134,8 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                                                            const QString&               dir,
                                                                                            const QString&               pathFilter,
                                                                                            const QString&               fileNameFilter,
-                                                                                           const std::vector<FileType>& fileTypes )
+                                                                                           const std::vector<FileType>& fileTypes,
+                                                                                           bool filterFilenameOutliers )
 {
     const QString filePathRegistryKey   = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
     const QString fileFilterRegistryKey = QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
@@ -143,6 +143,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     QSettings     settings;
 
     RicRecursiveFileSearchDialog dialog( parent, fileTypes );
+    dialog.m_filterFilenameOutliers = filterFilenameOutliers;
     {
         QSignalBlocker signalBlocker( dialog.m_pathFilterField );
         QSignalBlocker signalBlocker2( dialog.m_ensembleGroupingMode );
@@ -240,6 +241,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     : QDialog( parent, RiuTools::defaultDialogFlags() )
     , m_incomingFileTypes( fileTypes )
     , m_blockUpdateOfOtherItems( false )
+    , m_filterFilenameOutliers( false )
 {
     // Create widgets
     m_browseButton = new QPushButton();
@@ -321,6 +323,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
                               setCheckedStateChildItems( item, item->checkState() );
                           }
 
+                          // Checking an ensemble selects all its files, so outliers must be handled again
+                          if ( item->checkState() == Qt::Checked && !item->parent() ) applyFilenameOutlierFilter();
                           if ( item->checkState() == Qt::Checked )
                           {
                               auto parent = item->parent();
@@ -573,26 +577,20 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     QModelIndex index = m_filePathModel.index( 0, 0 );
     m_fileTreeView->expand( index );
-
-    if ( m_fileType == RicRecursiveFileSearchDialog::FileType::LAS || m_fileType == RicRecursiveFileSearchDialog::FileType::EGRID )
-    {
-        const QStringList warnings = uncheckFilenameOutliers();
-        if ( !warnings.isEmpty() )
-        {
-            QMessageBox::warning( this, "Multiple Filenames Found", warnings.join( "\n\n" ) );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Strip trailing realization number and separator from a filename stem, e.g. "WELL_001" -> "WELL"
+///
 //--------------------------------------------------------------------------------------------------
-static QString stripTrailingRealizationNumber( const QString& name )
+void RicRecursiveFileSearchDialog::applyFilenameOutlierFilter()
 {
-    static const QRegularExpression re( "[_\\-]?\\d+$" );
-    QString                         stripped = name;
-    stripped.remove( re );
-    return stripped;
+    if ( !m_filterFilenameOutliers ) return;
+
+    const QStringList warnings = uncheckFilenameOutliers();
+    if ( !warnings.isEmpty() )
+    {
+        QMessageBox::warning( this, "Multiple Filenames Found", warnings.join( "\n\n" ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -600,72 +598,11 @@ static QString stripTrailingRealizationNumber( const QString& name )
 //--------------------------------------------------------------------------------------------------
 QStringList RicRecursiveFileSearchDialog::uncheckFilenameOutliers()
 {
-    QStringList warnings;
+    QScopedValueRollback<bool> blockGuard( m_blockUpdateOfOtherItems, true );
 
-    auto* rootItem = m_filePathModel.invisibleRootItem();
-    for ( int i = 0; i < rootItem->rowCount(); ++i )
-    {
-        auto* ensembleItem = rootItem->child( i );
-        if ( !ensembleItem ) continue;
-
-        auto canonicalName = []( QStandardItem* item )
-        {
-            QString path = QDir::fromNativeSeparators( item->text() );
-            return stripTrailingRealizationNumber( QFileInfo( path ).completeBaseName() );
-        };
-
-        QMap<QString, int> canonicalCounts;
-        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
-        {
-            if ( auto* childItem = ensembleItem->child( j ) ) canonicalCounts[canonicalName( childItem )]++;
-        }
-
-        if ( canonicalCounts.size() <= 1 ) continue;
-
-        QString mostCommon;
-        int     maxCount = 0;
-        bool    isTie    = false;
-        for ( auto it = canonicalCounts.constBegin(); it != canonicalCounts.constEnd(); ++it )
-        {
-            if ( it.value() > maxCount )
-            {
-                maxCount   = it.value();
-                mostCommon = it.key();
-                isTie      = false;
-            }
-            else if ( it.value() == maxCount )
-            {
-                isTie = true;
-            }
-        }
-
-        // No clear majority: keep the selection unchanged
-        if ( isTie ) continue;
-
-        QStringList                outlierNames;
-        QScopedValueRollback<bool> blockGuard( m_blockUpdateOfOtherItems, true );
-        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
-        {
-            auto* childItem = ensembleItem->child( j );
-            if ( !childItem ) continue;
-
-            QString canonical = canonicalName( childItem );
-            if ( canonical != mostCommon )
-            {
-                childItem->setCheckState( Qt::Unchecked );
-                if ( !outlierNames.contains( canonical ) ) outlierNames.append( canonical );
-            }
-        }
-        warnings.append( QString( "Ensemble '%1' contains multiple filenames:\n'%2'\n\n"
-                                  "Only '%3' (%4 files) is selected. Deselected: '%5'." )
-                             .arg( ensembleItem->text() )
-                             .arg( canonicalCounts.keys().join( "', '" ) )
-                             .arg( mostCommon )
-                             .arg( maxCount )
-                             .arg( outlierNames.join( ", " ) ) );
-    }
-
-    return warnings;
+    const QString rootDir = rootDirWithEndSeparator();
+    return RiaEnsembleNameTools::uncheckFilenameOutliers(
+        m_filePathModel, [rootDir]( QStandardItem* item ) { return QDir::fromNativeSeparators( rootDir + item->text() ); }, "files", true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1196,11 +1133,7 @@ void RicRecursiveFileSearchDialog::slotFilterTreeViewClicked()
         }
     }
 
-    if ( m_fileType == RicRecursiveFileSearchDialog::FileType::LAS || m_fileType == RicRecursiveFileSearchDialog::FileType::EGRID )
-    {
-        // Re-apply, as the checks above select all items below checked ensembles
-        uncheckFilenameOutliers();
-    }
+    applyFilenameOutlierFilter();
 }
 
 //--------------------------------------------------------------------------------------------------

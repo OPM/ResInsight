@@ -20,6 +20,7 @@
 
 #include "RiaEnsembleNameTools.h"
 
+#include <QStandardItemModel>
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
@@ -169,5 +170,105 @@ TEST( RiaFilePathTools, EnsembleGroupingEverest )
             EXPECT_TRUE( keys1.find( key1 ) != keys1.end() );
             EXPECT_TRUE( keys2.find( key2 ) != keys2.end() );
         }
+    }
+}
+
+namespace
+{
+QStandardItem* addEnsemble( QStandardItemModel& model, const QStringList& paths )
+{
+    auto* ensembleItem = new QStandardItem( "ensemble" );
+    ensembleItem->setCheckable( true );
+    ensembleItem->setCheckState( Qt::Checked );
+    model.invisibleRootItem()->appendRow( ensembleItem );
+
+    for ( const auto& path : paths )
+    {
+        auto* child = new QStandardItem( path );
+        child->setCheckable( true );
+        child->setCheckState( Qt::Checked );
+        ensembleItem->appendRow( child );
+    }
+    return ensembleItem;
+}
+
+const auto pathFromText = []( QStandardItem* item ) { return item->text(); };
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaEnsembleNameToolsTests, stripTrailingRealizationNumberOnlyStripsMatchingRealization )
+{
+    EXPECT_EQ( "WELL", RiaEnsembleNameTools::stripTrailingRealizationNumber( "WELL_001", "/r/realization-1/WELL_001.LAS" ).toStdString() );
+    EXPECT_EQ( "WELL-3", RiaEnsembleNameTools::stripTrailingRealizationNumber( "WELL-3", "/r/realization-2/WELL-3.LAS" ).toStdString() );
+    EXPECT_EQ( "WELL_A", RiaEnsembleNameTools::stripTrailingRealizationNumber( "WELL_A1", "/r/WELL_A1.LAS" ).toStdString() );
+    EXPECT_EQ( "WELL", RiaEnsembleNameTools::stripTrailingRealizationNumber( "WELL-3", "/r/myrealization-12/WELL-3.LAS" ).toStdString() );
+    EXPECT_EQ( "1", RiaEnsembleNameTools::stripTrailingRealizationNumber( "1", "/r/realization-1/1.LAS" ).toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaEnsembleNameToolsTests, uncheckFilenameOutliersUnchecksMinority )
+{
+    QStandardItemModel model;
+    auto*              ensemble =
+        addEnsemble( model,
+                     { "realization-0/WELL_0.LAS", "realization-1/WELL_1.LAS", "realization-2/WELL_2.LAS", "realization-3/OTHER_3.LAS" } );
+
+    auto warnings = RiaEnsembleNameTools::uncheckFilenameOutliers( model, pathFromText, "files", true );
+
+    EXPECT_EQ( 1, warnings.size() );
+    EXPECT_EQ( Qt::Checked, ensemble->child( 0 )->checkState() );
+    EXPECT_EQ( Qt::Checked, ensemble->child( 1 )->checkState() );
+    EXPECT_EQ( Qt::Checked, ensemble->child( 2 )->checkState() );
+    EXPECT_EQ( Qt::Unchecked, ensemble->child( 3 )->checkState() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaEnsembleNameToolsTests, uncheckFilenameOutliersKeepsDistinctNamesWithDifferentTrailingNumbers )
+{
+    QStandardItemModel model;
+    auto*              ensemble = addEnsemble( model, { "realization-1/OP_1.LAS", "realization-1/OP_2.LAS", "realization-1/OP_3.LAS" } );
+
+    auto warnings = RiaEnsembleNameTools::uncheckFilenameOutliers( model, pathFromText, "files", true );
+
+    EXPECT_TRUE( warnings.isEmpty() );
+    for ( int i = 0; i < ensemble->rowCount(); i++ )
+    {
+        EXPECT_EQ( Qt::Checked, ensemble->child( i )->checkState() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaEnsembleNameToolsTests, uncheckFilenameOutliersIgnoresUncheckedItemsAndTies )
+{
+    {
+        // The unchecked WELL files must not outvote the checked OTHER files
+        QStandardItemModel model;
+        auto*              ensemble = addEnsemble( model,
+                                                   { "realization-0/WELL_0.LAS",
+                                                     "realization-1/WELL_1.LAS",
+                                                     "realization-2/OTHER_2.LAS",
+                                                     "realization-3/OTHER_3.LAS",
+                                                     "realization-4/OTHER_4.LAS" } );
+        ensemble->child( 0 )->setCheckState( Qt::Unchecked );
+        ensemble->child( 1 )->setCheckState( Qt::Unchecked );
+        ensemble->child( 4 )->setCheckState( Qt::Unchecked );
+
+        auto warnings = RiaEnsembleNameTools::uncheckFilenameOutliers( model, pathFromText, "files", true );
+
+        // Only OTHER files remain checked, so there is nothing to do
+        EXPECT_TRUE( warnings.isEmpty() );
+        EXPECT_EQ( Qt::Checked, ensemble->child( 2 )->checkState() );
+        EXPECT_EQ( Qt::Checked, ensemble->child( 3 )->checkState() );
+    }
+
+    {
+        QStandardItemModel model;
+        auto*              ensemble = addEnsemble( model, { "realization-0/A_0.LAS", "realization-1/B_1.LAS" } );
+
+        auto warnings = RiaEnsembleNameTools::uncheckFilenameOutliers( model, pathFromText, "files", true );
+
+        EXPECT_TRUE( warnings.isEmpty() );
+        EXPECT_EQ( Qt::Checked, ensemble->child( 0 )->checkState() );
+        EXPECT_EQ( Qt::Checked, ensemble->child( 1 )->checkState() );
     }
 }

@@ -135,7 +135,8 @@ std::pair<QStringList, RiaDefines::EnsembleGroupingMode>
                                                                 defaultDir,
                                                                 m_pathFilter,
                                                                 m_fileNameFilter,
-                                                                { RicRecursiveFileSearchDialog::FileType::LAS } );
+                                                                { RicRecursiveFileSearchDialog::FileType::LAS },
+                                                                true );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;
