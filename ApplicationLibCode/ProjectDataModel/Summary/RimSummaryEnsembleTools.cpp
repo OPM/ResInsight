@@ -353,6 +353,9 @@ bool RimSummaryEnsembleTools::isEnsembleCurve( RimPlotCurve* sourceCurve )
     auto summaryCurve = dynamic_cast<RimSummaryCurve*>( sourceCurve );
     if ( !summaryCurve ) return false;
 
+    // History curves are identical in all realizations, so they must not select or highlight a realization
+    if ( summaryCurve->summaryAddressY().isHistoryVector() ) return false;
+
     return summaryCurve->isEnsembleCurve();
 }
 

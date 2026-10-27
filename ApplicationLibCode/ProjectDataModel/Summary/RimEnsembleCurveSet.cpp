@@ -180,6 +180,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField( &m_lineStyle, "LineStyle", LineStyle( defaultLineStyle ), "Line Style" );
     CAF_PDM_InitField( &m_pointSymbol, "PointSymbol", PointSymbol( defaultSymbol ), "Symbol" );
     CAF_PDM_InitField( &m_symbolSize, "SymbolSize", defaultSymbolSize, "Symbol Size" );
+    CAF_PDM_InitField( &m_historyLineThickness, "HistoryLineThickness", 3, "Line Thickness" );
 
     auto defaultStatisticsPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     CAF_PDM_InitFieldNoDefault( &m_statisticsUseCustomAppearance, "StatisticsUseCustomAppearance", "Appearance" );
@@ -686,11 +687,9 @@ void RimEnsembleCurveSet::findOrAssignLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
+bool RimEnsembleCurveSet::isHistoryVectorCurveSet() const
 {
-    setSummaryAddressY( address );
-    m_statistics->setShowStatisticsCurves( !address.isHistoryVector() );
-    m_statistics->updateAllRequiredEditors();
+    return m_yValuesSummaryAddress->address().isHistoryVector();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -875,7 +874,11 @@ void RimEnsembleCurveSet::updateAllCurves()
 
         m_isCurveSetFiltered = filteredCases.size() < allCases.size();
 
-        updateEnsembleCurves( filteredCases );
+        // History vectors are identical in all realizations, so only the first realization is plotted
+        std::vector<RimSummaryCase*> casesToPlot = filteredCases;
+        if ( isHistoryVectorCurveSet() && !allCases.empty() ) casesToPlot = { allCases.front() };
+
+        updateEnsembleCurves( casesToPlot );
         updateStatisticsCurves( m_statistics->basedOnFilteredCases() ? filteredCases : allCases );
     }
 
@@ -1002,9 +1005,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         plot->zoomAll();
     }
     else if ( changedField == &m_resampling || changedField == &m_useCustomAppearance || changedField == &m_lineStyle ||
-              changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_statisticsLineStyle ||
-              changedField == &m_statisticsPointSymbol || changedField == &m_statisticsSymbolSize ||
-              changedField == &m_statisticsUseCustomAppearance )
+              changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_historyLineThickness ||
+              changedField == &m_statisticsLineStyle || changedField == &m_statisticsPointSymbol ||
+              changedField == &m_statisticsSymbolSize || changedField == &m_statisticsUseCustomAppearance )
     {
         updateAllCurves();
     }
@@ -1279,6 +1282,13 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         }
     }
 
+    if ( isHistoryVectorCurveSet() )
+    {
+        // Statistics are not computed for history vectors
+        uiOrdering.skipRemainingFields( true );
+        return;
+    }
+
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
     m_statistics->defaultUiOrdering( isXAxisSummaryVector(), *statGroup );
 
@@ -1429,7 +1439,14 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Appearance" );
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryEnsemble() );
     colorsGroup->add( &m_colorMode );
-    colorsGroup->add( &m_colorOpacity );
+    if ( isHistoryVectorCurveSet() )
+    {
+        colorsGroup->add( &m_historyLineThickness );
+    }
+    else
+    {
+        colorsGroup->add( &m_colorOpacity );
+    }
 
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
@@ -2012,10 +2029,12 @@ void RimEnsembleCurveSet::updateCurveColors()
 
     // Apply the colors
     if ( caseColors.size() != curvesToColor.size() ) return;
+    const bool isHistory = isHistoryVectorCurveSet();
     for ( size_t i = 0; i < curvesToColor.size(); i++ )
     {
-        curvesToColor[i]->setColor( caseColors[i] );
-        curvesToColor[i]->setCurveColorOpacity( m_colorOpacity() );
+        // History curves are drawn with the unblended main color and full opacity
+        curvesToColor[i]->setColor( isHistory ? m_mainEnsembleColor() : caseColors[i] );
+        curvesToColor[i]->setCurveColorOpacity( isHistory ? 1.0 : m_colorOpacity() );
         curvesToColor[i]->updateCurveAppearance();
     }
 
@@ -2141,6 +2160,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 for ( auto c : realizationCurves() )
                 {
                     c->setCheckState( true );
+                    if ( isHistoryVectorCurveSet() ) c->setLineThickness( m_historyLineThickness() );
                     bool updatePlot = false;
                     c->updateCurveVisibility( updatePlot );
 
@@ -2206,7 +2226,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     RimSummaryEnsemble* group = m_yValuesSummaryEnsemble();
     RimSummaryAddress*  addr  = m_yValuesSummaryAddress();
 
-    if ( m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    if ( m_disableStatisticCurves || isHistoryVectorCurveSet() || !group ||
+         addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         return;
 
     // Calculate
@@ -2830,7 +2851,7 @@ void RimEnsembleCurveSet::createCurves( const std::vector<RimSummaryCase*>& sumC
         int lineThickness = 1;
         if ( addr.address().isHistoryVector() )
         {
-            lineThickness = 2;
+            lineThickness = m_historyLineThickness();
             curve->setCurveAppearanceFromCaseType();
         }
         curve->setLineThickness( lineThickness );
