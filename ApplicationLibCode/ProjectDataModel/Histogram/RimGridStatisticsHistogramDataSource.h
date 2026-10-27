@@ -89,4 +89,7 @@ protected:
 
 private:
     QString m_previousResultVariable;
+
+    // Range of the visible data at the last zoom all, used to detect changes in the cell filter view
+    std::optional<std::pair<double, double>> m_cellFilterViewDataRange;
 };

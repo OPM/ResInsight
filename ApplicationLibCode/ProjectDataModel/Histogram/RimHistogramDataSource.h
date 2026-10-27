@@ -70,6 +70,7 @@ public:
 
     caf::Signal<>                                    dataSourceChanged;
     caf::Signal<>                                    cumulativeChanged;
+    caf::Signal<>                                    zoomAllRequested;
     caf::Signal<RigHistogramCalculator::BinningMode> binningModeChanged;
 
     virtual std::string unitNameX() const = 0;
