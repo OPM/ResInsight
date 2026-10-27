@@ -30,4 +30,13 @@ void caf::AppEnum<RiaDefines::BatchSchedulerType>::setUp()
     addItem( RiaDefines::BatchSchedulerType::LSF, "LSF", "LSF" );
     setDefault( RiaDefines::BatchSchedulerType::LOCAL_COMPUTER );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::BatchJobMonitoringType>::setUp()
+{
+    addItem( RiaDefines::BatchJobMonitoringType::BLOCKING_WAIT, "BLOCKING_WAIT", "Blocking wait on submit command" );
+    addItem( RiaDefines::BatchJobMonitoringType::QUEUE_POLLING, "QUEUE_POLLING", "Poll job status" );
+    setDefault( RiaDefines::BatchJobMonitoringType::BLOCKING_WAIT );
+}
+
 } // namespace caf

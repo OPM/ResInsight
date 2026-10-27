@@ -55,12 +55,12 @@ void RiuBatchMonitorWorker::stopMonitoring()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchMonitorWorker::gatherInformation()
+void RiuBatchMonitorWorker::start()
 {
     while ( m_keepRunning )
     {
         auto jobInfo = RiaHpcTools::listJobs( m_scheduler, m_wslOptions );
-        emit informationGathered( jobInfo );
+        emit jobInfoUpdate( jobInfo );
 
         // poll exit flag 5 times per second to respond quickly to program exit
         int       i    = 0;

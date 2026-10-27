@@ -103,15 +103,16 @@ RiuBatchQueueMonitor::~RiuBatchQueueMonitor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::slotUpdateView( const std::vector<std::vector<QString>> information )
+void RiuBatchQueueMonitor::slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
 {
     m_jobView->setRowCount( 0 );
-    for ( auto& line : information )
+    for ( auto& [key, value] : information )
     {
+        auto line = value.asStringList();
+        if ( line.size() < 2 ) continue;
+
         int newRowIndex = m_jobView->rowCount();
         m_jobView->insertRow( newRowIndex );
-
-        if ( line.size() < 2 ) continue;
 
         // only show jobs with ResInsight prefix?
         if ( m_onlyResInsightJobs->isChecked() && !line[1].startsWith( "RI_" ) ) continue;
@@ -146,10 +147,10 @@ void RiuBatchQueueMonitor::toggleUpdates()
 
         m_monitorWorker->moveToThread( thread );
 
-        connect( thread, &QThread::started, m_monitorWorker, &RiuBatchMonitorWorker::gatherInformation );
+        connect( thread, &QThread::started, m_monitorWorker, &RiuBatchMonitorWorker::start );
         connect( thread, &QThread::finished, m_monitorWorker, &QObject::deleteLater );
         connect( thread, &QThread::finished, thread, &QObject::deleteLater );
-        connect( m_monitorWorker, &RiuBatchMonitorWorker::informationGathered, this, &RiuBatchQueueMonitor::slotUpdateView );
+        connect( m_monitorWorker, &RiuBatchMonitorWorker::jobInfoUpdate, this, &RiuBatchQueueMonitor::slotUpdateView );
         connect( m_monitorWorker, &RiuBatchMonitorWorker::finished, thread, &QThread::quit );
 
         thread->start();

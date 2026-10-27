@@ -19,10 +19,11 @@
 #pragma once
 
 #include "RiaHpcDefines.h"
+#include "RiaHpcTools.h"
 #include "RiaWslTools.h"
 
 #include <atomic>
-#include <vector>
+#include <map>
 
 #include <QMutex>
 #include <QObject>
@@ -44,10 +45,10 @@ public:
     void stopMonitoring();
 
 public slots:
-    void gatherInformation();
+    void start();
 
 signals:
-    void informationGathered( const std::vector<std::vector<QString>> jobInfo );
+    void jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> jobInfo );
     void finished();
 
 private:

@@ -83,18 +83,29 @@ TEST( RiaHpcTools, decodeSlurmJobs )
     input.append( "78 RI_DROGON-0 0:57 RUNNING simulations compute_node" );
     input.append( "77 RI_DROGON-3 1:00 RUNNING normal compute_node" );
 
-    auto jobs = RiaHpcTools::decodeSlurmJobs( input );
+    auto jobInfos = RiaHpcTools::decodeSlurmJobs( input );
 
-    ASSERT_TRUE( jobs.size() == 4 );
-    ASSERT_TRUE( jobs[0].size() == 6 );
-    ASSERT_TRUE( jobs[1].size() == 6 );
-    ASSERT_TRUE( jobs[2].size() == 6 );
-    ASSERT_TRUE( jobs[3].size() == 6 );
+    ASSERT_TRUE( jobInfos.size() == 4 );
 
-    ASSERT_TRUE( jobs[0][0] == "80" );
-    ASSERT_TRUE( jobs[1][0] == "79" );
-    ASSERT_TRUE( jobs[2][0] == "78" );
-    ASSERT_TRUE( jobs[3][0] == "77" );
+    ASSERT_TRUE( jobInfos.contains( "77" ) );
+    ASSERT_TRUE( jobInfos.contains( "78" ) );
+    ASSERT_TRUE( jobInfos.contains( "79" ) );
+    ASSERT_TRUE( jobInfos.contains( "80" ) );
+
+    ASSERT_TRUE( jobInfos["80"].id == "80" );
+    ASSERT_TRUE( jobInfos["79"].id == "79" );
+    ASSERT_TRUE( jobInfos["78"].id == "78" );
+    ASSERT_TRUE( jobInfos["77"].id == "77" );
+
+    ASSERT_TRUE( jobInfos["80"].name == "RI_DROGON-2" );
+    ASSERT_TRUE( jobInfos["79"].name == "RI_DROGON-1" );
+    ASSERT_TRUE( jobInfos["78"].name == "RI_DROGON-0" );
+    ASSERT_TRUE( jobInfos["77"].name == "RI_DROGON-3" );
+
+    ASSERT_TRUE( jobInfos["80"].queue == "simulations" );
+    ASSERT_TRUE( jobInfos["79"].queue == "simulations" );
+    ASSERT_TRUE( jobInfos["78"].queue == "simulations" );
+    ASSERT_TRUE( jobInfos["77"].queue == "normal" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,26 +120,27 @@ TEST( RiaHpcTools, decodeLsfJobs )
     input.append( "612952     flow TEST-C               12 second(s) RUN      jr              7*st-rsv17-17-16" );
     input.append( "612951     flow TEST-D               15 second(s) RUN      mr              6*st-rsb04-04-02         " );
 
-    auto jobs = RiaHpcTools::decodeLsfJobs( input );
+    auto jobInfos = RiaHpcTools::decodeLsfJobs( input );
 
-    ASSERT_TRUE( jobs.size() == 4 );
-    ASSERT_TRUE( jobs[0].size() == 6 );
-    ASSERT_TRUE( jobs[1].size() == 6 );
-    ASSERT_TRUE( jobs[2].size() == 6 );
-    ASSERT_TRUE( jobs[3].size() == 6 );
+    ASSERT_TRUE( jobInfos.size() == 4 );
 
-    ASSERT_TRUE( jobs[0][0] == "612950" );
-    ASSERT_TRUE( jobs[1][0] == "612949" );
-    ASSERT_TRUE( jobs[2][0] == "612952" );
-    ASSERT_TRUE( jobs[3][0] == "612951" );
+    ASSERT_TRUE( jobInfos.contains( "612949" ) );
+    ASSERT_TRUE( jobInfos.contains( "612950" ) );
+    ASSERT_TRUE( jobInfos.contains( "612951" ) );
+    ASSERT_TRUE( jobInfos.contains( "612952" ) );
 
-    ASSERT_TRUE( jobs[0][1] == "flow TEST-B" );
-    ASSERT_TRUE( jobs[1][1] == "flow TEST-A" );
-    ASSERT_TRUE( jobs[2][1] == "flow TEST-C" );
-    ASSERT_TRUE( jobs[3][1] == "flow TEST-D" );
+    ASSERT_TRUE( jobInfos["612950"].id == "612950" );
+    ASSERT_TRUE( jobInfos["612949"].id == "612949" );
+    ASSERT_TRUE( jobInfos["612952"].id == "612952" );
+    ASSERT_TRUE( jobInfos["612951"].id == "612951" );
 
-    ASSERT_TRUE( jobs[0][4] == "mr" );
-    ASSERT_TRUE( jobs[1][4] == "mr" );
-    ASSERT_TRUE( jobs[2][4] == "jr" );
-    ASSERT_TRUE( jobs[3][4] == "mr" );
+    ASSERT_TRUE( jobInfos["612950"].name == "flow TEST-B" );
+    ASSERT_TRUE( jobInfos["612949"].name == "flow TEST-A" );
+    ASSERT_TRUE( jobInfos["612952"].name == "flow TEST-C" );
+    ASSERT_TRUE( jobInfos["612951"].name == "flow TEST-D" );
+
+    ASSERT_TRUE( jobInfos["612949"].queue == "mr" );
+    ASSERT_TRUE( jobInfos["612950"].queue == "mr" );
+    ASSERT_TRUE( jobInfos["612952"].queue == "jr" );
+    ASSERT_TRUE( jobInfos["612951"].queue == "mr" );
 }

@@ -37,19 +37,26 @@ public:
 
     void appendItems( caf::PdmUiOrdering& uiOrdering );
 
-    size_t                         maxParallelJobs() const;
-    RiaDefines::BatchSchedulerType batchScheduler() const;
-    QString                        queueName() const;
-    QString                        batchSchedulerOptions() const;
-    bool                           exclusiveJob() const;
+    size_t                             maxParallelJobs() const;
+    RiaDefines::BatchSchedulerType     batchScheduler() const;
+    QString                            queueName() const;
+    QString                            batchSchedulerOptions() const;
+    bool                               exclusiveJob() const;
+    RiaDefines::BatchJobMonitoringType jobMonitoring() const;
 
     static QString selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue );
 
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
 private:
-    caf::PdmField<size_t>                                       m_maxParallelJobs;
-    caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>> m_batchScheduler;
-    caf::PdmField<QString>                                      m_queueName;
-    caf::PdmField<QString>                                      m_additionalLsfOptions;
-    caf::PdmField<QString>                                      m_additionalSlurmOptions;
-    caf::PdmField<bool>                                         m_exclusive;
+    caf::PdmField<size_t>  m_maxParallelJobs;
+    caf::PdmField<QString> m_queueName;
+    caf::PdmField<QString> m_additionalLsfOptions;
+    caf::PdmField<QString> m_additionalSlurmOptions;
+    caf::PdmField<bool>    m_exclusive;
+    caf::PdmField<int>     m_updateInterval;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>>     m_batchScheduler;
+    caf::PdmField<caf::AppEnum<RiaDefines::BatchJobMonitoringType>> m_batchJobMonitoring;
 };

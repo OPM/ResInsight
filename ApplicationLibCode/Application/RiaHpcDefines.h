@@ -27,4 +27,10 @@ enum class BatchSchedulerType
     LSF
 };
 
-}
+enum class BatchJobMonitoringType
+{
+    BLOCKING_WAIT,
+    QUEUE_POLLING
+};
+
+} // namespace RiaDefines

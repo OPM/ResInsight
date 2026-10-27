@@ -21,6 +21,8 @@
 #include <QStringList>
 #include <QWidget>
 
+#include "RiaHpcTools.h"
+
 class QTableWidget;
 class QCheckBox;
 class QComboBox;
@@ -42,7 +44,7 @@ public:
     void restartMonitoring();
 
 private slots:
-    void slotUpdateView( const std::vector<std::vector<QString>> information );
+    void slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information );
     void toggleUpdates();
     void updateInterval();
 
