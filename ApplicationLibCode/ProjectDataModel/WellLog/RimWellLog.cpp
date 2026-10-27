@@ -45,7 +45,7 @@ const QDateTime RimWellLog::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDate
 //--------------------------------------------------------------------------------------------------
 RimWellLog::RimWellLog()
 {
-    CAF_PDM_InitScriptableObject( "Well File Info", ":/LasFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Well File Info", ":/WellLogFile.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
     m_date.uiCapability()->setAttribute( caf::PdmUiDateEditor::Keys::DATE_FORMAT, RiaQDateTimeTools::dateFormatString() );
@@ -88,11 +88,25 @@ void RimWellLog::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 void RimWellLog::updateChannelsFromWellLogData( RigWellLogData* wellLogData )
 {
-    m_wellLogChannels.deleteChildren();
-
-    if ( !wellLogData ) return;
+    if ( !wellLogData )
+    {
+        m_wellLogChannels.deleteChildren();
+        return;
+    }
 
     QStringList wellLogNames = wellLogData->wellLogChannelNames();
+
+    // Keep existing channel objects when the names are unchanged, to avoid stale entries in the project tree
+    // when a file is read several times
+    QStringList existingNames;
+    for ( const auto* channel : wellLogChannels() )
+    {
+        existingNames.append( channel->name() );
+    }
+    if ( existingNames == wellLogNames ) return;
+
+    m_wellLogChannels.deleteChildren();
+
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
     {
         RimWellLogChannel* wellLog = new RimWellLogChannel();

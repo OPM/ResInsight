@@ -88,6 +88,7 @@ public:
 
     void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
     void analyseCurvesAndTracks();
+    void updateComboBoxAttributes();
     void applyDataSourceChanges( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
     void applyDataSourceChanges();
     void applyPrevCase();

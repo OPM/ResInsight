@@ -83,17 +83,20 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
     {
         auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
-        if ( m_wellPath && m_wellLog )
+        if ( m_wellLog )
         {
             RigWellLogData* wellLogFile = m_wellLog->wellLogData();
             if ( wellLogFile )
             {
+                // The well path is optional. Without it, only depths from the LAS file are available
+                RigWellPath* rigWellPathGeometry = m_wellPath ? m_wellPath->wellPathGeometry() : nullptr;
+
                 std::vector<double> values              = wellLogFile->values( m_wellLogChannelName );
                 std::vector<double> measuredDepthValues = wellLogFile->depthValues();
                 std::vector<double> tvdMslValues        = wellLogFile->tvdMslValues();
                 std::vector<double> tvdRkbValues        = wellLogFile->tvdRkbValues();
 
-                bool rkbDiff = m_wellPath->wellPathGeometry() ? m_wellPath->wellPathGeometry()->rkbDiff() : 0.0;
+                double rkbDiff = rigWellPathGeometry ? rigWellPathGeometry->rkbDiff() : 0.0;
 
                 if ( m_indexDepthOffsets )
                 {
@@ -111,26 +114,24 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 if ( tvdMslValues.size() != values.size() )
                 {
-                    RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
-                    if ( rigWellPath )
+                    if ( rigWellPathGeometry )
                     {
                         tvdMslValues.clear();
                         for ( double measuredDepthValue : measuredDepthValues )
                         {
-                            tvdMslValues.push_back( -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
+                            tvdMslValues.push_back( -rigWellPathGeometry->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                         }
                     }
                 }
                 if ( tvdRkbValues.size() != values.size() )
                 {
-                    RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
-                    if ( rigWellPath )
+                    if ( rigWellPathGeometry )
                     {
                         tvdRkbValues.clear();
                         for ( double measuredDepthValue : measuredDepthValues )
                         {
-                            tvdRkbValues.push_back( -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() +
-                                                    m_wellPath->wellPathGeometry()->rkbDiff() );
+                            tvdRkbValues.push_back( -rigWellPathGeometry->interpolatedPointAlongWellPath( measuredDepthValue ).z() +
+                                                    rigWellPathGeometry->rkbDiff() );
                         }
                     }
                 }
@@ -222,7 +223,7 @@ std::pair<std::vector<double>, std::vector<double>>
     auto findFirstIndex = []( int kLayer, const std::vector<double>& vals )
     {
         for ( size_t i = 0; i < vals.size(); i++ )
-            if ( kLayer == static_cast<int>( vals[i] ) ) return i;
+            if ( RigWellLogIndexDepthOffset::isValidKIndexValue( vals[i] ) && kLayer == static_cast<int>( vals[i] ) ) return i;
 
         return vals.size();
     };
@@ -230,7 +231,8 @@ std::pair<std::vector<double>, std::vector<double>>
     auto findLastIndex = []( int kLayer, const std::vector<double>& vals )
     {
         for ( int i = static_cast<int>( vals.size() ) - 1; i >= 0; i-- )
-            if ( kLayer == static_cast<int>( vals[i] ) ) return static_cast<size_t>( i );
+            if ( RigWellLogIndexDepthOffset::isValidKIndexValue( vals[i] ) && kLayer == static_cast<int>( vals[i] ) )
+                return static_cast<size_t>( i );
 
         return vals.size();
     };
