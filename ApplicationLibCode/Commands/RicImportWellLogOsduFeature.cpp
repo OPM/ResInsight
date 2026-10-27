@@ -118,6 +118,6 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportWellLogOsduFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/LasFile16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/WellLogFile.svg" ) );
     actionToSetup->setText( "Import Well Log From OSDU" + RiaDefines::betaFeaturePostfix() );
 }
