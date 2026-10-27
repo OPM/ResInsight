@@ -680,7 +680,10 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
         {
             double rkb = wellPathGeometry->rkbDiff();
 
-            variableValueMap[RiaDefines::namingVariableAirGap()] = QString( "Air Gap = %1 m" ).arg( rkb );
+            if ( rkb != 0.0 || m_namingMethod() == RiaDefines::ObjectNamingMethod::TEMPLATE )
+            {
+                variableValueMap[RiaDefines::namingVariableAirGap()] = QString( "Air Gap = %1 m" ).arg( rkb );
+            }
         }
     }
 
