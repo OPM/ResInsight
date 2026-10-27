@@ -78,9 +78,3 @@ private:
     caf::PdmField<int>                 m_completionNumber;
     caf::PdmPtrField<RimCellFilter*>   m_cellFilter;
 };
-
-namespace caf
-{
-template <>
-void caf::AppEnum<RimWellEventPerf::State>::setUp();
-} // namespace caf

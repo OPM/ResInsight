@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafAppEnum.h"
+
 namespace RimWellEventEnums
 {
 enum class State
@@ -25,3 +27,9 @@ enum class State
     SHUT
 };
 } // namespace RimWellEventEnums
+
+namespace caf
+{
+template <>
+void AppEnum<RimWellEventEnums::State>::setUp();
+} // namespace caf
