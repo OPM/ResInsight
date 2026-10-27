@@ -27,6 +27,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPhaseRftSegmentPlotFeature.cpp
