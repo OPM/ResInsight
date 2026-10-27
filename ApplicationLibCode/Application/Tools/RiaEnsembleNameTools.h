@@ -20,11 +20,14 @@
 
 #include <QString>
 
+#include <functional>
 #include <map>
 #include <vector>
 
 #include "Summary/RiaSummaryDefines.h"
 
+class QStandardItem;
+class QStandardItemModel;
 class RimSummaryCase;
 class RimSummaryEnsemble;
 
@@ -64,6 +67,16 @@ public:
 
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
+
+    // Within each ensemble item, uncheck children whose filename (ignoring the trailing realization number) differs from the
+    // most common one among the checked children. Returns one warning text per ensemble with multiple filenames.
+    // The caller is responsible for blocking item change signals if needed.
+    static QStringList uncheckFilenameOutliers( QStandardItemModel&                             model,
+                                                const std::function<QString( QStandardItem* )>& filePathForItem,
+                                                const QString&                                  itemLabel,
+                                                bool                                            pathHasExtension );
+
+    static QString stripTrailingRealizationNumber( const QString& name, const QString& path );
 
 private:
     static QStringList findUniqueEnsembleNames( const QStringList&               fileNames,

@@ -31,7 +31,9 @@
 #include "cafAppEnum.h"
 
 #include <QFileInfo>
+#include <QMap>
 #include <QRegularExpression>
+#include <QStandardItemModel>
 
 #include <regex>
 
@@ -676,4 +678,109 @@ QString RiaEnsembleNameTools::uniqueShortNameFromComponents( const QString&     
         shortNameComponents.push_back( subComponents.join( "-" ) );
     }
     return shortNameComponents.join( "," );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Strip a trailing number and separator from a filename stem. If the path contains a "realization-N" folder, only a
+/// trailing number equal to N is stripped, e.g. "WELL_001" in ".../realization-1/..." -> "WELL", while "OP_2" is kept.
+/// Without a realization folder any trailing number is stripped.
+//--------------------------------------------------------------------------------------------------
+QString RiaEnsembleNameTools::stripTrailingRealizationNumber( const QString& name, const QString& path )
+{
+    static const QRegularExpression realizationRe( "(^|[/\\\\])realization-(\\d+)([/\\\\]|$)" );
+    static const QRegularExpression trailingRe( "[_\\-]?(\\d+)$" );
+
+    auto trailingMatch = trailingRe.match( name );
+    if ( !trailingMatch.hasMatch() ) return name;
+
+    auto realizationMatch = realizationRe.match( path );
+    if ( realizationMatch.hasMatch() && realizationMatch.captured( 2 ).toInt() != trailingMatch.captured( 1 ).toInt() ) return name;
+
+    QString stripped = name.left( trailingMatch.capturedStart() );
+    return stripped.isEmpty() ? name : stripped;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaEnsembleNameTools::uncheckFilenameOutliers( QStandardItemModel&                             model,
+                                                           const std::function<QString( QStandardItem* )>& filePathForItem,
+                                                           const QString&                                  itemLabel,
+                                                           bool                                            pathHasExtension )
+{
+    QStringList warnings;
+
+    auto canonicalName = [&]( QStandardItem* item )
+    {
+        const QString path = filePathForItem( item );
+        if ( path.isEmpty() ) return QString();
+
+        const QFileInfo fileInfo( path );
+        const QString   stem = pathHasExtension ? fileInfo.completeBaseName() : fileInfo.fileName();
+        return stripTrailingRealizationNumber( stem, path );
+    };
+
+    auto* rootItem = model.invisibleRootItem();
+    for ( int i = 0; i < rootItem->rowCount(); ++i )
+    {
+        auto* ensembleItem = rootItem->child( i );
+        if ( !ensembleItem ) continue;
+
+        // Only checked items take part, so items excluded by a realization filter do not influence the majority
+        QMap<QString, int> canonicalCounts;
+        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
+        {
+            auto* childItem = ensembleItem->child( j );
+            if ( !childItem || childItem->checkState() != Qt::Checked ) continue;
+
+            const QString canonical = canonicalName( childItem );
+            if ( !canonical.isEmpty() ) canonicalCounts[canonical]++;
+        }
+
+        if ( canonicalCounts.size() <= 1 ) continue;
+
+        QString mostCommon;
+        int     maxCount = 0;
+        bool    isTie    = false;
+        for ( auto it = canonicalCounts.constBegin(); it != canonicalCounts.constEnd(); ++it )
+        {
+            if ( it.value() > maxCount )
+            {
+                maxCount   = it.value();
+                mostCommon = it.key();
+                isTie      = false;
+            }
+            else if ( it.value() == maxCount )
+            {
+                isTie = true;
+            }
+        }
+
+        // No clear majority: keep the selection unchanged
+        if ( isTie ) continue;
+
+        QStringList outlierNames;
+        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
+        {
+            auto* childItem = ensembleItem->child( j );
+            if ( !childItem || childItem->checkState() != Qt::Checked ) continue;
+
+            const QString canonical = canonicalName( childItem );
+            if ( canonical.isEmpty() || canonical == mostCommon ) continue;
+
+            childItem->setCheckState( Qt::Unchecked );
+            if ( !outlierNames.contains( canonical ) ) outlierNames.append( canonical );
+        }
+
+        warnings.append( QString( "Ensemble '%1' contains multiple filenames:\n'%2'\n\n"
+                                  "Only '%3' (%4 %5) is selected. Deselected: '%6'." )
+                             .arg( ensembleItem->text() )
+                             .arg( canonicalCounts.keys().join( "', '" ) )
+                             .arg( mostCommon )
+                             .arg( maxCount )
+                             .arg( itemLabel )
+                             .arg( outlierNames.join( ", " ) ) );
+    }
+
+    return warnings;
 }

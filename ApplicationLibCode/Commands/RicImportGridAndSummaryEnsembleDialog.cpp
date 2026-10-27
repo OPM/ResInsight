@@ -48,6 +48,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QScopedValueRollback>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QStandardItem>
@@ -271,6 +272,16 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
                           if ( item->isCheckable() )
                           {
                               RicRecursiveFileSearchDialog::setCheckedStateChildItems( item, item->checkState() );
+                          }
+
+                          // Checking an ensemble selects all its files, so outliers must be handled again
+                          if ( item->checkState() == Qt::Checked && !item->parent() )
+                          {
+                              const QStringList warnings = checkForMultipleFilenamesAndUncheckOutliers();
+                              if ( !warnings.isEmpty() )
+                              {
+                                  QMessageBox::warning( this, "Multiple Filenames Found", warnings.join( "\n\n" ) );
+                              }
                           }
 
                           if ( item->checkState() == Qt::Checked )
@@ -654,87 +665,14 @@ void RicImportGridAndSummaryEnsembleDialog::slotUseRealizationStarClicked()
 ///
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-/// Strip trailing realization number and separator from a filename stem, e.g.
-/// "ECLIPSE_001" -> "ECLIPSE", "MODEL-3" -> "MODEL", "BASE" -> "BASE"
-//--------------------------------------------------------------------------------------------------
-static QString stripTrailingRealizationNumber( const QString& name )
-{
-    static const QRegularExpression re( "[_\\-]?\\d+$" );
-    QString                         stripped = name;
-    stripped.remove( re );
-    return stripped;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QStringList RicImportGridAndSummaryEnsembleDialog::checkForMultipleFilenamesAndUncheckOutliers()
 {
-    QStringList warnings;
+    QScopedValueRollback<bool> blockGuard( m_blockItemUpdates, true );
 
-    auto* rootItem = m_filePathModel.invisibleRootItem();
-    for ( int i = 0; i < rootItem->rowCount(); ++i )
-    {
-        auto ensembleItem = rootItem->child( i );
-        if ( !ensembleItem ) continue;
-
-        // Count occurrences of each canonical filename (trailing realization number stripped)
-        QMap<QString, int> canonicalCounts;
-        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
-        {
-            auto childItem = ensembleItem->child( j );
-            if ( !childItem ) continue;
-
-            QString basePath = childItem->data( Qt::UserRole ).toString();
-            if ( basePath.isEmpty() ) continue;
-
-            QString canonical = stripTrailingRealizationNumber( QFileInfo( basePath ).fileName() );
-            canonicalCounts[canonical]++;
-        }
-
-        if ( canonicalCounts.size() <= 1 ) continue;
-
-        // Find the most common canonical filename
-        QString mostCommon;
-        int     maxCount = 0;
-        for ( auto it = canonicalCounts.constBegin(); it != canonicalCounts.constEnd(); ++it )
-        {
-            if ( it.value() > maxCount )
-            {
-                maxCount   = it.value();
-                mostCommon = it.key();
-            }
-        }
-
-        // Untick outliers
-        QStringList outlierNames;
-        m_blockItemUpdates = true;
-        for ( int j = 0; j < ensembleItem->rowCount(); ++j )
-        {
-            auto childItem = ensembleItem->child( j );
-            if ( !childItem ) continue;
-
-            QString basePath  = childItem->data( Qt::UserRole ).toString();
-            QString canonical = stripTrailingRealizationNumber( QFileInfo( basePath ).fileName() );
-            if ( canonical != mostCommon )
-            {
-                childItem->setCheckState( Qt::Unchecked );
-                if ( !outlierNames.contains( canonical ) ) outlierNames.append( canonical );
-            }
-        }
-        m_blockItemUpdates = false;
-
-        QStringList allNames = canonicalCounts.keys();
-        warnings.append( QString( "Ensemble '%1' contains multiple filenames:\n'%2'\n\n"
-                                  "Only '%3' (%4 realizations) is selected. Deselected: '%5'." )
-                             .arg( ensembleItem->text() )
-                             .arg( allNames.join( "', '" ) )
-                             .arg( mostCommon )
-                             .arg( maxCount )
-                             .arg( outlierNames.join( ", " ) ) );
-    }
-
-    return warnings;
+    return RiaEnsembleNameTools::
+        uncheckFilenameOutliers( m_filePathModel, []( QStandardItem* item ) { return item->data( Qt::UserRole ).toString(); }, "realizations", false );
 }
 
 //--------------------------------------------------------------------------------------------------

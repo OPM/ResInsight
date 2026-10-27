@@ -76,7 +76,8 @@ public:
                                                                         const QString&               dir,
                                                                         const QString&               pathFilter,
                                                                         const QString&               fileNameFilter,
-                                                                        const std::vector<FileType>& fileTypes );
+                                                                        const std::vector<FileType>& fileTypes,
+                                                                        bool                         filterFilenameOutliers = false );
 
     static QString     fileNameForType( FileType fileType );
     static QStringList fileExtensionForType( FileType fileType );
@@ -113,6 +114,7 @@ private:
     void addToTreeView( const QString& ensembleName, const QStringList& fileNames );
 
     QStringList uncheckFilenameOutliers();
+    void        applyFilenameOutlierFilter();
 
     // File search methods
 
@@ -182,6 +184,7 @@ private:
 
     bool m_isCancelPressed;
     bool m_blockUpdateOfOtherItems;
+    bool m_filterFilenameOutliers;
 };
 
 //==================================================================================================
