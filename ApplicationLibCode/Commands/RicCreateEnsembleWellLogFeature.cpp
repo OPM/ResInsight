@@ -18,7 +18,6 @@
 
 #include "RicCreateEnsembleWellLogFeature.h"
 
-#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
@@ -32,13 +31,13 @@
 #include "RicImportGeneralDataFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 #include "RifReaderSettings.h"
+#include "WellLogCommands/RicNewEnsembleWellLogPlotFeature.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
 #include "RigLasFileExporter.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
-#include "RimEnsembleWellLogCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellLogExtractionCurve.h"
@@ -60,6 +59,7 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+#include <QIcon>
 
 #include <memory>
 
@@ -83,8 +83,9 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
                                                                 defaultDir,
                                                                 pathFilter,
                                                                 fileNameFilter,
-                                                                { RicRecursiveFileSearchDialog::FileType::GRDECL,
-                                                                  RicRecursiveFileSearchDialog::FileType::EGRID } );
+                                                                { RicRecursiveFileSearchDialog::FileType::EGRID,
+                                                                  RicRecursiveFileSearchDialog::FileType::GRDECL },
+                                                                true );
     if ( !result.ok || result.files.isEmpty() )
     {
         return;
@@ -238,16 +239,10 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                 for ( const auto& property : properties )
                 {
                     // Create well log track
-                    cvf::Color3f     color = RiaColorTables::normalPaletteColors().cycledColor3f( trackNum );
                     QString          title = QString( "Track %1" ).arg( trackNum );
                     RimWellLogTrack* wellLogTrack =
                         RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
-                    auto* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
-                    ensembleWellLogCurveSet->setEnsembleWellLogs( ensembleWellLog );
-                    ensembleWellLogCurveSet->setColor( color );
-                    ensembleWellLogCurveSet->setWellLogChannelName( property.first );
-                    wellLogTrack->setEnsembleWellLogCurveSet( ensembleWellLogCurveSet );
-                    ensembleWellLogCurveSet->loadDataAndUpdate( true );
+                    RicNewEnsembleWellLogPlotFeature::addEnsembleCurveSetToTrack( wellLogTrack, ensembleWellLog, property.first, trackNum );
                     trackNum++;
                 }
 
@@ -302,4 +297,5 @@ void RicCreateEnsembleWellLogFeature::onActionTriggered( bool isChecked )
 void RicCreateEnsembleWellLogFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Ensemble Well Log..." );
+    actionToSetup->setIcon( QIcon( ":/WellLogFile.svg" ) );
 }
