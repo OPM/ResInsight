@@ -22,8 +22,11 @@
 
 #include <array>
 #include <map>
+#include <memory>
+#include <optional>
 
 class RiuQwtPlotRectAnnotation;
+class QwtPlotMarker;
 
 //==================================================================================================
 ///
@@ -60,11 +63,13 @@ private:
 
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
-    void    onLoadDataAndUpdate() override;
-    void    updateAxes() override;
-    QString asciiDataForPlotExport() const override;
-    void    updatePlotTitle() override;
-    void    createPoints();
+    void                  onLoadDataAndUpdate() override;
+    void                  updateAxes() override;
+    QString               asciiDataForPlotExport() const override;
+    void                  updatePlotTitle() override;
+    void                  createPoints();
+    void                  updateHistoryLine();
+    std::optional<double> historyValueAtSelectedTimeStep() const;
 
     void            updateValueRanges();
     void            updateFilterRanges();
@@ -87,6 +92,7 @@ private:
     std::pair<double, double> m_yValueRange;
 
     std::unique_ptr<RiuQwtPlotRectAnnotation> m_rectAnnotation;
+    std::unique_ptr<QwtPlotMarker>            m_historyLine;
 
     std::map<size_t, std::array<double, 4>> m_filterValueRangeCache;
 };

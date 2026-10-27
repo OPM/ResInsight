@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 
+#include "RifEclipseSummaryAddressDefines.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RigEnsembleParameter.h"
@@ -382,6 +383,67 @@ void RimParameterResultCrossPlot::createPoints()
 
         plotCurve->attach( m_plotWidget->qwtPlot() );
     }
+
+    updateHistoryLine();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Draws a horizontal line at the history value for the selected time step, if a history vector exists
+//--------------------------------------------------------------------------------------------------
+void RimParameterResultCrossPlot::updateHistoryLine()
+{
+    auto historyValue = historyValueAtSelectedTimeStep();
+    if ( !historyValue ) return;
+
+    if ( !m_historyLine )
+    {
+        m_historyLine = std::make_unique<QwtPlotMarker>();
+        m_historyLine->setLineStyle( QwtPlotMarker::HLine );
+        m_historyLine->setLinePen( QPen( Qt::darkGray, 2, Qt::DashLine ) );
+    }
+
+    m_historyLine->setYValue( *historyValue );
+    m_historyLine->attach( m_plotWidget->qwtPlot() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimParameterResultCrossPlot::historyValueAtSelectedTimeStep() const
+{
+    if ( ensembles().empty() || addresses().empty() ) return std::nullopt;
+
+    auto address = *addresses().begin();
+    if ( address.isHistoryVector() ) return std::nullopt;
+    address.setVectorName( address.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
+
+    const time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
+
+    // History vectors are identical in all realizations, so the first case having it is sufficient
+    for ( auto summaryCase : ( *ensembles().begin() )->allSummaryCases() )
+    {
+        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+        if ( !reader ) continue;
+
+        auto [isOk, values] = reader->values( address );
+        if ( !isOk ) continue;
+
+        const std::vector<time_t>& timeSteps = reader->timeSteps( address );
+
+        std::optional<double> result;
+        time_t                closestTimeStep = 0;
+        for ( size_t i = 0; i < timeSteps.size() && i < values.size(); ++i )
+        {
+            if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
+            {
+                result          = values[i];
+                closestTimeStep = timeSteps[i];
+            }
+        }
+        if ( result ) return result;
+    }
+
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +463,12 @@ void RimParameterResultCrossPlot::updateValueRanges()
         parameterMax = std::max( parameterMax, paramValue );
         summaryMin   = std::min( summaryMin, summaryValue );
         summaryMax   = std::max( summaryMax, summaryValue );
+    }
+
+    if ( auto historyValue = historyValueAtSelectedTimeStep() )
+    {
+        summaryMin = std::min( summaryMin, *historyValue );
+        summaryMax = std::max( summaryMax, *historyValue );
     }
 
     double parameterRange = parameterMax - parameterMin;
@@ -470,6 +538,11 @@ void RimParameterResultCrossPlot::detachAllCurves()
     if ( m_plotWidget && m_rectAnnotation )
     {
         m_rectAnnotation->detach();
+    }
+
+    if ( m_plotWidget && m_historyLine )
+    {
+        m_historyLine->detach();
     }
 
     RimAbstractCorrelationPlot::detachAllCurves();
