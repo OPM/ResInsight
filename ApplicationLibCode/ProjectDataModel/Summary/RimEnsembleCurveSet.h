@@ -117,7 +117,6 @@ public:
 
     void                          setSummaryAddressY( RifEclipseSummaryAddress address );
     void                          setCurveAddress( RiaSummaryCurveAddress address );
-    void                          setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddressY() const;
     std::string                   unitNameY() const;
     RiaSummaryCurveAddress        curveAddress() const;
@@ -210,6 +209,8 @@ private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
 
+    bool isHistoryVectorCurveSet() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -285,6 +286,7 @@ private:
     caf::PdmField<LineStyle>                                               m_lineStyle;
     caf::PdmField<PointSymbol>                                             m_pointSymbol;
     caf::PdmField<int>                                                     m_symbolSize;
+    caf::PdmField<int>                                                     m_historyLineThickness;
 
     caf::PdmField<caf::AppEnum<RimCurveAppearanceDefines::AppearanceMode>> m_statisticsUseCustomAppearance;
     caf::PdmField<LineStyle>                                               m_statisticsLineStyle;

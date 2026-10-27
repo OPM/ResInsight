@@ -38,7 +38,6 @@ public:
     RimEnsembleStatistics( RimEnsembleCurveSetInterface* parentCurveSet = nullptr );
 
     bool isActive() const;
-    void setShowStatisticsCurves( bool show );
     bool showStatisticsCurveLegends() const;
     bool hideEnsembleCurves() const;
     bool basedOnFilteredCases() const;

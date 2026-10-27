@@ -104,7 +104,7 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addCurveSet( RimSumma
         RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 
     curveSet->setSummaryEnsemble( ensemble );
-    curveSet->setSummaryAddressYAndStatisticsFlag( address );
+    curveSet->setSummaryAddressY( address );
     curveSet->setDefaultTimeRange();
 
     auto filter = curveSet->filterCollection()->addFilter();

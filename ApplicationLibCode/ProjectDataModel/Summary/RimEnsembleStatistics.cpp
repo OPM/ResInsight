@@ -98,14 +98,6 @@ bool RimEnsembleStatistics::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatistics::setShowStatisticsCurves( bool show )
-{
-    m_active = show;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatistics::showStatisticsCurveLegends() const
 {
     return m_showStatisticsCurveLegends;

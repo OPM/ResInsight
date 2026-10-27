@@ -1360,8 +1360,8 @@ void RiuQwtPlotWidget::resetPlotCurveHighlighting()
             if ( auto rimPlotCurve = riuPlotCurve->ownerRimCurve() )
             {
                 rimPlotCurve->updateCurveAppearance();
-                double zValue = m_originalZValues[riuPlotCurve];
-                riuPlotCurve->setZ( zValue );
+                auto zIt = m_originalZValues.find( riuPlotCurve );
+                if ( zIt != m_originalZValues.end() ) riuPlotCurve->setZ( zIt->second );
                 continue;
             }
         }
