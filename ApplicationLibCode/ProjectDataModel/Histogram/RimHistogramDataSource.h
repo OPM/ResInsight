@@ -82,8 +82,9 @@ public:
     virtual bool showCumulativeCurve() const;
     virtual void setShowCumulativeCurve( bool showCumulativeCurve );
 
-    void setBinningMode( RigHistogramCalculator::BinningMode binningMode );
-    void resetBinRange();
+    void                                setBinningMode( RigHistogramCalculator::BinningMode binningMode );
+    RigHistogramCalculator::BinningMode binningMode() const;
+    void                                resetBinRange();
 
     virtual std::optional<std::pair<double, double>> dataRange() const;
 
@@ -127,7 +128,6 @@ protected:
 
     std::pair<double, double> binRange( double dataMin, double dataMax, double smallestPositiveValue ) const;
 
-    RigHistogramCalculator::BinningMode        binningMode() const;
     RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling() const;
     bool                                       useUserDefinedBinRange() const;
 

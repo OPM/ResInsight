@@ -621,6 +621,22 @@ void RimHistogramCurve::onZoomAllRequested( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimHistogramCurve::onBinningModeChanged( const caf::SignalEmitter* emitter, RigHistogramCalculator::BinningMode binningMode )
 {
+    applyAxisScaleForBinningMode( binningMode );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::updateAxisScaleFromBinningMode()
+{
+    if ( auto source = dataSource() ) applyAxisScaleForBinningMode( source->binningMode() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::applyAxisScaleForBinningMode( RigHistogramCalculator::BinningMode binningMode )
+{
     auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
     if ( !plot ) return;
 

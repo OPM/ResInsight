@@ -68,6 +68,8 @@ public:
 
     RimHistogramDataSource* dataSource() const;
 
+    void updateAxisScaleFromBinningMode();
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;
@@ -90,6 +92,7 @@ protected:
     void onCumulativeChanged( const caf::SignalEmitter* emitter );
     void onZoomAllRequested( const caf::SignalEmitter* emitter );
     void onBinningModeChanged( const caf::SignalEmitter* emitter, RigHistogramCalculator::BinningMode binningMode );
+    void applyAxisScaleForBinningMode( RigHistogramCalculator::BinningMode binningMode );
 
     void               updateCumulativeCurve();
     void               connectReferencedDataSourceSignals();

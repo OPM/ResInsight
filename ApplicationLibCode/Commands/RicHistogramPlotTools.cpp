@@ -37,6 +37,8 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include <algorithm>
+
 namespace caf
 {
 template <>
@@ -226,7 +228,20 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
 
     plot->addCurveNoUpdate( curve );
 
-    if ( resolveRefs ) curve->resolveReferencesRecursively();
+    if ( resolveRefs )
+    {
+        // Resolve references and re-run initAfterRead(), which for a copied curve was called before the references were resolved
+        curve->initAfterInsert();
+
+        // The binning mode of a copied curve is unchanged, so no signal sets up the axis scale of the destination plot.
+        // Keep the axis scale if other curves already use the axis.
+        const auto plotCurves  = plot->histogramCurves();
+        const bool isAxisInUse = std::any_of( plotCurves.begin(),
+                                              plotCurves.end(),
+                                              [curve]( RimHistogramCurve* other )
+                                              { return other != curve && other->axisX() == curve->axisX(); } );
+        if ( !isAxisInUse ) curve->updateAxisScaleFromBinningMode();
+    }
 
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
