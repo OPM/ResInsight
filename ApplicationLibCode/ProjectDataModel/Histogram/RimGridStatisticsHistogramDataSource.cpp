@@ -20,7 +20,6 @@
 
 #include "RiaResultNames.h"
 
-#include "Histogram/RimHistogramPlot.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
@@ -161,6 +160,13 @@ void RimGridStatisticsHistogramDataSource::fieldChangedByUi( const caf::PdmField
         // Not sent as dataSourceChanged: the companion curve observes that signal, and must not be
         // deleted while it is being emitted.
         cumulativeChanged.send();
+    }
+    else if ( changedField == &m_cellFilterView )
+    {
+        m_cellFilterViewDataRange = dataRange();
+
+        dataSourceChanged.send();
+        zoomAllRequested.send();
     }
     else
     {
@@ -362,6 +368,15 @@ void RimGridStatisticsHistogramDataSource::setDefaults()
 void RimGridStatisticsHistogramDataSource::cellFilterViewUpdated()
 {
     dataSourceChanged.send();
+
+    // The view is updated for many reasons not affecting the visible cells, e.g. a legend change. Only zoom all when the
+    // range of the visible data has changed, to keep the user's zoom otherwise.
+    const auto range = dataRange();
+    if ( range != m_cellFilterViewDataRange )
+    {
+        m_cellFilterViewDataRange = range;
+        zoomAllRequested.send();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

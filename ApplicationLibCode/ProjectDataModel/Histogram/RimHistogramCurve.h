@@ -88,6 +88,7 @@ protected:
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
     void onCumulativeChanged( const caf::SignalEmitter* emitter );
+    void onZoomAllRequested( const caf::SignalEmitter* emitter );
     void onBinningModeChanged( const caf::SignalEmitter* emitter, RigHistogramCalculator::BinningMode binningMode );
 
     void               updateCumulativeCurve();

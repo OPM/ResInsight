@@ -57,6 +57,7 @@ void caf::AppEnum<RigHistogramCalculator::OutOfRangeHandling>::setUp()
 RimHistogramDataSource::RimHistogramDataSource()
     : dataSourceChanged( this )
     , cumulativeChanged( this )
+    , zoomAllRequested( this )
     , binningModeChanged( this )
 {
     CAF_PDM_InitObject( "Histogram Data Source", );

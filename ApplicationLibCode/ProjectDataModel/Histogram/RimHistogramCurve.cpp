@@ -118,6 +118,7 @@ void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
         m_dataSource->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
         m_dataSource->cumulativeChanged.connect( this, &RimHistogramCurve::onCumulativeChanged );
         m_dataSource->binningModeChanged.connect( this, &RimHistogramCurve::onBinningModeChanged );
+        m_dataSource->zoomAllRequested.connect( this, &RimHistogramCurve::onZoomAllRequested );
     }
 }
 
@@ -140,6 +141,7 @@ void RimHistogramCurve::connectReferencedDataSourceSignals()
     {
         // Connecting an already connected observer is a no-op
         m_dataSourceReference()->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
+        m_dataSourceReference()->zoomAllRequested.connect( this, &RimHistogramCurve::onZoomAllRequested );
     }
 }
 
@@ -603,6 +605,14 @@ void RimHistogramCurve::onDataSourceChanged( const caf::SignalEmitter* emitter )
 void RimHistogramCurve::onCumulativeChanged( const caf::SignalEmitter* emitter )
 {
     updateCumulativeCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::onZoomAllRequested( const caf::SignalEmitter* emitter )
+{
+    if ( auto plot = firstAncestorOrThisOfType<RimHistogramPlot>() ) plot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
