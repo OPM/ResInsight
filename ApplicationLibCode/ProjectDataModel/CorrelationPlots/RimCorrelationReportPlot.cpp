@@ -22,6 +22,9 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
+#include "Summary/RiaSummaryPlotTools.h"
+
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "RimAbstractCorrelationPlot.h"
 #include "RimCorrelationMatrixPlot.h"
@@ -31,11 +34,14 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleStatistics.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimPlotAxisAnnotation.h"
+#include "RimPlotAxisProperties.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTimeAxisAnnotation.h"
+#include "Tools/RimPlotAxisTools.h"
 
 #include "RiuInterfaceToViewWindow.h"
 
@@ -110,7 +116,8 @@ public:
     {
         if ( !plot() || !m_summaryPlot ) return {};
 
-        const auto timeTValue    = RiaTimeTTools::fromDouble( invTransform( screenPixelCoordinates ).x() );
+        const auto plotPos       = invTransform( screenPixelCoordinates );
+        const auto timeTValue    = RiaTimeTTools::fromDouble( plotPos.x() );
         auto*      timeAxisProps = m_summaryPlot->timeAxisProperties();
         if ( timeAxisProps )
         {
@@ -118,6 +125,22 @@ public:
             auto* anno = RimTimeAxisAnnotation::createTimeAnnotation( timeTValue, TRACKING_ANNOTATION_COLOR );
             anno->setPenStyle( Qt::DashLine );
             timeAxisProps->appendAnnotation( anno );
+        }
+
+        if ( auto* valueAxis = dynamic_cast<RimPlotAxisProperties*>( m_summaryPlot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) ) )
+        {
+            removeValueAnnotation( valueAxis );
+
+            auto* valueAnno = new RimPlotAxisAnnotation();
+            valueAnno->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
+            valueAnno->setValue( plotPos.y() );
+            valueAnno->setName(
+                RimPlotAxisTools::axisValueText( plotPos.y(), valueAxis->scaleFactor(), valueAxis->decimalCount(), valueAxis->numberFormat() ) );
+            valueAnno->setPenStyle( Qt::DashLine );
+            valueAnno->setColor( TRACKING_ANNOTATION_COLOR );
+            valueAnno->setAlignment( RiaDefines::TextAlignment::LEFT );
+            valueAxis->appendAnnotation( valueAnno );
+            m_valueAnnotation = valueAnno;
         }
 
         m_summaryPlot->updateAnnotationsInPlotWidget();
@@ -130,8 +153,17 @@ public:
     {
         if ( !m_summaryPlot ) return;
 
+        bool changed = false;
+
         auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
-        if ( timeAxisProps && removeTrackingAnnotation( timeAxisProps ) )
+        if ( timeAxisProps && removeTrackingAnnotation( timeAxisProps ) ) changed = true;
+
+        if ( auto* valueAxis = dynamic_cast<RimPlotAxisProperties*>( m_summaryPlot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() ) ) )
+        {
+            if ( removeValueAnnotation( valueAxis ) ) changed = true;
+        }
+
+        if ( changed )
         {
             m_summaryPlot->updateAnnotationsInPlotWidget();
             m_summaryPlot->updatePlotWidgetFromAxisRanges();
@@ -139,6 +171,14 @@ public:
     }
 
 private:
+    bool removeValueAnnotation( RimPlotAxisProperties* valueAxis ) const
+    {
+        if ( m_valueAnnotation.isNull() ) return false;
+
+        valueAxis->removeAnnotation( m_valueAnnotation );
+        m_valueAnnotation = nullptr;
+        return true;
+    }
     static bool removeTrackingAnnotation( RimSummaryTimeAxisProperties* timeAxisProps )
     {
         if ( !timeAxisProps ) return false;
@@ -155,7 +195,8 @@ private:
         return false;
     }
 
-    caf::PdmPointer<RimSummaryPlot> m_summaryPlot;
+    caf::PdmPointer<RimSummaryPlot>                m_summaryPlot;
+    mutable caf::PdmPointer<RimPlotAxisAnnotation> m_valueAnnotation;
 };
 
 namespace
@@ -608,6 +649,11 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
                 }
             }
 
+            if ( !curveSets.empty() && curveSets[0]->summaryEnsemble() )
+            {
+                updateSummaryPlotHistoryCurve( curveSets[0]->summaryEnsemble(), curveSets[0]->summaryAddressY() );
+            }
+
             m_summaryPlot->loadDataAndUpdate();
             if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
         }
@@ -631,6 +677,28 @@ void RimCorrelationReportPlot::initAfterRead()
     m_parameterResultCrossPlot->setReportSubPlot( true );
 
     updateSummaryPlotTimeAnnotation();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Keeps a second ensemble curve set in the summary plot showing the history vector matching the
+/// ensemble address, if the ensemble has one.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::updateSummaryPlotHistoryCurve( RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address )
+{
+    auto* collection = m_summaryPlot->ensembleCurveSetCollection();
+
+    if ( m_historyCurveSet ) collection->deleteCurveSet( m_historyCurveSet );
+    m_historyCurveSet = nullptr;
+
+    if ( !ensemble || address.isHistoryVector() ) return;
+
+    auto historyAddress = address;
+    historyAddress.setVectorName( address.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
+
+    if ( !ensemble->ensembleSummaryAddresses().contains( historyAddress ) ) return;
+
+    m_historyCurveSet = RiaSummaryPlotTools::createCurveSet( ensemble, historyAddress );
+    collection->addCurveSet( m_historyCurveSet );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,6 +871,7 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
             curveSets[0]->setSummaryEnsemble( curveDef.ensemble() );
             curveSets[0]->setSummaryAddressY( curveDef.summaryAddressY() );
         }
+        updateSummaryPlotHistoryCurve( curveDef.ensemble(), curveDef.summaryAddressY() );
         m_summaryPlot->loadDataAndUpdate();
         if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
     }

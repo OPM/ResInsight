@@ -122,6 +122,7 @@ public:
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
     void                                removeAllAnnotations() override;
+    void                                removeAnnotation( RimPlotAxisAnnotation* annotation );
 
     bool isLogarithmicScaleEnabled() const override;
     void setLogarithmicScaleEnabled( bool enabled );
