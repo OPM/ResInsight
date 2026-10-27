@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimImportedWellLog, "ImportedWellLog" );
 //--------------------------------------------------------------------------------------------------
 RimImportedWellLog::RimImportedWellLog()
 {
-    CAF_PDM_InitScriptableObject( "Imported Well Log", ":/LasFile16x16.png", "", "ImportedWellLog" );
+    CAF_PDM_InitScriptableObject( "Imported Well Log", ":/WellLogFile.svg", "", "ImportedWellLog" );
 
     CAF_PDM_InitScriptableField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );

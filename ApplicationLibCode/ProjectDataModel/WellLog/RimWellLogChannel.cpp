@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogChannel, "WellLogChannel", "WellLogFileChannel" )
 //--------------------------------------------------------------------------------------------------
 RimWellLogChannel::RimWellLogChannel()
 {
-    CAF_PDM_InitObject( "Well Log Channel" );
+    CAF_PDM_InitObject( "Well Log Channel", ":/WellLogChannel.svg" );
 
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( nameField() );
 }

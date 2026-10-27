@@ -135,31 +135,6 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Completion" );
 
-    for ( caf::PdmFieldHandle* field : std::vector<caf::PdmFieldHandle*>{ &m_case,
-                                                                          &m_summaryCase,
-                                                                          &m_simWellName,
-                                                                          &m_wellPath,
-                                                                          &m_timeStep,
-                                                                          &m_rftTimeStep,
-                                                                          &m_rftSegmentBranchIndex,
-                                                                          &m_rftWellName } )
-    {
-        RiuTools::enableUpDownArrowsForComboBox( field );
-    }
-
-    auto setNextPreviousButtonTexts = []( caf::PdmFieldHandle* field, const QString& modifierText )
-    {
-        field->uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_BUTTON_TEXT, "Next " + modifierText + "PgDown)" );
-        field->uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREV_BUTTON_TEXT, "Previous " + modifierText + "PgUp)" );
-    };
-
-    setNextPreviousButtonTexts( &m_case, "(Shift+" );
-    m_case.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 14 );
-    setNextPreviousButtonTexts( &m_wellPath, "(Ctrl+" );
-    setNextPreviousButtonTexts( &m_simWellName, "(Ctrl+" );
-    setNextPreviousButtonTexts( &m_timeStep, "(" );
-    m_timeStep.uiCapability()->setAttribute( caf::PdmUiComboBoxEditor::Keys::MINIMUM_CONTENTS_LENGTH, 12 );
-
     m_case     = nullptr;
     m_wellPath = nullptr;
 }
@@ -835,6 +810,7 @@ void RimWellLogCurveCommonDataSource::applyNextTimeStep()
 std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowInToolbar()
 {
     analyseCurvesAndTracks();
+    updateComboBoxAttributes();
 
     std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
 
@@ -1061,9 +1037,69 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::updateComboBoxAttributes()
+{
+    struct FieldConfig
+    {
+        caf::PdmFieldHandle* field;
+        QString              modifierText; // Empty if no custom button texts
+        int                  minimumContentsLength; // <= 0 if not set
+    };
+
+    const std::vector<FieldConfig> configs = { { &m_case, "(Shift+", 14 },
+                                               { &m_summaryCase, "", 0 },
+                                               { &m_simWellName, "(Ctrl+", 0 },
+                                               { &m_wellPath, "(Ctrl+", 0 },
+                                               { &m_timeStep, "(", 12 },
+                                               { &m_rftTimeStep, "", 0 },
+                                               { &m_rftSegmentBranchIndex, "", 0 },
+                                               { &m_rftWellName, "", 0 } };
+
+    using Keys = caf::PdmUiComboBoxEditor::Keys;
+
+    // Time step options are expensive to compute and exist whenever a case is set
+    auto hasOptions = [this]( const caf::PdmFieldHandle* field )
+    {
+        if ( field == &m_timeStep ) return m_case() != nullptr;
+        return !calculateValueOptions( field ).isEmpty();
+    };
+
+    for ( const auto& config : configs )
+    {
+        auto* uiCapability = config.field->uiCapability();
+
+        // Fields without options are shown in a line editor, which does not support the combo box attributes
+        if ( !hasOptions( config.field ) )
+        {
+            for ( const auto& key : { Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS,
+                                      Keys::NEXT_ICON,
+                                      Keys::PREVIOUS_ICON,
+                                      Keys::NEXT_BUTTON_TEXT,
+                                      Keys::PREV_BUTTON_TEXT,
+                                      Keys::MINIMUM_CONTENTS_LENGTH } )
+            {
+                uiCapability->removeAttribute( key );
+            }
+            continue;
+        }
+
+        RiuTools::enableUpDownArrowsForComboBox( config.field );
+        if ( !config.modifierText.isEmpty() )
+        {
+            uiCapability->setAttribute( Keys::NEXT_BUTTON_TEXT, "Next " + config.modifierText + "PgDown)" );
+            uiCapability->setAttribute( Keys::PREV_BUTTON_TEXT, "Previous " + config.modifierText + "PgUp)" );
+        }
+        if ( config.minimumContentsLength > 0 ) uiCapability->setAttribute( Keys::MINIMUM_CONTENTS_LENGTH, config.minimumContentsLength );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     analyseCurvesAndTracks();
+    updateComboBoxAttributes();
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
     if ( m_case() ) group->add( &m_case );

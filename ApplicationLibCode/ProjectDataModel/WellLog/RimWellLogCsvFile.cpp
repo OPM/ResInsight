@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogCsvFile, "WellLogCsvFile" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogCsvFile::RimWellLogCsvFile()
 {
-    CAF_PDM_InitObject( "Well CSV File Info", ":/LasFile16x16.png" );
+    CAF_PDM_InitObject( "Well CSV File Info", ":/WellLogFile.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );

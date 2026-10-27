@@ -60,7 +60,7 @@ void caf::AppEnum<RimWellLogLasFile::WellFlowCondition>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogLasFile::RimWellLogLasFile()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well LAS File Info", ":/LasFile16x16.png", "", "", "WellLogLasFile", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well LAS File Info", ":/WellLogFile.svg", "", "", "WellLogLasFile", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
