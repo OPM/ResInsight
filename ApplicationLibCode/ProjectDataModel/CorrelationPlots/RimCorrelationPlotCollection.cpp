@@ -22,6 +22,7 @@
 
 #include "Formations/RimWellFormationsCollection.h"
 #include "Formations/RimWellFormationsFile.h"
+#include "RifEclipseSummaryAddressDefines.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationReportPlot.h"
@@ -454,18 +455,36 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
 {
     if ( ensemble )
     {
+        // Quantity names given as history vectors (e.g. WOPRH:A1) are replaced by the simulated vector (e.g. WOPR:A1)
+        auto nativeQuantityName = []( const QString& quantityName )
+        {
+            const auto separatorIndex = quantityName.indexOf( ':' );
+            auto       nativeName     = quantityName.left( separatorIndex );
+            const auto historySuffix  = QString::fromStdString( RifEclipseSummaryAddressDefines::historyIdentifier() );
+            if ( nativeName.endsWith( historySuffix ) ) nativeName.chop( historySuffix.size() );
+            return separatorIndex < 0 ? nativeName : nativeName + quantityName.mid( separatorIndex );
+        };
+
+        std::vector<QString> nativeMatrixQuantityNames;
+        for ( const auto& name : matrixQuantityNames )
+            nativeMatrixQuantityNames.push_back( nativeQuantityName( name ) );
+        const QString nativeMainQuantityName = nativeQuantityName( tornadoAndCrossPlotQuantityName );
+
         std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
         std::vector<RiaSummaryCurveDefinition> curveDefsMatrix;
         std::vector<RiaSummaryCurveDefinition> curveDefsTornadoAndCrossPlot;
         for ( auto address : allAddresses )
         {
-            auto it = std::find( matrixQuantityNames.begin(), matrixQuantityNames.end(), QString::fromStdString( address.uiText() ) );
-            if ( it != matrixQuantityNames.end() || matrixQuantityNames.empty() )
+            if ( address.isHistoryVector() ) continue;
+
+            auto it =
+                std::find( nativeMatrixQuantityNames.begin(), nativeMatrixQuantityNames.end(), QString::fromStdString( address.uiText() ) );
+            if ( it != nativeMatrixQuantityNames.end() || nativeMatrixQuantityNames.empty() )
             {
                 curveDefsMatrix.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
             }
 
-            if ( tornadoAndCrossPlotQuantityName.isEmpty() || tornadoAndCrossPlotQuantityName == QString::fromStdString( address.uiText() ) )
+            if ( nativeMainQuantityName.isEmpty() || nativeMainQuantityName == QString::fromStdString( address.uiText() ) )
             {
                 curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
             }
