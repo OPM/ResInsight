@@ -448,7 +448,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                 menuBuilder.subMenuStart( "Intersections", QIcon( ":/IntersectionXPlane16x16.png" ) );
 
-                menuBuilder << "RicNewPolylineIntersectionFeature";
+                menuBuilder << "RicNewPolygonIntersectionFromPickingFeature";
                 menuBuilder << "RicNewAzimuthDipIntersectionFeature";
                 menuBuilder << "RicIntersectionBoxAtPosFeature";
 

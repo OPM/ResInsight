@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,40 +18,23 @@
 
 #pragma once
 
-#include "cafCmdExecuteCommand.h"
 #include "cafCmdFeature.h"
-#include "cafPdmPointer.h"
 
 class RimIntersectionCollection;
 
 //==================================================================================================
-///
+/// Creates a new project polygon, attaches a polygon intersection to it and activates 3D editing of
+/// the polygon, so that points are appended when clicking on geometry in the 3D view.
 //==================================================================================================
-class RicNewPolylineIntersectionFeatureCmd : public caf::CmdExecuteCommand
-{
-public:
-    explicit RicNewPolylineIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection );
-    ~RicNewPolylineIntersectionFeatureCmd() override;
-
-    QString name() override;
-    void    redo() override;
-    void    undo() override;
-
-private:
-    caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicNewPolylineIntersectionFeature : public caf::CmdFeature
+class RicNewPolygonIntersectionFromPickingFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    RicNewPolylineIntersectionFeature();
-
 protected:
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static RimIntersectionCollection* intersectionCollection();
 };

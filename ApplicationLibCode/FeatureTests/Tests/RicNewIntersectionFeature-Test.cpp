@@ -22,11 +22,20 @@
 #include "RiaFeatureTestModelBuilder.h"
 
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
+#include "RimTools.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonInViewCollection.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// Curated tests for the intersection-creation features that read the active 3D view rather than the
@@ -73,18 +82,75 @@ TEST_F( RicNewIntersectionFeatureTest, AzimuthDipIntersectionAddedToActiveViewCo
     EXPECT_EQ( countBefore + 1, model.eclipseView->intersectionCollection()->intersections().size() );
 }
 
-TEST_F( RicNewIntersectionFeatureTest, PolylineIntersectionAddedToActiveViewCollection )
+TEST_F( RicNewIntersectionFeatureTest, PolygonIntersectionCreatesPolygonInEditMode )
 {
     FeatureTestModel model = RiaFeatureTestModelBuilder::eclipseCaseWithResults();
     ASSERT_TRUE( model.eclipseView != nullptr );
 
-    const size_t countBefore = model.eclipseView->intersectionCollection()->intersections().size();
+    RimPolygonCollection* polygonCollection = RimTools::polygonCollection();
+    ASSERT_TRUE( polygonCollection != nullptr );
 
-    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicNewPolylineIntersectionFeature" );
+    const size_t intersectionCountBefore = model.eclipseView->intersectionCollection()->intersections().size();
+    const auto   polygonsBefore          = polygonCollection->allPolygons();
+
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicNewPolygonIntersectionFromPickingFeature" );
     ASSERT_TRUE( feature != nullptr );
     ASSERT_TRUE( feature->canFeatureBeExecuted() );
 
     feature->actionTriggered( false );
 
-    EXPECT_EQ( countBefore + 1, model.eclipseView->intersectionCollection()->intersections().size() );
+    auto intersections = model.eclipseView->intersectionCollection()->intersections();
+    ASSERT_EQ( intersectionCountBefore + 1, intersections.size() );
+
+    RimPolygon* polygon = nullptr;
+    for ( auto candidate : polygonCollection->allPolygons() )
+    {
+        if ( std::find( polygonsBefore.begin(), polygonsBefore.end(), candidate ) == polygonsBefore.end() )
+        {
+            ASSERT_TRUE( polygon == nullptr ) << "Expected exactly one new polygon";
+            polygon = candidate;
+        }
+    }
+    ASSERT_TRUE( polygon != nullptr );
+
+    RimExtrudedCurveIntersection* intersection = intersections.back();
+    EXPECT_EQ( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYGON, intersection->type() );
+    EXPECT_FALSE( polygon->isClosed() );
+    EXPECT_TRUE( polygon->name().startsWith( "Polyline" ) );
+
+    // The polygon in the view must be in edit mode to receive points picked in the 3D view
+    RimPolygonInView* polygonInView = nullptr;
+    for ( auto candidate : model.eclipseView->polygonInViewCollection()->allPolygonsInView() )
+    {
+        if ( candidate->polygon() == polygon ) polygonInView = candidate;
+    }
+    ASSERT_TRUE( polygonInView != nullptr );
+    EXPECT_TRUE( polygonInView->pickingEnabled() );
+
+    // The intersection geometry follows the points of the polygon
+    polygon->setPointsInDomainCoords( { { 0.0, 0.0, -1000.0 }, { 100.0, 0.0, -1000.0 }, { 100.0, 100.0, -1000.0 } } );
+    const auto polyLines = intersection->polyLines();
+    ASSERT_FALSE( polyLines.empty() );
+    EXPECT_FALSE( polyLines.front().empty() );
+}
+
+TEST_F( RicNewIntersectionFeatureTest, PolygonIntersectionUsesSelectedIntersectionCollection )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::eclipseCaseWithResults();
+    ASSERT_TRUE( model.eclipseView != nullptr );
+
+    RimIntersectionCollection* collection  = model.eclipseView->intersectionCollection();
+    const size_t               countBefore = collection->intersections().size();
+
+    // Triggered from the project tree: the selected collection is used, independent of the active view
+    RiaApplication::instance()->setActiveReservoirView( nullptr );
+    caf::SelectionManager::instance()->setSelectedItem( collection );
+
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicNewPolygonIntersectionFromPickingFeature" );
+    ASSERT_TRUE( feature != nullptr );
+    ASSERT_TRUE( feature->canFeatureBeExecuted() );
+
+    feature->actionTriggered( false );
+
+    EXPECT_EQ( countBefore + 1, collection->intersections().size() );
 }
