@@ -33,6 +33,8 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 
+#include <QApplication>
+
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( RicPolylineTarget3dEditor );
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +142,25 @@ void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf
 
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
-    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin );
+    cvf::Vec3d domainOriginXYZ = dispXf->transformToDomainCoord( origin );
+
+    // Move all targets by the same offset when Ctrl is pressed, similar to well targets
+    if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
+    {
+        if ( auto pickerInterface = target->firstAncestorOrThisOfType<RimPolylinePickerInterface>() )
+        {
+            const cvf::Vec3d delta = domainOriginXYZ - target->targetPointXYZ();
+            for ( auto otherTarget : pickerInterface->activeTargets() )
+            {
+                if ( !otherTarget || otherTarget == target ) continue;
+
+                otherTarget->setAsPointXYZ( otherTarget->targetPointXYZ() + delta );
+                otherTarget->updateConnectedEditors();
+            }
+        }
+    }
+
+    cvf::Vec3d domainOrigin = domainOriginXYZ;
     domainOrigin.z()        = -domainOrigin.z();
     QVariant originVariant  = caf::toVariant( domainOrigin );
 
