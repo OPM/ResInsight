@@ -212,7 +212,18 @@ RimParameterRftCrossPlot* RimRftCorrelationReportPlot::crossPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* source )
 {
+    if ( source )
+    {
+        const auto sourceDepthType = source->depthType();
+        if ( sourceDepthType == RiaDefines::DepthType::MEASURED_DEPTH || sourceDepthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
+        {
+            m_depthType = sourceDepthType;
+        }
+    }
+
     applyDepthTypeToSubPlots();
+
+    if ( source ) m_wellRftPlot->setDepthUnit( source->depthUnit() );
 
     m_wellRftPlot->setSimWellOrWellPathName( source ? source->simWellOrWellPathName() : RimWellPlotTools::firstWellNameWithEnsembleRftData() );
 
