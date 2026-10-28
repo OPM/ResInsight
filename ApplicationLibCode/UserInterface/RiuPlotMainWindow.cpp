@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaExperimentalFeatures.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
@@ -127,7 +128,7 @@ RiuPlotMainWindow::~RiuPlotMainWindow()
     setBeingDestroyed();
 
     m_summaryPlotManagerView->showProperties( nullptr );
-    m_curveStyleRulesView->showProperties( nullptr );
+    if ( m_curveStyleRulesView ) m_curveStyleRulesView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
 
@@ -172,7 +173,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    m_curveStyleRulesView->showProperties( RimProject::current()->curveStyleRules() );
+    if ( m_curveStyleRulesView ) m_curveStyleRulesView->showProperties( RimProject::current()->curveStyleRules() );
 
     RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
     mainPlotColl->ensureDefaultFlowPlotsAreCreated();
@@ -247,7 +248,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     {
         pdmUiPropertyView->showProperties( nullptr );
     }
-    m_curveStyleRulesView->showProperties( nullptr );
+    if ( m_curveStyleRulesView ) m_curveStyleRulesView->showProperties( nullptr );
 
     cleanUpTemporaryWidgets();
 
@@ -598,6 +599,7 @@ void RiuPlotMainWindow::createDockPanels()
     }
 
     // the global curve appearance and per item rules, stored in the project
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::curveAppearanceKeyword ) )
     {
         auto dockWidget =
             RiuDockWidgetTools::createDockWidget( "Curve Appearance", RiuDockWidgetTools::plotMainWindowCurveAppearanceName(), dockManager() );

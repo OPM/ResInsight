@@ -18,7 +18,9 @@
 
 #include "RimCurveStyleRules.h"
 
+#include "RiaExperimentalFeatures.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferencesSystem.h"
 
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -440,6 +442,8 @@ const caf::PdmField<std::vector<QString>>* RimCurveStyleRules::itemOrder( RimCur
 //--------------------------------------------------------------------------------------------------
 void RimCurveStyleRules::addGlobalAppearanceLink( caf::PdmUiOrdering& uiOrdering, const QString& text )
 {
+    if ( !RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::curveAppearanceKeyword ) ) return;
+
     auto label = uiOrdering.addNewLabel( text );
     label->setLinkActivatedCallback(
         []( const QString& )

@@ -171,6 +171,8 @@ private:
     RimSummaryPlotReadOut* activeReadoutSettings() const;
 
 private:
+    bool isGlobalAppearanceActive() const;
+
     caf::PdmField<bool> m_autoPlotTitle;
     caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
