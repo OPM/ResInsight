@@ -480,6 +480,9 @@ void RimPolygonInView::onCoordinatesChanged( const caf::SignalEmitter* emitter )
 void RimPolygonInView::initAfterRead()
 {
     connectSignals();
+
+    // Targets are not stored in the project file, recreate them from the polygon
+    updateTargetsFromPolygon();
 }
 
 //--------------------------------------------------------------------------------------------------
