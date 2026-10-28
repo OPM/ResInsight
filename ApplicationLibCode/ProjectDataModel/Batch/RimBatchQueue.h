@@ -52,11 +52,13 @@ protected:
     RiaDefines::BatchSchedulerType schedulerType() const;
 
     std::pair<std::unique_ptr<RimProcess>, QString> runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor );
-    std::pair<bool, QString>                        buildLaunchScript( QString workDir );
-    QString                                         generateJobName();
-    void                                            readStdOutErrIntoProcessLog();
-    void                                            cleanUpOldLogFiles();
-    virtual QString                                 launchScriptDirective() const = 0;
+    std::pair<bool, QStringList>                    runCommand( QStringList command );
+
+    std::pair<bool, QString> buildLaunchScript( QString workDir );
+    QString                  generateJobName();
+    void                     readStdOutErrIntoProcessLog();
+    void                     cleanUpOldLogFiles();
+    virtual QString          launchScriptDirective() const = 0;
 
     QString m_stdOutFileName;
     QString m_stdErrFileName;

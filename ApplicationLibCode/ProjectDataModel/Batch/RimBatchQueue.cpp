@@ -65,19 +65,14 @@ RimBatchQueue* RimBatchQueue::createBatchQueue()
 //--------------------------------------------------------------------------------------------------
 std::pair<std::unique_ptr<RimProcess>, QString> RimBatchQueue::runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor )
 {
-    QStringList cmdList;
-    if ( RiaPreferencesOpm::current()->useWsl() )
-    {
-        cmdList.append( RiaWslTools::wslCommand() );
-        cmdList.append( RiaPreferencesOpm::current()->wslArguments() );
-    }
-
-    cmdList.append( command );
-
     auto proc = std::make_unique<RimProcess>( true, monitor );
+
+    QStringList cmdList;
+    cmdList.append( command );
 
     QString cmd = cmdList.takeFirst();
     proc->setCommand( cmd );
+    proc->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
     if ( !cmdList.isEmpty() ) proc->addParameters( cmdList );
 
     if ( proc->start() )
@@ -86,6 +81,29 @@ std::pair<std::unique_ptr<RimProcess>, QString> RimBatchQueue::runCommand( QStri
     }
 
     return { nullptr, QString( "Failed to run command." ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command )
+{
+    RimProcess proc( false /*no logging*/ );
+
+    QStringList cmdList;
+    cmdList.append( command );
+
+    QString cmd = cmdList.takeFirst();
+    proc.setCommand( cmd );
+    proc.setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
+    if ( !cmdList.isEmpty() ) proc.addParameters( cmdList );
+
+    if ( proc.execute() )
+    {
+        return { true, proc.stdOut() };
+    }
+
+    return { false, { QString( "Failed to start command." ), cmdList.join( " " ) } };
 }
 
 //--------------------------------------------------------------------------------------------------

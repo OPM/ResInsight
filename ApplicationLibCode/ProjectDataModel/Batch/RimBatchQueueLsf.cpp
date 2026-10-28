@@ -45,7 +45,8 @@ QStringList RimBatchQueueLsf::generateCommand( QString script,
                                                QString stdErrLog,
                                                QString queueName,
                                                bool    exclusive,
-                                               int     numberOfProcesses )
+                                               int     numberOfProcesses,
+                                               bool    blockingWait )
 {
     QStringList arguments;
     arguments << "bsub";
@@ -77,8 +78,10 @@ QStringList RimBatchQueueLsf::generateCommand( QString script,
     arguments << "-n";
     arguments << QString( "%1" ).arg( numberOfProcesses );
 
-    // blocking wait
-    arguments << "-K";
+    if ( blockingWait )
+    {
+        arguments << "-K";
+    }
 
     // the actual script to run
     arguments << script;

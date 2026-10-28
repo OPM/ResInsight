@@ -77,7 +77,7 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
     setLayout( pLayout );
 
     connect( m_checkBoxAutoUpdate, SIGNAL( clicked() ), this, SLOT( toggleUpdates() ) );
-    connect( RiaApplication::instance()->batchMonitorService(),
+    connect( RiaBatchMonitorService::instance(),
              SIGNAL( jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ),
              this,
              SLOT( slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ) );
@@ -95,6 +95,8 @@ RiuBatchJobMonitorView::~RiuBatchJobMonitorView()
 //--------------------------------------------------------------------------------------------------
 void RiuBatchJobMonitorView::slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
 {
+    if ( !m_checkBoxAutoUpdate->isChecked() ) return;
+
     m_jobView->setRowCount( 0 );
     for ( auto& [key, value] : information )
     {
@@ -126,11 +128,11 @@ void RiuBatchJobMonitorView::toggleUpdates()
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        RiaApplication::instance()->batchMonitorService()->startMonitoring();
+        RiaBatchMonitorService::start();
     }
     else
     {
-        RiaApplication::instance()->batchMonitorService()->stopMonitoring();
+        RiaBatchMonitorService::stop();
     }
 }
 
@@ -141,7 +143,7 @@ void RiuBatchJobMonitorView::showEvent( QShowEvent* event )
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        RiaApplication::instance()->batchMonitorService()->startMonitoring();
+        RiaBatchMonitorService::start();
     }
 }
 
@@ -152,6 +154,6 @@ void RiuBatchJobMonitorView::hideEvent( QHideEvent* event )
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        RiaApplication::instance()->batchMonitorService()->stopMonitoring();
+        RiaBatchMonitorService::stop();
     }
 }

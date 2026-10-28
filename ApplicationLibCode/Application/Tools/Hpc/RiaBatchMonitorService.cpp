@@ -19,6 +19,7 @@
 #include "RiaBatchMonitorService.h"
 
 #include "Hpc/RiaBatchMonitorWorker.h"
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"
@@ -31,6 +32,7 @@
 RiaBatchMonitorService::RiaBatchMonitorService()
     : m_monitorWorker( nullptr )
     , m_usageCount( 0 )
+    , jobInfoUpdateSignal( this )
 {
 }
 
@@ -39,6 +41,30 @@ RiaBatchMonitorService::RiaBatchMonitorService()
 //--------------------------------------------------------------------------------------------------
 RiaBatchMonitorService::~RiaBatchMonitorService()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaBatchMonitorService* RiaBatchMonitorService::instance()
+{
+    return RiaApplication::instance()->batchMonitorService();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaBatchMonitorService::start()
+{
+    instance()->startMonitoring();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaBatchMonitorService::stop()
+{
+    instance()->stopMonitoring();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,4 +150,5 @@ void RiaBatchMonitorService::internalStart()
 void RiaBatchMonitorService::onJobInfoUpdateFromMonitor( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
 {
     emit jobInfoUpdate( information );
+    jobInfoUpdateSignal.send( information );
 }

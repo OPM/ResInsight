@@ -20,6 +20,8 @@
 
 #include "Hpc/RiaHpcTools.h"
 
+#include "cafSignal.h"
+
 #include <QObject>
 
 class RiaBatchMonitorWorker;
@@ -27,7 +29,7 @@ class RiaBatchMonitorWorker;
 //==================================================================================================
 ///
 //==================================================================================================
-class RiaBatchMonitorService : public QObject
+class RiaBatchMonitorService : public QObject, public caf::SignalEmitter
 {
     Q_OBJECT
 
@@ -35,12 +37,20 @@ public:
     RiaBatchMonitorService();
     ~RiaBatchMonitorService();
 
+    static RiaBatchMonitorService* instance();
+    static void                    start();
+    static void                    stop();
+
     void stopMonitoring();
     void startMonitoring();
 
+    // to be called after preferences have been changed
     void restartMonitoring();
 
+    caf::Signal<const std::map<QString, RiaHpcTools::BatchJobInformation>&> jobInfoUpdateSignal;
+
 signals:
+    // connect to this to get job list updates from batch queue monitor
     void jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
 
 protected:

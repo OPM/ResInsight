@@ -18,6 +18,7 @@
 
 #include "RimBatchQueueSlurm.h"
 
+#include "Hpc/RiaBatchMonitorService.h"
 #include "Hpc/RiaHpcTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
@@ -34,7 +35,9 @@ CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
 //--------------------------------------------------------------------------------------------------
 RimBatchQueueSlurm::RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType )
     : RimBatchQueue( schedulerType )
+    , m_isBatchMonitorActivated( false )
 {
+    RiaBatchMonitorService::instance()->jobInfoUpdateSignal.connect( this, &RimBatchQueueSlurm::onJobInfoUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +45,11 @@ RimBatchQueueSlurm::RimBatchQueueSlurm( RiaDefines::BatchSchedulerType scheduler
 //--------------------------------------------------------------------------------------------------
 RimBatchQueueSlurm::~RimBatchQueueSlurm()
 {
+    if ( m_isBatchMonitorActivated )
+    {
+        m_isBatchMonitorActivated = false;
+        RiaBatchMonitorService::stop();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,9 +61,12 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 
     m_process = process;
     m_monitor = std::make_shared<RimBatchProcessMonitor>( this );
+    m_jobId   = "";
 
     auto useWsl = RiaPreferencesOpm::current()->useWsl();
     auto prefs  = RiaPreferencesBatch::current();
+
+    bool blockingWait = prefs->jobMonitoring() == RiaDefines::BatchJobMonitoringType::BLOCKING_WAIT;
 
     QString workDir = m_process->workingDirectory();
 
@@ -85,14 +96,50 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     }
 
     QStringList arguments =
-        generateCommand( script, jobName, workDir, stdOut, stdErr, prefs->queueName(), prefs->exclusiveJob(), nProcessesPerTask );
+        generateCommand( script, jobName, workDir, stdOut, stdErr, prefs->queueName(), prefs->exclusiveJob(), nProcessesPerTask, blockingWait );
 
+    if ( blockingWait )
+    {
+        startJobAsync( arguments );
+    }
+    else
+    {
+        auto [result, stdOut] = runCommand( arguments );
+        if ( result )
+        {
+            if ( m_process->monitor() ) m_process->monitor()->started();
+            m_jobId = RiaHpcTools::findJobId( schedulerType(), stdOut );
+            if ( m_jobId.isEmpty() )
+            {
+                if ( m_process->monitor() ) m_process->monitor()->finished( 1, QProcess::NormalExit );
+            }
+            else
+            {
+                RiaLogging::info( m_jobId.toStdString() );
+                RiaBatchMonitorService::start();
+                m_isBatchMonitorActivated = true;
+            }
+        }
+        else
+        {
+            if ( m_process->monitor() ) m_process->monitor()->finished( 1, QProcess::NormalExit );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueueSlurm::startJobAsync( QStringList arguments )
+{
+    // start process async and wait for it to finish using a process monitor
     auto [batchProcess, output] = runCommand( arguments, m_monitor );
 
     if ( !batchProcess )
     {
         m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
         RiaLogging::warning( output.toStdString() );
+        m_batchProcess = nullptr;
     }
     else
     {
@@ -111,7 +158,8 @@ QStringList RimBatchQueueSlurm::generateCommand( QString script,
                                                  QString stdErrLog,
                                                  QString queueName,
                                                  bool    exclusive,
-                                                 int     numberOfProcesses )
+                                                 int     numberOfProcesses,
+                                                 bool    blockingWait )
 {
     QStringList arguments;
     arguments << "sbatch";
@@ -136,7 +184,12 @@ QStringList RimBatchQueueSlurm::generateCommand( QString script,
 
     arguments << "-n";
     arguments << QString( "%1" ).arg( numberOfProcesses );
-    arguments << "--wait";
+
+    if ( blockingWait )
+    {
+        arguments << "--wait";
+    }
+
     arguments << script;
     return arguments;
 }
@@ -175,7 +228,9 @@ void RimBatchQueueSlurm::stopProcess()
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::setFinished( bool runOk )
 {
-    if ( m_batchProcess && m_process && m_process->monitor() )
+    if ( !m_process || !m_process->monitor() ) return;
+
+    if ( m_batchProcess )
     {
         auto jobId = RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
 
@@ -192,6 +247,15 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
             m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
         }
     }
+    else if ( m_isBatchMonitorActivated )
+    {
+        m_isBatchMonitorActivated = false;
+        RiaBatchMonitorService::stop();
+
+        readStdOutErrIntoProcessLog();
+        RiaLogging::info( QString( "Batch job %1 done" ).arg( m_jobId ).toStdString() );
+        m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,4 +264,17 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
 QString RimBatchQueueSlurm::launchScriptDirective() const
 {
     return "#SBATCH";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueueSlurm::onJobInfoUpdate( const SignalEmitter* emitter, const std::map<QString, RiaHpcTools::BatchJobInformation>& information )
+{
+    if ( !m_isBatchMonitorActivated ) return;
+
+    if ( !information.contains( m_jobId ) )
+    {
+        setFinished( true );
+    }
 }

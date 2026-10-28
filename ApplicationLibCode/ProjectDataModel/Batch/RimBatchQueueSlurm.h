@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Hpc/RiaHpcTools.h"
+
 #include "RimBatchQueue.h"
 
 class RimProcessMonitor;
@@ -40,6 +42,8 @@ public:
 protected:
     void setFinished( bool runOk ) override;
 
+    void onJobInfoUpdate( const SignalEmitter* emitter, const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
+
     virtual QString jobId() const;
 
     virtual QStringList generateCommand( QString script,
@@ -49,11 +53,18 @@ protected:
                                          QString stdErrLog,
                                          QString queueName,
                                          bool    exclusive,
-                                         int     numberOfProcesses );
+                                         int     numberOfProcesses,
+                                         bool    blockingWait );
 
     QString launchScriptDirective() const override;
+
+    void startJobAsync( QStringList arguments );
 
 protected:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     std::unique_ptr<RimProcess>        m_batchProcess;
+
+private:
+    bool    m_isBatchMonitorActivated;
+    QString m_jobId;
 };

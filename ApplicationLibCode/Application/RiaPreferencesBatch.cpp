@@ -49,8 +49,8 @@ RiaPreferencesBatch::RiaPreferencesBatch()
     CAF_PDM_InitField( &m_updateInterval, "pollUpdateInterval", 10, "Job Status Polling Interval" );
     m_updateInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_exitWaitSeconds, "exitWaitSeconds", 4, "Time to Wait After Job Completion (seconds)" );
-    m_exitWaitSeconds.setRange( 0, 60 );
+    CAF_PDM_InitField( &m_submitWaitSeconds, "submitWaitSeconds", 4, "Time to Wait After Job Submit (seconds)" );
+    m_submitWaitSeconds.setRange( 0, 120 );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );
     CAF_PDM_InitFieldNoDefault( &m_additionalSlurmOptions, "additionalSlurmOptions", "" );
@@ -104,7 +104,11 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
         }
         hpcGrp->add( &m_batchJobMonitoring );
         hpcGrp->add( &m_updateInterval );
-        hpcGrp->add( &m_exitWaitSeconds );
+
+        if ( m_batchJobMonitoring() == RiaDefines::BatchJobMonitoringType::QUEUE_POLLING )
+        {
+            hpcGrp->add( &m_submitWaitSeconds );
+        }
     }
 }
 
@@ -208,9 +212,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesBatch::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaPreferencesBatch::secondsToWaitAfterDone() const
+int RiaPreferencesBatch::secondsToWaitForSubmit() const
 {
-    return m_exitWaitSeconds();
+    return m_submitWaitSeconds();
 }
 
 //--------------------------------------------------------------------------------------------------
