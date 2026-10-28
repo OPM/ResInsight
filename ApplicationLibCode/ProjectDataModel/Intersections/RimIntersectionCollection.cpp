@@ -255,6 +255,7 @@ void RimIntersectionCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& men
     menuBuilder << "RicPasteIntersectionsFeature";
     menuBuilder.addSeparator();
     menuBuilder << "RicAppendIntersectionFeature";
+    menuBuilder << "RicNewPolygonIntersectionFromPickingFeature";
     menuBuilder << "RicAppendIntersectionBoxFeature";
     menuBuilder << "RicAppendIjkIntersectionFeature";
     menuBuilder.addSeparator();
