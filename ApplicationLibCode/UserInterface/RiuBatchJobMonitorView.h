@@ -21,37 +21,32 @@
 #include <QStringList>
 #include <QWidget>
 
-#include "RiaHpcTools.h"
+#include "Hpc/RiaHpcTools.h"
 
 class QTableWidget;
 class QCheckBox;
-class QComboBox;
-
-class RiuBatchMonitorWorker;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiuBatchQueueMonitor : public QWidget
+class RiuBatchJobMonitorView : public QWidget
 {
     Q_OBJECT
 
 public:
-    RiuBatchQueueMonitor( QWidget* parent );
-    ~RiuBatchQueueMonitor() override;
+    RiuBatchJobMonitorView( QWidget* parent );
+    ~RiuBatchJobMonitorView() override;
 
-    void stopMonitoring();
-    void restartMonitoring();
+protected:
+    void showEvent( QShowEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
 
 private slots:
     void slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information );
     void toggleUpdates();
-    void updateInterval();
 
 private:
-    QCheckBox*             m_checkBoxAutoUpdate;
-    QCheckBox*             m_onlyResInsightJobs;
-    QComboBox*             m_refreshInterval;
-    QTableWidget*          m_jobView;
-    RiuBatchMonitorWorker* m_monitorWorker;
+    QCheckBox*    m_checkBoxAutoUpdate;
+    QCheckBox*    m_onlyResInsightJobs;
+    QTableWidget* m_jobView;
 };

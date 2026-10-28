@@ -16,15 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuBatchQueueMonitor.h"
+#include "RiuBatchJobMonitorView.h"
 
+#include "Hpc/RiaBatchMonitorService.h"
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"
 
-#include "RiuBatchMonitorWorker.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
 
@@ -41,9 +41,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
+RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
     : QWidget( pParent )
-    , m_monitorWorker( nullptr )
 {
     m_checkBoxAutoUpdate = new QCheckBox( "Enable Job Monitor", this );
     m_checkBoxAutoUpdate->setChecked( false );
@@ -51,22 +50,10 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     m_onlyResInsightJobs = new QCheckBox( "Only Show ResInsight Jobs", this );
     m_onlyResInsightJobs->setChecked( true );
 
-    QLabel* label = new QLabel( "Refresh Interval:", this );
-
-    m_refreshInterval = new QComboBox( this );
-    m_refreshInterval->addItem( "5 seconds", QVariant( 5 ) );
-    m_refreshInterval->addItem( "10 seconds", QVariant( 10 ) );
-    m_refreshInterval->addItem( "30 seconds", QVariant( 30 ) );
-    m_refreshInterval->setCurrentIndex( 1 );
-    m_refreshInterval->setEditable( false );
-
     QHBoxLayout* pTopLayout = new QHBoxLayout;
     pTopLayout->addWidget( m_checkBoxAutoUpdate );
-    pTopLayout->addSpacing( 5 );
-    pTopLayout->addWidget( m_onlyResInsightJobs );
     pTopLayout->addSpacing( 10 );
-    pTopLayout->addWidget( label );
-    pTopLayout->addWidget( m_refreshInterval );
+    pTopLayout->addWidget( m_onlyResInsightJobs );
     pTopLayout->addStretch();
 
     m_jobView = new QTableWidget( this );
@@ -90,20 +77,23 @@ RiuBatchQueueMonitor::RiuBatchQueueMonitor( QWidget* pParent )
     setLayout( pLayout );
 
     connect( m_checkBoxAutoUpdate, SIGNAL( clicked() ), this, SLOT( toggleUpdates() ) );
-    connect( m_refreshInterval, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateInterval() ) );
+    connect( RiaApplication::instance()->batchMonitorService(),
+             SIGNAL( jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ),
+             this,
+             SLOT( slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchQueueMonitor::~RiuBatchQueueMonitor()
+RiuBatchJobMonitorView::~RiuBatchJobMonitorView()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
+void RiuBatchJobMonitorView::slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
 {
     m_jobView->setRowCount( 0 );
     for ( auto& [key, value] : information )
@@ -132,64 +122,36 @@ void RiuBatchQueueMonitor::slotUpdateView( const std::map<QString, RiaHpcTools::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::toggleUpdates()
+void RiuBatchJobMonitorView::toggleUpdates()
 {
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        auto schedulerType = RiaPreferencesBatch::current()->batchScheduler();
-
-        int interval = m_refreshInterval->currentData().toInt();
-        if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds
-        if ( interval > 60 ) interval = 60; // maximum interval of 60 seconds
-
-        m_monitorWorker = new RiuBatchMonitorWorker( schedulerType, interval, RiaPreferencesOpm::current()->wslOptions() );
-        auto thread     = new QThread( this );
-
-        m_monitorWorker->moveToThread( thread );
-
-        connect( thread, &QThread::started, m_monitorWorker, &RiuBatchMonitorWorker::start );
-        connect( thread, &QThread::finished, m_monitorWorker, &QObject::deleteLater );
-        connect( thread, &QThread::finished, thread, &QObject::deleteLater );
-        connect( m_monitorWorker, &RiuBatchMonitorWorker::jobInfoUpdate, this, &RiuBatchQueueMonitor::slotUpdateView );
-        connect( m_monitorWorker, &RiuBatchMonitorWorker::finished, thread, &QThread::quit );
-
-        thread->start();
+        RiaApplication::instance()->batchMonitorService()->startMonitoring();
     }
     else
     {
-        stopMonitoring();
+        RiaApplication::instance()->batchMonitorService()->stopMonitoring();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::stopMonitoring()
+void RiuBatchJobMonitorView::showEvent( QShowEvent* event )
 {
-    if ( m_monitorWorker != nullptr )
-    {
-        m_monitorWorker->stopMonitoring();
-        m_monitorWorker = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::updateInterval()
-{
-    restartMonitoring();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuBatchQueueMonitor::restartMonitoring()
-{
-    stopMonitoring();
-
     if ( m_checkBoxAutoUpdate->isChecked() )
     {
-        toggleUpdates();
+        RiaApplication::instance()->batchMonitorService()->startMonitoring();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchJobMonitorView::hideEvent( QHideEvent* event )
+{
+    if ( m_checkBoxAutoUpdate->isChecked() )
+    {
+        RiaApplication::instance()->batchMonitorService()->stopMonitoring();
     }
 }

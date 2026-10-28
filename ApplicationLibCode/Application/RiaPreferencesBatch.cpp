@@ -18,8 +18,8 @@
 
 #include "RiaPreferencesBatch.h"
 
+#include "Hpc/RiaHpcTools.h"
 #include "RiaApplication.h"
-#include "RiaHpcTools.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOpm.h"
 
@@ -35,8 +35,7 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesBatch::RiaPreferencesBatch()
 {
-    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel on local machine" );
-    m_maxParallelJobs = 1;
+    CAF_PDM_InitField( &m_maxParallelJobs, "maxParallelJobs", (size_t)1, "Maximum number of jobs to run in parallel on local machine" );
     m_maxParallelJobs.setRange( 1, 100 );
 
     CAF_PDM_InitFieldNoDefault( &m_batchScheduler, "batchScheduler", "Batch Scheduler to use for submitting jobs" );
@@ -49,6 +48,9 @@ RiaPreferencesBatch::RiaPreferencesBatch()
 
     CAF_PDM_InitField( &m_updateInterval, "pollUpdateInterval", 10, "Job Status Polling Interval" );
     m_updateInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_exitWaitSeconds, "exitWaitSeconds", 4, "Time to Wait After Job Completion (seconds)" );
+    m_exitWaitSeconds.setRange( 0, 60 );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );
     CAF_PDM_InitFieldNoDefault( &m_additionalSlurmOptions, "additionalSlurmOptions", "" );
@@ -102,6 +104,7 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
         }
         hpcGrp->add( &m_batchJobMonitoring );
         hpcGrp->add( &m_updateInterval );
+        hpcGrp->add( &m_exitWaitSeconds );
     }
 }
 
@@ -200,4 +203,20 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesBatch::calculateValueOptions( const 
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesBatch::secondsToWaitAfterDone() const
+{
+    return m_exitWaitSeconds();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesBatch::statusRefreshInterval() const
+{
+    return m_updateInterval();
 }

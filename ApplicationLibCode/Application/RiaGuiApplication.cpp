@@ -1746,11 +1746,6 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     }
     caf::PdmUiItem::enableExtraDebugText( RiaPreferencesSystem::current()->appendFieldKeywordToToolTipText() );
 
-    if ( m_mainWindow && oldPreferences )
-    {
-        m_mainWindow->restartBatchMonitor();
-    }
-
     if ( oldPreferences )
     {
         onGuiPreferencesChanged();

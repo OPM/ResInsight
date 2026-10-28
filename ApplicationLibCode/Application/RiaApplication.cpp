@@ -26,6 +26,7 @@
 #include "RiaDefines.h"
 #include "RiaOsduDefines.h"
 
+#include "Hpc/RiaBatchMonitorService.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
@@ -49,7 +50,6 @@
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
-#include "RiuMessageDialog.h"
 
 #include "RicImportEclipseCaseFeature.h"
 #include "RicImportGeneralDataFeature.h"
@@ -126,6 +126,7 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
+#include "RiuMessageDialog.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
@@ -184,6 +185,7 @@ RiaApplication::RiaApplication()
     , m_preferences( nullptr )
     , m_runningWorkerProcess( false )
     , m_currentScriptCaseId( -1 )
+    , m_batchMonitorService( std::make_unique<RiaBatchMonitorService>() )
 {
     CAF_ASSERT( s_riaApplication == nullptr );
     s_riaApplication = this;
@@ -216,6 +218,8 @@ RiaApplication::~RiaApplication()
     {
         m_cloudApiService->stop();
     }
+
+    m_batchMonitorService->stopMonitoring();
 
     RiaFontCache::clear();
 
@@ -1557,6 +1561,8 @@ void RiaApplication::applyPreferences()
     {
         m_preferences->writePreferencesToApplicationStore();
     }
+
+    m_batchMonitorService->restartMonitoring();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2088,4 +2094,12 @@ std::vector<caf::PdmDeprecation> RiaApplication::defaultDeprecations()
     // Deprecations can be used for adding info messages when pdm fields have been removed.
     // To extend the concept to pdm objects more work is needed.
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaBatchMonitorService* RiaApplication::batchMonitorService() const
+{
+    return m_batchMonitorService.get();
 }

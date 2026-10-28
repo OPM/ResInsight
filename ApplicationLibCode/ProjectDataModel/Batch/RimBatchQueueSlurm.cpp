@@ -18,7 +18,7 @@
 
 #include "RimBatchQueueSlurm.h"
 
-#include "RiaHpcTools.h"
+#include "Hpc/RiaHpcTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"

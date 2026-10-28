@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RiaHpcTools.h"
+#include "Hpc/RiaHpcTools.h"
 
 #include <QStringList>
 

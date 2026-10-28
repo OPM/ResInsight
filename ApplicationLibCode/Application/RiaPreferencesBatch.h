@@ -43,6 +43,8 @@ public:
     QString                            batchSchedulerOptions() const;
     bool                               exclusiveJob() const;
     RiaDefines::BatchJobMonitoringType jobMonitoring() const;
+    int                                secondsToWaitAfterDone() const;
+    int                                statusRefreshInterval() const;
 
     static QString selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue );
 
@@ -56,6 +58,7 @@ private:
     caf::PdmField<QString> m_additionalSlurmOptions;
     caf::PdmField<bool>    m_exclusive;
     caf::PdmField<int>     m_updateInterval;
+    caf::PdmField<int>     m_exitWaitSeconds;
 
     caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>>     m_batchScheduler;
     caf::PdmField<caf::AppEnum<RiaDefines::BatchJobMonitoringType>> m_batchJobMonitoring;
