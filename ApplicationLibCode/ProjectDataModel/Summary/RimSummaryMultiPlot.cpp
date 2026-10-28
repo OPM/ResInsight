@@ -19,10 +19,12 @@
 #include "RimSummaryMultiPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaExperimentalFeatures.h"
 #include "RiaGuiApplication.h"
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
@@ -126,7 +128,7 @@ RimSummaryMultiPlot::GlobalAppearance RimSummaryMultiPlot::globalAppearance() co
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::useGlobalColor() const
 {
-    return m_globalAppearance() == GlobalAppearance::GLOBAL;
+    return isGlobalAppearanceActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +136,16 @@ bool RimSummaryMultiPlot::useGlobalColor() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::useGlobalSymbol() const
 {
-    return m_globalAppearance() == GlobalAppearance::GLOBAL;
+    return isGlobalAppearanceActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The global appearance is ignored when the curve appearance feature is disabled, as it can not be edited then
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::isGlobalAppearanceActive() const
+{
+    return m_globalAppearance() == GlobalAppearance::GLOBAL &&
+           RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::curveAppearanceKeyword );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -491,8 +502,11 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
     subPlotSettingsGroup->add( &m_subTitleFontSize );
 
-    auto appearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
-    appearanceGroup->add( &m_globalAppearance );
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::curveAppearanceKeyword ) )
+    {
+        auto appearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
+        appearanceGroup->add( &m_globalAppearance );
+    }
 
     auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
     legendsGroup->setCollapsedByDefault();
@@ -749,7 +763,10 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     toolBarFields.push_back( &m_appendNextCurve );
 
     toolBarFields.push_back( &m_createPlotDuplicate );
-    toolBarFields.push_back( &m_showCurveAppearance );
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::curveAppearanceKeyword ) )
+    {
+        toolBarFields.push_back( &m_showCurveAppearance );
+    }
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );

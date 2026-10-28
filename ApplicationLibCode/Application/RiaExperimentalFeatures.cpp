@@ -49,6 +49,10 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
           "lifecycle events; note that debug level also logs one message per rendering pass and per part, every "
           "frame, so the log can grow quickly." },
         { "workflows", "Workflows", "Discover and run taskmaestro workflows from the project tree." },
+        { curveAppearanceKeyword,
+          "Curve Appearance",
+          "Show the Curve Appearance panel, toolbar button and global appearance settings for summary plots. Restart "
+          "required." },
     };
 
     return features;
