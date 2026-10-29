@@ -18,6 +18,8 @@
 
 #include "RimSummaryTableTools.h"
 
+#include <algorithm>
+#include <tuple>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -52,18 +54,16 @@ std::vector<RimSummaryTableTools::VectorData>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTableTools::sortVectorDataOnDate( TableData& rTableData )
 {
-    // Sort vector data on date (vectors with no values above threshold placed last):
+    // Sort vector data on date (vectors with no values above threshold placed last). Ties are sorted on category name, as the
+    // incoming order depends on string pool indices and is not deterministic.
     std::sort( rTableData.vectorDataCollection.begin(),
                rTableData.vectorDataCollection.end(),
                [&rTableData]( const VectorData& v1, const VectorData& v2 )
                {
-                   const bool firstHasValueAboveThreshold  = hasValueAboveThreshold( v1.values, rTableData.thresholdValue );
-                   const bool secondHasValueAboveThreshold = hasValueAboveThreshold( v2.values, rTableData.thresholdValue );
-                   if ( !firstHasValueAboveThreshold ) return false;
-                   if ( firstHasValueAboveThreshold && !secondHasValueAboveThreshold ) return true;
-                   if ( v1.firstTimeStep < v2.firstTimeStep ) return true;
-                   if ( v1.firstTimeStep == v2.firstTimeStep && v1.lastTimeStep < v2.lastTimeStep ) return true;
-                   return false;
+                   const bool firstHasNoValueAboveThreshold  = !hasValueAboveThreshold( v1.values, rTableData.thresholdValue );
+                   const bool secondHasNoValueAboveThreshold = !hasValueAboveThreshold( v2.values, rTableData.thresholdValue );
+                   return std::tie( firstHasNoValueAboveThreshold, v1.firstTimeStep, v1.lastTimeStep, v1.category ) <
+                          std::tie( secondHasNoValueAboveThreshold, v2.firstTimeStep, v2.lastTimeStep, v2.category );
                } );
 }
 
