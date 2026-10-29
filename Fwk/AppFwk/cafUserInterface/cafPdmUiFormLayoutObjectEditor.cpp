@@ -65,24 +65,51 @@
 namespace
 {
 //--------------------------------------------------------------------------------------------------
-/// Schedule deletion of a group box without destroying the widgets inside it synchronously.
+/// Hide and detach a widget that is about to be deleted with deleteLater().
+///
+/// The widget is taken out of the layout, the visual tree and the focus chain immediately. This is what plain
+/// deleteLater() failed to do in https://github.com/OPM/ResInsight/issues/9719
+///
+/// Deferred deletes are only processed when control returns to the event loop that called deleteLater(), not
+/// by nested QApplication::processEvents() calls. Widgets left visible in a reused parent accumulate, and Qt
+/// paints visible siblings recursively, which eventually overflows the stack (e.g. in the regression test
+/// runner selecting all project objects).
+//--------------------------------------------------------------------------------------------------
+auto detachWidget = []( QWidget* widget )
+{
+    if ( !widget ) return;
+
+    widget->hide();
+    widget->setParent( nullptr );
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Schedule deletion of a widget without destroying it or its child widgets synchronously.
 ///
 /// A plain delete destroys the child widgets immediately, which defeats the deleteLater() used by
 /// PdmUiFieldEditorHandle to keep field editor widgets alive. When the rebuild is triggered from inside a
 /// widget event handler, Qt is still using those widgets further up the stack.
 /// See https://github.com/OPM/ResInsight/issues/14505
-///
-/// The group box is hidden and detached from its parent before the deferred delete is scheduled, so it is
-/// out of the layout, the visual tree and the focus chain immediately. This is what plain deleteLater()
-/// failed to do in https://github.com/OPM/ResInsight/issues/9719
 //--------------------------------------------------------------------------------------------------
-auto scheduleGroupBoxDeletion = []( QMinimizePanel* groupBox )
+auto scheduleWidgetDeletion = []( QWidget* widget )
 {
-    if ( !groupBox ) return;
+    if ( !widget ) return;
 
-    groupBox->hide();
-    groupBox->setParent( nullptr );
-    groupBox->deleteLater();
+    detachWidget( widget );
+    widget->deleteLater();
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Detach all widgets of a field editor before it is deleted. The field editor destructor schedules the
+/// deletion of the widgets with deleteLater().
+//--------------------------------------------------------------------------------------------------
+auto detachFieldEditorWidgets = []( caf::PdmUiFieldEditorHandle* fieldEditor )
+{
+    if ( !fieldEditor ) return;
+
+    detachWidget( fieldEditor->combinedWidget() );
+    detachWidget( fieldEditor->editorWidget() );
+    detachWidget( fieldEditor->labelWidget() );
 };
 } // namespace
 
@@ -572,6 +599,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
     // The editor's field was deleted and a new field was allocated at the same address
     if ( it != m_fieldViews.end() && it->second->uiField() != field )
     {
+        detachFieldEditorWidgets( it->second );
         delete it->second;
         m_fieldViews.erase( it );
         it = m_fieldViews.end();
@@ -687,10 +715,7 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
     // https://github.com/OPM/ResInsight/issues/12599
     for ( const auto& [fieldHandle, fieldEditor] : m_fieldViews )
     {
-        if ( fieldEditor && fieldEditor->editorWidget() )
-        {
-            fieldEditor->editorWidget()->hide();
-        }
+        detachFieldEditorWidgets( fieldEditor );
     }
 
     // Delete all field editors, make sure this is done after the field editors have been hidden
@@ -711,7 +736,7 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
         QMinimizePanel* groupBox = groupIt->second;
         if ( groupBox )
         {
-            scheduleGroupBoxDeletion( groupBox );
+            scheduleWidgetDeletion( groupBox );
         }
     }
 
@@ -730,28 +755,19 @@ void caf::PdmUiFormLayoutObjectEditor::deleteLabelsAndButtons()
 {
     for ( auto& label : m_labels )
     {
-        if ( label )
-        {
-            label->deleteLater();
-        }
+        scheduleWidgetDeletion( label );
     }
     m_labels.clear();
 
     for ( auto& button : m_buttons )
     {
-        if ( button )
-        {
-            button->deleteLater();
-        }
+        scheduleWidgetDeletion( button );
     }
     m_buttons.clear();
 
     for ( auto& buttonBox : m_buttonBoxes )
     {
-        if ( buttonBox )
-        {
-            buttonBox->deleteLater();
-        }
+        scheduleWidgetDeletion( buttonBox );
     }
     m_buttonBoxes.clear();
 }
@@ -790,6 +806,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
         if ( m_usedFields.count( oldFvIt->first ) == 0 )
         {
             // The old field editor is not present anymore, get rid of it
+            detachFieldEditorWidgets( oldFvIt->second );
             delete oldFvIt->second;
             fvhToRemoveFromMap.push_back( oldFvIt->first );
         }
@@ -811,7 +828,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
         if ( itNew == m_newGroupBoxes.end() )
         {
             // The old groupBox is not present anymore, get rid of it
-            if ( !itOld->second.isNull() ) scheduleGroupBoxDeletion( itOld->second );
+            if ( !itOld->second.isNull() ) scheduleWidgetDeletion( itOld->second );
         }
     }
     m_groupBoxes = m_newGroupBoxes;
