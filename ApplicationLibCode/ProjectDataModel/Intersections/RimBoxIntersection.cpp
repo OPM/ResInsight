@@ -261,7 +261,9 @@ RimIntersectionCurtain RimBoxIntersection::surfaceCurtain() const
 void RimBoxIntersection::setToDefaultSizeBox()
 {
     cvf::BoundingBox boundingBox = currentCellBoundingBox();
-    cvf::Vec3d       center      = boundingBox.center();
+    if ( !boundingBox.isValid() ) return;
+
+    cvf::Vec3d center = boundingBox.center();
 
     double defaultWidthFactor = 0.5;
 
@@ -281,30 +283,33 @@ void RimBoxIntersection::setToDefaultSizeSlice( SinglePlaneState plane, const cv
     m_singlePlaneState = plane;
 
     cvf::BoundingBox boundingBox = currentCellBoundingBox();
-    cvf::Vec3d       center      = position;
-
-    if ( center.isUndefined() ) center = boundingBox.center();
-
-    double defaultWidthFactor = 0.5;
-
-    m_minXCoord = center[0] - 0.5 * boundingBox.extent().x() * defaultWidthFactor;
-    m_minYCoord = center[1] - 0.5 * boundingBox.extent().y() * defaultWidthFactor;
-    m_minDepth  = -( center[2] + 0.5 * boundingBox.extent().z() * defaultWidthFactor );
-    m_maxXCoord = center[0] + 0.5 * boundingBox.extent().x() * defaultWidthFactor;
-    m_maxYCoord = center[1] + 0.5 * boundingBox.extent().y() * defaultWidthFactor;
-    m_maxDepth  = -( center[2] - 0.5 * boundingBox.extent().z() * defaultWidthFactor );
-
-    switch ( plane )
+    if ( boundingBox.isValid() )
     {
-        case PLANE_STATE_X:
-            m_minXCoord = m_maxXCoord = center[0];
-            break;
-        case PLANE_STATE_Y:
-            m_minYCoord = m_maxYCoord = center[1];
-            break;
-        case PLANE_STATE_Z:
-            m_minDepth = m_maxDepth = -center[2];
-            break;
+        cvf::Vec3d center = position;
+
+        if ( center.isUndefined() ) center = boundingBox.center();
+
+        double defaultWidthFactor = 0.5;
+
+        m_minXCoord = center[0] - 0.5 * boundingBox.extent().x() * defaultWidthFactor;
+        m_minYCoord = center[1] - 0.5 * boundingBox.extent().y() * defaultWidthFactor;
+        m_minDepth  = -( center[2] + 0.5 * boundingBox.extent().z() * defaultWidthFactor );
+        m_maxXCoord = center[0] + 0.5 * boundingBox.extent().x() * defaultWidthFactor;
+        m_maxYCoord = center[1] + 0.5 * boundingBox.extent().y() * defaultWidthFactor;
+        m_maxDepth  = -( center[2] - 0.5 * boundingBox.extent().z() * defaultWidthFactor );
+
+        switch ( plane )
+        {
+            case PLANE_STATE_X:
+                m_minXCoord = m_maxXCoord = center[0];
+                break;
+            case PLANE_STATE_Y:
+                m_minYCoord = m_maxYCoord = center[1];
+                break;
+            case PLANE_STATE_Z:
+                m_minDepth = m_maxDepth = -center[2];
+                break;
+        }
     }
 
     updateVisibility();
@@ -447,23 +452,27 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
+    const bool       hasCellRange     = cellsBoundingBox.isValid();
+
+    auto rangeText = []( double minimum, double maximum ) { return QString( " [%1  %2]" ).arg( minimum ).arg( maximum ); };
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup(
-            "X Coordinates " + QString( " [%1  %2]" ).arg( cellsBoundingBox.min().x() ).arg( cellsBoundingBox.max().x() ) );
+            "X Coordinates " + ( hasCellRange ? rangeText( cellsBoundingBox.min().x(), cellsBoundingBox.max().x() ) : QString() ) );
         group->add( &m_minXCoord );
         group->add( &m_maxXCoord );
     }
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup(
-            "Y Coordinates" + QString( " [%1  %2]" ).arg( cellsBoundingBox.min().y() ).arg( cellsBoundingBox.max().y() ) );
+            "Y Coordinates" + ( hasCellRange ? rangeText( cellsBoundingBox.min().y(), cellsBoundingBox.max().y() ) : QString() ) );
         group->add( &m_minYCoord );
         group->add( &m_maxYCoord );
     }
 
     {
-        caf::PdmUiGroup* group =
-            uiOrdering.addNewGroup( "Depth" + QString( " [%1  %2]" ).arg( -cellsBoundingBox.max().z() ).arg( -cellsBoundingBox.min().z() ) );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup(
+            "Depth" + ( hasCellRange ? rangeText( -cellsBoundingBox.max().z(), -cellsBoundingBox.min().z() ) : QString() ) );
         group->add( &m_minDepth );
         group->add( &m_maxDepth );
     }
@@ -474,28 +483,31 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         group->add( &m_depthSliderStepSize );
     }
 
-    auto setSliderAttributes = []( auto& field, double minimum, double maximum, int tickCount )
+    if ( hasCellRange )
     {
-        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, minimum );
-        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, maximum );
-        field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, cvf::Math::abs( tickCount ) );
-    };
+        auto setSliderAttributes = []( auto& field, double minimum, double maximum, int tickCount )
+        {
+            field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, minimum );
+            field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, maximum );
+            field.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, cvf::Math::abs( tickCount ) );
+        };
 
-    const int xTickCount     = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().x() ) / m_xySliderStepSize );
-    const int yTickCount     = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().y() ) / m_xySliderStepSize );
-    const int depthTickCount = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().z() ) / m_depthSliderStepSize );
+        const int xTickCount     = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().x() ) / m_xySliderStepSize );
+        const int yTickCount     = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().y() ) / m_xySliderStepSize );
+        const int depthTickCount = static_cast<int>( static_cast<int>( cellsBoundingBox.extent().z() ) / m_depthSliderStepSize );
 
-    for ( auto* field : { &m_minXCoord, &m_maxXCoord } )
-    {
-        setSliderAttributes( *field, cellsBoundingBox.min().x(), cellsBoundingBox.max().x(), xTickCount );
-    }
-    for ( auto* field : { &m_minYCoord, &m_maxYCoord } )
-    {
-        setSliderAttributes( *field, cellsBoundingBox.min().y(), cellsBoundingBox.max().y(), yTickCount );
-    }
-    for ( auto* field : { &m_minDepth, &m_maxDepth } )
-    {
-        setSliderAttributes( *field, -cellsBoundingBox.max().z(), -cellsBoundingBox.min().z(), depthTickCount );
+        for ( auto* field : { &m_minXCoord, &m_maxXCoord } )
+        {
+            setSliderAttributes( *field, cellsBoundingBox.min().x(), cellsBoundingBox.max().x(), xTickCount );
+        }
+        for ( auto* field : { &m_minYCoord, &m_maxYCoord } )
+        {
+            setSliderAttributes( *field, cellsBoundingBox.min().y(), cellsBoundingBox.max().y(), yTickCount );
+        }
+        for ( auto* field : { &m_minDepth, &m_maxDepth } )
+        {
+            setSliderAttributes( *field, -cellsBoundingBox.max().z(), -cellsBoundingBox.min().z(), depthTickCount );
+        }
     }
 
     uiOrdering.addNewButton( m_show3DManipulator ? "Hide 3D manipulator" : "Show 3D manipulator",
@@ -681,7 +693,11 @@ void RimBoxIntersection::switchSingelPlaneState()
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimBoxIntersection::currentCellBoundingBox()
 {
-    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !rimView ) return {};
+
+    auto rimCase = rimView->ownerCase();
+    if ( !rimCase ) return {};
 
     return rimCase->activeCellsBoundingBox();
 }
