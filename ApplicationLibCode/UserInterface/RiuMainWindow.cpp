@@ -2358,11 +2358,3 @@ void RiuMainWindow::setActiveViewer( QString viewerName )
 
     RiuMainWindowBase::setActiveViewer( viewerName );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::restartBatchMonitor()
-{
-    if ( m_batchMonitor ) m_batchMonitor->restartMonitoring();
-}
