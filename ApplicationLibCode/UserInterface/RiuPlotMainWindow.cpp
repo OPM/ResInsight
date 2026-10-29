@@ -860,9 +860,12 @@ std::vector<RimViewWindow*> RiuPlotMainWindow::viewWindows()
     // Project can be null while it is being torn down.
     if ( auto project = RimProject::current() )
     {
-        for ( auto v : project->descendantsOfType<RimPlotWindow>() )
+        // Some plots (e.g. flow diagnostics plots) derive directly from RimViewWindow, and are identified by being docked in the plot
+        // window
+        for ( auto v : project->descendantsOfType<RimViewWindow>() )
         {
-            if ( v->dockWidget() ) views.push_back( v );
+            if ( !v->dockWidget() ) continue;
+            if ( dynamic_cast<RimPlotWindow*>( v ) || v->isDockedInPlotView() ) views.push_back( v );
         }
     }
 

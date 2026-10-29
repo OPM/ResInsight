@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 
+#include "Rim3dView.h"
 #include "RimViewWindow.h"
 
 #include "RiuMainWindow.h"
@@ -169,11 +170,11 @@ void RiuPlotMainWindowTools::remove3dViewsFromDocking()
 {
     if ( !RiaGuiApplication::isRunning() ) return;
 
-    if ( auto mainWnd = RiaGuiApplication::instance()->mainWindow() )
+    if ( auto plotWnd = RiaGuiApplication::instance()->mainPlotWindow() )
     {
-        for ( auto view : mainWnd->viewWindows() )
+        for ( auto view : plotWnd->viewWindows() )
         {
-            if ( view->isDockedInPlotView() )
+            if ( dynamic_cast<Rim3dView*>( view ) && view->isDockedInPlotView() )
             {
                 view->setShowWindow( false );
                 view->removeWindowFromDock();

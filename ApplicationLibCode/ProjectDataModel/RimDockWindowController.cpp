@@ -217,16 +217,32 @@ void RimDockWindowController::setAsActiveViewer( bool allowSelectionChange )
         auto view3d   = dynamic_cast<Rim3dView*>( pdmView );
         auto viewPlot = dynamic_cast<RimPlotWindow*>( pdmView );
 
-        RiuMainWindowBase* mainWindow = RiaGuiApplication::instance()->mainWindow();
-        if ( viewPlot ) mainWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        if ( !mainWindow ) return;
+        auto app = RiaGuiApplication::instance();
 
-        for ( auto view : mainWindow->viewWindows() )
+        auto deactivate = []( RimViewWindow* view )
         {
-            if ( view->isActiveViewer() )
+            if ( !view->isActiveViewer() ) return;
+            view->setActive( false );
+            view->updateWindowTitle();
+        };
+
+        // The active 3D view and the active plot are tracked separately
+        if ( auto project = RimProject::current() )
+        {
+            if ( view3d )
             {
-                view->setActive( false );
-                view->updateWindowTitle();
+                // Search the project, as a 3D view can be docked in both the 3D window and the plot window
+                for ( auto view : project->descendantsOfType<Rim3dView>() )
+                {
+                    deactivate( view );
+                }
+            }
+            else
+            {
+                for ( auto view : project->descendantsOfType<RimViewWindow>() )
+                {
+                    if ( !dynamic_cast<Rim3dView*>( view ) ) deactivate( view );
+                }
             }
         }
 
@@ -235,8 +251,11 @@ void RimDockWindowController::setAsActiveViewer( bool allowSelectionChange )
 
         if ( view3d )
         {
-            RiaApplication::instance()->setActiveReservoirView( view3d );
-            if ( auto mainWin = dynamic_cast<RiuMainWindow*>( mainWindow ) )
+            app->setActiveReservoirView( view3d );
+
+            // The toolbars controlling 3D views (e.g. time step animation) are only available in the 3D main window, also
+            // for 3D views docked in the plot window
+            if ( auto mainWin = app->mainWindow() )
             {
                 mainWin->refreshViewActions();
                 mainWin->refreshAnimationActions();
