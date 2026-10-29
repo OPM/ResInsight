@@ -517,6 +517,8 @@ void PdmUiItem::updateAllRequiredEditors() const
 //--------------------------------------------------------------------------------------------------
 PdmUiItem::~PdmUiItem()
 {
+    UpdateEditorsScheduler::unscheduleDeletedItem( this );
+
     std::set<PdmUiEditorHandle*>::iterator it;
     for ( it = m_editors.begin(); it != m_editors.end(); ++it )
     {
