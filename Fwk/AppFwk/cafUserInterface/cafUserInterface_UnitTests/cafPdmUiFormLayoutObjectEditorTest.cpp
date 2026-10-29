@@ -6,6 +6,8 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiPropertyView.h"
 
+#include <QLabel>
+
 #include <new>
 
 using namespace caf;
@@ -92,6 +94,70 @@ TEST( PdmUiFormLayoutObjectEditorTest, FieldReplacedAtSameAddress )
     parent.updateConnectedEditors();
 
     EXPECT_EQ( 1u, parent.m_child->m_text.uiCapability()->connectedEditors().size() );
+
+    view.showProperties( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class FormLayoutTestLabelObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FormLayoutTestLabelObject()
+    {
+        CAF_PDM_InitObject( "FormLayoutTestLabelObject" );
+        CAF_PDM_InitField( &m_text, "Text", QString( "text" ), "FieldLabel" );
+    }
+
+    caf::PdmField<QString> m_text;
+
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override
+    {
+        uiOrdering.addNewLabel( "InfoLabel" );
+        uiOrdering.add( &m_text );
+        uiOrdering.skipRemainingFields();
+    }
+};
+CAF_PDM_SOURCE_INIT( FormLayoutTestLabelObject, "FormLayoutTestLabelObject" );
+
+namespace
+{
+int visibleLabelCount( const QWidget& root, const QString& text )
+{
+    int count = 0;
+    for ( auto label : root.findChildren<QLabel*>() )
+    {
+        if ( !label->isHidden() && label->text().startsWith( text ) ) count++;
+    }
+    return count;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Widgets scheduled for deferred deletion must be hidden immediately. Deferred deletes are not processed by nested
+/// event loops, and many visible stale siblings overflow the stack in QWidgetPrivate::paintSiblingsRecursive.
+//--------------------------------------------------------------------------------------------------
+TEST( PdmUiFormLayoutObjectEditorTest, StaleWidgetsAreHiddenWithoutEventLoop )
+{
+    FormLayoutTestLabelObject first;
+    FormLayoutTestLabelObject second;
+
+    PdmUiPropertyView view;
+    view.showProperties( &first );
+
+    for ( int i = 0; i < 5; i++ )
+    {
+        first.updateConnectedEditors();
+    }
+    EXPECT_EQ( 1, visibleLabelCount( view, "InfoLabel" ) );
+
+    view.showProperties( &second );
+    EXPECT_EQ( 1, visibleLabelCount( view, "InfoLabel" ) );
+    EXPECT_EQ( 1, visibleLabelCount( view, "FieldLabel" ) );
 
     view.showProperties( nullptr );
 }
