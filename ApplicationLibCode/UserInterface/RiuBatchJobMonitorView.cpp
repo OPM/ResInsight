@@ -33,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 #include <QTableWidget>
 #include <QThread>
@@ -62,15 +63,21 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
     m_jobView->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_jobView->setSizeAdjustPolicy( QAbstractScrollArea::AdjustToContents );
     m_jobView->verticalHeader()->setVisible( false );
+    m_jobView->setContextMenuPolicy( Qt::CustomContextMenu );
+
+    m_infoLabel = new QLabel( this );
+    m_infoLabel->setText( " Jobs are set to run on local computer only, batch job monitor is disabled." );
 
     QStringList headerNames;
     headerNames << "Job ID" << "Job Name" << "Run Time" << "State" << "Queue/Partition" << "Where";
 
     m_jobView->setHorizontalHeaderLabels( headerNames );
+    m_jobView->setRowCount( 0 );
 
     QVBoxLayout* pLayout = new QVBoxLayout();
     pLayout->addLayout( pTopLayout );
     pLayout->addWidget( m_jobView, 1 );
+    pLayout->addWidget( m_infoLabel );
 
     pLayout->setContentsMargins( 0, 0, 0, 0 );
 
@@ -81,6 +88,10 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
              SIGNAL( jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ),
              this,
              SLOT( slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ) );
+
+    connect( m_jobView, &QTableView::customContextMenuRequested, this, &RiuBatchJobMonitorView::showContextMenu );
+
+    rebuildGui();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +99,27 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
 //--------------------------------------------------------------------------------------------------
 RiuBatchJobMonitorView::~RiuBatchJobMonitorView()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchJobMonitorView::rebuildGui()
+{
+    auto prefs = RiaPreferencesBatch::current();
+
+    if ( prefs->batchScheduler() == RiaDefines::BatchSchedulerType::LOCAL_COMPUTER )
+    {
+        m_checkBoxAutoUpdate->hide();
+        m_onlyResInsightJobs->hide();
+        m_infoLabel->show();
+    }
+    else
+    {
+        m_checkBoxAutoUpdate->show();
+        m_onlyResInsightJobs->show();
+        m_infoLabel->hide();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +148,7 @@ void RiuBatchJobMonitorView::slotUpdateView( const std::map<QString, RiaHpcTools
             {
                 item->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter );
             }
+            item->setFlags( item->flags() & ~Qt::ItemIsEditable );
             m_jobView->setItem( newRowIndex, i, item );
         }
     }
@@ -156,4 +189,40 @@ void RiuBatchJobMonitorView::hideEvent( QHideEvent* event )
     {
         RiaBatchMonitorService::stop();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchJobMonitorView::showContextMenu( const QPoint& pos )
+{
+    QModelIndex index = m_jobView->indexAt( pos );
+    if ( !index.isValid() ) return;
+    if ( index.column() != 0 ) return;
+
+    QPoint   globalPos = m_jobView->viewport()->mapToGlobal( pos );
+    QMenu    menu;
+    QAction* stopAction = menu.addAction( "Stop Job" );
+    connect( stopAction,
+             &QAction::triggered,
+             this,
+             [this, index]
+             {
+                 QString jobId = m_jobView->model()->data( index ).toString();
+                 stopJob( jobId );
+             } );
+
+    menu.exec( globalPos );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuBatchJobMonitorView::stopJob( QString jobId )
+{
+    if ( jobId.trimmed().isEmpty() ) return;
+    auto prefs    = RiaPreferencesBatch::current();
+    auto opmPrefs = RiaPreferencesOpm::current();
+
+    RiaHpcTools::stopJob( prefs->batchScheduler(), jobId, opmPrefs->wslOptions() );
 }

@@ -22,6 +22,10 @@
 
 #include "RimBatchQueue.h"
 
+#include <QDateTime>
+#include <QString>
+#include <QStringList>
+
 class RimProcessMonitor;
 
 //==================================================================================================
@@ -44,7 +48,7 @@ protected:
 
     void onJobInfoUpdate( const SignalEmitter* emitter, const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
 
-    virtual QString jobId() const;
+    QString jobId();
 
     virtual QStringList generateCommand( QString script,
                                          QString jobName,
@@ -58,13 +62,12 @@ protected:
 
     QString launchScriptDirective() const override;
 
-    void startJobAsync( QStringList arguments );
-
 protected:
     std::shared_ptr<RimProcessMonitor> m_monitor;
     std::unique_ptr<RimProcess>        m_batchProcess;
 
 private:
-    bool    m_isBatchMonitorActivated;
-    QString m_jobId;
+    bool      m_isBatchMonitorActivated;
+    QString   m_jobId;
+    QDateTime m_submitTime;
 };

@@ -37,16 +37,22 @@ public:
     RiuBatchJobMonitorView( QWidget* parent );
     ~RiuBatchJobMonitorView() override;
 
+    void rebuildGui();
+
 protected:
     void showEvent( QShowEvent* event ) override;
     void hideEvent( QHideEvent* event ) override;
 
+    void stopJob( QString jobId );
+
 private slots:
     void slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information );
     void toggleUpdates();
+    void showContextMenu( const QPoint& pos );
 
 private:
     QCheckBox*    m_checkBoxAutoUpdate;
     QCheckBox*    m_onlyResInsightJobs;
     QTableWidget* m_jobView;
+    QLabel*       m_infoLabel;
 };

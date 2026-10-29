@@ -59,9 +59,10 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 {
     if ( process == nullptr ) return;
 
-    m_process = process;
-    m_monitor = std::make_shared<RimBatchProcessMonitor>( this );
-    m_jobId   = "";
+    m_process    = process;
+    m_monitor    = std::make_shared<RimBatchProcessMonitor>( this );
+    m_jobId      = "";
+    m_submitTime = QDateTime();
 
     auto useWsl = RiaPreferencesOpm::current()->useWsl();
     auto prefs  = RiaPreferencesBatch::current();
@@ -100,51 +101,48 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 
     if ( blockingWait )
     {
-        startJobAsync( arguments );
+        // start process async and wait for it to finish using a process monitor
+        auto [batchProcess, output] = runCommand( arguments, m_monitor );
+
+        if ( !batchProcess )
+        {
+            m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
+            RiaLogging::warning( output.toStdString() );
+            m_batchProcess = nullptr;
+        }
+        else
+        {
+            // notify original process that we have started
+            if ( m_process->monitor() ) m_process->monitor()->started();
+            m_batchProcess = std::move( batchProcess );
+            m_submitTime   = QDateTime::currentDateTime();
+        }
     }
     else
     {
+        // run submit command and start batch monitor service to monitor job state
         auto [result, stdOut] = runCommand( arguments );
         if ( result )
         {
+            // notify original process that we have started
             if ( m_process->monitor() ) m_process->monitor()->started();
+            // get job id from submit command output
             m_jobId = RiaHpcTools::findJobId( schedulerType(), stdOut );
             if ( m_jobId.isEmpty() )
             {
-                if ( m_process->monitor() ) m_process->monitor()->finished( 1, QProcess::NormalExit );
+                m_monitor->finished( 1, QProcess::NormalExit );
             }
             else
             {
-                RiaLogging::info( m_jobId.toStdString() );
                 RiaBatchMonitorService::start();
                 m_isBatchMonitorActivated = true;
+                m_submitTime              = QDateTime::currentDateTime();
             }
         }
         else
         {
-            if ( m_process->monitor() ) m_process->monitor()->finished( 1, QProcess::NormalExit );
+            m_monitor->finished( 1, QProcess::NormalExit );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimBatchQueueSlurm::startJobAsync( QStringList arguments )
-{
-    // start process async and wait for it to finish using a process monitor
-    auto [batchProcess, output] = runCommand( arguments, m_monitor );
-
-    if ( !batchProcess )
-    {
-        m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
-        RiaLogging::warning( output.toStdString() );
-        m_batchProcess = nullptr;
-    }
-    else
-    {
-        if ( m_process->monitor() ) m_process->monitor()->started();
-        m_batchProcess = std::move( batchProcess );
     }
 }
 
@@ -197,13 +195,13 @@ QStringList RimBatchQueueSlurm::generateCommand( QString script,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimBatchQueueSlurm::jobId() const
+QString RimBatchQueueSlurm::jobId()
 {
-    if ( m_batchProcess )
+    if ( m_batchProcess && m_jobId.isEmpty() )
     {
-        return RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
+        m_jobId = RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
     }
-    return QString();
+    return m_jobId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,31 +228,26 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
 {
     if ( !m_process || !m_process->monitor() ) return;
 
-    if ( m_batchProcess )
-    {
-        auto jobId = RiaHpcTools::findJobId( schedulerType(), m_batchProcess->stdOut() );
-
-        readStdOutErrIntoProcessLog();
-
-        if ( runOk )
-        {
-            RiaLogging::info( QString( "Batch job %1 completed successfully" ).arg( jobId ).toStdString() );
-            m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
-        }
-        else
-        {
-            RiaLogging::warning( QString( "Batch job %1 failed." ).arg( jobId ).toStdString() );
-            m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
-        }
-    }
-    else if ( m_isBatchMonitorActivated )
+    if ( m_isBatchMonitorActivated )
     {
         m_isBatchMonitorActivated = false;
         RiaBatchMonitorService::stop();
+    }
 
-        readStdOutErrIntoProcessLog();
-        RiaLogging::info( QString( "Batch job %1 done" ).arg( m_jobId ).toStdString() );
+    readStdOutErrIntoProcessLog();
+    if ( runOk )
+    {
+        RiaLogging::info( QString( "Batch job %1 done." ).arg( jobId() ).toStdString() );
         m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
+    }
+    else
+    {
+        if ( jobId().isEmpty() )
+            RiaLogging::error( "Failed to submit batch job, check batch scheduler configuration." );
+        else
+            RiaLogging::warning( QString( "Batch job %1 failed." ).arg( jobId() ).toStdString() );
+
+        m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
     }
 }
 
@@ -275,6 +268,13 @@ void RimBatchQueueSlurm::onJobInfoUpdate( const SignalEmitter* emitter, const st
 
     if ( !information.contains( m_jobId ) )
     {
+        // should we wait for job to show up in job queue?
+        if ( m_submitTime.isValid() &&
+             m_submitTime.secsTo( QDateTime::currentDateTime() ) < RiaPreferencesBatch::current()->secondsToWaitForSubmit() )
+        {
+            return;
+        }
+
         setFinished( true );
     }
 }

@@ -49,7 +49,12 @@ RiaPreferencesBatch::RiaPreferencesBatch()
     CAF_PDM_InitField( &m_updateInterval, "pollUpdateInterval", 10, "Job Status Polling Interval" );
     m_updateInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_submitWaitSeconds, "submitWaitSeconds", 4, "Time to Wait After Job Submit (seconds)" );
+    CAF_PDM_InitField( &m_submitWaitSeconds,
+                       "submitWaitSeconds",
+                       4,
+                       "Time to Wait After Job Submit (seconds)",
+                       "",
+                       "Wait at least this many seconds before assuming a job not in the job list has been completed." );
     m_submitWaitSeconds.setRange( 0, 120 );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );

@@ -126,6 +126,7 @@ public:
     RiuMohrsCirclePlot*               mohrsCirclePlot();
     RiuSeismicHistogramPanel*         seismicHistogramPanel();
     RiuMessagePanel*                  messagePanel();
+    RiuBatchJobMonitorView*           batchMonitorView();
 
     void showProcessMonitorDockPanel();
     void setDefaultToolbarVisibility();
