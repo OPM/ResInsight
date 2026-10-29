@@ -64,6 +64,7 @@
 #include "RiuMenuBarBuildTools.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -1285,9 +1286,10 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
     // Project can be null while it is being torn down.
     if ( auto project = RimProject::current() )
     {
+        // 3D views docked in the plot window are handled by RiuPlotMainWindow
         for ( auto v : project->descendantsOfType<Rim3dView>() )
         {
-            if ( v->dockWidget() ) views.push_back( v );
+            if ( v->dockWidget() && !v->isDockedInPlotView() ) views.push_back( v );
         }
     }
 
@@ -2324,6 +2326,31 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
 RimViewWindow* RiuMainWindow::activeViewer()
 {
     return RiaApplication::instance()->activeReservoirView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setActiveViewer( QString viewerName )
+{
+    // 3D views docked in the plot window are managed by the plot main window
+    auto plotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    if ( auto project = RimProject::current(); project && plotWindow )
+    {
+        for ( auto view : project->descendantsOfType<Rim3dView>() )
+        {
+            if ( view->isDockedInPlotView() && view->dockWindowName() == viewerName )
+            {
+                const bool wasBlocking = plotWindow->isBlockingViewSelectionOnSubWindowActivated();
+                plotWindow->setBlockViewSelectionOnSubWindowActivated( isBlockingViewSelectionOnSubWindowActivated() );
+                plotWindow->setActiveViewer( viewerName );
+                plotWindow->setBlockViewSelectionOnSubWindowActivated( wasBlocking );
+                return;
+            }
+        }
+    }
+
+    RiuMainWindowBase::setActiveViewer( viewerName );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -101,6 +101,7 @@ public:
     void           onViewerRemoved() override;
     void           initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
     RimViewWindow* activeViewer() override;
+    void           setActiveViewer( QString viewerName ) override;
 
     std::vector<RimViewWindow*> viewWindows() override;
 
