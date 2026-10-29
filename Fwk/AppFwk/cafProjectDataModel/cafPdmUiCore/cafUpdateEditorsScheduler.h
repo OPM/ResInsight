@@ -20,6 +20,7 @@
 
 #include "cafScheduler.h"
 
+#include <mutex>
 #include <set>
 
 namespace caf
@@ -37,8 +38,18 @@ public:
     void scheduleUpdateConnectedEditors( const PdmUiItem* uiItem );
     void performScheduledUpdates() override;
 
+    // Called from the PdmUiItem destructor. Safe to call also after the scheduler instance is destroyed, and from
+    // worker threads deleting PDM objects.
+    static void unscheduleDeletedItem( const PdmUiItem* uiItem );
+
 private:
+    ~UpdateEditorsScheduler() override;
+
+    static bool sm_isAlive;
+
+    std::mutex                 m_mutex;
     std::set<const PdmUiItem*> m_itemsToUpdate;
+    std::set<const PdmUiItem*> m_itemsBeingUpdated;
 };
 
 } // namespace caf

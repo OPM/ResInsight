@@ -25,8 +25,22 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool UpdateEditorsScheduler::sm_isAlive = false;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 UpdateEditorsScheduler::UpdateEditorsScheduler()
 {
+    sm_isAlive = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+UpdateEditorsScheduler::~UpdateEditorsScheduler()
+{
+    sm_isAlive = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,9 +58,28 @@ UpdateEditorsScheduler* UpdateEditorsScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 void UpdateEditorsScheduler::scheduleUpdateConnectedEditors( const PdmUiItem* uiItem )
 {
-    m_itemsToUpdate.insert( uiItem );
+    if ( !uiItem ) return;
+
+    {
+        std::lock_guard<std::mutex> lock( m_mutex );
+        m_itemsToUpdate.insert( uiItem );
+    }
 
     startTimer( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Remove a deleted item, to avoid updating editors of a deleted item
+//--------------------------------------------------------------------------------------------------
+void UpdateEditorsScheduler::unscheduleDeletedItem( const PdmUiItem* uiItem )
+{
+    if ( !sm_isAlive ) return;
+
+    auto scheduler = instance();
+
+    std::lock_guard<std::mutex> lock( scheduler->m_mutex );
+    scheduler->m_itemsToUpdate.erase( uiItem );
+    scheduler->m_itemsBeingUpdated.erase( uiItem );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,15 +87,28 @@ void UpdateEditorsScheduler::scheduleUpdateConnectedEditors( const PdmUiItem* ui
 //--------------------------------------------------------------------------------------------------
 void UpdateEditorsScheduler::performScheduledUpdates()
 {
-    for ( auto uiItem : m_itemsToUpdate )
+    // Updating editors can delete other scheduled items or schedule new updates. Process a snapshot one item at a time,
+    // so deleted items are removed by unscheduleDeletedItem() before they are visited.
+    // The lock is not held while updating editors, as the update can delete items or schedule new updates.
     {
-        if ( uiItem )
-        {
-            uiItem->updateConnectedEditors();
-        }
+        std::lock_guard<std::mutex> lock( m_mutex );
+        m_itemsBeingUpdated.insert( m_itemsToUpdate.begin(), m_itemsToUpdate.end() );
+        m_itemsToUpdate.clear();
     }
 
-    m_itemsToUpdate.clear();
+    while ( true )
+    {
+        const PdmUiItem* uiItem = nullptr;
+        {
+            std::lock_guard<std::mutex> lock( m_mutex );
+            if ( m_itemsBeingUpdated.empty() ) break;
+
+            uiItem = *m_itemsBeingUpdated.begin();
+            m_itemsBeingUpdated.erase( m_itemsBeingUpdated.begin() );
+        }
+
+        uiItem->updateConnectedEditors();
+    }
 }
 
 } //namespace caf
