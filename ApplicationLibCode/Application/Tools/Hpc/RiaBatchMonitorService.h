@@ -27,19 +27,24 @@
 class RiaBatchMonitorWorker;
 
 //==================================================================================================
-///
+/// Service that gives regular updates (interval set in preferences) of running batch scheduler jobs
+/// Use a single instance to not put too much load on the scheduler.
 //==================================================================================================
 class RiaBatchMonitorService : public QObject, public caf::SignalEmitter
 {
     Q_OBJECT
 
 public:
+    // static interface, get the main monitor instance from the main application
+    static RiaBatchMonitorService* instance();
+    // tell service to start polling if not running
+    static void start();
+    // tell service to stop polling, will stop if usage count goes to zero
+    static void stop();
+
+public:
     RiaBatchMonitorService();
     ~RiaBatchMonitorService();
-
-    static RiaBatchMonitorService* instance();
-    static void                    start();
-    static void                    stop();
 
     void stopMonitoring();
     void startMonitoring();
@@ -47,10 +52,11 @@ public:
     // to be called after preferences have been changed
     void restartMonitoring();
 
+    // non-QObjects: connect to this to get job list updates from batch queue monitor
     caf::Signal<const std::map<QString, RiaHpcTools::BatchJobInformation>&> jobInfoUpdateSignal;
 
 signals:
-    // connect to this to get job list updates from batch queue monitor
+    // QObjects: connect to this to get job list updates from batch queue monitor
     void jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
 
 protected:
