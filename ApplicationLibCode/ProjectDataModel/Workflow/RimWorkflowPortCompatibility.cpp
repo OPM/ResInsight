@@ -565,8 +565,16 @@ std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
     RimWorkflowPortCompatibility::collectTarget( const RimWorkflowPort& expected )
 {
     if ( expected.isWhole() ) return std::nullopt;
+    return collectKind( expected.schema, expected.rootSchema );
+}
 
-    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( expected.schema, expected.rootSchema );
+//--------------------------------------------------------------------------------------------------
+/// The kind and element schema of a `list[T]` or `dict[str, T]` schema
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
+    RimWorkflowPortCompatibility::collectKind( const QJsonObject& schema, const QJsonObject& rootSchema )
+{
+    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
     QJsonArray        options;
     for ( const char* unionKey : { "anyOf", "oneOf" } )
     {
@@ -577,13 +585,35 @@ std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
 
     for ( const QJsonValue& value : options )
     {
-        const QJsonObject option = RimWorkflowSchemaTools::resolveReferences( value.toObject(), expected.rootSchema );
+        const QJsonObject option = RimWorkflowSchemaTools::resolveReferences( value.toObject(), rootSchema );
         const QString     type   = option.value( "type" ).toString();
         if ( type == "array" && option.value( "items" ).isObject() )
             return std::make_pair( RimWorkflowDefinitionEdge::Collect::List, option.value( "items" ).toObject() );
         if ( type == "object" && option.value( "additionalProperties" ).isObject() && !option.contains( "properties" ) )
             return std::make_pair( RimWorkflowDefinitionEdge::Collect::Dict, option.value( "additionalProperties" ).toObject() );
     }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// How a produced value joins a collected input. A value that matches the element type is one
+/// item. Otherwise a `list[T]` or `dict[str, T]` is flattened, like taskmaestro does: a list
+/// contributes its items and a dict its values (a keyed input merges the dict by its own keys).
+/// Lists cannot be merged into a keyed input.
+//--------------------------------------------------------------------------------------------------
+std::optional<RimWorkflowPortCompatibility::CollectMember> RimWorkflowPortCompatibility::collectMember( const RimWorkflowPort& produced,
+                                                                                                        RimWorkflowDefinitionEdge::Collect kind,
+                                                                                                        const QJsonObject& element,
+                                                                                                        const QJsonObject& expectedRoot )
+{
+    if ( isCompatible( produced.schema, produced.rootSchema, element, expectedRoot ) ) return CollectMember::Item;
+
+    const auto source = collectKind( produced.schema, produced.rootSchema );
+    if ( !source || !isCompatible( source->second, produced.rootSchema, element, expectedRoot ) ) return std::nullopt;
+
+    using Collect = RimWorkflowDefinitionEdge::Collect;
+    if ( source->first == Collect::List && kind == Collect::List ) return CollectMember::FlattenList;
+    if ( source->first == Collect::Dict ) return CollectMember::FlattenDict;
     return std::nullopt;
 }
 
@@ -616,10 +646,21 @@ std::expected<RimWorkflowDefinitionEdge, QString> RimWorkflowPortCompatibility::
         return std::unexpected( QString( "'%1' is mapped and takes its inputs field by field" ).arg( to ) );
 
     RimWorkflowDefinitionEdge edge{ .from = from, .output = output, .to = to, .input = input };
-    if ( !input.isEmpty() && !isCompatible( *producedPort, *expectedPort ) )
+    // A list or dict that fits the input directly joins the collection when the input already has members
+    const auto  target = input.isEmpty() ? std::nullopt : collectTarget( *expectedPort );
+    const auto& edges  = definition.edges;
+    const bool  joinsCollection =
+        target && std::any_of( edges.begin(),
+                               edges.end(),
+                               [&]( const RimWorkflowDefinitionEdge& existing )
+                               { return existing.to == to && existing.input == input && existing.collect == target->first; } );
+    if ( joinsCollection && collectMember( *producedPort, target->first, target->second, expectedPort->rootSchema ) )
     {
-        const auto target = collectTarget( *expectedPort );
-        if ( target && isCompatible( producedPort->schema, producedPort->rootSchema, target->second, expectedPort->rootSchema ) )
+        edge.collect = target->first;
+    }
+    else if ( !input.isEmpty() && !isCompatible( *producedPort, *expectedPort ) )
+    {
+        if ( target && collectMember( *producedPort, target->first, target->second, expectedPort->rootSchema ) )
         {
             edge.collect = target->first;
         }
@@ -709,12 +750,16 @@ std::expected<void, QString> RimWorkflowPortCompatibility::checkCollectMember( c
         return std::unexpected( QString( "Input '%1' is %2 and cannot collect %3" )
                                     .arg( edge.input, expectedPort->typeName, isList ? "a list of members" : "keyed members" ) );
     }
-    if ( !isCompatible( producedPort->schema, producedPort->rootSchema, target->second, expectedPort->rootSchema ) )
+    if ( !collectMember( *producedPort, edge.collect, target->second, expectedPort->rootSchema ) )
     {
         const QString source = edge.output.isEmpty() ? edge.from : edge.from + "." + edge.output;
-        return std::unexpected(
-            QString( "%1 is %2, but the members of %3.%4 must be %5" )
-                .arg( source, producedPort->typeName, edge.to, edge.input, typeName( target->second, expectedPort->rootSchema ) ) );
+        return std::unexpected( QString( "%1 is %2, but the members of %3.%4 must be %5, or %6 of them" )
+                                    .arg( source,
+                                          producedPort->typeName,
+                                          edge.to,
+                                          edge.input,
+                                          typeName( target->second, expectedPort->rootSchema ),
+                                          isList ? "a list or dict" : "a dict" ) );
     }
     return {};
 }
