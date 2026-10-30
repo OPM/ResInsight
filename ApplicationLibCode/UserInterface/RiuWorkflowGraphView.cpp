@@ -151,9 +151,10 @@ struct PortInfo
     QString toolTip;
     QString typeName{};
     QString iconResource{};
-    Style   style   = Style::Normal;
-    bool    collect = false;
-    bool    firstOf = false;
+    Style   style      = Style::Normal;
+    bool    collect    = false;
+    bool    firstOf    = false;
+    bool    configured = false; // An input whose value is set in the job configuration, shown in the task box
 };
 
 //==================================================================================================
@@ -177,6 +178,7 @@ public:
     bool       isOutput() const { return m_output; }
     bool       isConfig() const { return m_config; }
     void       setHighlight( Highlight highlight, const QString& reason = {} );
+    void       setValueToolTip( const QString& value );
 
 private:
     GraphNode* m_node;
@@ -186,6 +188,7 @@ private:
     QPointF    m_center;
     QBrush     m_brush;
     QPen       m_pen;
+    QString    m_baseToolTip;
     QString    m_toolTip;
 };
 
@@ -224,6 +227,15 @@ protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
 
 private:
+    // Where the config value of a field is drawn: the x position of the text item, where the item
+    // must end to stay clear of other text, and what goes in front of the value
+    struct ValueSlot
+    {
+        qreal   left;
+        qreal   right;
+        QString prefix;
+    };
+
     void      addPorts( const std::vector<PortInfo>& ports, bool output );
     void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
     void      applyStyle();
@@ -236,7 +248,7 @@ private:
     QMap<QString, PortItem*>                 m_inputs;
     QMap<QString, PortItem*>                 m_outputs;
     QMap<QString, QGraphicsTextItem*>        m_configValues;
-    QMap<QString, qreal>                     m_configValueRight; // Where the value must end to stay clear of the type
+    QMap<QString, ValueSlot>                 m_valueSlots;
     std::vector<GraphEdge*>                  m_edges;
     QGraphicsTextItem*                       m_title      = nullptr;
     QGraphicsTextItem*                       m_stateLabel = nullptr;
@@ -335,9 +347,10 @@ PortItem::PortItem( GraphNode* node, const PortInfo& info, bool output, bool con
     , m_output( output )
     , m_config( config )
     , m_center( center )
-    , m_toolTip( info.toolTip.isEmpty() ? info.label : info.toolTip )
+    , m_baseToolTip( info.toolTip.isEmpty() ? info.label : info.toolTip )
+    , m_toolTip( m_baseToolTip )
 {
-    const QColor color = config ? configPortColor : ( output ? outputPortColor : inputPortColor );
+    const QColor color = ( config || info.configured ) ? configPortColor : ( output ? outputPortColor : inputPortColor );
     switch ( info.style )
     {
         case PortInfo::Style::Normal:
@@ -394,6 +407,15 @@ void PortItem::setHighlight( Highlight highlight, const QString& reason )
             setToolTip( reason.isEmpty() ? m_toolTip : m_toolTip + "\n\nCannot connect: " + reason );
             break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The value set in the job configuration, shown in the tooltip
+//--------------------------------------------------------------------------------------------------
+void PortItem::setValueToolTip( const QString& value )
+{
+    m_toolTip = m_baseToolTip + "\nValue: " + value;
+    setToolTip( m_toolTip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,6 +570,7 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
         addText( info.label, labelFont, labelColor, y - ( m_isConfig || !output || showType ? 20 : 13 ) );
 
         // The type goes on a second, smaller line below the label
+        const bool inlineValue = !output && info.configured && !m_isConfig;
         if ( showType )
         {
             QFont typeFont;
@@ -555,23 +578,37 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
             typeFont.setItalic( true );
             const QIcon icon( info.iconResource );
             const bool  showIcon = !info.iconResource.isEmpty() && !icon.isNull();
-            // Config boxes show the value on the same line, so the type gets at most half of it
-            const qreal maxTypeWidth = m_isConfig ? textWidth / 2 : std::numeric_limits<qreal>::max();
+            // Config values go on the same line, so the type gets at most half of it
+            const qreal maxTypeWidth = ( m_isConfig || inlineValue ) ? textWidth / 2 : std::numeric_limits<qreal>::max();
             auto* typeText = addText( info.typeName, typeFont, QColor( 110, 120, 135 ), y - 3, showIcon ? iconSize + 2 : 0.0, maxTypeWidth );
-            qreal typeLeft = typeText->mapRectToParent( typeText->boundingRect() ).left();
+            const QRectF typeRect = typeText->mapRectToParent( typeText->boundingRect() );
+            qreal        typeLeft = typeRect.left();
 
             // The icon of the ResInsight object goes in front of the type
             if ( showIcon )
             {
-                const QRectF textRect = typeText->mapRectToParent( typeText->boundingRect() );
-                const qreal  iconX    = output ? textRect.left() - iconSize - 1 : 10 + 3;
-                auto*        iconItem = new IconItem( icon, iconSize, this );
-                iconItem->setPos( iconX, textRect.center().y() - iconSize / 2.0 );
+                const qreal iconX    = output ? typeRect.left() - iconSize - 1 : 10 + 3;
+                auto*       iconItem = new IconItem( icon, iconSize, this );
+                iconItem->setPos( iconX, typeRect.center().y() - iconSize / 2.0 );
                 iconItem->setToolTip( toolTip );
                 iconItem->setAcceptedMouseButtons( Qt::NoButton );
                 typeLeft = iconX;
             }
-            if ( m_isConfig && output ) m_configValueRight.insert( fieldForKey( info.key ), typeLeft );
+            if ( m_isConfig && output ) m_valueSlots.insert( fieldForKey( info.key ), ValueSlot{ 10, typeLeft - 6, {} } );
+            if ( inlineValue )
+            {
+                // The value follows the type, as in "type = value"
+                const qreal margin = 2 * typeText->document()->documentMargin();
+                m_valueSlots.insert( fieldForKey( info.key ), ValueSlot{ typeRect.right() - margin, m_width - 12, " = " } );
+            }
+        }
+        else if ( m_isConfig && output )
+        {
+            m_valueSlots.insert( fieldForKey( info.key ), ValueSlot{ 10, m_width - 20, {} } );
+        }
+        else if ( inlineValue )
+        {
+            m_valueSlots.insert( fieldForKey( info.key ), ValueSlot{ 10, m_width - 12, {} } );
         }
     }
 }
@@ -894,9 +931,12 @@ void GraphNode::applyStyle()
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
 {
-    if ( !m_isConfig ) return;
-    auto* port = m_outputs.value( "field:" + fieldName, nullptr );
+    auto* port = m_isConfig ? m_outputs.value( "field:" + fieldName, nullptr ) : m_inputs.value( "field:" + fieldName, nullptr );
     if ( !port ) return;
+    if ( !m_isConfig ) port->setValueToolTip( value );
+
+    if ( !m_valueSlots.contains( fieldName ) ) return;
+    const ValueSlot slot = m_valueSlots.value( fieldName );
 
     auto* text = m_configValues.value( fieldName, nullptr );
     if ( !text )
@@ -906,16 +946,29 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
         font.setPointSize( 8 );
         text->setFont( font );
         text->setDefaultTextColor( QColor( 125, 80, 30 ) );
-        text->setPos( 10, port->rect().center().y() - 2 );
+        text->setPos( slot.left, port->rect().center().y() - 2 );
         text->setAcceptedMouseButtons( Qt::NoButton );
         m_configValues.insert( fieldName, text );
     }
 
     // The text item adds a margin on both sides of the text
-    const qreal margin    = 2 * text->document()->documentMargin();
-    const qreal right     = m_configValueRight.value( fieldName, m_width - 14 ) - 6;
-    const qreal available = std::max( 0.0, right - text->pos().x() - margin );
-    text->setPlainText( QFontMetrics( text->font() ).elidedText( value, Qt::ElideRight, static_cast<int>( available ) ) );
+    const qreal margin = 2 * text->document()->documentMargin();
+    qreal       right  = slot.right;
+    if ( !m_isConfig )
+    {
+        // In a task box the value may use the width up to the output text on the same line
+        const QRectF line( slot.left, text->pos().y() + 4, m_width - slot.left, text->boundingRect().height() - 8 );
+        for ( QGraphicsItem* child : childItems() )
+        {
+            auto*      textItem = dynamic_cast<QGraphicsTextItem*>( child );
+            const bool isValue  = textItem && m_configValues.values().contains( textItem );
+            if ( isValue || ( !textItem && !dynamic_cast<IconItem*>( child ) ) ) continue;
+            const QRectF bounds = child->mapRectToParent( child->boundingRect() );
+            if ( bounds.left() > slot.left && bounds.intersects( line ) ) right = std::min( right, bounds.left() );
+        }
+    }
+    const qreal available = std::max( 0.0, right - slot.left - margin );
+    text->setPlainText( QFontMetrics( text->font() ).elidedText( slot.prefix + value, Qt::ElideRight, static_cast<int>( available ) ) );
     text->setToolTip( fieldName + ": " + value );
 }
 
@@ -1327,10 +1380,18 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         return;
     }
 
-    const bool       editMode = m_editable && graph.value( "editable" ).toBool();
-    const QJsonArray tasks    = graph.value( "tasks" ).toArray();
-    const QJsonArray edges    = graph.value( "edges" ).toArray();
-    const QString    result   = graph.value( "result_task" ).toString();
+    const bool editMode = m_editable && graph.value( "editable" ).toBool();
+    const bool inlined  = m_inlineConfigValues;
+    if ( inlined )
+    {
+        // Positions of config boxes are forgotten, so the boxes return beside their tasks when shown again
+        for ( auto it = m_positions.begin(); it != m_positions.end(); )
+            it = it.key().startsWith( "config:" ) ? m_positions.erase( it ) : std::next( it );
+    }
+    const qreal      configOffset = inlined ? 0.0 : configWidth + configGap;
+    const QJsonArray tasks        = graph.value( "tasks" ).toArray();
+    const QJsonArray edges        = graph.value( "edges" ).toArray();
+    const QString    result       = graph.value( "result_task" ).toString();
 
     QStringList                              taskNames;
     std::vector<std::pair<QString, QString>> layoutEdges;
@@ -1404,6 +1465,13 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
                           configured.end(),
                           [&inputIndex]( const QString& a, const QString& b ) { return inputIndex( a ) < inputIndex( b ); } );
 
+        // Inlined config values are shown on the task's own inputs
+        if ( inlined )
+        {
+            for ( PortInfo& port : inputs )
+                port.configured = configured.contains( port.key );
+        }
+
         const QJsonObject map = data.value( "map" ).toObject();
         QString           subtitle;
         if ( !map.isEmpty() ) subtitle = QString::fromUtf8( "⟳ map over %1" ).arg( map.value( "over" ).toString() );
@@ -1444,7 +1512,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         m_scene->addItem( node );
         m_taskNodes.insert( name, node );
 
-        if ( !configFields.value( name ).isEmpty() )
+        if ( !inlined && !configFields.value( name ).isEmpty() )
         {
             auto* configNode = new GraphNode( name,
                                               {},
@@ -1484,11 +1552,11 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         for ( const QString& name : layer )
         {
             auto*       node = m_taskNodes.value( name );
-            const qreal x    = column * columnStep + configWidth + configGap;
+            const qreal x    = column * columnStep + configOffset;
             node->setPos( x, y + ( slotHeight( name ) - node->height() ) / 2.0 );
             if ( auto* config = m_configNodes.value( name, nullptr ) )
             {
-                config->setPos( x - configWidth - configGap, y + ( slotHeight( name ) - config->height() ) / 2.0 );
+                config->setPos( x - configOffset, y + ( slotHeight( name ) - config->height() ) / 2.0 );
             }
             y += slotHeight( name ) + rowGap;
         }
@@ -1687,7 +1755,27 @@ void RiuWorkflowGraphView::onSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value )
 {
-    if ( auto* node = m_configNodes.value( taskName, nullptr ) ) node->setConfigValue( fieldName, value );
+    if ( auto* node = m_configNodes.value( taskName, nullptr ) )
+        node->setConfigValue( fieldName, value );
+    else if ( auto* task = m_taskNodes.value( taskName, nullptr ) )
+        task->setConfigValue( fieldName, value );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show config values in the task boxes instead of in separate config boxes. Takes effect when the
+/// graph is shown next time.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setInlineConfigValues( bool inlineValues )
+{
+    m_inlineConfigValues = inlineValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuWorkflowGraphView::inlineConfigValues() const
+{
+    return m_inlineConfigValues;
 }
 
 //--------------------------------------------------------------------------------------------------

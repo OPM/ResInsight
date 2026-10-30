@@ -120,6 +120,17 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
                                    } );
     m_fitAction       = addAction( "Fit", "", [this]() { m_graphView->fitGraph(); } );
 
+    m_inlineConfigAction = addAction( "Inline Config Values",
+                                      "",
+                                      [this]()
+                                      {
+                                          if ( !m_workflow ) return;
+                                          m_workflow->setInlineConfigValues( m_inlineConfigAction->isChecked() );
+                                          showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+                                      } );
+    m_inlineConfigAction->setCheckable( true );
+    m_inlineConfigAction->setToolTip( "Show the job configuration values in the task boxes instead of in separate config boxes" );
+
     m_splitter  = new QSplitter( Qt::Horizontal, this );
     m_palette   = new RiuWorkflowTaskPalette( m_splitter );
     m_graphView = new RiuWorkflowGraphView( m_splitter );
@@ -883,6 +894,7 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
     else
     {
         m_graphView->setEditable( m_workflow->isEditable() && !m_workflow->isLocked() );
+        m_graphView->setInlineConfigValues( m_workflow->inlineConfigValues() );
         m_graphView->showGraph( m_workflow->graph(), m_workflow->loadError(), policy );
         updateTaskInputValues();
         if ( m_job ) updateJobState();
@@ -942,6 +954,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         menu.addAction( m_duplicateAction );
         menu.addSeparator();
         menu.addAction( m_fitAction );
+        menu.addAction( m_inlineConfigAction );
     }
 
     if ( !menu.isEmpty() ) menu.exec( globalPos );
@@ -1099,6 +1112,8 @@ void RiuWorkflowEditorWidget::updateActions()
     m_redoAction->setEnabled( editable && workflow->canRedo() );
     m_duplicateAction->setEnabled( workflow && workflow->loadError().isEmpty() && workflow->definition().editable );
     m_fitAction->setEnabled( workflow != nullptr );
+    m_inlineConfigAction->setEnabled( workflow != nullptr );
+    m_inlineConfigAction->setChecked( !workflow || workflow->inlineConfigValues() );
 }
 
 //--------------------------------------------------------------------------------------------------
