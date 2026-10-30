@@ -20,23 +20,30 @@ manifest file or plugin descriptor.
 
 ## Architecture at a glance
 
-```
-ResInsight (C++)                              Python helper (rips.taskmaestro_helper)
-─────────────────                             ───────────────────────────────────────
-RimWorkflowTaskCatalog ────── catalog ─────►  entry points → task descriptors + registered workflows
-RimWorkflowCollection
-  folders in ~/.taskmaestro/workflows ─ load ─►  workflow.yaml + input.yaml → definition JSON
-  Installed (RimWorkflowInstalledCollection)    (from the catalog)
-RimWorkflow
-  RimWorkflowDefinition (value struct)
-  edits → applyEdit → undo/redo, dirty
-  Save ──────────────── save (stdin JSON) ──►  definition JSON → workflow.yaml + input.yaml
-  RiuWorkflowValidationRunner ─ save --describe ► temp folder + taskmaestro describe
-  RimWorkflowJob (one or more)
-    RimWorkflowTaskInput (one per task)
-      RimWorkflow<Type>Binding (one per config field, see table below)
-    Run ─ writes input.yaml ─ QProcess ─────►  run <dir> | run --registered <id>
-                                       ◄─────  JSON events → task states in the graph
+```mermaid
+flowchart LR
+    subgraph RI["ResInsight (C++)"]
+        direction TB
+        Catalog["RimWorkflowTaskCatalog"]
+        Coll["RimWorkflowCollection<br/>(Installed: RimWorkflowInstalledCollection)"]
+        WF["RimWorkflow<br/>RimWorkflowDefinition (value struct)<br/>edits → applyEdit → undo/redo, dirty"]
+        Valid["RiuWorkflowValidationRunner"]
+        Job["RimWorkflowJob (one or more)<br/>RimWorkflowTaskInput (one per task)<br/>RimWorkflow&lt;Type&gt;Binding (one per config field)"]
+    end
+    subgraph PY["Python helper (rips.taskmaestro_helper)"]
+        direction TB
+        PCat["entry points → task descriptors<br/>+ registered workflows"]
+        PLoad["workflow.yaml + input.yaml<br/>→ definition JSON"]
+        PSave["definition JSON<br/>→ workflow.yaml + input.yaml"]
+        PDesc["temp folder + taskmaestro describe"]
+        PRun["run &lt;dir&gt; | run --registered &lt;id&gt;"]
+    end
+    PCat -- "catalog" --> Catalog
+    Coll -- "load<br/>(folders in ~/.taskmaestro/workflows)" --> PLoad
+    WF -- "save (stdin JSON)" --> PSave
+    Valid -- "save --describe" --> PDesc
+    Job -- "Run: writes input.yaml, QProcess" --> PRun
+    PRun -. "JSON events → task states in the graph" .-> Job
 ```
 
 The C++ side never parses YAML and doesn't import Pydantic. It only handles
