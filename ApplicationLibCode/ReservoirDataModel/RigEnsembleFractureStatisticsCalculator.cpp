@@ -287,6 +287,9 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
 
     auto [widthResultName, widthResultUnit] = RimStimPlanFractureTemplate::widthParameterNameAndUnit( fractureDefinitions[0] );
 
+    // Files without width data cannot give area weighted statistics
+    if ( widthResultName.isEmpty() ) return samples;
+
     // Create the grids one definition at a time, as a definition can lack conductivity or width data. This keeps the two grids paired.
     for ( const auto& definition : fractureDefinitions )
     {
