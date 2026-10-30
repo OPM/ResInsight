@@ -571,8 +571,8 @@ std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
 //--------------------------------------------------------------------------------------------------
 /// The kind and element schema of a `list[T]` or `dict[str, T]` schema
 //--------------------------------------------------------------------------------------------------
-std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> RimWorkflowPortCompatibility::collectKind( const QJsonObject& schema,
-                                                                                                                      const QJsonObject& rootSchema )
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
+    RimWorkflowPortCompatibility::collectKind( const QJsonObject& schema, const QJsonObject& rootSchema )
 {
     const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
     QJsonArray        options;
@@ -601,11 +601,10 @@ std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> RimWor
 /// contributes its items and a dict its values (a keyed input merges the dict by its own keys).
 /// Lists cannot be merged into a keyed input.
 //--------------------------------------------------------------------------------------------------
-std::optional<RimWorkflowPortCompatibility::CollectMember>
-    RimWorkflowPortCompatibility::collectMember( const RimWorkflowPort&                       produced,
-                                                 RimWorkflowDefinitionEdge::Collect           kind,
-                                                 const QJsonObject&                           element,
-                                                 const QJsonObject&                           expectedRoot )
+std::optional<RimWorkflowPortCompatibility::CollectMember> RimWorkflowPortCompatibility::collectMember( const RimWorkflowPort& produced,
+                                                                                                        RimWorkflowDefinitionEdge::Collect kind,
+                                                                                                        const QJsonObject& element,
+                                                                                                        const QJsonObject& expectedRoot )
 {
     if ( isCompatible( produced.schema, produced.rootSchema, element, expectedRoot ) ) return CollectMember::Item;
 
@@ -754,14 +753,13 @@ std::expected<void, QString> RimWorkflowPortCompatibility::checkCollectMember( c
     if ( !collectMember( *producedPort, edge.collect, target->second, expectedPort->rootSchema ) )
     {
         const QString source = edge.output.isEmpty() ? edge.from : edge.from + "." + edge.output;
-        return std::unexpected(
-            QString( "%1 is %2, but the members of %3.%4 must be %5, or %6 of them" )
-                .arg( source,
-                      producedPort->typeName,
-                      edge.to,
-                      edge.input,
-                      typeName( target->second, expectedPort->rootSchema ),
-                      isList ? "a list or dict" : "a dict" ) );
+        return std::unexpected( QString( "%1 is %2, but the members of %3.%4 must be %5, or %6 of them" )
+                                    .arg( source,
+                                          producedPort->typeName,
+                                          edge.to,
+                                          edge.input,
+                                          typeName( target->second, expectedPort->rootSchema ),
+                                          isList ? "a list or dict" : "a dict" ) );
     }
     return {};
 }

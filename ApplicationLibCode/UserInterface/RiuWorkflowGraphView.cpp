@@ -1147,8 +1147,9 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         if ( !port.value( "collect" ).toString().isEmpty() )
         {
             info.collect = true;
-            toolTip << ( port.value( "collect" ).toString() == "dict" ? "Connect several outputs to collect them, each under its own key; a dict output is merged by its own keys"
-                                                                      : "Connect several outputs to collect them into a list; list and dict outputs are flattened" );
+            toolTip << ( port.value( "collect" ).toString() == "dict"
+                             ? "Connect several outputs to collect them, each under its own key; a dict output is merged by its own keys"
+                             : "Connect several outputs to collect them into a list; list and dict outputs are flattened" );
         }
         info.toolTip = toolTip.join( "\n" );
         if ( port.value( "map_over" ).toBool() )

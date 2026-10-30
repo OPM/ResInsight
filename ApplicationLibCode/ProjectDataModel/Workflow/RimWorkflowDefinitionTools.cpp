@@ -1836,7 +1836,7 @@ QJsonObject RimWorkflowDefinitionTools::graphFromDefinition( const RimWorkflowDe
         if ( !edge.output.isEmpty() ) json["output"] = edge.output;
         if ( edge.isCollected() )
         {
-            json["collect"] = collectName( edge.collect );
+            json["collect"]      = collectName( edge.collect );
             const bool flattened = isFlattenedMember( definition, edge );
             if ( flattened ) json["flatten"] = true;
             if ( edge.collect == RimWorkflowDefinitionEdge::Collect::Dict )

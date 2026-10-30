@@ -72,7 +72,8 @@ QJsonObject mappedOutputSchema( const QJsonObject& outputSchema );
 
 // Collected inputs: the kind and element schema of a `list[T]` or `dict[str, T]` input
 std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectTarget( const RimWorkflowPort& expected );
-std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectKind( const QJsonObject& schema, const QJsonObject& rootSchema );
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectKind( const QJsonObject& schema,
+                                                                                       const QJsonObject& rootSchema );
 
 // How a produced value joins a collected input: as one item, or flattened from a list or dict
 enum class CollectMember
