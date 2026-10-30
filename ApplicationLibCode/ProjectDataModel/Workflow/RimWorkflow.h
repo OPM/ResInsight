@@ -67,6 +67,9 @@ public:
     QJsonObject graph() const;
     QString     loadError() const;
 
+    bool inlineConfigValues() const;
+    void setInlineConfigValues( bool inlineValues );
+
     bool loadFromDirectory( QString* errorMessage = nullptr );
     bool loadFromRegistered( const QJsonObject& catalogEntry, QString* errorMessage = nullptr );
     void setUnsavedDefinition( const RimWorkflowDefinition& definition,
@@ -153,6 +156,7 @@ private:
     caf::PdmField<QString>                   m_readOnlyReason;
     caf::PdmField<QString>                   m_loadError;
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
+    caf::PdmField<bool>                      m_inlineConfigValues;
     QJsonObject                              m_graph;
 
     Source                         m_source = Source::YamlDirectory;

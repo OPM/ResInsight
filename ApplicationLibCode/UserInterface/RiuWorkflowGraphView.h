@@ -88,6 +88,8 @@ public:
 
     void setEditable( bool editable );
     bool isEditable() const;
+    void setInlineConfigValues( bool inlineValues );
+    bool inlineConfigValues() const;
     void setConnectionValidator( const ConnectionValidator& validator );
     void setTaskIssues( const QString& taskName, const QJsonArray& issues );
 
@@ -134,10 +136,11 @@ private:
 
 private:
     QGraphicsScene*     m_scene;
-    QGraphicsTextItem*  m_runStatusLabel = nullptr;
-    bool                m_fitOnResize    = true;
-    bool                m_editable       = false;
-    bool                m_rebuilding     = false;
+    QGraphicsTextItem*  m_runStatusLabel     = nullptr;
+    bool                m_fitOnResize        = true;
+    bool                m_editable           = false;
+    bool                m_inlineConfigValues = true;
+    bool                m_rebuilding         = false;
     ConnectionValidator m_validator;
     QString             m_lastSelectedTask;
 

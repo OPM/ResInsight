@@ -75,6 +75,9 @@ RimWorkflow::RimWorkflow()
     m_loadError.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_jobs, "Jobs", "" );
+
+    CAF_PDM_InitField( &m_inlineConfigValues, "InlineConfigValues", true, "Inline Config Values" );
+    m_inlineConfigValues.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +126,22 @@ QJsonObject RimWorkflow::graph() const
 QString RimWorkflow::loadError() const
 {
     return m_loadError();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether the graph shows config values in the task boxes instead of in separate config boxes
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflow::inlineConfigValues() const
+{
+    return m_inlineConfigValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setInlineConfigValues( bool inlineValues )
+{
+    m_inlineConfigValues = inlineValues;
 }
 
 //--------------------------------------------------------------------------------------------------
