@@ -1147,8 +1147,9 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         if ( !port.value( "collect" ).toString().isEmpty() )
         {
             info.collect = true;
-            toolTip << ( port.value( "collect" ).toString() == "dict" ? "Connect several outputs to collect them, each under its own key"
-                                                                      : "Connect several outputs to collect them into a list" );
+            toolTip << ( port.value( "collect" ).toString() == "dict"
+                             ? "Connect several outputs to collect them, each under its own key; a dict output is merged by its own keys"
+                             : "Connect several outputs to collect them into a list; list and dict outputs are flattened" );
         }
         info.toolTip = toolTip.join( "\n" );
         if ( port.value( "map_over" ).toBool() )
@@ -1541,10 +1542,17 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         }
         else if ( edge.contains( "collect" ) )
         {
-            const bool keyed = edge.value( "collect" ).toString() == "dict";
-            graphEdge->setLabel( edge.value( "label" ).toString(),
-                                 keyed ? QString( "Collected under the key '%1'" ).arg( edge.value( "label" ).toString() )
-                                       : QString( "Collected as item %1 of the list" ).arg( edge.value( "label" ).toString() ) );
+            const bool keyed     = edge.value( "collect" ).toString() == "dict";
+            const bool flattened = edge.value( "flatten" ).toBool();
+            QString    toolTip   = keyed ? QString( "Collected under the key '%1'" ).arg( edge.value( "label" ).toString() )
+                                         : QString( "Collected as item %1 of the list" ).arg( edge.value( "label" ).toString() );
+            if ( flattened )
+            {
+                toolTip = keyed ? "A dict merged into the collection by its own keys"
+                                : QString( "Collected at position %1: the items of a list, or the values of a dict, are added in order" )
+                                      .arg( edge.value( "label" ).toString() );
+            }
+            graphEdge->setLabel( edge.value( "label" ).toString(), toolTip );
         }
         m_scene->addItem( graphEdge );
     }
