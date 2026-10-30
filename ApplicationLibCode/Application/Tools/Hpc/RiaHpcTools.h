@@ -21,28 +21,47 @@
 #include "RiaHpcDefines.h"
 #include "RiaWslTools.h"
 
+#include <QMetaType>
 #include <QString>
 #include <QStringList>
 
-#include <vector>
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 namespace RiaHpcTools
 {
+
+struct BatchJobInformation
+{
+    BatchJobInformation( QStringList parts );
+    BatchJobInformation() {};
+    const QStringList asStringList() const;
+    QString           id;
+    QString           name;
+    QString           runTime;
+    QString           status;
+    QString           queue;
+    QString           where;
+};
+
+typedef std::map<QString, BatchJobInformation> BatchJobInformationMap;
+
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
 QString findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
 
 void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId, const RiaWslTools::WslOptions& wslOptions );
-std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
+const RiaHpcTools::BatchJobInformationMap listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );
 
-const std::vector<std::vector<QString>> decodeSlurmJobs( QStringList stdOut );
-const std::vector<std::vector<QString>> decodeLsfJobs( QStringList stdOut );
+const RiaHpcTools::BatchJobInformationMap decodeSlurmJobs( QStringList stdOut );
+const RiaHpcTools::BatchJobInformationMap decodeLsfJobs( QStringList stdOut );
 
 } // namespace RiaHpcTools
+
+Q_DECLARE_METATYPE( RiaHpcTools::BatchJobInformationMap )

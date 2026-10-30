@@ -49,7 +49,7 @@ class RimWorkflowFieldBinding;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
-class RiuBatchQueueMonitor;
+class RiuBatchJobMonitorView;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuDepthQwtPlot;
@@ -126,6 +126,7 @@ public:
     RiuMohrsCirclePlot*               mohrsCirclePlot();
     RiuSeismicHistogramPanel*         seismicHistogramPanel();
     RiuMessagePanel*                  messagePanel();
+    RiuBatchJobMonitorView*           batchMonitorView();
 
     void showProcessMonitorDockPanel();
     void setDefaultToolbarVisibility();
@@ -138,8 +139,6 @@ public:
     void                     workflowDefinitionChanged( RimWorkflow* workflow );
     RimWorkflow*             displayedWorkflow() const;
     RiuWorkflowEditorWidget* workflowEditor() const;
-
-    void restartBatchMonitor();
 
 protected:
     void        closeEvent( QCloseEvent* event ) override;
@@ -192,7 +191,7 @@ private:
 
     RiuResultInfoPanel*       m_resultInfoPanel;
     RiuProcessMonitor*        m_processMonitor;
-    RiuBatchQueueMonitor*     m_batchMonitor;
+    RiuBatchJobMonitorView*   m_batchMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
     RiuResultQwtPlot*                 m_resultQwtPlot;

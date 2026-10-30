@@ -18,12 +18,13 @@
 
 #include "RiaPreferencesBatch.h"
 
+#include "Hpc/RiaHpcTools.h"
 #include "RiaApplication.h"
-#include "RiaHpcTools.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesOpm.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 #include <QInputDialog>
 
@@ -34,15 +35,27 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesBatch::RiaPreferencesBatch()
 {
-    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel on local machine" );
-    m_maxParallelJobs = 1;
+    CAF_PDM_InitField( &m_maxParallelJobs, "maxParallelJobs", (size_t)1, "Maximum number of jobs to run in parallel on local machine" );
     m_maxParallelJobs.setRange( 1, 100 );
 
     CAF_PDM_InitFieldNoDefault( &m_batchScheduler, "batchScheduler", "Batch Scheduler to use for submitting jobs" );
     CAF_PDM_InitField( &m_exclusive, "exclusive", false, "Exclusive - do not share assigned nodes with other jobs." );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_exclusive );
 
+    CAF_PDM_InitFieldNoDefault( &m_batchJobMonitoring, "jobMonitoring", "Job Completion Check" );
+
     CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue/partition name" );
+
+    CAF_PDM_InitField( &m_updateInterval, "pollUpdateInterval", 10, "Job Status Polling Interval" );
+    m_updateInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_submitWaitSeconds,
+                       "submitWaitSeconds",
+                       4,
+                       "Time to Wait After Job Submit (seconds)",
+                       "",
+                       "Wait at least this many seconds before assuming a job not in the job list has been completed." );
+    m_submitWaitSeconds.setRange( 0, 120 );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalLsfOptions, "additionalLsfOptions", "" );
     CAF_PDM_InitFieldNoDefault( &m_additionalSlurmOptions, "additionalSlurmOptions", "" );
@@ -94,6 +107,13 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
             hpcGrp->addNewLabel( "Additional Slurm options can be specified here. For example: --mem=1G" );
             hpcGrp->add( &m_additionalSlurmOptions );
         }
+        hpcGrp->add( &m_batchJobMonitoring );
+        hpcGrp->add( &m_updateInterval );
+
+        if ( m_batchJobMonitoring() == RiaDefines::BatchJobMonitoringType::QUEUE_POLLING )
+        {
+            hpcGrp->add( &m_submitWaitSeconds );
+        }
     }
 }
 
@@ -111,6 +131,14 @@ size_t RiaPreferencesBatch::maxParallelJobs() const
 RiaDefines::BatchSchedulerType RiaPreferencesBatch::batchScheduler() const
 {
     return m_batchScheduler();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::BatchJobMonitoringType RiaPreferencesBatch::jobMonitoring() const
+{
+    return m_batchJobMonitoring();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,4 +195,37 @@ QString RiaPreferencesBatch::selectQueue( RiaDefines::BatchSchedulerType schedul
         return selectedQueue;
     }
     return currentQueue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaPreferencesBatch::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_updateInterval )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "5 seconds", QVariant::fromValue( 5 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "10 seconds", QVariant::fromValue( 10 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "30 seconds", QVariant::fromValue( 30 ) ) );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesBatch::secondsToWaitForSubmit() const
+{
+    return m_submitWaitSeconds();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesBatch::statusRefreshInterval() const
+{
+    return m_updateInterval();
 }

@@ -18,11 +18,12 @@
 
 #pragma once
 
+#include "Hpc/RiaHpcTools.h"
 #include "RiaHpcDefines.h"
 #include "RiaWslTools.h"
 
 #include <atomic>
-#include <vector>
+#include <map>
 
 #include <QMutex>
 #include <QObject>
@@ -31,12 +32,12 @@
 
 class QWidget;
 
-class RiuBatchMonitorWorker : public QObject
+class RiaBatchMonitorWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
+    explicit RiaBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
                                     int                            interval,
                                     const RiaWslTools::WslOptions& wslOpt,
                                     QObject*                       parent = nullptr );
@@ -44,10 +45,10 @@ public:
     void stopMonitoring();
 
 public slots:
-    void gatherInformation();
+    void start();
 
 signals:
-    void informationGathered( const std::vector<std::vector<QString>> jobInfo );
+    void jobInfoUpdate( const RiaHpcTools::BatchJobInformationMap jobInfo );
     void finished();
 
 private:

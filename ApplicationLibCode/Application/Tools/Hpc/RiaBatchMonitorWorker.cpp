@@ -16,9 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuBatchMonitorWorker.h"
+#include "RiaBatchMonitorWorker.h"
 
-#include "RiaHpcTools.h"
+#include "Hpc/RiaHpcTools.h"
 
 #include <QMutexLocker>
 #include <QStringList>
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
+RiaBatchMonitorWorker::RiaBatchMonitorWorker( RiaDefines::BatchSchedulerType scheduler,
                                               int                            interval,
                                               const RiaWslTools::WslOptions& wslOpt,
                                               QObject*                       parent )
@@ -43,7 +43,7 @@ RiuBatchMonitorWorker::RiuBatchMonitorWorker( RiaDefines::BatchSchedulerType sch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchMonitorWorker::stopMonitoring()
+void RiaBatchMonitorWorker::stopMonitoring()
 {
     QMutexLocker locker( &m_mutex );
     // signal to worker thread it is time to stop
@@ -55,12 +55,12 @@ void RiuBatchMonitorWorker::stopMonitoring()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchMonitorWorker::gatherInformation()
+void RiaBatchMonitorWorker::start()
 {
     while ( m_keepRunning )
     {
         auto jobInfo = RiaHpcTools::listJobs( m_scheduler, m_wslOptions );
-        emit informationGathered( jobInfo );
+        emit jobInfoUpdate( jobInfo );
 
         // poll exit flag 5 times per second to respond quickly to program exit
         int       i    = 0;

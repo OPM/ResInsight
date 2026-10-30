@@ -102,6 +102,7 @@
 #include "Workflow/RimWorkflowCollection.h"
 
 #include "Riu3dSelectionManager.h"
+#include "RiuBatchJobMonitorView.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuFileDialogTools.h"
 #include "RiuGuiTheme.h"
@@ -1746,9 +1747,9 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     }
     caf::PdmUiItem::enableExtraDebugText( RiaPreferencesSystem::current()->appendFieldKeywordToToolTipText() );
 
-    if ( m_mainWindow && oldPreferences )
+    if ( m_mainWindow && m_mainWindow->batchMonitorView() )
     {
-        m_mainWindow->restartBatchMonitor();
+        m_mainWindow->batchMonitorView()->rebuildGui();
     }
 
     if ( oldPreferences )

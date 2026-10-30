@@ -57,7 +57,7 @@
 #include "Workflow/RimWorkflowJob.h"
 #include "Workflow/RimWorkflowTaskInput.h"
 
-#include "RiuBatchQueueMonitor.h"
+#include "RiuBatchJobMonitorView.h"
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
@@ -377,8 +377,6 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-
-    if ( m_batchMonitor ) m_batchMonitor->stopMonitoring();
 
     if ( auto proj = RimProject::current() )
     {
@@ -979,7 +977,7 @@ void RiuMainWindow::createDockPanels()
         auto dockWidget =
             RiuDockWidgetTools::createDockWidget( "Batch Queue Monitor", RiuDockWidgetTools::mainWindowBatchQueueMonitorName(), dockManager() );
 
-        m_batchMonitor = new RiuBatchQueueMonitor( dockWidget );
+        m_batchMonitor = new RiuBatchJobMonitorView( dockWidget );
         dockWidget->setWidget( m_batchMonitor );
         dockManager()->addDockWidgetTabToArea( dockWidget, procAndMsgTabs );
     }
@@ -1254,6 +1252,14 @@ RiuSeismicHistogramPanel* RiuMainWindow::seismicHistogramPanel()
 RiuMessagePanel* RiuMainWindow::messagePanel()
 {
     return m_messagePanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuBatchJobMonitorView* RiuMainWindow::batchMonitorView()
+{
+    return m_batchMonitor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2351,12 +2357,4 @@ void RiuMainWindow::setActiveViewer( QString viewerName )
     }
 
     RiuMainWindowBase::setActiveViewer( viewerName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::restartBatchMonitor()
-{
-    if ( m_batchMonitor ) m_batchMonitor->restartMonitoring();
 }

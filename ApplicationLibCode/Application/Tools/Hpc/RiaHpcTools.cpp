@@ -132,6 +132,36 @@ namespace RiaHpcTools
 {
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+BatchJobInformation::BatchJobInformation( QStringList parts )
+{
+    if ( parts.size() < 6 ) return;
+    id      = parts[0];
+    name    = parts[1];
+    runTime = parts[2];
+    status  = parts[3];
+    queue   = parts[4];
+    where   = parts[5];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QStringList BatchJobInformation::asStringList() const
+{
+    QStringList retList;
+    retList.append( id );
+    retList.append( name );
+    retList.append( runTime );
+    retList.append( status );
+    retList.append( queue );
+    retList.append( where );
+
+    return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns available cluster queues for the given scheduler type
 //--------------------------------------------------------------------------------------------------
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
@@ -153,7 +183,7 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const Ria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<QString>> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
+const RiaHpcTools::BatchJobInformationMap listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
@@ -275,19 +305,16 @@ QStringList decodeLsfQueues( QStringList stdOut )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<QString>> decodeSlurmJobs( QStringList stdOut )
+const RiaHpcTools::BatchJobInformationMap decodeSlurmJobs( QStringList stdOut )
 {
-    std::vector<std::vector<QString>> jobs;
+    RiaHpcTools::BatchJobInformationMap jobs;
     for ( auto& line : stdOut )
     {
         std::vector<QString> statusLine;
         auto                 parts = line.split( ' ', Qt::SkipEmptyParts );
-        if ( parts.size() < 6 ) continue;
-        for ( auto& part : parts )
-        {
-            statusLine.push_back( part.trimmed() );
-        }
-        jobs.push_back( statusLine );
+        if ( parts.size() == 0 ) continue;
+
+        jobs[parts[0]] = BatchJobInformation( parts );
     }
     return jobs;
 }
@@ -295,30 +322,30 @@ const std::vector<std::vector<QString>> decodeSlurmJobs( QStringList stdOut )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<QString>> decodeLsfJobs( QStringList stdOut )
+const RiaHpcTools::BatchJobInformationMap decodeLsfJobs( QStringList stdOut )
 {
-    std::vector<std::vector<QString>> jobs;
+    RiaHpcTools::BatchJobInformationMap jobs;
 
     for ( auto line : stdOut )
     {
         line = line.trimmed();
+        if ( line.isEmpty() ) continue;
 
-        auto jobId   = line.mid( 0, 10 ).trimmed();
-        auto jobName = line.mid( 11, 25 ).trimmed();
-        auto runTime = line.mid( 37, 12 ).trimmed();
-        auto status  = line.mid( 50, 8 ).trimmed();
-        auto queue   = line.mid( 59, 15 ).trimmed();
-        auto where   = line.mid( 75, -1 ).trimmed();
+        QStringList parts;
+        // jobid
+        parts.append( line.mid( 0, 10 ).trimmed() );
+        // job name
+        parts.append( line.mid( 11, 25 ).trimmed() );
+        // run time
+        parts.append( line.mid( 37, 12 ).trimmed() );
+        // status
+        parts.append( line.mid( 50, 8 ).trimmed() );
+        // queue
+        parts.append( line.mid( 59, 15 ).trimmed() );
+        // exec host
+        parts.append( line.mid( 75, -1 ).trimmed() );
 
-        std::vector<QString> statusLine;
-        statusLine.push_back( jobId );
-        statusLine.push_back( jobName );
-        statusLine.push_back( runTime );
-        statusLine.push_back( status );
-        statusLine.push_back( queue );
-        statusLine.push_back( where );
-
-        jobs.push_back( statusLine );
+        jobs[parts[0]] = BatchJobInformation( parts );
     }
 
     return jobs;

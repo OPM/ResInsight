@@ -39,7 +39,8 @@ public:
                                  QString stdErrLog,
                                  QString queueName,
                                  bool    exclusive,
-                                 int     numberOfProcesses ) override;
+                                 int     numberOfProcesses,
+                                 bool    blockingWait ) override;
 
 protected:
     QString launchScriptDirective() const override;

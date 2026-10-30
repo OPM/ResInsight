@@ -86,6 +86,7 @@ list(
   Application/Tools/Summary/CMakeLists_files.cmake
   Application/Tools/KeyValueStore/CMakeLists_files.cmake
   Application/Tools/Ensemble/CMakeLists_files.cmake
+  Application/Tools/Hpc/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake

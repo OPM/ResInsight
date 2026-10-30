@@ -142,9 +142,20 @@ void RimEnsembleJob::stop()
 {
     if ( isRunning() )
     {
+        int noRunning = 0;
         for ( auto& subJob : m_subJobs() )
         {
-            subJob->stop();
+            if ( subJob->isRunning() )
+            {
+                noRunning++;
+
+                subJob->stop();
+            }
+        }
+
+        if ( noRunning == 0 )
+        {
+            setFinished( false );
         }
     }
 }
@@ -296,28 +307,28 @@ bool RimEnsembleJob::execute()
 
     updateAllRequiredEditors();
 
-    bool anyJobsStarted = false;
     for ( auto& subJob : m_subJobs() )
     {
         subJob->jobCompleted.connect( this, &RimEnsembleJob::subJobCompleted );
         if ( RicRunJobFeature::runJob( subJob ) )
         {
             m_subJobsStarted++;
-            anyJobsStarted = true;
         }
     }
 
     m_inputEnsemble->reloadMetaDataIfNeeded();
 
-    setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
+    // some jobs might fail immediately with misconfigured submit commands, check completed count
+    setState( ( m_subJobsCompleted < m_subJobsStarted ) ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
-    if ( anyJobsStarted )
+    if ( m_subJobsCompleted < m_subJobsStarted )
     {
         setStarted();
+        return true;
     }
 
-    return anyJobsStarted;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

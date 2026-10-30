@@ -70,6 +70,7 @@ class RiaArgumentParser;
 class RiaCloudApiService;
 class RiaOsduConnector;
 class RiaSumoConnector;
+class RiaBatchMonitorService;
 
 namespace caf
 {
@@ -206,6 +207,8 @@ public:
 
     RiaCloudApiService* cloudApiService();
 
+    RiaBatchMonitorService* batchMonitorService() const;
+
     RiaKeyValueStore<char>* keyValueStore() const;
 
 protected:
@@ -279,5 +282,6 @@ private:
     QPointer<RiaOsduConnector> m_osduConnector;
     QPointer<RiaSumoConnector> m_sumoConnector;
 
-    std::unique_ptr<RiaCloudApiService> m_cloudApiService;
+    std::unique_ptr<RiaCloudApiService>     m_cloudApiService;
+    std::unique_ptr<RiaBatchMonitorService> m_batchMonitorService;
 };
