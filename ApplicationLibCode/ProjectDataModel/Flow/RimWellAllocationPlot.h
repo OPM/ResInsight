@@ -26,6 +26,7 @@
 
 #include <QPointer>
 
+class RigAccWellFlowCalculator;
 class RigSimWellData;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
@@ -60,6 +61,13 @@ public:
     {
         ACCUMULATED,
         INFLOW
+    };
+
+    enum class ConnectionLabelType
+    {
+        CONNECTION_NUMBER,
+        CELL_IJK,
+        CONNECTION_NUMBER_AND_CELL_IJK
     };
 
 public:
@@ -110,6 +118,7 @@ private:
     void setCase( RimEclipseResultCase* eclipseCase );
     void updateFromWell();
     void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );
+    void updateConnectionTickLabels( RimWellLogTrack* plotTrack, const RigAccWellFlowCalculator& wfCalculator, size_t branchIdx ) const;
 
     void addStackedCurve( const QString&             tracerName,
                           RiaDefines::DepthType      depthType,
@@ -144,6 +153,9 @@ private:
     caf::PdmField<bool>                     m_groupSmallContributions;
     caf::PdmField<double>                   m_smallContributionsThreshold;
     caf::PdmField<caf::AppEnum<FlowType>>   m_flowType;
+
+    caf::PdmField<caf::AppEnum<ConnectionLabelType>> m_connectionLabelType;
+    caf::PdmField<bool>                              m_showAllConnections;
 
     QPointer<RiuWellAllocationPlot> m_wellAllocationPlotWidget;
 

@@ -23,6 +23,8 @@
 
 #include "qwt_plot.h"
 
+#include <map>
+
 class RimWellLogTrack;
 class RiuPlotAnnotationTool;
 class RimPlotAxisAnnotation;
@@ -43,6 +45,9 @@ public:
     ~RiuWellLogTrack() override;
 
     void setAxisEnabled( QwtAxis::Position axis, bool enabled );
+
+    void setDepthAxisTickLabels( const std::map<int, QString>& tickLabels );
+    void setDepthAxisIntegerTicks( bool enabled, bool tickAtEveryInteger );
 
     void createAnnotationsInPlot( const std::vector<RimPlotAxisAnnotation*>& annotations );
 

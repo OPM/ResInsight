@@ -1423,6 +1423,27 @@ QString RimWellLogTrack::depthAxisTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Custom text for depth axis ticks at integer depth values, e.g. cell IJK for connection numbers
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setDepthAxisTickLabels( const std::map<int, QString>& tickLabels )
+{
+    m_depthAxisTickLabels = tickLabels;
+
+    if ( m_plotWidget ) m_plotWidget->setDepthAxisTickLabels( m_depthAxisTickLabels );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Place depth axis ticks at integer values only, optionally with a major tick at every integer
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setDepthAxisIntegerTicks( bool enabled, bool tickAtEveryInteger )
+{
+    m_depthAxisIntegerTicks       = enabled;
+    m_depthAxisTickAtEveryInteger = tickAtEveryInteger;
+
+    if ( m_plotWidget ) m_plotWidget->setDepthAxisIntegerTicks( m_depthAxisIntegerTicks, m_depthAxisTickAtEveryInteger );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationWellPath( RimWellPath* wellPath )
@@ -1538,6 +1559,8 @@ RiuPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParen
     {
         m_plotWidget = new RiuWellLogTrack( this, mainWindowParent );
         updateAxisScaleEngine();
+        if ( !m_depthAxisTickLabels.empty() ) m_plotWidget->setDepthAxisTickLabels( m_depthAxisTickLabels );
+        if ( m_depthAxisIntegerTicks ) m_plotWidget->setDepthAxisIntegerTicks( m_depthAxisIntegerTicks, m_depthAxisTickAtEveryInteger );
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
         {

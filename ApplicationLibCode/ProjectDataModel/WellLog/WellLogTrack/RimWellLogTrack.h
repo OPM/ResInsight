@@ -125,6 +125,9 @@ public:
     void    setPropertyValueAxisTitle( const QString& text );
     QString depthAxisTitle() const;
 
+    void setDepthAxisTickLabels( const std::map<int, QString>& tickLabels );
+    void setDepthAxisIntegerTicks( bool enabled, bool tickAtEveryInteger );
+
     void                                   setFormationWellPath( RimWellPath* wellPath );
     RimWellPath*                           formationWellPath() const;
     void                                   setFormationSimWellName( const QString& simWellName );
@@ -405,4 +408,8 @@ private:
     double  m_availablePropertyValueRangeMax;
     double  m_availableDepthRangeMin;
     double  m_availableDepthRangeMax;
+
+    std::map<int, QString> m_depthAxisTickLabels;
+    bool                   m_depthAxisIntegerTicks       = false;
+    bool                   m_depthAxisTickAtEveryInteger = false;
 };
