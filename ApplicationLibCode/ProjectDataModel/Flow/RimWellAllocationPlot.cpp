@@ -125,7 +125,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
                                 "" );
     CAF_PDM_InitField( &m_showAllConnections,
                        "ShowAllConnections",
-                       true,
+                       false,
                        "Show All Connections",
                        "",
                        "Show a tick and label for every connection on the depth axis",
@@ -411,8 +411,8 @@ void RimWellAllocationPlot::updateFromWell()
 
                     if ( !accFlow.empty() )
                     {
-                        // Add a dummy zero connection number at the end to make the curve reach the y-axis when showing in flow rate. The
-                        // lowest connection number is 1.0, so adding a zero value will not cause any issue when showing in accumulated flow.
+                        // Add a dummy zero connection number at the end to make the curve reach the y-axis. The lowest connection number
+                        // is 1.0, so the dummy point (shifted to 0.5 below) stays before the first connection in both flow types.
                         accFlow.push_back( accFlow.back() );
                         curveDepthValues.push_back( 0.0 );
                     }
@@ -503,6 +503,7 @@ void RimWellAllocationPlot::updateFromWell()
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
+    updateConnectedEditors();
     m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
     m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
 
@@ -529,14 +530,15 @@ void RimWellAllocationPlot::updateConnectionTickLabels( RimWellLogTrack*        
                                                         const RigAccWellFlowCalculator& wfCalculator,
                                                         size_t                          branchIdx ) const
 {
-    std::map<int, QString> tickLabels;
+    std::map<int, QString> cellTexts;
 
-    if ( m_connectionLabelType() != ConnectionLabelType::CONNECTION_NUMBER && m_case && m_case->eclipseCaseData() )
+    if ( m_case && m_case->eclipseCaseData() )
     {
         const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
 
         const std::vector<double>              connectionNumbers = wfCalculator.connectionNumbersFromTop( branchIdx );
         const std::vector<RigWellResultPoint>& resultPoints      = wfCalculator.connectionWellResultPoints( branchIdx );
+        CAF_ASSERT( connectionNumbers.size() == resultPoints.size() );
 
         for ( size_t i = 0; i < std::min( connectionNumbers.size(), resultPoints.size() ); ++i )
         {
@@ -552,13 +554,23 @@ void RimWellAllocationPlot::updateConnectionTickLabels( RimWellLogTrack*        
             QString cellText = QString( "(%1, %2, %3)" ).arg( ijk1.x() ).arg( ijk1.y() ).arg( ijk1.z() );
             if ( grid != mainGrid ) cellText = QString::fromStdString( grid->gridName() ) + " " + cellText;
 
-            const int connectionNumber   = static_cast<int>( std::round( connectionNumbers[i] ) );
+            const int connectionNumber  = std::lround( connectionNumbers[i] );
+            cellTexts[connectionNumber] = cellText;
+        }
+    }
+
+    std::map<int, QString> tickLabels;
+    if ( m_connectionLabelType() != ConnectionLabelType::CONNECTION_NUMBER )
+    {
+        for ( const auto& [connectionNumber, cellText] : cellTexts )
+        {
             tickLabels[connectionNumber] = m_connectionLabelType() == ConnectionLabelType::CELL_IJK
                                                ? cellText
                                                : QString( "%1 %2" ).arg( connectionNumber ).arg( cellText );
         }
     }
 
+    plotTrack->setConnectionCellTexts( cellTexts );
     plotTrack->setDepthAxisTickLabels( tickLabels );
     plotTrack->setDepthAxisIntegerTicks( true, m_showAllConnections() );
 }

@@ -126,6 +126,7 @@ public:
     QString depthAxisTitle() const;
 
     void setDepthAxisTickLabels( const std::map<int, QString>& tickLabels );
+    void setConnectionCellTexts( const std::map<int, QString>& cellTexts );
     void setDepthAxisIntegerTicks( bool enabled, bool tickAtEveryInteger );
 
     void                                   setFormationWellPath( RimWellPath* wellPath );
@@ -410,6 +411,7 @@ private:
     double  m_availableDepthRangeMax;
 
     std::map<int, QString> m_depthAxisTickLabels;
+    std::map<int, QString> m_connectionCellTexts;
     bool                   m_depthAxisIntegerTicks       = false;
     bool                   m_depthAxisTickAtEveryInteger = false;
 };

@@ -803,16 +803,11 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     std::vector<double>              curveDepths;
     std::vector<std::vector<double>> curvesPlotXValues;
 
-    auto depthType             = parentWellLogPlot()->depthType();
-    auto depthUnit             = parentWellLogPlot()->depthUnit();
-    bool isWellAllocInflowPlot = false;
-    {
-        auto wapl = parentWellLogPlot()->firstAncestorOfType<RimWellAllocationPlot>();
-        if ( wapl )
-        {
-            isWellAllocInflowPlot = ( wapl->flowType() == RimWellAllocationPlot::INFLOW );
-        }
-    }
+    auto depthType       = parentWellLogPlot()->depthType();
+    auto depthUnit       = parentWellLogPlot()->depthUnit();
+    bool isWellAllocPlot = parentWellLogPlot()->firstAncestorOfType<RimWellAllocationPlot>() != nullptr;
+
+    const bool exportCellTexts = depthType == RiaDefines::DepthType::CONNECTION_NUMBER && !m_connectionCellTexts.empty();
 
     RiaWellLogCurveMerger curveMerger;
     bool                  foundNonMatchingDepths = false;
@@ -857,6 +852,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     if ( depthType == RiaDefines::DepthType::CONNECTION_NUMBER )
     {
         out += "Connection";
+        if ( exportCellTexts ) out += " \tCell (I, J, K)";
     }
     else if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
     {
@@ -922,13 +918,18 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
             curveDepth = curveDepths[i];
 
-            if ( isWellAllocInflowPlot )
+            if ( isWellAllocPlot )
             {
                 curveDepth -= 0.5; // To shift the values that was shifted to get the numbers between the changes
             }
         }
 
         out += QString::number( curveDepth, 'f', 3 );
+        if ( exportCellTexts )
+        {
+            auto it = m_connectionCellTexts.find( std::lround( curveDepth ) );
+            out += " \t" + ( it != m_connectionCellTexts.end() ? it->second : QString( "-" ) );
+        }
         for ( std::vector<double> plotVector : curvesPlotXValues )
         {
             out += QString( " \t%1" ).arg( QString::number( plotVector[i], 'f', 3 ), 12 );
@@ -1430,6 +1431,14 @@ void RimWellLogTrack::setDepthAxisTickLabels( const std::map<int, QString>& tick
     m_depthAxisTickLabels = tickLabels;
 
     if ( m_plotWidget ) m_plotWidget->setDepthAxisTickLabels( m_depthAxisTickLabels );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Grid cell text for each connection number, included in the plot data export
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setConnectionCellTexts( const std::map<int, QString>& cellTexts )
+{
+    m_connectionCellTexts = cellTexts;
 }
 
 //--------------------------------------------------------------------------------------------------
