@@ -6,10 +6,7 @@
         "boost-test",
         "clipper2",
         "eigen3",
-        {
-            "name": "grpc",
-            "platform": "!osx"
-        },
+        "grpc",
         "type-lite",
         "fast-float",
         "spdlog",
