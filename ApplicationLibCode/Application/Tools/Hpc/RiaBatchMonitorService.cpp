@@ -104,6 +104,15 @@ void RiaBatchMonitorService::restartMonitoring()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaBatchMonitorService::shutDown()
+{
+    internalStop();
+    m_usageCount = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaBatchMonitorService::internalStop()
 {
     if ( m_monitorWorker != nullptr )
@@ -147,7 +156,7 @@ void RiaBatchMonitorService::internalStart()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaBatchMonitorService::onJobInfoUpdateFromMonitor( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
+void RiaBatchMonitorService::onJobInfoUpdateFromMonitor( const RiaHpcTools::BatchJobInformationMap information )
 {
     emit jobInfoUpdate( information );
     jobInfoUpdateSignal.send( information );

@@ -47,7 +47,7 @@ protected:
     void stopJob( QString jobId );
 
 private slots:
-    void slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information );
+    void slotUpdateView( const RiaHpcTools::BatchJobInformationMap information );
     void toggleUpdates();
     void showContextMenu( const QPoint& pos );
 

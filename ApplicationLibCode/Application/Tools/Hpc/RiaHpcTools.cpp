@@ -183,7 +183,7 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const Ria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<QString, BatchJobInformation> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
+const RiaHpcTools::BatchJobInformationMap listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions )
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
@@ -305,9 +305,9 @@ QStringList decodeLsfQueues( QStringList stdOut )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<QString, BatchJobInformation> decodeSlurmJobs( QStringList stdOut )
+const RiaHpcTools::BatchJobInformationMap decodeSlurmJobs( QStringList stdOut )
 {
-    std::map<QString, BatchJobInformation> jobs;
+    RiaHpcTools::BatchJobInformationMap jobs;
     for ( auto& line : stdOut )
     {
         std::vector<QString> statusLine;
@@ -322,9 +322,9 @@ const std::map<QString, BatchJobInformation> decodeSlurmJobs( QStringList stdOut
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<QString, BatchJobInformation> decodeLsfJobs( QStringList stdOut )
+const RiaHpcTools::BatchJobInformationMap decodeLsfJobs( QStringList stdOut )
 {
-    std::map<QString, BatchJobInformation> jobs;
+    RiaHpcTools::BatchJobInformationMap jobs;
 
     for ( auto line : stdOut )
     {

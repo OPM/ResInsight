@@ -48,7 +48,7 @@ public slots:
     void start();
 
 signals:
-    void jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> jobInfo );
+    void jobInfoUpdate( const RiaHpcTools::BatchJobInformationMap jobInfo );
     void finished();
 
 private:

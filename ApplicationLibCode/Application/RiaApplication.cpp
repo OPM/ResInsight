@@ -219,7 +219,7 @@ RiaApplication::~RiaApplication()
         m_cloudApiService->stop();
     }
 
-    m_batchMonitorService->stopMonitoring();
+    m_batchMonitorService->shutDown();
 
     RiaFontCache::clear();
 

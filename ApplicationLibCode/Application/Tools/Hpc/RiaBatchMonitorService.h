@@ -52,19 +52,22 @@ public:
     // to be called after preferences have been changed
     void restartMonitoring();
 
+    // to be used on application exit
+    void shutDown();
+
     // non-QObjects: connect to this to get job list updates from batch queue monitor
-    caf::Signal<const std::map<QString, RiaHpcTools::BatchJobInformation>&> jobInfoUpdateSignal;
+    caf::Signal<const RiaHpcTools::BatchJobInformationMap&> jobInfoUpdateSignal;
 
 signals:
     // QObjects: connect to this to get job list updates from batch queue monitor
-    void jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
+    void jobInfoUpdate( const RiaHpcTools::BatchJobInformationMap& information );
 
 protected:
     void internalStop();
     void internalStart();
 
 private slots:
-    void onJobInfoUpdateFromMonitor( const std::map<QString, RiaHpcTools::BatchJobInformation> information );
+    void onJobInfoUpdateFromMonitor( const RiaHpcTools::BatchJobInformationMap information );
 
 private:
     RiaBatchMonitorWorker* m_monitorWorker;

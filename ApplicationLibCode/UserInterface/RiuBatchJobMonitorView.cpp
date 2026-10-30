@@ -85,9 +85,9 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
 
     connect( m_checkBoxAutoUpdate, SIGNAL( clicked() ), this, SLOT( toggleUpdates() ) );
     connect( RiaBatchMonitorService::instance(),
-             SIGNAL( jobInfoUpdate( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ),
+             SIGNAL( jobInfoUpdate( const RiaHpcTools::BatchJobInformationMap ) ),
              this,
-             SLOT( slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> ) ) );
+             SLOT( slotUpdateView( const RiaHpcTools::BatchJobInformationMap ) ) );
 
     connect( m_jobView, &QTableView::customContextMenuRequested, this, &RiuBatchJobMonitorView::showContextMenu );
 
@@ -125,7 +125,7 @@ void RiuBatchJobMonitorView::rebuildGui()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuBatchJobMonitorView::slotUpdateView( const std::map<QString, RiaHpcTools::BatchJobInformation> information )
+void RiuBatchJobMonitorView::slotUpdateView( const RiaHpcTools::BatchJobInformationMap information )
 {
     if ( !m_checkBoxAutoUpdate->isChecked() ) return;
 

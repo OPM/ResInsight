@@ -21,6 +21,7 @@
 #include "RiaHpcDefines.h"
 #include "RiaWslTools.h"
 
+#include <QMetaType>
 #include <QString>
 #include <QStringList>
 
@@ -45,18 +46,22 @@ struct BatchJobInformation
     QString           where;
 };
 
+typedef std::map<QString, BatchJobInformation> BatchJobInformationMap;
+
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
 QString findJobId( RiaDefines::BatchSchedulerType scheduler, QStringList stdOut );
 
 void stopJob( RiaDefines::BatchSchedulerType scheduler, QString jobId, const RiaWslTools::WslOptions& wslOptions );
-const std::map<QString, BatchJobInformation> listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
+const RiaHpcTools::BatchJobInformationMap listJobs( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
 // helpers
 QStringList decodeSlurmQueues( QStringList stdOut );
 QStringList decodeLsfQueues( QStringList stdOut );
 
-const std::map<QString, BatchJobInformation> decodeSlurmJobs( QStringList stdOut );
-const std::map<QString, BatchJobInformation> decodeLsfJobs( QStringList stdOut );
+const RiaHpcTools::BatchJobInformationMap decodeSlurmJobs( QStringList stdOut );
+const RiaHpcTools::BatchJobInformationMap decodeLsfJobs( QStringList stdOut );
 
 } // namespace RiaHpcTools
+
+Q_DECLARE_METATYPE( RiaHpcTools::BatchJobInformationMap )
