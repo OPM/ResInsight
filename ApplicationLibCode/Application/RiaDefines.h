@@ -47,6 +47,7 @@ enum class ResultCatType
     FLOW_DIAGNOSTICS,
     INJECTION_FLOODING,
     REMOVED,
+    QUALITY_CONTROL,
 
     UNDEFINED = 999
 };

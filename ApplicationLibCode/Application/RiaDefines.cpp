@@ -40,6 +40,7 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
     addItem( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, "ALLAN_DIAGRAMS", "Allan Diagrams" );
     addItem( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
     addItem( RiaDefines::ResultCatType::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
+    addItem( RiaDefines::ResultCatType::QUALITY_CONTROL, "QUALITY_CONTROL", "Quality Control" );
     setDefault( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 }
 
