@@ -72,6 +72,19 @@ QJsonObject mappedOutputSchema( const QJsonObject& outputSchema );
 
 // Collected inputs: the kind and element schema of a `list[T]` or `dict[str, T]` input
 std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectTarget( const RimWorkflowPort& expected );
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectKind( const QJsonObject& schema, const QJsonObject& rootSchema );
+
+// How a produced value joins a collected input: as one item, or flattened from a list or dict
+enum class CollectMember
+{
+    Item,
+    FlattenList,
+    FlattenDict
+};
+std::optional<CollectMember> collectMember( const RimWorkflowPort&             produced,
+                                            RimWorkflowDefinitionEdge::Collect kind,
+                                            const QJsonObject&                 element,
+                                            const QJsonObject&                 expectedRoot );
 
 // The edge to add for a new connection, collecting into a list or dict input when the upstream
 // value is an element of it. An existing connection to the same input is replaced, except for

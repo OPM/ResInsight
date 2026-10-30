@@ -105,7 +105,13 @@ for Undo, Redo, Save, Save As, and Duplicate as Editable.
 - **Collect outputs:** an input that takes a list or a dict (ring around the
   port) accepts several connections. Each connection is labelled with its
   position or key. Right-click a connection to **Rename Key** or **Move
-  Earlier/Later**.
+  Earlier/Later**. A list or dict output can also be collected: into a list
+  input its items (or the values of a dict, in order) are added one by one,
+  shown as `[n+]`. Into a dict input a dict output is merged by its own keys
+  (labelled *merged*). This includes the output of a mapped task. Lists cannot
+  be merged into a dict input, and only one level is flattened. To add such an
+  output to an existing collection, connect it after the first member. This
+  requires a taskmaestro version with collect flattening.
 - **Map over items:** right-click a task and choose **Map Over** to run it
   once per item of a mapping. Choose the inputs that receive the key and the
   value of each item. The items are entered in the property view, either as

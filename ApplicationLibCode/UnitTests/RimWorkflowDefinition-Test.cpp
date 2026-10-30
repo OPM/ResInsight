@@ -545,6 +545,55 @@ TEST( RimWorkflowDefinitionEdit, collectIntoDict )
 }
 
 //--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, collectFlattensListsAndDicts )
+{
+    using Collect   = RimWorkflowDefinitionEdge::Collect;
+    auto definition = collectDefinition();
+
+    const QJsonObject number{ { "type", "number" } };
+    const QJsonObject listOfNumbers{ { "type", "array" }, { "items", number } };
+    const QJsonObject dictOfNumbers{ { "type", "object" }, { "additionalProperties", number } };
+    definition.taskTypes.insert( "t.make_list",
+                                 QJsonObject{ { "name", "make_list" },
+                                              { "input_schema", QJsonObject{ { "type", "object" } } },
+                                              { "output_schema", numberModel( "Listed", "values", listOfNumbers ) } } );
+    definition.taskTypes.insert( "t.make_dict",
+                                 QJsonObject{ { "name", "make_dict" },
+                                              { "input_schema", QJsonObject{ { "type", "object" } } },
+                                              { "output_schema", numberModel( "Dicted", "values", dictOfNumbers ) } } );
+    for ( const auto& [name, taskId] : std::vector<std::pair<QString, QString>>{ { "lister", "t.make_list" }, { "dicter", "t.make_dict" } } )
+    {
+        definition.nodes.push_back( { .name = name, .taskId = taskId } );
+        definition.inputs.insert( name, QJsonObject() );
+    }
+    definition = RimWorkflowDefinitionTools::normalize( definition );
+
+    // A single item, a dict and a list all join one list input
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .output = "value", .to = "sum_list", .input = "values" } ) );
+    definition = edited(
+        RimWorkflowDefinitionTools::connect( definition, { .from = "dicter", .output = "values", .to = "sum_list", .input = "values" } ) );
+    definition = edited(
+        RimWorkflowDefinitionTools::connect( definition, { .from = "lister", .output = "values", .to = "sum_list", .input = "values" } ) );
+    const auto members = definition.incomingEdges( "sum_list" );
+    ASSERT_EQ( 3u, members.size() );
+    for ( const auto& member : members )
+        EXPECT_EQ( Collect::List, member.collect );
+    EXPECT_TRUE( taskIssues( definition, "sum_list" ).isEmpty() ) << taskIssues( definition, "sum_list" ).join( "\n" ).toStdString();
+
+    // A dict is merged into a keyed input that has members, a list is not
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .output = "value", .to = "sum_dict", .input = "values" } ) );
+    definition = edited(
+        RimWorkflowDefinitionTools::connect( definition, { .from = "dicter", .output = "values", .to = "sum_dict", .input = "values" } ) );
+    ASSERT_EQ( 2u, definition.incomingEdges( "sum_dict" ).size() );
+    EXPECT_EQ( Collect::Dict, definition.incomingEdges( "sum_dict" )[1].collect );
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::connect( definition, { .from = "lister", .output = "values", .to = "sum_dict", .input = "values" } ) );
+    EXPECT_TRUE( taskIssues( definition, "sum_dict" ).isEmpty() ) << taskIssues( definition, "sum_dict" ).join( "\n" ).toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowDefinitionEdit, mapTask )
 {
     auto definition = collectDefinition();

@@ -157,6 +157,18 @@ QJsonObject mapToJson( const RimWorkflowTaskMap& map )
     return QJsonObject{ { "over", map.over }, { "key_as", map.keyAs }, { "value_as", map.valueAs }, { "error_mode", map.errorMode } };
 }
 
+// A member that is a list or dict spliced into the collection, rather than one item
+bool isFlattenedMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge )
+{
+    const auto producedPort = RimWorkflowPortCompatibility::outputPort( definition.taskTypeForNode( edge.from ), edge.output );
+    const auto expectedPort = RimWorkflowPortCompatibility::inputPort( definition.taskTypeForNode( edge.to ), edge.input );
+    if ( !producedPort || !expectedPort ) return false;
+    const auto target = RimWorkflowPortCompatibility::collectTarget( *expectedPort );
+    if ( !target || target->first != edge.collect ) return false;
+    const auto mode = RimWorkflowPortCompatibility::collectMember( *producedPort, target->first, target->second, expectedPort->rootSchema );
+    return mode && *mode != RimWorkflowPortCompatibility::CollectMember::Item;
+}
+
 QString collectName( RimWorkflowDefinitionEdge::Collect collect )
 {
     switch ( collect )
@@ -1825,7 +1837,12 @@ QJsonObject RimWorkflowDefinitionTools::graphFromDefinition( const RimWorkflowDe
         if ( edge.isCollected() )
         {
             json["collect"] = collectName( edge.collect );
-            json["label"] = edge.collect == RimWorkflowDefinitionEdge::Collect::Dict ? edge.key : QString( "[%1]" ).arg( listIndex[&edge] );
+            const bool flattened = isFlattenedMember( definition, edge );
+            if ( flattened ) json["flatten"] = true;
+            if ( edge.collect == RimWorkflowDefinitionEdge::Collect::Dict )
+                json["label"] = flattened ? QString( "merged" ) : edge.key;
+            else
+                json["label"] = QString( flattened ? "[%1+]" : "[%1]" ).arg( listIndex[&edge] );
         }
         else if ( edge.isFirstOf() )
         {
