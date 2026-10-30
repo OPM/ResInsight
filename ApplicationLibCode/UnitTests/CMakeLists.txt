@@ -86,6 +86,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPath-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigAccWellFlowCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveTools-Test.cpp

@@ -45,6 +45,109 @@
 
 #include <QWheelEvent>
 
+#include <cmath>
+#include <set>
+
+namespace
+{
+//==================================================================================================
+/// Scale draw replacing the numeric tick label by a custom text for integer tick values
+//==================================================================================================
+class RiuDepthAxisTickLabelScaleDraw : public QwtScaleDraw
+{
+public:
+    void setTickLabels( const std::map<int, QString>& tickLabels )
+    {
+        m_tickLabels = tickLabels;
+        invalidateCache();
+    }
+
+    QwtText label( double value ) const override
+    {
+        const double rounded = std::round( value );
+        if ( std::abs( value - rounded ) < 1.0e-6 )
+        {
+            auto it = m_tickLabels.find( std::lround( value ) );
+            if ( it != m_tickLabels.end() ) return QwtText( it->second );
+        }
+
+        return QwtScaleDraw::label( value );
+    }
+
+private:
+    std::map<int, QString> m_tickLabels;
+};
+
+//==================================================================================================
+/// Linear scale engine placing ticks at integer values only. Major ticks are either automatic (with a
+/// step of at least one) or at every integer. Minor ticks are placed at the remaining integers.
+//==================================================================================================
+class RiuIntegerTickScaleEngine : public QwtLinearScaleEngine
+{
+public:
+    enum class Mode
+    {
+        OFF,
+        AUTO_MAJOR_TICKS,
+        MAJOR_TICK_AT_EVERY_INTEGER
+    };
+
+    void setMode( Mode mode ) { m_mode = mode; }
+
+    QwtScaleDiv divideScale( double x1, double x2, int maxMajorSteps, int maxMinorSteps, double stepSize ) const override
+    {
+        if ( m_mode == Mode::OFF ) return QwtLinearScaleEngine::divideScale( x1, x2, maxMajorSteps, maxMinorSteps, stepSize );
+
+        // Avoid creating a huge number of ticks when the axis range is large
+        const double maxIntegerTickCount = 1000.0;
+        const bool   isRangeLimited      = std::abs( x2 - x1 ) < maxIntegerTickCount;
+
+        if ( m_mode == Mode::MAJOR_TICK_AT_EVERY_INTEGER && isRangeLimited ) stepSize = 1.0;
+
+        QwtScaleDiv scaleDiv = QwtLinearScaleEngine::divideScale( x1, x2, maxMajorSteps, 0, stepSize );
+
+        QList<double> majorTicks = scaleDiv.ticks( QwtScaleDiv::MajorTick );
+        if ( majorTicks.size() > 1 )
+        {
+            // Use an integer step of at least one to keep the major ticks at integer values
+            const double step        = std::abs( majorTicks[1] - majorTicks[0] );
+            const double integerStep = std::max( 1.0, std::round( step ) );
+            if ( std::abs( step - integerStep ) > 1e-6 )
+            {
+                scaleDiv   = QwtLinearScaleEngine::divideScale( x1, x2, maxMajorSteps, 0, integerStep );
+                majorTicks = scaleDiv.ticks( QwtScaleDiv::MajorTick );
+            }
+        }
+
+        QList<double> minorTicks;
+        if ( m_mode == Mode::AUTO_MAJOR_TICKS && isRangeLimited )
+        {
+            std::set<long long> majorTickValues;
+            for ( double tick : majorTicks )
+            {
+                majorTickValues.insert( std::llround( tick ) );
+            }
+
+            const double first = std::ceil( std::min( x1, x2 ) );
+            const double last  = std::floor( std::max( x1, x2 ) );
+
+            for ( double value = first; value <= last; value += 1.0 )
+            {
+                if ( !majorTickValues.contains( std::llround( value ) ) ) minorTicks.push_back( value );
+            }
+        }
+
+        scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
+        scaleDiv.setTicks( QwtScaleDiv::MediumTick, {} );
+
+        return scaleDiv;
+    }
+
+private:
+    Mode m_mode = Mode::OFF;
+};
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +191,81 @@ void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
     }
 
     setAxisTitleEnabled( plotAxis, enabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Replace the numeric depth axis tick labels by custom text for the given integer depth values.
+/// Ticks without a custom text show the numeric value.
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setDepthAxisTickLabels( const std::map<int, QString>& tickLabels )
+{
+    auto depthTrackPlot = m_plotDefinition ? m_plotDefinition->firstAncestorOfType<RimDepthTrackPlot>() : nullptr;
+    if ( !depthTrackPlot ) return;
+
+    const auto qwtAxis = toQwtPlotAxis( depthTrackPlot->depthAxis() );
+
+    auto tickLabelScaleDraw = dynamic_cast<RiuDepthAxisTickLabelScaleDraw*>( qwtPlot()->axisScaleDraw( qwtAxis ) );
+    if ( !tickLabelScaleDraw )
+    {
+        if ( tickLabels.empty() ) return;
+
+        const QwtScaleDraw* currentScaleDraw = qwtPlot()->axisScaleDraw( qwtAxis );
+
+        tickLabelScaleDraw = new RiuDepthAxisTickLabelScaleDraw;
+        tickLabelScaleDraw->setMinimumExtent( currentScaleDraw->minimumExtent() );
+        for ( auto component : { QwtAbstractScaleDraw::Backbone, QwtAbstractScaleDraw::Ticks, QwtAbstractScaleDraw::Labels } )
+        {
+            tickLabelScaleDraw->enableComponent( component, currentScaleDraw->hasComponent( component ) );
+        }
+
+        // The plot takes ownership of the scale draw
+        qwtPlot()->setAxisScaleDraw( qwtAxis, tickLabelScaleDraw );
+    }
+
+    tickLabelScaleDraw->setTickLabels( tickLabels );
+    scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Place depth axis ticks at integer values only, e.g. for connection numbers. When tickAtEveryInteger is
+/// set, every integer gets a major tick, otherwise the major ticks are automatic and minor ticks fill in.
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setDepthAxisIntegerTicks( bool enabled, bool tickAtEveryInteger )
+{
+    using Mode = RiuIntegerTickScaleEngine::Mode;
+
+    auto depthTrackPlot = m_plotDefinition ? m_plotDefinition->firstAncestorOfType<RimDepthTrackPlot>() : nullptr;
+    if ( !depthTrackPlot ) return;
+
+    const auto qwtAxis = toQwtPlotAxis( depthTrackPlot->depthAxis() );
+
+    auto scaleEngine = dynamic_cast<RiuIntegerTickScaleEngine*>( qwtPlot()->axisScaleEngine( qwtAxis ) );
+    if ( !scaleEngine )
+    {
+        if ( !enabled ) return;
+
+        const QwtScaleEngine* currentScaleEngine = qwtPlot()->axisScaleEngine( qwtAxis );
+
+        scaleEngine = new RiuIntegerTickScaleEngine;
+        scaleEngine->setAttributes( currentScaleEngine->attributes() );
+        scaleEngine->setReference( currentScaleEngine->reference() );
+        scaleEngine->setMargins( currentScaleEngine->lowerMargin(), currentScaleEngine->upperMargin() );
+
+        // The plot takes ownership of the scale engine
+        qwtPlot()->setAxisScaleEngine( qwtAxis, scaleEngine );
+    }
+
+    Mode mode = Mode::OFF;
+    if ( enabled )
+    {
+        mode = tickAtEveryInteger ? Mode::MAJOR_TICK_AT_EVERY_INTEGER : Mode::AUTO_MAJOR_TICKS;
+    }
+    scaleEngine->setMode( mode );
+
+    // Reapply the axis range to recompute the ticks
+    const QwtInterval currentRange = qwtPlot()->axisInterval( qwtAxis );
+    setAxisScale( qwtAxis, currentRange.minValue(), currentRange.maxValue() );
+    scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

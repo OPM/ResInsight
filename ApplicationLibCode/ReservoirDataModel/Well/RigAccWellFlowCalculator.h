@@ -58,9 +58,9 @@ private:
 
 #include <QString>
 
-#include "cvfVector3.h"
+#include "RigWellResultPoint.h"
 
-struct RigWellResultPoint;
+#include "cvfVector3.h"
 
 class RigAccWellFlowCalculator
 {
@@ -81,9 +81,10 @@ public:
                               const std::vector<double>&             pipeBranchMeasuredDepths,
                               bool                                   totalFlowOnly );
 
-    std::vector<double>        connectionNumbersFromTop( size_t branchIdx ) const;
-    const std::vector<double>& accumulatedTracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
-    const std::vector<double>& tracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
+    std::vector<double>                    connectionNumbersFromTop( size_t branchIdx ) const;
+    const std::vector<RigWellResultPoint>& connectionWellResultPoints( size_t branchIdx ) const;
+    const std::vector<double>&             accumulatedTracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
+    const std::vector<double>&             tracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const;
 
     const std::vector<double>& pseudoLengthFromTop( size_t branchIdx ) const;
     const std::vector<double>& trueVerticalDepth( size_t branchIdx ) const;
@@ -134,6 +135,7 @@ private:
     {
         std::vector<double>                    depthValuesFromTop;
         std::vector<double>                    trueVerticalDepth;
+        std::vector<RigWellResultPoint>        wellResultPoints; // Only populated for connection based flow
         std::map<QString, std::vector<double>> accFlowPrTracer;
         std::map<QString, std::vector<double>> flowPrTracer;
     };

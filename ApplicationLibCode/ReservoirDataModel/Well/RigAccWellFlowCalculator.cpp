@@ -197,6 +197,14 @@ std::vector<double> RigAccWellFlowCalculator::connectionNumbersFromTop( size_t b
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The well result points of the connections, in the same order as connectionNumbersFromTop()
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigWellResultPoint>& RigAccWellFlowCalculator::connectionWellResultPoints( size_t branchIdx ) const
+{
+    return m_connectionFlowPrBranch[branchIdx].wellResultPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConnection( const QString& tracerName, size_t branchIdx ) const
@@ -485,6 +493,7 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection( size_t bran
         BranchFlow& branchFlow = m_connectionFlowPrBranch[branchIdx];
 
         storeFlowOnDepth( &branchFlow, connNumFromTop, accFlowPrTracer, flowPrTracer );
+        branchFlow.wellResultPoints.push_back( wellCell );
 
         --clSegIdx;
     }

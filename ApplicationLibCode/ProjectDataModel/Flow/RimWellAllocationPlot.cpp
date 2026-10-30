@@ -28,6 +28,7 @@
 #include "RigEclipseCaseDataTools.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
+#include "RigMainGrid.h"
 #include "Well/RigAccWellFlowCalculator.h"
 #include "Well/RigSimWellData.h"
 #include "Well/RigSimulationWellCenterLineCalculator.h"
@@ -76,6 +77,17 @@ void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
     addItem( RimWellAllocationPlot::INFLOW, "INFLOW", "Inflow Rates" );
     setDefault( RimWellAllocationPlot::INFLOW );
 }
+
+template <>
+void AppEnum<RimWellAllocationPlot::ConnectionLabelType>::setUp()
+{
+    addItem( RimWellAllocationPlot::ConnectionLabelType::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    addItem( RimWellAllocationPlot::ConnectionLabelType::CELL_IJK, "CELL_IJK", "Cell (I, J, K)" );
+    addItem( RimWellAllocationPlot::ConnectionLabelType::CONNECTION_NUMBER_AND_CELL_IJK,
+             "CONNECTION_NUMBER_AND_CELL_IJK",
+             "Connection Number and Cell (I, J, K)" );
+    setDefault( RimWellAllocationPlot::ConnectionLabelType::CONNECTION_NUMBER_AND_CELL_IJK );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +117,19 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitField( &m_wellName, "WellName", RiaDefines::selectionTextNone(), "Well" );
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
     CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type" );
+    CAF_PDM_InitFieldNoDefault( &m_connectionLabelType,
+                                "ConnectionLabelType",
+                                "Connection Labels",
+                                "",
+                                "Label the connections on the depth axis by connection number and/or grid cell (I, J, K)",
+                                "" );
+    CAF_PDM_InitField( &m_showAllConnections,
+                       "ShowAllConnections",
+                       true,
+                       "Show All Connections",
+                       "",
+                       "Show a tick and label for every connection on the depth axis",
+                       "" );
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold" );
     CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow" );
@@ -369,6 +394,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         if ( !depthValues.empty() )
         {
+            if ( depthType == RiaDefines::DepthType::CONNECTION_NUMBER )
+            {
+                updateConnectionTickLabels( plotTrack, *wfCalculator, brIdx );
+            }
+
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for ( const QString& tracerName : tracerNames )
             {
@@ -388,13 +418,9 @@ void RimWellAllocationPlot::updateFromWell()
                     }
 
                     // Shift the "bars" to make connection number tick at the midpoint of the constant value
-                    // when showing in flow rate
-                    if ( m_flowType == INFLOW )
+                    for ( double& connNum : curveDepthValues )
                     {
-                        for ( double& connNum : curveDepthValues )
-                        {
-                            connNum += 0.5;
-                        }
+                        connNum += 0.5;
                     }
                 }
                 else if ( depthType == RiaDefines::DepthType::PSEUDO_LENGTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
@@ -494,6 +520,47 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
     plotTrack->setPropertyValueAxisTitle( axisTitle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateConnectionTickLabels( RimWellLogTrack*                plotTrack,
+                                                        const RigAccWellFlowCalculator& wfCalculator,
+                                                        size_t                          branchIdx ) const
+{
+    std::map<int, QString> tickLabels;
+
+    if ( m_connectionLabelType() != ConnectionLabelType::CONNECTION_NUMBER && m_case && m_case->eclipseCaseData() )
+    {
+        const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+
+        const std::vector<double>              connectionNumbers = wfCalculator.connectionNumbersFromTop( branchIdx );
+        const std::vector<RigWellResultPoint>& resultPoints      = wfCalculator.connectionWellResultPoints( branchIdx );
+
+        for ( size_t i = 0; i < std::min( connectionNumbers.size(), resultPoints.size() ); ++i )
+        {
+            const RigWellResultPoint& resultPoint = resultPoints[i];
+            if ( !mainGrid || !resultPoint.isCell() || resultPoint.gridIndex() >= mainGrid->gridCount() ) continue;
+
+            const RigGridBase* grid = mainGrid->gridByIndex( resultPoint.gridIndex() );
+            const auto         ijk  = grid ? grid->ijkFromCellIndex( resultPoint.cellIndex() ) : std::nullopt;
+            if ( !ijk ) continue;
+
+            const auto ijk1 = ijk->toOneBased();
+
+            QString cellText = QString( "(%1, %2, %3)" ).arg( ijk1.x() ).arg( ijk1.y() ).arg( ijk1.z() );
+            if ( grid != mainGrid ) cellText = QString::fromStdString( grid->gridName() ) + " " + cellText;
+
+            const int connectionNumber   = static_cast<int>( std::round( connectionNumbers[i] ) );
+            tickLabels[connectionNumber] = m_connectionLabelType() == ConnectionLabelType::CELL_IJK
+                                               ? cellText
+                                               : QString( "%1 %2" ).arg( connectionNumber ).arg( cellText );
+        }
+    }
+
+    plotTrack->setDepthAxisTickLabels( tickLabels );
+    plotTrack->setDepthAxisIntegerTicks( true, m_showAllConnections() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -804,7 +871,7 @@ void RimWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
     }
     else if ( changedField == &m_wellName || changedField == &m_timeStep || changedField == &m_flowDiagSolution ||
               changedField == &m_groupSmallContributions || changedField == &m_smallContributionsThreshold || changedField == &m_flowType ||
-              changedField == &m_branchDetection )
+              changedField == &m_branchDetection || changedField == &m_connectionLabelType || changedField == &m_showAllConnections )
     {
         onLoadDataAndUpdate();
     }
@@ -839,6 +906,11 @@ void RimWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup( "Options" );
     optionGroup.add( &m_flowDiagSolution );
     optionGroup.add( &m_flowType );
+    if ( m_accumulatedWellFlowPlot && m_accumulatedWellFlowPlot->depthType() == RiaDefines::DepthType::CONNECTION_NUMBER )
+    {
+        optionGroup.add( &m_connectionLabelType );
+        optionGroup.add( &m_showAllConnections );
+    }
     optionGroup.add( &m_groupSmallContributions );
     optionGroup.add( &m_smallContributionsThreshold );
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly( !m_groupSmallContributions() );
