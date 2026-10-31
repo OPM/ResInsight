@@ -86,6 +86,8 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
     }
     else
     {
+        uiOrdering.addNewLabel( "NOTE: This functionality should be considered BETA as it is still under development." );
+
         auto hpcGrp = uiOrdering.addNewGroup( "Batch Scheduler Options" );
         hpcGrp->add( &m_queueName );
 
