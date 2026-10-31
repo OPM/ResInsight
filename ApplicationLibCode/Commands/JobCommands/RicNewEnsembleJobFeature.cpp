@@ -19,6 +19,7 @@
 #include "RicNewEnsembleJobFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaPreferencesOpm.h"
 #include "Summary/RiaSummaryDefines.h"
 
@@ -73,5 +74,5 @@ void RicNewEnsembleJobFeature::onActionTriggered( bool isChecked )
 void RicNewEnsembleJobFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/opm.png" ) );
-    actionToSetup->setText( "New Ensemble Job... " );
+    actionToSetup->setText( "New Ensemble Job... " + RiaDefines::betaFeaturePostfix() );
 }
