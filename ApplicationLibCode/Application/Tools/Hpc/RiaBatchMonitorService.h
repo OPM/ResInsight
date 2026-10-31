@@ -44,7 +44,7 @@ public:
 
 public:
     RiaBatchMonitorService();
-    ~RiaBatchMonitorService();
+    ~RiaBatchMonitorService() override;
 
     void stopMonitoring();
     void startMonitoring();

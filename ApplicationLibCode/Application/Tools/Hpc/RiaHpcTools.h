@@ -46,7 +46,7 @@ struct BatchJobInformation
     QString           where;
 };
 
-typedef std::map<QString, BatchJobInformation> BatchJobInformationMap;
+using BatchJobInformationMap = std::map<QString, BatchJobInformation>;
 
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 
