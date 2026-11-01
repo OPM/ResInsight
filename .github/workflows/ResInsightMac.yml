@@ -220,6 +220,16 @@ jobs:
           ls cmakebuild/ApplicationLibCode/UnitTests
           cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
 
+      - name: Run pytest
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight.app/Contents/MacOS/ResInsight
+        # Deselected tests differ from the Linux/Windows reference values on macOS, see #15076
+        run: |
+          cd GrpcInterface/Python/rips
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console \
+            --deselect rips/tests/test_completion_export.py::test_export_completion_files_unified \
+            --deselect rips/tests/test_simulation_wells.py::test_10k_acclength
+
       - name: Write macOS launch instructions
         run: |
           cat > cmakebuild/install/README-macOS.txt <<'EOF'
