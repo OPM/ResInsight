@@ -100,6 +100,12 @@ RimPolygon* RimPolygonInView::sourceItem() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::setPolygon( RimPolygon* polygon )
 {
+    if ( m_polygon )
+    {
+        m_polygon->objectChanged.disconnect( this );
+        m_polygon->coordinatesChanged.disconnect( this );
+    }
+
     m_polygon = polygon;
 
     connectSignals();
@@ -456,7 +462,7 @@ void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder 
 void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
 {
     // make sure name is in sync
-    if ( dynamic_cast<const RimPolygon*>( emitter ) )
+    if ( m_polygon() && emitter == m_polygon() )
     {
         setName( m_polygon->name() );
     }
