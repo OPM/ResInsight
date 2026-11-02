@@ -630,28 +630,30 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     std::vector<time_t> timeStepsVector( timeSteps.begin(), timeSteps.end() );
     size_t              stride = std::max( (size_t)1, timeStepsVector.size() / maxTimeStepCount );
 
-    std::vector<std::vector<std::pair<RigEnsembleParameter, double>>> correlationsForChosenTimeSteps;
+    // The set of parameters returned by parameterCorrelations() can differ between time steps, so accumulate per parameter.
+    // A parameter missing at a time step contributes 0 to the average, consistent with parameterCorrelations() mapping
+    // undefined correlations to 0.
+    std::map<RigEnsembleParameter, double> correlationSums;
+    size_t                                 timeStepCount = 0;
 
     for ( size_t i = stride; i < timeStepsVector.size(); i += stride )
     {
-        std::vector<std::pair<RigEnsembleParameter, double>> correlationsForTimeStep =
-            parameterCorrelations( address, timeStepsVector[i], selectedParameters );
-        correlationsForChosenTimeSteps.push_back( correlationsForTimeStep );
-    }
-
-    for ( size_t i = 1; i < correlationsForChosenTimeSteps.size(); ++i )
-    {
-        for ( size_t j = 0; j < correlationsForChosenTimeSteps[0].size(); ++j )
+        for ( const auto& [parameter, correlation] : parameterCorrelations( address, timeStepsVector[i], selectedParameters ) )
         {
-            correlationsForChosenTimeSteps[0][j].second += correlationsForChosenTimeSteps[i][j].second;
+            correlationSums[parameter] += correlation;
         }
-    }
-    for ( size_t j = 0; j < correlationsForChosenTimeSteps[0].size(); ++j )
-    {
-        correlationsForChosenTimeSteps[0][j].second /= correlationsForChosenTimeSteps.size();
+        timeStepCount++;
     }
 
-    return correlationsForChosenTimeSteps[0];
+    std::vector<std::pair<RigEnsembleParameter, double>> averageCorrelations;
+    if ( timeStepCount == 0 ) return averageCorrelations;
+
+    for ( const auto& [parameter, sum] : correlationSums )
+    {
+        averageCorrelations.emplace_back( parameter, sum / timeStepCount );
+    }
+
+    return averageCorrelations;
 }
 
 //--------------------------------------------------------------------------------------------------
