@@ -83,6 +83,9 @@ RimWorkflow::RimWorkflow()
 
     CAF_PDM_InitFieldNoDefault( &m_hiddenTasks, "HiddenTasks", "Hidden Tasks" );
     m_hiddenTasks.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_collapsedTasks, "CollapsedTasks", "Collapsed Tasks" );
+    m_collapsedTasks.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +185,46 @@ void RimWorkflow::setTaskHidden( const QString& taskName, bool hidden )
 void RimWorkflow::showAllTasks()
 {
     m_hiddenTasks = std::vector<QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tasks the user has collapsed to their title in the graph. A view setting like the hidden tasks.
+//--------------------------------------------------------------------------------------------------
+QStringList RimWorkflow::collapsedTasks() const
+{
+    return QStringList( m_collapsedTasks().begin(), m_collapsedTasks().end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflow::isTaskCollapsed( const QString& taskName ) const
+{
+    return std::ranges::contains( m_collapsedTasks(), taskName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setTaskCollapsed( const QString& taskName, bool collapsed )
+{
+    std::vector<QString> tasks = m_collapsedTasks();
+    std::erase( tasks, taskName );
+    if ( collapsed ) tasks.push_back( taskName );
+    m_collapsedTasks = tasks;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setCollapsedTasks( const QStringList& taskNames )
+{
+    std::vector<QString> tasks;
+    for ( const QString& taskName : taskNames )
+    {
+        if ( !std::ranges::contains( tasks, taskName ) ) tasks.push_back( taskName );
+    }
+    m_collapsedTasks = tasks;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,14 +607,17 @@ void RimWorkflow::definitionChanged( const QMap<QString, QString>& renames )
     m_name        = m_definition.name;
     m_description = m_definition.headerComment;
 
-    // Hidden tasks follow renames, and deleted tasks are forgotten
-    std::vector<QString> hidden;
-    for ( const QString& taskName : m_hiddenTasks() )
+    // Hidden and collapsed tasks follow renames, and deleted tasks are forgotten
+    for ( auto* field : { &m_hiddenTasks, &m_collapsedTasks } )
     {
-        const QString name = renames.value( taskName, taskName );
-        if ( m_definition.findNode( name ) && !std::ranges::contains( hidden, name ) ) hidden.push_back( name );
+        std::vector<QString> tasks;
+        for ( const QString& taskName : field->v() )
+        {
+            const QString name = renames.value( taskName, taskName );
+            if ( m_definition.findNode( name ) && !std::ranges::contains( tasks, name ) ) tasks.push_back( name );
+        }
+        *field = tasks;
     }
-    m_hiddenTasks = hidden;
 
     // Keep the issues that have not been checked again until the next validation
     rebuildGraph();

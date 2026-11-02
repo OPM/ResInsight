@@ -167,6 +167,13 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
              this,
              [this]( const QString& taskId, const QPointF& scenePos ) { addTask( taskId, scenePos ); } );
     connect( m_graphView, &RiuWorkflowGraphView::contextMenuRequested, this, &RiuWorkflowEditorWidget::showContextMenu );
+    // Queued, as the graph is rebuilt and the view must not delete items while handling the click
+    connect(
+        m_graphView,
+        &RiuWorkflowGraphView::collapseToggled,
+        this,
+        [this]( const QString& taskName ) { setTaskCollapsed( taskName, m_workflow && !m_workflow->isTaskCollapsed( taskName ) ); },
+        Qt::QueuedConnection );
     connect( m_palette, &RiuWorkflowTaskPalette::taskActivated, this, [this]( const QString& taskId ) { addTask( taskId ); } );
 
     updateActions();
@@ -376,6 +383,58 @@ void RiuWorkflowEditorWidget::setTaskHidden( const QString& taskName, bool hidde
     if ( !m_workflow ) return;
     m_workflow->setTaskHidden( taskName, hidden );
     showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::setTaskCollapsed( const QString& taskName, bool collapsed )
+{
+    if ( !m_workflow ) return;
+    m_workflow->setTaskCollapsed( taskName, collapsed );
+    showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Actions changing how a task is shown, available also when the workflow can't be edited
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendTaskViewActions( QMenu* menu, const QString& taskName )
+{
+    const bool collapsed = m_workflow->isTaskCollapsed( taskName );
+    addMenuAction( menu,
+                   collapsed ? "Expand Task" : "Collapse Task",
+                   [this, taskName, collapsed]() { setTaskCollapsed( taskName, !collapsed ); } );
+    addMenuAction( menu, "Hide Task", [this, taskName]() { setTaskHidden( taskName, true ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Collapse or expand all tasks of the workflow
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendCollapseMenu( QMenu* menu )
+{
+    QStringList taskNames;
+    for ( const QJsonValue& task : m_workflow->graph().value( "tasks" ).toArray() )
+        taskNames.append( task.toObject().value( "name" ).toString() );
+    const QStringList collapsed = m_workflow->collapsedTasks();
+
+    addMenuAction( menu,
+                   "Collapse All Tasks",
+                   [this, taskNames]()
+                   {
+                       if ( !m_workflow ) return;
+                       m_workflow->setCollapsedTasks( taskNames );
+                       showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+                   } )
+        ->setEnabled( collapsed.size() < taskNames.size() );
+    addMenuAction( menu,
+                   "Expand All Tasks",
+                   [this]()
+                   {
+                       if ( !m_workflow ) return;
+                       m_workflow->setCollapsedTasks( {} );
+                       showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+                   } )
+        ->setEnabled( !collapsed.isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -980,6 +1039,7 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
         m_graphView->setInlineConfigValues( m_workflow->inlineConfigValues() );
         m_shownHiddenTasks = effectiveHiddenTasks();
         m_graphView->setHiddenTasks( m_shownHiddenTasks );
+        m_graphView->setCollapsedTasks( m_workflow->collapsedTasks() );
         m_graphView->showGraph( m_workflow->graph(), m_workflow->loadError(), policy );
         updateTaskInputValues();
         if ( m_job ) updateJobState();
@@ -1003,12 +1063,12 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
     if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Task && !editable )
     {
         const QString task = item.task;
-        addMenuAction( &menu, "Hide Task", [this, task]() { setTaskHidden( task, true ); } );
+        appendTaskViewActions( &menu, task );
     }
     else if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Task && editable )
     {
         const QString task = item.task;
-        addMenuAction( &menu, "Hide Task", [this, task]() { setTaskHidden( task, true ); } );
+        appendTaskViewActions( &menu, task );
         menu.addSeparator();
         addMenuAction( &menu, "Rename...", [this, task]() { renameTask( task ); } );
         addMenuAction( &menu, "Set as Result Task", [this, task]() { setResultTask( task ); } )
@@ -1047,6 +1107,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         menu.addSeparator();
         menu.addAction( m_fitAction );
         menu.addAction( m_inlineConfigAction );
+        appendCollapseMenu( &menu );
         appendShowHiddenMenu( &menu );
     }
 

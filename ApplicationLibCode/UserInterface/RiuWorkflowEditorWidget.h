@@ -98,6 +98,9 @@ private:
     void appendOptionalInputsMenu( QMenu* menu, const QString& taskName );
     void appendShowHiddenMenu( QMenu* menu );
     void setTaskHidden( const QString& taskName, bool hidden );
+    void setTaskCollapsed( const QString& taskName, bool collapsed );
+    void appendCollapseMenu( QMenu* menu );
+    void appendTaskViewActions( QMenu* menu, const QString& taskName );
 
     QJsonArray  taskIssues( const QJsonObject& graphTask ) const;
     QStringList effectiveHiddenTasks() const;
