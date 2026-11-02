@@ -91,6 +91,7 @@ public:
     void setInlineConfigValues( bool inlineValues );
     bool inlineConfigValues() const;
     void setHiddenTasks( const QStringList& taskNames );
+    void setCollapsedTasks( const QStringList& taskNames );
     void setConnectionValidator( const ConnectionValidator& validator );
     void setTaskIssues( const QString& taskName, const QJsonArray& issues );
 
@@ -111,11 +112,13 @@ signals:
     void deleteRequested( const RiuWorkflowGraphView::ItemRef& item );
     void renameRequested( const QString& taskName );
     void addTaskRequested( const QString& taskId, const QPointF& scenePos );
+    void collapseToggled( const QString& taskName );
     void contextMenuRequested( const RiuWorkflowGraphView::ItemRef& item, const QPoint& globalPos, const QPointF& scenePos );
 
 protected:
     void resizeEvent( QResizeEvent* event ) override;
     void mousePressEvent( QMouseEvent* event ) override;
+    void mouseDoubleClickEvent( QMouseEvent* event ) override;
     void mouseMoveEvent( QMouseEvent* event ) override;
     void mouseReleaseEvent( QMouseEvent* event ) override;
     void wheelEvent( QWheelEvent* event ) override;
@@ -147,6 +150,7 @@ private:
     ConnectionValidator m_validator;
     QString             m_lastSelectedTask;
     QStringList         m_hiddenTasks;
+    QStringList         m_collapsedTasks;
 
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_taskNodes;
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_configNodes;

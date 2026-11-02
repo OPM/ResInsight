@@ -84,6 +84,12 @@ const QColor conditionColor( 135, 75, 150 );
 
 constexpr qreal diamondMinHeight = 130.0;
 constexpr qreal diamondPortStep  = 24.0;
+constexpr qreal collapsedHeight  = 30.0;
+constexpr qreal headerHeight     = 28.0;
+
+// Marks the item that collapses and expands its task when clicked
+constexpr int       toggleDataKey = 0;
+const QLatin1String collapseToggle( "collapse-toggle" );
 
 QString keyForField( const QString& field )
 {
@@ -202,11 +208,13 @@ public:
     GraphNode( const QString&               name,
                const std::vector<PortInfo>& inputs,
                const std::vector<PortInfo>& outputs,
-               bool                         isConfig = false,
-               const QString&               subtitle = {},
-               bool                         diamond  = false );
+               bool                         isConfig  = false,
+               const QString&               subtitle  = {},
+               bool                         diamond   = false,
+               bool                         collapsed = false );
 
     qreal                  height() const;
+    bool                   isHeaderAt( const QPointF& scenePos ) const;
     QPointF                portPosition( const QString& key, bool output ) const;
     QPointF                controlAnchor( bool outgoing ) const;
     void                   setBranches( const QStringList& branches );
@@ -238,6 +246,7 @@ private:
     };
 
     void      addPorts( const std::vector<PortInfo>& ports, bool output );
+    void      addCollapsedPorts( const std::vector<PortInfo>& ports, bool output );
     void      addHiddenSourceMarkers( const std::vector<PortInfo>& inputs );
     qreal     freeRight( const QRectF& line, qreal right, const QList<QGraphicsItem*>& ignored ) const;
     void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
@@ -247,6 +256,7 @@ private:
     QString                                  m_name;
     bool                                     m_isConfig;
     bool                                     m_diamond;
+    bool                                     m_collapsed;
     qreal                                    m_width;
     QMap<QString, PortItem*>                 m_inputs;
     QMap<QString, PortItem*>                 m_outputs;
@@ -254,6 +264,7 @@ private:
     QMap<QString, ValueSlot>                 m_valueSlots;
     std::vector<GraphEdge*>                  m_edges;
     QGraphicsTextItem*                       m_title      = nullptr;
+    QGraphicsTextItem*                       m_chevron    = nullptr;
     QGraphicsTextItem*                       m_stateLabel = nullptr;
     QGraphicsTextItem*                       m_issueLabel = nullptr;
     QGraphicsTextItem*                       m_subtitle   = nullptr;
@@ -266,6 +277,8 @@ private:
     QString                                  m_stateError;
     QString                                  m_baseToolTip;
     QString                                  m_issueText;
+    QStringList                              m_collapsedInfo; // Shown in the tooltip, as the box does not show it
+    QMap<QString, QString>                   m_collapsedValues;
     int                                      m_errorCount   = 0;
     int                                      m_warningCount = 0;
     bool                                     m_unknownType  = false;
@@ -429,16 +442,20 @@ GraphNode::GraphNode( const QString&               name,
                       const std::vector<PortInfo>& outputs,
                       bool                         isConfig,
                       const QString&               subtitle,
-                      bool                         diamond )
+                      bool                         diamond,
+                      bool                         collapsed )
     : m_name( name )
     , m_isConfig( isConfig )
-    , m_diamond( diamond && !isConfig )
+    , m_diamond( diamond && !isConfig && !collapsed )
+    , m_collapsed( collapsed && !isConfig )
     , m_width( isConfig ? configWidth : nodeWidth )
     , m_portTop( subtitle.isEmpty() ? portTop : portTop + subtitleGap )
     , m_baseToolTip( name )
 {
     const qsizetype rows = std::max( { qsizetype( 1 ), qsizetype( inputs.size() ), qsizetype( outputs.size() ) } );
-    if ( m_diamond )
+    if ( m_collapsed )
+        setRect( 0, 0, m_width, collapsedHeight );
+    else if ( m_diamond )
         setRect( 0, 0, m_width, std::max( diamondMinHeight, ( rows - 1 ) * diamondPortStep + 60.0 ) );
     else
         setRect( 0, 0, m_width, m_portTop + portStep * rows + 12 );
@@ -451,6 +468,17 @@ GraphNode::GraphNode( const QString&               name,
     m_title->setFont( titleFont );
     m_title->setPos( 10, 4 );
     m_title->setAcceptedMouseButtons( Qt::NoButton );
+
+    if ( !isConfig && !m_diamond )
+    {
+        m_chevron = new QGraphicsTextItem( QString::fromUtf8( m_collapsed ? "\u25b8" : "\u25be" ), this );
+        m_chevron->setDefaultTextColor( taskBorder );
+        m_chevron->setPos( 3, 4 );
+        m_chevron->setCursor( Qt::PointingHandCursor );
+        m_chevron->setToolTip( m_collapsed ? "Expand task" : "Collapse task" );
+        m_chevron->setData( toggleDataKey, collapseToggle );
+        m_title->setPos( 17, 4 );
+    }
 
     if ( !isConfig )
     {
@@ -484,7 +512,13 @@ GraphNode::GraphNode( const QString&               name,
             card->setAcceptedMouseButtons( Qt::NoButton );
             m_stack.push_back( card );
         }
-
+    }
+    if ( !subtitle.isEmpty() && m_collapsed )
+    {
+        m_collapsedInfo << subtitle;
+    }
+    else if ( !subtitle.isEmpty() )
+    {
         m_subtitle = new QGraphicsTextItem( this );
         QFont font;
         font.setPointSize( 8 );
@@ -499,7 +533,12 @@ GraphNode::GraphNode( const QString&               name,
         m_subtitle->setAcceptedMouseButtons( Qt::NoButton );
     }
 
-    if ( m_diamond )
+    if ( m_collapsed )
+    {
+        addCollapsedPorts( inputs, false );
+        addCollapsedPorts( outputs, true );
+    }
+    else if ( m_diamond )
     {
         addDiamondPorts( inputs, false );
         addDiamondPorts( outputs, true );
@@ -522,11 +561,22 @@ qreal GraphNode::height() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The title row of a task, where a double-click collapses or expands it
+//--------------------------------------------------------------------------------------------------
+bool GraphNode::isHeaderAt( const QPointF& scenePos ) const
+{
+    if ( m_isConfig ) return false;
+    const QPointF local = mapFromScene( scenePos );
+    if ( m_diamond ) return m_title->mapRectToParent( m_title->boundingRect() ).contains( local );
+    return QRectF( 0, 0, m_width, headerHeight ).contains( local );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setTitle( const QString& title, const QString& toolTip )
 {
-    const qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : 100 );
+    const qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : ( m_chevron ? 107 : 100 ) );
     m_title->setPlainText( QFontMetrics( m_title->font() ).elidedText( title, Qt::ElideRight, static_cast<int>( available ) ) );
     m_title->setToolTip( title );
     if ( m_diamond ) m_title->setPos( ( m_width - m_title->boundingRect().width() ) / 2, rect().height() / 2 - 24 );
@@ -615,6 +665,46 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
             m_valueSlots.insert( fieldForKey( info.key ), ValueSlot{ 10, m_width - 12, {} } );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A collapsed task has one dot on each side where all its connections meet. The ports are kept,
+/// hidden, so the edges can find them.
+//--------------------------------------------------------------------------------------------------
+void GraphNode::addCollapsedPorts( const std::vector<PortInfo>& ports, bool output )
+{
+    auto&         portMap = output ? m_outputs : m_inputs;
+    const QPointF center( output ? m_width : 0.0, rect().height() / 2 );
+    QStringList   labels;
+    bool          missing = false;
+    for ( PortInfo info : ports )
+    {
+        missing      = missing || info.style == PortInfo::Style::Missing;
+        info.collect = false;
+        info.firstOf = false;
+        auto* port   = new PortItem( this, info, output, false, center );
+        port->setVisible( false );
+        portMap.insert( info.key, port );
+        labels << ( info.typeName.isEmpty() ? info.label : QString( "%1 (%2)" ).arg( info.label, info.typeName ) );
+    }
+    if ( ports.empty() ) return;
+
+    const QString text = ( output ? "Outputs: " : "Inputs: " ) + labels.join( ", " );
+    auto*         dot  = new QGraphicsEllipseItem( center.x() - portRadius, center.y() - portRadius, 2 * portRadius, 2 * portRadius, this );
+    if ( missing )
+    {
+        dot->setBrush( QColor( 255, 255, 255 ) );
+        dot->setPen( QPen( missingPortColor, 2.0 ) );
+    }
+    else
+    {
+        dot->setBrush( output ? outputPortColor : inputPortColor );
+        dot->setPen( Qt::NoPen );
+    }
+    dot->setToolTip( text );
+    dot->setAcceptedMouseButtons( Qt::NoButton );
+    dot->setZValue( 2 );
+    m_collapsedInfo << text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -926,6 +1016,14 @@ void GraphNode::applyStyle()
         toolTip << "Items:\n" + items.join( "\n" );
     }
     if ( !m_issueText.isEmpty() ) toolTip << m_issueText;
+    if ( !m_collapsedInfo.isEmpty() ) toolTip << m_collapsedInfo.join( "\n" );
+    if ( !m_collapsedValues.isEmpty() )
+    {
+        QStringList values;
+        for ( auto it = m_collapsedValues.cbegin(); it != m_collapsedValues.cend(); ++it )
+            values << QString( "%1 = %2" ).arg( it.key(), it.value() );
+        toolTip << "Config values:\n" + values.join( "\n" );
+    }
     setToolTip( toolTip.join( "\n\n" ) );
     setOpacity( m_state == "skipped" ? 0.6 : 1.0 );
 }
@@ -993,6 +1091,11 @@ void GraphNode::addHiddenSourceMarkers( const std::vector<PortInfo>& inputs )
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
 {
+    if ( m_collapsed )
+    {
+        m_collapsedValues[fieldName] = value;
+        applyStyle();
+    }
     auto* port = m_isConfig ? m_outputs.value( "field:" + fieldName, nullptr ) : m_inputs.value( "field:" + fieldName, nullptr );
     if ( !port ) return;
     if ( !m_isConfig ) port->setValueToolTip( value );
@@ -1590,8 +1693,9 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QJsonObject map = data.value( "map" ).toObject();
         QString           subtitle;
         if ( !map.isEmpty() ) subtitle = QString::fromUtf8( "⟳ map over %1" ).arg( map.value( "over" ).toString() );
-        const bool isSwitch = data.value( "switch" ).toBool();
-        auto*      node     = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch );
+        const bool isSwitch  = data.value( "switch" ).toBool();
+        const bool collapsed = m_collapsedTasks.contains( name );
+        auto*      node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed );
         if ( isSwitch )
         {
             QStringList branches;
@@ -1629,7 +1733,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         m_scene->addItem( node );
         m_taskNodes.insert( name, node );
 
-        if ( !inlined && !configFields.value( name ).isEmpty() )
+        // The config values of a collapsed task are shown in its tooltip
+        if ( !inlined && !collapsed && !configFields.value( name ).isEmpty() )
         {
             auto* configNode = new GraphNode( name,
                                               {},
@@ -1915,6 +2020,14 @@ void RiuWorkflowGraphView::setHiddenTasks( const QStringList& taskNames )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Tasks shown with their title only. Takes effect when the graph is shown next time.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setCollapsedTasks( const QStringList& taskNames )
+{
+    m_collapsedTasks = taskNames;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::resetTaskStates()
@@ -1961,7 +2074,8 @@ PortItem* RiuWorkflowGraphView::portAt( const QPoint& viewPos ) const
     for ( QGraphicsItem* item : m_scene->items( QRectF( scenePos - QPointF( distance, distance ), QSizeF( 2 * distance, 2 * distance ) ) ) )
     {
         auto* port = dynamic_cast<PortItem*>( item );
-        if ( !port || port->isConfig() ) continue;
+        // The ports of collapsed tasks are hidden, and can't be connected
+        if ( !port || port->isConfig() || !port->isVisible() ) continue;
         const QPointF delta = port->mapToScene( port->rect().center() ) - scenePos;
         const qreal   d     = std::hypot( delta.x(), delta.y() );
         if ( d <= best )
@@ -2110,11 +2224,51 @@ void RiuWorkflowGraphView::resizeEvent( QResizeEvent* event )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// A double-click on the title row of a task collapses or expands it
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::mouseDoubleClickEvent( QMouseEvent* event )
+{
+    if ( event->button() == Qt::LeftButton )
+    {
+        QGraphicsItem* item = itemAt( event->pos() );
+        // The first click on the chevron already toggled the task
+        if ( item && item->data( toggleDataKey ).toString() == collapseToggle )
+        {
+            event->accept();
+            return;
+        }
+        for ( QGraphicsItem* current = item; current; current = current->parentItem() )
+        {
+            auto* node = dynamic_cast<GraphNode*>( current );
+            if ( !node ) continue;
+            if ( m_taskNodes.value( node->name() ) == node && node->isHeaderAt( mapToScene( event->pos() ) ) )
+            {
+                emit collapseToggled( node->name() );
+                event->accept();
+                return;
+            }
+            break;
+        }
+    }
+    QGraphicsView::mouseDoubleClickEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::mousePressEvent( QMouseEvent* event )
 {
     if ( event->button() == Qt::LeftButton ) m_fitOnResize = false;
+
+    if ( event->button() == Qt::LeftButton )
+    {
+        if ( QGraphicsItem* item = itemAt( event->pos() ); item && item->data( toggleDataKey ).toString() == collapseToggle )
+        {
+            if ( auto* node = dynamic_cast<GraphNode*>( item->parentItem() ) ) emit collapseToggled( node->name() );
+            event->accept();
+            return;
+        }
+    }
 
     if ( m_editable && event->button() == Qt::LeftButton )
     {

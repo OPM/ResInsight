@@ -75,6 +75,11 @@ public:
     void        setTaskHidden( const QString& taskName, bool hidden );
     void        showAllTasks();
 
+    QStringList collapsedTasks() const;
+    bool        isTaskCollapsed( const QString& taskName ) const;
+    void        setTaskCollapsed( const QString& taskName, bool collapsed );
+    void        setCollapsedTasks( const QStringList& taskNames );
+
     bool loadFromDirectory( QString* errorMessage = nullptr );
     bool loadFromRegistered( const QJsonObject& catalogEntry, QString* errorMessage = nullptr );
     void setUnsavedDefinition( const RimWorkflowDefinition& definition,
@@ -163,6 +168,7 @@ private:
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
     caf::PdmField<bool>                      m_inlineConfigValues;
     caf::PdmField<std::vector<QString>>      m_hiddenTasks;
+    caf::PdmField<std::vector<QString>>      m_collapsedTasks;
     QJsonObject                              m_graph;
 
     Source                         m_source = Source::YamlDirectory;

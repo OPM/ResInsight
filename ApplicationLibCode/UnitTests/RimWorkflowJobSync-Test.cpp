@@ -267,12 +267,13 @@ TEST( RimWorkflowEditing, undoRedoAndDirtyState )
 }
 
 //--------------------------------------------------------------------------------------------------
-TEST( RimWorkflowEditing, hiddenTasksFollowRenamesAndRemovals )
+TEST( RimWorkflowEditing, hiddenAndCollapsedTasksFollowRenamesAndRemovals )
 {
     RimWorkflow workflow;
     workflow.setUnsavedDefinition( loadDataDefinition() );
     workflow.setTaskHidden( "connect_to_resinsight", true );
     workflow.setTaskHidden( "load_model", true );
+    workflow.setTaskCollapsed( "load_model", true );
     EXPECT_FALSE( workflow.canUndo() );
 
     ASSERT_TRUE( workflow
@@ -280,12 +281,15 @@ TEST( RimWorkflowEditing, hiddenTasksFollowRenamesAndRemovals )
                                  { { "load_model", "load_grid" } } )
                      .has_value() );
     EXPECT_EQ( ( QStringList{ "connect_to_resinsight", "load_grid" } ), workflow.hiddenTasks() );
+    EXPECT_EQ( ( QStringList{ "load_grid" } ), workflow.collapsedTasks() );
 
     workflow.undo();
     EXPECT_EQ( ( QStringList{ "connect_to_resinsight", "load_model" } ), workflow.hiddenTasks() );
+    EXPECT_TRUE( workflow.isTaskCollapsed( "load_model" ) );
 
     ASSERT_TRUE( workflow.applyEdit( RimWorkflowDefinitionTools::removeTask( workflow.definition(), "load_model" ) ).has_value() );
     EXPECT_EQ( ( QStringList{ "connect_to_resinsight" } ), workflow.hiddenTasks() );
+    EXPECT_TRUE( workflow.collapsedTasks().isEmpty() );
 
     workflow.setTaskHidden( "connect_to_resinsight", false );
     EXPECT_TRUE( workflow.hiddenTasks().isEmpty() );
