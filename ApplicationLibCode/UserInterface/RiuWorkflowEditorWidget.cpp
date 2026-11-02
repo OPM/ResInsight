@@ -241,6 +241,13 @@ void RiuWorkflowEditorWidget::refresh()
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::updateJobState()
 {
+    // A hidden task is shown again when it fails
+    if ( effectiveHiddenTasks() != m_shownHiddenTasks )
+    {
+        showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+        return;
+    }
+
     m_graphView->resetTaskStates();
     if ( !m_job ) return;
 
@@ -289,33 +296,109 @@ void RiuWorkflowEditorWidget::updateTaskIssues()
 {
     if ( !m_workflow || !m_job ) return;
 
+    // A hidden task is shown again when it gets errors
+    if ( effectiveHiddenTasks() != m_shownHiddenTasks )
+    {
+        showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+        return;
+    }
+
     for ( const QJsonValue& value : m_workflow->graph().value( "tasks" ).toArray() )
     {
-        const QJsonObject     graphTask = value.toObject();
-        const QString         taskName  = graphTask.value( "name" ).toString();
-        RimWorkflowTaskInput* taskInput = m_job->taskInput( taskName );
+        const QJsonObject graphTask = value.toObject();
+        m_graphView->setTaskIssues( graphTask.value( "name" ).toString(), taskIssues( graphTask ) );
+    }
+}
 
-        std::map<QString, bool> fieldHasValue;
-        for ( const QJsonValue& field : graphTask.value( "config_fields" ).toArray() )
+//--------------------------------------------------------------------------------------------------
+/// The issues of a task of the workflow graph, with missing-value warnings taken from the displayed job
+//--------------------------------------------------------------------------------------------------
+QJsonArray RiuWorkflowEditorWidget::taskIssues( const QJsonObject& graphTask ) const
+{
+    const QJsonArray issues = graphTask.value( "issues" ).toArray();
+    if ( !m_job ) return issues;
+
+    const QString         taskName  = graphTask.value( "name" ).toString();
+    RimWorkflowTaskInput* taskInput = m_job->taskInput( taskName );
+
+    std::map<QString, bool> fieldHasValue;
+    for ( const QJsonValue& field : graphTask.value( "config_fields" ).toArray() )
+    {
+        const QJsonObject schema    = field.toObject();
+        const QString     fieldName = schema.value( "name" ).toString();
+        bool              hasValue  = false;
+        if ( taskInput )
         {
-            const QJsonObject schema    = field.toObject();
-            const QString     fieldName = schema.value( "name" ).toString();
-            bool              hasValue  = false;
-            if ( taskInput )
+            for ( const RimWorkflowFieldBinding* binding : taskInput->items() )
             {
-                for ( const RimWorkflowFieldBinding* binding : taskInput->items() )
-                {
-                    if ( binding && binding->fieldName() == fieldName )
-                        hasValue = !binding->toJsonValue().isNull() || binding->isExplicitNull();
-                }
+                if ( binding && binding->fieldName() == fieldName )
+                    hasValue = !binding->toJsonValue().isNull() || binding->isExplicitNull();
             }
-            fieldHasValue[fieldName] = hasValue || !schema.value( "required" ).toBool();
         }
+        fieldHasValue[fieldName] = hasValue || !schema.value( "required" ).toBool();
+    }
 
-        m_graphView->setTaskIssues( taskName,
-                                    RimWorkflowValidationTools::issuesWithJobValues( taskName,
-                                                                                     graphTask.value( "issues" ).toArray(),
-                                                                                     fieldHasValue ) );
+    return RimWorkflowValidationTools::issuesWithJobValues( taskName, issues, fieldHasValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The hidden tasks of the workflow, except those that have failed or have errors
+//--------------------------------------------------------------------------------------------------
+QStringList RiuWorkflowEditorWidget::effectiveHiddenTasks() const
+{
+    if ( !m_workflow ) return {};
+    const QStringList hidden = m_workflow->hiddenTasks();
+    if ( hidden.isEmpty() ) return {};
+
+    const auto  states = m_job ? m_job->taskStates() : decltype( m_job->taskStates() )();
+    QStringList result;
+    for ( const QJsonValue& value : m_workflow->graph().value( "tasks" ).toArray() )
+    {
+        const QJsonObject graphTask = value.toObject();
+        const QString     taskName  = graphTask.value( "name" ).toString();
+        if ( !hidden.contains( taskName ) || states.value( taskName ) == "failed" ) continue;
+
+        const QJsonArray issues    = taskIssues( graphTask );
+        const bool       hasErrors = std::any_of( issues.begin(),
+                                            issues.end(),
+                                            []( const QJsonValue& issue )
+                                            { return issue.toObject().value( "severity" ).toString() != "warning"; } );
+        if ( !hasErrors ) result.append( taskName );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::setTaskHidden( const QString& taskName, bool hidden )
+{
+    if ( !m_workflow ) return;
+    m_workflow->setTaskHidden( taskName, hidden );
+    showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the hidden tasks again, one at a time or all
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendShowHiddenMenu( QMenu* menu )
+{
+    QMenu*            showMenu = menu->addMenu( "Show Hidden Tasks" );
+    const QStringList hidden   = m_workflow ? m_workflow->hiddenTasks() : QStringList();
+    showMenu->setEnabled( !hidden.isEmpty() );
+    for ( const QString& taskName : hidden )
+        addMenuAction( showMenu, taskName, [this, taskName]() { setTaskHidden( taskName, false ); } );
+    if ( hidden.size() > 1 )
+    {
+        showMenu->addSeparator();
+        addMenuAction( showMenu,
+                       "Show All",
+                       [this]()
+                       {
+                           if ( !m_workflow ) return;
+                           m_workflow->showAllTasks();
+                           showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+                       } );
     }
 }
 
@@ -895,6 +978,8 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
     {
         m_graphView->setEditable( m_workflow->isEditable() && !m_workflow->isLocked() );
         m_graphView->setInlineConfigValues( m_workflow->inlineConfigValues() );
+        m_shownHiddenTasks = effectiveHiddenTasks();
+        m_graphView->setHiddenTasks( m_shownHiddenTasks );
         m_graphView->showGraph( m_workflow->graph(), m_workflow->loadError(), policy );
         updateTaskInputValues();
         if ( m_job ) updateJobState();
@@ -915,9 +1000,16 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
     const bool editable = m_workflow->isEditable() && !m_workflow->isLocked();
 
     QMenu menu;
-    if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Task && editable )
+    if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Task && !editable )
     {
         const QString task = item.task;
+        addMenuAction( &menu, "Hide Task", [this, task]() { setTaskHidden( task, true ); } );
+    }
+    else if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Task && editable )
+    {
+        const QString task = item.task;
+        addMenuAction( &menu, "Hide Task", [this, task]() { setTaskHidden( task, true ); } );
+        menu.addSeparator();
         addMenuAction( &menu, "Rename...", [this, task]() { renameTask( task ); } );
         addMenuAction( &menu, "Set as Result Task", [this, task]() { setResultTask( task ); } )
             ->setEnabled( RimWorkflowDefinitionTools::effectiveResultTask( m_workflow->definition() ) != task ||
@@ -955,6 +1047,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         menu.addSeparator();
         menu.addAction( m_fitAction );
         menu.addAction( m_inlineConfigAction );
+        appendShowHiddenMenu( &menu );
     }
 
     if ( !menu.isEmpty() ) menu.exec( globalPos );

@@ -96,10 +96,15 @@ private:
     const RimWorkflowDefinitionEdge* findEdge( const RiuWorkflowGraphView::ItemRef& item ) const;
 
     void appendOptionalInputsMenu( QMenu* menu, const QString& taskName );
-    void updateActions();
-    void updateStatus();
-    void scheduleValidation();
-    void onValidationFinished( RimWorkflow* workflow );
+    void appendShowHiddenMenu( QMenu* menu );
+    void setTaskHidden( const QString& taskName, bool hidden );
+
+    QJsonArray  taskIssues( const QJsonObject& graphTask ) const;
+    QStringList effectiveHiddenTasks() const;
+    void        updateActions();
+    void        updateStatus();
+    void        scheduleValidation();
+    void        onValidationFinished( RimWorkflow* workflow );
 
 private:
     caf::PdmPointer<RimWorkflow>    m_workflow;
@@ -117,4 +122,5 @@ private:
     QLabel*                         m_statusLabel;
     RiuWorkflowValidationRunner*    m_validationRunner;
     QString                         m_message;
+    QStringList                     m_shownHiddenTasks;
 };

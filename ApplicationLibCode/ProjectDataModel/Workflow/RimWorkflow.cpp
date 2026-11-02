@@ -39,6 +39,8 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimWorkflow, "Workflow" );
 
 namespace
@@ -78,6 +80,9 @@ RimWorkflow::RimWorkflow()
 
     CAF_PDM_InitField( &m_inlineConfigValues, "InlineConfigValues", true, "Inline Config Values" );
     m_inlineConfigValues.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_hiddenTasks, "HiddenTasks", "Hidden Tasks" );
+    m_hiddenTasks.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,6 +147,41 @@ bool RimWorkflow::inlineConfigValues() const
 void RimWorkflow::setInlineConfigValues( bool inlineValues )
 {
     m_inlineConfigValues = inlineValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tasks the user has hidden in the graph. A view setting: the definition is not changed.
+//--------------------------------------------------------------------------------------------------
+QStringList RimWorkflow::hiddenTasks() const
+{
+    return QStringList( m_hiddenTasks().begin(), m_hiddenTasks().end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflow::isTaskHidden( const QString& taskName ) const
+{
+    return std::ranges::contains( m_hiddenTasks(), taskName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setTaskHidden( const QString& taskName, bool hidden )
+{
+    std::vector<QString> tasks = m_hiddenTasks();
+    std::erase( tasks, taskName );
+    if ( hidden ) tasks.push_back( taskName );
+    m_hiddenTasks = tasks;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::showAllTasks()
+{
+    m_hiddenTasks = std::vector<QString>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,6 +563,15 @@ void RimWorkflow::definitionChanged( const QMap<QString, QString>& renames )
     ++m_revision;
     m_name        = m_definition.name;
     m_description = m_definition.headerComment;
+
+    // Hidden tasks follow renames, and deleted tasks are forgotten
+    std::vector<QString> hidden;
+    for ( const QString& taskName : m_hiddenTasks() )
+    {
+        const QString name = renames.value( taskName, taskName );
+        if ( m_definition.findNode( name ) && !std::ranges::contains( hidden, name ) ) hidden.push_back( name );
+    }
+    m_hiddenTasks = hidden;
 
     // Keep the issues that have not been checked again until the next validation
     rebuildGraph();

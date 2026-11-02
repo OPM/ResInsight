@@ -267,6 +267,31 @@ TEST( RimWorkflowEditing, undoRedoAndDirtyState )
 }
 
 //--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowEditing, hiddenTasksFollowRenamesAndRemovals )
+{
+    RimWorkflow workflow;
+    workflow.setUnsavedDefinition( loadDataDefinition() );
+    workflow.setTaskHidden( "connect_to_resinsight", true );
+    workflow.setTaskHidden( "load_model", true );
+    EXPECT_FALSE( workflow.canUndo() );
+
+    ASSERT_TRUE( workflow
+                     .applyEdit( RimWorkflowDefinitionTools::renameTask( workflow.definition(), "load_model", "load_grid" ),
+                                 { { "load_model", "load_grid" } } )
+                     .has_value() );
+    EXPECT_EQ( ( QStringList{ "connect_to_resinsight", "load_grid" } ), workflow.hiddenTasks() );
+
+    workflow.undo();
+    EXPECT_EQ( ( QStringList{ "connect_to_resinsight", "load_model" } ), workflow.hiddenTasks() );
+
+    ASSERT_TRUE( workflow.applyEdit( RimWorkflowDefinitionTools::removeTask( workflow.definition(), "load_model" ) ).has_value() );
+    EXPECT_EQ( ( QStringList{ "connect_to_resinsight" } ), workflow.hiddenTasks() );
+
+    workflow.setTaskHidden( "connect_to_resinsight", false );
+    EXPECT_TRUE( workflow.hiddenTasks().isEmpty() );
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowEditing, editabilityOfInstalledAndDuplicatedWorkflows )
 {
     // An installed workflow is read-only even when its definition is editable,

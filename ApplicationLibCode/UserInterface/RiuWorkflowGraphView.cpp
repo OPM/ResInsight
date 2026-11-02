@@ -146,15 +146,16 @@ struct PortInfo
         Missing
     };
 
-    QString key;
-    QString label;
-    QString toolTip;
-    QString typeName{};
-    QString iconResource{};
-    Style   style      = Style::Normal;
-    bool    collect    = false;
-    bool    firstOf    = false;
-    bool    configured = false; // An input whose value is set in the job configuration, shown in the task box
+    QString     key;
+    QString     label;
+    QString     toolTip;
+    QString     typeName{};
+    QString     iconResource{};
+    Style       style      = Style::Normal;
+    bool        collect    = false;
+    bool        firstOf    = false;
+    bool        configured = false; // An input whose value is set in the job configuration, shown in the task box
+    QStringList hiddenSources{}; // Hidden tasks connected to this input
 };
 
 //==================================================================================================
@@ -237,6 +238,8 @@ private:
     };
 
     void      addPorts( const std::vector<PortInfo>& ports, bool output );
+    void      addHiddenSourceMarkers( const std::vector<PortInfo>& inputs );
+    qreal     freeRight( const QRectF& line, qreal right, const QList<QGraphicsItem*>& ignored ) const;
     void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
     void      applyStyle();
     QPolygonF diamondPolygon( const QRectF& bounds ) const;
@@ -505,6 +508,7 @@ GraphNode::GraphNode( const QString&               name,
     {
         addPorts( inputs, false );
         addPorts( outputs, true );
+        addHiddenSourceMarkers( inputs );
     }
     setTitle( isConfig ? "Config: " + name : name, {} );
 }
@@ -927,6 +931,64 @@ void GraphNode::applyStyle()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Where text starting in `line` must end to stay clear of the other text and icons of the node
+//--------------------------------------------------------------------------------------------------
+qreal GraphNode::freeRight( const QRectF& line, qreal right, const QList<QGraphicsItem*>& ignored ) const
+{
+    // Text items have empty space above and below the text, so only the middle of the line counts
+    const QRectF middle = line.adjusted( 0, 4, 0, -4 );
+    for ( QGraphicsItem* child : childItems() )
+    {
+        if ( ignored.contains( child ) ) continue;
+        if ( !dynamic_cast<QGraphicsTextItem*>( child ) && !dynamic_cast<IconItem*>( child ) ) continue;
+        const QRectF bounds = child->mapRectToParent( child->boundingRect() );
+        if ( bounds.left() > line.left() && bounds.intersects( middle ) ) right = std::min( right, bounds.left() );
+    }
+    return right;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Inputs connected to hidden tasks show the names of those tasks after the label
+//--------------------------------------------------------------------------------------------------
+void GraphNode::addHiddenSourceMarkers( const std::vector<PortInfo>& inputs )
+{
+    QFont font;
+    font.setPointSize( 7 );
+    for ( const PortInfo& info : inputs )
+    {
+        if ( info.hiddenSources.isEmpty() ) continue;
+        auto* port = m_inputs.value( info.key, nullptr );
+        if ( !port ) continue;
+
+        // The label is the text item at the left on the label line of the port
+        const qreal labelTop = port->rect().center().y() - 20;
+        qreal       left     = 10;
+        for ( QGraphicsItem* child : childItems() )
+        {
+            auto* text = dynamic_cast<QGraphicsTextItem*>( child );
+            if ( !text || text->pos().x() > 12 || std::abs( text->pos().y() - labelTop ) > 1 ) continue;
+            const QRectF bounds = text->mapRectToParent( text->boundingRect() );
+            left                = std::max( left, bounds.right() - text->document()->documentMargin() );
+        }
+
+        auto* marker = new QGraphicsTextItem( this );
+        marker->setFont( font );
+        marker->setDefaultTextColor( QColor( 130, 135, 145 ) );
+        marker->setPos( left, labelTop + 2 );
+        marker->setAcceptedMouseButtons( Qt::NoButton );
+
+        const QString text   = QString::fromUtf8( "\u25c2 " ) + info.hiddenSources.join( ", " );
+        const qreal   margin = 2 * marker->document()->documentMargin();
+        const QRectF  line( left, labelTop, m_width - left, marker->boundingRect().height() );
+        const qreal   right = freeRight( line, m_width - 12, { marker } ) - 4;
+        marker->setPlainText(
+            QFontMetrics( font ).elidedText( text, Qt::ElideRight, static_cast<int>( std::max( 0.0, right - left - margin ) ) ) );
+        marker->setToolTip( QString( "Provided by hidden task%1: %2\nRight-click the canvas to show hidden tasks" )
+                                .arg( info.hiddenSources.size() > 1 ? "s" : "", info.hiddenSources.join( ", " ) ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
@@ -957,15 +1019,9 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
     if ( !m_isConfig )
     {
         // In a task box the value may use the width up to the output text on the same line
-        const QRectF line( slot.left, text->pos().y() + 4, m_width - slot.left, text->boundingRect().height() - 8 );
-        for ( QGraphicsItem* child : childItems() )
-        {
-            auto*      textItem = dynamic_cast<QGraphicsTextItem*>( child );
-            const bool isValue  = textItem && m_configValues.values().contains( textItem );
-            if ( isValue || ( !textItem && !dynamic_cast<IconItem*>( child ) ) ) continue;
-            const QRectF bounds = child->mapRectToParent( child->boundingRect() );
-            if ( bounds.left() > slot.left && bounds.intersects( line ) ) right = std::min( right, bounds.left() );
-        }
+        const QRectF                line( slot.left, text->pos().y(), m_width - slot.left, text->boundingRect().height() );
+        const QList<QGraphicsItem*> values( m_configValues.cbegin(), m_configValues.cend() );
+        right = freeRight( line, right, values );
     }
     const qreal available = std::max( 0.0, right - slot.left - margin );
     text->setPlainText( QFontMetrics( text->font() ).elidedText( slot.prefix + value, Qt::ElideRight, static_cast<int>( available ) ) );
@@ -1340,7 +1396,29 @@ void RiuWorkflowGraphView::rememberPositions()
 void RiuWorkflowGraphView::fitGraph()
 {
     m_fitOnResize = true;
+    if ( !m_taskNodes.isEmpty() )
+    {
+        placeLabelsAboveGraph();
+        m_scene->setSceneRect( m_scene->itemsBoundingRect().adjusted( -50, -50, 50, 50 ) );
+    }
     if ( !m_scene->sceneRect().isEmpty() ) fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Keep the status labels at the top-left corner of the boxes, so they don't stretch the scene
+/// when tasks are hidden or moved
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::placeLabelsAboveGraph()
+{
+    QRectF boxes;
+    for ( auto* node : m_taskNodes )
+        boxes = boxes.united( node->sceneBoundingRect() );
+    for ( auto* node : m_configNodes )
+        boxes = boxes.united( node->sceneBoundingRect() );
+    if ( boxes.isNull() ) return;
+
+    if ( m_runStatusLabel ) m_runStatusLabel->setPos( boxes.left(), boxes.top() - 45 );
+    if ( m_hiddenTasksLabel ) m_hiddenTasksLabel->setPos( boxes.left(), boxes.top() - 65 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1363,7 +1441,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     m_rebuilding = true;
     m_taskNodes.clear();
     m_configNodes.clear();
-    m_runStatusLabel = nullptr;
+    m_runStatusLabel   = nullptr;
+    m_hiddenTasksLabel = nullptr;
     m_scene->clear();
     if ( policy == ViewportPolicy::Fit ) m_fitOnResize = true;
 
@@ -1393,6 +1472,13 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     const QJsonArray edges        = graph.value( "edges" ).toArray();
     const QString    result       = graph.value( "result_task" ).toString();
 
+    QStringList hiddenNames;
+    for ( const QJsonValue& task : tasks )
+    {
+        const QString name = task.toObject().value( "name" ).toString();
+        if ( m_hiddenTasks.contains( name ) && !hiddenNames.contains( name ) ) hiddenNames.append( name );
+    }
+
     QStringList                              taskNames;
     std::vector<std::pair<QString, QString>> layoutEdges;
     QMap<QString, QJsonObject>               taskData;
@@ -1401,7 +1487,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     {
         const QJsonObject data = task.toObject();
         const QString     name = data.value( "name" ).toString();
-        if ( name.isEmpty() || taskData.contains( name ) ) continue;
+        if ( name.isEmpty() || taskData.contains( name ) || hiddenNames.contains( name ) ) continue;
         taskNames.append( name );
         taskData.insert( name, data );
 
@@ -1415,16 +1501,40 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         configFields.insert( name, configured );
     }
 
+    if ( taskNames.isEmpty() )
+    {
+        m_scene->addText( "All tasks are hidden.\nRight-click and use Show Hidden Tasks to show them." );
+        m_scene->setSceneRect( m_scene->itemsBoundingRect().adjusted( -30, -30, 30, 30 ) );
+        fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
+        m_rebuilding = false;
+        m_pendingPositions.clear();
+        return;
+    }
+
     // Read-only graphs only show the ports in use, plus the declared outputs of end tasks
-    QMap<QString, QStringList> usedInputs;
-    QMap<QString, QStringList> usedOutputs;
+    QMap<QString, QStringList>                usedInputs;
+    QMap<QString, QStringList>                usedOutputs;
+    QMap<QString, QMap<QString, QStringList>> hiddenSources; // Task -> input key -> hidden tasks connected to it
+    QMap<QString, QStringList>                hiddenConditions; // Task -> hidden tasks its run condition depends on
     for ( const QJsonValue& value : edges )
     {
         const QJsonObject edge = value.toObject();
         const QString     from = edge.value( "from" ).toString();
         const QString     to   = edge.value( "to" ).toString();
+        if ( hiddenNames.contains( from ) && taskData.contains( to ) )
+        {
+            if ( edge.value( "kind" ).toString() == "when" )
+                hiddenConditions[to].append( from );
+            else
+            {
+                const QString key = keyForField( edge.value( "input" ).toString() );
+                usedInputs[to].append( key );
+                if ( !hiddenSources[to][key].contains( from ) ) hiddenSources[to][key].append( from );
+            }
+        }
+        if ( !taskData.contains( from ) || !taskData.contains( to ) ) continue;
         layoutEdges.emplace_back( from, to );
-        if ( !taskData.contains( from ) || !taskData.contains( to ) || from == to || edge.value( "kind" ).toString() == "when" ) continue;
+        if ( from == to || edge.value( "kind" ).toString() == "when" ) continue;
         usedInputs[to].append( keyForField( edge.value( "input" ).toString() ) );
         usedOutputs[from].append( keyForField( edge.value( "output" ).toString() ) );
     }
@@ -1471,6 +1581,11 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             for ( PortInfo& port : inputs )
                 port.configured = configured.contains( port.key );
         }
+        for ( PortInfo& port : inputs )
+        {
+            port.hiddenSources = hiddenSources.value( name ).value( port.key );
+            if ( !port.hiddenSources.isEmpty() && port.style == PortInfo::Style::Missing ) port.style = PortInfo::Style::Normal;
+        }
 
         const QJsonObject map = data.value( "map" ).toObject();
         QString           subtitle;
@@ -1506,6 +1621,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         if ( name == result ) toolTip << "Result task: its output is the result of the workflow";
         if ( isSwitch ) toolTip << "Switch: picks a branch; tasks with a run condition on it run only for their branches";
         if ( unknownType ) toolTip << "Unknown task type: the package providing it is not installed";
+        if ( hiddenConditions.contains( name ) )
+            toolTip << QString( "Run condition on hidden task: %1" ).arg( hiddenConditions.value( name ).join( ", " ) );
         node->setTitle( name == result ? QString::fromUtf8( "\u2605 " ) + name : name, toolTip.join( "\n" ) );
         node->setUnknownType( unknownType );
         node->setIssues( data.value( "issues" ).toArray() );
@@ -1635,7 +1752,18 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
 
     m_runStatusLabel = m_scene->addText( {} );
     m_runStatusLabel->setDefaultTextColor( QColor( 45, 65, 80 ) );
-    m_runStatusLabel->setPos( 0, -45 );
+    if ( !hiddenNames.isEmpty() )
+    {
+        m_hiddenTasksLabel =
+            m_scene->addText( QString( "%1 hidden task%2" ).arg( hiddenNames.size() ).arg( hiddenNames.size() > 1 ? "s" : "" ) );
+        QFont font;
+        font.setPointSize( 8 );
+        font.setItalic( true );
+        m_hiddenTasksLabel->setFont( font );
+        m_hiddenTasksLabel->setDefaultTextColor( QColor( 130, 135, 145 ) );
+        m_hiddenTasksLabel->setToolTip( "Hidden: " + hiddenNames.join( ", " ) + "\nRight-click the canvas to show hidden tasks" );
+    }
+    placeLabelsAboveGraph();
     m_scene->setSceneRect( m_scene->itemsBoundingRect().adjusted( -50, -50, 50, 50 ) );
 
     if ( keepViewport )
@@ -1776,6 +1904,14 @@ void RiuWorkflowGraphView::setInlineConfigValues( bool inlineValues )
 bool RiuWorkflowGraphView::inlineConfigValues() const
 {
     return m_inlineConfigValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tasks left out of the graph. Takes effect when the graph is shown next time.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setHiddenTasks( const QStringList& taskNames )
+{
+    m_hiddenTasks = taskNames;
 }
 
 //--------------------------------------------------------------------------------------------------
