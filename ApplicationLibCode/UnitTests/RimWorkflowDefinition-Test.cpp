@@ -997,3 +997,60 @@ TEST( RimWorkflowConditional, switchWithoutCase )
     EXPECT_TRUE( guard->values.isEmpty() );
     EXPECT_TRUE( issueMessages( RimWorkflowDefinitionTools::validate( *definition ) ).join( "\n" ).contains( "at least one branch" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowNested, markNestedWorkflows )
+{
+    // A `workflow:` entry has no task type
+    const auto loaded = RimWorkflowDefinitionTools::fromJson(
+        QJsonObject{ { "name", "outer" },
+                     { "editable", false },
+                     { "nodes",
+                       QJsonArray{ QJsonObject{ { "name", "analyze_image" },
+                                                { "task", QJsonValue() },
+                                                { "workflow", "inner_workflow.yaml" },
+                                                { "workflow_input", "inner_input.yaml" } },
+                                   QJsonObject{ { "name", "load" }, { "task", "pipeline.Load" } } } } } );
+    ASSERT_TRUE( loaded.has_value() ) << loaded.error().toStdString();
+    EXPECT_EQ( "inner_workflow.yaml", loaded->nodes.front().extra.value( "workflow" ).toString() );
+    EXPECT_EQ( "inner_input.yaml", loaded->nodes.front().extra.value( "workflow_input" ).toString() );
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::fromJson( QJsonObject{ { "nodes", QJsonArray{ QJsonObject{ { "name", "plain" } } } } } ).has_value() );
+
+    auto entries = RimWorkflowDefinitionTools::nestedWorkflowEntries( *loaded );
+    EXPECT_EQ( QStringList( { "analyze_image" } ), entries.keys() );
+    EXPECT_EQ( "inner_input.yaml", entries.value( "analyze_image" ).value( "workflow_input" ).toString() );
+
+    // An entry with a task type that is not installed is still unknown
+    entries.insert( "broken", QJsonObject{ { "workflow", "broken.yaml" } } );
+
+    const QJsonObject graph{ { "tasks",
+                               QJsonArray{ QJsonObject{ { "name", "analyze_image" }, { "known_type", false } },
+                                           QJsonObject{ { "name", "load" }, { "known_type", true }, { "description", "Load" } },
+                                           QJsonObject{ { "name", "twice" }, { "known_type", true } },
+                                           QJsonObject{ { "name", "broken" }, { "task_id", "missing.Task" }, { "known_type", false } } } } };
+    // Registered workflows have no entries; the wrapper class taskmaestro generates tells
+    const QJsonObject describe{
+        { "tasks",
+          QJsonArray{ QJsonObject{ { "name", "twice" }, { "python_type", "taskmaestro.workflow_task.WorkflowTask_doubling" } },
+                      QJsonObject{ { "name", "load" }, { "python_type", "pipeline.Load" } } } } };
+
+    const QJsonObject marked = RimWorkflowDefinitionTools::markNestedWorkflows( graph, entries, describe );
+
+    const QJsonObject analyze = definitionTaskByName( marked, "analyze_image" );
+    EXPECT_EQ( "inner_workflow.yaml", analyze.value( "nested_workflow" ).toObject().value( "file" ).toString() );
+    EXPECT_TRUE( analyze.value( "known_type" ).toBool() );
+    EXPECT_EQ( "Nested workflow", analyze.value( "description" ).toString() );
+
+    const QJsonObject twice = definitionTaskByName( marked, "twice" );
+    EXPECT_TRUE( twice.value( "nested_workflow" ).isObject() );
+    EXPECT_TRUE( twice.value( "nested_workflow" ).toObject().value( "file" ).toString().isEmpty() );
+
+    const QJsonObject broken = definitionTaskByName( marked, "broken" );
+    EXPECT_TRUE( broken.value( "nested_workflow" ).isObject() );
+    EXPECT_FALSE( broken.value( "known_type" ).toBool() );
+
+    const QJsonObject load = definitionTaskByName( marked, "load" );
+    EXPECT_FALSE( load.contains( "nested_workflow" ) );
+    EXPECT_EQ( "Load", load.value( "description" ).toString() );
+}

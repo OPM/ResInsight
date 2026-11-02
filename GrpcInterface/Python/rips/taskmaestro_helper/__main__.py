@@ -19,7 +19,7 @@ from typing import Any
 
 USAGE = (
     "usage: python -m rips.taskmaestro_helper "
-    "{catalog,load,save,export-registered,run} ..."
+    "{catalog,load,save,export-registered,describe-nested,run} ..."
 )
 
 
@@ -47,11 +47,18 @@ def _export_registered(argv: list[str]) -> dict[str, Any]:
     return export_registered_main(argv)
 
 
+def _describe_nested(argv: list[str]) -> dict[str, Any]:
+    from .nested import describe_nested_main
+
+    return describe_nested_main(argv)
+
+
 JSON_COMMANDS: dict[str, Callable[[list[str]], dict[str, Any]]] = {
     "catalog": _catalog,
     "load": _load,
     "save": _save,
     "export-registered": _export_registered,
+    "describe-nested": _describe_nested,
 }
 
 

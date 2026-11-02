@@ -23,6 +23,11 @@ from rips.taskmaestro_helper.definition import (
     load_definition,
     write_definition,
 )
+from rips.taskmaestro_helper.nested import (
+    describe_nested_registered,
+    describe_nested_yaml,
+)
+from taskmaestro.exceptions import DefinitionError
 
 TEST_DATA = Path(__file__).parent / "test_data" / "taskmaestro_workflows"
 PIPELINE = "tm_helper_pipeline"
@@ -82,6 +87,7 @@ def plugins(monkeypatch: pytest.MonkeyPatch) -> None:
         workflows={
             "test.flow": f"{PIPELINE}:registered_workflow",
             "test.local": f"{PIPELINE}:local_workflow",
+            "test.nested": f"{PIPELINE}:nested_workflow",
         },
     )
 
@@ -141,7 +147,7 @@ def test_catalog_reports_broken_plugin_and_loads_the_rest(plugins: None) -> None
     assert start["input_schema"]["properties"]["value"]["type"] == "number"
 
     workflows = {workflow["id"]: workflow for workflow in catalog["workflows"]}
-    assert set(workflows) == {"test.flow", "test.local"}
+    assert set(workflows) == {"test.flow", "test.local", "test.nested"}
     assert workflows["test.flow"]["editable"]
     assert not workflows["test.local"]["editable"]
     assert workflows["test.flow"]["describe"]["result_task"] == "double"
@@ -392,6 +398,85 @@ def test_exported_registered_workflow_saves_and_validates(
     )
     assert error is None
     assert description is not None and description["result_task"] == "double"
+
+
+def test_describe_nested_registered(plugins: None) -> None:
+    result = describe_nested_registered("test.nested", ["twice"])
+    assert result["name"] == "doubling"
+    assert [task["name"] for task in result["describe"]["tasks"]] == ["double"]
+
+
+def test_describe_nested_registered_rejects_plain_task(plugins: None) -> None:
+    with pytest.raises(DefinitionError, match="not a nested workflow"):
+        describe_nested_registered("test.nested", ["start"])
+
+
+def test_describe_nested_yaml(tmp_path: Path) -> None:
+    outer = _write_workflow(
+        tmp_path / "outer",
+        f"""\
+        workflow:
+          name: outer
+          tasks:
+            - task: {PIPELINE}.Start
+              config_fields: [value]
+            - workflow: inner/inner.yaml
+              depends_on: {PIPELINE}.Start
+        """,
+    )
+    (outer / "inner").mkdir()
+    (outer / "inner" / "inner.yaml").write_text(
+        textwrap.dedent(
+            f"""\
+            workflow:
+              name: inner
+              tasks:
+                - task: {PIPELINE}.Double
+                - workflow: deeper.yaml
+                  name: again
+                  workflow_input: deeper_input.yaml
+                  depends_on: {PIPELINE}.Double
+            """
+        )
+    )
+    (outer / "inner" / "deeper.yaml").write_text(
+        textwrap.dedent(
+            f"""\
+            workflow:
+              name: deeper
+              tasks:
+                - task: {PIPELINE}.Double
+            """
+        )
+    )
+
+    (outer / "inner" / "deeper_input.yaml").write_text("{}\n")
+
+    result = describe_nested_yaml(outer / "inner" / "inner.yaml", None, [outer])
+    assert result["describe_error"] is None, result["describe_error"]
+    assert result["name"] == "inner"
+    assert [task["name"] for task in result["describe"]["tasks"]] == ["double", "again"]
+    assert result["nested"] == {
+        "again": {"workflow": "deeper.yaml", "workflow_input": "deeper_input.yaml"}
+    }
+
+    # The outer entry has no name, so the task is named after the inner workflow
+    outer_entries = describe_nested_yaml(outer / "workflow.yaml", None, [])["nested"]
+    assert outer_entries == {
+        "inner": {"workflow": "inner/inner.yaml", "workflow_input": None}
+    }
+
+
+def test_describe_nested_cli_reports_missing_file(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = helper_main.main(
+        ["describe-nested", "--yaml", str(tmp_path / "missing.yaml")]
+    )
+    assert code == 2
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "invalid"
+    assert "Cannot find the nested workflow" in output["error"]["message"]
 
 
 def test_run_registered_workflow(

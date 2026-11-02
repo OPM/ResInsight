@@ -34,6 +34,7 @@
 #include "Workflow/RimWorkflowValidationTools.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCursor>
@@ -47,8 +48,10 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QTabBar>
 #include <QVBoxLayout>
 
 #include <functional>
@@ -131,6 +134,16 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
     m_inlineConfigAction->setCheckable( true );
     m_inlineConfigAction->setToolTip( "Show the job configuration values in the task boxes instead of in separate config boxes" );
 
+    m_tabs.push_back( {} );
+    m_tabBar = new QTabBar( this );
+    m_tabBar->setDocumentMode( true );
+    m_tabBar->setExpanding( false );
+    m_tabBar->setTabsClosable( true );
+    m_tabBar->setVisible( false );
+    layout->addWidget( m_tabBar );
+    connect( m_tabBar, &QTabBar::currentChanged, this, [this]( int index ) { activateTab( index, true ); } );
+    connect( m_tabBar, &QTabBar::tabCloseRequested, this, &RiuWorkflowEditorWidget::closeTab );
+
     m_splitter  = new QSplitter( Qt::Horizontal, this );
     m_palette   = new RiuWorkflowTaskPalette( m_splitter );
     m_graphView = new RiuWorkflowGraphView( m_splitter );
@@ -174,6 +187,7 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
         this,
         [this]( const QString& taskName ) { setTaskCollapsed( taskName, m_workflow && !m_workflow->isTaskCollapsed( taskName ) ); },
         Qt::QueuedConnection );
+    connect( m_graphView, &RiuWorkflowGraphView::openNestedRequested, this, &RiuWorkflowEditorWidget::openNestedWorkflow, Qt::QueuedConnection );
     connect( m_palette, &RiuWorkflowTaskPalette::taskActivated, this, [this]( const QString& taskId ) { addTask( taskId ); } );
 
     updateActions();
@@ -193,33 +207,66 @@ RiuWorkflowEditorWidget::~RiuWorkflowEditorWidget()
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::setWorkflow( RimWorkflow* workflow, RimWorkflowJob* job )
 {
-    const bool workflowChanged = workflow != m_workflow.p();
+    const bool workflowChanged = workflow != m_tabs.front().workflow.p();
     if ( workflowChanged )
     {
         m_validationRunner->cancel();
         m_message.clear();
+        closeNestedTabs();
     }
 
-    m_workflow = workflow;
-    m_job      = job;
-    showWorkflow( workflowChanged ? RiuWorkflowGraphView::ViewportPolicy::Fit : RiuWorkflowGraphView::ViewportPolicy::Keep );
+    m_tabs.front().workflow      = workflow;
+    m_rootJob                    = job;
+    const bool currentTabRemoved = !workflowChanged && reopenNestedTabs();
+    updateTabBar();
+
+    m_workflow = m_tabs[m_currentTab].workflow;
+    m_job      = m_currentTab == 0 ? job : nullptr;
+
+    auto policy = workflowChanged ? RiuWorkflowGraphView::ViewportPolicy::Fit : RiuWorkflowGraphView::ViewportPolicy::Keep;
+    if ( currentTabRemoved )
+    {
+        // The view state of the graph belongs to the removed tab
+        const auto& viewState = m_tabs[m_currentTab].viewState;
+        if ( viewState )
+            m_graphView->setViewState( *viewState );
+        else
+            policy = RiuWorkflowGraphView::ViewportPolicy::Fit;
+    }
+    showWorkflow( policy );
     scheduleValidation();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The workflow of the first tab
 //--------------------------------------------------------------------------------------------------
 RimWorkflow* RiuWorkflowEditorWidget::workflow() const
+{
+    return m_tabs.front().workflow.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The workflow of the current tab
+//--------------------------------------------------------------------------------------------------
+RimWorkflow* RiuWorkflowEditorWidget::displayedWorkflow() const
 {
     return m_workflow.p();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The job shown in the graph; null while a nested workflow is shown
 //--------------------------------------------------------------------------------------------------
 RimWorkflowJob* RiuWorkflowEditorWidget::job() const
 {
     return m_job.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The job of the workflow of the first tab
+//--------------------------------------------------------------------------------------------------
+RimWorkflowJob* RiuWorkflowEditorWidget::rootJob() const
+{
+    return m_rootJob.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,10 +275,175 @@ RimWorkflowJob* RiuWorkflowEditorWidget::job() const
 void RiuWorkflowEditorWidget::clear()
 {
     m_validationRunner->cancel();
-    m_workflow = nullptr;
-    m_job      = nullptr;
+    closeNestedTabs();
+    m_tabs.front().workflow = nullptr;
+    m_workflow              = nullptr;
+    m_job                   = nullptr;
+    m_rootJob               = nullptr;
     m_message.clear();
+    updateTabBar();
     showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Fit );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the workflow of a nested task of the current tab in a tab of its own
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::openNestedWorkflow( const QString& taskName )
+{
+    if ( !m_workflow ) return;
+
+    QStringList taskPath = m_tabs[m_currentTab].taskPath;
+    taskPath.append( taskName );
+    for ( size_t i = 0; i < m_tabs.size(); ++i )
+    {
+        if ( m_tabs[i].taskPath == taskPath )
+        {
+            activateTab( static_cast<int>( i ), true );
+            return;
+        }
+    }
+
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+    RimWorkflow* nested = m_workflow->nestedWorkflow( taskName );
+    QApplication::restoreOverrideCursor();
+    if ( !nested )
+    {
+        showMessage( QString( "Task '%1' is not a nested workflow" ).arg( taskName ) );
+        return;
+    }
+
+    m_tabs.push_back( { nested, taskPath, std::nullopt } );
+    activateTab( static_cast<int>( m_tabs.size() ) - 1, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the workflow of a tab. The view of the tab shown before is kept for when it is shown again.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::activateTab( int index, bool keepViewState )
+{
+    if ( index < 0 || index >= static_cast<int>( m_tabs.size() ) ) return;
+    if ( index == m_currentTab && m_workflow == m_tabs[index].workflow ) return;
+
+    if ( keepViewState && m_currentTab < static_cast<int>( m_tabs.size() ) ) m_tabs[m_currentTab].viewState = m_graphView->viewState();
+    m_validationRunner->cancel();
+    m_message.clear();
+
+    m_currentTab = index;
+    m_workflow   = m_tabs[index].workflow;
+    m_job        = index == 0 ? m_rootJob : nullptr;
+    updateTabBar();
+
+    if ( m_tabs[index].viewState )
+    {
+        m_graphView->setViewState( *m_tabs[index].viewState );
+        showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Keep );
+    }
+    else
+    {
+        showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Fit );
+    }
+    scheduleValidation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::closeTab( int index )
+{
+    if ( index <= 0 || index >= static_cast<int>( m_tabs.size() ) ) return;
+
+    const bool wasCurrent = index == m_currentTab;
+    m_tabs.erase( m_tabs.begin() + index );
+    if ( wasCurrent )
+    {
+        m_currentTab = index - 1;
+        m_workflow   = nullptr; // Make activateTab() show the tab
+        activateTab( index - 1, false );
+        return;
+    }
+    if ( m_currentTab > index ) --m_currentTab;
+    updateTabBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::closeNestedTabs()
+{
+    m_tabs.resize( 1 );
+    m_currentTab = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A reloaded workflow forgets its nested workflows. Load them again for the open tabs, and close
+/// the tabs of tasks that are gone. Returns true if the current tab was closed.
+//--------------------------------------------------------------------------------------------------
+bool RiuWorkflowEditorWidget::reopenNestedTabs()
+{
+    bool currentTabRemoved = false;
+    for ( int i = static_cast<int>( m_tabs.size() ) - 1; i > 0; --i )
+    {
+        Tab& tab = m_tabs[i];
+        if ( tab.workflow ) continue;
+
+        RimWorkflow* workflow = m_tabs.front().workflow.p();
+        for ( const QString& taskName : tab.taskPath )
+            workflow = workflow ? workflow->nestedWorkflow( taskName ) : nullptr;
+        tab.workflow = workflow;
+        if ( workflow ) continue;
+
+        m_tabs.erase( m_tabs.begin() + i );
+        if ( m_currentTab == i ) currentTabRemoved = true;
+        if ( m_currentTab >= i ) m_currentTab = std::max( 0, m_currentTab - 1 );
+    }
+    return currentTabRemoved;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The tab bar is shown when a nested workflow is open
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::updateTabBar()
+{
+    QSignalBlocker blocker( m_tabBar );
+
+    const int count = static_cast<int>( m_tabs.size() );
+    while ( m_tabBar->count() > count )
+        m_tabBar->removeTab( m_tabBar->count() - 1 );
+    while ( m_tabBar->count() < count )
+        m_tabBar->addTab( QString() );
+
+    RimWorkflow*  root     = m_tabs.front().workflow.p();
+    const QString rootName = root ? root->name() : QString();
+    for ( int i = 0; i < count; ++i )
+    {
+        const Tab&   tab      = m_tabs[i];
+        RimWorkflow* workflow = tab.workflow.p();
+        if ( i == 0 )
+        {
+            m_tabBar->setTabText( i, rootName );
+            m_tabBar->setTabToolTip( i, QString( "Workflow '%1'" ).arg( rootName ) );
+            for ( auto side : { QTabBar::LeftSide, QTabBar::RightSide } )
+            {
+                if ( m_tabBar->tabButton( i, side ) ) m_tabBar->setTabButton( i, side, nullptr );
+            }
+            continue;
+        }
+        m_tabBar->setTabText( i, tab.taskPath.last() );
+        m_tabBar->setTabToolTip( i,
+                                 QString( "Nested workflow '%1' of task %2" )
+                                     .arg( workflow ? workflow->name() : QString(),
+                                           ( QStringList( rootName ) + tab.taskPath ).join( QString( " > " ) ) ) );
+    }
+    m_tabBar->setCurrentIndex( m_currentTab );
+    m_tabBar->setVisible( count > 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuWorkflowEditorWidget::isNestedTabShown() const
+{
+    return m_currentTab > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,6 +460,13 @@ void RiuWorkflowEditorWidget::refresh()
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::updateJobState()
 {
+    // The tasks of a nested workflow have no states; the status line shows the state of the outer task
+    if ( isNestedTabShown() )
+    {
+        updateStatus();
+        return;
+    }
+
     // A hidden task is shown again when it fails
     if ( effectiveHiddenTasks() != m_shownHiddenTasks )
     {
@@ -400,6 +619,11 @@ void RiuWorkflowEditorWidget::setTaskCollapsed( const QString& taskName, bool co
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::appendTaskViewActions( QMenu* menu, const QString& taskName )
 {
+    if ( m_workflow->isNestedTask( taskName ) )
+    {
+        addMenuAction( menu, "Open Nested Workflow", [this, taskName]() { openNestedWorkflow( taskName ); } );
+        menu->addSeparator();
+    }
     const bool collapsed = m_workflow->isTaskCollapsed( taskName );
     addMenuAction( menu,
                    collapsed ? "Expand Task" : "Collapse Task",
@@ -1264,7 +1488,7 @@ void RiuWorkflowEditorWidget::updateActions()
     m_saveAsAction->setEnabled( editable );
     m_undoAction->setEnabled( editable && workflow->canUndo() );
     m_redoAction->setEnabled( editable && workflow->canRedo() );
-    m_duplicateAction->setEnabled( workflow && workflow->loadError().isEmpty() && workflow->definition().editable );
+    m_duplicateAction->setEnabled( workflow && !isNestedTabShown() && workflow->loadError().isEmpty() && workflow->definition().editable );
     m_fitAction->setEnabled( workflow != nullptr );
     m_inlineConfigAction->setEnabled( workflow != nullptr );
     m_inlineConfigAction->setChecked( !workflow || workflow->inlineConfigValues() );
@@ -1290,8 +1514,26 @@ void RiuWorkflowEditorWidget::updateStatus()
         lines << workflow->loadError();
         color = "#c0392b";
     }
+    else if ( isNestedTabShown() )
+    {
+        const QStringList taskPath = m_tabs[m_currentTab].taskPath;
+        lines << QString( "Nested workflow '%1' of task %2 (read-only)" ).arg( workflow->name(), taskPath.join( QString( " > " ) ) );
+        color = "#7f8c8d";
+        if ( !m_message.isEmpty() ) lines.prepend( m_message );
+
+        // taskmaestro runs a nested workflow as one task, so only the state of the outer task is known
+        const QString state = m_rootJob ? m_rootJob->taskStates().value( taskPath.first() ) : QString();
+        if ( !state.isEmpty() )
+        {
+            lines << QString( "Task '%1' %2" ).arg( taskPath.first(), state );
+            if ( state == "failed" ) color = "#c0392b";
+            if ( state == "running" ) color = "#9e7010";
+            if ( state == "completed" ) color = "#27ae60";
+        }
+    }
     else if ( !workflow->isEditable() )
     {
+        if ( !m_message.isEmpty() ) lines << m_message;
         lines << QString( "Read-only: %1. Use Duplicate as Editable to change it." ).arg( workflow->readOnlyReason() );
         color = "#7f8c8d";
     }

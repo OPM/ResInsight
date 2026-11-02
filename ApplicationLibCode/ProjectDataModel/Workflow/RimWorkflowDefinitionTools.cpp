@@ -770,7 +770,9 @@ std::expected<RimWorkflowDefinition, QString> RimWorkflowDefinitionTools::fromJs
     for ( const QJsonValue& value : json.value( "nodes" ).toArray() )
     {
         auto node = nodeFromJson( value.toObject() );
-        if ( node.name.isEmpty() || node.taskId.isEmpty() )
+        // A nested workflow entry has the file of its workflow instead of a task type
+        const bool isNested = node.extra.value( "workflow" ).isString();
+        if ( node.name.isEmpty() || ( node.taskId.isEmpty() && !isNested ) )
             return std::unexpected( "A task in the workflow definition has no name or type" );
         definition.nodes.push_back( node );
     }
@@ -1884,4 +1886,55 @@ QJsonObject RimWorkflowDefinitionTools::graphFromDefinition( const RimWorkflowDe
                         { "tasks", tasks },
                         { "edges", edges },
                         { "issues", workflowIssues } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMap<QString, QJsonObject> RimWorkflowDefinitionTools::nestedWorkflowEntries( const RimWorkflowDefinition& definition )
+{
+    QMap<QString, QJsonObject> entries;
+    for ( const auto& node : definition.nodes )
+    {
+        if ( node.extra.value( "workflow" ).isString() ) entries.insert( node.name, node.extra );
+    }
+    return entries;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Nested tasks are found from the `workflow:` entries, or from the class taskmaestro generates
+/// when it wraps a workflow as a task (registered workflows have no entries)
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowDefinitionTools::markNestedWorkflows( const QJsonObject&                graph,
+                                                             const QMap<QString, QJsonObject>& entries,
+                                                             const QJsonObject&                describe )
+{
+    const QString wrapperType = "taskmaestro.workflow_task.WorkflowTask_";
+
+    QStringList wrappers;
+    for ( const QJsonValue& value : describe.value( "tasks" ).toArray() )
+    {
+        const QJsonObject task = value.toObject();
+        if ( task.value( "python_type" ).toString().startsWith( wrapperType ) ) wrappers.append( task.value( "name" ).toString() );
+    }
+
+    QJsonArray tasks = graph.value( "tasks" ).toArray();
+    for ( qsizetype i = 0; i < tasks.size(); ++i )
+    {
+        QJsonObject   task = tasks[i].toObject();
+        const QString name = task.value( "name" ).toString();
+        if ( !entries.contains( name ) && !wrappers.contains( name ) ) continue;
+
+        task["nested_workflow"] = QJsonObject{ { "file", entries.value( name ).value( "workflow" ).toString() } };
+
+        // A `workflow:` entry has no task type and the wrapper class is generated, so neither is in
+        // the catalog. Other tasks keep their state to show real unknown types.
+        if ( wrappers.contains( name ) || task.value( "task_id" ).toString().isEmpty() ) task["known_type"] = true;
+        if ( task.value( "description" ).toString().isEmpty() ) task["description"] = "Nested workflow";
+        tasks[i] = task;
+    }
+
+    QJsonObject marked = graph;
+    marked["tasks"]    = tasks;
+    return marked;
 }

@@ -31,6 +31,7 @@ class QAction;
 class QLabel;
 class QMenu;
 class QSplitter;
+class QTabBar;
 class RimWorkflow;
 class RimWorkflowJob;
 struct RimWorkflowDefinition;
@@ -41,7 +42,8 @@ class RiuWorkflowValidationRunner;
 //==================================================================================================
 /// The workflow dock: the graph, the task palette and a status line. Edits go through
 /// RimWorkflow::applyEdit(); the workflow then calls RiuMainWindow::workflowDefinitionChanged(),
-/// which refreshes this widget.
+/// which refreshes this widget. Nested workflows open in tabs above the graph; they are read-only
+/// and have no job. workflow() and rootJob() are those of the first tab.
 //==================================================================================================
 class RiuWorkflowEditorWidget : public QWidget
 {
@@ -54,6 +56,8 @@ public:
     void            setWorkflow( RimWorkflow* workflow, RimWorkflowJob* job );
     RimWorkflow*    workflow() const;
     RimWorkflowJob* job() const;
+    RimWorkflowJob* rootJob() const;
+    RimWorkflow*    displayedWorkflow() const;
     void            clear();
     void            refresh();
     void            updateJobState();
@@ -79,11 +83,26 @@ public:
     void connectPorts( const QString& from, const QString& output, const QString& to, const QString& input );
 
     void showMessage( const QString& message );
+    void openNestedWorkflow( const QString& taskName );
 
 signals:
     void taskSelected( const QString& taskName );
 
 private:
+    struct Tab
+    {
+        caf::PdmPointer<RimWorkflow>                   workflow;
+        QStringList                                    taskPath; // Empty for the root workflow
+        std::optional<RiuWorkflowGraphView::ViewState> viewState;
+    };
+
+    void activateTab( int index, bool keepViewState );
+    void closeTab( int index );
+    void closeNestedTabs();
+    bool reopenNestedTabs();
+    void updateTabBar();
+    bool isNestedTabShown() const;
+
     void showWorkflow( RiuWorkflowGraphView::ViewportPolicy policy );
     void showContextMenu( const RiuWorkflowGraphView::ItemRef& item, const QPoint& globalPos, const QPointF& scenePos );
     void appendAddTaskMenu( QMenu* menu, const QPointF& scenePos );
@@ -110,8 +129,12 @@ private:
     void        onValidationFinished( RimWorkflow* workflow );
 
 private:
-    caf::PdmPointer<RimWorkflow>    m_workflow;
-    caf::PdmPointer<RimWorkflowJob> m_job;
+    caf::PdmPointer<RimWorkflow>    m_workflow; // The workflow of the current tab
+    caf::PdmPointer<RimWorkflowJob> m_job; // The root job in the first tab, else null
+    caf::PdmPointer<RimWorkflowJob> m_rootJob;
+    std::vector<Tab>                m_tabs;
+    int                             m_currentTab = 0;
+    QTabBar*                        m_tabBar;
     QAction*                        m_saveAction;
     QAction*                        m_saveAsAction;
     QAction*                        m_undoAction;
