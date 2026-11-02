@@ -53,6 +53,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPointer>
 #include <QSettings>
 #include <QTextEdit>
 #include <QTimer>
@@ -69,13 +70,18 @@ namespace internal
 {
 void rebalanceDockSplitters( RiuMainWindowBase* widget, std::set<ads::CDockSplitter*> splitters )
 {
+    // The docking layout can delete splitters before the timer fires, so guard them with QPointer
+    std::vector<QPointer<QSplitter>> guardedSplitters( splitters.begin(), splitters.end() );
+
     // rebalance splitters after a short delay to allow the layout to be updated before setting sizes
     QTimer::singleShot( 10,
                         widget,
-                        [splitters]()
+                        [guardedSplitters]()
                         {
-                            for ( QSplitter* splitter : splitters )
+                            for ( const auto& splitter : guardedSplitters )
                             {
+                                if ( !splitter ) continue;
+
                                 QList<int> sizes( splitter->count(), 1000 ); // size not important, just needs all to be equal
                                 splitter->setSizes( sizes );
                             }
