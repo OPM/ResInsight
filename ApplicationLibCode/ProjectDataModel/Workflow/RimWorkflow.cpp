@@ -86,6 +86,10 @@ RimWorkflow::RimWorkflow()
 
     CAF_PDM_InitFieldNoDefault( &m_collapsedTasks, "CollapsedTasks", "Collapsed Tasks" );
     m_collapsedTasks.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_nestedWorkflows, "NestedWorkflows", "Nested Workflows" );
+    m_nestedWorkflows.uiCapability()->setUiTreeChildrenHidden( true );
+    m_nestedWorkflows.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,6 +324,172 @@ bool RimWorkflow::setLoadError( const QString& message, QString* errorMessage )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflow::isNestedTask( const QString& taskName ) const
+{
+    for ( const QJsonValue& task : m_graph.value( "tasks" ).toArray() )
+    {
+        if ( task.toObject().value( "name" ).toString() == taskName ) return task.toObject().value( "nested_workflow" ).isObject();
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The workflow wrapped by a task, loaded the first time it is asked for. Null if the task is not
+/// a nested workflow. A workflow that cannot be loaded has a load error.
+//--------------------------------------------------------------------------------------------------
+RimWorkflow* RimWorkflow::nestedWorkflow( const QString& taskName )
+{
+    for ( RimWorkflow* nested : m_nestedWorkflows.childrenByType() )
+    {
+        if ( nested->m_nestedTaskName == taskName ) return nested;
+    }
+    if ( !isNestedTask( taskName ) ) return nullptr;
+
+    auto* nested             = new RimWorkflow;
+    nested->m_nestedTaskName = taskName;
+    nested->m_name           = taskName;
+    m_nestedWorkflows.push_back( nested );
+    nested->loadNested();
+    return nested;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The workflow a nested workflow belongs to
+//--------------------------------------------------------------------------------------------------
+RimWorkflow* RimWorkflow::parentWorkflow() const
+{
+    return m_source == Source::Nested ? firstAncestorOfType<RimWorkflow>() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflow::nestedTaskName() const
+{
+    return m_nestedTaskName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimWorkflow::nestedTaskPath() const
+{
+    QStringList path;
+    for ( const RimWorkflow* workflow = this; workflow->parentWorkflow(); workflow = workflow->parentWorkflow() )
+        path.prepend( workflow->m_nestedTaskName );
+    return path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMap<QString, QJsonObject> RimWorkflow::nestedEntries() const
+{
+    return m_source == Source::Nested ? m_nestedEntries : RimWorkflowDefinitionTools::nestedWorkflowEntries( m_definition );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Describe the workflow of a nested task through `taskmaestro_helper describe-nested`. A YAML
+/// entry is described from its file, relative to the file of the entry. A nested workflow in a
+/// registered workflow is found from the root workflow and the task path.
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::loadNested()
+{
+    m_source = Source::Nested;
+
+    RimWorkflowDefinition definition;
+    definition.name     = m_nestedTaskName;
+    definition.editable = false;
+    definition.readOnlyReasons.append( QString( "Nested workflow of task '%1'" ).arg( m_nestedTaskName ) );
+
+    const auto failed = [&]( const QString& message )
+    {
+        setDefinition( definition, Source::Nested );
+        setLoadError( message, nullptr );
+    };
+
+    const std::optional<QStringList> args = describeNestedArguments();
+    if ( !args ) return failed( QString( "Cannot find the workflow of nested task '%1'" ).arg( m_nestedTaskName ) );
+
+    auto output = RimWorkflowHelperProcess::runSync( *args );
+    if ( !output ) return failed( output.error() );
+
+    setNestedDescription( *output, definition );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Arguments to `taskmaestro_helper describe-nested` for this nested workflow. A nested workflow in a
+/// registered workflow is found from the root workflow and the task path, otherwise from the YAML
+/// file of the entry. Empty if the workflow cannot be found.
+//--------------------------------------------------------------------------------------------------
+std::optional<QStringList> RimWorkflow::describeNestedArguments()
+{
+    RimWorkflow* parent = firstAncestorOfType<RimWorkflow>();
+    if ( !parent ) return std::nullopt;
+
+    RimWorkflow* root = parent;
+    while ( root->parentWorkflow() )
+        root = root->parentWorkflow();
+
+    if ( root->source() != Source::Registered ) return describeNestedYamlArguments( *parent );
+
+    QStringList args{ "describe-nested", "--registered", root->registeredId() };
+    for ( const QString& task : nestedTaskPath() )
+        args << "--task" << task;
+    return args;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Arguments to describe a `workflow:` entry of the parent from its YAML file, relative to the
+/// directory of the parent. Sets the source directory to the directory of the YAML file.
+//--------------------------------------------------------------------------------------------------
+std::optional<QStringList> RimWorkflow::describeNestedYamlArguments( const RimWorkflow& parent )
+{
+    const QJsonObject entry = parent.nestedEntries().value( m_nestedTaskName );
+    const QString     file  = entry.value( "workflow" ).toString();
+    if ( file.isEmpty() || parent.sourceDirectory().isEmpty() ) return std::nullopt;
+
+    const QDir    directory( parent.sourceDirectory() );
+    const QString path = QDir::cleanPath( directory.absoluteFilePath( file ) );
+
+    QStringList   args{ "describe-nested", "--yaml", path };
+    const QString input = entry.value( "workflow_input" ).toString();
+    if ( !input.isEmpty() ) args << "--input" << QDir::cleanPath( directory.absoluteFilePath( input ) );
+
+    // An empty import directory would resolve to the current working directory
+    for ( const RimWorkflow* workflow = &parent; workflow; workflow = workflow->parentWorkflow() )
+    {
+        if ( !workflow->sourceDirectory().isEmpty() ) args << "--import-dir" << workflow->sourceDirectory();
+    }
+
+    m_sourceDirectory = QFileInfo( path ).absolutePath();
+    return args;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set the definition and nested entries from the output of `taskmaestro_helper describe-nested`
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setNestedDescription( const QJsonObject& output, RimWorkflowDefinition definition )
+{
+    const QJsonObject nested = output.value( "nested" ).toObject();
+    m_nestedEntries.clear();
+    for ( auto it = nested.begin(); it != nested.end(); ++it )
+        m_nestedEntries.insert( it.key(), it.value().toObject() );
+
+    definition.name          = output.value( "name" ).toString( m_nestedTaskName );
+    definition.describe      = output.value( "describe" ).toObject();
+    definition.describeError = output.value( "describe_error" ).toObject();
+    setDefinition( definition, Source::Nested );
+    if ( !definition.describe.isEmpty() ) return;
+
+    const QString message = definition.describeError.isEmpty() ? QString( "The nested workflow could not be described" )
+                                                               : RimWorkflowHelperProcess::errorMessage( definition.describeError );
+    setLoadError( message, nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Load a YAML folder through `taskmaestro_helper load --describe`
 //--------------------------------------------------------------------------------------------------
 bool RimWorkflow::loadFromDirectory( QString* errorMessage )
@@ -419,6 +589,9 @@ void RimWorkflow::setUnsavedDefinition( const RimWorkflowDefinition& definition,
 //--------------------------------------------------------------------------------------------------
 void RimWorkflow::setDefinition( const RimWorkflowDefinition& definition, Source source )
 {
+    // Nested workflows are loaded again when opened, from the new definition
+    m_nestedWorkflows.deleteChildren();
+
     m_source          = source;
     m_definition      = definition;
     m_savedDefinition = definition;
@@ -477,7 +650,7 @@ const RimWorkflowDefinition& RimWorkflow::definition() const
 //--------------------------------------------------------------------------------------------------
 bool RimWorkflow::isEditable() const
 {
-    return m_definition.editable && m_source != Source::Registered;
+    return m_definition.editable && m_source != Source::Registered && m_source != Source::Nested;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -665,6 +838,7 @@ void RimWorkflow::rebuildGraph()
     {
         m_graph = RimWorkflowDefinitionTools::graphFromDefinition( m_definition, false );
     }
+    m_graph = RimWorkflowDefinitionTools::markNestedWorkflows( m_graph, nestedEntries(), m_definition.describe );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -680,7 +854,8 @@ void RimWorkflow::updateUiName()
 //--------------------------------------------------------------------------------------------------
 void RimWorkflow::ensureDefaultJob()
 {
-    if ( !m_jobs.empty() ) return;
+    // A nested workflow runs as one task of its parent's jobs
+    if ( !m_jobs.empty() || m_source == Source::Nested ) return;
 
     auto* job = new RimWorkflowJob;
     job->setJobName( "Default" );

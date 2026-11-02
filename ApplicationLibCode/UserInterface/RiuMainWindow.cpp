@@ -1649,7 +1649,7 @@ void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* bindi
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
 {
-    if ( !m_workflowEditor || m_workflowEditor->job() != job ) return;
+    if ( !m_workflowEditor || m_workflowEditor->rootJob() != job ) return;
     m_workflowEditor->updateJobState();
 }
 
@@ -1669,7 +1669,7 @@ void RiuMainWindow::workflowDefinitionChanged( RimWorkflow* workflow )
     }
     else if ( !workflow || workflow == displayed )
     {
-        RimWorkflowJob* job = m_workflowEditor->job();
+        RimWorkflowJob* job = m_workflowEditor->rootJob();
         if ( !job )
         {
             const auto jobs = displayed->jobs();

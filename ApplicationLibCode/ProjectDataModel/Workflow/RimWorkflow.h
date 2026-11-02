@@ -30,6 +30,7 @@
 
 #include <expected>
 #include <memory>
+#include <optional>
 #include <vector>
 
 class RimWorkflowJob;
@@ -38,7 +39,8 @@ class QTemporaryDir;
 //==================================================================================================
 /// A taskmaestro workflow: a YAML folder, a workflow registered by an installed package, or a new
 /// workflow that has not been saved yet. Editable workflows keep their definition in memory with
-/// undo/redo until saved.
+/// undo/redo until saved. A nested workflow (a task wrapping a whole workflow) is a read-only child
+/// workflow drawn from its description; it is not saved in the project.
 //==================================================================================================
 class RimWorkflow : public caf::PdmObject
 {
@@ -49,7 +51,8 @@ public:
     {
         YamlDirectory,
         Registered,
-        Unsaved
+        Unsaved,
+        Nested
     };
 
     struct RunSource
@@ -79,6 +82,13 @@ public:
     bool        isTaskCollapsed( const QString& taskName ) const;
     void        setTaskCollapsed( const QString& taskName, bool collapsed );
     void        setCollapsedTasks( const QStringList& taskNames );
+
+    // Nested workflows. A task path holds the nested task names from the root workflow down.
+    bool         isNestedTask( const QString& taskName ) const;
+    RimWorkflow* nestedWorkflow( const QString& taskName );
+    RimWorkflow* parentWorkflow() const;
+    QString      nestedTaskName() const;
+    QStringList  nestedTaskPath() const;
 
     bool loadFromDirectory( QString* errorMessage = nullptr );
     bool loadFromRegistered( const QJsonObject& catalogEntry, QString* errorMessage = nullptr );
@@ -151,6 +161,13 @@ private:
     void rebuildGraph();
     void updateUiName();
     void ensureDefaultJob();
+    void loadNested();
+
+    std::optional<QStringList> describeNestedArguments();
+    std::optional<QStringList> describeNestedYamlArguments( const RimWorkflow& parent );
+    void                       setNestedDescription( const QJsonObject& output, RimWorkflowDefinition definition );
+
+    QMap<QString, QJsonObject> nestedEntries() const;
 
     std::expected<QJsonObject, QString> saveToDirectory( const QString& directory, bool backup );
 
@@ -169,6 +186,7 @@ private:
     caf::PdmField<bool>                      m_inlineConfigValues;
     caf::PdmField<std::vector<QString>>      m_hiddenTasks;
     caf::PdmField<std::vector<QString>>      m_collapsedTasks;
+    caf::PdmChildArrayField<RimWorkflow*>    m_nestedWorkflows;
     QJsonObject                              m_graph;
 
     Source                         m_source = Source::YamlDirectory;
@@ -183,4 +201,6 @@ private:
     bool                           m_describeSucceeded  = true;
     QDateTime                      m_loadedModificationTime;
     std::unique_ptr<QTemporaryDir> m_editDirectory;
+    QString                        m_nestedTaskName;
+    QMap<QString, QJsonObject>     m_nestedEntries; // `workflow:` entries of a nested YAML workflow
 };

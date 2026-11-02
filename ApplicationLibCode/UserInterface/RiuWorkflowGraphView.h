@@ -22,9 +22,11 @@
 #include <QJsonObject>
 #include <QMap>
 #include <QPointF>
+#include <QTransform>
 
 #include <expected>
 #include <functional>
+#include <optional>
 
 class QGraphicsScene;
 class QGraphicsPathItem;
@@ -74,6 +76,17 @@ public:
         static ItemRef forCondition( const QString& from, const QString& to );
     };
 
+    // Where the user has placed the tasks, the zoom and scroll position and the selection, kept
+    // while another workflow is shown
+    struct ViewState
+    {
+        QMap<QString, QPointF> positions;
+        QTransform             transform;
+        QPointF                center;
+        bool                   fit = true;
+        QString                selectedTask;
+    };
+
     // Returns why a connection is not possible. Fields are empty for the whole input or output.
     using ConnectionValidator =
         std::function<std::expected<void, QString>( const QString& from, const QString& output, const QString& to, const QString& input )>;
@@ -85,6 +98,9 @@ public:
 
     void showGraph( const QJsonObject& graph, const QString& error, ViewportPolicy policy = ViewportPolicy::Fit );
     void fitGraph();
+
+    ViewState viewState();
+    void      setViewState( const ViewState& state );
 
     void setEditable( bool editable );
     bool isEditable() const;
@@ -113,6 +129,7 @@ signals:
     void renameRequested( const QString& taskName );
     void addTaskRequested( const QString& taskId, const QPointF& scenePos );
     void collapseToggled( const QString& taskName );
+    void openNestedRequested( const QString& taskName );
     void contextMenuRequested( const RiuWorkflowGraphView::ItemRef& item, const QPoint& globalPos, const QPointF& scenePos );
 
 protected:
@@ -156,6 +173,7 @@ private:
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_configNodes;
     QMap<QString, QPointF>                               m_positions;
     QMap<QString, QPointF>                               m_pendingPositions;
+    std::optional<std::pair<QTransform, QPointF>>        m_restoredViewport;
 
     RiuWorkflowGraphViewItems::PortItem*                m_dragPort   = nullptr;
     RiuWorkflowGraphViewItems::PortItem*                m_dragTarget = nullptr;

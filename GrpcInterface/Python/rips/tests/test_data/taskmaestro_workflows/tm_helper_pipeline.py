@@ -77,3 +77,13 @@ def _local_workflow() -> Workflow:
 
 
 local_workflow = _local_workflow()
+
+
+doubling_workflow = Workflow.builder("doubling").add_task(Double).build()
+
+nested_workflow = (
+    Workflow.builder("nested_flow")
+    .add_task(Start, config_fields=["value"])
+    .add_task(doubling_workflow.as_task(name="twice"), depends_on=Start)
+    .build()
+)

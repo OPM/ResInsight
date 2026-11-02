@@ -102,4 +102,9 @@ QString     firstOfLabel( int position );
 // Validation and display
 std::vector<RimWorkflowIssue> validate( const RimWorkflowDefinition& definition );
 QJsonObject graphFromDefinition( const RimWorkflowDefinition& definition, bool editMode, const std::vector<RimWorkflowIssue>& extraIssues = {} );
+
+// Nested workflows: tasks wrapping a whole workflow. The `workflow:` entries of a YAML workflow
+// (`workflow` file and `workflow_input`) by task name, and the graph with these tasks marked.
+QMap<QString, QJsonObject> nestedWorkflowEntries( const RimWorkflowDefinition& definition );
+QJsonObject markNestedWorkflows( const QJsonObject& graph, const QMap<QString, QJsonObject>& entries, const QJsonObject& describe );
 } // namespace RimWorkflowDefinitionTools

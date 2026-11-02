@@ -81,11 +81,15 @@ const QColor edgeColor( 75, 95, 115 );
 const QColor selectedEdgeColor( 30, 120, 220 );
 const QColor mapColor( 95, 80, 160 );
 const QColor conditionColor( 135, 75, 150 );
+const QColor nestedColor( 30, 125, 120 );
+const QColor nestedHeaderColor( 196, 231, 226 );
 
-constexpr qreal diamondMinHeight = 130.0;
-constexpr qreal diamondPortStep  = 24.0;
-constexpr qreal collapsedHeight  = 30.0;
-constexpr qreal headerHeight     = 28.0;
+constexpr qreal diamondMinHeight   = 130.0;
+constexpr qreal diamondPortStep    = 24.0;
+constexpr qreal collapsedHeight    = 30.0;
+constexpr qreal nestedHeaderHeight = 24.0;
+constexpr qreal nestedIconWidth    = 22.0;
+constexpr qreal headerHeight       = 28.0;
 
 // Marks the item that collapses and expands its task when clicked
 constexpr int       toggleDataKey = 0;
@@ -211,7 +215,8 @@ public:
                bool                         isConfig  = false,
                const QString&               subtitle  = {},
                bool                         diamond   = false,
-               bool                         collapsed = false );
+               bool                         collapsed = false,
+               bool                         mapped    = false );
 
     qreal                  height() const;
     bool                   isHeaderAt( const QPointF& scenePos ) const;
@@ -231,6 +236,8 @@ public:
     void                   setTitle( const QString& title, const QString& toolTip );
     void                   setIssues( const QJsonArray& issues );
     void                   setUnknownType( bool unknown );
+    void                   setNested( bool nested );
+    bool                   isNested() const;
 
 protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
@@ -251,6 +258,8 @@ private:
     qreal     freeRight( const QRectF& line, qreal right, const QList<QGraphicsItem*>& ignored ) const;
     void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
     void      applyStyle();
+    void      updateStateLabelPosition();
+    void      paintNestedHeader( QPainter* painter ) const;
     QPolygonF diamondPolygon( const QRectF& bounds ) const;
 
     QString                                  m_name;
@@ -282,6 +291,7 @@ private:
     int                                      m_errorCount   = 0;
     int                                      m_warningCount = 0;
     bool                                     m_unknownType  = false;
+    bool                                     m_nested       = false;
 };
 
 //==================================================================================================
@@ -443,7 +453,8 @@ GraphNode::GraphNode( const QString&               name,
                       bool                         isConfig,
                       const QString&               subtitle,
                       bool                         diamond,
-                      bool                         collapsed )
+                      bool                         collapsed,
+                      bool                         mapped )
     : m_name( name )
     , m_isConfig( isConfig )
     , m_diamond( diamond && !isConfig && !collapsed )
@@ -498,7 +509,7 @@ GraphNode::GraphNode( const QString&               name,
     }
 
     // A mapped task runs once per item: drawn as a stack of boxes with a line saying what it maps over
-    if ( !subtitle.isEmpty() )
+    if ( mapped )
     {
         for ( int depth = 2; depth >= 1; --depth )
         {
@@ -576,7 +587,8 @@ bool GraphNode::isHeaderAt( const QPointF& scenePos ) const
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setTitle( const QString& title, const QString& toolTip )
 {
-    const qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : ( m_chevron ? 107 : 100 ) );
+    qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : ( m_chevron ? 107 : 100 ) );
+    if ( m_nested && !m_diamond ) available -= nestedIconWidth;
     m_title->setPlainText( QFontMetrics( m_title->font() ).elidedText( title, Qt::ElideRight, static_cast<int>( available ) ) );
     m_title->setToolTip( title );
     if ( m_diamond ) m_title->setPos( ( m_width - m_title->boundingRect().width() ) / 2, rect().height() / 2 - 24 );
@@ -743,6 +755,7 @@ void GraphNode::paint( QPainter* painter, const QStyleOptionGraphicsItem* option
     if ( !m_diamond )
     {
         QGraphicsRectItem::paint( painter, option, widget );
+        if ( m_nested ) paintNestedHeader( painter );
         return;
     }
     painter->setPen( pen() );
@@ -908,6 +921,73 @@ void GraphNode::setUnknownType( bool unknown )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The run state is shown at the right end of the title, left of the sub-workflow icon
+//--------------------------------------------------------------------------------------------------
+void GraphNode::updateStateLabelPosition()
+{
+    if ( !m_stateLabel || m_diamond ) return;
+    m_stateLabel->setPos( m_width - m_stateLabel->boundingRect().width() - ( m_nested ? nestedIconWidth + 4 : 6 ), 5 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A task holding a whole workflow has a coloured title band with a sub-workflow icon (two linked
+/// boxes) at its right end
+//--------------------------------------------------------------------------------------------------
+void GraphNode::paintNestedHeader( QPainter* painter ) const
+{
+    const qreal  borderWidth = pen().widthF();
+    const QRectF bounds      = rect();
+    const qreal  bandHeight  = m_collapsed ? bounds.height() : std::min( nestedHeaderHeight, bounds.height() );
+    const QRectF band( bounds.left() + borderWidth / 2,
+                       bounds.top() + borderWidth / 2,
+                       bounds.width() - borderWidth,
+                       bandHeight - borderWidth / 2 );
+
+    painter->save();
+    painter->setPen( Qt::NoPen );
+    painter->setBrush( nestedHeaderColor );
+    painter->drawRect( band );
+    if ( !m_collapsed )
+    {
+        painter->setPen( QPen( nestedColor, 1.0 ) );
+        painter->drawLine( QPointF( bounds.left(), bounds.top() + bandHeight ), QPointF( bounds.right(), bounds.top() + bandHeight ) );
+    }
+
+    const qreal  right = bounds.right() - 6;
+    const qreal  top   = bounds.top() + ( std::min( nestedHeaderHeight, bounds.height() ) - 13 ) / 2;
+    const QRectF first( right - 18, top + 6, 8, 7 );
+    const QRectF second( right - 8, top, 8, 7 );
+    painter->setPen( QPen( nestedColor, 1.2 ) );
+    painter->setBrush( Qt::white );
+    painter->drawPolyline( QPolygonF{ QPointF( first.center().x(), first.top() ),
+                                      QPointF( first.center().x(), second.center().y() ),
+                                      QPointF( second.left(), second.center().y() ) } );
+    painter->drawRect( first );
+    painter->drawRect( second );
+    painter->restore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void GraphNode::setNested( bool nested )
+{
+    m_nested = nested;
+    // A mapped task keeps the map colour, as its subtitle also says what it maps over
+    if ( m_subtitle && m_stack.empty() ) m_subtitle->setDefaultTextColor( nested ? nestedColor : mapColor );
+    updateStateLabelPosition();
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool GraphNode::isNested() const
+{
+    return m_nested;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void GraphNode::applyStyle()
@@ -989,7 +1069,7 @@ void GraphNode::applyStyle()
         if ( m_diamond )
             m_stateLabel->setPos( ( m_width - m_stateLabel->boundingRect().width() ) / 2, rect().height() / 2 + 12 );
         else
-            m_stateLabel->setPos( m_width - m_stateLabel->boundingRect().width() - 6, 5 );
+            updateStateLabelPosition();
     }
 
     if ( m_issueLabel )
@@ -1508,6 +1588,36 @@ void RiuWorkflowGraphView::fitGraph()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWorkflowGraphView::ViewState RiuWorkflowGraphView::viewState()
+{
+    rememberPositions();
+    return { m_positions, transform(), mapToScene( viewport()->rect().center() ), m_fitOnResize, m_lastSelectedTask };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Use a state from viewState() for the next showGraph() with ViewportPolicy::Keep. The tasks shown
+/// now are forgotten.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setViewState( const ViewState& state )
+{
+    finishConnectionDrag( false );
+    m_rebuilding = true;
+    m_taskNodes.clear();
+    m_configNodes.clear();
+    m_runStatusLabel   = nullptr;
+    m_hiddenTasksLabel = nullptr;
+    m_scene->clear();
+    m_rebuilding = false;
+
+    m_positions        = state.positions;
+    m_fitOnResize      = state.fit;
+    m_lastSelectedTask = state.selectedTask;
+    m_restoredViewport = std::make_pair( state.transform, state.center );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Keep the status labels at the top-left corner of the boxes, so they don't stretch the scene
 /// when tasks are hidden or moved
 //--------------------------------------------------------------------------------------------------
@@ -1532,9 +1642,10 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
 {
     finishConnectionDrag( false );
 
-    const QTransform oldTransform = transform();
-    const QPointF    oldCenter    = mapToScene( viewport()->rect().center() );
-    const bool       keepViewport = policy == ViewportPolicy::Keep && !m_taskNodes.isEmpty() && !m_fitOnResize;
+    const auto       restored     = std::exchange( m_restoredViewport, std::nullopt );
+    const QTransform oldTransform = restored ? restored->first : transform();
+    const QPointF    oldCenter    = restored ? restored->second : mapToScene( viewport()->rect().center() );
+    const bool       keepViewport = policy == ViewportPolicy::Keep && ( restored || !m_taskNodes.isEmpty() ) && !m_fitOnResize;
     const QString    selectedTask = m_lastSelectedTask;
     if ( policy == ViewportPolicy::Keep )
         rememberPositions();
@@ -1690,12 +1801,17 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             if ( !port.hiddenSources.isEmpty() && port.style == PortInfo::Style::Missing ) port.style = PortInfo::Style::Normal;
         }
 
-        const QJsonObject map = data.value( "map" ).toObject();
-        QString           subtitle;
-        if ( !map.isEmpty() ) subtitle = QString::fromUtf8( "⟳ map over %1" ).arg( map.value( "over" ).toString() );
-        const bool isSwitch  = data.value( "switch" ).toBool();
-        const bool collapsed = m_collapsedTasks.contains( name );
-        auto*      node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed );
+        const QJsonObject map        = data.value( "map" ).toObject();
+        const bool        nested     = data.value( "nested_workflow" ).isObject();
+        const QString     nestedFile = data.value( "nested_workflow" ).toObject().value( "file" ).toString();
+        QStringList       subtitles;
+        if ( nested ) subtitles << ( nestedFile.isEmpty() ? QString( "nested workflow" ) : QString( "workflow: %1" ).arg( nestedFile ) );
+        if ( !map.isEmpty() ) subtitles << QString::fromUtf8( "⟳ map over %1" ).arg( map.value( "over" ).toString() );
+        const QString subtitle  = subtitles.join( "  " );
+        const bool    isSwitch  = data.value( "switch" ).toBool();
+        const bool    collapsed = m_collapsedTasks.contains( name );
+        auto*         node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed, !map.isEmpty() );
+        node->setNested( nested );
         if ( isSwitch )
         {
             QStringList branches;
@@ -1725,6 +1841,9 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         if ( name == result ) toolTip << "Result task: its output is the result of the workflow";
         if ( isSwitch ) toolTip << "Switch: picks a branch; tasks with a run condition on it run only for their branches";
         if ( unknownType ) toolTip << "Unknown task type: the package providing it is not installed";
+        if ( nested )
+            toolTip << QString( "Nested workflow%1: runs a whole workflow as one task. Double-click to open it." )
+                           .arg( nestedFile.isEmpty() ? QString() : QString( " (%1)" ).arg( nestedFile ) );
         if ( hiddenConditions.contains( name ) )
             toolTip << QString( "Run condition on hidden task: %1" ).arg( hiddenConditions.value( name ).join( ", " ) );
         node->setTitle( name == result ? QString::fromUtf8( "\u2605 " ) + name : name, toolTip.join( "\n" ) );
@@ -2241,6 +2360,13 @@ void RiuWorkflowGraphView::mouseDoubleClickEvent( QMouseEvent* event )
         {
             auto* node = dynamic_cast<GraphNode*>( current );
             if ( !node ) continue;
+            // A nested workflow opens anywhere in its box; the chevron collapses it
+            if ( m_taskNodes.value( node->name() ) == node && node->isNested() )
+            {
+                emit openNestedRequested( node->name() );
+                event->accept();
+                return;
+            }
             if ( m_taskNodes.value( node->name() ) == node && node->isHeaderAt( mapToScene( event->pos() ) ) )
             {
                 emit collapseToggled( node->name() );
