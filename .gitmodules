@@ -13,6 +13,7 @@
 [submodule "ThirdParty/openzgy"]
 	path = ThirdParty/openzgy
 	url = https://github.com/CeetronSolutions/openzgy.git
+	ignore = dirty
 [submodule "ThirdParty/regression-analysis"]
 	path = ThirdParty/regression-analysis
 	url = https://github.com/CeetronSolutions/regression-analysis.git
