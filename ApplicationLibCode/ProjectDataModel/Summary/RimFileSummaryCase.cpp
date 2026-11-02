@@ -106,20 +106,45 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RifEnsembleImpo
     m_fileSummaryReaderId       = -1;
     m_additionalSummaryReaderId = -1;
 
-    auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(),
-                                                                       m_includeRestartFiles,
-                                                                       ensembleImportState,
-                                                                       threadSafeLogger );
-    if ( !reader ) return;
+    auto handleReaderFailure = [this, threadSafeLogger]( const QString& errorText )
+    {
+        m_multiSummaryReader.reset();
+        m_fileSummaryReaderId       = -1;
+        m_additionalSummaryReaderId = -1;
 
-    m_fileSummaryReaderId = reader->serialNumber();
+        if ( threadSafeLogger )
+        {
+            threadSafeLogger->error( QString( "Failed to open summary file %1 : %2" ).arg( summaryHeaderFilename() ).arg( errorText ) );
+        }
+    };
 
-    m_multiSummaryReader = std::move( multiReader );
-    m_multiSummaryReader->addReader( std::move( reader ) );
+    // This function is called from an OpenMP parallel loop, and an exception escaping the parallel region terminates the
+    // application. The underlying file readers (opm-common, resdata) can throw on corrupt or incomplete files.
+    try
+    {
+        auto reader = RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(),
+                                                                           m_includeRestartFiles,
+                                                                           ensembleImportState,
+                                                                           threadSafeLogger );
+        if ( !reader ) return;
 
-    openAndAttachAdditionalReader();
+        m_fileSummaryReaderId = reader->serialNumber();
 
-    m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
+        m_multiSummaryReader = std::move( multiReader );
+        m_multiSummaryReader->addReader( std::move( reader ) );
+
+        openAndAttachAdditionalReader();
+
+        m_multiSummaryReader->addReader( std::make_unique<RifCalculatedSummaryCurveReader>( this ) );
+    }
+    catch ( const std::exception& e )
+    {
+        handleReaderFailure( e.what() );
+    }
+    catch ( ... )
+    {
+        handleReaderFailure( "Unknown error" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
