@@ -33,7 +33,8 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
                                                       const cvf::Vec3d&                 p2,
                                                       const std::array<cvf::Vec3d, 8>&  hexCorners,
                                                       const size_t                      hexIndex,
-                                                      std::vector<HexIntersectionInfo>* intersections )
+                                                      std::vector<HexIntersectionInfo>* intersections,
+                                                      double                            parametricTolerance )
 {
     CAF_ASSERT( intersections != nullptr );
 
@@ -61,7 +62,8 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
                                                                                hexCorners[faceVertexIndices[next]],
                                                                                faceCenter,
                                                                                &intersection,
-                                                                               &isEntering );
+                                                                               &isEntering,
+                                                                               parametricTolerance );
             if ( intsStatus == 1 )
             {
                 uniqueIntersections.insert(
