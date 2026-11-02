@@ -37,6 +37,7 @@ RimEnsembleFractureHistogramDataSource::RimEnsembleFractureHistogramDataSource()
     CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
 
     CAF_PDM_InitField( &m_numBins, "NumBins", 15, "Number of Bins" );
+    m_numBins.setMinValue( 1 );
 
     setDefaults();
 
