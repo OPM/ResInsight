@@ -3,53 +3,51 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
+    <meta name="generator" content="Hugo 0.167.0">
+    <meta name="generator" content="Relearn 9.1.0">
     <meta name="description" content="The RFT Correlation Plot combines an ensemble RFT plot with correlation analysis, making it possible to investigate how ensemble parameters relate to the RFT pressure response. The plot links three coordinated views in a single layout:
-RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble, as in a standard Ensemble RFT Plot. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the mean RFT pressure, with one point per realization. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot to show that parameter against the RFT pressure, so the strongest correlations can be inspected in detail.">
+RFT Plot – pressure versus depth for the realizations of an ensemble, as in a standard Ensemble RFT Plot. The RFT curves are colored by the selected ensemble parameter. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the RFT pressure, with one point per realization, together with the observed pressure. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot and the RFT curve coloring to use that parameter, and clicking a formation in the RFT Plot restricts the correlation to that formation.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="RFT Correlation Plot :: ResInsight">
     <meta name="twitter:description" content="The RFT Correlation Plot combines an ensemble RFT plot with correlation analysis, making it possible to investigate how ensemble parameters relate to the RFT pressure response. The plot links three coordinated views in a single layout:
-RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble, as in a standard Ensemble RFT Plot. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the mean RFT pressure, with one point per realization. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot to show that parameter against the RFT pressure, so the strongest correlations can be inspected in detail.">
+RFT Plot – pressure versus depth for the realizations of an ensemble, as in a standard Ensemble RFT Plot. The RFT curves are colored by the selected ensemble parameter. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the RFT pressure, with one point per realization, together with the observed pressure. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot and the RFT curve coloring to use that parameter, and clicking a formation in the RFT Plot restricts the correlation to that formation.">
     <meta property="og:url" content="https://resinsight.org/plot-window/rftcorrelationplot/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="RFT Correlation Plot :: ResInsight">
     <meta property="og:description" content="The RFT Correlation Plot combines an ensemble RFT plot with correlation analysis, making it possible to investigate how ensemble parameters relate to the RFT pressure response. The plot links three coordinated views in a single layout:
-RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble, as in a standard Ensemble RFT Plot. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the mean RFT pressure, with one point per realization. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot to show that parameter against the RFT pressure, so the strongest correlations can be inspected in detail.">
+RFT Plot – pressure versus depth for the realizations of an ensemble, as in a standard Ensemble RFT Plot. The RFT curves are colored by the selected ensemble parameter. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the RFT pressure, with one point per realization, together with the observed pressure. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot and the RFT curve coloring to use that parameter, and clicking a formation in the RFT Plot restricts the correlation to that formation.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Plot Main Window">
     <meta itemprop="name" content="RFT Correlation Plot :: ResInsight">
     <meta itemprop="description" content="The RFT Correlation Plot combines an ensemble RFT plot with correlation analysis, making it possible to investigate how ensemble parameters relate to the RFT pressure response. The plot links three coordinated views in a single layout:
-RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble, as in a standard Ensemble RFT Plot. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the mean RFT pressure, with one point per realization. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot to show that parameter against the RFT pressure, so the strongest correlations can be inspected in detail.">
-    <meta itemprop="wordCount" content="723">
+RFT Plot – pressure versus depth for the realizations of an ensemble, as in a standard Ensemble RFT Plot. The RFT curves are colored by the selected ensemble parameter. Tornado Plot – the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the Pearson correlation coefficient. Positive correlations extend to the right, negative correlations to the left. Cross Plot – the selected ensemble parameter plotted against the RFT pressure, with one point per realization, together with the observed pressure. The three views are connected: selecting a bar in the Tornado Plot updates the Cross Plot and the RFT curve coloring to use that parameter, and clicking a formation in the RFT Plot restricts the correlation to that formation.">
+    <meta itemprop="wordCount" content="1194">
     <title>RFT Correlation Plot :: ResInsight</title>
-    <link href="/images/favicon.png?1790250433" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1790250433" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1790250433" defer></script>
-    <script src="/js/search-lunr.min.js?1790250433" defer></script>
-    <script src="/js/search.min.js?1790250433" defer></script>
+    <link href="/images/favicon.8217c8df034c5131671a7fe1f79fd2801c8ffe5a89f9cf0d9c3cff1c4dfc7628.png" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.78b49c23f59ffb08554285843ed4c841484fe34c489058b2991edc027cdd47fc.css" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.7b340a2a0841d2466dca47e43cbd8c4dfe6a4f77a6c81c984d49ebb60ba2e299.js" defer></script>
+    <script src="/js/search-lunr.min.39ae7b4d05e9fb52b81b1813049abdc81d5d1d02006202ce57f9750624296284.js" defer></script>
+    <script src="/js/search.min.795bf51f4b531fcd29fe7ffb27f174f6bb6b0ce086465e2be48643dea742dfbb.js" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1790250433";
+      window.relearn.index_js_url="../../"+"searchindex.en.min.ae689d400b9ce48b24d49a87cff48aea616f4876dd0da00e0b2a8931f42cc4cf.js";
     </script>
-    <script src="/js/lunr/lunr.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1790250433" defer></script>
+    <script src="/js/lunr/lunr.min.75e90b6cec204a54a07060b42ec82f3816430c63ffd689d1e9771f469dc493dd.js" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.5ff7b6bd53462911fc1311c09f654085b748338aced249e719c0b16fda0b90fb.js" defer></script>
+    <script src="/js/lunr/lunr.multi.min.ffaee7f1e07179595fe8a4b7c469761f90999470e1f04dcb0a94dc2c1cb44f9c.js" defer></script>
+    <script src="/js/lunr/lunr.en.min.94d0a7cb1f111200e2f5be9dc32699cf266aaa29011e414bdcd36a18ea0fd5ee.js" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1790250433" rel="stylesheet">
-    <link href="/css/theme.min.css?1790250433" rel="stylesheet">
-    <link href="/css/format-html.min.css?1790250433" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.e0b69df26e19596d4b81bf7eb0c54b6047e7221ec18d5d4d40c11eefd3ef8a4b.css" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.e0b69df26e19596d4b81bf7eb0c54b6047e7221ec18d5d4d40c11eefd3ef8a4b.css" rel="stylesheet"></noscript>
+    <link href="/css/theme.min.b58e9d20967d53cfeea2d87304369abaffb91ba7d5e02ea9a15e4935b9b4be45.css" rel="stylesheet">
+    <link href="/css/format-html.min.a76289bbbecabc8fbe1ed250c5e080801bca6a797c11ef450c3a216cec6b50d9.css" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
-      window.relearn.min = `.min`;
       window.relearn.path='\/plot-window\/rftcorrelationplot\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
@@ -93,6 +91,18 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
+      window.relearn.scrollbarSize = (function() {
+        var scrollDiv = document.createElement('div');
+        scrollDiv.className = 'scrollbar-measure';
+        var parent = document.body || document.documentElement;
+        parent.appendChild(scrollDiv);
+        var size = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+        parent.removeChild(scrollDiv);
+        return size;
+      })();
+      if (window.relearn.scrollbarSize) {
+        document.documentElement.classList.add('classic-scrollbars');
+      }
     </script>
 <style type="text/css">
      
@@ -147,17 +157,19 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper">
+                <div class="topbar-content-wrapper" tabindex="-1">
 <nav class="TableOfContents">
   <ul>
     <li>
       <ul>
         <li><a href="#create-new-rft-correlation-plot">Create New RFT Correlation Plot</a></li>
+        <li><a href="#well-formations">Well Formations</a></li>
         <li><a href="#property-editor">Property Editor</a>
           <ul>
             <li></li>
           </ul>
         </li>
+        <li><a href="#select-formations-in-the-rft-plot">Select Formations in the RFT Plot</a></li>
         <li><a href="#parameter-correlation">Parameter Correlation</a></li>
         <li><a href="#parameter-cross-plot">Parameter Cross Plot</a></li>
         <li><a href="#show-plot-data">Show Plot Data</a></li>
@@ -182,7 +194,7 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper">
+                <div class="topbar-content-wrapper" tabindex="-1">
                   <div class="topbar-area topbar-area-more" data-area="more">
                   </div>
                 </div>
@@ -200,46 +212,77 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
 
 <h1 id="rft-correlation-plot">RFT Correlation Plot</h1>
 
-<p><a href="#R-image-9de56ba6804cf30919affa29d179d273" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/RftCorrelationPlot.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-9de56ba6804cf30919affa29d179d273"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/RftCorrelationPlot.png"></a></p>
+<p><a href="#R-image-15888b6397d4c11d211abc84bf2af3cd" class="lightbox-link"><img class="lazy lightbox figure-image" height="1289" loading="lazy" src="/images/plot-window/RftCorrelationPlot.png" style="height: auto;" width="1355"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-15888b6397d4c11d211abc84bf2af3cd"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/RftCorrelationPlot.png"></a></p>
 <p>The <strong>RFT Correlation Plot</strong> combines an ensemble RFT plot with correlation analysis, making it possible to investigate how ensemble parameters relate to the RFT pressure response. The plot links three coordinated views in a single layout:</p>
 <ul>
-<li><strong>RFT Plot</strong> &ndash; pressure versus depth (TVDMSL) for the realizations of an ensemble, as in a standard <a href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a>.</li>
+<li><strong>RFT Plot</strong> &ndash; pressure versus depth for the realizations of an ensemble, as in a standard <a href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a>. The RFT curves are colored by the selected ensemble parameter.</li>
 <li><strong>Tornado Plot</strong> &ndash; the ensemble parameters ranked by their correlation with the RFT pressure, shown as a tornado plot of the <a href="/plot-window/correlationplots/index.html">Pearson correlation coefficient</a>. Positive correlations extend to the right, negative correlations to the left.</li>
-<li><strong>Cross Plot</strong> &ndash; the selected ensemble parameter plotted against the mean RFT pressure, with one point per realization.</li>
+<li><strong>Cross Plot</strong> &ndash; the selected ensemble parameter plotted against the RFT pressure, with one point per realization, together with the observed pressure.</li>
 </ul>
-<p>The three views are connected: selecting a bar in the <strong>Tornado Plot</strong> updates the <strong>Cross Plot</strong> to show that parameter against the RFT pressure, so the strongest correlations can be inspected in detail.</p>
+<p>The three views are connected: selecting a bar in the <strong>Tornado Plot</strong> updates the <strong>Cross Plot</strong> and the RFT curve coloring to use that parameter, and clicking a formation in the <strong>RFT Plot</strong> restricts the correlation to that formation.</p>
 <h2 id="create-new-rft-correlation-plot">Create New RFT Correlation Plot<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>An RFT Correlation Plot is created from an existing <a href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a>. Right-click the RFT plot in the <strong>Plot Project Tree</strong> and select <strong>Create RFT Correlation Report</strong>.</p>
 <p>The new plot inherits the well, ensemble, and time step from the source RFT plot. It is created under <strong>Ensemble Correlation Plots</strong> in the <strong>Plot Project Tree</strong>, with the three views listed as sub-items: <strong>RFT</strong>, <strong>RFT Tornado Plot</strong>, and <strong>Parameter RFT Cross Plot</strong>. The plot opens in the <a href="/plot-window/index.html">Plot Main Window</a>.</p>
+<p>The first numeric ensemble parameter is selected by default, and the RFT curves are colored by it. If an imported <a href="/plot-window/rftcorrelationplot/index.html#well-formations">well formations file</a> contains picks for the well, the new plot is set up to filter by formation.</p>
+<h2 id="well-formations">Well Formations<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Formation filtering uses depth-based well picks from an FMU <em><code>formations.csv</code></em> file. See <a href="/import/formationimport/index.html#fmu-well-formations-formationscsv">FMU Well Formations</a> for the file format and import.</p>
+<p>The well picks do not require a well path trajectory. The RFT track in the correlation plot uses the <strong>Well Picks (no trajectory)</strong> formation source, which shows the zones as colored formation shading. See <a href="/plot-window/welllogformations/index.html#well-picks-without-a-trajectory">Well Picks Without a Trajectory</a>.</p>
 <h2 id="property-editor">Property Editor<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
-<p>The property editor controls the data source and appearance of the plot.</p>
-<p><a href="#R-image-8f170da196a0c3c3a1c361c1b5daeb3f" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/RftCorrelationPlotPropertyEditor.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-8f170da196a0c3c3a1c361c1b5daeb3f"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/RftCorrelationPlotPropertyEditor.png"></a></p>
+<p>All data source and filter settings are controlled from the property editor of the RFT Correlation Plot itself. The property editor of the <strong>Parameter RFT Cross Plot</strong> sub-item only contains plot appearance settings.</p>
+<p><a href="#R-image-bef35db267a4a1341093ef74085bbcf0" class="lightbox-link"><img class="lazy lightbox figure-image" height="682" loading="lazy" src="/images/plot-window/RftCorrelationPlotPropertyEditor.png" style="height: auto;" width="389"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-bef35db267a4a1341093ef74085bbcf0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/RftCorrelationPlotPropertyEditor.png"></a></p>
+<ul>
+<li><strong>Depth Unit</strong> &ndash; measured depth (MD) or true vertical depth (TVD), used for the depth axis and the depth filter in all three views.</li>
+</ul>
 <h4 id="data-source">Data Source<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
 <li><strong>Ensemble</strong> &ndash; the ensemble to analyse.</li>
 <li><strong>Well Name</strong> &ndash; the well whose RFT pressure is correlated against the ensemble parameters.</li>
 <li><strong>Time Step</strong> &ndash; the single time step the correlation report is computed for.</li>
 <li><strong>Eclipse Case (MD fallback)</strong> &ndash; a reservoir simulation case used to resolve measured depth (MD) when it cannot be derived otherwise. (<em>Eclipse</em> here refers to the <em>Eclipse® reservoir simulator</em>; Eclipse is a registered trademark of Schlumberger.)</li>
+<li><strong>Ensemble Parameter</strong> &ndash; the parameter shown in the <strong>Cross Plot</strong> and used to color the RFT curves. Selecting a bar in the <strong>Tornado Plot</strong> updates this field.</li>
 </ul>
 <h4 id="depth-range">Depth Range<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
+<p>The group title shows the active depth unit, for example <strong>Depth Range (MD)</strong>.</p>
 <ul>
-<li><strong>Filter by Depth Range</strong> &ndash; when enabled, restricts the correlation to a depth interval.</li>
-<li><strong>Min Depth (MD)</strong> / <strong>Max Depth (MD)</strong> &ndash; the measured-depth bounds of the interval.</li>
+<li><strong>Depth Filter</strong> &ndash; restricts the RFT samples used by the <strong>Tornado Plot</strong> and the <strong>Cross Plot</strong>:
+<ul>
+<li><strong>None</strong> &ndash; all RFT samples for the well are used.</li>
+<li><strong>Depth Range</strong> &ndash; only samples between <strong>Min Depth</strong> and <strong>Max Depth</strong> are used.</li>
+<li><strong>Formation</strong> &ndash; only samples within the selected formations are used. Select a <strong>Well Formations File</strong>, then one or more <strong>Zones</strong>.</li>
 </ul>
+</li>
+</ul>
+<p>The active filter is marked in the <strong>RFT Plot</strong> by a bar along the depth axis, and is included in the plot titles.</p>
 <h4 id="cross-plot-parameter">Cross Plot Parameter<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
-<li><strong>Ensemble Parameter</strong> &ndash; the parameter shown in the <strong>Cross Plot</strong>. Selecting a bar in the <strong>Tornado Plot</strong> updates this field, and changing it here updates the <strong>Cross Plot</strong> accordingly.</li>
+<li><strong>Sampling</strong> &ndash; how RFT samples are represented in the <strong>Cross Plot</strong>:
+<ul>
+<li><strong>Mean per Realization</strong> &ndash; one point per realization, using the mean pressure of the filtered samples.</li>
+<li><strong>All Samples</strong> &ndash; one point per filtered RFT sample.</li>
+</ul>
+</li>
 </ul>
 <h4 id="dock-layout">Dock Layout<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
 <li><strong>Show Title Bars</strong> &ndash; shows the dock title bars so the panels can be rearranged. See <a href="/plot-window/rftcorrelationplot/index.html#modifying-the-layout">Modifying the Layout</a>.</li>
 </ul>
+<h2 id="select-formations-in-the-rft-plot">Select Formations in the RFT Plot<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>When well formations are available for the well, the formation zones are shaded in the <strong>RFT Plot</strong>. Click a zone to add it to the formation filter, and click it again to remove it. Several zones can be selected at once. Clicking a zone switches <strong>Depth Filter</strong> to <strong>Formation</strong> if another filter was active.</p>
+<p>Selected zones are marked by a bar along the depth axis, and the <strong>Tornado Plot</strong> and <strong>Cross Plot</strong> are updated to use only the RFT samples within those zones.</p>
 <h2 id="parameter-correlation">Parameter Correlation<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
-<p>The tornado view ranks each ensemble parameter by how strongly it correlates with the RFT pressure. In the example above, <em>LOG10_NSEG:PETRO_PV_TIU_S</em> has the strongest positive correlation (0.72), while <em>NSEG:MULTFLT_NS12</em> has the strongest negative correlation (-0.64). The correlation factor is computed in the same manner as for <a href="/plot-window/correlationplots/index.html">Correlation Plots</a>.</p>
+<p>The tornado view ranks each ensemble parameter by how strongly it correlates with the RFT pressure within the active depth filter. The bar of the selected <strong>Ensemble Parameter</strong> is highlighted. In the example above, filtered to the zones <em>UpperReek</em> and <em>LowerReek</em>, <em>RI:REALIZATION_NUM</em> has the strongest positive correlation (0.62), while the selected parameter <em>LOG10_MULTFLT:MULTFLT_F3</em> has the strongest negative correlation (-0.35). The correlation factor is computed in the same manner as for <a href="/plot-window/correlationplots/index.html">Correlation Plots</a>.</p>
 <h2 id="parameter-cross-plot">Parameter Cross Plot<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
-<p>The cross plot shows the mean RFT pressure of each realization against the value of the selected ensemble parameter, with each realization drawn as a separate point. This reveals the shape of the relationship behind the correlation coefficient &ndash; for example whether the trend is linear or driven by a few outlying realizations.</p>
+<p>The cross plot shows the RFT pressure of each realization against the value of the selected ensemble parameter. This reveals the shape of the relationship behind the correlation coefficient &ndash; for example whether the trend is linear or driven by a few outlying realizations.</p>
+<p>The observed RFT pressure within the active depth filter is drawn as a horizontal line, showing which parameter values give simulated pressures that match the observations:</p>
+<p><a href="#R-image-19d959e9c7e4d5f619459bdc441d0605" class="lightbox-link"><img class="lazy lightbox figure-image" height="604" loading="lazy" src="/images/plot-window/RftCorrelationCrossPlotObserved.png" style="height: auto;" width="655"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-19d959e9c7e4d5f619459bdc441d0605"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/RftCorrelationCrossPlotObserved.png"></a></p>
+<ul>
+<li>A single observation is drawn as a solid line, with dashed lines and a shaded band at plus and minus the observation error.</li>
+<li>Several observations within the same formation are combined into one line at their mean pressure, labelled <em>Observed Pressure (average of N observations)</em>. The dashed lines and band span the full range of these observations, including their errors.</li>
+<li>When formation shading is available, each observed pressure is drawn in the color of its formation.</li>
+</ul>
 <h2 id="show-plot-data">Show Plot Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>The numerical data behind the plot is available by right-clicking the plot in the <strong>Plot Project Tree</strong> and selecting <strong>Show Plot Data</strong>. This opens a text view with the underlying data for the <strong>Tornado Plot</strong> and the <strong>Cross Plot</strong>, which can be copied for use in other applications.</p>
 <h2 id="modifying-the-layout">Modifying the Layout<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
@@ -293,7 +336,8 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
           <hr class="padding default-animation">
         </div>
       </div>
-      <div id="R-content-wrapper" class="highlightable">
+      <div id="R-content-wrapper" class="highlightable" tabindex="-1">
+        <div id="R-scrollbar" aria-hidden="true"><div id="R-scrollbar-thumb"></div></div>
         <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
             <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
@@ -301,6 +345,7 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <li class="" data-nav-id="/releases/mac-installation/index.html"><a class="padding" href="/releases/mac-installation/index.html">Mac Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_11/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_11/index.html">What&#39;s New in 2026.11</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_09/index.html">What&#39;s New in 2026.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
@@ -346,6 +391,7 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <li class="" data-nav-id="/3d-main-window/allandiagrams/index.html"><a class="padding" href="/3d-main-window/allandiagrams/index.html">Allan Diagram</a></li>
             <li class="" data-nav-id="/3d-main-window/formations/index.html"><a class="padding" href="/3d-main-window/formations/index.html"> Zonations/Formations</a></li>
             <li class="" data-nav-id="/3d-main-window/depthplot/index.html"><a class="padding" href="/3d-main-window/depthplot/index.html">Depth Plot</a></li>
+            <li class="" data-nav-id="/3d-main-window/genericview/index.html"><a class="padding" href="/3d-main-window/genericview/index.html">Generic View</a></li>
             <li class="" data-nav-id="/3d-main-window/seismicview/index.html"><a class="padding" href="/3d-main-window/seismicview/index.html">Seismic View</a></li>
             <li class="" data-nav-id="/3d-main-window/seismicsections/index.html"><a class="padding" href="/3d-main-window/seismicsections/index.html">Seismic Sections</a></li>
             <li class="" data-nav-id="/3d-main-window/linkedviews/index.html"><a class="padding" href="/3d-main-window/linkedviews/index.html">Linked Views</a></li>
@@ -372,6 +418,7 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <li class="" data-nav-id="/plot-window/histogram/index.html"><a class="padding" href="/plot-window/histogram/index.html">Histogram Plots</a></li>
             <li class="" data-nav-id="/plot-window/correlationplots/index.html"><a class="padding" href="/plot-window/correlationplots/index.html">Correlation Plots</a></li>
             <li class="" data-nav-id="/plot-window/welllogsandplots/index.html"><a class="padding" href="/plot-window/welllogsandplots/index.html">Well Log Plots</a></li>
+            <li class="" data-nav-id="/plot-window/welllogformations/index.html"><a class="padding" href="/plot-window/welllogformations/index.html">Formations in Well Log Plots</a></li>
             <li class="" data-nav-id="/plot-window/declinecurveanalysis/index.html"><a class="padding" href="/plot-window/declinecurveanalysis/index.html">Decline Curve Analysis</a></li>
             <li class="" data-nav-id="/plot-window/regressionanalysis/index.html"><a class="padding" href="/plot-window/regressionanalysis/index.html">Regression Analysis</a></li>
             <li class="" data-nav-id="/plot-window/wellborestabilityplots/index.html"><a class="padding" href="/plot-window/wellborestabilityplots/index.html">Well Bore Stability Plots</a></li>
@@ -429,6 +476,8 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
             <li class="" data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
+            <li class="" data-nav-id="/import/formationimport/index.html"><a class="padding" href="/import/formationimport/index.html">Formations and Well Picks</a></li>
+            <li class="" data-nav-id="/import/observedfmurftdata/index.html"><a class="padding" href="/import/observedfmurftdata/index.html">Observed FMU RFT Data</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
@@ -468,7 +517,9 @@ RFT Plot – pressure versus depth (TVDMSL) for the realizations of an ensemble,
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
-            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningbatchscheduler/index.html"><a class="padding" href="/opm-flow-integration/runningbatchscheduler/index.html">Using a batch scheduler (BETA)</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/ensemblejobs/index.html"><a class="padding" href="/opm-flow-integration/ensemblejobs/index.html">Ensemble jobs (BETA)</a></li></ul></li>
             <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
@@ -501,8 +552,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1790250433" defer></script>
-    <script src="/js/theme.min.js?1790250433" defer></script>
+    <script src="/js/theme.min.d942eef811263d7b57cf1b2a93ef437ff9f08846efa7033ef7c5904369ae490e.js" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

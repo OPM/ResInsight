@@ -184,10 +184,16 @@
     <loc>https://resinsight.org/export/fluxnummultnum/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/import/formationimport/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/misc/keyboardshortcuts/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/getting-started/modelnavigation/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/import/observedfmurftdata/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/import/observeddata/index.html</loc>
@@ -334,6 +340,9 @@
     <loc>https://resinsight.org/export/sectormodel/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/opm-flow-integration/runningbatchscheduler/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/export/sectormodelexport/index.html</loc>
   </url>
   <url>
@@ -349,6 +358,9 @@
     <loc>https://resinsight.org/wells-and-completions/wellmeasurements/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/plot-window/welllogformations/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/3d-main-window/quickaccess/index.html</loc>
   </url>
   <url>
@@ -356,6 +368,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/declinecurveanalysis/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/opm-flow-integration/ensemblejobs/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/intersections/index.html</loc>
@@ -407,6 +422,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/allandiagrams/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_11/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_09/index.html</loc>
@@ -488,6 +506,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/3d-main-window/genericview/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html</loc>

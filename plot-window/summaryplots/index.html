@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
+    <meta name="generator" content="Hugo 0.167.0">
+    <meta name="generator" content="Relearn 9.1.0">
     <meta name="description" content="Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed data, grid cell time history curve, and pasted ascii curves.
 Summary plots are displayed on screen by maximum four rows by four columns of plots. In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves. As shown in the screenshot above, essential helpers for setup of Summary Plots are:">
     <meta name="author" content="">
@@ -23,33 +23,31 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
     <meta itemprop="name" content="Summary Plots :: ResInsight">
     <meta itemprop="description" content="Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed data, grid cell time history curve, and pasted ascii curves.
 Summary plots are displayed on screen by maximum four rows by four columns of plots. In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves. As shown in the screenshot above, essential helpers for setup of Summary Plots are:">
-    <meta itemprop="wordCount" content="1579">
+    <meta itemprop="wordCount" content="1723">
     <title>Summary Plots :: ResInsight</title>
-    <link href="/images/favicon.png?1790250433" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1790250433" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1790250433" defer></script>
-    <script src="/js/search-lunr.min.js?1790250433" defer></script>
-    <script src="/js/search.min.js?1790250433" defer></script>
+    <link href="/images/favicon.8217c8df034c5131671a7fe1f79fd2801c8ffe5a89f9cf0d9c3cff1c4dfc7628.png" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.78b49c23f59ffb08554285843ed4c841484fe34c489058b2991edc027cdd47fc.css" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.7b340a2a0841d2466dca47e43cbd8c4dfe6a4f77a6c81c984d49ebb60ba2e299.js" defer></script>
+    <script src="/js/search-lunr.min.39ae7b4d05e9fb52b81b1813049abdc81d5d1d02006202ce57f9750624296284.js" defer></script>
+    <script src="/js/search.min.795bf51f4b531fcd29fe7ffb27f174f6bb6b0ce086465e2be48643dea742dfbb.js" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1790250433";
+      window.relearn.index_js_url="../../"+"searchindex.en.min.ae689d400b9ce48b24d49a87cff48aea616f4876dd0da00e0b2a8931f42cc4cf.js";
     </script>
-    <script src="/js/lunr/lunr.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1790250433" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1790250433" defer></script>
+    <script src="/js/lunr/lunr.min.75e90b6cec204a54a07060b42ec82f3816430c63ffd689d1e9771f469dc493dd.js" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.5ff7b6bd53462911fc1311c09f654085b748338aced249e719c0b16fda0b90fb.js" defer></script>
+    <script src="/js/lunr/lunr.multi.min.ffaee7f1e07179595fe8a4b7c469761f90999470e1f04dcb0a94dc2c1cb44f9c.js" defer></script>
+    <script src="/js/lunr/lunr.en.min.94d0a7cb1f111200e2f5be9dc32699cf266aaa29011e414bdcd36a18ea0fd5ee.js" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1790250433" rel="stylesheet">
-    <link href="/css/theme.min.css?1790250433" rel="stylesheet">
-    <link href="/css/format-html.min.css?1790250433" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.e0b69df26e19596d4b81bf7eb0c54b6047e7221ec18d5d4d40c11eefd3ef8a4b.css" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.e0b69df26e19596d4b81bf7eb0c54b6047e7221ec18d5d4d40c11eefd3ef8a4b.css" rel="stylesheet"></noscript>
+    <link href="/css/theme.min.b58e9d20967d53cfeea2d87304369abaffb91ba7d5e02ea9a15e4935b9b4be45.css" rel="stylesheet">
+    <link href="/css/format-html.min.a76289bbbecabc8fbe1ed250c5e080801bca6a797c11ef450c3a216cec6b50d9.css" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
-      window.relearn.min = `.min`;
       window.relearn.path='\/plot-window\/summaryplots\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
@@ -93,6 +91,18 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
+      window.relearn.scrollbarSize = (function() {
+        var scrollDiv = document.createElement('div');
+        scrollDiv.className = 'scrollbar-measure';
+        var parent = document.body || document.documentElement;
+        parent.appendChild(scrollDiv);
+        var size = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+        parent.removeChild(scrollDiv);
+        return size;
+      })();
+      if (window.relearn.scrollbarSize) {
+        document.documentElement.classList.add('classic-scrollbars');
+      }
     </script>
 <style type="text/css">
      
@@ -147,7 +157,7 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
             <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper">
+                <div class="topbar-content-wrapper" tabindex="-1">
 <nav class="TableOfContents">
   <ul>
     <li>
@@ -167,6 +177,7 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
             <li><a href="#duplicate-plot-copy-and-paste">Duplicate plot, Copy and Paste</a></li>
             <li><a href="#filtering-of-subplots">Filtering of subplots</a></li>
             <li><a href="#splitting-a-plot-into-subplots">Splitting a plot into subplots</a></li>
+            <li><a href="#common-legend-for-subplots">Common legend for subplots</a></li>
             <li><a href="#accessing-plot-data">Accessing Plot Data</a></li>
           </ul>
         </li>
@@ -199,7 +210,7 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
             <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper">
+                <div class="topbar-content-wrapper" tabindex="-1">
                   <div class="topbar-area topbar-area-more" data-area="more">
                   </div>
                 </div>
@@ -217,8 +228,8 @@ Summary plots are displayed on screen by maximum four rows by four columns of pl
 
 <h1 id="summary-plots">Summary Plots</h1>
 
-<p><a href="#R-image-af9ba669bebd7891e846274ab95f5cd8" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotsMain.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-af9ba669bebd7891e846274ab95f5cd8"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsMain.png"></a></p>
+<p><a href="#R-image-ed6f137b8f3da791f84aeebd2a288af5" class="lightbox-link"><img class="lazy lightbox figure-image" height="1051" loading="lazy" src="/images/plot-window/SummaryPlotsMain.png" style="height: auto;" width="1743"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ed6f137b8f3da791f84aeebd2a288af5"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsMain.png"></a></p>
 <p>Summary Plots are a display of curves based on
 <a href="/import/eclipsesummarydata/index.html">Eclipse Summary Data</a>
 which can be combined with
@@ -249,8 +260,8 @@ powerful text-based selection of vectors for summary plotting</li>
 </ul>
 <p>Creating a new summary plot of <em>WBHP</em> of <em>Well B-1H</em> and subsequent <em>Drag &amp; Drop</em> of WGOR and WGORH into the same subplot produces the following.
 ResInsight will automatically make new axes if necessary. If units are the same as for WGOR and WGORH, a new axis is unnecessary.</p>
-<p><a href="#R-image-0ea5f82d814b587486e86bb85d41ff21" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlots_WBHP_WGOR.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-0ea5f82d814b587486e86bb85d41ff21"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlots_WBHP_WGOR.png"></a></p>
+<p><a href="#R-image-0189a54ea22dfd57f12928cf409ba41a" class="lightbox-link"><img class="lazy lightbox figure-image" height="450" loading="lazy" src="/images/plot-window/SummaryPlots_WBHP_WGOR.png" style="height: auto;" width="1387"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0189a54ea22dfd57f12928cf409ba41a"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlots_WBHP_WGOR.png"></a></p>
 <h3 id="using-plot-manager-to-create-summary-plots">Using Plot Manager to create Summary Plots<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Having imported <a href="/import/eclipsesummarydata/index.html">Eclipse Summary Data</a>, the
 <a href="/plot-window/summaryplotmanager/index.html"><strong>Plot Manager</strong></a>
@@ -262,15 +273,15 @@ provides an alternative and powerful approach to create Summary Plots by text-ba
 <li>Use <em>Append Curves</em> to append curves for the selected vectors into all existing plots.</li>
 <li>Use <em>Append Plots for Wells</em> to create separate plots for the selected vectors.</li>
 </ul>
-<p><a href="#R-image-b4cc5e55dacc31b0f5a03778485d4ff3" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendVectorsForWells.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-b4cc5e55dacc31b0f5a03778485d4ff3"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendVectorsForWells.png"></a></p>
+<p><a href="#R-image-9a2dcbcc1ea44f1576fd011d0724be65" class="lightbox-link"><img class="lazy lightbox figure-image" height="163" loading="lazy" src="/images/plot-window/SummaryPlotsAppendVectorsForWells.png" style="height: auto;" width="402"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-9a2dcbcc1ea44f1576fd011d0724be65"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendVectorsForWells.png"></a></p>
 <p>If a plot contains curves pertinent to a single data source, you may easily append corresponding plots for other entries of the type by right-clicking or <em>drag and drop</em>. In the examples above, the curves are pertinent to the single data source well B-1H. Thus you may easily append corresponding plots for other wells by right-clicking as shown below.</p>
-<p><a href="#R-image-239c031c3ba2bda7ee7e634a72be0911" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendPlotsForWells.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-239c031c3ba2bda7ee7e634a72be0911"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendPlotsForWells.png"></a></p>
+<p><a href="#R-image-dc9882bfacae200ce8c1dc4bda6bfd9c" class="lightbox-link"><img class="lazy lightbox figure-image" height="178" loading="lazy" src="/images/plot-window/SummaryPlotsAppendPlotsForWells.png" style="height: auto;" width="337"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-dc9882bfacae200ce8c1dc4bda6bfd9c"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotsAppendPlotsForWells.png"></a></p>
 <p>Alternatively, you may simply and efficiently <strong>drag and drop</strong> the selected wells into the plot area.
 In fact, you may drag the entire folder 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/DataSourcesWell.png" style="display:inline; vertical-align:middle; margin:0">
@@ -279,7 +290,7 @@ In fact, you may drag the entire folder
 <ul>
 <li>Adjust the number of columns and rows and preview the pages of plots using the toolbar 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/SummaryPlotToolbarRowColumnPreview.png" style="display:inline; vertical-align:middle; margin:0">
@@ -287,7 +298,7 @@ In fact, you may drag the entire folder
 <li>Use keyboard PgUp/PgDown or scroll wheel to browse and validate the pages of plots</li>
 <li>Snapshot the curves or export to PDF-file via the toolbar-buttons 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/SummaryPlotToolbarSnapshot.png" style="display:inline; vertical-align:middle; margin:0">
@@ -296,8 +307,8 @@ In fact, you may drag the entire folder
 <p>The data source of displayed curves is rapidly changed by <a href="/plot-window/summarysourcestepping/index.html">Summary Plot Source Stepping</a>.</p>
 <h3 id="visual-comparison-of-multiple-summary-curves">Visual comparison of multiple summary curves<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>ResInsight may ease comparison of multiple summary curves by selecting a plot in <strong>Plots</strong> and using the settings in <strong>Property Editor</strong> group <strong>Axes</strong>.</p>
-<p><a href="#R-image-b1f3c5d65739b5654d942f49a764a5a6" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotPropertyEditorAxes.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-b1f3c5d65739b5654d942f49a764a5a6"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotPropertyEditorAxes.png"></a></p>
+<p><a href="#R-image-6307f3bf96d33362cbdc27b5a11579ce" class="lightbox-link"><img class="lazy lightbox figure-image" height="122" loading="lazy" src="/images/plot-window/SummaryPlotPropertyEditorAxes.png" style="height: auto;" width="324"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-6307f3bf96d33362cbdc27b5a11579ce"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotPropertyEditorAxes.png"></a></p>
 <p>The different options are:</p>
 <ul>
 <li><em>Y Axis Range</em>: Defines the data source for Y Axis range to either individual, all subplots, all wells, all regions, or all realizations.</li>
@@ -318,7 +329,7 @@ In fact, you may drag the entire folder
 <li><strong>Window Zoom</strong>: Available by dragging the mouse with left mouse button pressed across plot area of interest.</li>
 <li><strong>Wheel Zoom</strong>: The mouse wheel will zoom the plot in and out towards the current mouse cursor position presupposing use of mouse wheel is not disabled by toolbar button 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/ZoomDisableMouseWheelCapture.png" style="display:inline; vertical-align:middle; margin:0">
@@ -327,14 +338,14 @@ In fact, you may drag the entire folder
 <p>You may simply <strong>double click</strong> a subplot to restore its default zoom level.
 Use toolbar button 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/ZoomAll16x16.png" style="display:inline; vertical-align:middle; margin:0">
  or <em>View</em> menu option <strong>Zoom All</strong> to restore default zoom level for the entire plot.</p>
 <p>For scrolling multiple pages of plots by using the mouse wheel, disable <em>Wheel Zoom</em> by the toolbar button 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/ZoomDisableMouseWheelCapture.png" style="display:inline; vertical-align:middle; margin:0">
@@ -342,31 +353,43 @@ Use toolbar button
 <h3 id="highlighting-a-curve-or-axis">Highlighting a curve or axis<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>A summary curve is highlighted when left-clicked in a plot. This eases detailed investigation of a specific curve in plots comprising many curves.</p>
 <p>Another essential feature is to left-click an axis in a summary plot which will highlight the curves corresponding to the particular axis. As exemplified below, clicking the axis <em>Gas Production Total</em> highlights the <em>WGPT</em> curve and dims the other curves.</p>
-<p><a href="#R-image-aa157e932ed6bd6a1d3175d8ece327c2" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryCurveHighlight.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-aa157e932ed6bd6a1d3175d8ece327c2"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryCurveHighlight.png"></a></p>
+<p><a href="#R-image-d57da372bf8d54c86af481c2fcac6fe0" class="lightbox-link"><img class="lazy lightbox figure-image" height="516" loading="lazy" src="/images/plot-window/SummaryCurveHighlight.png" style="height: auto;" width="1251"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-d57da372bf8d54c86af481c2fcac6fe0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryCurveHighlight.png"></a></p>
 <p>Summary curves can also be activated and deactivated by clicking the check-boxes in <strong>Plots</strong> window. See also <strong>Plots</strong> right-click menu items, e.g. <em>On - Others Off</em> which is an effective way to deactivate all curves not selected.</p>
 <h3 id="duplicate-plot-copy-and-paste">Duplicate plot, Copy and Paste<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>An entire summary plot may be duplicated using the toolbar button
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 
 <img src="https://resinsight.org/images/plot-window/ToolbarDuplicatePlot.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Duplicate Plot</strong>.</p>
 <p>Copy and Paste of a summary plot, subplot (see below) or curve is also possible using the <strong>Plots</strong> right-click menu and standard keyboard shortcuts (CTRL-C/CTRL-V). This enables pasting a subplot or curve to wherever desired in the the <strong>Plots</strong> tree.</p>
-<p><a href="#R-image-7aedcd23e5962b43beb4458d6f0c11d0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummarySubplotCopy.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-7aedcd23e5962b43beb4458d6f0c11d0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummarySubplotCopy.png"></a></p>
+<p><a href="#R-image-aee9ca97bc6d66546663e50abdbf2a04" class="lightbox-link"><img class="lazy lightbox figure-image" height="212" loading="lazy" src="/images/plot-window/SummarySubplotCopy.png" style="height: auto;" width="513"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-aee9ca97bc6d66546663e50abdbf2a04"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummarySubplotCopy.png"></a></p>
 <h3 id="filtering-of-subplots">Filtering of subplots<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Filtering of subplots allows the user to disable/hide subplots containing data below a user defined threshold.
 To activate filtering of subplots, click a plot in <strong>Plots</strong> window, set the <em>Y-axis Threshold</em> in Property Editor, and click <em>Apply Filter</em>.</p>
-<p><a href="#R-image-377460892057cc71e2622f297a89f201" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotVisibilityFilter.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-377460892057cc71e2622f297a89f201"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotVisibilityFilter.png"></a></p>
+<p><a href="#R-image-c4ed876a9ee2ffb8cefdc097d6500eda" class="lightbox-link"><img class="lazy lightbox figure-image" height="146" loading="lazy" src="/images/plot-window/SummaryPlotVisibilityFilter.png" style="height: auto;" width="331"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-c4ed876a9ee2ffb8cefdc097d6500eda"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotVisibilityFilter.png"></a></p>
 <h3 id="splitting-a-plot-into-subplots">Splitting a plot into subplots<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>A plot with many curves can easily be split into multiple subplots.
 Right-click a composite plot in <strong>Plots</strong> and select <strong>Split Into Single Curve Plots</strong> to split  into subplots each comprising one curve.</p>
-<p><a href="#R-image-347a0fd32d33756ad2acc7163bdeb2ea" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotSplitIntoSingleCurvePlots.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-347a0fd32d33756ad2acc7163bdeb2ea"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotSplitIntoSingleCurvePlots.png"></a></p>
+<p><a href="#R-image-f55bef22cc8b786d1d26de00ff915a55" class="lightbox-link"><img class="lazy lightbox figure-image" height="290" loading="lazy" src="/images/plot-window/SummaryPlotSplitIntoSingleCurvePlots.png" style="height: auto;" width="996"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-f55bef22cc8b786d1d26de00ff915a55"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotSplitIntoSingleCurvePlots.png"></a></p>
+<h3 id="common-legend-for-subplots">Common legend for subplots<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p>Instead of one legend in each subplot, a single legend can be shown above the subplots. Select the summary plot in <strong>Plots</strong> and check <strong>Use Common Legend</strong> in the <strong>Legends</strong> group of the Property Editor. Identical legend entries from the subplots are merged into one entry.</p>
+<p><a href="#R-image-3fe6c7432d3bc4d91b09b8052a5b9eaf" class="lightbox-link"><img class="lazy lightbox figure-image" height="300" loading="lazy" src="/images/plot-window/SummaryPlotSharedLegend.png" style="height: auto;" width="765"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3fe6c7432d3bc4d91b09b8052a5b9eaf"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotSharedLegend.png"></a></p>
+<p>When the curve color is given by one summary dimension (case, vector, or object such as well, group or region) and the curve symbol by another, the legend is split in two:</p>
+<ul>
+<li><strong>Color legend</strong> &ndash; one entry per color, labeled with the value of the dimension that gives the color</li>
+<li><strong>Symbol legend</strong> &ndash; one entry per symbol, labeled with the value of the dimension that gives the symbol</li>
+</ul>
+<p>In the example below, the color identifies the well and the symbol identifies the case. The common legend is also included when the plot is exported.</p>
+<p><a href="#R-image-2d71d216c4fd3a534453897f5ec38f56" class="lightbox-link"><img class="lazy lightbox figure-image" height="814" loading="lazy" src="/images/plot-window/SummaryPlotCommonLegend.png" style="height: auto;" width="1140"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-2d71d216c4fd3a534453897f5ec38f56"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotCommonLegend.png"></a></p>
 <h3 id="accessing-plot-data">Accessing Plot Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Right-clicking a plot in <strong>Plots</strong> window and selecting <strong>Show Plot Data</strong> will open a window containing the plot data as text columns.
 The window displays plot data by day, week, month, quarter, half year and year.</p>
@@ -384,15 +407,15 @@ The window displays plot data by day, week, month, quarter, half year and year.<
 <p>The text content of this window is easy to copy and paste into Excel or other tools for further processing. It is also possible to save the text data to a file by the right-click command <strong>Export to File</strong>.</p>
 <h2 id="editing-summary-plots">Editing Summary Plots<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>A color selection dialog can be opened by clicking on the color icon in the <strong>Project Tree</strong>.
-<a href="#R-image-87475ce84c8186ce6d7b5ed364cb500b" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/ColorSelectionDialog.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-87475ce84c8186ce6d7b5ed364cb500b"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/ColorSelectionDialog.png"></a></p>
+<a href="#R-image-e35378250f579340b3afa1804c856751" class="lightbox-link"><img class="lazy lightbox figure-image" height="522" loading="lazy" src="/images/plot-window/ColorSelectionDialog.png" style="height: auto;" width="825"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-e35378250f579340b3afa1804c856751"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/ColorSelectionDialog.png"></a></p>
 <p>The settings of each plot are listed in the <strong>Plots</strong> window for overview and are controlled by its sub-items and the <strong>Property Editor</strong>.
-<a href="#R-image-dc0116240b2962044b3986d88c271222" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryCurveSelection.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-dc0116240b2962044b3986d88c271222"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryCurveSelection.png"></a></p>
+<a href="#R-image-44ae032902e94b2a01cb9e4c77eaf94e" class="lightbox-link"><img class="lazy lightbox figure-image" height="236" loading="lazy" src="/images/plot-window/SummaryCurveSelection.png" style="height: auto;" width="368"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-44ae032902e94b2a01cb9e4c77eaf94e"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryCurveSelection.png"></a></p>
 <h3 id="editing-a-summary-curve">Editing a Summary Curve<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>By selecting a specific summary curve in the <strong>Plots</strong> window, its properties are displayed by the <strong>Property Editor</strong>.</p>
-<p><a href="#R-image-be6747f81d6c1caae34ef8f9a5e6a904" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/summary_curve_properties.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-be6747f81d6c1caae34ef8f9a5e6a904"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary_curve_properties.png"></a></p>
+<p><a href="#R-image-0f56a09004e039cba199510cf6d41795" class="lightbox-link"><img class="lazy lightbox figure-image" height="687" loading="lazy" src="/images/plot-window/summary_curve_properties.png" style="height: auto;" width="398"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-0f56a09004e039cba199510cf6d41795"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary_curve_properties.png"></a></p>
 <p>The Property Editor organizes the available options into the following groups:</p>
 <ul>
 <li><strong>Summary Vector</strong> &ndash; Options to select case, vector to plot, resampling, axis specification, and error bars.</li>
@@ -405,17 +428,17 @@ The window displays plot data by day, week, month, quarter, half year and year.<
 <p>Other actions are available via right-click menu for selected curve. For instance, the Y-Axis for one or more curves can be switched for using the right-click command <b>Switch Plot Axis</b>.</p>
 <h3 id="default-time-axis-properties">Default Time Axis Properties<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Time axis properties are displayed by clicking the <strong>Time Axis</strong> subitem of a summary plot in <strong>Plots</strong> window.</p>
-<p><a href="#R-image-55ff3840edc16efc9700e9c2a3e0a9bc" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryTimeAxisProperties.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-55ff3840edc16efc9700e9c2a3e0a9bc"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryTimeAxisProperties.png"></a></p>
+<p><a href="#R-image-bfa412bfa2fc172fb01b922fb06068c6" class="lightbox-link"><img class="lazy lightbox figure-image" height="435" loading="lazy" src="/images/plot-window/SummaryTimeAxisProperties.png" style="height: auto;" width="342"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-bfa412bfa2fc172fb01b922fb06068c6"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryTimeAxisProperties.png"></a></p>
 <h3 id="custom-time-axis-properties">Custom Time Axis Properties<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
-<p><a href="#R-image-cad8b52bfc5fbf00057b3e634360e139" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/summary-custom-tick-marks.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-cad8b52bfc5fbf00057b3e634360e139"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary-custom-tick-marks.png"></a></p>
+<p><a href="#R-image-ad7c4b61e1006a29bebcc8152418d63f" class="lightbox-link"><img class="lazy lightbox figure-image" height="735" loading="lazy" src="/images/plot-window/summary-custom-tick-marks.png" style="height: auto;" width="823"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ad7c4b61e1006a29bebcc8152418d63f"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary-custom-tick-marks.png"></a></p>
 <p>The time labels are automatically defined based on the available date range. The tick marks can be controlled in details by setting <strong>Tickmark Type</strong> to <strong>Custom</strong>. Then a tickmark interval and tickmark interval step can be defined.</p>
 <p>In the screenshot above, the interval is set to three years, and the plot displays labesl with three years between each.</p>
 <h3 id="y-axis-properties">Y-axis Properties<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Y-axis properties are displayed by clicking one of the left/right axis subitems of a summary plot in <strong>Plots</strong> window.</p>
-<p><a href="#R-image-28302d4048da1a4baf92b7dd65f0c25e" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/summary_plot_yaxis_properties.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-28302d4048da1a4baf92b7dd65f0c25e"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary_plot_yaxis_properties.png"></a></p>
+<p><a href="#R-image-9f7d02c37971410d27c833e949e4cbca" class="lightbox-link"><img class="lazy lightbox figure-image" height="443" loading="lazy" src="/images/plot-window/summary_plot_yaxis_properties.png" style="height: auto;" width="369"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-9f7d02c37971410d27c833e949e4cbca"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/summary_plot_yaxis_properties.png"></a></p>
 <p>The property groups are:</p>
 <ul>
 <li><strong>Title Text</strong>: Caters for automatic or user specification of title and inclusion of vector name, acronym, and units in plot.</li>
@@ -467,7 +490,8 @@ max/max range, and font size.</li>
           <hr class="padding default-animation">
         </div>
       </div>
-      <div id="R-content-wrapper" class="highlightable">
+      <div id="R-content-wrapper" class="highlightable" tabindex="-1">
+        <div id="R-scrollbar" aria-hidden="true"><div id="R-scrollbar-thumb"></div></div>
         <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
             <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
@@ -475,6 +499,7 @@ max/max range, and font size.</li>
             <li class="" data-nav-id="/releases/mac-installation/index.html"><a class="padding" href="/releases/mac-installation/index.html">Mac Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_11/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_11/index.html">What&#39;s New in 2026.11</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_09/index.html">What&#39;s New in 2026.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
@@ -520,6 +545,7 @@ max/max range, and font size.</li>
             <li class="" data-nav-id="/3d-main-window/allandiagrams/index.html"><a class="padding" href="/3d-main-window/allandiagrams/index.html">Allan Diagram</a></li>
             <li class="" data-nav-id="/3d-main-window/formations/index.html"><a class="padding" href="/3d-main-window/formations/index.html"> Zonations/Formations</a></li>
             <li class="" data-nav-id="/3d-main-window/depthplot/index.html"><a class="padding" href="/3d-main-window/depthplot/index.html">Depth Plot</a></li>
+            <li class="" data-nav-id="/3d-main-window/genericview/index.html"><a class="padding" href="/3d-main-window/genericview/index.html">Generic View</a></li>
             <li class="" data-nav-id="/3d-main-window/seismicview/index.html"><a class="padding" href="/3d-main-window/seismicview/index.html">Seismic View</a></li>
             <li class="" data-nav-id="/3d-main-window/seismicsections/index.html"><a class="padding" href="/3d-main-window/seismicsections/index.html">Seismic Sections</a></li>
             <li class="" data-nav-id="/3d-main-window/linkedviews/index.html"><a class="padding" href="/3d-main-window/linkedviews/index.html">Linked Views</a></li>
@@ -546,6 +572,7 @@ max/max range, and font size.</li>
             <li class="" data-nav-id="/plot-window/histogram/index.html"><a class="padding" href="/plot-window/histogram/index.html">Histogram Plots</a></li>
             <li class="" data-nav-id="/plot-window/correlationplots/index.html"><a class="padding" href="/plot-window/correlationplots/index.html">Correlation Plots</a></li>
             <li class="" data-nav-id="/plot-window/welllogsandplots/index.html"><a class="padding" href="/plot-window/welllogsandplots/index.html">Well Log Plots</a></li>
+            <li class="" data-nav-id="/plot-window/welllogformations/index.html"><a class="padding" href="/plot-window/welllogformations/index.html">Formations in Well Log Plots</a></li>
             <li class="" data-nav-id="/plot-window/declinecurveanalysis/index.html"><a class="padding" href="/plot-window/declinecurveanalysis/index.html">Decline Curve Analysis</a></li>
             <li class="" data-nav-id="/plot-window/regressionanalysis/index.html"><a class="padding" href="/plot-window/regressionanalysis/index.html">Regression Analysis</a></li>
             <li class="" data-nav-id="/plot-window/wellborestabilityplots/index.html"><a class="padding" href="/plot-window/wellborestabilityplots/index.html">Well Bore Stability Plots</a></li>
@@ -603,6 +630,8 @@ max/max range, and font size.</li>
             <li class="" data-nav-id="/import/soursimrlresults/index.html"><a class="padding" href="/import/soursimrlresults/index.html">SourSimRL Results</a></li>
             <li class="" data-nav-id="/import/radialgrid/index.html"><a class="padding" href="/import/radialgrid/index.html"> Radial Grid</a></li>
             <li class="" data-nav-id="/import/elementpropertytable/index.html"><a class="padding" href="/import/elementpropertytable/index.html">Element Property Table</a></li>
+            <li class="" data-nav-id="/import/formationimport/index.html"><a class="padding" href="/import/formationimport/index.html">Formations and Well Picks</a></li>
+            <li class="" data-nav-id="/import/observedfmurftdata/index.html"><a class="padding" href="/import/observedfmurftdata/index.html">Observed FMU RFT Data</a></li>
             <li class="" data-nav-id="/import/observeddata/index.html"><a class="padding" href="/import/observeddata/index.html">Observed Time History Data</a></li>
             <li class="" data-nav-id="/import/pressuredata/index.html"><a class="padding" href="/import/pressuredata/index.html">Pressure/Depth Data</a></li>
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
@@ -642,7 +671,9 @@ max/max range, and font size.</li>
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
-            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/runningbatchscheduler/index.html"><a class="padding" href="/opm-flow-integration/runningbatchscheduler/index.html">Using a batch scheduler (BETA)</a></li>
+            <li class="" data-nav-id="/opm-flow-integration/ensemblejobs/index.html"><a class="padding" href="/opm-flow-integration/ensemblejobs/index.html">Ensemble jobs (BETA)</a></li></ul></li>
             <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
@@ -675,8 +706,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1790250433" defer></script>
-    <script src="/js/theme.min.js?1790250433" defer></script>
+    <script src="/js/theme.min.d942eef811263d7b57cf1b2a93ef437ff9f08846efa7033ef7c5904369ae490e.js" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

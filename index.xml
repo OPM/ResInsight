@@ -3,7 +3,7 @@
   <channel>
     <title>ResInsight</title>
     <link>https://resinsight.org/index.html</link>
-    <description>ResInsight • 3D viewer and post processing of reservoir models&#xD;3D viewer and post processing of reservoir models&#xD;Fast and Free&#xD;Open Source Efficient user interface Handles large simulation cases Plotting of summary vectors Embedded Flow Diagnostics Python API for scripting Unique Features&#xD;NNC visualization Cell Edge Coloring Detailed MSW visualization Supports geomechanical ABAQUS simulations Getting Started&#xD;Download and Release Info</description>
+    <description>ResInsight • 3D viewer and post processing of reservoir models 3D viewer and post processing of reservoir models Fast and Free Open Source Efficient user interface Handles large simulation cases Plotting of summary vectors Embedded Flow Diagnostics Python API for scripting Unique Features NNC visualization Cell Edge Coloring Detailed MSW visualization Supports geomechanical ABAQUS simulations Getting Started Download and Release Info</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/index.xml" rel="self" type="application/rss+xml" />
@@ -12,14 +12,14 @@
       <link>https://resinsight.org/releases/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/index.html</guid>
-      <description>Installation&#xD;See the following for common install procedures and options:&#xA;Linux Installation Mac Installation Windows Installation Release Notes&#xD;What’s New - Latest Release&#xA;Sign up to be notified of new releases</description>
+      <description>Installation See the following for common install procedures and options:&#xA;Linux Installation Mac Installation Windows Installation Release Notes What’s New - Latest Release&#xA;Sign up to be notified of new releases</description>
     </item>
     <item>
       <title>Getting Started</title>
       <link>https://resinsight.org/getting-started/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/getting-started/index.html</guid>
-      <description>ResInsight is a powerful open source, cross-platform 3D visualization, curve plotting, and post processing tool for reservoir models and simulations. This chapter provides an overview of its functionality and installation.&#xA;ResInsight Documentation Overview&#xD;resinsight.org - Documentation for latest stable release api.resinsight.org - Documentation of Python API beta.resinsight.org - Latest documentation (not yet released) https://github.com/CeetronSolutions/resinsight-tutorials - Tutorials and Examples</description>
+      <description>ResInsight is a powerful open source, cross-platform 3D visualization, curve plotting, and post processing tool for reservoir models and simulations. This chapter provides an overview of its functionality and installation.&#xA;ResInsight Documentation Overview resinsight.org - Documentation for latest stable release api.resinsight.org - Documentation of Python API beta.resinsight.org - Latest documentation (not yet released) https://github.com/CeetronSolutions/resinsight-tutorials - Tutorials and Examples</description>
     </item>
     <item>
       <title>3D Main Window</title>
@@ -75,7 +75,7 @@
       <link>https://resinsight.org/scripting/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/scripting/index.html</guid>
-      <description>ResInsight provides powerful and flexible mechanisms for post-processing of results and automation by its scripting interfaces:&#xA;Python interface Command line interface and Command files Octave interface Python interface&#xD;ResInsight incorporates a powerful Python interface which allows you to interact with ResInsight and load data for further processing and automation.</description>
+      <description>ResInsight provides powerful and flexible mechanisms for post-processing of results and automation by its scripting interfaces:&#xA;Python interface Command line interface and Command files Octave interface Python interface ResInsight incorporates a powerful Python interface which allows you to interact with ResInsight and load data for further processing and automation.&#xA;Command Line Interface and Command files ResInsight supports several [command line parameters] (https://resinsight.org/scripting/commandlineinterface/) for automation via shell scripts. By gathering commands into a Command file, you may run a sequence of commands by supplying the command file as a command line parameter.</description>
     </item>
     <item>
       <title>Miscellaneous</title>
@@ -110,7 +110,7 @@
       <link>https://resinsight.org/about/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/about/index.html</guid>
-      <description>ResInsight is an open source, cross-platform 3D visualization, curve plotting and post processing tool for Eclipse reservoir models and simulations. It can also be configured to visualize geomechanical simulations from ABAQUS.&#xA;The system also constitutes a framework for further development and can be extended to support new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, and more.&#xA;Efficient User Interface&#xD;The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells. It enables easy handling of a large number of realizations and calculation of statistics. To be highly responsive, ResInsight exploits multi-core CPUs and GPUs. Efficient plotting of well log plots and summary vectors is available through selected plotting features.</description>
+      <description>ResInsight is an open source, cross-platform 3D visualization, curve plotting and post processing tool for Eclipse reservoir models and simulations. It can also be configured to visualize geomechanical simulations from ABAQUS.&#xA;The system also constitutes a framework for further development and can be extended to support new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, and more.&#xA;Efficient User Interface The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells. It enables easy handling of a large number of realizations and calculation of statistics. To be highly responsive, ResInsight exploits multi-core CPUs and GPUs. Efficient plotting of well log plots and summary vectors is available through selected plotting features.</description>
     </item>
     <item>
       <title>Support</title>
@@ -124,7 +124,7 @@
       <link>https://resinsight.org/training/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/training/index.html</guid>
-      <description>ResInsight Introduction Course&#xD;Content&#xD;3D visualization of Eclipse models including faults, intersections, surfaces, and contour maps Eclipse Summary plots, ensemble plots and observed data RFT plots, correlation plots, and analysis plots Flow Diagnostics Linking and comparison of views Course goals&#xD;Proficiency in evaluating Eclipse simulation results by 3D visualization and plotting in ResInsight.</description>
+      <description>ResInsight Introduction Course Content 3D visualization of Eclipse models including faults, intersections, surfaces, and contour maps Eclipse Summary plots, ensemble plots and observed data RFT plots, correlation plots, and analysis plots Flow Diagnostics Linking and comparison of views Course goals Proficiency in evaluating Eclipse simulation results by 3D visualization and plotting in ResInsight.</description>
     </item>
   </channel>
 </rss>
