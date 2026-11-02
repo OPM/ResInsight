@@ -343,7 +343,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField = "";
         }
 
-        if ( &m_referenceTimeStep == changedField )
+        if ( &m_referenceTimeStep == changedField && m_geomCase && m_geomCase->geoMechData() )
         {
             m_geomCase->geoMechData()->femPartResults()->setReferenceTimeStep( m_referenceTimeStep() );
         }
@@ -351,14 +351,14 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap == 0.0 )
     {
         calculateNormalizationAirGapDefault();
-        if ( m_normalizeByHydrostaticPressure )
+        if ( m_normalizeByHydrostaticPressure && m_geomCase && m_geomCase->geoMechData() )
         {
             m_geomCase->geoMechData()->femPartResults()->setNormalizationAirGap( m_normalizationAirGap );
         }
     }
 
     // Get the possible property filter owner
-    auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( parentField()->ownerObject() );
+    auto propFilter        = parentField() ? dynamic_cast<RimGeoMechPropertyFilter*>( parentField()->ownerObject() ) : nullptr;
     auto view              = firstAncestorOrThisOfType<RimGridView>();
     auto curve             = firstAncestorOrThisOfType<RimPlotCurve>();
     auto rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
@@ -672,19 +672,22 @@ QString RimGeoMechResultDefinition::resultComponentName() const
 QString RimGeoMechResultDefinition::diffResultUiName() const
 {
     QString diffResultString;
-    if ( m_geomCase->geoMechData() )
+    if ( auto caseData = ownerCaseData() )
     {
+        const std::vector<std::string> timeStepNames = caseData->femPartResults()->stepNames();
+        auto                           stepName      = [&timeStepNames]( int index )
+        {
+            return ( index >= 0 && index < static_cast<int>( timeStepNames.size() ) ) ? QString::fromStdString( timeStepNames[index] )
+                                                                                      : QString();
+        };
+
         if ( referenceCaseDependentResultSelected() )
         {
-            std::vector<std::string> timeStepNames  = m_geomCase->geoMechData()->femPartResults()->stepNames();
-            QString                  timeStepString = QString::fromStdString( timeStepNames[m_referenceTimeStep()] );
-            diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( timeStepString );
+            diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( stepName( m_referenceTimeStep() ) );
         }
         else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
-            std::vector<std::string> timeStepNames  = m_geomCase->geoMechData()->femPartResults()->stepNames();
-            QString                  timeStepString = QString::fromStdString( timeStepNames[m_timeLapseBaseTimestep()] );
-            diffResultString += QString( "<b>Base Time Step</b>: %1" ).arg( timeStepString );
+            diffResultString += QString( "<b>Base Time Step</b>: %1" ).arg( stepName( m_timeLapseBaseTimestep() ) );
         }
     }
     return diffResultString;
@@ -696,7 +699,7 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
 QString RimGeoMechResultDefinition::diffResultUiShortName() const
 {
     QString diffResultString;
-    if ( m_geomCase->geoMechData() )
+    if ( ownerCaseData() )
     {
         if ( referenceCaseDependentResultSelected() )
         {
