@@ -70,6 +70,11 @@ public:
     bool inlineConfigValues() const;
     void setInlineConfigValues( bool inlineValues );
 
+    QStringList hiddenTasks() const;
+    bool        isTaskHidden( const QString& taskName ) const;
+    void        setTaskHidden( const QString& taskName, bool hidden );
+    void        showAllTasks();
+
     bool loadFromDirectory( QString* errorMessage = nullptr );
     bool loadFromRegistered( const QJsonObject& catalogEntry, QString* errorMessage = nullptr );
     void setUnsavedDefinition( const RimWorkflowDefinition& definition,
@@ -157,6 +162,7 @@ private:
     caf::PdmField<QString>                   m_loadError;
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
     caf::PdmField<bool>                      m_inlineConfigValues;
+    caf::PdmField<std::vector<QString>>      m_hiddenTasks;
     QJsonObject                              m_graph;
 
     Source                         m_source = Source::YamlDirectory;

@@ -90,6 +90,7 @@ public:
     bool isEditable() const;
     void setInlineConfigValues( bool inlineValues );
     bool inlineConfigValues() const;
+    void setHiddenTasks( const QStringList& taskNames );
     void setConnectionValidator( const ConnectionValidator& validator );
     void setTaskIssues( const QString& taskName, const QJsonArray& issues );
 
@@ -127,6 +128,7 @@ protected:
 private:
     void onSelectionChanged();
     void rememberPositions();
+    void placeLabelsAboveGraph();
 
     RiuWorkflowGraphViewItems::PortItem* portAt( const QPoint& viewPos ) const;
     ItemRef                              itemRefAt( const QPoint& viewPos ) const;
@@ -137,12 +139,14 @@ private:
 private:
     QGraphicsScene*     m_scene;
     QGraphicsTextItem*  m_runStatusLabel     = nullptr;
+    QGraphicsTextItem*  m_hiddenTasksLabel   = nullptr;
     bool                m_fitOnResize        = true;
     bool                m_editable           = false;
     bool                m_inlineConfigValues = true;
     bool                m_rebuilding         = false;
     ConnectionValidator m_validator;
     QString             m_lastSelectedTask;
+    QStringList         m_hiddenTasks;
 
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_taskNodes;
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_configNodes;
