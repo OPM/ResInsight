@@ -207,6 +207,7 @@ private:
     friend class RigCellVolumeResultCalculator;
     friend class RigCellsWithNncsCalculator;
     friend class RigPorvSoilSgasResultCalculator;
+    friend class RigGridQualityResultCalculator;
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 

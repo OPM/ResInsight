@@ -1388,7 +1388,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                                                                RiaDefines::ResultCatType::SOURSIMRL,
                                                                RiaDefines::ResultCatType::GENERATED,
                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                               RiaDefines::ResultCatType::FORMATION_NAMES };
+                                                               RiaDefines::ResultCatType::FORMATION_NAMES,
+                                                               RiaDefines::ResultCatType::QUALITY_CONTROL };
 
         size_t scalarResultIndex = findOrLoadKnownScalarResultByResultTypeOrder( resVarAddr, searchOrder );
 
@@ -3349,6 +3350,12 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
             resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::FORMATION_NAMES );
+            scalarResultIndex = findScalarResultIndexFromAddress( resVarAddressWithType );
+        }
+
+        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
+        {
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::QUALITY_CONTROL );
             scalarResultIndex = findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 

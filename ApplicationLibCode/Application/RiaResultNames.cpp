@@ -762,6 +762,23 @@ QString RiaResultNames::qcConcaveProj()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<QString> RiaResultNames::qcResultNames()
+{
+    return { qcMinangleTopbase(),
+             qcMaxangleTopbase(),
+             qcMinangleTopbaseProj(),
+             qcMaxangleTopbaseProj(),
+             qcMinangleSides(),
+             qcMaxangleSides(),
+             qcCollapsed(),
+             qcFaulted(),
+             qcNegativeThickness(),
+             qcConcaveProj() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RiaResultNames::nncResultNames()
 {
     return { combinedTransmissibilityResultName(),
