@@ -52,6 +52,7 @@ RimGridStatisticsHistogramDataSource::RimGridStatisticsHistogramDataSource()
     m_property->setTernaryEnabled( false );
 
     CAF_PDM_InitField( &m_numBins, "NumBins", 15, "Number of Bins" );
+    m_numBins.setMinValue( 1 );
     CAF_PDM_InitField( &m_cumulative, "Cumulative", false, "Show Cumulative Curve" );
 }
 

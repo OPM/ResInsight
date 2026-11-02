@@ -470,9 +470,8 @@ RigHistogramCalculator::RigHistogramCalculator( double               min,
                                                 OutOfRangeHandling   outOfRangeHandling )
 {
     assert( histogram );
-    assert( nBins > 0 );
 
-    if ( max == min )
+    if ( max == min || nBins == 0 )
     {
         nBins = 1;
     } // Avoid dividing on 0 range

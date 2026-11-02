@@ -42,6 +42,7 @@ RimEnsembleParameterHistogramDataSource::RimEnsembleParameterHistogramDataSource
     m_parameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_numBins, "NumBins", 15, "Number of Bins" );
+    m_numBins.setMinValue( 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
