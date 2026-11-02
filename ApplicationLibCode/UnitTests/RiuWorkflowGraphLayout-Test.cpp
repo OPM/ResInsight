@@ -85,3 +85,42 @@ TEST( RiuWorkflowGraphLayout, deterministicOrder )
     // Children of "other" (position 0) come before children of "root" (position 1)
     EXPECT_EQ( QStringList( { "w", "x", "y" } ), first.layers[1] );
 }
+
+namespace
+{
+const RiuWorkflowGraphLayout::Spacing testSpacing{ .columnStep = 500, .rowGap = 20, .rankGap = 50, .siblingGap = 30 };
+
+RiuWorkflowGraphLayout::Layout diamondLayout()
+{
+    return RiuWorkflowGraphLayout::computeLayers( { "a", "b", "c", "d" }, Edges{ { "a", "b" }, { "a", "c" }, { "b", "d" }, { "c", "d" } } );
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiuWorkflowGraphLayout, horizontalPositions )
+{
+    const QMap<QString, QSizeF> sizes{ { "a", { 200, 100 } }, { "b", { 200, 60 } }, { "c", { 200, 100 } }, { "d", { 200, 40 } } };
+    const auto                  positions =
+        RiuWorkflowGraphLayout::computePositions( diamondLayout(), sizes, RiuWorkflowGraphLayout::Orientation::Horizontal, testSpacing );
+
+    // The middle column (60 + 20 + 100) is the tallest; the others are centered on it
+    EXPECT_EQ( QPointF( 0, 40 ), positions.value( "a" ) );
+    EXPECT_EQ( QPointF( 500, 0 ), positions.value( "b" ) );
+    EXPECT_EQ( QPointF( 500, 80 ), positions.value( "c" ) );
+    EXPECT_EQ( QPointF( 1000, 70 ), positions.value( "d" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiuWorkflowGraphLayout, verticalPositions )
+{
+    const QMap<QString, QSizeF> sizes{ { "a", { 200, 100 } }, { "b", { 200, 60 } }, { "c", { 200, 100 } }, { "d", { 100, 40 } } };
+    const auto                  positions =
+        RiuWorkflowGraphLayout::computePositions( diamondLayout(), sizes, RiuWorkflowGraphLayout::Orientation::Vertical, testSpacing );
+
+    // The middle row (200 + 30 + 200) is the widest; the others are centered on it. Each row is as
+    // tall as its tallest node, and the nodes are centered within their row.
+    EXPECT_EQ( QPointF( 115, 0 ), positions.value( "a" ) );
+    EXPECT_EQ( QPointF( 0, 170 ), positions.value( "b" ) );
+    EXPECT_EQ( QPointF( 230, 150 ), positions.value( "c" ) );
+    EXPECT_EQ( QPointF( 165, 300 ), positions.value( "d" ) );
+}

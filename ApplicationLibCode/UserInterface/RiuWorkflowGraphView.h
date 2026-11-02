@@ -15,7 +15,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#pragma once
+
+#include "RiuWorkflowGraphLayout.h"
 
 #include <QGraphicsView>
 #include <QJsonArray>
@@ -111,6 +112,9 @@ public:
     void setConnectionValidator( const ConnectionValidator& validator );
     void setTaskIssues( const QString& taskName, const QJsonArray& issues );
 
+    void                                setOrientation( RiuWorkflowGraphLayout::Orientation orientation );
+    RiuWorkflowGraphLayout::Orientation orientation() const;
+
     void    setPendingNodePosition( const QString& taskName, const QPointF& scenePos );
     void    renameNodePosition( const QString& oldName, const QString& newName );
     void    selectTask( const QString& taskName );
@@ -168,6 +172,8 @@ private:
     QString             m_lastSelectedTask;
     QStringList         m_hiddenTasks;
     QStringList         m_collapsedTasks;
+
+    RiuWorkflowGraphLayout::Orientation m_orientation = RiuWorkflowGraphLayout::Orientation::Horizontal;
 
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_taskNodes;
     QMap<QString, RiuWorkflowGraphViewItems::GraphNode*> m_configNodes;

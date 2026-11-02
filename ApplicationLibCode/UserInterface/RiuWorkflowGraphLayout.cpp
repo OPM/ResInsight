@@ -129,3 +129,57 @@ RiuWorkflowGraphLayout::Layout RiuWorkflowGraphLayout::computeLayers( const QStr
 
     return layout;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMap<QString, QPointF> RiuWorkflowGraphLayout::computePositions( const Layout&                layout,
+                                                                 const QMap<QString, QSizeF>& sizes,
+                                                                 Orientation                  orientation,
+                                                                 const Spacing&               spacing )
+{
+    const bool vertical = orientation == Orientation::Vertical;
+
+    // Extent of a rank along the rank (height of a column, width of a row) and across it
+    auto        along  = [&]( const QString& node ) { return vertical ? sizes.value( node ).width() : sizes.value( node ).height(); };
+    auto        across = [&]( const QString& node ) { return vertical ? sizes.value( node ).height() : sizes.value( node ).width(); };
+    const qreal gap    = vertical ? spacing.siblingGap : spacing.rowGap;
+
+    auto rankLength = [&]( const QStringList& rank )
+    {
+        qreal length = 0;
+        for ( const QString& node : rank )
+            length += along( node ) + gap;
+        return rank.isEmpty() ? 0.0 : length - gap;
+    };
+
+    qreal maxLength = 0;
+    for ( const QStringList& rank : layout.layers )
+        maxLength = std::max( maxLength, rankLength( rank ) );
+
+    QMap<QString, QPointF> positions;
+    qreal                  rankStart = 0;
+    for ( size_t index = 0; index < layout.layers.size(); ++index )
+    {
+        const QStringList& rank = layout.layers[index];
+
+        qreal rankDepth = 0;
+        for ( const QString& node : rank )
+            rankDepth = std::max( rankDepth, across( node ) );
+        if ( !vertical ) rankStart = index * spacing.columnStep;
+
+        qreal offset = ( maxLength - rankLength( rank ) ) / 2.0;
+        for ( const QString& node : rank )
+        {
+            if ( vertical )
+                positions[node] = QPointF( offset, rankStart + ( rankDepth - across( node ) ) / 2.0 );
+            else
+                positions[node] = QPointF( rankStart, offset );
+            offset += along( node ) + gap;
+        }
+
+        if ( vertical ) rankStart += rankDepth + spacing.rankGap;
+    }
+
+    return positions;
+}

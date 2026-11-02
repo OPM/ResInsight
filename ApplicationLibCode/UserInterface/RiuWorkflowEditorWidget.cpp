@@ -134,6 +134,18 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
     m_inlineConfigAction->setCheckable( true );
     m_inlineConfigAction->setToolTip( "Show the job configuration values in the task boxes instead of in separate config boxes" );
 
+    // Tasks the user has moved are laid out again, since their positions suit the old orientation
+    m_verticalLayoutAction = addAction( "Vertical Layout",
+                                        "",
+                                        [this]()
+                                        {
+                                            if ( !m_workflow ) return;
+                                            m_workflow->setVerticalLayout( m_verticalLayoutAction->isChecked() );
+                                            showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Fit );
+                                        } );
+    m_verticalLayoutAction->setCheckable( true );
+    m_verticalLayoutAction->setToolTip( "Lay out the graph from top to bottom instead of from left to right" );
+
     m_tabs.push_back( {} );
     m_tabBar = new QTabBar( this );
     m_tabBar->setDocumentMode( true );
@@ -1261,6 +1273,8 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
     {
         m_graphView->setEditable( m_workflow->isEditable() && !m_workflow->isLocked() );
         m_graphView->setInlineConfigValues( m_workflow->inlineConfigValues() );
+        m_graphView->setOrientation( m_workflow->verticalLayout() ? RiuWorkflowGraphLayout::Orientation::Vertical
+                                                                  : RiuWorkflowGraphLayout::Orientation::Horizontal );
         m_shownHiddenTasks = effectiveHiddenTasks();
         m_graphView->setHiddenTasks( m_shownHiddenTasks );
         m_graphView->setCollapsedTasks( m_workflow->collapsedTasks() );
@@ -1331,6 +1345,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         menu.addSeparator();
         menu.addAction( m_fitAction );
         menu.addAction( m_inlineConfigAction );
+        menu.addAction( m_verticalLayoutAction );
         appendCollapseMenu( &menu );
         appendShowHiddenMenu( &menu );
     }
@@ -1492,6 +1507,8 @@ void RiuWorkflowEditorWidget::updateActions()
     m_fitAction->setEnabled( workflow != nullptr );
     m_inlineConfigAction->setEnabled( workflow != nullptr );
     m_inlineConfigAction->setChecked( !workflow || workflow->inlineConfigValues() );
+    m_verticalLayoutAction->setEnabled( workflow != nullptr );
+    m_verticalLayoutAction->setChecked( workflow && workflow->verticalLayout() );
 }
 
 //--------------------------------------------------------------------------------------------------

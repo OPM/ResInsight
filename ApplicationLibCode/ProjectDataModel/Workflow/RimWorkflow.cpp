@@ -81,6 +81,9 @@ RimWorkflow::RimWorkflow()
     CAF_PDM_InitField( &m_inlineConfigValues, "InlineConfigValues", true, "Inline Config Values" );
     m_inlineConfigValues.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_verticalLayout, "VerticalLayout", false, "Vertical Layout" );
+    m_verticalLayout.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_hiddenTasks, "HiddenTasks", "Hidden Tasks" );
     m_hiddenTasks.uiCapability()->setUiHidden( true );
 
@@ -154,6 +157,22 @@ bool RimWorkflow::inlineConfigValues() const
 void RimWorkflow::setInlineConfigValues( bool inlineValues )
 {
     m_inlineConfigValues = inlineValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether the graph flows from top to bottom instead of from left to right
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflow::verticalLayout() const
+{
+    return m_verticalLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setVerticalLayout( bool vertical )
+{
+    m_verticalLayout = vertical;
 }
 
 //--------------------------------------------------------------------------------------------------
