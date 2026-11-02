@@ -19,6 +19,8 @@
 #pragma once
 
 #include <QMap>
+#include <QPointF>
+#include <QSizeF>
 #include <QString>
 #include <QStringList>
 
@@ -31,6 +33,12 @@
 //==================================================================================================
 namespace RiuWorkflowGraphLayout
 {
+enum class Orientation
+{
+    Horizontal, // Ranks are columns from left to right
+    Vertical // Ranks are rows from top to bottom
+};
+
 struct Layout
 {
     QMap<QString, int>       ranks;
@@ -41,4 +49,17 @@ struct Layout
 // topological order. Nodes on cycles are placed after their resolved predecessors. Within a
 // column the nodes are ordered by the mean position of their predecessors, then by name.
 Layout computeLayers( const QStringList& nodes, const std::vector<std::pair<QString, QString>>& edges );
+
+struct Spacing
+{
+    qreal columnStep; // Horizontal: distance between the left edges of neighbouring columns
+    qreal rowGap; // Horizontal: gap between the nodes of a column
+    qreal rankGap; // Vertical: gap between neighbouring rows
+    qreal siblingGap; // Vertical: gap between the nodes of a row
+};
+
+// Top-left corner of each node in the layout, given the size of each node. The ranks are
+// centered on the largest rank, and in vertical layouts each node is centered within its row.
+QMap<QString, QPointF>
+    computePositions( const Layout& layout, const QMap<QString, QSizeF>& sizes, Orientation orientation, const Spacing& spacing );
 } // namespace RiuWorkflowGraphLayout

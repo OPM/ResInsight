@@ -73,6 +73,9 @@ public:
     bool inlineConfigValues() const;
     void setInlineConfigValues( bool inlineValues );
 
+    bool verticalLayout() const;
+    void setVerticalLayout( bool vertical );
+
     QStringList hiddenTasks() const;
     bool        isTaskHidden( const QString& taskName ) const;
     void        setTaskHidden( const QString& taskName, bool hidden );
@@ -184,6 +187,7 @@ private:
     caf::PdmField<QString>                   m_loadError;
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
     caf::PdmField<bool>                      m_inlineConfigValues;
+    caf::PdmField<bool>                      m_verticalLayout;
     caf::PdmField<std::vector<QString>>      m_hiddenTasks;
     caf::PdmField<std::vector<QString>>      m_collapsedTasks;
     caf::PdmChildArrayField<RimWorkflow*>    m_nestedWorkflows;

@@ -60,9 +60,18 @@ constexpr qreal stackOffset = 5.0;
 constexpr qreal columnStep  = 650.0;
 constexpr qreal configGap   = 110.0;
 constexpr qreal rowGap      = 55.0;
-constexpr qreal portRadius  = 5.0;
-constexpr qreal portHitDist = 14.0;
-constexpr int   iconSize    = 12;
+constexpr qreal rankGap     = 140.0;
+constexpr qreal siblingGap  = 100.0;
+
+// Vertical layouts: the ports are columns along the top and bottom edges of a task
+constexpr qreal portColumnWidth   = 120.0;
+constexpr qreal columnMargin      = 10.0;
+constexpr qreal columnLineHeight  = 16.0;
+constexpr qreal columnSectionGap  = 12.0;
+constexpr qreal configGapVertical = 60.0;
+constexpr qreal portRadius        = 5.0;
+constexpr qreal portHitDist       = 14.0;
+constexpr int   iconSize          = 12;
 
 const QColor taskBorder( 60, 85, 115 );
 const QColor taskBackground( 226, 238, 250 );
@@ -118,6 +127,52 @@ QStringList fieldPorts( const QJsonArray& fields )
     keys.removeDuplicates();
     keys.sort();
     return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString hiddenSourcesToolTip( const QStringList& hiddenSources )
+{
+    return QString( "Provided by hidden task%1: %2\nRight-click the canvas to show hidden tasks" )
+        .arg( hiddenSources.size() > 1 ? "s" : "", hiddenSources.join( ", " ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A curve leaving `from` and entering `to` along the x axis, or along the y axis if `alongY`. With
+/// `loopAround`, a target that is not ahead of the source makes the curve bend out further, so it
+/// loops around the boxes instead of doubling back over them.
+//--------------------------------------------------------------------------------------------------
+QPainterPath flowPath( const QPointF& from, const QPointF& to, bool alongY, qreal minBend, bool loopAround )
+{
+    const QPointF delta  = to - from;
+    const qreal   ahead  = alongY ? delta.y() : delta.x();
+    const qreal   across = alongY ? delta.x() : delta.y();
+
+    qreal bend = std::max( minBend, std::abs( ahead ) / 2.0 );
+    if ( loopAround && ahead < 2 * minBend ) bend = std::max( bend, std::abs( across ) / 2.0 );
+
+    const QPointF direction = alongY ? QPointF( 0, bend ) : QPointF( bend, 0 );
+    QPainterPath  path( from );
+    path.cubicTo( from + direction, to - direction, to );
+    return path;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A data connection from an output port to an input port: to the right, or downwards if vertical
+//--------------------------------------------------------------------------------------------------
+QPainterPath connectionPath( const QPointF& from, const QPointF& to, bool vertical )
+{
+    return flowPath( from, to, vertical, 35.0, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An arrow head with its tip at `tip`, pointing down or to the right
+//--------------------------------------------------------------------------------------------------
+QPolygonF arrowHead( const QPointF& tip, bool down )
+{
+    if ( down ) return QPolygonF{ tip, tip + QPointF( -5, -9 ), tip + QPointF( 5, -9 ) };
+    return QPolygonF{ tip, tip + QPointF( -9, -5 ), tip + QPointF( -9, 5 ) };
 }
 } // namespace
 
@@ -216,9 +271,12 @@ public:
                const QString&               subtitle  = {},
                bool                         diamond   = false,
                bool                         collapsed = false,
-               bool                         mapped    = false );
+               bool                         mapped    = false,
+               bool                         vertical  = false );
 
+    qreal                  width() const;
     qreal                  height() const;
+    bool                   isVertical() const;
     bool                   isHeaderAt( const QPointF& scenePos ) const;
     QPointF                portPosition( const QString& key, bool output ) const;
     QPointF                controlAnchor( bool outgoing ) const;
@@ -247,12 +305,17 @@ private:
     // must end to stay clear of other text, and what goes in front of the value
     struct ValueSlot
     {
-        qreal   left;
-        qreal   right;
-        QString prefix;
+        qreal                left;
+        qreal                right;
+        QString              prefix;
+        std::optional<qreal> top{}; // Defaults to the line of the port
+        bool                 centered{ false };
     };
 
     void      addPorts( const std::vector<PortInfo>& ports, bool output );
+    void      addColumnPorts( const std::vector<PortInfo>& inputs, const std::vector<PortInfo>& outputs );
+    int       columnLines( const std::vector<PortInfo>& ports, bool output ) const;
+    bool      showsValue( const PortInfo& info, bool output ) const;
     void      addCollapsedPorts( const std::vector<PortInfo>& ports, bool output );
     void      addHiddenSourceMarkers( const std::vector<PortInfo>& inputs );
     qreal     freeRight( const QRectF& line, qreal right, const QList<QGraphicsItem*>& ignored ) const;
@@ -266,6 +329,7 @@ private:
     bool                                     m_isConfig;
     bool                                     m_diamond;
     bool                                     m_collapsed;
+    bool                                     m_vertical;
     qreal                                    m_width;
     QMap<QString, PortItem*>                 m_inputs;
     QMap<QString, PortItem*>                 m_outputs;
@@ -454,20 +518,36 @@ GraphNode::GraphNode( const QString&               name,
                       const QString&               subtitle,
                       bool                         diamond,
                       bool                         collapsed,
-                      bool                         mapped )
+                      bool                         mapped,
+                      bool                         vertical )
     : m_name( name )
     , m_isConfig( isConfig )
     , m_diamond( diamond && !isConfig && !collapsed )
     , m_collapsed( collapsed && !isConfig )
+    , m_vertical( vertical )
     , m_width( isConfig ? configWidth : nodeWidth )
     , m_portTop( subtitle.isEmpty() ? portTop : portTop + subtitleGap )
     , m_baseToolTip( name )
 {
     const qsizetype rows = std::max( { qsizetype( 1 ), qsizetype( inputs.size() ), qsizetype( outputs.size() ) } );
+    if ( m_vertical && m_diamond )
+        m_width = std::max( m_width, ( rows - 1 ) * diamondPortStep + 80.0 );
+    else if ( m_vertical && !m_collapsed )
+        m_width = std::max( m_width, rows * portColumnWidth + 2 * columnMargin );
+
     if ( m_collapsed )
         setRect( 0, 0, m_width, collapsedHeight );
+    else if ( m_diamond && m_vertical )
+        setRect( 0, 0, m_width, diamondMinHeight );
     else if ( m_diamond )
         setRect( 0, 0, m_width, std::max( diamondMinHeight, ( rows - 1 ) * diamondPortStep + 60.0 ) );
+    else if ( m_vertical )
+    {
+        const int   inputLines  = columnLines( inputs, false );
+        const int   outputLines = columnLines( outputs, true );
+        const qreal sectionGap  = inputLines > 0 && outputLines > 0 ? columnSectionGap : 0.0;
+        setRect( 0, 0, m_width, m_portTop - 20 + ( inputLines + outputLines ) * columnLineHeight + sectionGap + 12 );
+    }
     else
         setRect( 0, 0, m_width, m_portTop + portStep * rows + 12 );
     setFlags( ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges );
@@ -503,8 +583,12 @@ GraphNode::GraphNode( const QString&               name,
 
         m_issueLabel = new QGraphicsTextItem( this );
         m_issueLabel->setFont( font );
-        // A diamond has its badge beside the bottom vertex, where control edges leave
-        m_issueLabel->setPos( m_diamond ? m_width / 2 + 10 : 8, rect().height() - ( m_diamond ? 16 : 2 ) );
+        // A diamond has its badge beside the bottom vertex. In vertical layouts, edges leave the
+        // bottom of a box, so the badge goes beside the title instead.
+        if ( m_vertical && !m_diamond )
+            m_issueLabel->setPos( m_width + 2, 2 );
+        else
+            m_issueLabel->setPos( m_diamond ? m_width / 2 + 10 : 8, rect().height() - ( m_diamond ? 16 : 2 ) );
         m_issueLabel->setAcceptedMouseButtons( Qt::NoButton );
     }
 
@@ -554,6 +638,10 @@ GraphNode::GraphNode( const QString&               name,
         addDiamondPorts( inputs, false );
         addDiamondPorts( outputs, true );
     }
+    else if ( m_vertical )
+    {
+        addColumnPorts( inputs, outputs );
+    }
     else
     {
         addPorts( inputs, false );
@@ -566,9 +654,26 @@ GraphNode::GraphNode( const QString&               name,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+qreal GraphNode::width() const
+{
+    return m_width;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 qreal GraphNode::height() const
 {
     return rect().height();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether data flows from top to bottom through the node: inputs on the top edge, outputs on the
+/// bottom edge, and control edges on the sides
+//--------------------------------------------------------------------------------------------------
+bool GraphNode::isVertical() const
+{
+    return m_vertical;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -680,13 +785,127 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// A collapsed task has one dot on each side where all its connections meet. The ports are kept,
+/// Whether a port shows a config value: the fields of a config box, and inlined values of a task
+//--------------------------------------------------------------------------------------------------
+bool GraphNode::showsValue( const PortInfo& info, bool output ) const
+{
+    return output ? m_isConfig : ( info.configured && !m_isConfig );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The number of text lines of the port columns along one edge. Each kind of line is shown in all
+/// columns or none, so the lines of neighbouring columns line up.
+//--------------------------------------------------------------------------------------------------
+int GraphNode::columnLines( const std::vector<PortInfo>& ports, bool output ) const
+{
+    if ( ports.empty() ) return 0;
+    auto any = [&ports]( const auto& predicate ) { return std::any_of( ports.begin(), ports.end(), predicate ); };
+
+    int lines = 1;
+    if ( any( []( const PortInfo& info ) { return !info.typeName.isEmpty(); } ) ) ++lines;
+    if ( any( [this, output]( const PortInfo& info ) { return showsValue( info, output ); } ) ) ++lines;
+    if ( !output && any( []( const PortInfo& info ) { return !info.hiddenSources.isEmpty(); } ) ) ++lines;
+    return lines;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Vertical layouts: each input is a column hanging from the top edge, with its port on the edge
+/// and its label, type, value and hidden sources below. Outputs stand on the bottom edge.
+//--------------------------------------------------------------------------------------------------
+void GraphNode::addColumnPorts( const std::vector<PortInfo>& inputs, const std::vector<PortInfo>& outputs )
+{
+    for ( bool output : { false, true } )
+    {
+        const auto& ports    = output ? outputs : inputs;
+        auto&       portMap  = output ? m_outputs : m_inputs;
+        const qreal edgeY    = output ? rect().height() : 0.0;
+        const qreal firstTop = output ? rect().height() - 12 - columnLines( ports, true ) * columnLineHeight : m_portTop - 20;
+        const qreal left     = ( m_width - ports.size() * portColumnWidth ) / 2.0;
+
+        const bool anyType  = std::any_of( ports.begin(), ports.end(), []( const PortInfo& info ) { return !info.typeName.isEmpty(); } );
+        const bool anyValue = std::any_of( ports.begin(), ports.end(), [&]( const PortInfo& info ) { return showsValue( info, output ); } );
+        const bool anyHidden = std::any_of( ports.begin(), ports.end(), []( const PortInfo& info ) { return !info.hiddenSources.isEmpty(); } );
+
+        for ( size_t column = 0; column < ports.size(); ++column )
+        {
+            const PortInfo& info        = ports[column];
+            const qreal     columnLeft  = left + column * portColumnWidth;
+            const qreal     center      = columnLeft + portColumnWidth / 2.0;
+            const qreal     columnRight = columnLeft + portColumnWidth;
+            portMap.insert( info.key, new PortItem( this, info, output, m_isConfig, QPointF( center, edgeY ) ) );
+
+            const QString toolTip = info.toolTip.isEmpty() ? info.label : info.toolTip;
+            qreal         top     = firstTop;
+
+            // A line of text centered in the column, leaving `indent` free in front of it
+            auto addText = [&]( const QString& content, const QFont& font, const QColor& color, qreal indent = 0.0 )
+            {
+                const qreal available = portColumnWidth - 8 - indent;
+                auto*       text =
+                    new QGraphicsTextItem( QFontMetrics( font ).elidedText( content, Qt::ElideRight, static_cast<int>( available ) ), this );
+                text->setFont( font );
+                text->setToolTip( toolTip );
+                text->setDefaultTextColor( color );
+                text->setPos( center - ( text->boundingRect().width() + indent ) / 2.0 + indent, top );
+                text->setAcceptedMouseButtons( Qt::NoButton );
+                return text;
+            };
+
+            QFont labelFont;
+            labelFont.setPointSize( 9 );
+            addText( info.label, labelFont, info.style == PortInfo::Style::Missing ? missingPortColor : QColor( 45, 65, 80 ) );
+            top += columnLineHeight;
+
+            if ( !info.typeName.isEmpty() )
+            {
+                QFont typeFont;
+                typeFont.setPointSize( 7 );
+                typeFont.setItalic( true );
+                const QIcon icon( info.iconResource );
+                const bool  showIcon = !info.iconResource.isEmpty() && !icon.isNull();
+                const qreal indent   = showIcon ? iconSize + 2 : 0.0;
+                auto*       typeText = addText( info.typeName, typeFont, QColor( 110, 120, 135 ), indent );
+                if ( showIcon )
+                {
+                    const QRectF typeRect = typeText->mapRectToParent( typeText->boundingRect() );
+                    auto*        iconItem = new IconItem( icon, iconSize, this );
+                    iconItem->setPos( typeRect.left() + typeText->document()->documentMargin() - indent,
+                                      typeRect.center().y() - iconSize / 2.0 );
+                    iconItem->setToolTip( toolTip );
+                    iconItem->setAcceptedMouseButtons( Qt::NoButton );
+                }
+            }
+            if ( anyType ) top += columnLineHeight;
+
+            if ( showsValue( info, output ) )
+            {
+                m_valueSlots.insert( fieldForKey( info.key ),
+                                     ValueSlot{ columnLeft + 4, columnRight - 4, m_isConfig ? QString() : QString( "= " ), top, true } );
+            }
+            if ( anyValue ) top += columnLineHeight;
+
+            if ( !output && !info.hiddenSources.isEmpty() )
+            {
+                QFont font;
+                font.setPointSize( 7 );
+                auto* marker = addText( QString::fromUtf8( "\u25b4 " ) + info.hiddenSources.join( ", " ), font, QColor( 130, 135, 145 ) );
+                marker->setToolTip( hiddenSourcesToolTip( info.hiddenSources ) );
+            }
+            if ( anyHidden ) top += columnLineHeight;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A collapsed task has one dot on each side where all its connections meet (top and bottom in
+/// vertical layouts). The ports are kept,
 /// hidden, so the edges can find them.
 //--------------------------------------------------------------------------------------------------
 void GraphNode::addCollapsedPorts( const std::vector<PortInfo>& ports, bool output )
 {
     auto&         portMap = output ? m_outputs : m_inputs;
-    const QPointF center( output ? m_width : 0.0, rect().height() / 2 );
+    const QPointF center  = m_vertical ? QPointF( m_width / 2, output ? rect().height() : 0.0 )
+                                       : QPointF( output ? m_width : 0.0, rect().height() / 2 );
     QStringList   labels;
     bool          missing = false;
     for ( PortInfo info : ports )
@@ -720,18 +939,29 @@ void GraphNode::addCollapsedPorts( const std::vector<PortInfo>& ports, bool outp
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Ports of a switch task sit on the left and right sides of its diamond, labels go in tooltips
+/// Ports of a switch task sit on the left and right sides of its diamond (the top and bottom sides
+/// in vertical layouts), labels go in tooltips
 //--------------------------------------------------------------------------------------------------
 void GraphNode::addDiamondPorts( const std::vector<PortInfo>& ports, bool output )
 {
     auto&       portMap    = output ? m_outputs : m_inputs;
+    const qreal halfWidth  = m_width / 2;
     const qreal halfHeight = rect().height() / 2;
     for ( size_t row = 0; row < ports.size(); ++row )
     {
         const qreal offset = ( row - ( ports.size() - 1 ) / 2.0 ) * diamondPortStep;
-        const qreal inset  = m_width / 2 * std::abs( offset ) / halfHeight;
-        const qreal x      = output ? m_width - inset : inset;
-        portMap.insert( ports[row].key, new PortItem( this, ports[row], output, false, QPointF( x, halfHeight + offset ) ) );
+        QPointF     center;
+        if ( m_vertical )
+        {
+            const qreal inset = halfHeight * std::abs( offset ) / halfWidth;
+            center            = QPointF( halfWidth + offset, output ? rect().height() - inset : inset );
+        }
+        else
+        {
+            const qreal inset = halfWidth * std::abs( offset ) / halfHeight;
+            center            = QPointF( output ? m_width - inset : inset, halfHeight + offset );
+        }
+        portMap.insert( ports[row].key, new PortItem( this, ports[row], output, false, center ) );
     }
 }
 
@@ -775,10 +1005,12 @@ QPainterPath GraphNode::shape() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Where control edges leave (the bottom) or enter (the top) the node, in scene coordinates
+/// Where control edges leave (the bottom) or enter (the top) the node, in scene coordinates. In
+/// vertical layouts, where data enters at the top, they leave at the right and enter at the left.
 //--------------------------------------------------------------------------------------------------
 QPointF GraphNode::controlAnchor( bool outgoing ) const
 {
+    if ( m_vertical ) return mapToScene( QPointF( outgoing ? m_width : 0.0, rect().height() / 2 ) );
     return mapToScene( QPointF( m_width / 2, outgoing ? rect().height() : 0.0 ) );
 }
 
@@ -1161,8 +1393,7 @@ void GraphNode::addHiddenSourceMarkers( const std::vector<PortInfo>& inputs )
         const qreal   right = freeRight( line, m_width - 12, { marker } ) - 4;
         marker->setPlainText(
             QFontMetrics( font ).elidedText( text, Qt::ElideRight, static_cast<int>( std::max( 0.0, right - left - margin ) ) ) );
-        marker->setToolTip( QString( "Provided by hidden task%1: %2\nRight-click the canvas to show hidden tasks" )
-                                .arg( info.hiddenSources.size() > 1 ? "s" : "", info.hiddenSources.join( ", " ) ) );
+        marker->setToolTip( hiddenSourcesToolTip( info.hiddenSources ) );
     }
 }
 
@@ -1191,7 +1422,7 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
         font.setPointSize( 8 );
         text->setFont( font );
         text->setDefaultTextColor( QColor( 125, 80, 30 ) );
-        text->setPos( slot.left, port->rect().center().y() - 2 );
+        text->setPos( slot.left, slot.top.value_or( port->rect().center().y() - 2 ) );
         text->setAcceptedMouseButtons( Qt::NoButton );
         m_configValues.insert( fieldName, text );
     }
@@ -1199,7 +1430,7 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
     // The text item adds a margin on both sides of the text
     const qreal margin = 2 * text->document()->documentMargin();
     qreal       right  = slot.right;
-    if ( !m_isConfig )
+    if ( !m_isConfig && !slot.centered )
     {
         // In a task box the value may use the width up to the output text on the same line
         const QRectF                line( slot.left, text->pos().y(), m_width - slot.left, text->boundingRect().height() );
@@ -1208,6 +1439,7 @@ void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
     }
     const qreal available = std::max( 0.0, right - slot.left - margin );
     text->setPlainText( QFontMetrics( text->font() ).elidedText( slot.prefix + value, Qt::ElideRight, static_cast<int>( available ) ) );
+    if ( slot.centered ) text->setX( ( slot.left + slot.right - text->boundingRect().width() ) / 2.0 );
     text->setToolTip( fieldName + ": " + value );
 }
 
@@ -1316,37 +1548,42 @@ void GraphEdge::applyPen()
 //--------------------------------------------------------------------------------------------------
 void GraphEdge::updatePath()
 {
+    // Control edges run across the data flow: downwards, or to the right in vertical layouts
+    const bool vertical = m_from->isVertical();
     if ( m_isControl )
     {
-        const QPointF start = m_from->controlAnchor( true );
-        const QPointF end   = m_to->controlAnchor( false );
-        const qreal   bend  = std::max( 40.0, std::abs( end.y() - start.y() ) / 2.0 );
-        QPainterPath  path( start );
-        path.cubicTo( start + QPointF( 0, bend ), end - QPointF( 0, bend ), end );
+        const QPointF      start = m_from->controlAnchor( true );
+        const QPointF      end   = m_to->controlAnchor( false );
+        const QPainterPath path  = flowPath( start, end, !vertical, 40.0, false );
         setPath( path );
-        m_arrow->setPolygon( QPolygonF{ end, end + QPointF( -5, -9 ), end + QPointF( 5, -9 ) } );
+        m_arrow->setPolygon( arrowHead( end, !vertical ) );
         if ( m_label )
         {
             const QPointF anchor = path.pointAtPercent( 0.5 );
-            m_label->setPos( anchor.x() + 4, anchor.y() - m_label->boundingRect().height() / 2 );
+            const QRectF  bounds = m_label->boundingRect();
+            if ( vertical )
+                m_label->setPos( anchor.x() - bounds.width() / 2.0, anchor.y() - bounds.height() );
+            else
+                m_label->setPos( anchor.x() + 4, anchor.y() - bounds.height() / 2 );
         }
         return;
     }
 
-    const QPointF start = m_from->portPosition( m_outputKey, true );
-    const QPointF end   = m_to->portPosition( m_inputKey, false );
-    const qreal   bend  = std::max( 35.0, std::abs( end.x() - start.x() ) / 2.0 );
-    QPainterPath  path( start );
-    path.cubicTo( start + QPointF( bend, 0 ), end - QPointF( bend, 0 ), end );
+    const QPointF      start = m_from->portPosition( m_outputKey, true );
+    const QPointF      end   = m_to->portPosition( m_inputKey, false );
+    const QPainterPath path  = connectionPath( start, end, vertical );
     setPath( path );
-    m_arrow->setPolygon( QPolygonF{ end, end + QPointF( -9, -5 ), end + QPointF( -9, 5 ) } );
+    m_arrow->setPolygon( arrowHead( end, vertical ) );
 
-    // Place the label on the curve shortly before the target
+    // Place the label beside the curve shortly before the target
     if ( m_label )
     {
         const QPointF anchor = path.pointAtPercent( 0.85 );
         const QRectF  bounds = m_label->boundingRect();
-        m_label->setPos( anchor.x() - bounds.width() / 2.0, anchor.y() - bounds.height() );
+        if ( vertical )
+            m_label->setPos( anchor.x() + 4, anchor.y() - bounds.height() / 2.0 );
+        else
+            m_label->setPos( anchor.x() - bounds.width() / 2.0, anchor.y() - bounds.height() );
     }
 }
 
@@ -1681,6 +1918,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         for ( auto it = m_positions.begin(); it != m_positions.end(); )
             it = it.key().startsWith( "config:" ) ? m_positions.erase( it ) : std::next( it );
     }
+    const bool       vertical     = m_orientation == RiuWorkflowGraphLayout::Orientation::Vertical;
     const qreal      configOffset = inlined ? 0.0 : configWidth + configGap;
     const QJsonArray tasks        = graph.value( "tasks" ).toArray();
     const QJsonArray edges        = graph.value( "edges" ).toArray();
@@ -1810,7 +2048,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QString subtitle  = subtitles.join( "  " );
         const bool    isSwitch  = data.value( "switch" ).toBool();
         const bool    collapsed = m_collapsedTasks.contains( name );
-        auto*         node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed, !map.isEmpty() );
+        auto*         node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed, !map.isEmpty(), vertical );
         node->setNested( nested );
         if ( isSwitch )
         {
@@ -1861,7 +2099,12 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
                                                          true,
                                                          data.value( "input_types" ).toObject(),
                                                          data.value( "input_icons" ).toObject() ),
-                                              true );
+                                              true,
+                                              {},
+                                              false,
+                                              false,
+                                              false,
+                                              vertical );
             m_scene->addItem( configNode );
             m_configNodes.insert( name, configNode );
         }
@@ -1874,32 +2117,55 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         return height;
     };
 
-    auto layerHeight = [&slotHeight]( const QStringList& layer )
-    {
-        qreal height = 0;
-        for ( const QString& name : layer )
-            height += slotHeight( name ) + rowGap;
-        return height - rowGap;
-    };
+    const auto layout = RiuWorkflowGraphLayout::computeLayers( taskNames, layoutEdges );
 
-    const auto layout      = RiuWorkflowGraphLayout::computeLayers( taskNames, layoutEdges );
-    qreal      totalHeight = 0;
-    for ( const QStringList& layer : layout.layers )
-        totalHeight = std::max( totalHeight, layerHeight( layer ) );
-    for ( size_t column = 0; column < layout.layers.size(); ++column )
+    // Vertical layouts place config boxes above their tasks. The tallest config box of a row sets
+    // the space above all tasks of the row, so the tasks line up.
+    QMap<QString, qreal> configSpace;
+    if ( vertical )
     {
-        const QStringList& layer = layout.layers[column];
-        qreal              y     = ( totalHeight - layerHeight( layer ) ) / 2.0;
-        for ( const QString& name : layer )
+        for ( const QStringList& rank : layout.layers )
         {
-            auto*       node = m_taskNodes.value( name );
-            const qreal x    = column * columnStep + configOffset;
-            node->setPos( x, y + ( slotHeight( name ) - node->height() ) / 2.0 );
-            if ( auto* config = m_configNodes.value( name, nullptr ) )
+            qreal space = 0.0;
+            for ( const QString& name : rank )
             {
-                config->setPos( x - configOffset, y + ( slotHeight( name ) - config->height() ) / 2.0 );
+                if ( auto* config = m_configNodes.value( name, nullptr ) ) space = std::max( space, config->height() + configGapVertical );
             }
-            y += slotHeight( name ) + rowGap;
+            for ( const QString& name : rank )
+                configSpace[name] = space;
+        }
+    }
+
+    QMap<QString, QSizeF> slotSizes;
+    for ( const QString& name : taskNames )
+    {
+        const GraphNode* node   = m_taskNodes.value( name );
+        const GraphNode* config = m_configNodes.value( name, nullptr );
+        if ( vertical )
+            slotSizes[name] = QSizeF( std::max( node->width(), config ? config->width() : 0.0 ), configSpace.value( name ) + node->height() );
+        else
+            slotSizes[name] = QSizeF( configOffset + node->width(), slotHeight( name ) );
+    }
+    const RiuWorkflowGraphLayout::Spacing spacing{ .columnStep = columnStep, .rowGap = rowGap, .rankGap = rankGap, .siblingGap = siblingGap };
+    const auto slotPositions = RiuWorkflowGraphLayout::computePositions( layout, slotSizes, m_orientation, spacing );
+    for ( auto it = slotPositions.cbegin(); it != slotPositions.cend(); ++it )
+    {
+        const QString& name   = it.key();
+        const QPointF  slot   = it.value();
+        auto*          node   = m_taskNodes.value( name );
+        auto*          config = m_configNodes.value( name, nullptr );
+        if ( vertical )
+        {
+            const qreal   slotWidth = slotSizes.value( name ).width();
+            const QPointF taskPos( slot.x() + ( slotWidth - node->width() ) / 2.0, slot.y() + configSpace.value( name ) );
+            node->setPos( taskPos );
+            if ( config )
+                config->setPos( taskPos + QPointF( ( node->width() - config->width() ) / 2.0, -config->height() - configGapVertical ) );
+        }
+        else
+        {
+            node->setPos( slot.x() + configOffset, slot.y() + ( slotHeight( name ) - node->height() ) / 2.0 );
+            if ( config ) config->setPos( slot.x(), slot.y() + ( slotHeight( name ) - config->height() ) / 2.0 );
         }
     }
 
@@ -1919,6 +2185,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         {
             if ( m_positions.contains( "config:" + name ) && !pending )
                 config->setPos( m_positions.value( "config:" + name ) );
+            else if ( position && vertical )
+                config->setPos( *position + QPointF( ( it.value()->width() - config->width() ) / 2.0, -config->height() - configGapVertical ) );
             else if ( position )
                 config->setPos( *position + QPointF( -configWidth - configGap, 0 ) );
         }
@@ -2131,6 +2399,23 @@ bool RiuWorkflowGraphView::inlineConfigValues() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Takes effect when the graph is shown next time. Positions the user has chosen are kept with
+/// ViewportPolicy::Keep, so use ViewportPolicy::Fit to lay out every task in the new orientation.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setOrientation( RiuWorkflowGraphLayout::Orientation orientation )
+{
+    m_orientation = orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWorkflowGraphLayout::Orientation RiuWorkflowGraphView::orientation() const
+{
+    return m_orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Tasks left out of the graph. Takes effect when the graph is shown next time.
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::setHiddenTasks( const QStringList& taskNames )
@@ -2294,10 +2579,7 @@ void RiuWorkflowGraphView::updateConnectionDrag( const QPointF& scenePos )
     const QPointF start = m_dragPort->mapToScene( m_dragPort->rect().center() );
     QPointF       from  = m_dragPort->isOutput() ? start : end;
     QPointF       to    = m_dragPort->isOutput() ? end : start;
-    const qreal   bend  = std::max( 35.0, std::abs( to.x() - from.x() ) / 2.0 );
-    QPainterPath  path( from );
-    path.cubicTo( from + QPointF( bend, 0 ), to - QPointF( bend, 0 ), to );
-    m_dragPath->setPath( path );
+    m_dragPath->setPath( connectionPath( from, to, m_orientation == RiuWorkflowGraphLayout::Orientation::Vertical ) );
 }
 
 //--------------------------------------------------------------------------------------------------
