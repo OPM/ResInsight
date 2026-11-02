@@ -18,6 +18,8 @@
 
 #include "RifcCommandFileReader.h"
 
+#include "RiaOpenTelemetryManager.h"
+
 #include "RicfCommandObject.h"
 
 #include "cafPdmObjectFactory.h"
@@ -126,6 +128,10 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream
         }
         else
         {
+            // Only the command name is reported, command arguments may contain file paths
+            RiaOpenTelemetryManager::instance().reportEventAsync( "commandfile.command.read",
+                                                                  { { "command.name", commandName.toStdString() } } );
+
             readCommands.push_back( cObj );
             auto rcfCap                           = cObj->capability<caf::PdmObjectScriptingCapability>();
             errorMessageContainer->currentCommand = commandName;
