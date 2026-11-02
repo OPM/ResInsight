@@ -766,3 +766,43 @@ TEST( GeometryToolsEdgeCases, PolygonVariations )
     double hexagonArea = GeometryTools::polygonArea( hexagonNodes );
     EXPECT_GT( hexagonArea, 0.0 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// intersectLineSegmentTriangle with a parametric tolerance accepts hits just outside r, s, t and s + t
+//--------------------------------------------------------------------------------------------------
+TEST( GeometryToolsEdgeCases, LineSegmentTriangleParametricTolerance )
+{
+    const cvf::Vec3d t0( 0, 0, 0 );
+    const cvf::Vec3d t1( 1, 0, 0 );
+    const cvf::Vec3d t2( 0, 1, 0 );
+
+    cvf::Vec3d intersection;
+    bool       isEntering = false;
+
+    // Through the apex t0: exact
+    EXPECT_EQ( 1,
+               GeometryTools::intersectLineSegmentTriangle( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 0, 1 ), t0, t1, t2, &intersection, &isEntering ) );
+
+    // Just outside the edge s = 0
+    const cvf::Vec3d p0( -1e-12, 0.5, -1 );
+    const cvf::Vec3d p1( -1e-12, 0.5, 1 );
+    EXPECT_EQ( 0, GeometryTools::intersectLineSegmentTriangle( p0, p1, t0, t1, t2, &intersection, &isEntering ) );
+    EXPECT_EQ( 1, GeometryTools::intersectLineSegmentTriangle( p0, p1, t0, t1, t2, &intersection, &isEntering, 1e-9 ) );
+
+    // Just outside the edge s + t = 1
+    const cvf::Vec3d q0( 0.5 + 1e-12, 0.5, -1 );
+    const cvf::Vec3d q1( 0.5 + 1e-12, 0.5, 1 );
+    EXPECT_EQ( 0, GeometryTools::intersectLineSegmentTriangle( q0, q1, t0, t1, t2, &intersection, &isEntering ) );
+    EXPECT_EQ( 1, GeometryTools::intersectLineSegmentTriangle( q0, q1, t0, t1, t2, &intersection, &isEntering, 1e-9 ) );
+
+    // Segment ending just short of the plane: accepted with tolerance, point clamped to the segment end
+    const cvf::Vec3d r0( 0.25, 0.25, -1 );
+    const cvf::Vec3d r1( 0.25, 0.25, -1e-12 );
+    EXPECT_EQ( 0, GeometryTools::intersectLineSegmentTriangle( r0, r1, t0, t1, t2, &intersection, &isEntering ) );
+    EXPECT_EQ( 1, GeometryTools::intersectLineSegmentTriangle( r0, r1, t0, t1, t2, &intersection, &isEntering, 1e-9 ) );
+    EXPECT_LT( intersection.pointDistance( r1 ), 1e-12 );
+
+    // Clearly outside stays outside
+    EXPECT_EQ( 0,
+               GeometryTools::intersectLineSegmentTriangle( cvf::Vec3d( 2, 2, -1 ), cvf::Vec3d( 2, 2, 1 ), t0, t1, t2, &intersection, &isEntering, 1e-9 ) );
+}

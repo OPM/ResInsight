@@ -56,7 +56,8 @@ struct RigHexIntersectionTools
                                         const cvf::Vec3d&                 p2,
                                         const std::array<cvf::Vec3d, 8>&  hexCorners,
                                         const size_t                      hexIndex,
-                                        std::vector<HexIntersectionInfo>* intersections );
+                                        std::vector<HexIntersectionInfo>* intersections,
+                                        double                            parametricTolerance = 0.0 );
 
     static bool lineIntersectsHexCell( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners );
 

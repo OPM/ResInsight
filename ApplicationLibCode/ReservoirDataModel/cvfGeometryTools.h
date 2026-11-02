@@ -54,7 +54,8 @@ public:
                                                     const cvf::Vec3d& t1,
                                                     const cvf::Vec3d& t2,
                                                     cvf::Vec3d*       intersectionPoint,
-                                                    bool*             isLineDirDotNormalNegative );
+                                                    bool*             isLineDirDotNormalNegative,
+                                                    double            parametricTolerance = 0.0 );
     static cvf::Vec3d barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p );
     static cvf::Vec4d
         barycentricCoords( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3, const cvf::Vec3d& p );

@@ -89,7 +89,12 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             if ( cell.isInvalid() || cell.subGrid() != nullptr ) continue;
 
             std::array<cvf::Vec3d, 8> hexCorners = m_caseData->mainGrid()->cellCornerVertices( globalCellIndex );
-            RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners, globalCellIndex, &intersections );
+            RigHexIntersectionTools::lineHexCellIntersection( p1,
+                                                              p2,
+                                                              hexCorners,
+                                                              globalCellIndex,
+                                                              &intersections,
+                                                              RigWellLogExtractionTools::intersectionParametricTolerance );
         }
 
         if ( !isCellFaceNormalsOut )

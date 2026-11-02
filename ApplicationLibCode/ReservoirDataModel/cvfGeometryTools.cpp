@@ -21,6 +21,8 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
+
 namespace cvf
 {
 //--------------------------------------------------------------------------------------------------
@@ -488,6 +490,9 @@ double GeometryTools::linePointSquareDist( const cvf::Vec3d& p1, const cvf::Vec3
 //
 /// Intersect a line segment with a 3D triangle
 ///    Input:  A line segment p0, p1. A triangle t0, t1, t2.
+///            parametricTolerance: the segment parameter r and the triangle coordinates s, t are accepted
+///            within [-parametricTolerance, 1 + parametricTolerance]. r is clamped to [0, 1] before the point is
+///            computed, so the reported point is always on the segment. The default 0.0 is the exact test.
 ///    Output: *intersectionPoint = intersection point (when it exists)
 ///    Return: -1 = triangle is degenerate (a segment or point)
 ///             0 = disjoint (no intersect)
@@ -505,7 +510,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
                                                  const cvf::Vec3d& t1,
                                                  const cvf::Vec3d& t2,
                                                  cvf::Vec3d*       intersectionPoint,
-                                                 bool*             isLineDirDotNormalNegative )
+                                                 bool*             isLineDirDotNormalNegative,
+                                                 double            parametricTolerance )
 {
     CAF_ASSERT( intersectionPoint != nullptr );
     CAF_ASSERT( isLineDirDotNormalNegative != nullptr );
@@ -538,11 +544,13 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
 
     // get intersect point of ray with triangle plane
     r = a / b;
-    if ( r < 0.0 ) // ray goes away from triangle
+    if ( r < -parametricTolerance ) // ray goes away from triangle
         return 0; // => no intersect
 
-    if ( r > 1.0 ) // Line segment does not reach triangle
+    if ( r > 1.0 + parametricTolerance ) // Line segment does not reach triangle
         return 0;
+
+    r = std::clamp( r, 0.0, 1.0 ); // keep the point on the segment when the tolerance accepted it
 
     *intersectionPoint = p0 + r * dir; // intersect point of ray and plane
 
@@ -559,11 +567,11 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
     // get and test parametric coords
     double s, t;
     s = ( uv * wv - vv * wu ) / D;
-    if ( s < 0.0 || s > 1.0 ) // I is outside T
+    if ( s < -parametricTolerance || s > 1.0 + parametricTolerance ) // I is outside T
         return 0;
 
     t = ( uv * wu - uu * wv ) / D;
-    if ( t < 0.0 || ( s + t ) > 1.0 ) // I is outside T
+    if ( t < -parametricTolerance || ( s + t ) > 1.0 + parametricTolerance ) // I is outside T
         return 0;
 
     return 1; // I is in T

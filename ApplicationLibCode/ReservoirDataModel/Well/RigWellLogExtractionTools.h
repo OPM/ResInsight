@@ -30,6 +30,13 @@
 
 struct RigWellLogExtractionTools
 {
+    // Parametric tolerance for the line segment/triangle test when a well path is intersected with the grid cells.
+    // Simulation well centre lines go through cell face centres, which are also the apex of the four triangles a
+    // face is split into, so the exact test (tolerance 0) depends on the rounding of the last bit and can miss the
+    // crossing on both segments that share the point (#15088). On a 100 m segment this is 1e-7 m, well above the
+    // rounding error at UTM coordinates and well below the measured depth tolerance.
+    static constexpr double intersectionParametricTolerance = 1e-9;
+
     static bool isEqualDepth( double d1, double d2, const double tolerance )
     {
         double depthDiff = d1 - d2;
