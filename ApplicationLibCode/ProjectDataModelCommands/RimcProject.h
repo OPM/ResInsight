@@ -90,7 +90,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_surfaceFolder : public caf::PdmObjectCreationMethod
+class RimProject_surfaceFolder : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 

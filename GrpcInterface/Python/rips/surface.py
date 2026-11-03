@@ -1,10 +1,18 @@
+import inspect
 import uuid
 
 from .exception import RipsError
 from .pdmobject import add_method
 from .project import Project
-from .resinsight_classes import RegularSurface
-from typing import List
+from .resinsight_classes import (
+    EnsembleSurface,
+    RegularSurface,
+    SurfaceCollection,
+    SurfaceInterface,
+)
+from typing import List, Optional, Type, TypeVar
+
+SurfaceT = TypeVar("SurfaceT", bound=SurfaceInterface)
 
 
 @add_method(RegularSurface)
@@ -61,3 +69,111 @@ def get_property(self: RegularSurface, name: str) -> List[float]:
             project.remove_key_values(key)
         except Exception:
             pass
+
+
+def _check_surface_type(surface_type: Type[SurfaceT]) -> None:
+    if not (
+        inspect.isclass(surface_type) and issubclass(surface_type, SurfaceInterface)
+    ):
+        raise RipsError(
+            "surface_type must be a surface class such as rips.SurfaceInterface, "
+            "rips.Surface or rips.RegularSurface, got {}".format(surface_type)
+        )
+
+
+@add_method(SurfaceCollection)
+def surfaces(
+    self: SurfaceCollection,
+    surface_type: Type[SurfaceT] = SurfaceInterface,
+    recursive: bool = False,
+    include_ensembles: bool = False,
+) -> List[SurfaceT]:
+    """Get the surfaces in this folder
+
+    Arguments:
+        surface_type (class): Only return surfaces of this class, subclasses included.
+            rips.SurfaceInterface (the default) returns every surface, rips.Surface
+            returns file surfaces only, and rips.RegularSurface also returns
+            rips.RegularFileSurface.
+        recursive (bool): Also return the surfaces in sub folders.
+        include_ensembles (bool): When recursive, also descend into ensemble surfaces
+            (rips.EnsembleSurface), which hold six statistics surfaces and one surface
+            per realization. Off by default, since that can be a long list.
+
+    Returns:
+        List of surfaces of the requested class, this folder first, then its sub folders
+    """
+    _check_surface_type(surface_type)
+
+    result: List[SurfaceT] = [
+        s for s in self.surfaces_field() if isinstance(s, surface_type)
+    ]
+    if recursive:
+        for folder in self.sub_collections():
+            if isinstance(folder, EnsembleSurface) and not include_ensembles:
+                continue
+            result.extend(
+                folder.surfaces(
+                    surface_type, recursive=True, include_ensembles=include_ensembles
+                )
+            )
+    return result
+
+
+@add_method(Project)  # type: ignore[no-redef]
+def surfaces(  # noqa: F811
+    self: Project,
+    surface_type: Type[SurfaceT] = SurfaceInterface,
+    include_ensembles: bool = False,
+) -> List[SurfaceT]:
+    """Get all surfaces in the project, from the top surface folder and its sub folders
+
+    Arguments:
+        surface_type (class): Only return surfaces of this class, subclasses included.
+            rips.SurfaceInterface (the default) returns every surface, rips.Surface
+            returns file surfaces only, and rips.RegularSurface also returns
+            rips.RegularFileSurface.
+        include_ensembles (bool): Also return the statistics and realization surfaces
+            of ensemble surfaces (rips.EnsembleSurface). Off by default.
+
+    Returns:
+        List of surfaces of the requested class
+    """
+    folder = self.surface_folder()
+    if folder is None:
+        return []
+    return folder.surfaces(
+        surface_type, recursive=True, include_ensembles=include_ensembles
+    )
+
+
+@add_method(Project)
+def surface_by_name(
+    self: Project,
+    name: str,
+    surface_type: Type[SurfaceT] = SurfaceInterface,  # type: ignore[assignment]
+    folder: Optional[SurfaceCollection] = None,
+) -> Optional[SurfaceT]:
+    """Get a surface by name
+
+    Names are only unique within one folder. Without a folder the first match is
+    returned, searching the top surface folder first and then its sub folders, ensemble
+    surfaces excluded. The name is matched against surface_user_description, so a depth
+    offset shown in the tree does not affect the match.
+
+    Arguments:
+        name (str): The surface name (surface_user_description)
+        surface_type (class): Only consider surfaces of this class, subclasses included
+        folder (SurfaceCollection): Only look in this folder, sub folders excluded
+
+    Returns:
+        The surface, or None when no surface has that name
+    """
+    if folder is not None:
+        candidates = folder.surfaces(surface_type)
+    else:
+        candidates = self.surfaces(surface_type)
+    for surface in candidates:
+        if surface.surface_user_description == name:
+            return surface
+    return None
