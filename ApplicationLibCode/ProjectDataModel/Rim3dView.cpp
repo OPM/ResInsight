@@ -54,6 +54,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuTimeStepChangedHandler.h"
+#include "RiuTools.h"
 #include "RiuViewer.h"
 
 #include "DockManager.h"
@@ -74,6 +75,8 @@
 #include "cvfScene.h"
 #include "cvfTransform.h"
 #include "cvfViewport.h"
+
+#include <QResizeEvent>
 
 #include <algorithm>
 #include <climits>
@@ -529,6 +532,14 @@ QImage Rim3dView::captureSnapshot( int width, int height )
             // adjust for possible display DPI scaling
             const auto ratio = m_viewer->displayScalingRatio();
             m_viewer->layoutWidget()->setFixedSize( (int)( 1.0 * width / ratio ), (int)( 1.0 * height / ratio ) );
+
+            if ( !m_viewer->layoutWidget()->isVisible() )
+            {
+                // Hidden widgets defer resize events (Qt::WA_PendingResizeEvent), so the layout never propagates the
+                // new size to the GL widget. Deliver the resize synchronously so grabFramebuffer() renders at the
+                // requested size when running headless.
+                RiuTools::sendDeferredResizeEvents( m_viewer->layoutWidget() );
+            }
 
             image = m_viewer->snapshotImage();
 

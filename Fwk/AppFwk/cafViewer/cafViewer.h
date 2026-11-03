@@ -184,6 +184,9 @@ public:
     // display scaling ratio (should be 1 if DPI scaling is not enabled)
     double displayScalingRatio() const;
 
+    // System to make sure we share OpenGL resources
+    static cvf::OpenGLContextGroup* contextGroup();
+
 public slots:
     virtual void slotSetCurrentFrame( int frameIndex );
     virtual void slotEndAnimation();
@@ -253,8 +256,6 @@ private:
     void                        updateOverlayImagePresence();
 
     // System to make sure we share OpenGL resources
-    static cvf::OpenGLContextGroup* contextGroup();
-
     static cvf::ref<cvf::OpenGLContextGroup> sm_openGLContextGroup;
 
     caf::FrameAnimationControl* m_animationControl;

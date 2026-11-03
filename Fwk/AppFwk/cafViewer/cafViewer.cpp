@@ -1239,6 +1239,18 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
+    if ( !isVisible() )
+    {
+        // A widget that has never been shown has not received any resize event, so the internal
+        // framebuffers used for rendering have not been sized (or created at all). The first grab
+        // initializes the OpenGL machinery, and the synthetic resize event delivered afterwards
+        // sizes the framebuffers through resizeGL() before the final grab below.
+        grabFramebuffer();
+
+        QResizeEvent resizeEvent( size(), size() );
+        QCoreApplication::sendEvent( this, &resizeEvent );
+    }
+
     auto image = grabFramebuffer();
 
     // Convert to RGB32 format to avoid visual artifacts related to alpha channel
