@@ -372,6 +372,20 @@ void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::performFullUpdateOfHiddenPages()
+{
+    for ( RiuMultiPlotPage* page : m_pages )
+    {
+        if ( page && !page->isVisible() )
+        {
+            page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;

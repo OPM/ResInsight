@@ -783,7 +783,9 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
 
     for ( RiuDraggableOverlayFrame* overlayFrame : m_overlayFrames )
     {
-        if ( overlayFrame->isVisible() )
+        // Use isHidden() instead of isVisible(), as isVisible() is false for all widgets when rendering headless with
+        // hidden windows, while isHidden() only reflects the explicit visibility set for the overlay frame
+        if ( overlayFrame && !overlayFrame->isHidden() )
         {
             QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
 

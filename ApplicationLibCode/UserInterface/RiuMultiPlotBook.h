@@ -85,6 +85,9 @@ public:
 
     void renderTo( QPaintDevice* painter );
 
+    // Pages that have never been shown have not received the full update otherwise performed in showEvent(), which
+    // applies fonts and layout. Required before rendering hidden pages, e.g. snapshot export in headless mode.
+    void performFullUpdateOfHiddenPages();
     void scrollToPlot( RiuPlotWidget* plotWidget );
 
     void goToNextPage();
