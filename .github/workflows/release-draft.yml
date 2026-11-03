@@ -87,7 +87,9 @@ jobs:
           done
           cd ..
           # The RHEL8 CPack package is already compressed; attach it directly.
-          find rhel8-package -name '*.tar.gz' -exec cp {} release-assets/ \;
+          # Renamed so the version is at the end, like the other assets.
+          find rhel8-package -name '*.tar.gz' \
+            -exec cp {} "release-assets/ResInsight-RHEL8-${{ github.ref_name }}.tar.gz" \;
           ls -l release-assets
 
       - name: Create or update draft release
