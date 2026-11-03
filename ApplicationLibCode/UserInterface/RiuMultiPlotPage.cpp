@@ -420,7 +420,9 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
     for ( auto subTitle : subTitlesForVisiblePlots() )
     {
-        if ( subTitle->isVisible() )
+        // Use isHidden() instead of isVisible(), as isVisible() is false for all widgets when rendering headless with
+        // hidden windows, while isHidden() only reflects the explicit visibility set for the label
+        if ( !subTitle->isHidden() )
         {
             QPoint renderOffset = m_plotWidgetFrame->mapToParent( subTitle->frameGeometry().topLeft() ) - marginOffset;
             subTitle->render( painter, renderOffset );
