@@ -341,79 +341,57 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         }
     }
 
-    // Filter and store the intersections pairwise as cell enter-leave pairs
-    // Discard points that does not have a match .
+    // Store the intersections pairwise as cell enter-leave pairs. A leaving point is matched with the latest
+    // entering point of the same cell, so points without a match (touches along cell edges, overlapping cells at
+    // faults) are discarded without breaking the pairs around them. An entering point is kept open across a few
+    // points only, so a lost exit does not get paired with a much later exit of the same cell.
     {
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it1 = sortedUniqueIntersections.begin();
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it2;
+        const size_t maxPointsBetweenEnterAndLeave = 4;
 
-        while ( it1 != sortedUniqueIntersections.end() )
+        auto discardPoint = [&]( const RigMDEnterLeaveCellIdxKey& key )
         {
-            it2 = it1;
-            ++it2;
+            errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
+                             ( " Discards a point at MD:  " ) + QString::number( (double)( key.measuredDepth ) );
+        };
 
-            if ( it2 == sortedUniqueIntersections.end() ) break;
+        using IntersectionIt = std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator;
+        std::map<size_t, std::pair<IntersectionIt, size_t>> openEnterPoints; // cell index -> (entering point, position)
 
-            if ( RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it1->first, it2->first ) )
+        size_t position = 0;
+        for ( auto it = sortedUniqueIntersections.begin(); it != sortedUniqueIntersections.end(); ++it, ++position )
+        {
+            auto openIt = openEnterPoints.find( it->first.hexIndex );
+
+            if ( it->first.isEnteringCell )
             {
-                appendIntersectionToArrays( it1->first.measuredDepth, it1->second, &errorMessages );
-                ++it1;
-                appendIntersectionToArrays( it1->first.measuredDepth, it1->second, &errorMessages );
-                ++it1;
+                if ( openIt != openEnterPoints.end() ) discardPoint( openIt->second.first->first );
+
+                openEnterPoints[it->first.hexIndex] = std::make_pair( it, position );
+                continue;
             }
-            else
+
+            if ( openIt != openEnterPoints.end() )
             {
-                // If we haven't a proper pair, try our best to recover these variants:
-                // 1-2 3 4 5 6 7 8 9 10 11-12
-                //     +---+
-                //       +---+
-                //             +---+
+                const IntersectionIt enterIt = openIt->second.first;
+                const bool           isClose = ( position - openIt->second.second - 1 ) <= maxPointsBetweenEnterAndLeave;
+                openEnterPoints.erase( openIt );
 
-                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it11 = it1;
-                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it21 = it2;
-
-                // Check if we have overlapping cells (typically at a fault)
-                ++it21;
-                if ( it21 != sortedUniqueIntersections.end() &&
-                     RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it11->first, it21->first ) )
+                if ( isClose && RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( enterIt->first, it->first ) )
                 {
-                    // Found 3 to 5 connection
-                    appendIntersectionToArrays( it11->first.measuredDepth, it11->second, &errorMessages );
-                    appendIntersectionToArrays( it21->first.measuredDepth, it21->second, &errorMessages );
-
-                    ++it11;
-                    ++it21;
-                    if ( it21 != sortedUniqueIntersections.end() &&
-                         RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it11->first, it21->first ) )
-                    {
-                        // Found a 4 to 6 connection
-                        appendIntersectionToArrays( it11->first.measuredDepth, it11->second, &errorMessages );
-                        appendIntersectionToArrays( it21->first.measuredDepth, it21->second, &errorMessages );
-
-                        it1 = it21;
-                        ++it1;
-                        continue;
-                    }
-                    else
-                    {
-                        errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                                         ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
-
-                        // Found that 8 to 10 is not connected, after finding 7 to 9
-                        it1 = it21; // Discard 8 by Jumping to 10
-                        continue;
-                    }
-                }
-                else
-                {
-                    errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                                     ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
-
-                    // Found that 10 to 11 is not connected, and not 10 to 12 either
-                    ++it1; // Discard 10 and jump to 11 and hope that recovers us
+                    appendIntersectionToArrays( enterIt->first.measuredDepth, enterIt->second, &errorMessages );
+                    appendIntersectionToArrays( it->first.measuredDepth, it->second, &errorMessages );
                     continue;
                 }
+
+                discardPoint( enterIt->first );
             }
+
+            discardPoint( it->first );
+        }
+
+        for ( const auto& openEntry : openEnterPoints )
+        {
+            discardPoint( openEntry.second.first->first );
         }
     }
 
