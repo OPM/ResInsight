@@ -86,6 +86,7 @@ void riaFilteredMessageHandler( QtMsgType type, const QMessageLogContext& contex
 
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
+    bool isHeadless = false;
     for ( int i = 1; i < argc; ++i )
     {
         if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) )
@@ -96,7 +97,18 @@ RiaApplication* createApplication( int& argc, char* argv[] )
             return new RiaConsoleApplication( argc, argv );
 #endif
         }
+
+        if ( !qstrcmp( argv[i], "--headless" ) )
+        {
+            isHeadless = true;
+        }
     }
+
+    if ( isHeadless )
+    {
+        RiaMainTools::enableHeadlessRendering();
+    }
+
 #ifdef ENABLE_GRPC
     return new RiaGrpcGuiApplication( argc, argv );
 #else

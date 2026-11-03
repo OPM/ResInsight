@@ -71,6 +71,11 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              cvf::ProgramOptions::MULTI_VALUE );
     progOpt->registerOption( "size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE );
     progOpt->registerOption( "console", "", "Launch as a console application without graphics" );
+    progOpt->registerOption( "headless",
+                             "",
+                             "Run without showing any windows, using software OpenGL rendering. "
+                             "Combine with --savesnapshots to export images on machines without a GPU. "
+                             "On Linux without a display server, run under xvfb-run." );
     progOpt->registerOption( "server", "[<portnumber>]", "Launch as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "portnumberfile", "[<filename>]", "Write the port number to this file.", cvf::ProgramOptions::SINGLE_VALUE );
 

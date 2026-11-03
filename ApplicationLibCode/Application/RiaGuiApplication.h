@@ -82,6 +82,9 @@ public:
     static bool               isRunning();
     static RiaGuiApplication* instance();
 
+    static void enableHeadlessMode();
+    static bool isHeadless();
+
     RiaGuiApplication( int& argc, char** argv );
     ~RiaGuiApplication() override;
 
@@ -172,4 +175,6 @@ private:
     QPointer<RiuPlotMainWindow> m_mainPlotWindow;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
+
+    static bool sm_headlessMode;
 };

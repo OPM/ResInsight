@@ -158,12 +158,30 @@
 ///
 //==================================================================================================
 
+bool RiaGuiApplication::sm_headlessMode = false;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::isRunning()
 {
     return dynamic_cast<RiaGuiApplication*>( RiaApplication::instance() ) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::enableHeadlessMode()
+{
+    sm_headlessMode = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaGuiApplication::isHeadless()
+{
+    return sm_headlessMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,6 +302,9 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::askUserToSaveModifiedProject()
 {
+    // A modal dialog would hang a headless batch run
+    if ( isHeadless() ) return true;
+
     if ( RiaPreferencesSystem::current()->showProjectChangedDialog() && caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
     {
         QMessageBox msgBox( activeMainWindow() );
@@ -549,6 +570,9 @@ void RiaGuiApplication::initialize()
 {
     RiaApplication::initialize();
 
+    // Progress dialogs would pop up windows and can block a headless batch run
+    if ( isHeadless() ) caf::ProgressInfoStatic::setEnabled( false );
+
     applyGuiPreferences( nullptr );
 
     // Create main windows
@@ -574,6 +598,23 @@ void RiaGuiApplication::initialize()
         }
 
         RiaLogging::appendLoggerInstance( std::move( logger ) );
+    }
+
+    if ( isHeadless() )
+    {
+        // The message panels are never shown in headless mode, so also write to stdout to make batch runs diagnosable
+        auto stdLogger = std::make_unique<RiaStdOutLogger>();
+
+        if ( m_logLevelFromCommandLine.has_value() )
+        {
+            stdLogger->setLevel( m_logLevelFromCommandLine.value() );
+        }
+        else
+        {
+            stdLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+        }
+
+        RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
     }
 
     m_socketServer = new RiaSocketServer( this );
@@ -671,10 +712,28 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         // Use a logger writing to stdout instead of message panel
         // This is useful when executing regression tests on a build server, and this is the reason for creating the
         // logger when parsing the command line options
-        auto stdLogger = std::make_unique<RiaStdOutLogger>();
-        stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+        // In headless mode a stdout logger already exists, reuse it to avoid duplicated log lines
+        RiaStdOutLogger* existingStdLogger = nullptr;
+        for ( auto logger : RiaLogging::loggerInstances() )
+        {
+            if ( auto candidate = dynamic_cast<RiaStdOutLogger*>( logger ) )
+            {
+                existingStdLogger = candidate;
+                break;
+            }
+        }
 
-        RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
+        if ( existingStdLogger )
+        {
+            existingStdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+        }
+        else
+        {
+            auto stdLogger = std::make_unique<RiaStdOutLogger>();
+            stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+
+            RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
+        }
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -926,29 +985,53 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             snapshotFolder = snapshotFolderFromCommandLine;
         }
 
+        QStringList snapshotErrors;
+
         if ( snapshotPlots )
         {
             auto mainPlotWnd = mainPlotWindow();
             if ( mainPlotWnd )
             {
-                mainPlotWnd->show();
-                mainPlotWnd->raise();
+                if ( !isHeadless() )
+                {
+                    mainPlotWnd->show();
+                    mainPlotWnd->raise();
+                }
 
                 processEvents();
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
+                auto result =
+                    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
+                if ( !result ) snapshotErrors.push_back( result.error() );
+            }
+            else
+            {
+                // The plot window is only created when the project shows plots, so there is nothing to export
+                RiaLogging::warning( "No plot window available, no plot snapshots exported" );
             }
         }
 
         if ( snapshotViews )
         {
             auto mainWnd = RiuMainWindow::instance();
-            mainWnd->show();
-            mainWnd->raise();
+            if ( mainWnd )
+            {
+                if ( !isHeadless() )
+                {
+                    mainWnd->show();
+                    mainWnd->raise();
+                }
 
-            processEvents();
+                processEvents();
 
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
+                auto result =
+                    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
+                if ( !result ) snapshotErrors.push_back( result.error() );
+            }
+            else
+            {
+                snapshotErrors.push_back( "No main window available for view snapshot export" );
+            }
         }
 
         auto mainPlotWnd = mainPlotWindow();
@@ -958,6 +1041,14 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         }
 
         if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
+
+        if ( !snapshotErrors.empty() )
+        {
+            // Report a non-zero exit code, as a batch run with missing images is otherwise indistinguishable from success
+            RiaLogging::error( snapshotErrors.join( ". " ).toStdString() );
+
+            return ApplicationStatus::EXIT_WITH_ERROR;
+        }
 
         return ApplicationStatus::EXIT_COMPLETED;
     }
@@ -1063,7 +1154,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     {
         createMainWindow();
     }
-    else
+    else if ( !isHeadless() )
     {
         m_mainWindow->show();
 
@@ -1141,7 +1232,7 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainWindow->showWindow();
+    if ( !isHeadless() ) m_mainWindow->showWindow();
 
     // if there is an existing logger, reconnect to it
 
@@ -1199,18 +1290,21 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
         }
     }
 
-    if ( m_mainPlotWindow->isMinimized() )
+    if ( !isHeadless() )
     {
-        m_mainPlotWindow->showNormal();
-        m_mainPlotWindow->update();
-    }
-    else
-    {
-        m_mainPlotWindow->show();
-    }
+        if ( m_mainPlotWindow->isMinimized() )
+        {
+            m_mainPlotWindow->showNormal();
+            m_mainPlotWindow->update();
+        }
+        else
+        {
+            m_mainPlotWindow->show();
+        }
 
-    m_mainPlotWindow->raise();
-    m_mainPlotWindow->activateWindow();
+        m_mainPlotWindow->raise();
+        m_mainPlotWindow->activateWindow();
+    }
 
     return m_mainPlotWindow.get();
 }
@@ -1339,6 +1433,19 @@ void RiaGuiApplication::clearAllSelections()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& text )
 {
+    // A modal dialog would hang a headless batch run
+    if ( isHeadless() )
+    {
+        const std::string stdText = text.toStdString();
+        std::cout << stdText;
+
+        // Make sure the text ends with a newline and reaches the console even if the application aborts later
+        if ( stdText.empty() || stdText.back() != '\n' ) std::cout << '\n';
+        std::cout.flush();
+
+        return;
+    }
+
     // Create a message dialog with cut/paste friendly text
     QDialog dlg( widgetToUseAsParent() );
     dlg.setModal( true );
@@ -1444,9 +1551,9 @@ void RiaGuiApplication::onProjectOpened()
         if ( !m_mainPlotWindow )
         {
             createMainPlotWindow();
-            m_mainPlotWindow->show();
+            if ( !isHeadless() ) m_mainPlotWindow->show();
         }
-        else
+        else if ( !isHeadless() )
         {
             m_mainPlotWindow->show();
             m_mainPlotWindow->raise();
@@ -1478,7 +1585,7 @@ void RiaGuiApplication::onProjectOpened()
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();
 
-    if ( m_project->showPlotWindow() && m_project->showPlotWindowOnTop() )
+    if ( m_project->showPlotWindow() && m_project->showPlotWindowOnTop() && !isHeadless() )
     {
         m_mainPlotWindow->raise();
         m_mainPlotWindow->activateWindow();
@@ -1873,7 +1980,8 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
         bool loadOk = loadProject( templateProjectFileName, ProjectLoadAction::PLA_NONE, &modifier );
         if ( loadOk )
         {
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );
+            auto result = RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );
+            if ( !result ) RiaLogging::error( result.error().toStdString() );
         }
     }
     m_mainWindow->dockManager()->restoreState( curState );
