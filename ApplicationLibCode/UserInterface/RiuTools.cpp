@@ -22,8 +22,11 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 
+#include <QCoreApplication>
 #include <QMenu>
 #include <QObject>
+#include <QResizeEvent>
+#include <QWidget>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,4 +65,28 @@ void RiuTools::enableUpDownArrowsForComboBox( caf::PdmFieldHandle* field )
     uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::NEXT_ICON, QIcon( ":/ComboBoxDown.svg" ) );
     uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::PREVIOUS_ICON, QIcon( ":/ComboBoxUp.svg" ) );
     uiCapability->setAttribute( caf::PdmUiComboBoxEditor::Keys::SHOW_PREVIOUS_AND_NEXT_BUTTONS, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Widgets that have never been shown defer their resize events (Qt::WA_PendingResizeEvent), so their layouts have
+/// never been updated. QWidget::show() and QWidget::grab() deliver the deferred events, but QWidget::render() does
+/// not. When running headless with hidden windows, call this before rendering widgets to file to make sure widget
+/// layouts reflect the current widget sizes. Mirrors the static sendResizeEvents() in Qt's qwidget.cpp.
+//--------------------------------------------------------------------------------------------------
+void RiuTools::sendDeferredResizeEvents( QWidget* widget )
+{
+    if ( !widget ) return;
+
+    QResizeEvent resizeEvent( widget->size(), QSize() );
+    QCoreApplication::sendEvent( widget, &resizeEvent );
+    widget->setAttribute( Qt::WA_PendingResizeEvent, false );
+
+    for ( QObject* child : widget->children() )
+    {
+        auto childWidget = qobject_cast<QWidget*>( child );
+        if ( childWidget && !childWidget->isWindow() && childWidget->testAttribute( Qt::WA_PendingResizeEvent ) )
+        {
+            sendDeferredResizeEvents( childWidget );
+        }
+    }
 }

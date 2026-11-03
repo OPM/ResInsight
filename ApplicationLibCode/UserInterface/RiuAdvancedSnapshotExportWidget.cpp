@@ -30,6 +30,7 @@
 #include "RimProject.h"
 
 #include "RiuFileDialogTools.h"
+#include "RiuMessageDialog.h"
 #include "RiuTools.h"
 
 #include "cafCmdFeatureManager.h"
@@ -230,7 +231,10 @@ void RiuAdvancedSnapshotExportWidget::deleteAllSnapshotItems()
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::exportSnapshots()
 {
-    RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( m_exportFolderLineEdit->text(), m_rimProject );
+    if ( auto result = RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( m_exportFolderLineEdit->text(), m_rimProject ); !result )
+    {
+        RiuMessageDialog::showError( this, "Advanced Snapshot Export", result.error() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

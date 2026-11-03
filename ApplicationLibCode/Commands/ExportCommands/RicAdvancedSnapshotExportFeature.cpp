@@ -113,15 +113,20 @@ void RicAdvancedSnapshotExportFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& folder, RimProject* project )
+std::expected<void, QString> RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& folder, RimProject* project )
 {
-    if ( !project ) return;
+    if ( !project ) return std::unexpected( QString( "No project available" ) );
 
     QDir snapshotPath( folder );
     if ( !snapshotPath.exists() )
     {
-        if ( !snapshotPath.mkpath( "." ) ) return;
+        if ( !snapshotPath.mkpath( "." ) )
+        {
+            return std::unexpected( QString( "Not able to create snapshot folder %1" ).arg( folder ) );
+        }
     }
+
+    size_t failedSnapshotCount = 0;
 
     for ( RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions() )
     {
@@ -146,7 +151,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 copyOfEclipseView->loadDataAndUpdate();
 
-                exportViewVariations( copyOfEclipseView, msd, folder );
+                failedSnapshotCount += exportViewVariations( copyOfEclipseView, msd, folder );
 
                 removeViewFromViewCollection( copyOfEclipseView );
 
@@ -169,7 +174,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 copyOfGeoMechView->loadDataAndUpdate();
 
-                exportViewVariations( copyOfGeoMechView, msd, folder );
+                failedSnapshotCount += exportViewVariations( copyOfGeoMechView, msd, folder );
 
                 geomCase->geoMechViews().removeChild( copyOfGeoMechView );
 
@@ -183,13 +188,22 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
         sourceView->scheduleCreateDisplayModelAndRedraw();
     }
+
+    if ( failedSnapshotCount > 0 )
+    {
+        return std::unexpected( QString( "Failed to export %1 snapshots, see the log for details" ).arg( failedSnapshotCount ) );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder )
+size_t RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder )
 {
+    size_t failedSnapshotCount = 0;
+
     if ( !msd->selectedEclipseResults().empty() )
     {
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( rimView->ownerCase() );
@@ -204,22 +218,26 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView,
 
             copyOfView->loadDataAndUpdate();
 
-            exportViewVariationsToFolder( copyOfView, msd, folder );
+            failedSnapshotCount += exportViewVariationsToFolder( copyOfView, msd, folder );
         }
 
         removeViewFromViewCollection( copyOfView );
 
         delete copyOfView;
     }
+
+    return failedSnapshotCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView*                         rimView,
-                                                                     RimAdvancedSnapshotExportDefinition* msd,
-                                                                     const QString&                       folder )
+size_t RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView*                         rimView,
+                                                                       RimAdvancedSnapshotExportDefinition* msd,
+                                                                       const QString&                       folder )
 {
+    size_t failedSnapshotCount = 0;
+
     RimCase* rimCase = rimView->ownerCase();
     CAF_ASSERT( rimCase );
 
@@ -255,7 +273,9 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
             QString absoluteFileName = caf::Utils::constructFullFileName( folder, fileName, ".png" );
 
             QApplication::processEvents();
-            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView );
+
+            // Errors are logged by saveSnapshotAs
+            if ( !RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView ) ) failedSnapshotCount++;
         }
         else
         {
@@ -293,7 +313,9 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
                 QString absoluteFileName = caf::Utils::constructFullFileName( folder, fileName, ".png" );
 
                 QApplication::processEvents();
-                RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView );
+
+                // Errors are logged by saveSnapshotAs
+                if ( !RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView ) ) failedSnapshotCount++;
             }
 
             rimView->cellFilterCollection()->removeFilter( rangeFilter );
@@ -302,6 +324,8 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
             rimView->cellFilterCollection()->setActive( rangeFilterInitState );
         }
     }
+
+    return failedSnapshotCount;
 }
 
 //--------------------------------------------------------------------------------------------------

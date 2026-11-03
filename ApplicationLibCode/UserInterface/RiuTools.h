@@ -22,6 +22,7 @@
 
 class QMenu;
 class QObject;
+class QWidget;
 
 namespace caf
 {
@@ -33,4 +34,5 @@ namespace RiuTools
 Qt::WindowFlags defaultDialogFlags();
 void            enableAllActionsOnShow( QObject* object, QMenu* menu );
 void            enableUpDownArrowsForComboBox( caf::PdmFieldHandle* field );
+void            sendDeferredResizeEvents( QWidget* widget );
 } // end namespace RiuTools

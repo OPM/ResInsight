@@ -71,9 +71,8 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
         {
             if ( plotWindow && fileName.endsWith( fileExtension, Qt::CaseInsensitive ) )
             {
-                RicSnapshotViewToFileFeature::savePlotPdfReportAs( fileName, plotWindow );
-
-                if ( RiaPreferences::current()->openExportedPdfInViewer() )
+                if ( RicSnapshotViewToFileFeature::savePlotPdfReportAs( fileName, plotWindow ) &&
+                     RiaPreferences::current()->openExportedPdfInViewer() )
                 {
                     QDesktopServices::openUrl( fileName );
                 }

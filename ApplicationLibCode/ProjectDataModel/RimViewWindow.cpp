@@ -29,6 +29,7 @@
 #include "RimPlotAxisPropertiesInterface.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuTools.h"
 
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
@@ -40,6 +41,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QResizeEvent>
 #include <QWidget>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
@@ -274,15 +276,28 @@ QImage RimViewWindow::internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWi
     if ( shouldResize )
     {
         widget->setFixedSize( width, height );
-
-        // setFixedSize() only posts a deferred resize. If the pending resize is delivered from inside QWidget::render() below, a child
-        // QScrollArea may move its viewport mid-render and crash in Qt's backing-store blit (QWidgetRepaintManager::bltRect).
-        QApplication::processEvents();
     }
     else
     {
         width  = widget->width();
         height = widget->height();
+    }
+
+    if ( !widget->isVisible() )
+    {
+        // Without this, the plot content is rendered at a stale size when running headless. Deliver the events both
+        // before and after processEvents(), as the scheduled plot updates performed by processEvents() may create new
+        // child widgets that have not received their initial resize event yet.
+        RiuTools::sendDeferredResizeEvents( widget );
+        QApplication::processEvents();
+        RiuTools::sendDeferredResizeEvents( widget );
+    }
+
+    if ( shouldResize )
+    {
+        // setFixedSize() only posts a deferred resize. If the pending resize is delivered from inside QWidget::render() below, a child
+        // QScrollArea may move its viewport mid-render and crash in Qt's backing-store blit (QWidgetRepaintManager::bltRect).
+        QApplication::processEvents();
     }
 
     QPixmap pix( width, height );

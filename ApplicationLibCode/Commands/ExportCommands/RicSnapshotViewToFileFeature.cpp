@@ -30,6 +30,7 @@
 #include "RimViewWindow.h"
 
 #include "RiuFileDialogTools.h"
+#include "RiuMessageDialog.h"
 #include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
@@ -48,44 +49,63 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width, int height )
+std::expected<void, QString>
+    RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width, int height )
 {
     auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
     if ( plotWindow && fileName.endsWith( ".pdf" ) )
     {
-        savePlotPdfReportAs( fileName, plotWindow );
+        return savePlotPdfReportAs( fileName, plotWindow );
     }
     else if ( viewWindow )
     {
         QImage image = viewWindow->captureSnapshot( width, height );
-        saveSnapshotAs( fileName, image );
+        return saveSnapshotAs( fileName, image );
     }
+
+    return std::unexpected( QString( "No view window to create a snapshot from" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, const QImage& image )
+std::expected<void, QString> RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, const QImage& image )
 {
-    if ( !image.isNull() )
+    if ( image.isNull() )
     {
-        if ( image.save( fileName ) )
-        {
-            RiaLogging::info( std::format( "Exported snapshot image to {}", fileName ) );
-        }
-        else
-        {
-            RiaLogging::error( std::format( "Error when trying to export snapshot image to {}", fileName ) );
-        }
+        // No image is captured if the 3D view has no valid OpenGL context, typically seen when running headless on a
+        // platform without support for offscreen rendering
+        const QString errorText = QString( "No snapshot image was captured for %1" ).arg( fileName );
+        RiaLogging::error( errorText.toStdString() );
+
+        return std::unexpected( errorText );
     }
+
+    if ( !image.save( fileName ) )
+    {
+        const QString errorText = QString( "Error when trying to export snapshot image to %1" ).arg( fileName );
+        RiaLogging::error( errorText.toStdString() );
+
+        return std::unexpected( errorText );
+    }
+
+    RiaLogging::info( std::format( "Exported snapshot image to {}", fileName ) );
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
+std::expected<void, QString> RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
-    if ( !plot || !plot->viewWidget() ) return;
+    if ( !plot || !plot->viewWidget() )
+    {
+        const QString errorText = QString( "No plot window to create a PDF report from for %1" ).arg( fileName );
+        RiaLogging::error( errorText.toStdString() );
+
+        return std::unexpected( errorText );
+    }
 
     auto viewWidget = plot->viewWidget();
 
@@ -127,8 +147,13 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     }
     else
     {
-        RiaLogging::error( std::format( "Could not write PDF to {}", fileName ) );
+        const QString errorText = QString( "Could not write PDF to %1" ).arg( fileName );
+        RiaLogging::error( errorText.toStdString() );
+
+        return std::unexpected( errorText );
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,14 +166,17 @@ void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWind
     QString fileName = generateSaveFileName( defaultFileBaseName, plotWindow != nullptr );
     if ( !fileName.isEmpty() )
     {
+        std::expected<void, QString> result;
         if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )
         {
-            savePlotPdfReportAs( fileName, plotWindow );
+            result = savePlotPdfReportAs( fileName, plotWindow );
         }
         else
         {
-            RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, viewWindow->snapshotWindowContent() );
+            result = RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, viewWindow->snapshotWindowContent() );
         }
+
+        if ( !result ) showExportError( result.error() );
     }
 }
 
@@ -160,8 +188,16 @@ void RicSnapshotViewToFileFeature::saveImageToFile( const QImage& image, const Q
     QString fileName = generateSaveFileName( defaultFileBaseName, false );
     if ( !fileName.isEmpty() )
     {
-        RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, image );
+        if ( auto result = RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, image ); !result ) showExportError( result.error() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The error is already logged by the save functions, show it to the user of the interactive export as well
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToFileFeature::showExportError( const QString& errorText )
+{
+    RiuMessageDialog::showError( RiaGuiApplication::widgetToUseAsParent(), "Snapshot Export", errorText );
 }
 
 //--------------------------------------------------------------------------------------------------

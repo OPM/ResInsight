@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include <expected>
+
 class RimPlotWindow;
 class RimViewWindow;
 class QImage;
@@ -32,9 +34,10 @@ class RicSnapshotViewToFileFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width = -1, int height = -1 );
-    static void saveSnapshotAs( const QString& fileName, const QImage& image );
-    static void savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plotWindow );
+    // Returns an error description if no snapshot image could be written to file
+    static std::expected<void, QString> saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width = -1, int height = -1 );
+    static std::expected<void, QString> saveSnapshotAs( const QString& fileName, const QImage& image );
+    static std::expected<void, QString> savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plotWindow );
 
     static void saveViewWindowToFile( RimViewWindow* viewWindow, const QString& defaultFileBaseName = "image" );
     static void saveImageToFile( const QImage& image, const QString& defaultFileBaseName = "image" );
@@ -46,4 +49,7 @@ public:
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static void showExportError( const QString& errorText );
 };

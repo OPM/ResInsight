@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include <expected>
+
 class RimAdvancedSnapshotExportDefinition;
 class RimProject;
 class Rim3dView;
@@ -39,12 +41,12 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 public:
-    static void exportMultipleSnapshots( const QString& folder, RimProject* project );
-
-    static void exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
+    static std::expected<void, QString> exportMultipleSnapshots( const QString& folder, RimProject* project );
 
 private:
-    static void    exportViewVariationsToFolder( RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
+    // The functions below return the number of snapshots that failed to export
+    static size_t  exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
+    static size_t  exportViewVariationsToFolder( RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
     static QString resultName( Rim3dView* rimView );
     static void    removeViewFromViewCollection( RimEclipseView* view );
 };
