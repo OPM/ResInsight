@@ -245,7 +245,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfac
 ///
 //--------------------------------------------------------------------------------------------------
 RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
-    : PdmObjectCreationMethod( self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
 

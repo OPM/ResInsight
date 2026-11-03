@@ -283,3 +283,87 @@ def test_import_surface_errors(rips_instance, initialize_test):
             on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
         )
         assert renamed.surface_user_description == "mysurface.ts_1"
+
+
+def test_list_surfaces(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    root = rips_instance.project.surface_folder()
+    assert root is not None
+    assert len(rips_instance.project.surfaces()) == 0
+
+    root.new_regular_surface(name="Top")
+    grid_surface = root.new_surface(case, 5)
+    folder = root.add_folder(folder_name="Folder A")
+    folder.new_regular_surface(name="Top")
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        path = Path(tmpdirname, "k_layer.ts")
+        grid_surface.export_to_file(path.as_posix())
+        file_surface = folder.import_surface(path.as_posix())
+        assert file_surface is not None
+
+    # Non-recursive on a folder, recursive from the project
+    assert len(root.surfaces()) == 2
+    assert len(root.surfaces(recursive=True)) == 4
+    assert len(folder.surfaces()) == 2
+    assert len(rips_instance.project.surfaces()) == 4
+
+    # Filter by class; rips.Surface is the file surface class
+    assert len(rips_instance.project.surfaces(rips.RegularSurface)) == 2
+    assert len(rips_instance.project.surfaces(rips.GridCaseSurface)) == 1
+    assert len(rips_instance.project.surfaces(rips.Surface)) == 1
+    assert len(root.surfaces(rips.Surface)) == 0
+    assert len(folder.surfaces(rips.Surface)) == 1
+    assert all(
+        isinstance(s, rips.RegularSurface)
+        for s in rips_instance.project.surfaces(rips.RegularSurface)
+    )
+
+    with pytest.raises(rips.RipsError, match="surface class"):
+        rips_instance.project.surfaces(rips.SurfaceCollection)
+
+
+def test_surface_by_name(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.load_case(path=case_path)
+
+    root = rips_instance.project.surface_folder()
+    folder = root.add_folder(folder_name="Folder A")
+    root_top = root.new_regular_surface(name="Top")
+    folder_top = folder.new_regular_surface(name="Top")
+    folder.new_regular_surface(name="Base")
+
+    # First match is the one in the top folder; a folder argument restricts the search
+    assert rips_instance.project.surface_by_name("Top").address() == root_top.address()
+    assert (
+        rips_instance.project.surface_by_name("Top", folder=folder).address()
+        == folder_top.address()
+    )
+    assert rips_instance.project.surface_by_name("Base", folder=root) is None
+    assert rips_instance.project.surface_by_name("Base") is not None
+    assert rips_instance.project.surface_by_name("Missing") is None
+    assert rips_instance.project.surface_by_name("Top", rips.GridCaseSurface) is None
+
+    # The displayed name gets the depth offset appended, the match does not
+    root_top.depth_offset = 10.0
+    root_top.update()
+    assert rips_instance.project.surface_by_name("Top").address() == root_top.address()
+
+
+def test_surface_folder_lookup(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.load_case(path=case_path)
+
+    root = rips_instance.project.surface_folder()
+    assert (
+        root.address()
+        == rips_instance.project.descendants(rips.SurfaceCollection)[0].address()
+    )
+
+    folder = root.add_folder(folder_name="Folder A")
+    assert (
+        rips_instance.project.surface_folder("Folder A").address() == folder.address()
+    )
+    assert rips_instance.project.surface_folder("Missing") is None
