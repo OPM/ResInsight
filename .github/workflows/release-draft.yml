@@ -52,8 +52,10 @@ jobs:
           rhel8_id=$(wait_run rhel8-package.yml)
 
           mkdir -p artifacts
-          # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
-          gh run download "$cache_id" --pattern 'ResInsight-*' --dir artifacts
+          # Windows and Ubuntu-gcc (excludes python-distribution).
+          # Only published configs (dist-ResInsight-*) are released; CI-only
+          # configs such as clang-19 keep the ResInsight-* name and are skipped.
+          gh run download "$cache_id" --pattern 'dist-ResInsight-*' --dir artifacts
           # Use --pattern (not --name) so each artifact is placed in its own
           # ResInsight-macOS-*/ subdirectory, matching the cache download above.
           # With --name the contents are extracted flat into artifacts/, which
@@ -73,11 +75,14 @@ jobs:
         run: |
           mkdir -p release-assets
           cd artifacts
-          for d in ResInsight-*/; do
+          for d in ResInsight-*/ dist-ResInsight-*/; do
+            [ -d "$d" ] || continue
             name="${d%/}"
-            # Spaces in artifact names (e.g. "ResInsight-Ubuntu 24.04 gcc")
-            # make awkward asset filenames, so collapse them to underscores.
+            # Spaces in artifact names make awkward asset filenames, so
+            # collapse them to underscores.
+            # The dist- prefix is dropped from the asset name.
             safe="${name// /_}"
+            safe="${safe#dist-}"
             zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
           done
           cd ..
