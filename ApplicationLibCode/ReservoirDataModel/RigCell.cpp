@@ -481,3 +481,32 @@ std::vector<size_t> RigCell::allNeighborMainGridCellIndexes() const
     }
     return neighbors;
 }
+
+//--------------------------------------------------------------------------------------------------
+// Detect if a cell is concave seen from above (XY plane). A cell is concave if one corner
+// is within the triangle formed by the other corners at top and/or base.
+//--------------------------------------------------------------------------------------------------
+bool RigCell::isConcave() const
+{
+    auto cornersTop = faceCorners( cvf::StructGridInterface::POS_K );
+    auto cornersBot = faceCorners( cvf::StructGridInterface::NEG_K );
+
+    for ( auto& corners : { cornersTop, cornersBot } )
+    {
+        // Check if any of the corners are inside the triangle formed by the other three corners
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            cvf::Vec3d p = corners[i];
+            cvf::Vec3d a = corners[( i + 1 ) % 4];
+            cvf::Vec3d b = corners[( i + 2 ) % 4];
+            cvf::Vec3d c = corners[( i + 3 ) % 4];
+
+            if ( RigCellGeometryTools::pointInsidePolygon2D( p, { a, b, c, a } ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

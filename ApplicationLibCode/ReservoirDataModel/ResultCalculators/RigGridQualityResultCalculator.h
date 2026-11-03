@@ -34,4 +34,10 @@ public:
     void calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) override;
 
     static void calculateResults( RigEclipseCaseData* data );
+
+private:
+    void calculateNegativeThickness( const RigEclipseResultAddress& resVarAddr );
+    void calculateConcaveProjection( const RigEclipseResultAddress& resVarAddr );
+    void calculateCollapsed( const RigEclipseResultAddress& resVarAddr );
+    void calculateFaulted( const RigEclipseResultAddress& resVarAddr );
 };

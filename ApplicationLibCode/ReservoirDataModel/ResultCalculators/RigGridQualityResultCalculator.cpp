@@ -58,23 +58,76 @@ bool RigGridQualityResultCalculator::isMatching( const RigEclipseResultAddress& 
 //--------------------------------------------------------------------------------------------------
 void RigGridQualityResultCalculator::calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
+    if ( resVarAddr.resultName() == RiaResultNames::qcNegativeThickness() )
+    {
+        calculateNegativeThickness( resVarAddr );
+    }
+    else if ( resVarAddr.resultName() == RiaResultNames::qcConcaveProj() )
+    {
+        calculateConcaveProjection( resVarAddr );
+    }
+    else if ( resVarAddr.resultName() == RiaResultNames::qcCollapsed() )
+    {
+        calculateCollapsed( resVarAddr );
+    }
+    else if ( resVarAddr.resultName() == RiaResultNames::qcFaulted() )
+    {
+        calculateFaulted( resVarAddr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridQualityResultCalculator::calculateResults( RigEclipseCaseData* data )
+{
+    if ( !data ) return;
+
+    RigCaseCellResultsData* resultData = data->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    RigGridQualityResultCalculator calc( *resultData );
+
+    auto address = RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL,
+                                            RiaDefines::ResultDataType::INTEGER,
+                                            RiaResultNames::qcNegativeThickness() );
+    calc.calculate( address, 0 );
+
+    address = RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL,
+                                       RiaDefines::ResultDataType::INTEGER,
+                                       RiaResultNames::qcConcaveProj() );
+    calc.calculate( address, 0 );
+
+    address = RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL,
+                                       RiaDefines::ResultDataType::INTEGER,
+                                       RiaResultNames::qcCollapsed() );
+    calc.calculate( address, 0 );
+
+    address =
+        RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL, RiaDefines::ResultDataType::INTEGER, RiaResultNames::qcFaulted() );
+    calc.calculate( address, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridQualityResultCalculator::calculateNegativeThickness( const RigEclipseResultAddress& resVarAddr )
+{
     auto mainGrid = m_resultsData->mainGrid();
     if ( !mainGrid ) return;
 
-    size_t negThickIdx = m_resultsData->findOrCreateScalarResultIndex( resVarAddr, false );
+    size_t outIdx = m_resultsData->findOrCreateScalarResultIndex( resVarAddr, false );
 
-    const std::vector<double>& negThickResults = m_resultsData->m_cellScalarResults[negThickIdx][0];
-    size_t                     cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+    if ( m_resultsData->m_cellScalarResults[outIdx].empty() )
+    {
+        m_resultsData->m_cellScalarResults[outIdx].resize( 1 );
+    }
+
+    std::vector<double>& outputResults   = m_resultsData->m_cellScalarResults[outIdx][0];
+    size_t               cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
 
     auto activeCellInfo = m_resultsData->activeCellInfo();
 
-    if ( m_resultsData->m_cellScalarResults[negThickIdx].empty() )
-    {
-        m_resultsData->m_cellScalarResults[negThickIdx].resize( 1 );
-    }
-    std::vector<double>& cellVolumeResults = m_resultsData->m_cellScalarResults[negThickIdx][0];
-
-    cellVolumeResults.resize( cellResultCount, 0 );
+    outputResults.resize( cellResultCount, 0 );
 
     // loop over all cells in main grid
     for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( mainGrid->totalCellCount() ); nativeResvCellIndex++ )
@@ -100,7 +153,7 @@ void RigGridQualityResultCalculator::calculate( const RigEclipseResultAddress& r
                 }
             }
 
-            m_resultsData->m_cellScalarResults[negThickIdx][0][resultIndex] = isNegative;
+            outputResults[resultIndex] = isNegative;
         }
     }
 }
@@ -108,13 +161,101 @@ void RigGridQualityResultCalculator::calculate( const RigEclipseResultAddress& r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridQualityResultCalculator::calculateResults( RigEclipseCaseData* data )
+void RigGridQualityResultCalculator::calculateConcaveProjection( const RigEclipseResultAddress& resVarAddr )
 {
-    if ( !data ) return;
-    auto address = RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL, RiaResultNames::qcNegativeThickness() );
+    auto mainGrid = m_resultsData->mainGrid();
+    if ( !mainGrid ) return;
 
-    RigCaseCellResultsData* resultData = data->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t outIdx = m_resultsData->findOrCreateScalarResultIndex( resVarAddr, false );
+    if ( m_resultsData->m_cellScalarResults[outIdx].empty() )
+    {
+        m_resultsData->m_cellScalarResults[outIdx].resize( 1 );
+    }
 
-    RigGridQualityResultCalculator calc( *resultData );
-    calc.calculate( address, 0 );
+    std::vector<double>& outputResults   = m_resultsData->m_cellScalarResults[outIdx][0];
+    size_t               cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+
+    auto activeCellInfo = m_resultsData->activeCellInfo();
+
+    outputResults.resize( cellResultCount, 0 );
+
+    // loop over all cells in main grid
+    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( mainGrid->totalCellCount() ); nativeResvCellIndex++ )
+    {
+        size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
+        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            const RigCell& cell = mainGrid->cell( nativeResvCellIndex );
+
+            int result = cell.isConcave() ? 1 : 0;
+
+            outputResults[resultIndex] = result;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridQualityResultCalculator::calculateCollapsed( const RigEclipseResultAddress& resVarAddr )
+{
+    auto mainGrid = m_resultsData->mainGrid();
+    if ( !mainGrid ) return;
+
+    size_t outIdx = m_resultsData->findOrCreateScalarResultIndex( resVarAddr, false );
+    if ( m_resultsData->m_cellScalarResults[outIdx].empty() )
+    {
+        m_resultsData->m_cellScalarResults[outIdx].resize( 1 );
+    }
+
+    std::vector<double>& outputResults   = m_resultsData->m_cellScalarResults[outIdx][0];
+    size_t               cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+    auto                 activeCellInfo  = m_resultsData->activeCellInfo();
+
+    outputResults.resize( cellResultCount, 0 );
+
+    // loop over all cells in main grid
+    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( mainGrid->totalCellCount() ); nativeResvCellIndex++ )
+    {
+        size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
+        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            const RigCell& cell        = mainGrid->cell( nativeResvCellIndex );
+            int            result      = cell.isCollapsedCell() ? 1 : 0;
+            outputResults[resultIndex] = result;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridQualityResultCalculator::calculateFaulted( const RigEclipseResultAddress& resVarAddr )
+{
+    auto mainGrid = m_resultsData->mainGrid();
+    if ( !mainGrid ) return;
+
+    size_t outIdx = m_resultsData->findOrCreateScalarResultIndex( resVarAddr, false );
+    if ( m_resultsData->m_cellScalarResults[outIdx].empty() )
+    {
+        m_resultsData->m_cellScalarResults[outIdx].resize( 1 );
+    }
+
+    std::vector<double>& outputResults   = m_resultsData->m_cellScalarResults[outIdx][0];
+    size_t               cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+    auto                 activeCellInfo  = m_resultsData->activeCellInfo();
+
+    outputResults.resize( cellResultCount, 0 );
+
+    // loop over all cells in main grid
+    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( mainGrid->totalCellCount() ); nativeResvCellIndex++ )
+    {
+        size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
+        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            const RigCell& cell        = mainGrid->cell( nativeResvCellIndex );
+            int            result      = 0;
+            outputResults[resultIndex] = result;
+        }
+    }
 }
