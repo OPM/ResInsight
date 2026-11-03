@@ -73,7 +73,7 @@ public:
 
     // Subcollection CRUD
     void                      addSubCollection( SelfT* sub );
-    PdmObject*                addNewSubCollection() override;
+    QString                   subCollectionClassKeyword() const override;
     PdmChildArrayFieldHandle* subCollectionsField() override;
     SelfT*                    findSubCollectionByName( const QString& name ) const;
 
@@ -87,6 +87,11 @@ protected:
 
     // Hook for derived classes; called when m_items changes.
     virtual void onItemsChanged();
+
+    // Creates a SelfT. A collection whose folders are a different class overrides this together
+    // with subCollectionClassKeyword(). Not covariant: SelfT is incomplete where the CRTP base is
+    // instantiated.
+    PdmNestedCollectionBase* createSubCollection() override;
 
     void fieldChangedByUi( const PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, PdmUiOrdering& uiOrdering ) override;

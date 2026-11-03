@@ -83,8 +83,7 @@ public:
 
     QString name() const;
 
-    bool                 canAddSubCollection() const override;
-    RimPolygonContainer* addNewSubCollection() override;
+    bool canAddSubCollection() const override;
 
 protected:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

@@ -35,9 +35,9 @@ class PdmChildArrayFieldHandle;
 /// generic command features and script methods need. The templated caf::PdmNestedCollection<>
 /// derives from this and supplies typed storage and accessors.
 ///
-/// Concrete (instantiable) so the CAF factory can create a dummy instance for the Python
-/// generator. The base's addNewSubCollection() is a no-op returning nullptr; the templated
-/// derived class overrides it with a real implementation.
+/// Abstract: the sub-collection type, its creation and the field holding the sub-collections are
+/// pure virtuals that caf::PdmNestedCollection<> implements. Registered with
+/// CAF_PDM_ABSTRACT_SOURCE_INIT so the Python generator still places the generic methods here.
 ///
 //==================================================================================================
 class PdmNestedCollectionBase : public PdmObject
@@ -56,20 +56,27 @@ public:
     // action when this is false.
     virtual bool canAddSubCollection() const { return true; }
 
-    // Creates a subcollection, adds it to this collection, and returns it. Default returns
-    // nullptr; concrete derivations (typically PdmNestedCollection<>) override.
-    virtual PdmObject* addNewSubCollection() { return nullptr; }
+    // Class keyword of the folder created by addNewSubCollection(). Empty when canAddSubCollection()
+    // is false. Has no side effects, so the Python generator can read the folder type from it.
+    virtual QString subCollectionClassKeyword() const = 0;
+
+    // Creates a subcollection, adds it to this collection, and returns it. Returns nullptr when
+    // canAddSubCollection() is false, otherwise delegates to createSubCollection().
+    PdmNestedCollectionBase* addNewSubCollection();
 
     // Type-erased access to the field holding the sub-collections, for generic code that must
-    // inspect the folders without knowing the concrete collection type. Default returns nullptr;
-    // PdmNestedCollection<> overrides.
-    virtual PdmChildArrayFieldHandle* subCollectionsField() { return nullptr; }
+    // inspect the folders without knowing the concrete collection type.
+    virtual PdmChildArrayFieldHandle* subCollectionsField() = 0;
 
     // Marks this instance as the topmost folder: hides and disables IO on the collection name,
     // makes the object non-deletable.
     void setAsTopmostFolder();
 
 protected:
+    // Creates the subcollection, adds it to this collection, and returns it. Called by
+    // addNewSubCollection() when canAddSubCollection() is true.
+    virtual PdmNestedCollectionBase* createSubCollection() = 0;
+
     PdmFieldHandle* userDescriptionField() override;
 
     PdmField<QString> m_collectionName;

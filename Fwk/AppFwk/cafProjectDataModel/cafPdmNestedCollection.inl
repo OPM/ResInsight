@@ -190,7 +190,17 @@ void PdmNestedCollection<SelfT, ItemT>::addSubCollection( SelfT* sub )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename SelfT, typename ItemT>
-PdmObject* PdmNestedCollection<SelfT, ItemT>::addNewSubCollection()
+QString PdmNestedCollection<SelfT, ItemT>::subCollectionClassKeyword() const
+{
+    if ( !this->canAddSubCollection() ) return {};
+    return SelfT::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename SelfT, typename ItemT>
+PdmNestedCollectionBase* PdmNestedCollection<SelfT, ItemT>::createSubCollection()
 {
     auto* sub = new SelfT();
     addSubCollection( sub );

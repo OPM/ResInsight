@@ -42,8 +42,7 @@ public:
     QString name() const;
 
     // A file is a leaf folder. Refuse to grow sub-folders inside it.
-    bool                 canAddSubCollection() const override;
-    RimPolygonContainer* addNewSubCollection() override;
+    bool canAddSubCollection() const override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

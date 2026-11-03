@@ -20,6 +20,8 @@
 
 #include "RiaNameUniquenessTools.h"
 
+#include "RimcDataContainerString.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmNestedCollectionBase.h"
@@ -50,6 +52,7 @@ RimcNestedCollectionBase::RimcNestedCollectionBase( caf::PdmObjectHandle* self )
 std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute()
 {
     auto* coll = self<caf::PdmNestedCollectionBase>();
+    // Checked before the name conflict policy runs, since OVERWRITE deletes an existing folder.
     if ( !coll || !coll->canAddSubCollection() )
     {
         return std::unexpected( "Cannot add subfolder" );
@@ -69,16 +72,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute(
         }
     }
 
-    caf::PdmObject* added = coll->addNewSubCollection();
+    caf::PdmNestedCollectionBase* added = coll->addNewSubCollection();
     if ( !added )
     {
         return std::unexpected( "Failed to add subfolder" );
     }
 
-    if ( auto* asNested = dynamic_cast<caf::PdmNestedCollectionBase*>( added ) )
-    {
-        asNested->setCollectionName( resolution.nameToUse );
-    }
+    added->setCollectionName( resolution.nameToUse );
     coll->uiCapability()->updateConnectedEditors();
     return added;
 }
@@ -88,10 +88,54 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute(
 //--------------------------------------------------------------------------------------------------
 QString RimcNestedCollectionBase::classKeywordReturnedType() const
 {
-    // Returned at codegen time. The Python generator emits AddFolder on the
-    // PdmNestedCollectionBase Python class (since that is where the method is registered),
-    // so the declared return type must be stable across all concrete nested collections.
-    // The actual runtime instance is whatever the concrete addNewSubCollection() returns;
-    // callers can use descendants() / class_from_keyword to recover the precise type.
+    // The method is registered on PdmNestedCollectionBase, so this is the type the Python generator
+    // declares for PdmNestedCollectionBase.add_folder(). It must not depend on self(): the generator
+    // creates the method once per concrete collection and would otherwise keep the type of whichever
+    // collection it visited last. The concrete type is reported by classKeywordReturnedTypeForSelf()
+    // and emitted as a typed override on the concrete class.
     return caf::PdmNestedCollectionBase::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcNestedCollectionBase::classKeywordReturnedTypeForSelf() const
+{
+    auto* coll = self<caf::PdmNestedCollectionBase>();
+    if ( !coll ) return classKeywordReturnedType();
+
+    QString keyword = coll->subCollectionClassKeyword();
+    return keyword.isEmpty() ? classKeywordReturnedType() : keyword;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( caf::PdmNestedCollectionBase, RimcNestedCollectionBase_collectionName, "CollectionNameInternal" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcNestedCollectionBase_collectionName::RimcNestedCollectionBase_collectionName( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Collection Name", "", "", "Name of the folder" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase_collectionName::execute()
+{
+    auto* coll = self<caf::PdmNestedCollectionBase>();
+    if ( !coll ) return std::unexpected( "Not a folder" );
+
+    auto* result           = new RimcDataContainerString();
+    result->m_stringValues = { coll->collectionName() };
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcNestedCollectionBase_collectionName::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }

@@ -80,6 +80,15 @@ void PdmNestedCollectionBase::setCollectionName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+PdmNestedCollectionBase* PdmNestedCollectionBase::addNewSubCollection()
+{
+    if ( !canAddSubCollection() ) return nullptr;
+    return createSubCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmNestedCollectionBase::setAsTopmostFolder()
 {
     m_collectionName.uiCapability()->setUiHidden( true );

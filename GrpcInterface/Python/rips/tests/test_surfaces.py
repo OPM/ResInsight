@@ -1,6 +1,7 @@
 import sys
 import os
 import tempfile
+import typing
 import pytest
 from pathlib import Path
 
@@ -367,3 +368,28 @@ def test_surface_folder_lookup(rips_instance, initialize_test):
         rips_instance.project.surface_folder("Folder A").address() == folder.address()
     )
     assert rips_instance.project.surface_folder("Missing") is None
+
+
+def test_add_folder_returns_surface_collection(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.load_case(path=case_path)
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+
+    folder = surface_collection.add_folder(folder_name="Folder A")
+    assert type(folder) is rips.SurfaceCollection
+    assert folder.collection_name() == "Folder A"
+    assert folder.surface_user_description == "Folder A"
+
+    # The generated classes declare the concrete folder type on each collection class
+    assert (
+        typing.get_type_hints(rips.SurfaceCollection.add_folder)["return"]
+        is rips.SurfaceCollection
+    )
+    assert (
+        typing.get_type_hints(rips.EnsembleSurface.add_folder)["return"]
+        is rips.SurfaceCollection
+    )
+    assert (
+        typing.get_type_hints(rips.PdmNestedCollectionBase.add_folder)["return"]
+        is rips.PdmNestedCollectionBase
+    )
