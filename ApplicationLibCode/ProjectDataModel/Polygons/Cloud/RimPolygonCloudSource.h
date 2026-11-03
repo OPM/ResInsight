@@ -78,8 +78,7 @@ public:
     // other than this source's own applied base one.
     QString nameForRealization( int realization ) const;
 
-    bool                 canAddSubCollection() const override;
-    RimPolygonContainer* addNewSubCollection() override;
+    bool canAddSubCollection() const override;
 
     bool             supportsRealizationOverride() const override;
     std::vector<int> availableRealizationIdsForOverride() const override;

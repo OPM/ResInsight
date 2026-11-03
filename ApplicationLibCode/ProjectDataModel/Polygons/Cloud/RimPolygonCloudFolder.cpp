@@ -54,11 +54,3 @@ bool RimPolygonCloudFolder::canAddSubCollection() const
 {
     return false;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPolygonContainer* RimPolygonCloudFolder::addNewSubCollection()
-{
-    return nullptr;
-}

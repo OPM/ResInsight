@@ -43,8 +43,26 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
+    QString                                       classKeywordReturnedTypeForSelf() const override;
 
 private:
     caf::PdmField<QString>                                      m_folderName;
     caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
+};
+
+//==================================================================================================
+///
+/// Name of the folder, the same for every nested collection whichever class owns the name field.
+/// Exposed in Python as PdmNestedCollectionBase.collection_name() (rips/nested_collection.py).
+///
+//==================================================================================================
+class RimcNestedCollectionBase_collectionName : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcNestedCollectionBase_collectionName( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
 };

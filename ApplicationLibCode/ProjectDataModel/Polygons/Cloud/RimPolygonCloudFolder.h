@@ -35,6 +35,5 @@ public:
     RimPolygonCloudFolder();
     explicit RimPolygonCloudFolder( const QString& folderName );
 
-    bool                 canAddSubCollection() const override;
-    RimPolygonContainer* addNewSubCollection() override;
+    bool canAddSubCollection() const override;
 };

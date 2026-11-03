@@ -88,6 +88,12 @@ public:
     virtual QString selfClassKeyword() const;
     virtual QString classKeywordReturnedType() const = 0;
 
+    /// Return type when the method is called on the concrete class of self(). Defaults to
+    /// classKeywordReturnedType(). A method registered on a base class overrides this when its
+    /// result type narrows per subclass; the Python generator then emits a typed override of the
+    /// method on that subclass, while the base class keeps classKeywordReturnedType().
+    virtual QString classKeywordReturnedTypeForSelf() const;
+
     /// Optional metadata describing an enum return value. When returnEnumScriptName() is non-empty
     /// the Python code generator emits a StrEnum class with the listed texts and wraps the call
     /// site so the caller receives a typed enum value rather than the raw container. execute()
@@ -105,6 +111,14 @@ protected:
     PdmObjectType* self()
     {
         PdmObjectType* object = dynamic_cast<PdmObjectType*>( m_self.p() );
+        CAF_ASSERT( object );
+        return object;
+    }
+
+    template <typename PdmObjectType>
+    const PdmObjectType* self() const
+    {
+        const PdmObjectType* object = dynamic_cast<const PdmObjectType*>( m_self.p() );
         CAF_ASSERT( object );
         return object;
     }

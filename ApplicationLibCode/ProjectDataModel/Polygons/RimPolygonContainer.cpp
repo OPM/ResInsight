@@ -40,7 +40,16 @@ RimPolygonContainer::RimPolygonContainer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonContainer* RimPolygonContainer::addNewSubCollection()
+QString RimPolygonContainer::subCollectionClassKeyword() const
+{
+    if ( !canAddSubCollection() ) return {};
+    return RimPolygonCollection::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonContainer* RimPolygonContainer::createSubCollection()
 {
     auto* sub = new RimPolygonCollection();
     addSubCollection( sub );

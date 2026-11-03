@@ -57,6 +57,7 @@
 #include <QRegularExpression>
 #include <QTextStream>
 
+#include <iterator>
 #include <list>
 #include <memory>
 #include <set>
@@ -72,19 +73,33 @@ void appendCodeForMethod( std::map<QString, std::map<QString, QString>>& classMe
                           const std::list<QString>&                      classInheritanceStack,
                           const QString&                                 classKeyword,
                           const QString&                                 methodName,
-                          const QString&                                 sourceCode )
+                          const QString&                                 sourceCode,
+                          bool                                           isReturnTypeOverride )
 {
+    // A return type override is the super class method emitted again on a subclass, with the same arguments and a
+    // return type that is a subclass of the declared one. The caller builds it from the same PdmObjectMethod as the
+    // super class method and has checked the return types, so it is accepted whether or not the super class method
+    // has been generated yet (see PdmObjectMethod::classKeywordReturnedTypeForSelf).
+    if ( isReturnTypeOverride )
+    {
+        classMethods[classKeyword][methodName] = sourceCode;
+        return;
+    }
+
     // Check if method already exists in any super class. This is not supported, and causes the generated
     // Python code to silently ignore the second version of the source code. Show an error message and assert will be
     // issued. It is difficult to trap this error earlier. The method names are registered with the macro
     // CAF_PDM_OBJECT_METHOD_SOURCE_INIT, and this macro does not have access to the class inheritance structure.
     // See "cafPdmObjectMethod.h"
     // https://github.com/OPM/ResInsight/issues/12972
+    //
+    // The stack runs from the root class to the concrete class, so only the entries before classKeyword are super
+    // classes. The entries after it are subclasses, which may already carry a return type override of this method.
 
     for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
     {
         const auto& superClassKeyword = *it;
-        if ( superClassKeyword == classKeyword ) continue;
+        if ( superClassKeyword == classKeyword ) break;
 
         if ( classMethods[superClassKeyword].contains( methodName ) )
         {
@@ -144,6 +159,12 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                    }
                    return lhs->classKeyword() < rhs->classKeyword();
                } );
+
+    std::map<QString, PdmObject*> dummyObjectByKeyword;
+    for ( const auto& object : dummyObjects )
+    {
+        dummyObjectByKeyword[object->classKeyword()] = object.get();
+    }
 
     std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
     std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
@@ -639,8 +660,11 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     argumentComments.push_back(
                         QString( "%1 (%2): %3" ).arg( argumentName ).arg( dataType ).arg( commentOrEnumDescription ) );
                 }
-                QString fullComment = QString( "        \"\"\"\n        %1\n\n        Arguments:\n            "
-                                               "%2\n        Returns:\n            %3\n        \"\"\"" )
+                const QString commentTemplate = "        \"\"\"\n        %1\n\n        Arguments:\n            "
+                                                "%2\n        Returns:\n            %3\n        \"\"\"";
+                const QString methodTemplate  = "    def %1(self, %2) -> %3:\n%4\n        %5\n";
+
+                QString fullComment = QString( commentTemplate )
                                           .arg( methodComment )
                                           .arg( argumentComments.join( "\n            " ) )
                                           .arg( returnComment );
@@ -668,7 +692,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     }
                 }
 
-                QString methodCode = QString( "    def %1(self, %2) -> %3:\n%4\n        %5\n" )
+                QString methodCode = QString( methodTemplate )
                                          .arg( snake_method_name )
                                          .arg( inputArgumentStrings.join( ", " ) )
                                          .arg( returnDataType )
@@ -679,7 +703,80 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                                classInheritanceStack,
                                                classKeyword,
                                                snake_method_name,
-                                               methodCode );
+                                               methodCode,
+                                               false );
+
+                // A method registered on a base class may narrow its return type on a concrete class (AddFolder on
+                // PdmNestedCollectionBase returns a SurfaceCollection when called on one). The base class keeps the
+                // declared type; the concrete class gets a typed override, emitted once in the hierarchy: not when
+                // the direct super class already reports the same type. Enum returns are unwrapped above and do not
+                // narrow.
+                QString selfReturnKeyword = method->classKeywordReturnedTypeForSelf();
+                if ( classKeyword != object->classKeyword() && returnEnumClassName.isEmpty() &&
+                     !method->classKeywordReturnedType().isEmpty() && !selfReturnKeyword.isEmpty() &&
+                     selfReturnKeyword != method->classKeywordReturnedType() )
+                {
+                    auto narrowedIt = dummyObjectByKeyword.find( selfReturnKeyword );
+                    if ( narrowedIt == dummyObjectByKeyword.end() ||
+                         !narrowedIt->second->inheritsClassWithKeyword( method->classKeywordReturnedType() ) )
+                    {
+                        errorMessages.push_back( QString( "Method '%1' on '%2' returns '%3', which is not a scriptable "
+                                                          "subclass of the declared return type '%4'." )
+                                                     .arg( methodName )
+                                                     .arg( object->classKeyword() )
+                                                     .arg( selfReturnKeyword )
+                                                     .arg( method->classKeywordReturnedType() ) );
+                        continue;
+                    }
+
+                    if ( classInheritanceStack.size() > 1 )
+                    {
+                        auto superIt = dummyObjectByKeyword.find( *std::next( classInheritanceStack.rbegin() ) );
+                        if ( superIt != dummyObjectByKeyword.end() )
+                        {
+                            auto superMethod =
+                                PdmObjectMethodFactory::instance()->createMethod( superIt->second, methodName );
+                            if ( superMethod && superMethod->classKeywordReturnedTypeForSelf() == selfReturnKeyword )
+                                continue;
+                        }
+                    }
+
+                    QString overrideClassName =
+                        PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( selfReturnKeyword );
+                    if ( overrideClassName.isEmpty() ) overrideClassName = selfReturnKeyword;
+
+                    QStringList overrideArguments = outputArgumentStrings;
+                    overrideArguments[1]          = overrideClassName;
+
+                    QString overrideReturnType = overrideClassName;
+                    QString overrideBody =
+                        QString( "return self._call_pdm_method_return_value(%1)" ).arg( overrideArguments.join( ", " ) );
+                    if ( method->isNullptrValidResult() )
+                    {
+                        overrideReturnType = QString( "Optional[%1]" ).arg( overrideClassName );
+                        overrideBody       = QString( "return self._call_pdm_method_return_optional_value(%1)" )
+                                           .arg( overrideArguments.join( ", " ) );
+                    }
+
+                    QString overrideComment = QString( commentTemplate )
+                                                  .arg( methodComment )
+                                                  .arg( argumentComments.join( "\n            " ) )
+                                                  .arg( overrideClassName );
+
+                    QString overrideCode = QString( methodTemplate )
+                                               .arg( snake_method_name )
+                                               .arg( inputArgumentStrings.join( ", " ) )
+                                               .arg( overrideReturnType )
+                                               .arg( overrideComment )
+                                               .arg( overrideBody );
+
+                    internal::appendCodeForMethod( classMethodsGenerated,
+                                                   classInheritanceStack,
+                                                   object->classKeyword(),
+                                                   snake_method_name,
+                                                   overrideCode,
+                                                   true );
+                }
             }
         }
     }

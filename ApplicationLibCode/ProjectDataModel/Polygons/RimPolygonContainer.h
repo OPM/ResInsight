@@ -39,9 +39,8 @@ class RimPolygonContainer : public caf::PdmNestedCollection<RimPolygonContainer,
 public:
     RimPolygonContainer();
 
-    // "Add Folder" should produce a real RimPolygonCollection, not another container shell.
-    // Return type stays RimPolygonContainer* to avoid an include cycle.
-    RimPolygonContainer* addNewSubCollection() override;
+    // "Add Folder" produces a real RimPolygonCollection, not another container shell.
+    QString subCollectionClassKeyword() const override;
 
     // Default recurses into sub-collections; leaf containers override to load their own data.
     virtual void loadData();
@@ -63,6 +62,9 @@ public:
     void ensureUniquePolygonName( RimPolygon* polygon );
 
 protected:
+    // Return type stays RimPolygonContainer* to avoid an include cycle.
+    RimPolygonContainer* createSubCollection() override;
+
     // Enforces name uniqueness among sibling folders when the folder is renamed.
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 };

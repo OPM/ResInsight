@@ -1,6 +1,7 @@
 import sys
 import os
 import math
+import typing
 
 import pytest
 
@@ -158,3 +159,22 @@ def test_folder_name_uniqueness(rips_instance, initialize_test):
         on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
     )
     assert renamed.polygon_collection_name == "Folder A_1"
+
+
+def test_add_folder_returns_polygon_collection(rips_instance, initialize_test):
+    rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    folder = root.add_folder(folder_name="Folder A")
+    assert type(folder) is rips.PolygonCollection
+    assert folder.collection_name() == "Folder A"
+    assert folder.polygon_collection_name == "Folder A"
+
+    # The generated classes declare the concrete folder type on each collection class
+    assert (
+        typing.get_type_hints(rips.PolygonCollection.add_folder)["return"]
+        is rips.PolygonCollection
+    )

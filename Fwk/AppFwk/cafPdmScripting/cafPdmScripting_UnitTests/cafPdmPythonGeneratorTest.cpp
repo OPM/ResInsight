@@ -38,7 +38,61 @@
 
 #include "cafMockObjects.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmObjectMethod.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmPythonGenerator.h"
+
+namespace caf
+{
+//==================================================================================================
+/// A method registered on a base class whose return type narrows to the concrete class of self.
+//==================================================================================================
+class NarrowingReturnBaseObj : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    NarrowingReturnBaseObj() { CAF_PDM_InitScriptableObject( "Narrowing Return Base" ); }
+};
+CAF_PDM_SOURCE_INIT( NarrowingReturnBaseObj, "NarrowingReturnBaseObj" );
+
+class NarrowingReturnDerivedObj : public NarrowingReturnBaseObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    NarrowingReturnDerivedObj() { CAF_PDM_InitScriptableObject( "Narrowing Return Derived" ); }
+};
+CAF_PDM_SOURCE_INIT( NarrowingReturnDerivedObj, "NarrowingReturnDerivedObj" );
+
+// Third level: the base method is generated again through this class's inheritance stack after the
+// derived class already carries its override.
+class NarrowingReturnGrandchildObj : public NarrowingReturnDerivedObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    NarrowingReturnGrandchildObj() { CAF_PDM_InitScriptableObject( "Narrowing Return Grandchild" ); }
+};
+CAF_PDM_SOURCE_INIT( NarrowingReturnGrandchildObj, "NarrowingReturnGrandchildObj" );
+
+class NarrowingReturnBaseObj_clone : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    NarrowingReturnBaseObj_clone( caf::PdmObjectHandle* self )
+        : caf::PdmObjectCreationMethod( self )
+    {
+        CAF_PDM_InitObject( "Clone", "", "", "Clone" );
+    }
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override { return std::unexpected( "Not used" ); }
+    QString classKeywordReturnedType() const override { return NarrowingReturnBaseObj::classKeywordStatic(); }
+    QString classKeywordReturnedTypeForSelf() const override { return selfClassKeyword(); }
+};
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( NarrowingReturnBaseObj, NarrowingReturnBaseObj_clone, "Clone" );
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
@@ -251,4 +305,38 @@ TEST( PdmPythonGenerator, RejectsEnumClassNamesThatConflictWithModuleNames )
     EXPECT_TRUE( errorMessages.front().contains( "enum class name 'Type'" ) );
     EXPECT_TRUE( errorMessages.front().contains( "CollisionTestPdmObject.Type" ) );
     EXPECT_TRUE( errorMessages.front().contains( "PdmScriptEnumNameRegistry" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, EmitsTypedOverrideWhenReturnTypeNarrowsOnSubclass )
+{
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    EXPECT_TRUE( errorMessages.empty() );
+
+    int baseClassStart    = generatedCode.indexOf( "class NarrowingReturnBaseObj(" );
+    int derivedClassStart = generatedCode.indexOf( "class NarrowingReturnDerivedObj(" );
+    ASSERT_NE( -1, baseClassStart );
+    ASSERT_NE( -1, derivedClassStart );
+    ASSERT_LT( baseClassStart, derivedClassStart );
+
+    int grandchildClassStart = generatedCode.indexOf( "class NarrowingReturnGrandchildObj(" );
+    ASSERT_LT( derivedClassStart, grandchildClassStart );
+
+    int grandchildClassEnd = generatedCode.indexOf( "\nclass ", grandchildClassStart );
+    if ( grandchildClassEnd == -1 ) grandchildClassEnd = generatedCode.size();
+
+    QString baseClassCode       = generatedCode.mid( baseClassStart, derivedClassStart - baseClassStart );
+    QString derivedClassCode    = generatedCode.mid( derivedClassStart, grandchildClassStart - derivedClassStart );
+    QString grandchildClassCode = generatedCode.mid( grandchildClassStart, grandchildClassEnd - grandchildClassStart );
+
+    // The base class keeps the declared type, each subclass gets a typed override of the same method
+    EXPECT_TRUE( baseClassCode.contains( "def clone(self, ) -> NarrowingReturnBaseObj:" ) );
+    EXPECT_TRUE( baseClassCode.contains( "_call_pdm_method_return_value(\"Clone\", NarrowingReturnBaseObj)" ) );
+    EXPECT_TRUE( derivedClassCode.contains( "def clone(self, ) -> NarrowingReturnDerivedObj:" ) );
+    EXPECT_TRUE( derivedClassCode.contains( "_call_pdm_method_return_value(\"Clone\", NarrowingReturnDerivedObj)" ) );
+    EXPECT_TRUE( grandchildClassCode.contains( "def clone(self, ) -> NarrowingReturnGrandchildObj:" ) );
 }
