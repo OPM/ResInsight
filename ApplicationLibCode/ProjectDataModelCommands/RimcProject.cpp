@@ -687,9 +687,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_exportSnapshots::execut
     const bool exportViews = m_contentType() != RiaDefines::SnapshotContentType::PLOTS;
     const bool exportPlots = m_contentType() != RiaDefines::SnapshotContentType::VIEWS;
 
+    QStringList snapshotErrors;
+
     if ( exportViews )
     {
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder, width, height, m_prefix() );
+        auto result = RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder, width, height, m_prefix() );
+        if ( !result ) snapshotErrors.push_back( result.error() );
     }
 
     if ( exportPlots )
@@ -697,8 +700,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_exportSnapshots::execut
         const bool    activateWidget = !RiaRegressionTestRunner::instance()->isRunningRegressionTests();
         const QString fileSuffix     = m_plotFileFormat() == RiaDefines::SnapshotFileFormat::PDF ? ".pdf" : ".png";
 
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder, width, height, activateWidget, m_prefix(), -1, fileSuffix );
+        auto result =
+            RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder, width, height, activateWidget, m_prefix(), -1, fileSuffix );
+        if ( !result ) snapshotErrors.push_back( result.error() );
     }
+
+    if ( !snapshotErrors.empty() ) return std::unexpected( snapshotErrors.join( ". " ) );
 
     return nullptr;
 }
