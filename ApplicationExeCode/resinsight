@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Find the installation path. We assume that this script is placed in the installation directory.
-INSTALL_PATH=$(dirname "$_")
+INSTALL_PATH=$(dirname "$0")
 
 # Store the users working directory
 WORKING_DIR=`pwd`
@@ -9,7 +9,25 @@ WORKING_DIR=`pwd`
 # Change to application directory
 cd "$INSTALL_PATH"
 
+# When running headless on a system without a display server, Qt still needs an X server to create
+# OpenGL contexts. Wrap the application in xvfb-run (X virtual framebuffer) when no display is available.
+XVFB_RUN=""
+if [ -z "$DISPLAY" ]; then
+    for arg in "$@"; do
+        if [ "$arg" = "--headless" ]; then
+            if command -v xvfb-run >/dev/null 2>&1; then
+                XVFB_RUN="xvfb-run -a"
+            else
+                echo "resinsight: DISPLAY is not set and xvfb-run is not installed." >&2
+                echo "resinsight: install xvfb to run headless without a display server," >&2
+                echo "resinsight: e.g. 'apt-get install xvfb' or 'dnf install xorg-x11-server-Xvfb'." >&2
+                exit 1
+            fi
+            break
+        fi
+    done
+fi
+
 # Start the application making the default file open path become the users cwd
 
-CommandLine="./ResInsight --startdir $WORKING_DIR $@"
-exec $CommandLine
+exec $XVFB_RUN ./ResInsight --startdir "$WORKING_DIR" "$@"
