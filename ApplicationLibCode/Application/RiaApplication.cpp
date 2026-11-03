@@ -30,6 +30,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaNetworkTools.h"
@@ -1555,7 +1556,8 @@ void RiaApplication::applyPreferences()
         project()->rootPlotTemplateItem()->updateConnectedEditors();
     }
 
-    caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
+    // No windows are shown in headless mode, so progress dialogs must stay hidden independent of preferences
+    caf::ProgressInfoStatic::setEnabled( !RiaGuiApplication::isHeadless() && RiaPreferencesSystem::current()->showProgressBar() );
 
     if ( m_preferencesFileName.isEmpty() )
     {

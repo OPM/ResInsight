@@ -26,6 +26,7 @@ namespace RiaMainTools
 void initializeSingletons();
 void releaseSingletonAndFactoryObjects();
 void deleteStaleSettingsLockFiles();
+void enableHeadlessRendering();
 
 // True once crash logging has started. The crash handler pumps the Qt event loop while flushing
 // telemetry, so timer-driven application logic must check this flag and stay idle to avoid

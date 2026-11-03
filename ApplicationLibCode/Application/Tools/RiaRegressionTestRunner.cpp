@@ -250,9 +250,10 @@ void RiaRegressionTestRunner::runRegressionTest()
                 if ( regressionTestConfig.exportSnapshots3dViews )
                 {
                     QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-                    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder,
-                                                                                       defaultSize.width(),
-                                                                                       defaultSize.height() );
+                    auto  result      = RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder,
+                                                                                                     defaultSize.width(),
+                                                                                                     defaultSize.height() );
+                    if ( !result ) RiaLogging::error( result.error().toStdString() );
 
                     QApplication::processEvents();
                 }
@@ -260,10 +261,11 @@ void RiaRegressionTestRunner::runRegressionTest()
                 if ( regressionTestConfig.exportSnapshotsPlots )
                 {
                     QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-                    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder,
-                                                                                       defaultSize.width(),
-                                                                                       defaultSize.height(),
-                                                                                       true /*activate widget*/ );
+                    auto  result      = RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder,
+                                                                                                     defaultSize.width(),
+                                                                                                     defaultSize.height(),
+                                                                                                     true /*activate widget*/ );
+                    if ( !result ) RiaLogging::error( result.error().toStdString() );
                 }
 
                 uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
