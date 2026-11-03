@@ -125,7 +125,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimViewWindow_exportSnapshot::exec
     {
         if ( !view3d->viewer() ) return std::unexpected( QString( "View '%1' has no viewer." ).arg( view3d->name() ) );
 
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfView( view3d, exportFolder, width, height, m_prefix() );
+        if ( auto result = RicSnapshotAllViewsToFileFeature::exportSnapshotOfView( view3d, exportFolder, width, height, m_prefix() ); !result )
+        {
+            return std::unexpected( result.error() );
+        }
         return nullptr;
     }
 
@@ -134,7 +137,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimViewWindow_exportSnapshot::exec
     const bool    activateWidget = !RiaRegressionTestRunner::instance()->isRunningRegressionTests();
     const QString fileSuffix     = m_fileFormat() == RiaDefines::SnapshotFileFormat::PDF ? ".pdf" : ".png";
 
-    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlot( viewWindow, exportFolder, width, height, activateWidget, m_prefix(), fileSuffix );
+    if ( auto result =
+             RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlot( viewWindow, exportFolder, width, height, activateWidget, m_prefix(), fileSuffix );
+         !result )
+    {
+        return std::unexpected( result.error() );
+    }
     return nullptr;
 }
 
