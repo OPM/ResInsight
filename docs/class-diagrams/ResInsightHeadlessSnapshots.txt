@@ -1,18 +1,38 @@
 
-Investigations on using ResInsight to render plots in a compleatly Headless state
+Headless snapshot export from ResInsight
 
-- Qt 5.8 or higher needed, it seems. Tested with Qt 5.14.1. Tested with Qt 5.6.1 on CentOS 6 and the plots was rendered without fonts.
-- Start ResInsight with the additional options -platform offscreen
-- The project can not contain visible 3D views. If it does, ResInsight will crash
-- Might add -stylesheet <path to stylesheet definition file> to explicitly control fonts
-  example contents of stylesheets file:
-  
-	* { font: bold italic large "Times New Roman" }
-	
-  The "*" might be substituted with specific classes or widgets.
-  It seems as the Qwt plot axis-titles are not affected by the stylesheet set above
-  
+ResInsight can run without showing any windows and export snapshots of both 3D views and plots
+using the --headless command line option. Software OpenGL rendering is used, so no GPU is required.
+
 - Example command line:
 
-  ./ResInsight --project FPPLot.rsp --savesnapshots all --snapshotsize 500 500 -stylesheet stylesheet.txt -platform offscreen
-  
+  ResInsight --headless --project MyProject.rsp --savesnapshots all --snapshotsize 1000 745 --snapshotfolder snapshots
+
+  The application exits after the snapshots have been written.
+
+- Windows: software OpenGL is provided by opengl32sw.dll (Mesa llvmpipe), which is deployed
+  alongside ResInsight.exe by windeployqt.
+
+- Linux: LIBGL_ALWAYS_SOFTWARE=1 is set automatically, using the system Mesa llvmpipe driver.
+  A display server is still required by Qt to create OpenGL contexts. The bundled launcher script
+  detects this: when DISPLAY is not set and --headless is given, it automatically wraps the
+  application in xvfb-run (requires the xvfb package):
+
+  ./resinsight --headless --project MyProject.rsp --savesnapshots all
+
+  When starting the ResInsight binary directly without a display server, run under xvfb manually:
+
+  xvfb-run -a ./ResInsight --headless --project MyProject.rsp --savesnapshots all
+
+- To verify that the software renderer was used, check the log for a line like:
+  "OpenGL used for snapshots: ... Mesa ... llvmpipe ..."
+
+- The older approach of using the Qt platform plugin option "-platform offscreen" (single dash)
+  still works for projects containing only plots, but fails to render 3D views, as the offscreen
+  plugin cannot create an OpenGL context. No image is written for those views, and the run exits
+  with a non-zero exit code. The reason is written to the log file in ~/.resinsight/logs, as the
+  logging to stdout is only enabled by --headless. Prefer --headless, which handles both plots and
+  3D views. When using -platform offscreen, fonts can be controlled with -stylesheet <path to
+  stylesheet definition file>, e.g.:
+
+	* { font: bold italic large "Times New Roman" }
