@@ -157,14 +157,18 @@ def surface_by_name(
     """Get a surface by name
 
     Names are only unique within one folder. Without a folder the first match is
-    returned, searching the top surface folder first and then its sub folders, ensemble
-    surfaces excluded. The name is matched against surface_user_description, so a depth
-    offset shown in the tree does not affect the match.
+    returned, searching the top surface folder first and then its sub folders. In that
+    case ensemble surfaces are excluded. The name is matched against
+    surface_user_description, so a depth offset shown in the tree does not affect the
+    match.
 
     Arguments:
         name (str): The surface name (surface_user_description)
         surface_type (class): Only consider surfaces of this class, subclasses included
-        folder (SurfaceCollection): Only look in this folder, sub folders excluded
+        folder (SurfaceCollection): Only look in this folder, sub folders excluded. Any
+            folder can be passed, including a rips.EnsembleSurface. Note that
+            project.surface_folder(name) only finds direct sub folders of the top
+            folder; use folder.sub_collections() to reach nested folders.
 
     Returns:
         The surface, or None when no surface has that name
