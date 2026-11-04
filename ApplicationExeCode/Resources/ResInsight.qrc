@@ -101,6 +101,7 @@
 		<file>MaximizeWindows.svg</file>
 		<file>MasterView16x16.png</file>
         <file>Minus.png</file>
+        <file>Minus.svg</file>
         <file>NorthView.svg</file>
         <file>MultiPlot16x16.png</file>
         <file>ObservedCSVDataFile16x16.png</file>
@@ -116,6 +117,7 @@
         <file>Perspective.svg</file>
         <file>PlotWindow.svg</file>
         <file>Plus.png</file>
+        <file>Plus.svg</file>
         <file>PolylinesFromFile16x16.png</file>
         <file>PythonScriptFile16x16.png</file>
         <file>RFTPlot16x16.png</file>
@@ -342,6 +344,7 @@
         <file>components/images/invalid.svg</file>
         <file>components/images/misc.svg</file>
         <file>components/images/network.svg</file>
+        <file>components/images/production-network.svg</file>
         <file>components/images/others.svg</file>
         <file>components/images/region.svg</file>
         <file>components/images/region-region.svg</file>

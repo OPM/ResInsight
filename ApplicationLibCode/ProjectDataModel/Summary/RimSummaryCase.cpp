@@ -260,6 +260,7 @@ void RimSummaryCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder, b
     menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
     menuBuilder.addSeparator();
     menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
+    menuBuilder << "RicNewGroupNetworkDataFeature";
 
     if ( showCurveCalculator )
     {
