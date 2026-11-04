@@ -102,6 +102,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( NarrowingReturnBaseObj, NarrowingReturnBaseOb
 ///       FolderSameTypeObj                same type as its parent (EnsembleSurface)
 ///       FolderAbstractObj                not instantiated, like RimPolygonContainer
 ///         FolderBelowAbstractObj         same type as FolderTypedObj
+///     FolderUnrelatedReturnObj           optionally narrows to a class outside the hierarchy (error)
 //==================================================================================================
 class FolderRootObj : public caf::PdmObject
 {
@@ -125,6 +126,15 @@ public:
 };
 CAF_PDM_SOURCE_INIT( FolderTypedObj, "FolderTypedObj" );
 
+class FolderSameTypeObj : public FolderTypedObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderSameTypeObj() { CAF_PDM_InitScriptableObject( "Folder Same Type" ); }
+};
+CAF_PDM_SOURCE_INIT( FolderSameTypeObj, "FolderSameTypeObj" );
+
 class FolderAbstractObj : public FolderTypedObj
 {
     CAF_PDM_HEADER_INIT;
@@ -142,6 +152,27 @@ public:
     FolderBelowAbstractObj() { CAF_PDM_InitScriptableObject( "Folder Below Abstract" ); }
 };
 CAF_PDM_SOURCE_INIT( FolderBelowAbstractObj, "FolderBelowAbstractObj" );
+
+class FolderUnrelatedReturnObj : public FolderRootObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderUnrelatedReturnObj() { CAF_PDM_InitScriptableObject( "Folder Unrelated Return" ); }
+
+    static void setReturnUnrelatedType( bool returnUnrelatedType ) { s_returnUnrelatedType = returnUnrelatedType; }
+
+    QString subFolderClassKeyword() const override
+    {
+        if ( s_returnUnrelatedType ) return NarrowingReturnBaseObj::classKeywordStatic();
+        return {};
+    }
+
+private:
+    static bool s_returnUnrelatedType;
+};
+CAF_PDM_SOURCE_INIT( FolderUnrelatedReturnObj, "FolderUnrelatedReturnObj" );
+bool FolderUnrelatedReturnObj::s_returnUnrelatedType = false;
 
 class FolderRootObj_addSubFolder : public caf::PdmObjectCreationMethod
 {
@@ -451,4 +482,49 @@ TEST( PdmPythonGenerator, SkipsTypedOverrideInheritedThroughAbstractClass )
     // FolderBelowAbstractObj inherits the FolderTypedObj override through the abstract class
     EXPECT_FALSE( abstractCode.contains( "def add_sub_folder" ) );
     EXPECT_FALSE( belowAbstractCode.contains( "def add_sub_folder" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, SkipsTypedOverrideWithSameTypeAsSuperClass )
+{
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    EXPECT_TRUE( errorMessages.empty() );
+
+    QString typedCode    = generatedClassCode( generatedCode, "FolderTypedObj" );
+    QString sameTypeCode = generatedClassCode( generatedCode, "FolderSameTypeObj" );
+    ASSERT_FALSE( typedCode.isEmpty() );
+    ASSERT_FALSE( sameTypeCode.isEmpty() );
+
+    // The EnsembleSurface case: the subclass inherits the override of its super class
+    EXPECT_TRUE( typedCode.contains( "def add_sub_folder(self, ) -> FolderTypedObj:" ) );
+    EXPECT_FALSE( sameTypeCode.contains( "def add_sub_folder" ) );
+
+    // A subclass that does not narrow gets no override either
+    QString unrelatedCode = generatedClassCode( generatedCode, "FolderUnrelatedReturnObj" );
+    ASSERT_FALSE( unrelatedCode.isEmpty() );
+    EXPECT_FALSE( unrelatedCode.contains( "def add_sub_folder" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, ReportsTypedOverrideThatIsNotASubclassOfDeclaredType )
+{
+    caf::FolderUnrelatedReturnObj::setReturnUnrelatedType( true );
+
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    caf::FolderUnrelatedReturnObj::setReturnUnrelatedType( false );
+
+    ASSERT_EQ( 1u, errorMessages.size() );
+    EXPECT_TRUE( errorMessages.front().contains( "'AddSubFolder' on 'FolderUnrelatedReturnObj'" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "returns 'NarrowingReturnBaseObj'" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "declared return type 'FolderRootObj'" ) );
+
+    EXPECT_FALSE( generatedClassCode( generatedCode, "FolderUnrelatedReturnObj" ).contains( "def add_sub_folder" ) );
 }
