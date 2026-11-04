@@ -41,6 +41,7 @@
 #include "RimWellPathCollection.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "GroupNetwork/RimGroupNetworkDataCollection.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 
@@ -105,6 +106,9 @@ RimOilField::RimOilField()
 
     CAF_PDM_InitFieldNoDefault( &vfpDataCollection, "VfpDataCollection", "VFP Data" );
     vfpDataCollection = new RimVfpDataCollection();
+
+    CAF_PDM_InitFieldNoDefault( &groupNetworkCollection, "GroupNetworkCollection", "Production Networks" );
+    groupNetworkCollection = new RimGroupNetworkDataCollection();
 
     CAF_PDM_InitFieldNoDefault( &cloudDataCollection, "CloudDataCollection", "Cloud Data" );
     cloudDataCollection = new RimCloudDataSourceCollection();

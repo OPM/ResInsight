@@ -47,6 +47,7 @@ class RimGenericViewCollection;
 class RimEclipseViewCollection;
 class RimEclipseContourMapViewCollection;
 class RimVfpDataCollection;
+class RimGroupNetworkDataCollection;
 class RimCloudDataSourceCollection;
 
 //==================================================================================================
@@ -85,6 +86,7 @@ public:
     caf::PdmChildField<RimPolygonCollection*>               polygonCollection;
     caf::PdmChildField<RimEclipseContourMapViewCollection*> eclipseContourMapCollection;
     caf::PdmChildField<RimVfpDataCollection*>               vfpDataCollection;
+    caf::PdmChildField<RimGroupNetworkDataCollection*>      groupNetworkCollection;
     caf::PdmChildField<RimCloudDataSourceCollection*>       cloudDataCollection;
 
 protected:

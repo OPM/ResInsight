@@ -23,6 +23,7 @@
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryPlotTools.h"
 
+#include "GroupNetwork/RimGroupNetworkPlotCollection.h"
 #include "Histogram/RimHistogramMultiPlotCollection.h"
 #include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
@@ -98,6 +99,8 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots" );
 
+    CAF_PDM_InitFieldNoDefault( &m_groupNetworkPlotCollection, "GroupNetworkPlotCollection", "Production Network Plots" );
+
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots" );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "" );
@@ -115,6 +118,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_flowPlotCollection                  = new RimFlowPlotCollection();
     m_gridCrossPlotCollection             = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection    = new RimSaturationPressurePlotCollection;
+    m_groupNetworkPlotCollection          = new RimGroupNetworkPlotCollection;
     m_multiPlotCollection                 = new RimMultiPlotCollection;
     m_analysisPlotCollection              = new RimAnalysisPlotCollection;
     m_correlationPlotCollection           = new RimCorrelationPlotCollection;
@@ -271,6 +275,14 @@ RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection() con
 RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection() const
 {
     return m_saturationPressurePlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGroupNetworkPlotCollection* RimMainPlotCollection::groupNetworkPlotCollection() const
+{
+    return m_groupNetworkPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,6 +483,7 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
     plotCollections.push_back( stimPlanModelPlotCollection() );
     plotCollections.push_back( correlationPlotCollection() );
     plotCollections.push_back( saturationPressurePlotCollection() );
+    plotCollections.push_back( groupNetworkPlotCollection() );
     plotCollections.push_back( multiPlotCollection() );
     plotCollections.push_back( histogramMultiPlotCollection() );
 

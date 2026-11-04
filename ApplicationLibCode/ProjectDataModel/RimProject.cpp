@@ -37,6 +37,8 @@
 #include "EnsembleFileSet/RimEnsembleFileSetCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "Formations/RimWellFormationsCollection.h"
+#include "GroupNetwork/RimGroupNetworkDataCollection.h"
+#include "GroupNetwork/RimGroupNetworkPlotCollection.h"
 #include "Jobs/RimJobCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -1463,6 +1465,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 uiTreeOrdering.add( m_mainPlotCollection->saturationPressurePlotCollection() );
             }
 
+            if ( m_mainPlotCollection->groupNetworkPlotCollection() )
+            {
+                uiTreeOrdering.add( m_mainPlotCollection->groupNetworkPlotCollection() );
+            }
+
             if ( m_mainPlotCollection->multiPlotCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->multiPlotCollection() );
@@ -1506,6 +1513,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->vfpDataCollection() )
             {
                 uiTreeOrdering.add( oilField->vfpDataCollection() );
+            }
+            if ( oilField->groupNetworkCollection() )
+            {
+                uiTreeOrdering.add( oilField->groupNetworkCollection() );
             }
             if ( oilField->wellFormationsCollection() )
             {

@@ -42,6 +42,7 @@ class RifReaderEclipseSummary;
 class RimEclipseResultCase;
 class RimFlowPlotCollection;
 class RimSaturationPressurePlotCollection;
+class RimGroupNetworkPlotCollection;
 class RimStimPlanModelPlotCollection;
 class RimVfpPlotCollection;
 class RimPlotCollection;
@@ -71,6 +72,7 @@ public:
     RimFlowPlotCollection*               flowPlotCollection() const;
     RimGridCrossPlotCollection*          gridCrossPlotCollection() const;
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection() const;
+    RimGroupNetworkPlotCollection*       groupNetworkPlotCollection() const;
     RimMultiPlotCollection*              multiPlotCollection() const;
     RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection() const;
     RimVfpPlotCollection*                vfpPlotCollection() const;
@@ -111,6 +113,7 @@ private:
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
+    caf::PdmChildField<RimGroupNetworkPlotCollection*>       m_groupNetworkPlotCollection;
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
