@@ -247,9 +247,18 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfac
 RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
-    CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
+    CAF_PDM_InitObject( "Get Surface Folder",
+                        "",
+                        "",
+                        "Get the top surface folder, or one of its direct sub folders by name. Nested sub folders are not "
+                        "searched. Returns None if no direct sub folder has the given name." );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName,
+                                          "FolderName",
+                                          "",
+                                          "",
+                                          "",
+                                          "Name of a direct sub folder of the top surface folder. Empty returns the top folder." );
 }
 
 //--------------------------------------------------------------------------------------------------
