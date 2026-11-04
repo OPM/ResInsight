@@ -80,6 +80,14 @@ void PdmNestedCollectionBase::setCollectionName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString PdmNestedCollectionBase::displayName() const
+{
+    return collectionName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 PdmNestedCollectionBase* PdmNestedCollectionBase::addNewSubCollection()
 {
     if ( !canAddSubCollection() ) return nullptr;

@@ -51,6 +51,10 @@ public:
     QString collectionName() const;
     void    setCollectionName( const QString& name );
 
+    // Name of the folder as the user sees it. Defaults to collectionName(); a folder whose name
+    // falls back to something else when the stored name is empty (e.g. a file name) overrides this.
+    virtual QString displayName() const;
+
     // Whether this container accepts sub-collections. Leaf containers (e.g. file-backed
     // folders) override to return false; generic UI / script features hide the corresponding
     // action when this is false.

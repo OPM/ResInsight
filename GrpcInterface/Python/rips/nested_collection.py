@@ -6,7 +6,9 @@ from .resinsight_classes import PdmNestedCollectionBase
 def collection_name(self: PdmNestedCollectionBase) -> str:
     """Get the name of this folder
 
-    The same for every folder class. The class specific attributes
+    The same for every folder class. A folder without a stored name returns the
+    name ResInsight falls back to, such as the file name of an imported polygon
+    file. The class specific attributes
     (surface_user_description, polygon_collection_name) remain for existing scripts.
 
     Returns:

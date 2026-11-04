@@ -82,6 +82,7 @@ public:
     std::vector<int>         cachedRealizations() const;
 
     QString name() const;
+    QString displayName() const override;
 
     bool canAddSubCollection() const override;
 
