@@ -24,6 +24,8 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -341,57 +343,27 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         }
     }
 
-    // Store the intersections pairwise as cell enter-leave pairs. A leaving point is matched with the latest
-    // entering point of the same cell, so points without a match (touches along cell edges, overlapping cells at
-    // faults) are discarded without breaking the pairs around them. An entering point is kept open across a few
-    // points only, so a lost exit does not get paired with a much later exit of the same cell.
+    // Store the intersections pairwise as cell enter-leave pairs, see pairCellEnterLeavePoints()
     {
-        const size_t maxPointsBetweenEnterAndLeave = 4;
-
-        auto discardPoint = [&]( const RigMDEnterLeaveCellIdxKey& key )
+        std::vector<RigMDEnterLeaveCellIdxKey>  sortedPoints;
+        std::vector<const HexIntersectionInfo*> sortedInfos;
+        for ( const auto& [key, info] : sortedUniqueIntersections )
         {
-            errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                             ( " Discards a point at MD:  " ) + QString::number( (double)( key.measuredDepth ) );
-        };
-
-        using IntersectionIt = std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator;
-        std::map<size_t, std::pair<IntersectionIt, size_t>> openEnterPoints; // cell index -> (entering point, position)
-
-        size_t position = 0;
-        for ( auto it = sortedUniqueIntersections.begin(); it != sortedUniqueIntersections.end(); ++it, ++position )
-        {
-            auto openIt = openEnterPoints.find( it->first.hexIndex );
-
-            if ( it->first.isEnteringCell )
-            {
-                if ( openIt != openEnterPoints.end() ) discardPoint( openIt->second.first->first );
-
-                openEnterPoints[it->first.hexIndex] = std::make_pair( it, position );
-                continue;
-            }
-
-            if ( openIt != openEnterPoints.end() )
-            {
-                const IntersectionIt enterIt = openIt->second.first;
-                const bool           isClose = ( position - openIt->second.second - 1 ) <= maxPointsBetweenEnterAndLeave;
-                openEnterPoints.erase( openIt );
-
-                if ( isClose && RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( enterIt->first, it->first ) )
-                {
-                    appendIntersectionToArrays( enterIt->first.measuredDepth, enterIt->second, &errorMessages );
-                    appendIntersectionToArrays( it->first.measuredDepth, it->second, &errorMessages );
-                    continue;
-                }
-
-                discardPoint( enterIt->first );
-            }
-
-            discardPoint( it->first );
+            sortedPoints.push_back( key );
+            sortedInfos.push_back( &info );
         }
 
-        for ( const auto& openEntry : openEnterPoints )
+        std::vector<size_t> discardedPoints;
+        for ( const auto& [enterIdx, leaveIdx] : pairCellEnterLeavePoints( sortedPoints, &discardedPoints ) )
         {
-            discardPoint( openEntry.second.first->first );
+            appendIntersectionToArrays( sortedPoints[enterIdx].measuredDepth, *sortedInfos[enterIdx], &errorMessages );
+            appendIntersectionToArrays( sortedPoints[leaveIdx].measuredDepth, *sortedInfos[leaveIdx], &errorMessages );
+        }
+
+        for ( size_t idx : discardedPoints )
+        {
+            errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
+                             ( " Discards a point at MD:  " ) + QString::number( (double)( sortedPoints[idx].measuredDepth ) );
         }
     }
 
@@ -404,6 +376,74 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             RiaLogging::warning( message.toStdString() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Pairs the entering and leaving points of each cell. The points are sorted by RigMDEnterLeaveCellIdxKey. Returns index pairs
+/// (enter, leave) in the order the leaving points are reached. Points without a match are returned in discardedPoints.
+///
+/// A leaving point is matched with the latest entering point of the same cell, so points without a match (touches along cell
+/// edges, cells next to an LGR, overlapping cells at faults) are discarded without breaking the pairs around them. A pair is
+/// discarded when more than maxPointsBetweenEnterAndLeave points lie between its two points, and when a pair already found
+/// lies entirely inside it: writing it would make the measured depths go back and count the inner interval twice.
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<size_t, size_t>> RigWellLogExtractor::pairCellEnterLeavePoints( const std::vector<RigMDEnterLeaveCellIdxKey>& sortedPoints,
+                                                                                      std::vector<size_t>* discardedPoints )
+{
+    std::vector<std::pair<size_t, size_t>> pairs;
+    std::vector<size_t>                    discarded;
+
+    std::map<size_t, size_t> openEnterPoints; // cell index -> position of the latest entering point
+    std::optional<size_t>    latestPairedEnterPoint;
+
+    for ( size_t position = 0; position < sortedPoints.size(); ++position )
+    {
+        const RigMDEnterLeaveCellIdxKey& point  = sortedPoints[position];
+        auto                             openIt = openEnterPoints.find( point.hexIndex );
+
+        if ( point.isEnteringCell )
+        {
+            if ( openIt != openEnterPoints.end() ) discarded.push_back( openIt->second );
+
+            openEnterPoints[point.hexIndex] = position;
+            continue;
+        }
+
+        if ( openIt == openEnterPoints.end() )
+        {
+            discarded.push_back( position );
+            continue;
+        }
+
+        const size_t enterPosition = openIt->second;
+        openEnterPoints.erase( openIt );
+
+        const bool isClose            = ( position - enterPosition - 1 ) <= maxPointsBetweenEnterAndLeave;
+        const bool isAroundPairedCell = latestPairedEnterPoint.has_value() && *latestPairedEnterPoint > enterPosition;
+
+        if ( isClose && !isAroundPairedCell && RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( sortedPoints[enterPosition], point ) )
+        {
+            pairs.emplace_back( enterPosition, position );
+            latestPairedEnterPoint = enterPosition;
+            continue;
+        }
+
+        discarded.push_back( enterPosition );
+        discarded.push_back( position );
+    }
+
+    for ( const auto& [cellIndex, enterPosition] : openEnterPoints )
+    {
+        discarded.push_back( enterPosition );
+    }
+
+    if ( discardedPoints )
+    {
+        std::sort( discarded.begin(), discarded.end() );
+        *discardedPoints = discarded;
+    }
+
+    return pairs;
 }
 
 //--------------------------------------------------------------------------------------------------

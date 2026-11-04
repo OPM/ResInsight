@@ -24,7 +24,11 @@
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "Well/RigEclipseWellLogExtractor.h"
+#include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
+
+#include <set>
+#include <tuple>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -297,4 +301,157 @@ TEST( RigMainGrid, SetFlipAxisMirrorsNodeCoordinates )
     checkFlip( true, false );
     checkFlip( false, true );
     checkFlip( true, true );
+}
+
+namespace
+{
+struct CellPoint
+{
+    double md;
+    bool   isEntering;
+    size_t cellIndex;
+};
+
+using CellPair = std::tuple<size_t, double, double>; // cell index, entering MD, leaving MD
+
+//--------------------------------------------------------------------------------------------------
+/// Sorts the points as populateReturnArrays() does, pairs them, and returns the pairs as (cell, enter MD, leave MD)
+//--------------------------------------------------------------------------------------------------
+std::vector<CellPair> pairPoints( const std::vector<CellPoint>& points, std::vector<double>* discardedMds = nullptr )
+{
+    const double tolerance = 0.01;
+
+    std::set<RigMDEnterLeaveCellIdxKey> sorted;
+    for ( const auto& p : points )
+    {
+        sorted.insert( RigMDEnterLeaveCellIdxKey( p.md, p.isEntering, p.cellIndex, tolerance ) );
+    }
+    std::vector<RigMDEnterLeaveCellIdxKey> sortedPoints( sorted.begin(), sorted.end() );
+
+    std::vector<size_t>   discarded;
+    std::vector<CellPair> pairs;
+    for ( const auto& [enterIdx, leaveIdx] : RigWellLogExtractor::pairCellEnterLeavePoints( sortedPoints, &discarded ) )
+    {
+        EXPECT_EQ( sortedPoints[enterIdx].hexIndex, sortedPoints[leaveIdx].hexIndex );
+        pairs.emplace_back( sortedPoints[enterIdx].hexIndex, sortedPoints[enterIdx].measuredDepth, sortedPoints[leaveIdx].measuredDepth );
+    }
+
+    if ( discardedMds )
+    {
+        for ( size_t idx : discarded )
+        {
+            discardedMds->push_back( sortedPoints[idx].measuredDepth );
+        }
+    }
+
+    return pairs;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, PairsNormalEnterLeaveChain )
+{
+    std::vector<double> discarded;
+    auto                pairs =
+        pairPoints( { { 0, true, 1 }, { 10, false, 1 }, { 10, true, 2 }, { 20, false, 2 }, { 20, true, 3 }, { 30, false, 3 } }, &discarded );
+
+    std::vector<CellPair> expected = { { 1, 0, 10 }, { 2, 10, 20 }, { 3, 20, 30 } };
+    EXPECT_EQ( expected, pairs );
+    EXPECT_TRUE( discarded.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A leaving point of a main grid cell next to an LGR, between the entering and leaving point of the LGR cell
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, PairsAcrossStrayPointNextToLgr )
+{
+    std::vector<double> discarded;
+    auto                pairs =
+        pairPoints( { { 0, true, 1 }, { 10, false, 1 }, { 10, true, 100 }, { 15, false, 7 }, { 20, false, 100 }, { 20, true, 3 }, { 30, false, 3 } },
+                    &discarded );
+
+    std::vector<CellPair> expected = { { 1, 0, 10 }, { 100, 10, 20 }, { 3, 20, 30 } };
+    EXPECT_EQ( expected, pairs );
+    EXPECT_EQ( std::vector<double>( { 15 } ), discarded );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Two stray leaving points at the same depth inside an LGR cell, as for well GP1 in the 10k test case (#15088)
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, PairsAcrossTwoStrayPointsInARow )
+{
+    std::vector<double> discarded;
+    auto                pairs = pairPoints( { { 0, true, 1 },
+                                              { 10, false, 1 },
+                                              { 10, true, 100 },
+                                              { 18, false, 7 },
+                                              { 18, false, 8 },
+                                              { 20, false, 100 },
+                                              { 20, true, 3 },
+                                              { 30, false, 3 } },
+                             &discarded );
+
+    std::vector<CellPair> expected = { { 1, 0, 10 }, { 100, 10, 20 }, { 3, 20, 30 } };
+    EXPECT_EQ( expected, pairs );
+    EXPECT_EQ( std::vector<double>( { 18, 18 } ), discarded );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Partly overlapping cells, typically at a fault, keep both cells as before #15088
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, KeepsPartlyOverlappingCells )
+{
+    std::vector<double> discarded;
+    auto                pairs = pairPoints( { { 0, true, 1 }, { 10, true, 2 }, { 20, false, 1 }, { 30, false, 2 } }, &discarded );
+
+    std::vector<CellPair> expected = { { 1, 0, 20 }, { 2, 10, 30 } };
+    EXPECT_EQ( expected, pairs );
+    EXPECT_TRUE( discarded.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A cell whose interval contains another cell's interval is discarded, so depths are not counted twice or written out of order
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, DiscardsCellAroundNestedCell )
+{
+    std::vector<double> discarded;
+    auto                pairs =
+        pairPoints( { { 0, true, 1 }, { 10, true, 2 }, { 20, false, 2 }, { 30, false, 1 }, { 30, true, 3 }, { 40, false, 3 } }, &discarded );
+
+    std::vector<CellPair> expected = { { 2, 10, 20 }, { 3, 30, 40 } };
+    EXPECT_EQ( expected, pairs );
+    EXPECT_EQ( std::vector<double>( { 0, 30 } ), discarded );
+
+    for ( size_t i = 1; i < pairs.size(); i++ )
+    {
+        EXPECT_LE( std::get<2>( pairs[i - 1] ), std::get<1>( pairs[i] ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellLogExtractor, LimitsPointsBetweenEnterAndLeave )
+{
+    auto pointsWithStrays = []( size_t strayCount )
+    {
+        std::vector<CellPoint> points = { { 0, true, 1 } };
+        for ( size_t i = 0; i < strayCount; i++ )
+        {
+            points.push_back( { 1.0 + i, false, 10 + i } );
+        }
+        points.push_back( { 100, false, 1 } );
+        return points;
+    };
+
+    const size_t limit = RigWellLogExtractor::maxPointsBetweenEnterAndLeave;
+
+    std::vector<CellPair> expected = { { 1, 0, 100 } };
+    EXPECT_EQ( expected, pairPoints( pointsWithStrays( limit ) ) );
+
+    std::vector<double> discarded;
+    EXPECT_TRUE( pairPoints( pointsWithStrays( limit + 1 ), &discarded ).empty() );
+    EXPECT_EQ( limit + 3, discarded.size() );
 }
