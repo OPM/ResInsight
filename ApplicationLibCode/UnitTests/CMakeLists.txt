@@ -22,6 +22,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifGroupNetworkReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonFlowDiagGridSource-Test.cpp
