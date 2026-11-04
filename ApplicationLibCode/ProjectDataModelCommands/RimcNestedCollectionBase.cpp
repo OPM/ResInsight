@@ -128,7 +128,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase_collectio
     if ( !coll ) return std::unexpected( "Not a folder" );
 
     auto* result           = new RimcDataContainerString();
-    result->m_stringValues = { coll->collectionName() };
+    result->m_stringValues = { coll->displayName() };
     return result;
 }
 

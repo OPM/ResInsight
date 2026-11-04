@@ -40,6 +40,7 @@ public:
     std::vector<RimPolygon*> polygons() const;
 
     QString name() const;
+    QString displayName() const override;
 
     // A file is a leaf folder. Refuse to grow sub-folders inside it.
     bool canAddSubCollection() const override;

@@ -196,6 +196,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInView-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewController-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/CvfCameraCrashTriage-Test.cpp
