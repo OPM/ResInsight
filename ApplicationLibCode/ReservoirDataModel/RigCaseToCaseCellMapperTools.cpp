@@ -78,7 +78,7 @@ void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGri
     CAF_ASSERT( reservoirCellIndex < eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for
                                                              // maingrid
 
-    const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
+    const RigMainGridNodes eclNodes( *eclGrid );
 
     size_t I, J, K;
     eclGrid->ijkFromCellIndex( reservoirCellIndex, &I, &J, &K );
@@ -440,7 +440,7 @@ if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
 
 #if 0
     {
-        const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
+        const RigMainGridNodes eclNodes( *eclGrid );
         const RigCell& cell = eclGrid->cells()[reservoirCellIndex];
         const std::array<size_t, 8>& cornerIndices = cell.cornerIndices();
         int faceNodeCount;

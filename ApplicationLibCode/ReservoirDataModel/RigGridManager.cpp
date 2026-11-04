@@ -72,11 +72,11 @@ bool RigGridManager::isEqual( RigMainGrid* gridA, RigMainGrid* gridB )
 
     if ( gridA->gridCount() != gridB->gridCount() ) return false;
 
-    if ( gridA->nodes().size() != gridB->nodes().size() ) return false;
+    if ( gridA->nodeCount() != gridB->nodeCount() ) return false;
 
-    for ( size_t i = 0; i < gridA->nodes().size(); i++ )
+    for ( size_t i = 0; i < gridA->nodeCount(); i++ )
     {
-        if ( !gridA->nodes()[i].equals( gridB->nodes()[i] ) )
+        if ( !gridA->node( i ).equals( gridB->node( i ) ) )
         {
             return false;
         }

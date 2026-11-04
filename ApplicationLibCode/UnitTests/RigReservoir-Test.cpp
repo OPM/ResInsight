@@ -53,9 +53,7 @@ TEST( RigGridManager, BasicTest )
 TEST( RigGridManager, EqualTests )
 {
     cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
-    mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 0 ) );
-    mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 1 ) );
-    mainGridA->nodes().push_back( cvf::Vec3d( 0, 0, 2 ) );
+    mainGridA->setNodes( { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 0, 0, 1 ), cvf::Vec3d( 0, 0, 2 ) } );
 
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
     eclipseCase->setMainGrid( mainGridA.p() );
@@ -67,20 +65,19 @@ TEST( RigGridManager, EqualTests )
     cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
     EXPECT_TRUE( existingGrid.isNull() );
 
-    mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 0 ) );
+    mainGridB->appendNodes( { cvf::Vec3d( 0, 0, 0 ) } );
     existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
     EXPECT_TRUE( existingGrid.isNull() );
 
     // Insert nodes in opposite direction
-    mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 2 ) );
-    mainGridB->nodes().push_back( cvf::Vec3d( 0, 0, 1 ) );
+    mainGridB->appendNodes( { cvf::Vec3d( 0, 0, 2 ), cvf::Vec3d( 0, 0, 1 ) } );
     existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
     EXPECT_TRUE( existingGrid.isNull() );
 
     // Overwrite to match the node structure of mainGridA
-    mainGridB->nodes()[1] = cvf::Vec3d( 0, 0, 1 );
-    mainGridB->nodes()[2] = cvf::Vec3d( 0, 0, 2 );
-    existingGrid          = gridCollection.findEqualGrid( mainGridB.p() );
+    mainGridB->setNode( 1, cvf::Vec3d( 0, 0, 1 ) );
+    mainGridB->setNode( 2, cvf::Vec3d( 0, 0, 2 ) );
+    existingGrid = gridCollection.findEqualGrid( mainGridB.p() );
     EXPECT_TRUE( existingGrid.notNull() );
 }
 
@@ -119,6 +116,38 @@ TEST( RigMainGridTest, GridByIndexOutOfRangeReturnsNull )
     EXPECT_EQ( mainGrid.p(), mainGrid->gridByIndex( 0 ) );
     EXPECT_EQ( nullptr, mainGrid->gridByIndex( 1 ) );
     EXPECT_EQ( nullptr, mainGrid->gridByIndex( cvf::UNDEFINED_SIZE_T ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridTest, NodeTableAccess )
+{
+    cvf::ref<RigMainGrid> mainGrid = new RigMainGrid;
+    EXPECT_EQ( 0u, mainGrid->nodeCount() );
+
+    mainGrid->setNodes( { cvf::Vec3d( 1, 2, 3 ), cvf::Vec3d( 4, 5, 6 ) } );
+    ASSERT_EQ( 2u, mainGrid->nodeCount() );
+    EXPECT_EQ( cvf::Vec3d( 4, 5, 6 ), mainGrid->node( 1 ) );
+
+    mainGrid->appendNodes( { cvf::Vec3d( 7, 8, 9 ) } );
+    ASSERT_EQ( 3u, mainGrid->nodeCount() );
+    EXPECT_EQ( cvf::Vec3d( 1, 2, 3 ), mainGrid->node( 0 ) );
+    EXPECT_EQ( cvf::Vec3d( 7, 8, 9 ), mainGrid->node( 2 ) );
+
+    mainGrid->setNode( 0, cvf::Vec3d( -1, -2, -3 ) );
+    EXPECT_EQ( cvf::Vec3d( -1, -2, -3 ), mainGrid->node( 0 ) );
+
+    mainGrid->transformNodes( cvf::Mat4d::fromTranslation( cvf::Vec3d( 10, 0, 0 ) ) );
+    EXPECT_EQ( cvf::Vec3d( 9, -2, -3 ), mainGrid->node( 0 ) );
+    EXPECT_EQ( cvf::Vec3d( 17, 8, 9 ), mainGrid->node( 2 ) );
+
+    RigMainGridNodes view( *mainGrid );
+    EXPECT_EQ( 3u, view.size() );
+    EXPECT_EQ( cvf::Vec3d( 14, 5, 6 ), view[1] );
+
+    mainGrid->setNodes( {} );
+    EXPECT_EQ( 0u, mainGrid->nodeCount() );
 }
 
 /*

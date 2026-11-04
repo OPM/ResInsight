@@ -140,7 +140,7 @@ std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray
     RigMainGrid* mainGrid = cornerPointCase.eclipseCaseData()->mainGrid();
     CAF_ASSERT( mainGrid );
     mainGrid->reservoirCells().clear();
-    mainGrid->nodes().clear();
+    mainGrid->setNodes( {} );
 
     buildGrid( *cornerPointCase.eclipseCaseData(), nx, ny, nz, coord, zcorn, actnum );
     cornerPointCase.computeCachedData();
@@ -255,20 +255,20 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
 
     // Reserve room for the cells and nodes and fill them with data
     mainGrid->reservoirCells().reserve( totalCellCount );
-    mainGrid->nodes().reserve( 8 * totalCellCount );
+    mainGrid->reserveNodes( 8 * totalCellCount );
 
     int               progTicks = 100;
     caf::ProgressInfo progInfo( progTicks, "" );
 
     int    cellCount      = static_cast<int>( totalCellCount );
     size_t cellStartIndex = mainGrid->reservoirCells().size();
-    size_t nodeStartIndex = mainGrid->nodes().size();
+    size_t nodeStartIndex = mainGrid->nodeCount();
 
     RigCell defaultCell;
     defaultCell.setHostGrid( mainGrid );
     mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+    std::vector<cvf::Vec3d> gridNodes( static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
@@ -309,7 +309,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
         // Corner coordinates
         for ( int cIdx = 0; cIdx < 8; ++cIdx )
         {
-            double* point = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
 
             point[0] = corners[cIdx].x();
             point[1] = corners[cIdx].y();
@@ -317,8 +317,16 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
 
             cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
         }
+    }
 
-        // Mark inactive long pyramid looking cells as invalid
+    mainGrid->appendNodes( gridNodes );
+
+    // Mark inactive long pyramid looking cells as invalid. The cell geometry is evaluated from the node table of the
+    // main grid, so this must be done after the nodes have been added.
+#pragma omp parallel for
+    for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
+    {
+        RigCell& cell = mainGrid->cell( cellStartIndex + gridLocalCellIndex );
         cell.setInvalid( cell.isLongPyramidCell() );
     }
 

@@ -231,12 +231,12 @@ TEST( RifRoffFileTools, OpenGridFileFromStream )
     // Depths are negated when the corners are built, so z runs from -100 up to 0. The extent is taken
     // from the nodes rather than from RigMainGrid::boundingBox(), which is only filled in by
     // computeCachedData() - openGridFile leaves that to its caller.
-    ASSERT_EQ( 8u * 8u, mainGrid->nodes().size() );
+    ASSERT_EQ( 8u * 8u, mainGrid->nodeCount() );
 
     cvf::BoundingBox bb;
-    for ( const auto& node : mainGrid->nodes() )
+    for ( size_t i = 0; i < mainGrid->nodeCount(); i++ )
     {
-        bb.add( node );
+        bb.add( mainGrid->node( i ) );
     }
 
     EXPECT_NEAR( 1000.0, bb.min().x(), 1e-6 );

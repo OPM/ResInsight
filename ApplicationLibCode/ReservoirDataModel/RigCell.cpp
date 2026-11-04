@@ -69,7 +69,7 @@ cvf::Vec3d RigCell::center() const
     size_t i;
     for ( i = 0; i < 8; i++ )
     {
-        avg += m_hostGrid->mainGrid()->nodes()[m_cornerIndices[i]];
+        avg += m_hostGrid->mainGrid()->node( m_cornerIndices[i] );
     }
 
     avg /= 8.0;
@@ -86,7 +86,7 @@ std::array<cvf::Vec3d, 4> RigCell::faceCorners( cvf::StructGridInterface::FaceTy
     cvf::ubyte                faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
 
-    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodeCoords( *m_hostGrid->mainGrid() );
 
     for ( size_t i = 0; i < 4; i++ )
     {
@@ -113,7 +113,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
     cvf::ubyte faceVertexIndices[4];
     double     squaredMaxHeightFactor = maxHeightFactor * maxHeightFactor;
 
-    const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodes( *m_hostGrid->mainGrid() );
 
     int face;
     for ( face = 0; face < 6; ++face )
@@ -243,7 +243,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
 //--------------------------------------------------------------------------------------------------
 bool RigCell::isCollapsedCell( double nodeNearTolerance ) const
 {
-    const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodes( *m_hostGrid->mainGrid() );
 
     cvf::ubyte faceVertexIndices[4];
     cvf::ubyte oppFaceVertexIndices[4];
@@ -303,7 +303,7 @@ cvf::Vec3d RigCell::faceCenter( cvf::StructGridInterface::FaceType face ) const
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
 
-    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodeCoords( *m_hostGrid->mainGrid() );
 
     size_t i;
     for ( i = 0; i < 4; i++ )
@@ -327,7 +327,7 @@ cvf::Vec3d RigCell::faceNormalWithAreaLength( cvf::StructGridInterface::FaceType
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
-    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodeCoords( *m_hostGrid->mainGrid() );
 
     return 0.5 * ( nodeCoords[m_cornerIndices[faceVertexIndices[2]]] - nodeCoords[m_cornerIndices[faceVertexIndices[0]]] ) ^
            ( nodeCoords[m_cornerIndices[faceVertexIndices[3]]] - nodeCoords[m_cornerIndices[faceVertexIndices[1]]] );
@@ -339,12 +339,12 @@ cvf::Vec3d RigCell::faceNormalWithAreaLength( cvf::StructGridInterface::FaceType
 double RigCell::volume() const
 {
     if ( m_isInvalid ) return 0.0;
-    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+    const RigMainGridNodes nodeCoords( *m_hostGrid->mainGrid() );
 
     std::array<cvf::Vec3d, 8> hexCorners;
     for ( size_t i = 0; i < 8; ++i )
     {
-        hexCorners[i] = nodeCoords.at( m_cornerIndices[i] );
+        hexCorners[i] = nodeCoords[m_cornerIndices[i]];
     }
     return RigCellGeometryTools::calculateCellVolume( hexCorners );
 }
@@ -359,9 +359,9 @@ int RigCell::firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersecti
 {
     CAF_ASSERT( intersectionPoint != nullptr );
 
-    cvf::ubyte                     faceVertexIndices[4];
-    int                            face;
-    const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
+    cvf::ubyte             faceVertexIndices[4];
+    int                    face;
+    const RigMainGridNodes nodes( *m_hostGrid->mainGrid() );
 
     cvf::Vec3d firstIntersection( cvf::Vec3d::ZERO );
     double     minLsq            = HUGE_VAL;

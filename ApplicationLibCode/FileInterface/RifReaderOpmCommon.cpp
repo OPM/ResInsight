@@ -412,12 +412,7 @@ void RifReaderOpmCommon::applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMain
     // Invert the transformation matrix to convert from file coordinates to domain coordinates
     transform.invert();
 
-#pragma omp parallel for
-    for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
-    {
-        auto& n = mainGrid->nodes()[i];
-        n.transformPoint( transform );
-    }
+    mainGrid->transformNodes( transform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -534,7 +529,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 {
     int    cellCount      = opmGrid.totalNumberOfCells();
     size_t cellStartIndex = mainGrid->reservoirCells().size();
-    size_t nodeStartIndex = mainGrid->nodes().size();
+    size_t nodeStartIndex = mainGrid->nodeCount();
 
     const bool invalidateLongPyramidCells = invalidateLongThinCells();
 
@@ -543,9 +538,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
-
-    auto& riNodes = mainGrid->nodes();
+    std::vector<cvf::Vec3d> riNodes( static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     opmGrid.loadData();
     opmGrid.load_grid_data();
@@ -605,7 +598,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
             auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
-            auto& riNode = riNodes[riNodeIndex];
+            auto& riNode = riNodes[riNodeIndex - nodeStartIndex];
             riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
             riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
             riNode.z()   = -opmZ[opmNodeIndex];
@@ -628,8 +621,18 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                                           yCenterCoordOpm );
             }
         }
-        if ( invalidateLongPyramidCells )
+    }
+
+    mainGrid->appendNodes( riNodes );
+
+    // The cell geometry is evaluated from the node table of the main grid, so this must be done after the nodes have
+    // been added
+    if ( invalidateLongPyramidCells )
+    {
+#pragma omp parallel for
+        for ( int cellIndex = 0; cellIndex < cellCount; cellIndex++ )
         {
+            RigCell& cell = mainGrid->cell( cellStartIndex + cellIndex );
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }

@@ -42,12 +42,13 @@ cvf::ref<RigEclipseCaseData> buildStaggeredRowGridCase( int cellCount )
     builder.createGridsAndCells( eclipseCase.p() );
     eclipseCase->mainGrid()->computeCachedData();
 
-    std::vector<cvf::Vec3d>& nodes = eclipseCase->mainGrid()->nodes();
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
     for ( int i = 1; i < cellCount; i += 2 )
     {
         for ( int corner = 0; corner < 8; corner++ )
         {
-            nodes[static_cast<size_t>( i ) * 8 + corner].z() -= 10.0;
+            const size_t nodeIndex = static_cast<size_t>( i ) * 8 + corner;
+            mainGrid->setNode( nodeIndex, mainGrid->node( nodeIndex ) - cvf::Vec3d( 0.0, 0.0, 10.0 ) );
         }
     }
 

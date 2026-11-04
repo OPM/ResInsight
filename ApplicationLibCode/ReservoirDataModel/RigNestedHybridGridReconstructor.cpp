@@ -321,7 +321,7 @@ RigLocalGrid* RigNestedHybridGridReconstructor::buildLocalGrid( RigEclipseCaseDa
     localGrid->setAsReconstructedGrid( true ); // synthesized in memory, not present in the result file
 
     const size_t cellStart = grid->totalCellCount();
-    const size_t nodeStart = grid->nodes().size();
+    const size_t nodeStart = grid->nodeCount();
     localGrid->setIndexToStartOfCells( cellStart );
     grid->addLocalGrid( localGrid );
 
@@ -329,8 +329,9 @@ RigLocalGrid* RigNestedHybridGridReconstructor::buildLocalGrid( RigEclipseCaseDa
         RigCell defaultCell;
         defaultCell.setHostGrid( localGrid );
         grid->reservoirCells().resize( cellStart + lgrCellCount, defaultCell );
-        grid->nodes().resize( nodeStart + lgrCellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
     }
+
+    std::vector<cvf::Vec3d> lgrNodes( lgrCellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     for ( size_t glc = 0; glc < lgrCellCount; glc++ )
     {
@@ -358,7 +359,7 @@ RigLocalGrid* RigNestedHybridGridReconstructor::buildLocalGrid( RigEclipseCaseDa
         for ( size_t c = 0; c < 8; c++ )
         {
             size_t newNodeIdx          = nodeStart + glc * 8 + c;
-            grid->nodes()[newNodeIdx]  = grid->nodes()[flatCell.cornerIndices()[c]];
+            lgrNodes[glc * 8 + c]      = grid->node( flatCell.cornerIndices()[c] );
             lgrCell.cornerIndices()[c] = newNodeIdx;
         }
         lgrCell.setInvalid( flatCell.isInvalid() );
@@ -374,6 +375,8 @@ RigLocalGrid* RigNestedHybridGridReconstructor::buildLocalGrid( RigEclipseCaseDa
 
         sourceCells[cellStart + glc] = flat;
     }
+
+    grid->appendNodes( lgrNodes );
 
     localGrid->setParentGrid( parentGrid );
 

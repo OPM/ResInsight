@@ -274,22 +274,26 @@ TEST( RigMainGrid, SetFlipAxisMirrorsNodeCoordinates )
         mockFileInterface->enableWellData( false );
         mockFileInterface->open( "", reservoir.p() );
 
-        auto*      mainGrid      = reservoir->mainGrid();
-        const auto originalNodes = mainGrid->nodes();
+        auto*                   mainGrid = reservoir->mainGrid();
+        std::vector<cvf::Vec3d> originalNodes;
+        for ( size_t i = 0; i < mainGrid->nodeCount(); i++ )
+        {
+            originalNodes.push_back( mainGrid->node( i ) );
+        }
         ASSERT_FALSE( originalNodes.empty() );
 
         mainGrid->setFlipAxis( flipX, flipY );
 
-        const auto& flippedNodes = mainGrid->nodes();
-        ASSERT_EQ( originalNodes.size(), flippedNodes.size() );
+        ASSERT_EQ( originalNodes.size(), mainGrid->nodeCount() );
 
         const double xSign = flipX ? -1.0 : 1.0;
         const double ySign = flipY ? -1.0 : 1.0;
         for ( size_t i = 0; i < originalNodes.size(); i++ )
         {
-            EXPECT_DOUBLE_EQ( xSign * originalNodes[i].x(), flippedNodes[i].x() ) << "flipX=" << flipX << " flipY=" << flipY;
-            EXPECT_DOUBLE_EQ( ySign * originalNodes[i].y(), flippedNodes[i].y() ) << "flipX=" << flipX << " flipY=" << flipY;
-            EXPECT_DOUBLE_EQ( originalNodes[i].z(), flippedNodes[i].z() ) << "flipX=" << flipX << " flipY=" << flipY;
+            const auto& flippedNode = mainGrid->node( i );
+            EXPECT_DOUBLE_EQ( xSign * originalNodes[i].x(), flippedNode.x() ) << "flipX=" << flipX << " flipY=" << flipY;
+            EXPECT_DOUBLE_EQ( ySign * originalNodes[i].y(), flippedNode.y() ) << "flipX=" << flipX << " flipY=" << flipY;
+            EXPECT_DOUBLE_EQ( originalNodes[i].z(), flippedNode.z() ) << "flipX=" << flipX << " flipY=" << flipY;
         }
     };
 

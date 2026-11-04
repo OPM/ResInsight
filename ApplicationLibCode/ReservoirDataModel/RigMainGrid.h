@@ -51,8 +51,15 @@ public:
 
     virtual size_t totalCellCount() const;
 
-    std::vector<cvf::Vec3d>&       nodes();
-    const std::vector<cvf::Vec3d>& nodes() const;
+    // Global node table. Cells refer to nodes by index using RigCell::cornerIndices().
+    size_t            nodeCount() const { return m_nodes.size(); }
+    const cvf::Vec3d& node( size_t nodeIndex ) const { return m_nodes[nodeIndex]; }
+
+    void setNodes( std::vector<cvf::Vec3d> nodes );
+    void appendNodes( const std::vector<cvf::Vec3d>& nodes );
+    void reserveNodes( size_t nodeCount );
+    void setNode( size_t nodeIndex, const cvf::Vec3d& coordinate );
+    void transformNodes( const cvf::Mat4d& transform );
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
@@ -200,4 +207,22 @@ private:
     mutable cvf::ref<cvf::BoundingBoxTree> m_cellSearchTree;
     mutable size_t                         m_cellSearchTreeCellsPerBoundingBox = 1;
     mutable std::mutex                     m_cellSearchTreeMutex;
+};
+
+//==================================================================================================
+/// Read-only indexed view of the node table of a main grid, usable with cvf::ArrayWrapperConst
+//==================================================================================================
+class RigMainGridNodes
+{
+public:
+    explicit RigMainGridNodes( const RigMainGrid& mainGrid )
+        : m_mainGrid( mainGrid )
+    {
+    }
+
+    size_t            size() const { return m_mainGrid.nodeCount(); }
+    const cvf::Vec3d& operator[]( size_t nodeIndex ) const { return m_mainGrid.node( nodeIndex ); }
+
+private:
+    const RigMainGrid& m_mainGrid;
 };

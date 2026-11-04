@@ -85,7 +85,7 @@ void RigNNCData::buildPolygonsForEclipseConnections()
         {
             m_connections[cnIdx].setFace( connectionFace );
             m_connections[cnIdx].setPolygon(
-                RigCellFaceGeometryTools::extractPolygon( m_mainGrid->nodes(), connectionPolygon, connectionIntersections ) );
+                RigCellFaceGeometryTools::extractPolygon( RigMainGridNodes( *m_mainGrid ), connectionPolygon, connectionIntersections ) );
         }
     }
 

@@ -59,19 +59,57 @@ RigMainGrid::~RigMainGrid()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Replace the node table. Cell corner indices must be consistent with the new node table.
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d>& RigMainGrid::nodes()
+void RigMainGrid::setNodes( std::vector<cvf::Vec3d> nodes )
 {
-    return m_nodes;
+    m_nodes = std::move( nodes );
+
+    m_isFaceNormalsOutwardsComputed = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Append nodes to the end of the node table. The first appended node gets index nodeCount() before
+/// the call.
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::appendNodes( const std::vector<cvf::Vec3d>& nodes )
+{
+    m_nodes.insert( m_nodes.end(), nodes.begin(), nodes.end() );
+
+    m_isFaceNormalsOutwardsComputed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RigMainGrid::nodes() const
+void RigMainGrid::reserveNodes( size_t nodeCount )
 {
-    return m_nodes;
+    m_nodes.reserve( nodeCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNode( size_t nodeIndex, const cvf::Vec3d& coordinate )
+{
+    CAF_ASSERT( nodeIndex < m_nodes.size() );
+    m_nodes[nodeIndex] = coordinate;
+
+    m_isFaceNormalsOutwardsComputed = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::transformNodes( const cvf::Mat4d& transform )
+{
+#pragma omp parallel for
+    for ( long i = 0; i < static_cast<long>( m_nodes.size() ); i++ )
+    {
+        m_nodes[i].transformPoint( transform );
+    }
+
+    m_isFaceNormalsOutwardsComputed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,7 +625,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
     int unNamedFaultWithInactiveIdx = static_cast<int>( m_faults.size() );
     m_faults.push_back( unNamedFaultWithInactive );
 
-    const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
+    const std::vector<cvf::Vec3d>& vxs = m_nodes;
 
     // Each cell only writes the fault index of its own positive faces and the opposite faces of its neighbors, so the
     // cells can be processed in parallel. Static scheduling assigns increasing cell ranges to increasing thread

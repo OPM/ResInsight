@@ -329,7 +329,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
         for ( int i = 0; i < 8; i++ )
         {
             const auto& [nodeIndex, nodeText] = riNodeOrder[i];
-            auto v                            = mainGrid->nodes()[indices[nodeIndex]];
+            auto v                            = mainGrid->node( indices[nodeIndex] );
 
             text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + ": [%1, %2, %3]" + itemSeparator, v );
         }

@@ -2196,7 +2196,7 @@ namespace RigTransmissibilityCalcTools
 {
 void calculateConnectionGeometry( const RigCell&                     c1,
                                   const RigCell&                     c2,
-                                  const std::vector<cvf::Vec3d>&     nodes,
+                                  const RigMainGridNodes&            nodes,
                                   cvf::StructGridInterface::FaceType faceId,
                                   cvf::Vec3d*                        faceAreaVec )
 {
@@ -2211,13 +2211,14 @@ void calculateConnectionGeometry( const RigCell&                     c1,
     c1.faceIndices( faceId, &face1 );
     c2.faceIndices( cvf::StructGridInterface::oppositeFace( faceId ), &face2 );
 
-    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
-                                                                               intersections,
-                                                                               (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                               cvf::wrapArrayConst( &nodes ),
-                                                                               face1.data(),
-                                                                               face2.data(),
-                                                                               1e-6 );
+    bool foundOverlap =
+        cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                               intersections,
+                                                               (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                               cvf::ArrayWrapperConst<RigMainGridNodes, cvf::Vec3d>( &nodes, nodes.size() ),
+                                                               face1.data(),
+                                                               face2.data(),
+                                                               1e-6 );
 
     if ( foundOverlap )
     {
@@ -2379,9 +2380,9 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
         }
     }
 
-    const RigActiveCellInfo*       activeCellInfo        = this->activeCellInfo();
-    const std::vector<cvf::Vec3d>& nodes                 = m_ownerMainGrid->nodes();
-    bool                           isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
+    const RigActiveCellInfo* activeCellInfo = this->activeCellInfo();
+    const RigMainGridNodes   nodes( *m_ownerMainGrid );
+    bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {
@@ -2819,8 +2820,8 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
     ResultIndexFunction resValIdxFunc = isUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
 
-    const RigActiveCellInfo*       activeCellInfo = this->activeCellInfo();
-    const std::vector<cvf::Vec3d>& nodes          = m_ownerMainGrid->nodes();
+    const RigActiveCellInfo* activeCellInfo = this->activeCellInfo();
+    const RigMainGridNodes   nodes( *m_ownerMainGrid );
 
     for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {

@@ -186,14 +186,14 @@ std::array<cvf::Vec3d, 8> RigGridBase::cellCornerVertices( size_t cellIndex ) co
     std::array<cvf::Vec3d, 8>    vertices;
     const std::array<size_t, 8>& indices = cell( cellIndex ).cornerIndices();
 
-    vertices[0].set( m_mainGrid->nodes()[indices[0]] );
-    vertices[1].set( m_mainGrid->nodes()[indices[1]] );
-    vertices[2].set( m_mainGrid->nodes()[indices[2]] );
-    vertices[3].set( m_mainGrid->nodes()[indices[3]] );
-    vertices[4].set( m_mainGrid->nodes()[indices[4]] );
-    vertices[5].set( m_mainGrid->nodes()[indices[5]] );
-    vertices[6].set( m_mainGrid->nodes()[indices[6]] );
-    vertices[7].set( m_mainGrid->nodes()[indices[7]] );
+    vertices[0].set( m_mainGrid->node( indices[0] ) );
+    vertices[1].set( m_mainGrid->node( indices[1] ) );
+    vertices[2].set( m_mainGrid->node( indices[2] ) );
+    vertices[3].set( m_mainGrid->node( indices[3] ) );
+    vertices[4].set( m_mainGrid->node( indices[4] ) );
+    vertices[5].set( m_mainGrid->node( indices[5] ) );
+    vertices[6].set( m_mainGrid->node( indices[6] ) );
+    vertices[7].set( m_mainGrid->node( indices[7] ) );
 
     return vertices;
 }

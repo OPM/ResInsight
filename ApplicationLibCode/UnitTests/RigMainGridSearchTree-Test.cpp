@@ -54,7 +54,7 @@ TEST( RigMainGridSearchTree, FindIntersectingCellsMatchesAllCellsTest )
 
         for ( size_t nodeIdx : mainGrid->cell( cellIdx ).cornerIndices() )
         {
-            cellBoundingBoxes[cellIdx].add( mainGrid->nodes()[nodeIdx] );
+            cellBoundingBoxes[cellIdx].add( mainGrid->node( nodeIdx ) );
         }
     }
 

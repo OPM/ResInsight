@@ -238,7 +238,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
 {
     int    cellCount      = opmGrid.totalActiveCells();
     size_t cellStartIndex = activeGrid->totalCellCount();
-    size_t nodeStartIndex = activeGrid->nodes().size();
+    size_t nodeStartIndex = activeGrid->nodeCount();
 
     const bool invalidateLongPyramidCells = invalidateLongThinCells();
 
@@ -247,11 +247,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     for ( size_t i = 0; i < 8; i++ )
         defaultCell.cornerIndices()[i] = 0;
 
-    const auto newNodeCount = nodeStartIndex + 8 * cellCount;
-    activeGrid->nodes().resize( newNodeCount, cvf::Vec3d( 0, 0, 0 ) );
+    std::vector<cvf::Vec3d> riNodes( 8 * static_cast<size_t>( cellCount ), cvf::Vec3d( 0, 0, 0 ) );
     activeGrid->setTotalCellCount( cellStartIndex + opmGrid.totalNumberOfCells() );
-
-    auto& riNodes = activeGrid->nodes();
     auto& riCells = activeGrid->nativeCells();
 
     opmGrid.loadData();
@@ -330,7 +327,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
-            auto& riNode = riNodes[riNodeIndex];
+            auto& riNode = riNodes[riNodeIndex - nodeStartIndex];
             riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
             riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
             riNode.z()   = -opmZ[opmNodeIndex];
@@ -353,9 +350,22 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
                                                           yCenterCoordOpm );
             }
         }
+    }
 
-        if ( invalidateLongPyramidCells )
+    activeGrid->appendNodes( riNodes );
+
+    // The cell geometry is evaluated from the node table of the main grid, so this must be done after the nodes have
+    // been added
+    if ( invalidateLongPyramidCells )
+    {
+#pragma omp parallel for
+        for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( opmGrid.totalNumberOfCells() ); opmCellIndex++ )
         {
+            if ( ( activeMatIndexes[opmCellIndex] < 0 ) && ( activeFracIndexes[opmCellIndex] < 0 ) ) continue;
+
+            auto     opmIJK     = opmGrid.ijk_from_global_index( opmCellIndex );
+            auto     localIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+            RigCell& cell       = riCells[cellStartIndex + localIndex];
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }

@@ -685,7 +685,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxSlow()
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
     {
         bb.reset();
-        if ( m_mainGrid->nodes().empty() )
+        if ( m_mainGrid->nodeCount() == 0 )
         {
             bb.add( cvf::Vec3d::ZERO );
         }
@@ -738,7 +738,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBoxOptimized()
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
     {
         bb.reset();
-        if ( m_mainGrid->nodes().empty() )
+        if ( m_mainGrid->nodeCount() == 0 )
         {
             bb.add( cvf::Vec3d::ZERO );
         }

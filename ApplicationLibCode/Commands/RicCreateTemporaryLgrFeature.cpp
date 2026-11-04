@@ -160,15 +160,16 @@ RigGridBase* RicCreateTemporaryLgrFeature::createLgrForGrid( const LgrInfo& lgrI
     mainGrid->addLocalGrid( localGrid );
 
     size_t cellStartIndex = mainGrid->totalCellCount();
-    size_t nodeStartIndex = mainGrid->nodes().size();
+    size_t nodeStartIndex = mainGrid->nodeCount();
 
-    // Resize global cell and node arrays
+    // Resize global cell array
     {
         RigCell defaultCell;
         defaultCell.setHostGrid( localGrid );
         mainGrid->reservoirCells().resize( cellStartIndex + lgrCellCount, defaultCell );
-        mainGrid->nodes().resize( nodeStartIndex + lgrCellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
     }
+
+    std::vector<cvf::Vec3d> lgrNodes( lgrCellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     auto   refinement         = lgrInfo.refinement;
     size_t gridLocalCellIndex = 0;
@@ -210,14 +211,15 @@ RigGridBase* RicCreateTemporaryLgrFeature::createLgrForGrid( const LgrInfo& lgrI
 
                     for ( cIdx = 0; cIdx < 8; ++cIdx )
                     {
-                        auto& node = mainGrid->nodes()[nodeStartIndex + gridLocalCellIndex * 8 + cIdx];
-                        node.set( lgrCoords[subIndex * 8 + cIdx] );
-                        cell.cornerIndices()[cIdx] = nodeStartIndex + gridLocalCellIndex * 8 + cIdx;
+                        lgrNodes[gridLocalCellIndex * 8 + cIdx] = lgrCoords[subIndex * 8 + cIdx];
+                        cell.cornerIndices()[cIdx]              = nodeStartIndex + gridLocalCellIndex * 8 + cIdx;
                     }
                 }
             }
         }
     }
+
+    mainGrid->appendNodes( lgrNodes );
 
     localGrid->setParentGrid( mainGrid );
 

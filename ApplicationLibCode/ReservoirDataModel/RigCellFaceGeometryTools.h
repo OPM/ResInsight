@@ -32,6 +32,7 @@
 class RigActiveCellInfo;
 class RigCell;
 class RigMainGrid;
+class RigMainGridNodes;
 
 //==================================================================================================
 ///
@@ -54,7 +55,7 @@ public:
                                                               const RigMainGrid*                             mainGrid,
                                                               const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
                                                               std::vector<RigConnection>&                    connections );
-    static std::vector<cvf::Vec3f> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+    static std::vector<cvf::Vec3f> extractPolygon( const RigMainGridNodes&        nativeNodes,
                                                    const std::vector<size_t>&     connectionPolygon,
                                                    const std::vector<cvf::Vec3d>& connectionIntersections );
 };

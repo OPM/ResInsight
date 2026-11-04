@@ -165,13 +165,13 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
 
     int    cellCount      = ecl_grid_get_global_size( localEclGrid );
     size_t cellStartIndex = mainGrid->reservoirCells().size();
-    size_t nodeStartIndex = mainGrid->nodes().size();
+    size_t nodeStartIndex = mainGrid->nodeCount();
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
     mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
+    std::vector<cvf::Vec3d> gridNodes( static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     // Loop over cells and fill them with data
 
@@ -212,7 +212,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         int cIdx;
         for ( cIdx = 0; cIdx < 8; ++cIdx )
         {
-            double* point = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
             ecl_grid_get_cell_corner_xyz1( localEclGrid, gridLocalCellIndex, cIdx, &( point[0] ), &( point[1] ), &( point[2] ) );
             point[2]                   = -point[2]; // Flipping Z making depth become negative z values
             cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
@@ -226,13 +226,18 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
             CAF_ASSERT( subGridId > 0 );
             cell.setSubGrid( static_cast<RigLocalGrid*>( mainGrid->gridById( subGridId ) ) );
         }
+    }
 
-        // Mark inactive long pyramid looking cells as invalid
-        // Forslag
-        // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
-        // !cell.isActiveInFractureModel()) ) )
-        if ( invalidateLongPyramidCells )
+    mainGrid->appendNodes( gridNodes );
+
+    // Mark inactive long pyramid looking cells as invalid. The cell geometry is evaluated from the node table of the
+    // main grid, so this must be done after the nodes have been added.
+    if ( invalidateLongPyramidCells )
+    {
+#pragma omp parallel for
+        for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
         {
+            RigCell& cell = mainGrid->cell( cellStartIndex + gridLocalCellIndex );
             cell.setInvalid( cell.isLongPyramidCell() );
         }
     }
@@ -300,7 +305,7 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
     // Reserve room for the cells and nodes and fill them with data
 
     mainGrid->reservoirCells().reserve( totalCellCount );
-    mainGrid->nodes().reserve( 8 * totalCellCount );
+    mainGrid->reserveNodes( 8 * totalCellCount );
 
     caf::ProgressInfo progInfo( 3 + numLGRs, "" );
 

@@ -574,8 +574,8 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
         mockFileInterface->open( "", reservoir.p() );
 
         // Make a fault
-        cvf::Vec3d& tmp = reservoir->mainGrid()->nodes()[1];
-        tmp += cvf::Vec3d( 1, 0, 0 );
+        RigMainGrid* mainGrid = reservoir->mainGrid();
+        mainGrid->setNode( 1, mainGrid->node( 1 ) + cvf::Vec3d( 1, 0, 0 ) );
     }
     else if ( modelName == RiaDefines::mockModelLargeWithResults() )
     {

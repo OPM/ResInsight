@@ -71,9 +71,12 @@ void RigReservoirBuilder::addLocalGridRefinement( const cvf::Vec3st& minCellPosi
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
 {
-    std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
-    appendNodes( m_minWorldCoordinate, m_maxWorldCoordinate, ijkCount(), mainGridNodes );
-    size_t mainGridNodeCount = mainGridNodes.size();
+    {
+        std::vector<cvf::Vec3d> mainGridNodes;
+        appendNodes( m_minWorldCoordinate, m_maxWorldCoordinate, ijkCount(), mainGridNodes );
+        eclipseCase->mainGrid()->appendNodes( mainGridNodes );
+    }
+    size_t mainGridNodeCount = eclipseCase->mainGrid()->nodeCount();
     size_t mainGridCellCount = mainGridNodeCount / 8;
 
     // Must create cells in main grid here, as this information is used when creating LGRs
@@ -107,7 +110,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
         eclipseCase->mainGrid()->addLocalGrid( localGrid );
         localGrid->setParentGrid( eclipseCase->mainGrid() );
 
-        localGrid->setIndexToStartOfCells( mainGridNodes.size() / 8 );
+        localGrid->setIndexToStartOfCells( eclipseCase->mainGrid()->nodeCount() / 8 );
         cvf::Vec3st cellCounts( lgr.m_singleCellRefinementFactors.x() *
                                     ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() ),
                                 lgr.m_singleCellRefinementFactors.y() *
@@ -125,16 +128,18 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
             std::array<size_t, 8>& indices = cell.cornerIndices();
             for ( int nodeIdx = 0; nodeIdx < 8; nodeIdx++ )
             {
-                bb.add( eclipseCase->mainGrid()->nodes()[indices[nodeIdx]] );
+                bb.add( eclipseCase->mainGrid()->node( indices[nodeIdx] ) );
             }
             // Deactivate cell in main grid
             cell.setSubGrid( localGrid );
         }
 
-        cvf::Vec3st lgrCellCounts = cellCounts;
-        appendNodes( bb.min(), bb.max(), lgrCellCounts, mainGridNodes );
+        cvf::Vec3st             lgrCellCounts = cellCounts;
+        std::vector<cvf::Vec3d> lgrNodes;
+        appendNodes( bb.min(), bb.max(), lgrCellCounts, lgrNodes );
+        eclipseCase->mainGrid()->appendNodes( lgrNodes );
 
-        size_t subGridCellCount = ( mainGridNodes.size() / 8 ) - totalCellCount;
+        size_t subGridCellCount = ( eclipseCase->mainGrid()->nodeCount() / 8 ) - totalCellCount;
         appendCells( totalCellCount * 8, subGridCellCount, localGrid, eclipseCase->mainGrid()->reservoirCells() );
         totalCellCount += subGridCellCount;
     }
