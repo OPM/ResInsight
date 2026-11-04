@@ -76,6 +76,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowJobRunner.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphLayout.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuGroupNetworkLayout.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowTaskPalette.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowEditorWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowValidationRunner.cpp
