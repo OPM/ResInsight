@@ -9,18 +9,26 @@ non-template concrete base + a CRTP template:
 ```cpp
 class PdmNestedCollectionBase : public PdmObject
 {
-    QString            collectionName() const;
-    void               setCollectionName( const QString& name );
-    virtual bool       canAddSubCollection() const;
-    virtual PdmObject* addNewSubCollection();
-    void               setAsTopmostFolder();
-    PdmField<QString>  m_collectionName;
+public:
+    QString                           collectionName() const;
+    void                              setCollectionName( const QString& name );
+    virtual QString                   displayName() const; // collectionName() unless overridden
+    virtual bool                      canAddSubCollection() const;
+    virtual QString                   subCollectionClassKeyword() const = 0; // empty for a leaf
+    PdmNestedCollectionBase*          addNewSubCollection(); // nullptr for a leaf
+    virtual PdmChildArrayFieldHandle* subCollectionsField() = 0;
+    void                              setAsTopmostFolder();
+
+protected:
+    virtual PdmNestedCollectionBase* createSubCollection() = 0;
+    PdmField<QString>                m_collectionName;
 };
 
 template <typename SelfT, typename ItemT>
 class PdmNestedCollection : public PdmNestedCollectionBase
 {
-    // typed accessors + storage for items and subcollections
+    // typed accessors + storage for items and subcollections;
+    // subCollectionClassKeyword() and createSubCollection() default to SelfT
     PdmChildArrayField<SelfT*> m_subCollections;
     PdmChildArrayField<ItemT*> m_items;
 };
