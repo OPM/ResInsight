@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
+#include "RigReservoirBuilder.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -148,6 +149,76 @@ TEST( RigMainGridTest, NodeTableAccess )
 
     mainGrid->setNodes( {} );
     EXPECT_EQ( 0u, mainGrid->nodeCount() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridTest, RemoveDuplicateNodes )
+{
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( 3, 2, 2 ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 3.0, 2.0, -2.0 ) );
+
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
+    builder.createGridsAndCells( eclipseCase.p() );
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
+    const size_t cellCount = mainGrid->cellCount();
+    ASSERT_EQ( 12u, cellCount );
+    ASSERT_EQ( 8u * cellCount, mainGrid->nodeCount() );
+
+    std::vector<std::array<cvf::Vec3d, 8>> cornersBefore;
+    for ( size_t cellIndex = 0; cellIndex < cellCount; cellIndex++ )
+    {
+        cornersBefore.push_back( mainGrid->cellCornerVertices( cellIndex ) );
+    }
+
+    // A 3 x 2 x 2 grid without faults has 4 x 3 x 3 unique corner nodes
+    EXPECT_EQ( 96u - 36u, mainGrid->removeDuplicateNodes() );
+    EXPECT_EQ( 36u, mainGrid->nodeCount() );
+    EXPECT_EQ( 0u, mainGrid->removeDuplicateNodes() );
+
+    for ( size_t cellIndex = 0; cellIndex < cellCount; cellIndex++ )
+    {
+        EXPECT_EQ( cornersBefore[cellIndex], mainGrid->cellCornerVertices( cellIndex ) );
+        for ( size_t nodeIndex : mainGrid->cell( cellIndex ).cornerIndices() )
+        {
+            EXPECT_LT( nodeIndex, mainGrid->nodeCount() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridTest, RemoveDuplicateNodesKeepsFaultedNodesSeparate )
+{
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( 2, 1, 1 ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 2.0, 1.0, -1.0 ) );
+
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
+    builder.createGridsAndCells( eclipseCase.p() );
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
+    // Shift the second cell down by half a cell, so no corners coincide with the first cell
+    for ( size_t nodeIndex : mainGrid->cell( 1 ).cornerIndices() )
+    {
+        mainGrid->setNode( nodeIndex, mainGrid->node( nodeIndex ) - cvf::Vec3d( 0.0, 0.0, 0.5 ) );
+    }
+
+    EXPECT_EQ( 0u, mainGrid->removeDuplicateNodes() );
+    EXPECT_EQ( 16u, mainGrid->nodeCount() );
+
+    // Changing a node makes deduplication run again
+    for ( size_t nodeIndex : mainGrid->cell( 1 ).cornerIndices() )
+    {
+        mainGrid->setNode( nodeIndex, mainGrid->node( nodeIndex ) + cvf::Vec3d( 0.0, 0.0, 0.5 ) );
+    }
+
+    EXPECT_EQ( 4u, mainGrid->removeDuplicateNodes() );
+    EXPECT_EQ( 12u, mainGrid->nodeCount() );
 }
 
 /*

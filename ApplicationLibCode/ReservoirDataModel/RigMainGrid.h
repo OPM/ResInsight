@@ -30,6 +30,7 @@
 
 #include <QString>
 
+#include <cstdint>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -60,6 +61,10 @@ public:
     void reserveNodes( size_t nodeCount );
     void setNode( size_t nodeIndex, const cvf::Vec3d& coordinate );
     void transformNodes( const cvf::Mat4d& transform );
+
+    // Merge nodes with identical coordinates and remap the corner indices of all cells. After this, nodes are
+    // shared between cells, so setNode() will move the corner of every cell using the node.
+    size_t removeDuplicateNodes();
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
@@ -166,6 +171,9 @@ protected: // only for use by file readers and internal services. TODO: replace 
     std::vector<RigCell>&       reservoirCells();
     const std::vector<RigCell>& reservoirCells() const;
 
+    // Replace each cell corner index i (i < oldToNew.size()) with oldToNew[i]
+    virtual void remapCellCornerIndices( const std::vector<uint32_t>& oldToNew );
+
 private:
     void initAllSubCellsMainGridCellIndex();
     bool hasFaultWithName( const QString& name ) const;
@@ -179,6 +187,7 @@ private:
 
 private:
     std::vector<cvf::Vec3d>       m_nodes; ///< Global vertex table
+    bool                          m_duplicateNodesRemoved = false;
     std::vector<RigCell>          m_cells; ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid> m_localGrids; ///< List of all the LGR's in this reservoir
     std::vector<size_t>           m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.

@@ -33,6 +33,10 @@
 #include "cvfBoundingBoxTree.h"
 
 #include <array>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <limits>
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -66,6 +70,7 @@ void RigMainGrid::setNodes( std::vector<cvf::Vec3d> nodes )
     m_nodes = std::move( nodes );
 
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,6 +82,7 @@ void RigMainGrid::appendNodes( const std::vector<cvf::Vec3d>& nodes )
     m_nodes.insert( m_nodes.end(), nodes.begin(), nodes.end() );
 
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +102,7 @@ void RigMainGrid::setNode( size_t nodeIndex, const cvf::Vec3d& coordinate )
     m_nodes[nodeIndex] = coordinate;
 
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,8 +117,113 @@ void RigMainGrid::transformNodes( const cvf::Mat4d& transform )
     }
 
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 }
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Hash of the exact bit pattern of a coordinate. -0.0 is normalized to 0.0 so it hashes like 0.0,
+/// matching operator==.
+//--------------------------------------------------------------------------------------------------
+uint64_t nodeHash( const cvf::Vec3d& p )
+{
+    auto mix = []( uint64_t h, double value )
+    {
+        value += 0.0;
+        uint64_t bits;
+        std::memcpy( &bits, &value, sizeof( bits ) );
+
+        // splitmix64 finalizer
+        uint64_t z = h ^ bits;
+        z          = ( z ^ ( z >> 30 ) ) * 0xbf58476d1ce4e5b9ULL;
+        z          = ( z ^ ( z >> 27 ) ) * 0x94d049bb133111ebULL;
+        return z ^ ( z >> 31 );
+    };
+
+    return mix( mix( mix( 0x9e3779b97f4a7c15ULL, p.x() ), p.y() ), p.z() );
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Nodes with exactly equal coordinates are merged. The first occurrence of a coordinate is kept, and the
+/// relative order of the kept nodes is preserved, so identical input grids give identical node tables.
+/// Returns the number of removed nodes.
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::removeDuplicateNodes()
+{
+    if ( m_duplicateNodesRemoved ) return 0;
+
+    const size_t oldNodeCount = m_nodes.size();
+
+    // 32-bit indices keep the temporary memory low. Larger node tables are left as they are.
+    using IndexType               = uint32_t;
+    constexpr IndexType emptySlot = std::numeric_limits<IndexType>::max();
+    if ( oldNodeCount == 0 || oldNodeCount >= emptySlot ) return 0;
+
+    // Open addressing table of new node indices, with a load factor of at most 2/3
+    size_t capacity = 1;
+    while ( capacity < oldNodeCount + oldNodeCount / 2 )
+    {
+        capacity *= 2;
+    }
+    const size_t mask = capacity - 1;
+
+    std::vector<IndexType> table( capacity, emptySlot );
+    std::vector<IndexType> oldToNew( oldNodeCount );
+
+    // Compact in place: newIndex <= oldIndex, so a node is read before its position can be overwritten
+    IndexType newNodeCount = 0;
+    for ( size_t oldIndex = 0; oldIndex < oldNodeCount; oldIndex++ )
+    {
+        const cvf::Vec3d node = m_nodes[oldIndex];
+
+        size_t slot = nodeHash( node ) & mask;
+        while ( table[slot] != emptySlot && !( m_nodes[table[slot]] == node ) )
+        {
+            slot = ( slot + 1 ) & mask;
+        }
+
+        if ( table[slot] == emptySlot )
+        {
+            table[slot]             = newNodeCount;
+            m_nodes[newNodeCount++] = node;
+        }
+
+        oldToNew[oldIndex] = table[slot];
+    }
+
+    table.clear();
+    table.shrink_to_fit();
+
+    const size_t removedNodeCount = oldNodeCount - newNodeCount;
+    if ( removedNodeCount > 0 )
+    {
+        m_nodes.resize( newNodeCount );
+        m_nodes.shrink_to_fit();
+
+        remapCellCornerIndices( oldToNew );
+    }
+
+    m_duplicateNodesRemoved = true;
+
+    return removedNodeCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::remapCellCornerIndices( const std::vector<uint32_t>& oldToNew )
+{
+#pragma omp parallel for
+    for ( long cellIndex = 0; cellIndex < static_cast<long>( m_cells.size() ); cellIndex++ )
+    {
+        for ( size_t& cornerIndex : m_cells[cellIndex].cornerIndices() )
+        {
+            if ( cornerIndex < oldToNew.size() ) cornerIndex = oldToNew[cornerIndex];
+        }
+    }
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

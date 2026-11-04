@@ -94,6 +94,8 @@
 #include "cafUtils.h"
 #include <QFileInfo>
 
+#include <format>
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 
 //------------------------------------------------------------------------------------------------
@@ -780,7 +782,20 @@ void RimEclipseCase::computeCachedData()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        caf::ProgressInfo pInf( 30, "" );
+        caf::ProgressInfo pInf( 32, "" );
+
+        {
+            auto task = pInf.task( "Removing Duplicate Grid Nodes", 2 );
+
+            RigMainGrid* mainGrid     = rigEclipseCase->mainGrid();
+            const size_t oldNodeCount = mainGrid->nodeCount();
+            const size_t removedNodes = mainGrid->removeDuplicateNodes();
+            if ( removedNodes > 0 )
+            {
+                RiaLogging::debug(
+                    std::format( "Removed {} duplicate grid nodes, {} of {} nodes remain", removedNodes, mainGrid->nodeCount(), oldNodeCount ) );
+            }
+        }
 
         {
             // NB! Call computeCachedData() first, as this function also computes the bounding box used in other functions, specifically

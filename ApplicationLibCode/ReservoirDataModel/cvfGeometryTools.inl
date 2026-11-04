@@ -295,6 +295,15 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
         return true;
     }
 
+    // Partially shared node indices are resolved geometrically below. Marking them as touching here would
+    // classify them as inside the other face instead of on its edge, producing degenerate polygon vertices.
+    for ( int k = 0; k < 4; ++k )
+    {
+        cv1VxTouchCv2[k] = false;
+        cv2VxTouchCv1[k] = false;
+    }
+    numMatchedNodes = 0;
+
     cvf::Vec3d diag1           = nodes[cv1CubeFaceIndices[2]] - nodes[cv1CubeFaceIndices[0]];
     cvf::Vec3d diag2           = nodes[cv1CubeFaceIndices[3]] - nodes[cv1CubeFaceIndices[1]];
     cvf::Vec3d normal          = diag1 ^ diag2;
