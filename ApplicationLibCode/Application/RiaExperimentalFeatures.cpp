@@ -53,6 +53,9 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
           "Curve Appearance",
           "Show the Curve Appearance panel, toolbar button and global appearance settings for summary plots. Restart "
           "required." },
+        { removeDuplicateGridNodesKeyword,
+          "Remove Duplicate Grid Nodes",
+          "Share identical corner nodes between grid cells after import to reduce memory usage." },
     };
 
     return features;

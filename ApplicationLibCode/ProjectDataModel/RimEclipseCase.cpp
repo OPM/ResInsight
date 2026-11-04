@@ -23,9 +23,11 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
+#include "RiaExperimentalFeatures.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaStdStringTools.h"
@@ -785,6 +787,7 @@ void RimEclipseCase::computeCachedData()
     {
         caf::ProgressInfo pInf( 32, "" );
 
+        if ( RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::removeDuplicateGridNodesKeyword ) )
         {
             auto task = pInf.task( "Removing Duplicate Grid Nodes", 2 );
 
