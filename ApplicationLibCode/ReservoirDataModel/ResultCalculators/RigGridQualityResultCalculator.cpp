@@ -74,6 +74,10 @@ void RigGridQualityResultCalculator::calculate( const RigEclipseResultAddress& r
     {
         calculateFaulted( resVarAddr );
     }
+    else if ( RiaResultNames::qcResultNames().contains( resVarAddr.resultName() ) )
+    {
+        calculateAngles( resVarAddr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +108,11 @@ void RigGridQualityResultCalculator::calculateResults( RigEclipseCaseData* data 
 
     address =
         RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL, RiaDefines::ResultDataType::INTEGER, RiaResultNames::qcFaulted() );
+    calc.calculate( address, 0 );
+
+    address = RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL,
+                                       RiaDefines::ResultDataType::DOUBLE,
+                                       RiaResultNames::qcMinangleTopbase() );
     calc.calculate( address, 0 );
 }
 
@@ -258,4 +267,74 @@ void RigGridQualityResultCalculator::calculateFaulted( const RigEclipseResultAdd
             outputResults[resultIndex] = result;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridQualityResultCalculator::calculateAngles( const RigEclipseResultAddress& resVarAddr )
+{
+    auto mainGrid = m_resultsData->mainGrid();
+    if ( !mainGrid ) return;
+
+    size_t minangleIdx      = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMinangleTopbase() ), false );
+    size_t maxangleIdx      = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMaxangleTopbase() ), false );
+    size_t minangleSidesIdx = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMinangleSides() ), false );
+    size_t maxangleSidesIdx = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMaxangleSides() ), false );
+    size_t minangleProjIdx = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMinangleTopbaseProj() ), false );
+    size_t maxangleProjIdx = m_resultsData->findOrCreateScalarResultIndex( createAddress( RiaResultNames::qcMaxangleTopbaseProj() ), false );
+
+    m_resultsData->m_cellScalarResults[minangleIdx].resize( 1 );
+    m_resultsData->m_cellScalarResults[maxangleIdx].resize( 1 );
+    m_resultsData->m_cellScalarResults[minangleSidesIdx].resize( 1 );
+    m_resultsData->m_cellScalarResults[maxangleSidesIdx].resize( 1 );
+    m_resultsData->m_cellScalarResults[minangleProjIdx].resize( 1 );
+    m_resultsData->m_cellScalarResults[maxangleProjIdx].resize( 1 );
+
+    std::vector<double>& outputMinAngle      = m_resultsData->m_cellScalarResults[minangleIdx][0];
+    std::vector<double>& outputMaxAngle      = m_resultsData->m_cellScalarResults[maxangleIdx][0];
+    std::vector<double>& outputMinAngleSides = m_resultsData->m_cellScalarResults[minangleSidesIdx][0];
+    std::vector<double>& outputMaxAngleSides = m_resultsData->m_cellScalarResults[maxangleSidesIdx][0];
+    std::vector<double>& outputMinAngleProj  = m_resultsData->m_cellScalarResults[minangleProjIdx][0];
+    std::vector<double>& outputMaxAngleProj  = m_resultsData->m_cellScalarResults[maxangleProjIdx][0];
+
+    size_t cellResultCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+    auto   activeCellInfo  = m_resultsData->activeCellInfo();
+
+    outputMinAngle.resize( cellResultCount, 0 );
+    outputMaxAngle.resize( cellResultCount, 0 );
+    outputMinAngleSides.resize( cellResultCount, 0 );
+    outputMaxAngleSides.resize( cellResultCount, 0 );
+    outputMinAngleProj.resize( cellResultCount, 0 );
+    outputMaxAngleProj.resize( cellResultCount, 0 );
+
+    // loop over all cells in main grid
+    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( mainGrid->totalCellCount() ); nativeResvCellIndex++ )
+    {
+        size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
+        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            const RigCell& cell = mainGrid->cell( nativeResvCellIndex );
+
+            auto [minAngle, maxAngle]   = cell.minMaxAnglesTopBottom();
+            outputMinAngle[resultIndex] = minAngle;
+            outputMaxAngle[resultIndex] = maxAngle;
+
+            auto [minAngleSides, maxAngleSides] = cell.minMaxAnglesSides();
+            outputMinAngleSides[resultIndex]    = minAngleSides;
+            outputMaxAngleSides[resultIndex]    = maxAngleSides;
+
+            auto [minAngleProj, maxAngleProj] = cell.minMaxAnglesTopBottom( true /*ignore Z*/ );
+            outputMinAngleProj[resultIndex]   = minAngleProj;
+            outputMaxAngleProj[resultIndex]   = maxAngleProj;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseResultAddress RigGridQualityResultCalculator::createAddress( QString resultName )
+{
+    return RigEclipseResultAddress( RiaDefines::ResultCatType::QUALITY_CONTROL, RiaDefines::ResultDataType::DOUBLE, resultName );
 }

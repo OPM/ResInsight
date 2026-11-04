@@ -40,4 +40,7 @@ private:
     void calculateConcaveProjection( const RigEclipseResultAddress& resVarAddr );
     void calculateCollapsed( const RigEclipseResultAddress& resVarAddr );
     void calculateFaulted( const RigEclipseResultAddress& resVarAddr );
+    void calculateAngles( const RigEclipseResultAddress& resVarAddr );
+
+    RigEclipseResultAddress createAddress( QString resultName );
 };

@@ -510,3 +510,37 @@ bool RigCell::isConcave() const
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+// Return the min and max corner angle of the top and bottom faces of the cell. If ignoreZ is true,
+// the Z component is ignored in the calculation. Angle are returned in degrees.
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigCell::minMaxAnglesTopBottom( bool ignoreZ ) const
+{
+    auto cornersTop    = faceCorners( cvf::StructGridInterface::POS_K );
+    auto cornersBottom = faceCorners( cvf::StructGridInterface::NEG_K );
+
+    auto [minAngle, maxAngle]             = RigCellGeometryTools::minMaxFaceAngles( cornersTop, ignoreZ );
+    auto [minAngleBottom, maxAngleBottom] = RigCellGeometryTools::minMaxFaceAngles( cornersBottom, ignoreZ );
+
+    return std::make_pair( std::min( minAngle, minAngleBottom ), std::max( maxAngle, maxAngleBottom ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Return the min and max corner angle of the four side faces of the cell. Angles are returned in degrees
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigCell::minMaxAnglesSides() const
+{
+    auto side1 = faceCorners( cvf::StructGridInterface::POS_I );
+    auto side2 = faceCorners( cvf::StructGridInterface::NEG_I );
+    auto side3 = faceCorners( cvf::StructGridInterface::POS_J );
+    auto side4 = faceCorners( cvf::StructGridInterface::NEG_J );
+
+    auto [minAngle1, maxAngle1] = RigCellGeometryTools::minMaxFaceAngles( side1 );
+    auto [minAngle2, maxAngle2] = RigCellGeometryTools::minMaxFaceAngles( side2 );
+    auto [minAngle3, maxAngle3] = RigCellGeometryTools::minMaxFaceAngles( side3 );
+    auto [minAngle4, maxAngle4] = RigCellGeometryTools::minMaxFaceAngles( side4 );
+
+    return std::make_pair( std::min( { minAngle1, minAngle2, minAngle3, minAngle4 } ),
+                           std::max( { maxAngle1, maxAngle2, maxAngle3, maxAngle4 } ) );
+}

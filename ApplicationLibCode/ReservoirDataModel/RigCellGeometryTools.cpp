@@ -903,3 +903,51 @@ bool RigCellGeometryTools::pointInsideCellNegK2D( const cvf::Vec3d& point, const
 
     return RigCellGeometryTools::pointInsidePolygon2D( point, polygon );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the angle between the line segments p2->p1 and p2->p3. If ignoreZ is true, the
+/// Z component is ignored in the calculation. Angle returned is in degrees.
+//--------------------------------------------------------------------------------------------------
+double RigCellGeometryTools::lineAngle( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, bool ignoreZ )
+{
+    // define lines
+    cvf::Vec3d v1 = p1 - p2;
+    cvf::Vec3d v2 = p3 - p2;
+
+    if ( ignoreZ )
+    {
+        v1.z() = 0;
+        v2.z() = 0;
+    }
+
+    double dotProduct     = v1.dot( v2 );
+    double lengthsProduct = v1.length() * v2.length();
+
+    // Avoid division by zero
+    if ( lengthsProduct == 0 ) return 0.0;
+
+    double cosAngle = dotProduct / lengthsProduct;
+    cosAngle        = std::clamp( cosAngle, -1.0, 1.0 ); // Clamp to avoid numerical issues
+
+    // Return angle in degrees
+    return std::acos( cosAngle ) * 180.0 / M_PI;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the minimum and maximum angle for the face defined by the 4 input points. If ignoreZ is true,
+/// Z component is ignored in the calculation. Angles returned are in degrees.
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigCellGeometryTools::minMaxFaceAngles( const std::array<cvf::Vec3d, 4>& hexCorners, bool ignoreZ )
+{
+    std::vector<double> angles;
+    for ( size_t i = 0; i < 4; ++i )
+    {
+        const cvf::Vec3d& p1    = hexCorners[i];
+        const cvf::Vec3d& p2    = hexCorners[( i + 1 ) % 4];
+        const cvf::Vec3d& p3    = hexCorners[( i + 2 ) % 4];
+        double            angle = lineAngle( p1, p2, p3, ignoreZ );
+        angles.push_back( angle );
+    }
+    auto [minAngleIt, maxAngleIt] = std::minmax_element( angles.begin(), angles.end() );
+    return { *minAngleIt, *maxAngleIt };
+}
