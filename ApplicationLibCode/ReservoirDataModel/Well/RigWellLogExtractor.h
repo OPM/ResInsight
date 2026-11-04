@@ -28,6 +28,7 @@
 
 #include <map>
 #include <optional>
+#include <utility>
 #include <vector>
 
 //==================================================================================================
@@ -73,6 +74,13 @@ public:
     void resampleIntersections( double maxDistanceBetweenIntersections );
 
     std::optional<double> averageMdForCell( size_t cellIndex ) const;
+
+    // Number of other points allowed between the entering and the leaving point of a cell. Chosen to cover the stray points seen
+    // next to an LGR in the 10k test case (two in a row for GP1, #15088) with some margin; it is not derived from the grid.
+    static constexpr size_t maxPointsBetweenEnterAndLeave = 4;
+
+    static std::vector<std::pair<size_t, size_t>> pairCellEnterLeavePoints( const std::vector<RigMDEnterLeaveCellIdxKey>& sortedPoints,
+                                                                            std::vector<size_t>*                          discardedPoints );
 
 protected:
     static void insertIntersectionsInMap( const std::vector<HexIntersectionInfo>&                   intersections,
