@@ -92,7 +92,92 @@ public:
     QString classKeywordReturnedTypeForSelf() const override { return selfClassKeyword(); }
 };
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( NarrowingReturnBaseObj, NarrowingReturnBaseObj_clone, "Clone" );
+
+//==================================================================================================
+/// A folder hierarchy shaped like the nested collections: the method is registered on the root and
+/// returns the class named by subFolderClassKeyword(), or the root when that is empty.
+///
+///   FolderRootObj                        AddSubFolder() -> FolderRootObj
+///     FolderTypedObj                     narrows to FolderTypedObj (SurfaceCollection)
+///       FolderSameTypeObj                same type as its parent (EnsembleSurface)
+///       FolderAbstractObj                not instantiated, like RimPolygonContainer
+///         FolderBelowAbstractObj         same type as FolderTypedObj
+//==================================================================================================
+class FolderRootObj : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderRootObj() { CAF_PDM_InitScriptableObject( "Folder Root" ); }
+
+    virtual QString subFolderClassKeyword() const { return {}; }
+};
+CAF_PDM_SOURCE_INIT( FolderRootObj, "FolderRootObj" );
+
+class FolderTypedObj : public FolderRootObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderTypedObj() { CAF_PDM_InitScriptableObject( "Folder Typed" ); }
+
+    QString subFolderClassKeyword() const override { return FolderTypedObj::classKeywordStatic(); }
+};
+CAF_PDM_SOURCE_INIT( FolderTypedObj, "FolderTypedObj" );
+
+class FolderAbstractObj : public FolderTypedObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderAbstractObj() { CAF_PDM_InitObject( "Folder Abstract" ); }
+};
+CAF_PDM_ABSTRACT_SOURCE_INIT( FolderAbstractObj, "FolderAbstractObj" );
+
+class FolderBelowAbstractObj : public FolderAbstractObj
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderBelowAbstractObj() { CAF_PDM_InitScriptableObject( "Folder Below Abstract" ); }
+};
+CAF_PDM_SOURCE_INIT( FolderBelowAbstractObj, "FolderBelowAbstractObj" );
+
+class FolderRootObj_addSubFolder : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FolderRootObj_addSubFolder( caf::PdmObjectHandle* self )
+        : caf::PdmObjectCreationMethod( self )
+    {
+        CAF_PDM_InitObject( "Add Sub Folder", "", "", "Add Sub Folder" );
+    }
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override { return std::unexpected( "Not used" ); }
+    QString classKeywordReturnedType() const override { return FolderRootObj::classKeywordStatic(); }
+    QString classKeywordReturnedTypeForSelf() const override
+    {
+        QString keyword = self<FolderRootObj>()->subFolderClassKeyword();
+        return keyword.isEmpty() ? classKeywordReturnedType() : keyword;
+    }
+};
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( FolderRootObj, FolderRootObj_addSubFolder, "AddSubFolder" );
 } // namespace caf
+
+namespace
+{
+QString generatedClassCode( const QString& generatedCode, const QString& className )
+{
+    int start = generatedCode.indexOf( QString( "class %1(" ).arg( className ) );
+    if ( start == -1 ) return {};
+
+    int end = generatedCode.indexOf( "\nclass ", start );
+    if ( end == -1 ) end = generatedCode.size();
+
+    return generatedCode.mid( start, end - start );
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
@@ -339,4 +424,31 @@ TEST( PdmPythonGenerator, EmitsTypedOverrideWhenReturnTypeNarrowsOnSubclass )
     EXPECT_TRUE( derivedClassCode.contains( "def clone(self, ) -> NarrowingReturnDerivedObj:" ) );
     EXPECT_TRUE( derivedClassCode.contains( "_call_pdm_method_return_value(\"Clone\", NarrowingReturnDerivedObj)" ) );
     EXPECT_TRUE( grandchildClassCode.contains( "def clone(self, ) -> NarrowingReturnGrandchildObj:" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, SkipsTypedOverrideInheritedThroughAbstractClass )
+{
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    QString generatedCode = generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    EXPECT_TRUE( errorMessages.empty() );
+
+    QString rootCode          = generatedClassCode( generatedCode, "FolderRootObj" );
+    QString typedCode         = generatedClassCode( generatedCode, "FolderTypedObj" );
+    QString abstractCode      = generatedClassCode( generatedCode, "FolderAbstractObj" );
+    QString belowAbstractCode = generatedClassCode( generatedCode, "FolderBelowAbstractObj" );
+    ASSERT_FALSE( rootCode.isEmpty() );
+    ASSERT_FALSE( typedCode.isEmpty() );
+    ASSERT_FALSE( abstractCode.isEmpty() );
+    ASSERT_FALSE( belowAbstractCode.isEmpty() );
+
+    EXPECT_TRUE( rootCode.contains( "def add_sub_folder(self, ) -> FolderRootObj:" ) );
+    EXPECT_TRUE( typedCode.contains( "def add_sub_folder(self, ) -> FolderTypedObj:" ) );
+
+    // FolderBelowAbstractObj inherits the FolderTypedObj override through the abstract class
+    EXPECT_FALSE( abstractCode.contains( "def add_sub_folder" ) );
+    EXPECT_FALSE( belowAbstractCode.contains( "def add_sub_folder" ) );
 }

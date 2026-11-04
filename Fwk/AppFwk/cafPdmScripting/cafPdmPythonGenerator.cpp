@@ -709,8 +709,8 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 // A method registered on a base class may narrow its return type on a concrete class (AddFolder on
                 // PdmNestedCollectionBase returns a SurfaceCollection when called on one). The base class keeps the
                 // declared type; the concrete class gets a typed override, emitted once in the hierarchy: not when
-                // the direct super class already reports the same type. Enum returns are unwrapped above and do not
-                // narrow.
+                // the nearest ancestor that carries an override already declares the same type. Enum returns are
+                // unwrapped above and do not narrow.
                 QString selfReturnKeyword = method->classKeywordReturnedTypeForSelf();
                 if ( classKeyword != object->classKeyword() && returnEnumClassName.isEmpty() &&
                      !method->classKeywordReturnedType().isEmpty() && !selfReturnKeyword.isEmpty() &&
@@ -729,17 +729,30 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                         continue;
                     }
 
-                    if ( classInheritanceStack.size() > 1 )
+                    // Walk up from the direct super class to the class the method is registered on. Only an
+                    // instantiable class gets an override, so an abstract class in between (RimPolygonContainer) is
+                    // passed over. The ancestor's type is computed from its dummy object instead of looked up in
+                    // classMethodsGenerated, because a class and its subclasses are not generated in a fixed order.
+                    QString inheritedReturnKeyword;
+                    for ( auto ancestorIt = std::next( classInheritanceStack.rbegin() );
+                          ancestorIt != classInheritanceStack.rend() && *ancestorIt != classKeyword;
+                          ++ancestorIt )
                     {
-                        auto superIt = dummyObjectByKeyword.find( *std::next( classInheritanceStack.rbegin() ) );
-                        if ( superIt != dummyObjectByKeyword.end() )
-                        {
-                            auto superMethod =
-                                PdmObjectMethodFactory::instance()->createMethod( superIt->second, methodName );
-                            if ( superMethod && superMethod->classKeywordReturnedTypeForSelf() == selfReturnKeyword )
-                                continue;
-                        }
+                        auto ancestorObjectIt = dummyObjectByKeyword.find( *ancestorIt );
+                        if ( ancestorObjectIt == dummyObjectByKeyword.end() ) continue;
+
+                        auto ancestorMethod =
+                            PdmObjectMethodFactory::instance()->createMethod( ancestorObjectIt->second, methodName );
+                        if ( !ancestorMethod ) continue;
+
+                        QString ancestorReturnKeyword = ancestorMethod->classKeywordReturnedTypeForSelf();
+                        if ( ancestorReturnKeyword.isEmpty() || ancestorReturnKeyword == method->classKeywordReturnedType() )
+                            continue;
+
+                        inheritedReturnKeyword = ancestorReturnKeyword;
+                        break;
                     }
+                    if ( inheritedReturnKeyword == selfReturnKeyword ) continue;
 
                     QString overrideClassName =
                         PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( selfReturnKeyword );
