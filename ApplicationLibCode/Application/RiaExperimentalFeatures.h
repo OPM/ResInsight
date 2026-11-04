@@ -39,7 +39,8 @@ public:
         QString description; ///< Short explanation, appended to the checkbox label.
     };
 
-    static constexpr const char* curveAppearanceKeyword = "curve-appearance";
+    static constexpr const char* curveAppearanceKeyword          = "curve-appearance";
+    static constexpr const char* removeDuplicateGridNodesKeyword = "remove-duplicate-grid-nodes";
 
     /// The single, discoverable list of all experimental features.
     static const std::vector<Feature>& availableFeatures();

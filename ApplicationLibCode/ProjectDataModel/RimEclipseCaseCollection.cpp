@@ -21,6 +21,8 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaExperimentalFeatures.h"
+#include "RiaPreferencesSystem.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
@@ -141,7 +143,10 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
     RigEclipseCaseData* rigEclipseCase = rimEclipseCase->eclipseCaseData();
 
     // Grids are compared node by node, so all grids must use the same (deduplicated) node layout
-    rigEclipseCase->mainGrid()->removeDuplicateNodes();
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( RiaExperimentalFeatures::removeDuplicateGridNodesKeyword ) )
+    {
+        rigEclipseCase->mainGrid()->removeDuplicateNodes();
+    }
 
     RigMainGrid* equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
 
