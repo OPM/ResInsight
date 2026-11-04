@@ -64,6 +64,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifGroupNetworkReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifGroupNetworkSummaryData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmDeckFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEventKeywordFormatter.cpp
