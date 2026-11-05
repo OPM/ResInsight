@@ -20,6 +20,8 @@
 #include "Polygons/Cloud/RimPolygonCloudAddress.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonFile.h"
+#include "RimEnsembleSurface.h"
+#include "RimSurfaceCollection.h"
 
 #include "RimcDataContainerString.h"
 #include "RimcNestedCollectionBase.h"
@@ -39,6 +41,17 @@ QString scriptCollectionName( caf::PdmNestedCollectionBase* collection )
     if ( !strings || strings->m_stringValues().size() != 1 ) return "<error>";
 
     return strings->m_stringValues().front();
+}
+
+// The Python generator declares the folder type from subCollectionClassKeyword(), while the folder is
+// created by createSubCollection(). Both must name the same class.
+void expectAddedFolderMatchesDeclaredKeyword( caf::PdmNestedCollectionBase& collection, const QString& expectedKeyword )
+{
+    EXPECT_EQ( expectedKeyword, collection.subCollectionClassKeyword() );
+
+    caf::PdmNestedCollectionBase* added = collection.addNewSubCollection();
+    ASSERT_NE( nullptr, added );
+    EXPECT_EQ( collection.subCollectionClassKeyword(), added->classKeyword() );
 }
 } // namespace
 
@@ -69,6 +82,34 @@ TEST( RimcNestedCollectionBase, CollectionNameUsesPolygonFileFallback )
     polygonFile.setCollectionName( "" );
     EXPECT_EQ( "outline.pol", scriptCollectionName( &polygonFile ) );
     EXPECT_EQ( polygonFile.name(), scriptCollectionName( &polygonFile ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimcNestedCollectionBase, AddedFolderMatchesSubCollectionClassKeyword )
+{
+    RimPolygonCollection polygonCollection;
+    expectAddedFolderMatchesDeclaredKeyword( polygonCollection, RimPolygonCollection::classKeywordStatic() );
+
+    RimSurfaceCollection surfaceCollection;
+    expectAddedFolderMatchesDeclaredKeyword( surfaceCollection, RimSurfaceCollection::classKeywordStatic() );
+
+    // An ensemble surface creates plain surface folders, not ensemble surfaces
+    RimEnsembleSurface ensembleSurface;
+    expectAddedFolderMatchesDeclaredKeyword( ensembleSurface, RimSurfaceCollection::classKeywordStatic() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A leaf folder declares no folder type and creates none.
+//--------------------------------------------------------------------------------------------------
+TEST( RimcNestedCollectionBase, LeafFolderHasNoSubCollectionClassKeyword )
+{
+    RimPolygonFile polygonFile;
+    EXPECT_FALSE( polygonFile.canAddSubCollection() );
+    EXPECT_TRUE( polygonFile.subCollectionClassKeyword().isEmpty() );
+    EXPECT_EQ( nullptr, polygonFile.addNewSubCollection() );
+    EXPECT_TRUE( polygonFile.subCollections().empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
