@@ -1508,6 +1508,11 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_porosityModelUiField );
         uiOrdering.add( &m_showDualPorosityLabel );
     }
+    else
+    {
+        m_porosityModelUiField.setValue( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        m_porosityModel = m_porosityModelUiField();
+    }
 
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
     {
