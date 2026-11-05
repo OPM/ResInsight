@@ -28,6 +28,7 @@
 #include "RiaPreferencesGrid.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
+#include "RiaStdStringTools.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
@@ -93,6 +94,8 @@
 
 #include "cafUtils.h"
 #include <QFileInfo>
+
+#include <format>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 
@@ -780,7 +783,24 @@ void RimEclipseCase::computeCachedData()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        caf::ProgressInfo pInf( 30, "" );
+        caf::ProgressInfo pInf( 32, "" );
+
+        {
+            auto task = pInf.task( "Removing Duplicate Grid Nodes", 2 );
+
+            RigMainGrid* mainGrid     = rigEclipseCase->mainGrid();
+            const size_t oldNodeCount = mainGrid->nodes().size();
+            const size_t removedNodes = mainGrid->removeDuplicateNodes();
+            if ( removedNodes > 0 )
+            {
+                const double removedPercentage = 100.0 * static_cast<double>( removedNodes ) / static_cast<double>( oldNodeCount );
+                RiaLogging::debug( std::format( "Removed duplicate grid nodes: {} -> {} nodes ({} removed, {:.1f} %)",
+                                                RiaStdStringTools::formatThousandGrouping( static_cast<int64_t>( oldNodeCount ) ),
+                                                RiaStdStringTools::formatThousandGrouping( static_cast<int64_t>( mainGrid->nodes().size() ) ),
+                                                RiaStdStringTools::formatThousandGrouping( static_cast<int64_t>( removedNodes ) ),
+                                                removedPercentage ) );
+            }
+        }
 
         {
             // NB! Call computeCachedData() first, as this function also computes the bounding box used in other functions, specifically

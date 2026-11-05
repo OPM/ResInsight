@@ -82,6 +82,17 @@ bool RigGridManager::isEqual( RigMainGrid* gridA, RigMainGrid* gridB )
         }
     }
 
+    // Cells can share nodes, so equal node tables do not imply equal cell geometry
+    if ( gridA->totalCellCount() != gridB->totalCellCount() ) return false;
+
+    for ( size_t i = 0; i < gridA->totalCellCount(); i++ )
+    {
+        if ( gridA->cell( i ).cornerIndices() != gridB->cell( i ).cornerIndices() )
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 

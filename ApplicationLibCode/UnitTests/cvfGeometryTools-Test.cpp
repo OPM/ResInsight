@@ -806,3 +806,38 @@ TEST( GeometryToolsEdgeCases, LineSegmentTriangleParametricTolerance )
     EXPECT_EQ( 0,
                GeometryTools::intersectLineSegmentTriangle( cvf::Vec3d( 2, 2, -1 ), cvf::Vec3d( 2, 2, 1 ), t0, t1, t2, &intersection, &isEntering, 1e-9 ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Faces of collapsed cells can repeat a node index. A face that contains the shared indices more than once must not be
+/// treated as a complete topological match.
+//--------------------------------------------------------------------------------------------------
+TEST( CellFaceIntersectionTst, CollapsedFaceWithRepeatedIndicesIsNotFullOverlap )
+{
+    std::vector<cvf::Vec3d> nodes = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 } };
+
+    const cvf::uint face[4]          = { 0, 1, 2, 3 };
+    const cvf::uint collapsedFace[4] = { 0, 1, 1, 0 };
+
+    std::vector<cvf::Vec3d>         additionalVertices;
+    EdgeIntersectStorage<cvf::uint> edgeIntersectionStorage;
+    edgeIntersectionStorage.setVertexCount( nodes.size() );
+
+    std::vector<cvf::uint> polygon;
+    bool                   isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                  additionalVertices,
+                                                                  &edgeIntersectionStorage,
+                                                                  wrapArrayConst( &nodes ),
+                                                                  face,
+                                                                  collapsedFace,
+                                                                  1e-6 );
+
+    nodes.insert( nodes.end(), additionalVertices.begin(), additionalVertices.end() );
+    std::vector<cvf::Vec3d> polygonVertices;
+    for ( cvf::uint index : polygon )
+    {
+        polygonVertices.push_back( nodes[index] );
+    }
+
+    const double area = isOk && polygonVertices.size() >= 3 ? std::abs( GeometryTools::polygonArea( polygonVertices ) ) : 0.0;
+    EXPECT_NEAR( 0.0, area, 1e-9 );
+}

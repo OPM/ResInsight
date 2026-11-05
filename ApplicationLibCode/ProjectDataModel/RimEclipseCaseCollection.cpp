@@ -140,6 +140,9 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
     CAF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
     RigEclipseCaseData* rigEclipseCase = rimEclipseCase->eclipseCaseData();
 
+    // Grids are compared node by node, so all grids must use the same (deduplicated) node layout
+    rigEclipseCase->mainGrid()->removeDuplicateNodes();
+
     RigMainGrid* equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
 
     if ( equalGrid )

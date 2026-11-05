@@ -46,6 +46,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGriddedPart3d.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigGridNodeDeduplication.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGroupNetwork.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.cpp
