@@ -19,6 +19,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
 #include <iterator>
 #include <numeric>
 #include <set>
@@ -44,7 +45,7 @@ public:
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
-    static std::string formatThousandGrouping( long value );
+    static std::string formatThousandGrouping( int64_t value );
 
     static constexpr std::string_view boolToString( bool b ) { return b ? "true" : "false"; }
 
