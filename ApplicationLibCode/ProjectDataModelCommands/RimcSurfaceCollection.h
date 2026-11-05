@@ -97,3 +97,21 @@ private:
     caf::PdmField<double>                                       m_incrementY;
     caf::PdmField<double>                                       m_rotation;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSurfaceCollection_newTriangulatedSurface : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSurfaceCollection_newTriangulatedSurface( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>                                      m_name;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
+};

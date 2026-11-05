@@ -1,5 +1,6 @@
 import inspect
 import uuid
+from collections.abc import Iterable
 
 from .exception import RipsError
 from .pdmobject import add_method
@@ -9,8 +10,9 @@ from .resinsight_classes import (
     RegularSurface,
     SurfaceCollection,
     SurfaceInterface,
+    TriangulatedSurface,
 )
-from typing import List, Optional, Type, TypeVar
+from typing import List, Optional, Sequence, Type, TypeVar, Union
 
 SurfaceT = TypeVar("SurfaceT", bound=SurfaceInterface)
 
@@ -56,6 +58,99 @@ def get_property(self: RegularSurface, name: str) -> List[float]:
           Size is nx*ny (see RegularSurface).
     """
     key = "{}_{}".format(uuid.uuid4(), "regular_surface_key")
+
+    project = self.ancestor(Project)
+    if not project:
+        raise RipsError("Could not find parent project")
+
+    try:
+        self.get_property_to_key(name=name, value_key=key)
+        return project.key_values(key)
+    finally:
+        try:
+            project.remove_key_values(key)
+        except Exception:
+            pass
+
+
+def _flatten(values: Sequence[Union[float, Iterable[float]]]) -> List[float]:
+    flat: List[float] = []
+    for value in values:
+        if isinstance(value, Iterable):
+            flat.extend(float(v) for v in value)
+        else:
+            flat.append(float(value))
+    return flat
+
+
+@add_method(TriangulatedSurface)
+def set_geometry(
+    self: TriangulatedSurface,
+    vertices: Sequence[Union[float, Iterable[float]]],
+    triangles: Sequence[Union[int, Iterable[int]]],
+) -> None:
+    """Sets the vertices and triangles of a triangulated surface.
+
+    Properties already set on the surface are removed.
+
+    Arguments:
+        vertices (List[List[float]]): x, y and depth of each vertex, depth positive
+          downwards (float32). A flat list of x, y, depth values is also accepted.
+        triangles (List[List[int]]): Three vertex indices per triangle, zero based.
+          A flat list of indices is also accepted.
+    """
+    project = self.ancestor(Project)
+    if not project:
+        raise RipsError("Could not find parent project")
+
+    vertices_key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_vertices")
+    triangles_key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_triangles")
+
+    project.set_key_values(vertices_key, _flatten(vertices))
+    project.set_key_values(triangles_key, _flatten(triangles))
+    self.set_geometry_from_keys(vertices_key=vertices_key, triangles_key=triangles_key)
+
+
+@add_method(TriangulatedSurface)  # type: ignore[no-redef]
+def set_property(  # noqa: F811
+    self: TriangulatedSurface, name: str, values: List[float]
+) -> None:
+    """Sets a property on a triangulated surface.
+
+    Arguments:
+        name(str): Name of the property.
+        values (List[float]): One value per vertex (float32).
+    """
+    key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_key")
+
+    project = self.ancestor(Project)
+    if project:
+        project.set_key_values(key, values)
+        self.set_property_from_key(name=name, value_key=key)
+
+
+@add_method(TriangulatedSurface)  # type: ignore[no-redef]
+def available_properties(self: TriangulatedSurface) -> List[str]:  # noqa: F811
+    """Gets the list of available property names on a triangulated surface.
+
+    Returns:
+        List[str]: Names of all properties set on this surface.
+    """
+    result = self.property_names()
+    return result.values
+
+
+@add_method(TriangulatedSurface)  # type: ignore[no-redef]
+def get_property(self: TriangulatedSurface, name: str) -> List[float]:  # noqa: F811
+    """Gets a property from a triangulated surface.
+
+    Arguments:
+        name(str): Name of the property.
+
+    Returns:
+        List[float]: Values of the property (float32), one value per vertex.
+    """
+    key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_key")
 
     project = self.ancestor(Project)
     if not project:

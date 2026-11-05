@@ -12,6 +12,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFractureSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularFileSurface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTriangulatedSurface.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

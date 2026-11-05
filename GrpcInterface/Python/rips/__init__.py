@@ -27,6 +27,7 @@ from . import well_path_collection as well_path_collection  # noqa: F401, E402
 from .simulation_well import SimulationWell as SimulationWell  # noqa: E402
 from .exception import RipsError as RipsError  # noqa: E402
 from .surface import RegularSurface as RegularSurface  # noqa: E402
+from .surface import TriangulatedSurface as TriangulatedSurface  # noqa: E402
 from . import well_events as well_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
 from . import summary_ensemble as summary_ensemble  # noqa: F401, E402
