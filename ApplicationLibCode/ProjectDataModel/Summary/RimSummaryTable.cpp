@@ -831,23 +831,49 @@ QString RimSummaryTable::asciiDataForPlotExport() const
 {
     const auto excludedRows = this->excludedRows();
 
-    QString text = m_category().uiText();
+    // Build all cells first, so that each column can be padded to a common width. The padded cells are still
+    // separated by tabs, to keep the text both readable and easy to paste into a spreadsheet.
+    std::vector<std::vector<QString>> rows;
+
+    std::vector<QString> header = { m_category().uiText() };
     for ( const auto& timeStepString : timeStepStrings() )
     {
-        text += "\t" + timeStepString;
+        header.push_back( timeStepString );
     }
-    text += "\n";
+    rows.push_back( header );
 
     for ( const auto& vectorData : m_tableData.vectorDataCollection )
     {
         if ( excludedRows.contains( vectorData.category ) ) continue;
 
-        text += vectorData.category;
+        std::vector<QString> row = { vectorData.category };
         for ( const double value : vectorData.values )
         {
-            text += "\t" + QString::number( value, 'g', 10 );
+            row.push_back( QString::number( value, 'g', 6 ) );
         }
-        text += "\n";
+        rows.push_back( row );
+    }
+
+    std::vector<qsizetype> columnWidths;
+    for ( const auto& row : rows )
+    {
+        if ( columnWidths.size() < row.size() ) columnWidths.resize( row.size(), 0 );
+        for ( size_t col = 0; col < row.size(); ++col )
+        {
+            columnWidths[col] = std::max( columnWidths[col], row[col].size() );
+        }
+    }
+
+    QString text;
+    for ( const auto& row : rows )
+    {
+        QStringList cells;
+        for ( size_t col = 0; col < row.size(); ++col )
+        {
+            // Row names are left aligned, values and dates are right aligned
+            cells.push_back( col == 0 ? row[col].leftJustified( columnWidths[col] ) : row[col].rightJustified( columnWidths[col] ) );
+        }
+        text += cells.join( "\t" ) + "\n";
     }
 
     return text;
