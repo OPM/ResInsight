@@ -20,6 +20,7 @@
 
 #include <QString>
 
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -40,14 +41,21 @@ struct TableData
 {
     std::vector<VectorData> vectorDataCollection;
     std::set<time_t>        timeStepsUnion;
-    double                  maxValue       = 0.0;
-    double                  minValue       = 0.0;
-    double                  thresholdValue = 0.0;
+    double                  maxValue = 0.0;
+    double                  minValue = 0.0;
+    std::optional<double>   upperThresholdValue;
+    std::optional<double>   lowerThresholdValue;
     QString                 unitName;
 };
 
-bool                    hasValueAboveThreshold( const std::vector<double>& values, double thresholdValue );
-std::vector<VectorData> vectorsAboveThreshold( const std::vector<VectorData>& vectorDataCollection, double thresholdValue );
+// A value is beyond the thresholds if it is equal to or above upperThresholdValue, or equal to or below lowerThresholdValue.
+// When no threshold is given, values above zero are beyond the thresholds.
+bool                    hasValueAboveThreshold( const std::vector<double>& values,
+                                                std::optional<double>      upperThresholdValue,
+                                                std::optional<double>      lowerThresholdValue = std::nullopt );
+std::vector<VectorData> vectorsAboveThreshold( const std::vector<VectorData>& vectorDataCollection,
+                                               std::optional<double>          upperThresholdValue,
+                                               std::optional<double>          lowerThresholdValue = std::nullopt );
 void                    sortVectorDataOnDate( TableData& rTableData );
 std::vector<QString>    categoryNames( const std::vector<VectorData>& vectorDataCollection );
 } // namespace RimSummaryTableTools

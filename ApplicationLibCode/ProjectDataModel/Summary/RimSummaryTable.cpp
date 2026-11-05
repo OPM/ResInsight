@@ -35,10 +35,14 @@
 
 #include "RiuMatrixPlotWidget.h"
 
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <cmath>
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 
@@ -83,7 +87,23 @@ RimSummaryTable::RimSummaryTable()
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_resamplingSelection = RiaDefines::DateTimePeriod::YEAR;
 
-    CAF_PDM_InitField( &m_thresholdValue, "ThresholdValue", 0.0, "Threshold" );
+    CAF_PDM_InitField( &m_upperThreshold, "UpperThreshold", std::make_pair( false, 0.0 ), "Upper Threshold" );
+    m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    m_upperThreshold.uiCapability()->setUiToolTip(
+        "Keep rows with at least one value greater than or equal to this threshold. When both thresholds are enabled, rows are kept "
+        "if they have values beyond any of the thresholds. Use for example -50 and 50 to remove rows with all values between -50 "
+        "and 50." );
+    CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", std::make_pair( false, 0.0 ), "Lower Threshold" );
+    m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    m_lowerThreshold.uiCapability()->setUiToolTip(
+        "Keep rows with at least one value less than or equal to this threshold. When both thresholds are enabled, rows are kept "
+        "if they have values beyond any of the thresholds. Use for example -50 and 50 to remove rows with all values between -50 "
+        "and 50." );
+
+    // The default is NaN to detect if the keyword was present in the project file
+    CAF_PDM_InitField( &m_thresholdValue_OBSOLETE, "ThresholdValue", std::numeric_limits<double>::quiet_NaN(), "Threshold" );
+    m_thresholdValue_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_thresholdValue_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_excludedRowsUiField, "ExcludedTableRows", "Exclude Rows" );
     m_excludedRowsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -220,6 +240,26 @@ void RimSummaryTable::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryTable::initAfterRead()
+{
+    RimPlotWindow::initAfterRead();
+
+    // The threshold was always applied in older project files. A threshold of 0.0 (the old default) only excluded vectors
+    // without any non-negative values, which corresponds to having no threshold enabled. Enabling an upper threshold of
+    // 0.0 would also mark zero values as significant, so only non-zero thresholds are migrated.
+    if ( !std::isnan( m_thresholdValue_OBSOLETE() ) )
+    {
+        if ( m_thresholdValue_OBSOLETE() != 0.0 )
+        {
+            m_upperThreshold = std::make_pair( true, m_thresholdValue_OBSOLETE() );
+        }
+        m_thresholdValue_OBSOLETE = std::numeric_limits<double>::quiet_NaN();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
@@ -270,7 +310,8 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         onLoadDataAndUpdate();
     }
-    else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_thresholdValue )
+    else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_upperThreshold ||
+              changedField == &m_lowerThreshold )
     {
         if ( m_isAutomaticName )
         {
@@ -348,8 +389,11 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     dataGroup.add( &m_category );
     dataGroup.add( &m_vector );
     dataGroup.add( &m_resamplingSelection );
-    dataGroup.add( &m_thresholdValue );
     dataGroup.add( &m_excludedRowsUiField );
+
+    caf::PdmUiGroup* valueFilterGroup = dataGroup.addNewGroup( "Value Filter" );
+    valueFilterGroup->add( &m_upperThreshold );
+    valueFilterGroup->add( &m_lowerThreshold );
 
     caf::PdmUiGroup* timeFilterGroup = dataGroup.addNewGroup( "Time Filter" );
     timeFilterGroup->add( &m_filterTimeSteps );
@@ -713,8 +757,14 @@ RifSummaryReaderInterface* RimSummaryTable::summaryReaderWithAddresses()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::createTableData()
 {
-    m_tableData                = TableData();
-    m_tableData.thresholdValue = m_thresholdValue();
+    // Without thresholds, all rows are kept, and values above zero are used to find the first and last time step
+    m_tableData                     = TableData();
+    m_tableData.upperThresholdValue = m_upperThreshold().first ? std::optional<double>( m_upperThreshold().second ) : std::nullopt;
+    m_tableData.lowerThresholdValue = m_lowerThreshold().first ? std::optional<double>( m_lowerThreshold().second ) : std::nullopt;
+
+    const auto upperThreshold     = m_tableData.upperThresholdValue;
+    const auto lowerThreshold     = m_tableData.lowerThresholdValue;
+    const bool useThresholdFilter = upperThreshold || lowerThreshold;
 
     const auto summaryReader = summaryReaderWithAddresses();
     if ( !summaryReader ) return;
@@ -775,21 +825,24 @@ void RimSummaryTable::createTableData()
             if ( resampledValues.empty() ) continue;
         }
 
-        // Exclude vectors with values BELOW threshold - to include visualization of values equal to threshold!
-        const auto maxRowValue = *std::max_element( resampledValues.begin(), resampledValues.end() );
-        const auto minRowValue = *std::min_element( resampledValues.begin(), resampledValues.end() );
-        if ( maxRowValue < m_tableData.thresholdValue ) continue;
+        // Vectors are kept if they have values equal to or above the upper threshold, or equal to or below the lower
+        // threshold. This matches RimSummaryTableTools::hasValueAboveThreshold.
+        const auto maxRowValue  = *std::max_element( resampledValues.begin(), resampledValues.end() );
+        const auto minRowValue  = *std::min_element( resampledValues.begin(), resampledValues.end() );
+        const bool isAboveUpper = upperThreshold && maxRowValue >= *upperThreshold;
+        const bool isBelowLower = lowerThreshold && minRowValue <= *lowerThreshold;
+        if ( useThresholdFilter && !isAboveUpper && !isBelowLower ) continue;
 
-        // Detect if values contain at least one value ABOVE threshold
-        const bool hasValueAboveThreshold = RimSummaryTableTools::hasValueAboveThreshold( resampledValues, m_tableData.thresholdValue );
+        // Detect if values contain at least one value beyond the threshold(s)
+        const bool hasValueAboveThreshold = RimSummaryTableTools::hasValueAboveThreshold( resampledValues, upperThreshold, lowerThreshold );
 
-        // Find first and last time step with value above 0.0 when hasValueAboveThreshold flag is true (first and last should be
-        // valid/invalid simultaneously)
-        const auto firstTimeStepItr =
-            std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > 0.0; } );
-        const auto lastTimeStepItr =
-            std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > 0.0; } );
-        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
+        // Find first and last time step with value above 0.0 (or beyond the thresholds when filtering) when
+        // hasValueAboveThreshold flag is true (first and last should be valid/invalid simultaneously)
+        const auto isSignificant = [&]( double value )
+        { return RimSummaryTableTools::hasValueAboveThreshold( { value }, upperThreshold, lowerThreshold ); };
+        const auto firstTimeStepItr = std::find_if( resampledValues.begin(), resampledValues.end(), isSignificant );
+        const auto lastTimeStepItr  = std::find_if( resampledValues.rbegin(), resampledValues.rend(), isSignificant );
+        const auto firstIdx         = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
         const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
 
         const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;

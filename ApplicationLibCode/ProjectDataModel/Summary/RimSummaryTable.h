@@ -67,6 +67,7 @@ public:
 
 private:
     void cleanupBeforeClose();
+    void initAfterRead() override;
 
     void onLoadDataAndUpdate() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -120,7 +121,9 @@ private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<QString>                                                        m_vector;
     caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                       m_resamplingSelection;
-    caf::PdmField<double>                                                         m_thresholdValue;
+    caf::PdmField<std::pair<bool, double>>                                        m_upperThreshold;
+    caf::PdmField<std::pair<bool, double>>                                        m_lowerThreshold;
+    caf::PdmField<double>                                                         m_thresholdValue_OBSOLETE;
 
     caf::PdmField<std::vector<QString>> m_excludedRowsUiField;
 
