@@ -678,6 +678,9 @@ std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calcul
           { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Liquid, RigFlowDiagDefines::RelPermCurve::KROW, "KROW" },
           { RawCurve::Function::RelPerm, RawCurve::SubSystem::OilGas, Opm::ECLPhaseIndex::Liquid, RigFlowDiagDefines::RelPermCurve::KROG, "KROG" },
           { RawCurve::Function::CapPress, RawCurve::SubSystem::OilGas, Opm::ECLPhaseIndex::Vapour, RigFlowDiagDefines::RelPermCurve::PCOG, "PCOG" },
+          // Gas-water Pc. OPM returns an empty curve for the subsystem (OilGas/GasWater) that is not applicable,
+          // so at most one of the two gas Pc requests produces a curve
+          { RawCurve::Function::CapPress, RawCurve::SubSystem::GasWater, Opm::ECLPhaseIndex::Vapour, RigFlowDiagDefines::RelPermCurve::PCOG, "PCOG" },
           { RawCurve::Function::CapPress, RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua, RigFlowDiagDefines::RelPermCurve::PCOW, "PCOW" } };
 
     struct CurveRequest

@@ -105,7 +105,8 @@ private:
                                                  QString                      label,
                                                  QColor                       color,
                                                  QwtPlot*                     plot,
-                                                 std::vector<QwtPlotMarker*>* myPlotMarkers );
+                                                 std::vector<QwtPlotMarker*>* myPlotMarkers,
+                                                 Qt::Alignment                labelHorizontalAlignment = Qt::AlignRight );
 
     static void addCurveConstSaturationIntersectionMarker( const RigFlowDiagDefines::RelPermCurve& curve,
                                                            double                                  saturationValue,
