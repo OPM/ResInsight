@@ -178,7 +178,7 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaStdStringTools::formatThousandGrouping( long value )
+std::string RiaStdStringTools::formatThousandGrouping( int64_t value )
 {
     class my_punct : public std::numpunct<char>
     {
