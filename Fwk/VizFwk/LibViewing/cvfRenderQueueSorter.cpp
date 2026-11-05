@@ -44,6 +44,8 @@
 #include "cvfTBBControl.h"
 
 #include <algorithm>
+#include <unordered_map>
+#include <vector>
 
 #ifdef CVF_USE_TBB
 
@@ -130,31 +132,51 @@ public:
 
 
 
-//==================================================================================================
-//
-// Class with compare function used by EFFECT_ONLY strategy
-//
-//==================================================================================================
-class ComparatorEffectOnly
+//--------------------------------------------------------------------------------------------------
+/// Sort used by EFFECT_ONLY strategy. Orders the items by priority, and groups items within the same
+/// priority by effect. The effect groups are ordered by the first occurrence of each effect in the
+/// input, rather than by effect pointer address, so that the draw order of overlapping parts with
+/// equal priority is deterministic and independent of memory allocation.
+//--------------------------------------------------------------------------------------------------
+static void sortByPriorityAndEffect(std::vector<RenderItem*>::iterator begin, std::vector<RenderItem*>::iterator end)
 {
-public:
-    bool operator()(const RenderItem* a, const RenderItem* b) const
+    struct SortKey
     {
-        CVF_TIGHT_ASSERT(a && b);
-        CVF_TIGHT_ASSERT(a->part());
-        CVF_TIGHT_ASSERT(b->part());
+        int         priority;
+        size_t      effectRank;
+        size_t      inputIndex;
+        RenderItem* item;
+    };
 
-        // Always do priority first
-        if (a->part()->priority() != b->part()->priority())
-        {
-            return (a->part()->priority() < b->part()->priority());
-        }
-        else
-        {
-            return (a->effect() < b->effect());
-        }
+    if (end <= begin) return;
+
+    std::unordered_map<const Effect*, size_t> effectRanks;
+    std::vector<SortKey> keys;
+    keys.reserve(static_cast<size_t>(end - begin));
+
+    for (auto it = begin; it != end; ++it)
+    {
+        RenderItem* item = *it;
+        CVF_TIGHT_ASSERT(item);
+        CVF_TIGHT_ASSERT(item->part());
+
+        const size_t effectRank = effectRanks.emplace(item->effect(), effectRanks.size()).first->second;
+        keys.push_back({ item->part()->priority(), effectRank, keys.size(), item });
     }
-};
+
+    std::sort(keys.begin(), keys.end(), [](const SortKey& a, const SortKey& b)
+    {
+        if (a.priority != b.priority) return a.priority < b.priority;
+        if (a.effectRank != b.effectRank) return a.effectRank < b.effectRank;
+        return a.inputIndex < b.inputIndex;
+    });
+
+    auto it = begin;
+    for (const SortKey& key : keys)
+    {
+        *it++ = key.item;
+    }
+}
 
 
 
@@ -341,7 +363,7 @@ void RenderQueueSorterBasic::sort(RenderQueue* renderQueue) const
 	}
     else if (m_strategy == EFFECT_ONLY)
     {
-        sa.sort(renderItems->begin(), renderItems->end(), ComparatorEffectOnly());
+        sortByPriorityAndEffect(renderItems->begin(), renderItems->end());
     }
     else if (m_strategy == STANDARD)
     {
@@ -435,12 +457,14 @@ void RenderQueueSorterTargetFramerate::sort(RenderQueue* renderQueue) const
     SortAlgorithms sa(useTBB);
 
     sa.partial_sort(renderItems->begin(), renderItems->begin() + numItemsToDistSort, renderItems->end(), ComparatorDistance());
-    sa.sort(renderItems->begin(), renderItems->begin() + numItemsToDistSort, ComparatorEffectOnly());
+    sortByPriorityAndEffect(renderItems->begin(), renderItems->begin() + numItemsToDistSort);
 
     sa.sort(renderItems->begin() + numItemsToDistSort, renderItems->end(), ComparatorArea());
-    sa.sort(renderItems->begin() + numItemsToDistSort, renderItems->begin() + static_cast<int>(numItemsToDraw), ComparatorEffectOnly());
+    // The distance sorted items may exceed the number of items to draw, so make sure the range is never reversed
+    const std::vector<RenderItem*>::difference_type drawEnd = std::max(numItemsToDraw, numItemsToDistSort);
+    sortByPriorityAndEffect(renderItems->begin() + numItemsToDistSort, renderItems->begin() + drawEnd);
 
-    sa.sort(renderItems->begin() + numItemsToDraw, renderItems->end(), ComparatorEffectOnly());
+    sortByPriorityAndEffect(renderItems->begin() + drawEnd, renderItems->end());
 }
 
 } // namespace cvf

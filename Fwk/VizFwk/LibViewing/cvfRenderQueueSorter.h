@@ -74,7 +74,7 @@ public:
     enum SortStrategy
     {
         MINIMAL,		// Does a minimum of sorting, currently only sorts on priority
-        EFFECT_ONLY,    // A simple render queue sorter ordering the items by effect object (and priority)
+        EFFECT_ONLY,    // Orders the items by priority, then groups by effect in order of first occurrence (deterministic)
         STANDARD,       // Currently experimental, but should eventually become the default sorter
         BACK_TO_FRONT   // Sorts parts in a back to front order (useful for e.g. transparency)
     };
