@@ -27,21 +27,6 @@
 
 #include <limits>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::setUp()
-{
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::MEAN, "MEAN", "Mean" );
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::MIN, "MIN", "Minimum" );
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::MAX, "MAX", "Maximum" );
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::P10, "P10", "P10" );
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::P50, "P50", "P50" );
-    addItem( RigSurfaceStatisticsCalculator::StatisticsType::P90, "P90", "P90" );
-    setDefault( RigSurfaceStatisticsCalculator::StatisticsType::MEAN );
-}
-}; // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -102,14 +87,14 @@ cvf::ref<RigSurface> RigSurfaceStatisticsCalculator::computeStatistics( const st
     cvf::ref<RigSurface> statSurface = cvf::make_ref<RigSurface>();
     statSurface->setTriangleData( surfaces[0]->triangleIndices(), surfaces[0]->vertices() );
 
-    auto enumToText = []( auto statisticsType ) { return caf::AppEnum<StatisticsType>::text( statisticsType ); };
+    auto enumToText = []( auto statisticsType ) { return caf::AppEnum<RiaDefines::StatisticsType>::text( statisticsType ); };
 
-    statSurface->addVertexResult( enumToText( StatisticsType::MEAN ), meanValues );
-    statSurface->addVertexResult( enumToText( StatisticsType::MIN ), minValues );
-    statSurface->addVertexResult( enumToText( StatisticsType::MAX ), maxValues );
-    statSurface->addVertexResult( enumToText( StatisticsType::P10 ), p10Values );
-    statSurface->addVertexResult( enumToText( StatisticsType::P50 ), p50Values );
-    statSurface->addVertexResult( enumToText( StatisticsType::P90 ), p90Values );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::MEAN ), meanValues );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::MIN ), minValues );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::MAX ), maxValues );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::P10 ), p10Values );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::P50 ), p50Values );
+    statSurface->addVertexResult( enumToText( RiaDefines::StatisticsType::P90 ), p90Values );
 
     return statSurface;
 }

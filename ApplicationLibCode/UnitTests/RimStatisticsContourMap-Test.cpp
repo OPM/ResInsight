@@ -211,12 +211,12 @@ std::vector<double> verifyDataFilterIsApplied( GridModeType gridMode, GridImport
     if ( !map ) return {};
 
     RimStatisticsContourMap::computeStatisticsForMaps( { map } );
-    const auto unfiltered = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto unfiltered = map->result( 0, RiaDefines::StatisticsType::MEAN );
     EXPECT_GT( countValidValues( unfiltered ), 0u );
 
     setDataFilter( map, addTopLayerFilter( ensemble.get() ) );
     RimStatisticsContourMap::computeStatisticsForMaps( { map } );
-    const auto filtered = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto filtered = map->result( 0, RiaDefines::StatisticsType::MEAN );
 
     EXPECT_EQ( unfiltered.size(), filtered.size() );
     if ( unfiltered.size() != filtered.size() ) return {};
@@ -229,7 +229,7 @@ std::vector<double> verifyDataFilterIsApplied( GridModeType gridMode, GridImport
     excludeFilter->setFilterMode( RimCellFilter::EXCLUDE );
     setDataFilter( map, excludeFilter );
     RimStatisticsContourMap::computeStatisticsForMaps( { map } );
-    const auto excluded = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto excluded = map->result( 0, RiaDefines::StatisticsType::MEAN );
 
     EXPECT_GT( countDifferentValues( filtered, excluded ), 0u );
 
@@ -338,8 +338,8 @@ TEST( RimStatisticsContourMapTest, StaticResultWithDynamicFilterProducesResultsP
 
     RimStatisticsContourMap::computeStatisticsForMaps( { map } );
 
-    const auto resultAtFirstStep = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
-    const auto resultAtLastStep  = map->result( 1, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto resultAtFirstStep = map->result( 0, RiaDefines::StatisticsType::MEAN );
+    const auto resultAtLastStep  = map->result( 1, RiaDefines::StatisticsType::MEAN );
 
     EXPECT_GT( countValidValues( resultAtFirstStep ), 0u );
     EXPECT_GT( countValidValues( resultAtLastStep ), 0u );
@@ -462,8 +462,8 @@ TEST( RimStatisticsContourMapTest, EnsureResultsComputedMakesGeneratedResultDyna
     EXPECT_TRUE( ( *resultDefinitionField )()->hasDynamicResult() );
     EXPECT_EQ( ( std::vector<int>{ 0, lastTimeStep } ), map->selectedTimeSteps() );
 
-    const auto resultAtFirstStep = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
-    const auto resultAtLastStep  = map->result( 1, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto resultAtFirstStep = map->result( 0, RiaDefines::StatisticsType::MEAN );
+    const auto resultAtLastStep  = map->result( 1, RiaDefines::StatisticsType::MEAN );
     EXPECT_GT( countValidValues( resultAtFirstStep ), 0u );
     EXPECT_GT( countValidValues( resultAtLastStep ), 0u );
 

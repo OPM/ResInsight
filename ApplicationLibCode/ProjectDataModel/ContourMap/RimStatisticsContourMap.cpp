@@ -158,18 +158,6 @@ void caf::AppEnum<RimStatisticsContourMap::GridImportMode>::setUp()
     addItem( RimStatisticsContourMap::GridImportMode::INDIVIDUAL_GRIDS, "INDIVIDUAL_GRIDS", "Import All Grids" );
     setDefault( RimStatisticsContourMap::GridImportMode::SHARED_GRID );
 }
-
-template <>
-void caf::AppEnum<RimStatisticsContourMap::StatisticsType>::setUp()
-{
-    addItem( RimStatisticsContourMap::StatisticsType::P10, "P10", "P10" );
-    addItem( RimStatisticsContourMap::StatisticsType::P50, "P50", "P50" );
-    addItem( RimStatisticsContourMap::StatisticsType::P90, "P90", "P90" );
-    addItem( RimStatisticsContourMap::StatisticsType::MEAN, "MEAN", "Mean" );
-    addItem( RimStatisticsContourMap::StatisticsType::MIN, "MIN", "Minimum" );
-    addItem( RimStatisticsContourMap::StatisticsType::MAX, "MAX", "Maximum" );
-    setDefault( RimStatisticsContourMap::StatisticsType::MEAN );
-}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -614,12 +602,12 @@ void RimStatisticsContourMap::doStatisticsCalculation( TimestepResultsMap& times
             if ( RigStatisticsTools::isValidNumber( maxValue ) && maxValue > -std::numeric_limits<double>::max() ) maxResults[i] = maxValue;
         }
 
-        m_timeResults[timeStep][StatisticsType::P10]  = p10Results;
-        m_timeResults[timeStep][StatisticsType::P50]  = p50Results;
-        m_timeResults[timeStep][StatisticsType::P90]  = p90Results;
-        m_timeResults[timeStep][StatisticsType::MEAN] = meanResults;
-        m_timeResults[timeStep][StatisticsType::MIN]  = minResults;
-        m_timeResults[timeStep][StatisticsType::MAX]  = maxResults;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::P10]  = p10Results;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::P50]  = p50Results;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::P90]  = p90Results;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::MEAN] = meanResults;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::MIN]  = minResults;
+        m_timeResults[timeStep][RiaDefines::StatisticsType::MAX]  = maxResults;
     }
 }
 
@@ -958,7 +946,7 @@ RigContourMapGrid* RimStatisticsContourMap::contourMapGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStatisticsContourMap::result( size_t timeStep, StatisticsType statisticsType ) const
+std::vector<double> RimStatisticsContourMap::result( size_t timeStep, RiaDefines::StatisticsType statisticsType ) const
 {
     auto realTimeSteps = selectedTimeSteps();
     if ( timeStep >= realTimeSteps.size() ) return {};
@@ -1198,12 +1186,12 @@ bool RimStatisticsContourMap::loadCachedResults()
 
     const cvf::Vec2ui& mapSize = contourMapGrid->mapSize();
 
-    std::map<size_t, std::map<StatisticsType, std::vector<double>>> timeResults;
+    std::map<size_t, std::map<RiaDefines::StatisticsType, std::vector<double>>> timeResults;
     for ( int timeStep : m_cacheTimeSteps() )
     {
-        for ( size_t statisticsTypeIndex = 0; statisticsTypeIndex < caf::AppEnum<StatisticsType>::size(); ++statisticsTypeIndex )
+        for ( size_t statisticsTypeIndex = 0; statisticsTypeIndex < caf::AppEnum<RiaDefines::StatisticsType>::size(); ++statisticsTypeIndex )
         {
-            const StatisticsType statisticsType = caf::AppEnum<StatisticsType>::fromIndex( statisticsTypeIndex );
+            const RiaDefines::StatisticsType statisticsType = caf::AppEnum<RiaDefines::StatisticsType>::fromIndex( statisticsTypeIndex );
 
             const QString fileName = cacheFileName( m_cacheFileBaseName(), statisticsType, timeStep );
 
@@ -1352,10 +1340,10 @@ void RimStatisticsContourMap::setupBeforeSave()
 /// Full path of the cache file for one statistics type and time step, e.g.
 /// "<project>_cache/Ensemble_Contour_Map_1-1a2b3c4d_MEAN_36.gri"
 //--------------------------------------------------------------------------------------------------
-QString RimStatisticsContourMap::cacheFileName( const QString& baseName, StatisticsType statisticsType, size_t timeStep ) const
+QString RimStatisticsContourMap::cacheFileName( const QString& baseName, RiaDefines::StatisticsType statisticsType, size_t timeStep ) const
 {
     return QString( "%1/%2_%3_%4.gri" )
-        .arg( getCacheDirectoryPath(), baseName, caf::AppEnum<StatisticsType>::text( statisticsType ), QString::number( timeStep ) );
+        .arg( getCacheDirectoryPath(), baseName, caf::AppEnum<RiaDefines::StatisticsType>::text( statisticsType ), QString::number( timeStep ) );
 }
 
 //--------------------------------------------------------------------------------------------------

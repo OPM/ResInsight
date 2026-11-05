@@ -71,18 +71,6 @@ void AppEnum<RimSummaryTable::DataSource>::setUp()
     addItem( RimSummaryTable::DataSource::ENSEMBLE_STATISTICS, "ENSEMBLE_STATISTICS", "Ensemble Statistics" );
     setDefault( RimSummaryTable::DataSource::SINGLE_CASE );
 }
-
-template <>
-void AppEnum<RimSummaryTable::EnsembleStatistic>::setUp()
-{
-    addItem( RimSummaryTable::EnsembleStatistic::MIN, "MIN", "Min" );
-    addItem( RimSummaryTable::EnsembleStatistic::P90, "P90", "P90" );
-    addItem( RimSummaryTable::EnsembleStatistic::P50, "P50", "P50" );
-    addItem( RimSummaryTable::EnsembleStatistic::MEAN, "MEAN", "Mean" );
-    addItem( RimSummaryTable::EnsembleStatistic::P10, "P10", "P10" );
-    addItem( RimSummaryTable::EnsembleStatistic::MAX, "MAX", "Max" );
-    setDefault( RimSummaryTable::EnsembleStatistic::MEAN );
-}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -906,29 +894,29 @@ const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisti
         m_ensembleStatisticsCase->calculate( m_ensemble->allSummaryCases(), address, false, { 0, 100 } );
 
         // Percentiles use the switched (oil industry) convention: percentile 0 is the maximum, percentile 100 is the minimum
-        const auto statisticsAddress = [&address]( EnsembleStatistic statistic )
+        const auto statisticsAddress = [&address]( RiaDefines::StatisticsType statistic )
         {
             auto adr = address;
             switch ( statistic )
             {
-                case EnsembleStatistic::MIN:
+                case RiaDefines::StatisticsType::MIN:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM );
                     adr.setPercentile( 100 );
                     break;
-                case EnsembleStatistic::MAX:
+                case RiaDefines::StatisticsType::MAX:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM );
                     adr.setPercentile( 0 );
                     break;
-                case EnsembleStatistic::P10:
+                case RiaDefines::StatisticsType::P10:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P10 );
                     break;
-                case EnsembleStatistic::P50:
+                case RiaDefines::StatisticsType::P50:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P50 );
                     break;
-                case EnsembleStatistic::P90:
+                case RiaDefines::StatisticsType::P90:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P90 );
                     break;
-                case EnsembleStatistic::MEAN:
+                case RiaDefines::StatisticsType::MEAN:
                     adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::MEAN );
                     break;
             }
@@ -940,12 +928,12 @@ const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisti
         // The unit is read from the first realization, which only knows the plain (non-statistics) address
         data.unitName = m_ensembleStatisticsCase->unitName( address );
 
-        for ( auto statistic : { EnsembleStatistic::MIN,
-                                 EnsembleStatistic::P90,
-                                 EnsembleStatistic::P50,
-                                 EnsembleStatistic::MEAN,
-                                 EnsembleStatistic::P10,
-                                 EnsembleStatistic::MAX } )
+        for ( auto statistic : { RiaDefines::StatisticsType::MIN,
+                                 RiaDefines::StatisticsType::P90,
+                                 RiaDefines::StatisticsType::P50,
+                                 RiaDefines::StatisticsType::MEAN,
+                                 RiaDefines::StatisticsType::P10,
+                                 RiaDefines::StatisticsType::MAX } )
         {
             auto [isOk, values]    = m_ensembleStatisticsCase->values( statisticsAddress( statistic ) );
             data.values[statistic] = std::move( values );

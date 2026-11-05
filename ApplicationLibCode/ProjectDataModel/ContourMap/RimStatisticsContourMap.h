@@ -20,6 +20,8 @@
 
 #include "RimNamedObject.h"
 
+#include "RiaStatisticsDefines.h"
+
 #include "ContourMap/RimContourMapResolutionTools.h"
 #include "RimContourMapProjection.h"
 
@@ -54,16 +56,6 @@ class RimStatisticsContourMap : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class StatisticsType
-    {
-        P10,
-        P50,
-        P90,
-        MEAN,
-        MIN,
-        MAX
-    };
-
     enum class GridImportMode
     {
         SHARED_GRID,
@@ -82,7 +74,7 @@ public:
     QString ensembleName() const;
 
     RigContourMapGrid*  contourMapGrid() const;
-    std::vector<double> result( size_t timeStep, StatisticsType statisticsType ) const;
+    std::vector<double> result( size_t timeStep, RiaDefines::StatisticsType statisticsType ) const;
 
     void                                      addView( RimStatisticsContourMapView* view );
     std::vector<RimStatisticsContourMapView*> views() const;
@@ -126,7 +118,7 @@ private:
     QString        computeCacheValidityKey() const;
     bool           loadCachedResults();
     bool           writeCachedResults( const QString& baseName ) const;
-    QString        cacheFileName( const QString& baseName, StatisticsType statisticsType, size_t timeStep ) const;
+    QString        cacheFileName( const QString& baseName, RiaDefines::StatisticsType statisticsType, size_t timeStep ) const;
     QString        getValidCacheFileBaseName() const;
     void           deleteCacheFiles() const;
     void           clearCacheFields();
@@ -166,8 +158,8 @@ private:
     caf::PdmField<std::vector<double>> m_cacheExpandedBoundingBox;
     caf::PdmField<std::vector<int>>    m_cacheMapSize;
 
-    std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
-    std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
+    std::unique_ptr<RigContourMapGrid>                                          m_contourMapGrid;
+    std::map<size_t, std::map<RiaDefines::StatisticsType, std::vector<double>>> m_timeResults;
 
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 
