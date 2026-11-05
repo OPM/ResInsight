@@ -368,7 +368,7 @@ QAction* RiuDockWidgetTools::toggleActionForWidget( const ads::CDockManager* doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName )
+void RiuDockWidgetTools::setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName, bool userLayout )
 {
     if ( mainWindow == nullptr ) return;
 
@@ -380,8 +380,17 @@ void RiuDockWidgetTools::setDockLayout( RiuMainWindowBase* mainWindow, const QSt
 
     if ( auto dm = mainWindow->dockManager() )
     {
-        QByteArray state = RiuDockWidgetTools::defaultDockState( layoutName );
-        if ( dm->restoreState( state, RiuMainWindowBase::DOCKSTATE_VERSION ) )
+        bool loadOk = false;
+        if ( userLayout )
+        {
+            loadOk = dm->openPerspective( layoutName );
+        }
+        else
+        {
+            QByteArray state = RiuDockWidgetTools::defaultDockState( layoutName );
+            loadOk           = dm->restoreState( state, RiuMainWindowBase::DOCKSTATE_VERSION );
+        }
+        if ( loadOk )
         {
             for ( auto view : mainWindow->viewWindows() )
             {
