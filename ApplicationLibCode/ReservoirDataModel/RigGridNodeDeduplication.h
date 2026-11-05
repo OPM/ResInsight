@@ -25,6 +25,8 @@
 
 //==================================================================================================
 /// Removal of grid nodes with exactly equal coordinates.
+///
+/// The algorithm is described in docs/remove-duplicate-grid-nodes.md
 //==================================================================================================
 namespace RigGridNodeDeduplication
 {

@@ -22,8 +22,15 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
+#include "RigGridNodeDeduplication.h"
 #include "RigMainGrid.h"
 #include "RigReservoirBuilder.h"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -218,6 +225,59 @@ TEST( RigMainGridTest, RemoveDuplicateNodesKeepsFaultedNodesSeparate )
 
     EXPECT_EQ( 4u, mainGrid->removeDuplicateNodes() );
     EXPECT_EQ( 12u, mainGrid->nodes().size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridTest, RemoveDuplicateNodesKeepsFirstOccurrenceOrderAcrossBlocks )
+{
+    // 32000 nodes span several blocks of the parallel deduplication
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( 20, 20, 10 ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 20.0, 20.0, -10.0 ) );
+
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
+    builder.createGridsAndCells( eclipseCase.p() );
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
+    std::vector<cvf::Vec3d>                expectedNodes;
+    std::set<std::array<double, 3>>        seen;
+    std::vector<std::array<cvf::Vec3d, 8>> cornersBefore;
+    for ( const cvf::Vec3d& node : mainGrid->nodes() )
+    {
+        if ( seen.insert( { node.x(), node.y(), node.z() } ).second ) expectedNodes.push_back( node );
+    }
+    for ( size_t cellIndex = 0; cellIndex < mainGrid->cellCount(); cellIndex++ )
+    {
+        cornersBefore.push_back( mainGrid->cellCornerVertices( cellIndex ) );
+    }
+
+    EXPECT_EQ( 32000u - 21u * 21u * 11u, mainGrid->removeDuplicateNodes() );
+    ASSERT_EQ( expectedNodes.size(), mainGrid->nodes().size() );
+    EXPECT_TRUE( std::equal( expectedNodes.begin(), expectedNodes.end(), mainGrid->nodes().begin() ) );
+
+    for ( size_t cellIndex = 0; cellIndex < mainGrid->cellCount(); cellIndex++ )
+    {
+        EXPECT_EQ( cornersBefore[cellIndex], mainGrid->cellCornerVertices( cellIndex ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigGridNodeDeduplicationTest, NanNodesWithEqualBitsAreMerged )
+{
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+
+    std::vector<cvf::Vec3d> nodes = { { nan, 0.0, 0.0 }, { 1.0, 2.0, 3.0 }, { nan, 0.0, 0.0 }, { nan, 0.0, 0.0 } };
+
+    const std::vector<uint32_t> oldToNew = RigGridNodeDeduplication::removeDuplicateNodes( nodes );
+
+    ASSERT_EQ( 2u, nodes.size() );
+    EXPECT_TRUE( std::isnan( nodes[0].x() ) );
+    EXPECT_EQ( cvf::Vec3d( 1.0, 2.0, 3.0 ), nodes[1] );
+    EXPECT_EQ( ( std::vector<uint32_t>{ 0, 1, 0, 0 } ), oldToNew );
 }
 
 //--------------------------------------------------------------------------------------------------
