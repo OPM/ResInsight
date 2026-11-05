@@ -29,11 +29,33 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
                                               const std::vector<cvf::Vec3d>& vertices,
                                               const std::vector<unsigned>&   triangleIndices )
 {
+    return writeGocadTSurfFile( fileName, headerText, vertices, triangleIndices, {}, {} );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Writes one PVRTX line per vertex with the property values when properties are given
+//--------------------------------------------------------------------------------------------------
+bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                         fileName,
+                                              const QString&                         headerText,
+                                              const std::vector<cvf::Vec3d>&         vertices,
+                                              const std::vector<unsigned>&           triangleIndices,
+                                              const std::vector<QString>&            propertyNames,
+                                              const std::vector<std::vector<float>>& propertyValues )
+{
+    if ( propertyNames.size() != propertyValues.size() ) return false;
+    for ( const auto& values : propertyValues )
+    {
+        if ( values.size() != vertices.size() ) return false;
+    }
+
     QFile exportFile( fileName );
 
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
 
     QTextStream out( &exportFile );
+
+    // The default precision of 6 digits truncates UTM coordinates
+    out.setRealNumberPrecision( 16 );
 
     QString headerForExport = "surface";
     if ( !headerText.isEmpty() ) headerForExport = headerText;
@@ -42,6 +64,18 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
     out << "HEADER { \n";
     out << "name:" + headerForExport + " \n";
     out << "} \n";
+
+    if ( !propertyNames.empty() )
+    {
+        // The importer splits property names on spaces
+        out << "PROPERTIES";
+        for ( const auto& name : propertyNames )
+        {
+            out << " " << QString( name ).replace( ' ', '_' );
+        }
+        out << " \n";
+    }
+
     out << "GOCAD_ORIGINAL_COORDINATE_SYSTEM \n";
     out << "NAME Default  \n";
     out << "AXIS_NAME \"X\" \"Y\" \"Z\" \n";
@@ -54,11 +88,15 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
     size_t i = 1;
     for ( auto v : vertices )
     {
-        out << "VRTX " << i << " ";
+        out << ( propertyNames.empty() ? "VRTX " : "PVRTX " ) << i << " ";
         out << v.x() << " ";
         out << v.y() << " ";
         out << -v.z() << " ";
-        out << "CNXYZ\n";
+        for ( const auto& values : propertyValues )
+        {
+            out << values[i - 1] << " ";
+        }
+        out << ( propertyNames.empty() ? "CNXYZ\n" : "\n" );
 
         i++;
     }
