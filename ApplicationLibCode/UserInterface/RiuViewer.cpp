@@ -550,7 +550,8 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
         m_histogramWidget->render( painter, QPoint( columnPos, yPos ) );
     }
 
-    if ( m_showVersionInfo ) // Version Label
+    // The version is never shown in regression tests, to avoid image differences between versions
+    if ( m_showVersionInfo && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) // Version Label
     {
         QSize  size( m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height() );
         QPoint pos( trueWidth - size.width() - margin - edgeAxisFrameBorderWidth,
