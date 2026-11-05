@@ -37,8 +37,8 @@ RimcNestedCollectionBase::RimcNestedCollectionBase( caf::PdmObjectHandle* self )
     CAF_PDM_InitObject( "Add Folder",
                         "",
                         "",
-                        "Add a new folder. Raises an error on a folder that cannot hold folders, such as an imported "
-                        "polygon file or a cloud polygon folder" );
+                        "Add a new folder. Raises an error on a folder that cannot hold folders: an imported "
+                        "polygon file, or a cloud polygon source, folder or address" );
 
     CAF_PDM_InitScriptableField( &m_folderName, "FolderName", QString( "Folder" ), "", "", "", "New folder name" );
     CAF_PDM_InitScriptableField( &m_onNameConflict,

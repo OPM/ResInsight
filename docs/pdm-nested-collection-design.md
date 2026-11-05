@@ -4,7 +4,7 @@
 
 `caf::PdmNestedCollection` is the base class for tree-shaped PDM containers — a
 folder of items that can also contain folders of the same kind. The design is a
-non-template concrete base + a CRTP template:
+non-template abstract base + a CRTP template:
 
 ```cpp
 class PdmNestedCollectionBase : public PdmObject
@@ -49,10 +49,11 @@ diamond shapes.
 
 Two needs that don't fit into a single layer:
 
-- **CAF method registration is keyed by `classKeyword`** — only a concrete
-  non-template class can serve as the anchor. Hence the non-template
-  `PdmNestedCollectionBase`. Without it, generic script methods (`AddFolder`)
-  would have to be re-registered per derived class.
+- **CAF method registration is keyed by `classKeyword`** — only a non-template
+  class has a single keyword that can serve as the anchor. Hence the non-template
+  `PdmNestedCollectionBase`, registered with `CAF_PDM_ABSTRACT_SOURCE_INIT`.
+  Without it, generic script methods (`AddFolder`) would have to be
+  re-registered per derived class.
 
 - **Typed storage and accessors** — `m_subCollections : PdmChildArrayField<SelfT*>`
   needs `SelfT`, which only exists as a template parameter. Hence the CRTP
