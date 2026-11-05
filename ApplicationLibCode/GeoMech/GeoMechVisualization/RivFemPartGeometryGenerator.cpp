@@ -30,8 +30,10 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <type_traits>
 
 using namespace cvf;
 
@@ -129,7 +131,6 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 //--------------------------------------------------------------------------------------------------
 void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
-    std::vector<Vec3f> vertices;
     std::vector<int>&  trianglesToElements     = m_triangleMapper->triangleToElmIndexMap();
     std::vector<char>& trianglesToElementFaces = m_triangleMapper->triangleToElmFaceMap();
 
@@ -140,20 +141,35 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& 
     trianglesToElements.clear();
     trianglesToElementFaces.clear();
 
-    size_t estimatedQuadVxCount = m_part->elementCount() * 6 * 4;
+    struct QuadArrays
+    {
+        std::vector<Vec3f>  vertices;
+        std::vector<size_t> quadVerticesToNodeIdx;
+        std::vector<size_t> quadVerticesToGlobalElmNodeIdx;
+        std::vector<size_t> quadVerticesToGlobalElmFaceNodeIdx;
+        std::vector<size_t> quadVerticesToGlobalElmIdx;
+        std::vector<int>    trianglesToElements;
+        std::vector<char>   trianglesToElementFaces;
+    };
 
-    vertices.reserve( estimatedQuadVxCount );
-    m_quadVerticesToNodeIdx.reserve( estimatedQuadVxCount );
-    m_quadVerticesToGlobalElmNodeIdx.reserve( estimatedQuadVxCount );
-    m_quadVerticesToGlobalElmIdx.reserve( estimatedQuadVxCount );
-    trianglesToElements.reserve( estimatedQuadVxCount / 2 );
-    trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
+    // Collect the quads per block of elements and concatenate the blocks in element order afterwards, so the quad
+    // order is independent of thread scheduling. A varying quad order gives nondeterministic rendering of
+    // overlapping transparent faces.
+    const int               elementCount     = static_cast<int>( m_part->elementCount() );
+    const int               elementBlockSize = 4096;
+    const int               blockCount       = ( elementCount + elementBlockSize - 1 ) / elementBlockSize;
+    std::vector<QuadArrays> blockArrays( blockCount );
 
 #pragma omp parallel for schedule( dynamic )
-    for ( int elmIdx = 0; elmIdx < static_cast<int>( m_part->elementCount() ); elmIdx++ )
+    for ( int blockIdx = 0; blockIdx < blockCount; blockIdx++ )
     {
-        if ( m_elmVisibility.isNull() || ( *m_elmVisibility )[elmIdx] )
+        QuadArrays& arrays = blockArrays[blockIdx];
+
+        const int blockEnd = std::min( elementCount, ( blockIdx + 1 ) * elementBlockSize );
+        for ( int elmIdx = blockIdx * elementBlockSize; elmIdx < blockEnd; elmIdx++ )
         {
+            if ( m_elmVisibility.notNull() && !( *m_elmVisibility )[elmIdx] ) continue;
+
             RigElementType eType     = m_part->elementType( elmIdx );
             int            faceCount = RigFemTypes::elementFaceCount( eType );
 
@@ -174,57 +190,23 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& 
                 const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
-                    cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - m_displayOffset );
-                    cvf::Vec3f quadVxs1( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - m_displayOffset );
-                    cvf::Vec3f quadVxs2( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - m_displayOffset );
-                    cvf::Vec3f quadVxs3( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - m_displayOffset );
+                    int elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
 
-                    int qNodeIdx[4];
-                    qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
-                    qNodeIdx[1] = elmNodeIndices[localElmNodeIndicesForFace[1]];
-                    qNodeIdx[2] = elmNodeIndices[localElmNodeIndicesForFace[2]];
-                    qNodeIdx[3] = elmNodeIndices[localElmNodeIndicesForFace[3]];
-
-                    size_t qElmNodeResIdx[4];
-                    qElmNodeResIdx[0] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
-                    qElmNodeResIdx[1] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
-                    qElmNodeResIdx[2] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
-                    qElmNodeResIdx[3] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
-
-#pragma omp critical( critical_section_RivFemPartGeometryGenerator_computeArrays )
+                    for ( int n = 0; n < 4; n++ )
                     {
-                        vertices.push_back( quadVxs0 );
-                        vertices.push_back( quadVxs1 );
-                        vertices.push_back( quadVxs2 );
-                        vertices.push_back( quadVxs3 );
+                        const int nodeIdx = elmNodeIndices[localElmNodeIndicesForFace[n]];
 
-                        m_quadVerticesToNodeIdx.push_back( qNodeIdx[0] );
-                        m_quadVerticesToNodeIdx.push_back( qNodeIdx[1] );
-                        m_quadVerticesToNodeIdx.push_back( qNodeIdx[2] );
-                        m_quadVerticesToNodeIdx.push_back( qNodeIdx[3] );
-
-                        m_quadVerticesToGlobalElmNodeIdx.push_back( qElmNodeResIdx[0] );
-                        m_quadVerticesToGlobalElmNodeIdx.push_back( qElmNodeResIdx[1] );
-                        m_quadVerticesToGlobalElmNodeIdx.push_back( qElmNodeResIdx[2] );
-                        m_quadVerticesToGlobalElmNodeIdx.push_back( qElmNodeResIdx[3] );
-
-                        int elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
-
-                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back( elmNodFaceResIdxFaceStart + 0 );
-                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back( elmNodFaceResIdxFaceStart + 1 );
-                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back( elmNodFaceResIdxFaceStart + 2 );
-                        m_quadVerticesToGlobalElmFaceNodeIdx.push_back( elmNodFaceResIdxFaceStart + 3 );
-
-                        m_quadVerticesToGlobalElmIdx.push_back( elmIdx );
-                        m_quadVerticesToGlobalElmIdx.push_back( elmIdx );
-                        m_quadVerticesToGlobalElmIdx.push_back( elmIdx );
-                        m_quadVerticesToGlobalElmIdx.push_back( elmIdx );
-
-                        trianglesToElements.push_back( elmIdx );
-                        trianglesToElements.push_back( elmIdx );
-                        trianglesToElementFaces.push_back( lfIdx );
-                        trianglesToElementFaces.push_back( lfIdx );
+                        arrays.vertices.push_back( cvf::Vec3f( cvf::Vec3d( nodeCoordinates[nodeIdx] ) - m_displayOffset ) );
+                        arrays.quadVerticesToNodeIdx.push_back( nodeIdx );
+                        arrays.quadVerticesToGlobalElmNodeIdx.push_back( m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[n] ) );
+                        arrays.quadVerticesToGlobalElmFaceNodeIdx.push_back( elmNodFaceResIdxFaceStart + n );
+                        arrays.quadVerticesToGlobalElmIdx.push_back( elmIdx );
                     }
+
+                    arrays.trianglesToElements.push_back( elmIdx );
+                    arrays.trianglesToElements.push_back( elmIdx );
+                    arrays.trianglesToElementFaces.push_back( lfIdx );
+                    arrays.trianglesToElementFaces.push_back( lfIdx );
                 }
                 else
                 {
@@ -232,6 +214,40 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& 
                 }
             }
         }
+    }
+
+    size_t quadVertexCount = 0;
+    for ( const QuadArrays& arrays : blockArrays )
+    {
+        quadVertexCount += arrays.vertices.size();
+    }
+
+    std::vector<Vec3f> vertices;
+    vertices.reserve( quadVertexCount );
+    m_quadVerticesToNodeIdx.reserve( quadVertexCount );
+    m_quadVerticesToGlobalElmNodeIdx.reserve( quadVertexCount );
+    m_quadVerticesToGlobalElmFaceNodeIdx.reserve( quadVertexCount );
+    m_quadVerticesToGlobalElmIdx.reserve( quadVertexCount );
+    trianglesToElements.reserve( quadVertexCount / 2 );
+    trianglesToElementFaces.reserve( quadVertexCount / 2 );
+
+    auto append = []( auto& target, auto& source )
+    {
+        target.insert( target.end(), source.begin(), source.end() );
+
+        // Release the per block memory as soon as it has been copied
+        std::remove_reference_t<decltype( source )>().swap( source );
+    };
+
+    for ( QuadArrays& arrays : blockArrays )
+    {
+        append( vertices, arrays.vertices );
+        append( m_quadVerticesToNodeIdx, arrays.quadVerticesToNodeIdx );
+        append( m_quadVerticesToGlobalElmNodeIdx, arrays.quadVerticesToGlobalElmNodeIdx );
+        append( m_quadVerticesToGlobalElmFaceNodeIdx, arrays.quadVerticesToGlobalElmFaceNodeIdx );
+        append( m_quadVerticesToGlobalElmIdx, arrays.quadVerticesToGlobalElmIdx );
+        append( trianglesToElements, arrays.trianglesToElements );
+        append( trianglesToElementFaces, arrays.trianglesToElementFaces );
     }
 
     m_quadVertices = new cvf::Vec3fArray;

@@ -375,15 +375,26 @@ bool StructGridGeometryGenerator::isCellFaceVisible( size_t i, size_t j, size_t 
 //--------------------------------------------------------------------------------------------------
 void StructGridGeometryGenerator::computeArrays()
 {
-    std::vector<Vec3f> vertices;
     m_quadMapper->quadToCellIndexMap().clear();
     m_quadMapper->quadToCellFaceMap().clear();
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
+    // Collect the quads per K layer and concatenate them in K order afterwards, so the quad order is
+    // independent of thread scheduling. A varying quad order gives nondeterministic rendering of
+    // overlapping transparent faces.
+    const int                                               kCount = static_cast<int>( m_grid->cellCountK() );
+    std::vector<std::vector<Vec3f>>                         verticesPerK( kCount );
+    std::vector<std::vector<size_t>>                        quadCellIndicesPerK( kCount );
+    std::vector<std::vector<StructGridInterface::FaceType>> quadFacesPerK( kCount );
+
 #pragma omp parallel for schedule( dynamic ) if ( m_useOpenMP )
-    for ( int k = 0; k < static_cast<int>( m_grid->cellCountK() ); k++ )
+    for ( int k = 0; k < kCount; k++ )
     {
+        std::vector<Vec3f>&                         kVertices        = verticesPerK[k];
+        std::vector<size_t>&                        kQuadCellIndices = quadCellIndicesPerK[k];
+        std::vector<StructGridInterface::FaceType>& kQuadFaces       = quadFacesPerK[k];
+
         size_t j;
         for ( j = 0; j < m_grid->cellCountJ(); j++ )
         {
@@ -424,23 +435,45 @@ void StructGridGeometryGenerator::computeArrays()
                         ubyte faceConn[4];
                         m_grid->cellFaceVertexIndices( face, faceConn );
 
-// Critical section to avoid two threads accessing the arrays at the same time.
-#pragma omp critical( critical_section_StructGridGeometryGenerator_computeArrays )
+                        for ( int n = 0; n < 4; n++ )
                         {
-                            int n;
-                            for ( n = 0; n < 4; n++ )
-                            {
-                                vertices.push_back( cvf::Vec3f( cornerVerts[faceConn[n]] - offset ) );
-                            }
-
-                            // Keep track of the source cell index per quad
-                            m_quadMapper->quadToCellIndexMap().push_back( cellIndex );
-                            m_quadMapper->quadToCellFaceMap().push_back( face );
+                            kVertices.push_back( cvf::Vec3f( cornerVerts[faceConn[n]] - offset ) );
                         }
+
+                        // Keep track of the source cell index per quad
+                        kQuadCellIndices.push_back( cellIndex );
+                        kQuadFaces.push_back( face );
                     }
                 }
             }
         }
+    }
+
+    size_t quadCount = 0;
+    for ( const auto& kQuadCellIndices : quadCellIndicesPerK )
+    {
+        quadCount += kQuadCellIndices.size();
+    }
+
+    std::vector<Vec3f> vertices;
+    vertices.reserve( quadCount * 4 );
+    m_quadMapper->quadToCellIndexMap().reserve( quadCount );
+    m_quadMapper->quadToCellFaceMap().reserve( quadCount );
+
+    for ( int k = 0; k < kCount; k++ )
+    {
+        vertices.insert( vertices.end(), verticesPerK[k].begin(), verticesPerK[k].end() );
+        m_quadMapper->quadToCellIndexMap().insert( m_quadMapper->quadToCellIndexMap().end(),
+                                                   quadCellIndicesPerK[k].begin(),
+                                                   quadCellIndicesPerK[k].end() );
+        m_quadMapper->quadToCellFaceMap().insert( m_quadMapper->quadToCellFaceMap().end(),
+                                                  quadFacesPerK[k].begin(),
+                                                  quadFacesPerK[k].end() );
+
+        // Release the per layer memory as soon as it has been copied
+        std::vector<Vec3f>().swap( verticesPerK[k] );
+        std::vector<size_t>().swap( quadCellIndicesPerK[k] );
+        std::vector<StructGridInterface::FaceType>().swap( quadFacesPerK[k] );
     }
 
     m_vertices = new cvf::Vec3fArray;
