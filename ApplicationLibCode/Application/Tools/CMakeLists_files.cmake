@@ -21,6 +21,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSnapshotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFileSearchTools.cpp

@@ -22,6 +22,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaSnapshotTools.h"
 
 #include "RicfCommandObject.h"
 
@@ -300,11 +301,14 @@ QImage RimViewWindow::internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWi
         QApplication::processEvents();
     }
 
-    QPixmap pix( width, height );
-    pix.fill( Qt::transparent );
-
-    QPainter painter( &pix );
-    widget->render( &painter );
+    QImage image = RiaSnapshotTools::renderSnapshotImage( width,
+                                                          height,
+                                                          Qt::transparent,
+                                                          [widget]( QPaintDevice* paintDevice )
+                                                          {
+                                                              QPainter painter( paintDevice );
+                                                              widget->render( &painter );
+                                                          } );
 
     if ( shouldResize )
     {
@@ -313,7 +317,7 @@ QImage RimViewWindow::internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWi
         widget->resize( orgSize );
     }
 
-    return pix.toImage();
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaSnapshotTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RimPlot.h"
@@ -692,10 +693,10 @@ QImage RimMultiPlot::captureSnapshot( int width, int height )
         m_viewer->performFullUpdateOfHiddenPages();
         RiuTools::sendDeferredResizeEvents( m_viewer );
 
-        QPixmap pix( width, height );
-        pix.fill( Qt::white );
-        m_viewer->renderTo( &pix );
-        image = pix.toImage();
+        image = RiaSnapshotTools::renderSnapshotImage( width,
+                                                       height,
+                                                       Qt::white,
+                                                       [this]( QPaintDevice* paintDevice ) { m_viewer->renderTo( paintDevice ); } );
 
         m_viewer->setMinimumSize( 0, 0 );
         m_viewer->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
