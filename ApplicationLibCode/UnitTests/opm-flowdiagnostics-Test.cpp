@@ -252,3 +252,43 @@ TEST( FlowDiagnosticsTest, SameResultsForAllGridReadersNorne )
     compareResultsForAllGridReaders( QString( TEST_MODEL_DIR ) +
                                      "/../../resinsight-tutorials/model-data/norne/NORNE_ATW2013_RFTPLT_V2.EGRID" );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Gas capillary pressure must be available for gas-water models (PCGW) as well as three-phase models (PCOG)
+/// https://github.com/OPM/ResInsight/issues/15114
+//--------------------------------------------------------------------------------------------------
+TEST( FlowDiagnosticsTest, calculateRelPermCurves_GasCapillaryPressure )
+{
+    struct TestCase
+    {
+        QString fileName;
+        bool    expectPcow;
+    };
+
+    for ( const auto& [fileName, expectPcow] : { TestCase{ "SPE1CASE2_GASWATER.EGRID", false }, TestCase{ "SPE1CASE2.EGRID", true } } )
+    {
+        SCOPED_TRACE( fileName.toStdString() );
+
+        auto eclipseCase = std::make_unique<RimEclipseResultCase>();
+        eclipseCase->setGridFileName( QString( "%1/spe1/%2" ).arg( TEST_MODEL_DIR ).arg( fileName ) );
+        ASSERT_TRUE( eclipseCase->openEclipseGridFile() );
+
+        auto solver = std::make_unique<RigFlowDiagSolverInterface>( eclipseCase.get() );
+        auto curves = solver->calculateRelPermCurves( "", 0 );
+
+        const auto countCurves = [&curves]( RigFlowDiagDefines::RelPermCurve::Ident ident )
+        {
+            return std::count_if( curves.begin(),
+                                  curves.end(),
+                                  [ident]( const RigFlowDiagDefines::RelPermCurve& curve )
+                                  {
+                                      return curve.ident == ident && curve.curveSet == RigFlowDiagDefines::RelPermCurve::DRAINAGE &&
+                                             curve.epsMode == RigFlowDiagDefines::RelPermCurve::EPS_OFF;
+                                  } );
+        };
+
+        EXPECT_EQ( 1, countCurves( RigFlowDiagDefines::RelPermCurve::KRG ) );
+        EXPECT_EQ( 1, countCurves( RigFlowDiagDefines::RelPermCurve::PCOG ) );
+        EXPECT_EQ( expectPcow ? 1 : 0, countCurves( RigFlowDiagDefines::RelPermCurve::PCOW ) );
+    }
+}
