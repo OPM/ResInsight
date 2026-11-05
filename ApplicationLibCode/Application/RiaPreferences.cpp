@@ -36,6 +36,7 @@
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaValidRegExpValidator.h"
 
 #include "OsduCommands//RicDeleteOsduTokenFeature.h"
@@ -876,6 +877,9 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
 void RiaPreferences::writePreferencesToApplicationStore()
 {
     if ( !RiaGuiApplication::isRunning() ) return;
+
+    // Regression tests use default preferences, and must never overwrite the user's stored preferences
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) return;
 
     caf::PdmSettings::writeFieldsToApplicationStore( this );
 }

@@ -58,6 +58,9 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QElapsedTimer>
+#include <QFont>
+#include <QFontDatabase>
+#include <QGuiApplication>
 #include <QSettings>
 #include <QStatusBar>
 
@@ -73,6 +76,7 @@ const QString testFolderFilter         = "TestCase*";
 const QString imageCompareExeName      = "compare";
 const QString reportFileName           = "ResInsightRegressionTestReport.html";
 const QString commandFileFilter        = "commandfile-*";
+const QString fontFileName             = "fonts/DroidSans.ttf";
 }; // namespace RegTestNames
 
 RiaRegressionTestRunner* RiaRegressionTestRunner::sm_singleton = nullptr;
@@ -88,6 +92,82 @@ void logInfoTextWithTimeInSeconds( const QElapsedTimer& time, const QString& msg
 
     RiaLogging::info( std::format( "{}{}", timeText, msg ) );
     QApplication::processEvents();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Search upward from the test root folder for the font file shipped with the regression test files
+//--------------------------------------------------------------------------------------------------
+static QString findRegressionTestFontFile( const QString& rootPath )
+{
+    QDir searchDir( rootPath );
+    for ( int level = 0; level < 4; ++level )
+    {
+        QString fontFile = searchDir.filePath( RegTestNames::fontFileName );
+        if ( QFile::exists( fontFile ) ) return fontFile;
+        if ( !searchDir.cdUp() ) break;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Restores the user's preferences, application font and working directory when regression tests are
+/// completed, also if a test throws an exception
+//--------------------------------------------------------------------------------------------------
+class RegressionTestStateGuard
+{
+public:
+    explicit RegressionTestStateGuard( bool& runningRegressionTests );
+    ~RegressionTestStateGuard();
+
+    RegressionTestStateGuard( const RegressionTestStateGuard& )            = delete;
+    RegressionTestStateGuard& operator=( const RegressionTestStateGuard& ) = delete;
+
+    void setRegressionFontId( int fontId );
+
+private:
+    bool&   m_runningRegressionTests;
+    QString m_currentPath;
+    QString m_userPreferences;
+    QFont   m_userApplicationFont;
+    int     m_regressionFontId;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RegressionTestStateGuard::RegressionTestStateGuard( bool& runningRegressionTests )
+    : m_runningRegressionTests( runningRegressionTests )
+    , m_currentPath( QDir::currentPath() )
+    , m_userPreferences( RiaPreferences::current()->writeObjectToXmlString() )
+    , m_userApplicationFont( QGuiApplication::font() )
+    , m_regressionFontId( -1 )
+{
+    m_runningRegressionTests = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RegressionTestStateGuard::~RegressionTestStateGuard()
+{
+    QDir::setCurrent( m_currentPath );
+
+    QGuiApplication::setFont( m_userApplicationFont );
+    if ( m_regressionFontId >= 0 ) QFontDatabase::removeApplicationFont( m_regressionFontId );
+
+    RiaPreferences::current()->readObjectFromXmlString( m_userPreferences, caf::PdmDefaultObjectFactory::instance() );
+    RiaApplication::instance()->applyPreferences();
+
+    m_runningRegressionTests = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RegressionTestStateGuard::setRegressionFontId( int fontId )
+{
+    m_regressionFontId = fontId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,9 +210,8 @@ void RiaRegressionTestRunner::deleteSingleton()
 //--------------------------------------------------------------------------------------------------
 void RiaRegressionTestRunner::runRegressionTest()
 {
-    m_runningRegressionTests = true;
-
-    QString currentApplicationPath = QDir::currentPath();
+    // Restores the user's state when the tests are completed, also if a test throws an exception
+    RegressionTestStateGuard stateGuard( m_runningRegressionTests );
 
     std::vector<std::tuple<QString, double, uint64_t, uint64_t>> memoryUsagePerTest;
 
@@ -199,8 +278,38 @@ void RiaRegressionTestRunner::runRegressionTest()
 
     RiaApplication* app = RiaApplication::instance();
 
-    // Save original preferences once before the loop so each test can restore to a consistent state
-    QString originalPreferences = RiaPreferences::current()->writeObjectToXmlString();
+    // Use default preferences instead of the preferences stored on this computer (registry), to make the generated
+    // images independent of the user's settings. Test-specific preferences.xml files are applied on top of the defaults.
+    // The user preferences are restored by the state guard when all tests are completed.
+    const QString defaultPreferences = RiaPreferences().writeObjectToXmlString();
+
+    RiaPreferences::current()->readObjectFromXmlString( defaultPreferences, caf::PdmDefaultObjectFactory::instance() );
+    app->applyPreferences();
+
+    // Use a shipped font and no hinting, to make text in Qt based plots independent of the fonts installed on the computer
+    {
+        const QFont userApplicationFont = QGuiApplication::font();
+
+        QString fontFile = findRegressionTestFontFile( m_rootPath );
+        int     fontId   = fontFile.isEmpty() ? -1 : QFontDatabase::addApplicationFont( fontFile );
+        if ( fontId >= 0 )
+        {
+            stateGuard.setRegressionFontId( fontId );
+
+            QFont regressionFont( QFontDatabase::applicationFontFamilies( fontId ).value( 0 ) );
+            if ( userApplicationFont.pointSize() > 0 )
+                regressionFont.setPointSize( userApplicationFont.pointSize() );
+            else
+                regressionFont.setPixelSize( userApplicationFont.pixelSize() );
+            regressionFont.setHintingPreference( QFont::PreferNoHinting );
+            QGuiApplication::setFont( regressionFont );
+        }
+        else
+        {
+            RiaLogging::warning( "Unable to load regression test font " + RegTestNames::fontFileName.toStdString() +
+                                 ", text rendering depends on installed fonts." );
+        }
+    }
 
     for ( const QFileInfo& folderFileInfo : folderList )
     {
@@ -211,6 +320,7 @@ void RiaRegressionTestRunner::runRegressionTest()
         {
             RiaPreferences::current()->importPreferenceValuesFromFile( testPrefsFile );
             RiaLogging::info( "Loaded test-specific preferences from: " + testPrefsFile.toStdString() );
+            app->applyPreferences();
         }
 
         bool anyCommandFilesExecuted = findAndExecuteCommandFiles( testCaseFolder, regressionTestConfig, htmlReportFileName );
@@ -315,8 +425,9 @@ void RiaRegressionTestRunner::runRegressionTest()
             }
         }
 
-        // Restore original preferences after each test
-        RiaPreferences::current()->readObjectFromXmlString( originalPreferences, caf::PdmDefaultObjectFactory::instance() );
+        // Restore default preferences after each test
+        RiaPreferences::current()->readObjectFromXmlString( defaultPreferences, caf::PdmDefaultObjectFactory::instance() );
+        app->applyPreferences();
 
         logInfoTextWithTimeInSeconds( timeStamp, "Completed test :" + testCaseFolder.absolutePath() );
     }
@@ -387,10 +498,6 @@ document.getElementById("destination-elem-id").innerHTML = diffHtml;
 
     RiaLogging::info( "\n" );
     logInfoTextWithTimeInSeconds( timeStamp, "Completed regression tests" );
-
-    QDir::setCurrent( currentApplicationPath );
-
-    m_runningRegressionTests = false;
 }
 
 //--------------------------------------------------------------------------------------------------
