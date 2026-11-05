@@ -143,7 +143,7 @@ protected slots:
     void slotRefreshUndoRedoActions();
 
     void setDefaultDockLayout();
-    void setDockLayout();
+    void setUserDockLayout();
     void deleteDockLayout();
     void saveDockLayout();
     void exportDockLayout();
