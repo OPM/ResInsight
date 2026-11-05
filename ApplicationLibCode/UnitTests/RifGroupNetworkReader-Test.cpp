@@ -32,7 +32,7 @@ namespace
 //--------------------------------------------------------------------------------------------------
 std::time_t utcDate( int year, int month, int day )
 {
-    return QDateTime( QDate( year, month, day ), QTime( 0, 0 ), QTimeZone::UTC ).toSecsSinceEpoch();
+    return QDateTime( QDate( year, month, day ), QTime( 0, 0 ), QTimeZone::utc() ).toSecsSinceEpoch();
 }
 
 //--------------------------------------------------------------------------------------------------

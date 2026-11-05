@@ -188,7 +188,7 @@ void RimGroupNetworkData::reload()
 //--------------------------------------------------------------------------------------------------
 QString RimGroupNetworkData::dateText( std::time_t date )
 {
-    return QDateTime::fromSecsSinceEpoch( date, QTimeZone::UTC ).toString( "yyyy-MM-dd" );
+    return QDateTime::fromSecsSinceEpoch( date, QTimeZone::utc() ).toString( "yyyy-MM-dd" );
 }
 
 //--------------------------------------------------------------------------------------------------
