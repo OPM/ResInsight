@@ -58,8 +58,11 @@ public:
     void buildTreeFromBoundingBoxes(const std::vector<cvf::BoundingBox>& boundingBoxes,
                                     const std::vector<size_t>* optionalBoundingBoxIds);
 
-    void buildTreeFromBoundingBoxesOptimized(const std::vector<cvf::BoundingBox>& boundingBoxes,
-        const std::vector<std::vector<int>>& optionalBoundingBoxIds);
+    // Leaf i has the IDs boundingBoxIds[boundingBoxIdOffsets[i]] to boundingBoxIds[boundingBoxIdOffsets[i + 1] - 1].
+    // boundingBoxIdOffsets must have one more element than boundingBoxes.
+    void buildTreeFromBoundingBoxesOptimized(std::vector<cvf::BoundingBox>&& boundingBoxes,
+                                             std::vector<int>&&              boundingBoxIds,
+                                             std::vector<size_t>&&           boundingBoxIdOffsets);
 
     void findIntersections(const cvf::BoundingBox& inputBB, std::vector<size_t>* bbIdsOrIndexesIntersected) const;
 

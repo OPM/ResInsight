@@ -37,6 +37,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -1088,83 +1089,76 @@ void RigMainGrid::buildCellSearchTree( size_t cellsPerBoundingBox ) const
         }
     }
 
-    int threadCount = RiaOpenMPTools::availableThreadCount();
+    // Each column of the main grid is split into leaves of cellsPerBoundingBox cells along K. The leaves are ordered
+    // by column and then K, so the leaf index can be computed directly from the cell IJK.
+    const size_t leavesPerColumn   = ( cellCountK() + cellsPerBoundingBox - 1 ) / cellsPerBoundingBox;
+    const size_t mainGridLeafCount = cellCountI() * cellCountJ() * leavesPerColumn;
+    const size_t leafCount         = mainGridLeafCount + subCellIndicesWithoutMainGridCell.size();
 
-    std::vector<std::vector<std::vector<int>>> threadCellIndicesForBoundingBoxes( threadCount );
-    std::vector<std::vector<cvf::BoundingBox>> threadCellBoundingBoxes( threadCount );
-
-#pragma omp parallel
+    // Visit the valid main grid cells of a leaf, and the LGR cells inside them also when the main grid cell is invalid
+    auto forEachCellInLeaf = [&]( size_t leafIndex, auto&& visitCell )
     {
-        int myThread = RiaOpenMPTools::currentThreadIndex();
-
-#pragma omp for
-        for ( int i = 0; i < static_cast<int>( cellCountI() ); i++ )
+        if ( leafIndex >= mainGridLeafCount )
         {
-            for ( size_t j = 0; j < cellCountJ(); j++ )
+            visitCell( subCellIndicesWithoutMainGridCell[leafIndex - mainGridLeafCount] );
+            return;
+        }
+
+        const size_t column = leafIndex / leavesPerColumn;
+        const size_t i      = column / cellCountJ();
+        const size_t j      = column % cellCountJ();
+        const size_t kStart = ( leafIndex % leavesPerColumn ) * cellsPerBoundingBox;
+        const size_t kEnd   = std::min( kStart + cellsPerBoundingBox, cellCountK() );
+
+        for ( size_t k = kStart; k < kEnd; k++ )
+        {
+            const size_t cellIdx = cellIndexFromIJK( i, j, k );
+            if ( !cell( cellIdx ).isInvalid() ) visitCell( static_cast<int>( cellIdx ) );
+
+            if ( auto it = subCellIndicesForMainGridCells.find( cellIdx ); it != subCellIndicesForMainGridCells.end() )
             {
-                size_t k = 0;
-                while ( k < cellCountK() )
+                for ( int subCellIdx : it->second )
                 {
-                    size_t kCount = 0;
-
-                    std::vector<int> aggregatedCellIndices;
-                    cvf::BoundingBox accumulatedBB;
-
-                    while ( ( kCount < cellsPerBoundingBox ) && ( k + kCount < cellCountK() ) )
-                    {
-                        size_t cellIdx = cellIndexFromIJK( i, j, k + kCount );
-
-                        if ( !cell( cellIdx ).isInvalid() )
-                        {
-                            aggregatedCellIndices.push_back( static_cast<int>( cellIdx ) );
-
-                            cvf::BoundingBox cellBB = cellBoundingBox( cellIdx );
-                            if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
-                        }
-
-                        // Add the LGR cells also when the main grid cell is invalid
-                        if ( auto it = subCellIndicesForMainGridCells.find( cellIdx ); it != subCellIndicesForMainGridCells.end() )
-                        {
-                            for ( int subCellIdx : it->second )
-                            {
-                                aggregatedCellIndices.push_back( subCellIdx );
-
-                                cvf::BoundingBox cellBB = cellBoundingBox( subCellIdx );
-                                if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
-                            }
-                        }
-                        kCount++;
-                    }
-
-                    k += kCount;
-
-                    threadCellIndicesForBoundingBoxes[myThread].emplace_back( std::move( aggregatedCellIndices ) );
-                    threadCellBoundingBoxes[myThread].emplace_back( accumulatedBB );
+                    visitCell( subCellIdx );
                 }
             }
         }
+    };
+
+    // Compute the bounding box and number of cells of each leaf, then store the cell indices of all leaves in one array
+    std::vector<cvf::BoundingBox> cellBoundingBoxes( leafCount );
+    std::vector<size_t>           cellIndexOffsets( leafCount + 1, 0 );
+
+#pragma omp parallel for
+    for ( int leafIndex = 0; leafIndex < static_cast<int>( leafCount ); leafIndex++ )
+    {
+        cvf::BoundingBox& leafBB    = cellBoundingBoxes[leafIndex];
+        size_t&           cellCount = cellIndexOffsets[leafIndex + 1];
+
+        forEachCellInLeaf( leafIndex,
+                           [&]( int cellIdx )
+                           {
+                               cvf::BoundingBox cellBB = cellBoundingBox( cellIdx );
+                               if ( cellBB.isValid() ) leafBB.add( cellBB );
+                               cellCount++;
+                           } );
     }
 
-    std::vector<std::vector<int>> cellIndicesForBoundingBoxes;
-    std::vector<cvf::BoundingBox> cellBoundingBoxes;
+    std::partial_sum( cellIndexOffsets.begin(), cellIndexOffsets.end(), cellIndexOffsets.begin() );
 
-    for ( auto i = 0; i < threadCount; i++ )
+    std::vector<int> cellIndices( cellIndexOffsets.back() );
+
+#pragma omp parallel for
+    for ( int leafIndex = 0; leafIndex < static_cast<int>( leafCount ); leafIndex++ )
     {
-        cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
-                                            std::make_move_iterator( threadCellIndicesForBoundingBoxes[i].begin() ),
-                                            std::make_move_iterator( threadCellIndicesForBoundingBoxes[i].end() ) );
-
-        cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadCellBoundingBoxes[i].begin(), threadCellBoundingBoxes[i].end() );
-    }
-
-    for ( int subCellIdx : subCellIndicesWithoutMainGridCell )
-    {
-        cellIndicesForBoundingBoxes.push_back( { subCellIdx } );
-        cellBoundingBoxes.push_back( cellBoundingBox( subCellIdx ) );
+        size_t position = cellIndexOffsets[leafIndex];
+        forEachCellInLeaf( leafIndex, [&]( int cellIdx ) { cellIndices[position++] = cellIdx; } );
     }
 
     m_cellSearchTree = new cvf::BoundingBoxTree;
-    m_cellSearchTree->buildTreeFromBoundingBoxesOptimized( cellBoundingBoxes, cellIndicesForBoundingBoxes );
+    m_cellSearchTree->buildTreeFromBoundingBoxesOptimized( std::move( cellBoundingBoxes ),
+                                                           std::move( cellIndices ),
+                                                           std::move( cellIndexOffsets ) );
 }
 
 //--------------------------------------------------------------------------------------------------
