@@ -48,12 +48,12 @@ RimEnsembleSurface::RimEnsembleSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
 
-    std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes = { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
-                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::MAX,
-                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
-                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P10,
-                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P50,
-                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P90 };
+    std::vector<RiaDefines::StatisticsType> statisticsTypes = { RiaDefines::StatisticsType::MIN,
+                                                                RiaDefines::StatisticsType::MAX,
+                                                                RiaDefines::StatisticsType::MEAN,
+                                                                RiaDefines::StatisticsType::P10,
+                                                                RiaDefines::StatisticsType::P50,
+                                                                RiaDefines::StatisticsType::P90 };
 
     for ( auto s : statisticsTypes )
     {
@@ -294,7 +294,7 @@ void RimEnsembleSurface::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimEnsembleSurface::findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType statisticsType )
+RimSurface* RimEnsembleSurface::findStatisticsSurface( RiaDefines::StatisticsType statisticsType )
 {
     for ( auto s : surfaces() )
     {

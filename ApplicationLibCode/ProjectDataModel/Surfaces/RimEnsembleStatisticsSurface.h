@@ -36,8 +36,8 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
-    void                                           setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
-    RigSurfaceStatisticsCalculator::StatisticsType statisticsType() const;
+    void                       setStatisticsType( RiaDefines::StatisticsType statisticsType );
+    RiaDefines::StatisticsType statisticsType() const;
 
     QString fullName() const override;
 
@@ -49,5 +49,5 @@ protected:
     void clearCachedNativeData() override;
 
 private:
-    caf::PdmField<caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>> m_statisticsType;
+    caf::PdmField<caf::AppEnum<RiaDefines::StatisticsType>> m_statisticsType;
 };
