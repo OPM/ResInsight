@@ -70,8 +70,8 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
         {
             // Create min/max band
             {
-                auto surf1 = firstEnsembleSurface->findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType::MIN );
-                auto surf2 = firstEnsembleSurface->findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType::MAX );
+                auto surf1 = firstEnsembleSurface->findStatisticsSurface( RiaDefines::StatisticsType::MIN );
+                auto surf2 = firstEnsembleSurface->findStatisticsSurface( RiaDefines::StatisticsType::MAX );
 
                 if ( surf2 && surf1 )
                 {
@@ -93,8 +93,8 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
 
             // Create p10/p90 band
             {
-                auto surf1 = firstEnsembleSurface->findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType::P10 );
-                auto surf2 = firstEnsembleSurface->findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType::P90 );
+                auto surf1 = firstEnsembleSurface->findStatisticsSurface( RiaDefines::StatisticsType::P10 );
+                auto surf2 = firstEnsembleSurface->findStatisticsSurface( RiaDefines::StatisticsType::P90 );
 
                 if ( surf2 && surf1 )
                 {

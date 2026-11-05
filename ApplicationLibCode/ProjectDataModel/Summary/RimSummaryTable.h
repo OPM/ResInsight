@@ -22,6 +22,7 @@
 #include "RimPlotWindow.h"
 
 #include "RiaDateTimeDefines.h"
+#include "RiaStatisticsDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressDefines.h"
@@ -67,16 +68,6 @@ public:
     {
         SINGLE_CASE,
         ENSEMBLE_STATISTICS
-    };
-
-    enum class EnsembleStatistic
-    {
-        MIN,
-        P90,
-        P50,
-        MEAN,
-        P10,
-        MAX
     };
 
 public:
@@ -147,12 +138,12 @@ private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
-    caf::PdmField<QString>                         m_tableName;
-    caf::PdmField<bool>                            m_isAutomaticName;
-    caf::PdmField<caf::AppEnum<DataSource>>        m_dataSource;
-    caf::PdmPtrField<RimSummaryCase*>              m_case;
-    caf::PdmPtrField<RimSummaryEnsemble*>          m_ensemble;
-    caf::PdmField<caf::AppEnum<EnsembleStatistic>> m_ensembleStatistic;
+    caf::PdmField<QString>                                  m_tableName;
+    caf::PdmField<bool>                                     m_isAutomaticName;
+    caf::PdmField<caf::AppEnum<DataSource>>                 m_dataSource;
+    caf::PdmPtrField<RimSummaryCase*>                       m_case;
+    caf::PdmPtrField<RimSummaryEnsemble*>                   m_ensemble;
+    caf::PdmField<caf::AppEnum<RiaDefines::StatisticsType>> m_ensembleStatistic;
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<QString>                                                        m_vector;
@@ -188,9 +179,9 @@ private:
 
     struct EnsembleStatisticsData
     {
-        std::vector<time_t>                              timeSteps;
-        std::map<EnsembleStatistic, std::vector<double>> values;
-        std::string                                      unitName;
+        std::vector<time_t>                                       timeSteps;
+        std::map<RiaDefines::StatisticsType, std::vector<double>> values;
+        std::string                                               unitName;
     };
 
     std::map<RifEclipseSummaryAddress, EnsembleStatisticsData> m_ensembleStatisticsCache;

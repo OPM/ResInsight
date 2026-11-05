@@ -83,7 +83,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
-    caf::PdmField<caf::AppEnum<RimStatisticsContourMap::StatisticsType>> m_statisticsType;
+    caf::PdmField<caf::AppEnum<RiaDefines::StatisticsType>> m_statisticsType;
 
     QString m_currentResultName;
 };
