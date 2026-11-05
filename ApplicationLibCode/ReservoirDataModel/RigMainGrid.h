@@ -33,6 +33,7 @@
 #include <map>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <vector>
 
 class RigActiveCellInfo;
@@ -51,8 +52,18 @@ public:
 
     virtual size_t totalCellCount() const;
 
-    std::vector<cvf::Vec3d>&       nodes();
-    const std::vector<cvf::Vec3d>& nodes() const;
+    // Global node table. Cells refer to nodes by index using RigCell::cornerIndices(). Spans returned by the node
+    // functions are invalidated by any change to the size of the node table.
+    std::span<const cvf::Vec3d> nodes() const { return m_nodes; }
+
+    // Writable view of all nodes. Clears cached data that depends on node positions, so get the view once
+    // before modifying many nodes.
+    std::span<cvf::Vec3d> modifiableNodes();
+
+    // Append nodeCount nodes at (0, 0, 0) and return a writable view of them, so the node table can be filled in place
+    std::span<cvf::Vec3d> allocateNodes( size_t nodeCount );
+
+    void clearNodes();
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;

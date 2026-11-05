@@ -2196,7 +2196,7 @@ namespace RigTransmissibilityCalcTools
 {
 void calculateConnectionGeometry( const RigCell&                     c1,
                                   const RigCell&                     c2,
-                                  const std::vector<cvf::Vec3d>&     nodes,
+                                  std::span<const cvf::Vec3d>        nodes,
                                   cvf::StructGridInterface::FaceType faceId,
                                   cvf::Vec3d*                        faceAreaVec )
 {
@@ -2214,7 +2214,7 @@ void calculateConnectionGeometry( const RigCell&                     c1,
     bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
                                                                                intersections,
                                                                                (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                               cvf::wrapArrayConst( &nodes ),
+                                                                               cvf::wrapArrayConst( nodes.data(), nodes.size() ),
                                                                                face1.data(),
                                                                                face2.data(),
                                                                                1e-6 );
@@ -2379,9 +2379,9 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
         }
     }
 
-    const RigActiveCellInfo*       activeCellInfo        = this->activeCellInfo();
-    const std::vector<cvf::Vec3d>& nodes                 = m_ownerMainGrid->nodes();
-    bool                           isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
+    const RigActiveCellInfo* activeCellInfo        = this->activeCellInfo();
+    const auto               nodes                 = m_ownerMainGrid->nodes();
+    bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {
@@ -2819,8 +2819,8 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
     ResultIndexFunction resValIdxFunc = isUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
 
-    const RigActiveCellInfo*       activeCellInfo = this->activeCellInfo();
-    const std::vector<cvf::Vec3d>& nodes          = m_ownerMainGrid->nodes();
+    const RigActiveCellInfo* activeCellInfo = this->activeCellInfo();
+    const auto               nodes          = m_ownerMainGrid->nodes();
 
     for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->totalCellCount(); nativeResvCellIndex++ )
     {

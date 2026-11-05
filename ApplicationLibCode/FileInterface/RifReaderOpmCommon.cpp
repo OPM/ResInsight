@@ -412,11 +412,12 @@ void RifReaderOpmCommon::applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMain
     // Invert the transformation matrix to convert from file coordinates to domain coordinates
     transform.invert();
 
+    const auto nodes = mainGrid->modifiableNodes();
+
 #pragma omp parallel for
-    for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
+    for ( long i = 0; i < static_cast<long>( nodes.size() ); i++ )
     {
-        auto& n = mainGrid->nodes()[i];
-        n.transformPoint( transform );
+        nodes[i].transformPoint( transform );
     }
 }
 
@@ -543,9 +544,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 
     mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
-
-    auto& riNodes = mainGrid->nodes();
+    std::span<cvf::Vec3d> riNodes = mainGrid->allocateNodes( static_cast<size_t>( cellCount ) * 8 );
 
     opmGrid.loadData();
     opmGrid.load_grid_data();
@@ -605,7 +604,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
             auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
-            auto& riNode = riNodes[riNodeIndex];
+            auto& riNode = riNodes[riNodeIndex - nodeStartIndex];
             riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
             riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
             riNode.z()   = -opmZ[opmNodeIndex];
@@ -628,6 +627,7 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
                                                           yCenterCoordOpm );
             }
         }
+
         if ( invalidateLongPyramidCells )
         {
             cell.setInvalid( cell.isLongPyramidCell() );

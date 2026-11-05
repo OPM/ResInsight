@@ -278,13 +278,13 @@ TEST( RigMainGrid, SetFlipAxisMirrorsNodeCoordinates )
         mockFileInterface->enableWellData( false );
         mockFileInterface->open( "", reservoir.p() );
 
-        auto*      mainGrid      = reservoir->mainGrid();
-        const auto originalNodes = mainGrid->nodes();
+        auto*                         mainGrid = reservoir->mainGrid();
+        const std::vector<cvf::Vec3d> originalNodes( mainGrid->nodes().begin(), mainGrid->nodes().end() );
         ASSERT_FALSE( originalNodes.empty() );
 
         mainGrid->setFlipAxis( flipX, flipY );
 
-        const auto& flippedNodes = mainGrid->nodes();
+        const auto flippedNodes = mainGrid->nodes();
         ASSERT_EQ( originalNodes.size(), flippedNodes.size() );
 
         const double xSign = flipX ? -1.0 : 1.0;
