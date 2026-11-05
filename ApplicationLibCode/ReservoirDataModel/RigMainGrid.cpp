@@ -25,6 +25,7 @@
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigGridNodeDeduplication.h"
 #include "RigHexIntersectionTools.h"
 #include "RigLocalGrid.h"
 #include "RigNNCData.h"
@@ -33,6 +34,9 @@
 #include "cvfBoundingBoxTree.h"
 
 #include <array>
+#include <cmath>
+#include <cstdint>
+#include <limits>
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -50,6 +54,8 @@ RigMainGrid::RigMainGrid()
     m_mapAxes      = defaultMapAxes();
     m_dualPorosity = false;
 
+    m_duplicateNodesRemoved = false;
+
     m_isFaceNormalsOutwards         = true;
     m_isFaceNormalsOutwardsComputed = false;
 }
@@ -66,6 +72,7 @@ void RigMainGrid::clearNodes()
     m_nodes.clear();
 
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,10 +92,43 @@ std::span<cvf::Vec3d> RigMainGrid::allocateNodes( size_t nodeCount )
 std::span<cvf::Vec3d> RigMainGrid::modifiableNodes()
 {
     m_isFaceNormalsOutwardsComputed = false;
+    m_duplicateNodesRemoved         = false;
 
     return m_nodes;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Nodes with exactly equal coordinates are merged, and cell corner indices are updated. Returns the number of
+/// removed nodes.
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::removeDuplicateNodes()
+{
+    if ( m_duplicateNodesRemoved || m_nodes.empty() ) return 0;
+
+    const size_t oldNodeCount = m_nodes.size();
+
+    const std::vector<uint32_t> oldToNew = RigGridNodeDeduplication::removeDuplicateNodes( m_nodes );
+    if ( !oldToNew.empty() ) remapCellCornerIndices( oldToNew );
+
+    m_duplicateNodesRemoved = true;
+
+    return oldNodeCount - m_nodes.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::remapCellCornerIndices( const std::vector<uint32_t>& oldToNew )
+{
+#pragma omp parallel for
+    for ( long cellIndex = 0; cellIndex < static_cast<long>( m_cells.size() ); cellIndex++ )
+    {
+        for ( size_t& cornerIndex : m_cells[cellIndex].cornerIndices() )
+        {
+            if ( cornerIndex < oldToNew.size() ) cornerIndex = oldToNew[cornerIndex];
+        }
+    }
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

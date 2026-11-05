@@ -43,6 +43,8 @@ protected: // only for use by file readers!
     void                             setTotalCellCount( size_t totalCellCount );
     void                             setTotalActiveCellCount( size_t totalActiveCellCount );
 
+    void remapCellCornerIndices( const std::vector<uint32_t>& oldToNew ) override;
+
 private:
     size_t                    m_totalCellCount;
     size_t                    m_totalActiveCellCount;

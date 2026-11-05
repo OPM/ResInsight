@@ -30,6 +30,7 @@
 
 #include <QString>
 
+#include <cstdint>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -57,13 +58,17 @@ public:
     std::span<const cvf::Vec3d> nodes() const { return m_nodes; }
 
     // Writable view of all nodes. Clears cached data that depends on node positions, so get the view once
-    // before modifying many nodes.
+    // before modifying many nodes. If duplicate nodes have been removed, moving a node moves the corner of every
+    // cell using it.
     std::span<cvf::Vec3d> modifiableNodes();
 
     // Append nodeCount nodes at (0, 0, 0) and return a writable view of them, so the node table can be filled in place
     std::span<cvf::Vec3d> allocateNodes( size_t nodeCount );
 
     void clearNodes();
+
+    // Merge nodes with identical coordinates and remap the corner indices of all cells
+    size_t removeDuplicateNodes();
 
     virtual RigGridBase*       gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx );
     virtual const RigGridBase* gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const;
@@ -170,6 +175,9 @@ protected: // only for use by file readers and internal services. TODO: replace 
     std::vector<RigCell>&       reservoirCells();
     const std::vector<RigCell>& reservoirCells() const;
 
+    // Replace each cell corner index i (i < oldToNew.size()) with oldToNew[i]
+    virtual void remapCellCornerIndices( const std::vector<uint32_t>& oldToNew );
+
 private:
     void initAllSubCellsMainGridCellIndex();
     bool hasFaultWithName( const QString& name ) const;
@@ -205,6 +213,8 @@ private:
     std::array<double, 6> m_mapAxes;
 
     bool m_dualPorosity;
+
+    bool m_duplicateNodesRemoved;
 
     mutable bool                           m_isFaceNormalsOutwards;
     mutable bool                           m_isFaceNormalsOutwardsComputed;

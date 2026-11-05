@@ -266,9 +266,9 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
     int  cv2VxTouchCv1Edge[4] = { -1, -1, -1, -1 };
 
     int cv1Idx, cv2Idx;
-    int numMatchedNodes = 0;
 
-    // First check for complete topological match.
+    // First check for complete topological match. Faces of collapsed cells can repeat a node index, so the faces
+    // match only if every vertex of each face is a vertex of the other face.
 
     for ( cv1Idx = 0; cv1Idx < 4; ++cv1Idx )
     {
@@ -278,13 +278,17 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
             {
                 cv1VxTouchCv2[cv1Idx] = true;
                 cv2VxTouchCv1[cv2Idx] = true;
-                ++numMatchedNodes;
-                continue;
             }
         }
     }
 
-    if ( numMatchedNodes >= 4 ) // Todo: Handle collapsed cells
+    bool isAllVerticesShared = true;
+    for ( int k = 0; k < 4; ++k )
+    {
+        isAllVerticesShared = isAllVerticesShared && cv1VxTouchCv2[k] && cv2VxTouchCv1[k];
+    }
+
+    if ( isAllVerticesShared )
     {
         int k;
         for ( k = 0; k < 4; ++k )
@@ -295,11 +299,19 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>&  
         return true;
     }
 
+    // Partially shared node indices are resolved geometrically below. Marking them as touching here would
+    // classify them as inside the other face instead of on its edge, producing degenerate polygon vertices.
+    for ( int k = 0; k < 4; ++k )
+    {
+        cv1VxTouchCv2[k] = false;
+        cv2VxTouchCv1[k] = false;
+    }
+
     cvf::Vec3d diag1           = nodes[cv1CubeFaceIndices[2]] - nodes[cv1CubeFaceIndices[0]];
     cvf::Vec3d diag2           = nodes[cv1CubeFaceIndices[3]] - nodes[cv1CubeFaceIndices[1]];
     cvf::Vec3d normal          = diag1 ^ diag2;
-    int        numCv1VxesOnCv2 = numMatchedNodes;
-    int        numCv2VxesOnCv1 = numMatchedNodes;
+    int        numCv1VxesOnCv2 = 0;
+    int        numCv2VxesOnCv1 = 0;
 
     for ( cv1Idx = 0; cv1Idx < 4; ++cv1Idx )
     {

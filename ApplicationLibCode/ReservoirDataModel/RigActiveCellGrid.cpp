@@ -137,3 +137,20 @@ void RigActiveCellGrid::setTotalActiveCellCount( size_t totalActiveCellCount )
 {
     m_totalActiveCellCount = totalActiveCellCount;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The cells of this grid are stored in m_nativeCells. The corners of m_invalidCell refer to node 0, which is
+/// always kept at index 0.
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellGrid::remapCellCornerIndices( const std::vector<uint32_t>& oldToNew )
+{
+    RigMainGrid::remapCellCornerIndices( oldToNew );
+
+    for ( auto& [index, cell] : m_nativeCells )
+    {
+        for ( size_t& cornerIndex : cell.cornerIndices() )
+        {
+            if ( cornerIndex < oldToNew.size() ) cornerIndex = oldToNew[cornerIndex];
+        }
+    }
+}

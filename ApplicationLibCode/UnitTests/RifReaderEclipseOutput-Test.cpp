@@ -35,11 +35,15 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderEclipseOutput.h"
+#include "RifReaderOpmCommon.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFault.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
+#include "RigNncConnection.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDebug>
@@ -775,4 +779,60 @@ TEST( DISABLED_RigReservoirTest, WellTest )
     EXPECT_TRUE( result );
 
     readerInterfaceEcl->setHdf5FileName( sourSim );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Removing duplicate nodes must not change computed faults or NNC geometry
+//--------------------------------------------------------------------------------------------------
+TEST( RigReservoirTest, RemoveDuplicateNodesPreservesFaultsAndNncs )
+{
+    QDir baseFolder( TEST_MODEL_DIR );
+    baseFolder.cd( "TEST10K_FLT_LGR_NNC" );
+    QString filePath = baseFolder.absoluteFilePath( "TEST10K_FLT_LGR_NNC.EGRID" );
+
+    auto loadCase = [&]( bool removeDuplicates, RimEclipseResultCase* rimCase )
+    {
+        cvf::ref<RigEclipseCaseData> caseData = new RigEclipseCaseData( rimCase );
+        cvf::ref<RifReaderOpmCommon> reader   = new RifReaderOpmCommon;
+        EXPECT_TRUE( reader->open( filePath, caseData.p() ) );
+
+        auto mainGrid = caseData->mainGrid();
+        if ( removeDuplicates ) EXPECT_GT( mainGrid->removeDuplicateNodes(), 0u );
+        mainGrid->computeCachedData();
+        mainGrid->calculateFaults( caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+        mainGrid->nncData()->ensureAllConnectionDataIsProcessed();
+        return caseData;
+    };
+
+    RimEclipseResultCase rimCaseA;
+    RimEclipseResultCase rimCaseB;
+    auto                 original     = loadCase( false, &rimCaseA );
+    auto                 deduplicated = loadCase( true, &rimCaseB );
+
+    const auto& faultsA = original->mainGrid()->faults();
+    const auto& faultsB = deduplicated->mainGrid()->faults();
+    ASSERT_EQ( faultsA.size(), faultsB.size() );
+    for ( size_t i = 0; i < faultsA.size(); i++ )
+    {
+        EXPECT_EQ( faultsA[i]->faultFaces().size(), faultsB[i]->faultFaces().size() );
+    }
+
+    const auto& nncsA = original->mainGrid()->nncData()->allConnections();
+    const auto& nncsB = deduplicated->mainGrid()->nncData()->allConnections();
+    ASSERT_EQ( nncsA.size(), nncsB.size() );
+
+    // Consecutive coinciding vertices can be collapsed when nodes are shared, so compare without them
+    auto withoutRepeats = []( std::vector<cvf::Vec3f> polygon )
+    {
+        polygon.erase( std::unique( polygon.begin(), polygon.end() ), polygon.end() );
+        return polygon;
+    };
+
+    for ( size_t i = 0; i < nncsA.size(); i++ )
+    {
+        EXPECT_EQ( nncsA[i].c1GlobIdx(), nncsB[i].c1GlobIdx() );
+        EXPECT_EQ( nncsA[i].c2GlobIdx(), nncsB[i].c2GlobIdx() );
+        EXPECT_EQ( nncsA[i].face(), nncsB[i].face() );
+        EXPECT_TRUE( withoutRepeats( nncsA[i].polygon() ) == withoutRepeats( nncsB[i].polygon() ) );
+    }
 }
