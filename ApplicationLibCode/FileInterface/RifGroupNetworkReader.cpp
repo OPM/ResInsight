@@ -145,7 +145,7 @@ std::optional<std::time_t> dateFromRecord( const Opm::DeckRecord& record )
         if ( parsed.isValid() ) time = parsed;
     }
 
-    return QDateTime( date, time, QTimeZone::UTC ).toSecsSinceEpoch();
+    return QDateTime( date, time, QTimeZone::utc() ).toSecsSinceEpoch();
 }
 
 //--------------------------------------------------------------------------------------------------
