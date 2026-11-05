@@ -1520,6 +1520,10 @@ void RiuQwtPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
         QwtAxisId newQwtAxis( qwtAxisId, count );
         m_axisMapping.insert( std::make_pair( axis, newQwtAxis ) );
     }
+
+    // Apply the theme text color to the axes. Otherwise the color is only applied after user interaction or when the
+    // widget is hidden, and plots rendered without being shown (headless) would get a different axis color.
+    resetPlotAxisHighlighting();
 }
 
 //--------------------------------------------------------------------------------------------------
