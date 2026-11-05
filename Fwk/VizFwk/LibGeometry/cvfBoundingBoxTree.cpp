@@ -42,6 +42,7 @@
 #include "cvfObject.h"
 #include "cvfBoundingBox.h"
 
+#include <algorithm>
 #include <cmath>
 #include <deque>
 #include <limits>
@@ -980,30 +981,39 @@ void BoundingBoxTree::buildTreeFromBoundingBoxes(const std::vector<cvf::Bounding
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Build a tree where each bounding box has a range of IDs. Invalid bounding boxes are removed in place.
 //--------------------------------------------------------------------------------------------------
-void BoundingBoxTree::buildTreeFromBoundingBoxesOptimized(const std::vector<cvf::BoundingBox>& boundingBoxes,
-                                                          const std::vector<std::vector<int>>& optionalBoundingBoxIds)
+void BoundingBoxTree::buildTreeFromBoundingBoxesOptimized(std::vector<cvf::BoundingBox>&& boundingBoxes,
+                                                          std::vector<int>&&              boundingBoxIds,
+                                                          std::vector<size_t>&&           boundingBoxIdOffsets)
 {
-    std::vector<cvf::BoundingBox> validBoundingBoxes;
-    std::vector<int>              validBoundingBoxIds;
-    std::vector<size_t>           validBoundingBoxIdOffsets;
+    CVF_ASSERT(boundingBoxIdOffsets.size() == boundingBoxes.size() + 1);
 
-    validBoundingBoxes.reserve(boundingBoxes.size());
-    validBoundingBoxIdOffsets.reserve(boundingBoxes.size() + 1);
-    validBoundingBoxIdOffsets.push_back(0);
-
-    for (int i = 0; i < (int)boundingBoxes.size(); ++i)
+    size_t validCount = 0;
+    size_t idEnd      = 0;
+    for (size_t i = 0; i < boundingBoxes.size(); ++i)
     {
-        if (boundingBoxes[i].isValid())
+        if (!boundingBoxes[i].isValid()) continue;
+
+        const size_t idBegin = boundingBoxIdOffsets[i];
+        const size_t idCount = boundingBoxIdOffsets[i + 1] - idBegin;
+        if (idBegin != idEnd)
         {
-            validBoundingBoxes.push_back(boundingBoxes[i]);
-            validBoundingBoxIds.insert(validBoundingBoxIds.end(), optionalBoundingBoxIds[i].begin(), optionalBoundingBoxIds[i].end());
-            validBoundingBoxIdOffsets.push_back(validBoundingBoxIds.size());
+            std::copy(boundingBoxIds.begin() + idBegin, boundingBoxIds.begin() + idBegin + idCount, boundingBoxIds.begin() + idEnd);
         }
+
+        boundingBoxes[validCount]        = boundingBoxes[i];
+        boundingBoxIdOffsets[validCount] = idEnd;
+        idEnd += idCount;
+        validCount++;
     }
 
-    m_implTree->buildTree(std::move(validBoundingBoxes), std::move(validBoundingBoxIds), std::move(validBoundingBoxIdOffsets));
+    boundingBoxes.resize(validCount);
+    boundingBoxIds.resize(idEnd);
+    boundingBoxIdOffsets.resize(validCount + 1);
+    boundingBoxIdOffsets[validCount] = idEnd;
+
+    m_implTree->buildTree(std::move(boundingBoxes), std::move(boundingBoxIds), std::move(boundingBoxIdOffsets));
 }
 
 //--------------------------------------------------------------------------------------------------
