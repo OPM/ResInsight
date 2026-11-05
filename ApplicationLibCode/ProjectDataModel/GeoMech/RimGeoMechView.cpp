@@ -805,16 +805,9 @@ RimGeoMechCase* RimGeoMechView::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onClampCurrentTimestep()
 {
-    int maxSteps = 0;
+    if ( !m_geomechCase || !m_geomechCase->geoMechData() || !m_geomechCase->geoMechData()->femPartResults() ) return;
 
-    if ( m_geomechCase )
-    {
-        maxSteps = m_geomechCase->geoMechData()->femPartResults()->totalSteps();
-    }
-    else
-    {
-        return;
-    }
+    const int maxSteps = m_geomechCase->geoMechData()->femPartResults()->totalSteps();
     if ( m_currentTimeStep >= maxSteps ) m_currentTimeStep = maxSteps - 1;
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 

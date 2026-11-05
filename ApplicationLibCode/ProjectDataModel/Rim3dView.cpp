@@ -1849,6 +1849,9 @@ Rim3dView* Rim3dView::prepareComparisonView()
         return nullptr;
     }
 
+    // The comparison view time step may not be clamped yet, e.g. a stale index restored from the project file
+    depView->onClampCurrentTimestep();
+
     if ( depView->scaleZ() != scaleZ() )
     {
         depView->setScaleZAndUpdate( scaleZ() );
