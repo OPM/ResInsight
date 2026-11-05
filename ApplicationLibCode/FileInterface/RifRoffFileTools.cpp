@@ -196,7 +196,6 @@ bool RifRoffFileTools::openGridFile( std::istream& stream, RigEclipseCaseData* e
 
         // Reserve room for the cells and nodes and fill them with data
         mainGrid->reservoirCells().reserve( totalCellCount );
-        mainGrid->nodes().reserve( 8 * totalCellCount );
 
         int               progTicks = 100;
         caf::ProgressInfo progInfo( progTicks, "" );
@@ -209,7 +208,7 @@ bool RifRoffFileTools::openGridFile( std::istream& stream, RigEclipseCaseData* e
         defaultCell.setHostGrid( mainGrid );
         mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-        mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+        std::span<cvf::Vec3d> gridNodes = mainGrid->allocateNodes( static_cast<size_t>( cellCount ) * 8 );
 
         // Swap i and j to get correct faces
         const size_t cellMappingECLRi[8] = { 2, 3, 1, 0, 6, 7, 5, 4 };
@@ -244,7 +243,7 @@ bool RifRoffFileTools::openGridFile( std::istream& stream, RigEclipseCaseData* e
             // Corner coordinates
             for ( int cIdx = 0; cIdx < 8; ++cIdx )
             {
-                double* point  = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+                double* point  = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
                 auto    corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
 
                 point[0] = corner.x();

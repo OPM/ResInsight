@@ -59,18 +59,33 @@ RigMainGrid::~RigMainGrid()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Remove all nodes. Cell corner indices must be updated before the grid is used.
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d>& RigMainGrid::nodes()
+void RigMainGrid::clearNodes()
 {
-    return m_nodes;
+    m_nodes.clear();
+
+    m_isFaceNormalsOutwardsComputed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RigMainGrid::nodes() const
+std::span<cvf::Vec3d> RigMainGrid::allocateNodes( size_t nodeCount )
 {
+    const size_t startIndex = m_nodes.size();
+    m_nodes.resize( startIndex + nodeCount, cvf::Vec3d::ZERO );
+
+    return modifiableNodes().subspan( startIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::span<cvf::Vec3d> RigMainGrid::modifiableNodes()
+{
+    m_isFaceNormalsOutwardsComputed = false;
+
     return m_nodes;
 }
 
@@ -587,7 +602,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
     int unNamedFaultWithInactiveIdx = static_cast<int>( m_faults.size() );
     m_faults.push_back( unNamedFaultWithInactive );
 
-    const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
+    const std::vector<cvf::Vec3d>& vxs = m_nodes;
 
     // Each cell only writes the fault index of its own positive faces and the opposite faces of its neighbors, so the
     // cells can be processed in parallel. Static scheduling assigns increasing cell ranges to increasing thread

@@ -221,9 +221,10 @@ void RifOpmRadialGridTools::transferCylindricalCoords( Opm::EclIO::EGrid& opmMai
 
     const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
     const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
-    auto&         riNodes               = riMainGrid->nodes();
 
     bool convertCylindricalCoords = false;
+
+    const auto riNodes = riMainGrid->modifiableNodes();
 
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
@@ -238,10 +239,7 @@ void RifOpmRadialGridTools::transferCylindricalCoords( Opm::EclIO::EGrid& opmMai
             size_t riNodeIndex = riNodeStartIndex + cellMappingECLRi[opmNodeIndex];
 
             // The radial grid is specified with (0,0) as center, add grid center to get correct global coordinates
-            auto& riNode = riNodes[riNodeIndex];
-            riNode.x()   = opmX[opmNodeIndex];
-            riNode.y()   = opmY[opmNodeIndex];
-            riNode.z()   = -opmZ[opmNodeIndex];
+            riNodes[riNodeIndex] = cvf::Vec3d( opmX[opmNodeIndex], opmY[opmNodeIndex], -opmZ[opmNodeIndex] );
         }
     }
 }
@@ -272,7 +270,7 @@ void RifOpmRadialGridTools::convertRadialGridToCartesianGrid( Opm::EclIO::EGrid&
     const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
     const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
     const auto    gridDimension         = opmGrid.dimension();
-    auto&         riNodes               = riMainGrid->nodes();
+    const auto    riNodes               = riMainGrid->modifiableNodes();
 
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
@@ -297,10 +295,7 @@ void RifOpmRadialGridTools::convertRadialGridToCartesianGrid( Opm::EclIO::EGrid&
             size_t riNodeIndex = riNodeStartIndex + cellMappingECLRi[opmNodeIndex];
 
             // The radial grid is specified with (0,0) as center, add grid center to get correct global coordinates
-            auto& riNode = riNodes[riNodeIndex];
-            riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
-            riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
-            riNode.z()   = -opmZ[opmNodeIndex];
+            cvf::Vec3d riNode( opmX[opmNodeIndex] + xCenterCoordOpm, opmY[opmNodeIndex] + yCenterCoordOpm, -opmZ[opmNodeIndex] );
 
             // First grid dimension is radius, check if cell has are at the outer-most slice
             if ( !hostCellGlobalIndices.empty() && ( gridDimension[0] - 1 == ijkCell[0] ) )
@@ -309,6 +304,8 @@ void RifOpmRadialGridTools::convertRadialGridToCartesianGrid( Opm::EclIO::EGrid&
 
                 lockToHostPillars( riNode, opmMainGrid, opmGrid, ijkCell, hostCellIndex, opmCellIndex, opmNodeIndex, xCenterCoordOpm, yCenterCoordOpm );
             }
+
+            riNodes[riNodeIndex] = riNode;
         }
     }
 }
@@ -420,8 +417,10 @@ bool RifOpmRadialGridTools::createAngularGridRefinement( RigEclipseCaseData* cas
     grid->setIsRadial( true );
 
     // Convert the radial grid to a Cartesian grid
-    std::vector<cvf::Vec3d>& nodes = riMainGrid->nodes();
-    convertNodesToCartesian( nodes );
+    for ( auto& node : riMainGrid->modifiableNodes() )
+    {
+        node = convertNodeToCartesian( node );
+    }
 
     return true;
 }
@@ -429,16 +428,10 @@ bool RifOpmRadialGridTools::createAngularGridRefinement( RigEclipseCaseData* cas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmRadialGridTools::convertNodesToCartesian( std::vector<cvf::Vec3d>& nodes )
+cvf::Vec3d RifOpmRadialGridTools::convertNodeToCartesian( const cvf::Vec3d& node )
 {
-    for ( size_t i = 0; i < nodes.size(); i++ )
-    {
-        auto& node = nodes[i];
-
-        auto cartesian = Ria::CoordinateConverter::cylindricalToCartesian( node.x(), Ria::Degreesd( node.y() ), node.z() );
-        node.x()       = cartesian.x();
-        node.y()       = cartesian.y();
-    }
+    auto cartesian = Ria::CoordinateConverter::cylindricalToCartesian( node.x(), Ria::Degreesd( node.y() ), node.z() );
+    return cvf::Vec3d( cartesian.x(), cartesian.y(), node.z() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -165,13 +165,15 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
 
     int    cellCount      = ecl_grid_get_global_size( localEclGrid );
     size_t cellStartIndex = mainGrid->reservoirCells().size();
-    size_t nodeStartIndex = mainGrid->nodes().size();
+    size_t nodeStartIndex = cellStartIndex * 8;
 
     RigCell defaultCell;
     defaultCell.setHostGrid( localGrid );
     mainGrid->reservoirCells().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
+    // The node table is allocated for all grids up front, with 8 nodes per cell
+    CAF_ASSERT( nodeStartIndex + static_cast<size_t>( cellCount ) * 8 <= mainGrid->nodes().size() );
+    std::span<cvf::Vec3d> gridNodes = mainGrid->modifiableNodes().subspan( nodeStartIndex, static_cast<size_t>( cellCount ) * 8 );
 
     // Loop over cells and fill them with data
 
@@ -212,7 +214,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         int cIdx;
         for ( cIdx = 0; cIdx < 8; ++cIdx )
         {
-            double* point = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
             ecl_grid_get_cell_corner_xyz1( localEclGrid, gridLocalCellIndex, cIdx, &( point[0] ), &( point[1] ), &( point[2] ) );
             point[2]                   = -point[2]; // Flipping Z making depth become negative z values
             cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
@@ -228,9 +230,6 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         }
 
         // Mark inactive long pyramid looking cells as invalid
-        // Forslag
-        // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
-        // !cell.isActiveInFractureModel()) ) )
         if ( invalidateLongPyramidCells )
         {
             cell.setInvalid( cell.isLongPyramidCell() );
@@ -299,8 +298,10 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 
     // Reserve room for the cells and nodes and fill them with data
 
+    // Allocate the nodes of all grids at once, so loading the LGRs does not reallocate the node table
+    CAF_ASSERT( mainGrid->nodes().size() == 8 * mainGrid->reservoirCells().size() );
     mainGrid->reservoirCells().reserve( totalCellCount );
-    mainGrid->nodes().reserve( 8 * totalCellCount );
+    mainGrid->allocateNodes( 8 * totalCellCount );
 
     caf::ProgressInfo progInfo( 3 + numLGRs, "" );
 

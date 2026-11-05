@@ -60,8 +60,8 @@ public:
                                    double              xCenterCoordOpm,
                                    double              yCenterCoordOpm );
 
-    static bool createAngularGridRefinement( RigEclipseCaseData* caseData, size_t angularRefinement );
-    static void convertNodesToCartesian( std::vector<cvf::Vec3d>& nodes );
+    static bool       createAngularGridRefinement( RigEclipseCaseData* caseData, size_t angularRefinement );
+    static cvf::Vec3d convertNodeToCartesian( const cvf::Vec3d& node );
 
 private:
     static void

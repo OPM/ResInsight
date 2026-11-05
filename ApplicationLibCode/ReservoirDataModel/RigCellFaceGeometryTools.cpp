@@ -80,6 +80,8 @@ cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOv
         }
     }
 
+    const auto mainGridNodes = mainGrid.nodes();
+
     for ( unsigned char fIdx = 0; fIdx < 6; ++fIdx )
     {
         if ( !isPossibleNeighborInDirection[fIdx] )
@@ -96,13 +98,14 @@ cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOv
         c1.faceIndices( ( cvf::StructGridInterface::FaceType )( fIdx ), &face1 );
         c2.faceIndices( cvf::StructGridInterface::oppositeFace( ( cvf::StructGridInterface::FaceType )( fIdx ) ), &face2 );
 
-        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
-                                                                                   intersections,
-                                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
-                                                                                   face1.data(),
-                                                                                   face2.data(),
-                                                                                   1e-6 );
+        bool foundOverlap =
+            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                   intersections,
+                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                   cvf::wrapArrayConst( mainGridNodes.data(), mainGridNodes.size() ),
+                                                                   face1.data(),
+                                                                   face2.data(),
+                                                                   1e-6 );
 
         if ( foundOverlap )
         {
@@ -229,7 +232,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         return;
     }
 
-    const std::vector<cvf::Vec3d>& mainGridNodes = mainGrid->nodes();
+    const auto mainGridNodes = mainGrid->nodes();
 
     cvf::BoundingBox      bb;
     std::array<size_t, 4> sourceFaceIndices;
@@ -334,13 +337,14 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         std::array<size_t, 4> candidateFaceIndices;
         mainGrid->cell( candidateCellIndex ).faceIndices( candidateFace, &candidateFaceIndices );
 
-        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
-                                                                                   intersections,
-                                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                                   cvf::wrapArrayConst( &mainGridNodes ),
-                                                                                   sourceFaceIndices.data(),
-                                                                                   candidateFaceIndices.data(),
-                                                                                   1e-6 );
+        bool foundOverlap =
+            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( polygon,
+                                                                   intersections,
+                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                   cvf::wrapArrayConst( mainGridNodes.data(), mainGridNodes.size() ),
+                                                                   sourceFaceIndices.data(),
+                                                                   candidateFaceIndices.data(),
+                                                                   1e-6 );
 
         if ( foundOverlap )
         {
@@ -357,7 +361,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RigCellFaceGeometryTools::extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+std::vector<cvf::Vec3f> RigCellFaceGeometryTools::extractPolygon( std::span<const cvf::Vec3d>    nativeNodes,
                                                                   const std::vector<size_t>&     connectionPolygon,
                                                                   const std::vector<cvf::Vec3d>& connectionIntersections )
 {

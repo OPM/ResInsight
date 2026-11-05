@@ -247,11 +247,8 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     for ( size_t i = 0; i < 8; i++ )
         defaultCell.cornerIndices()[i] = 0;
 
-    const auto newNodeCount = nodeStartIndex + 8 * cellCount;
-    activeGrid->nodes().resize( newNodeCount, cvf::Vec3d( 0, 0, 0 ) );
+    std::span<cvf::Vec3d> riNodes = activeGrid->allocateNodes( 8 * static_cast<size_t>( cellCount ) );
     activeGrid->setTotalCellCount( cellStartIndex + opmGrid.totalNumberOfCells() );
-
-    auto& riNodes = activeGrid->nodes();
     auto& riCells = activeGrid->nativeCells();
 
     opmGrid.loadData();
@@ -330,7 +327,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
             auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
-            auto& riNode = riNodes[riNodeIndex];
+            auto& riNode = riNodes[riNodeIndex - nodeStartIndex];
             riNode.x()   = opmX[opmNodeIndex] + xCenterCoordOpm;
             riNode.y()   = opmY[opmNodeIndex] + yCenterCoordOpm;
             riNode.z()   = -opmZ[opmNodeIndex];
