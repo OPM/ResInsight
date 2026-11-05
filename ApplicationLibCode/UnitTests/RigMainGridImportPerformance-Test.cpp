@@ -262,3 +262,54 @@ TEST( RigMainGridImportPerformance, DISABLED_SyntheticGridImportTimeAndMemory )
               << toMiB( memAfterCache - std::min( memAfterCache, memBefore ) ) << " MiB retained)\n"
               << std::flush;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Times RigMainGrid::removeDuplicateNodes() on a large synthetic grid and reports memory use.
+/// Grid size is controlled by the same environment variables as the import test.
+///
+/// Disabled by default. Run with --gtest_also_run_disabled_tests --gtest_filter=RigMainGridImportPerformance.*
+//--------------------------------------------------------------------------------------------------
+TEST( RigMainGridImportPerformance, DISABLED_SyntheticGridRemoveDuplicateNodes )
+{
+    const size_t ni = envSize( "RESINSIGHT_PERF_GRID_NI", 350 );
+    const size_t nj = envSize( "RESINSIGHT_PERF_GRID_NJ", 350 );
+    const size_t nk = envSize( "RESINSIGHT_PERF_GRID_NK", 80 );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    const QString filePath = tempDir.filePath( "synthetic_grid.grdecl" );
+    writeSyntheticGrdecl( filePath.toStdString(), ni, nj, nk );
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    QString errorMessages;
+    ASSERT_TRUE( RifEclipseInputFileTools::openGridFile( filePath, caseData.p(), false, &errorMessages ) ) << errorMessages.toStdString();
+
+    RigMainGrid* mainGrid = caseData->mainGrid();
+    ASSERT_NE( mainGrid, nullptr );
+
+    using Clock  = std::chrono::steady_clock;
+    auto seconds = []( Clock::time_point a, Clock::time_point b ) { return std::chrono::duration<double>( b - a ).count(); };
+
+    const size_t memBefore   = currentResidentBytes();
+    const size_t nodesBefore = mainGrid->nodes().size();
+
+    PeakMemorySampler sampler;
+    auto              t0       = Clock::now();
+    const size_t      removed  = mainGrid->removeDuplicateNodes();
+    auto              t1       = Clock::now();
+    const size_t      peak     = sampler.stop();
+    const size_t      memAfter = currentResidentBytes();
+
+    // A regular grid without faults has (ni + 1) x (nj + 1) x (nk + 1) unique nodes
+    EXPECT_EQ( ( ni + 1 ) * ( nj + 1 ) * ( nk + 1 ), mainGrid->nodes().size() );
+
+    std::cout << "[PERF] Grid size            : " << ni << " x " << nj << " x " << nk << " = " << ni * nj * nk << " cells\n"
+              << "[PERF] Nodes                : " << nodesBefore << " -> " << mainGrid->nodes().size() << " (" << removed << " removed)\n"
+              << "[PERF] removeDuplicateNodes : " << seconds( t0, t1 ) << " s\n"
+              << "[PERF] Memory before        : " << toMiB( memBefore ) << " MiB\n"
+              << "[PERF] Peak during removal  : " << toMiB( peak ) << " MiB (+" << toMiB( peak - std::min( peak, memBefore ) ) << " MiB)\n"
+              << "[PERF] After removal        : " << toMiB( memAfter ) << " MiB\n"
+              << std::flush;
+}

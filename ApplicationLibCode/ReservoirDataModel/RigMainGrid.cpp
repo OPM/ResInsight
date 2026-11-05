@@ -33,6 +33,7 @@
 #include "cafAssert.h"
 #include "cvfBoundingBoxTree.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -101,6 +102,8 @@ std::span<cvf::Vec3d> RigMainGrid::modifiableNodes()
 //--------------------------------------------------------------------------------------------------
 /// Nodes with exactly equal coordinates are merged, and cell corner indices are updated. Returns the number of
 /// removed nodes.
+///
+/// The algorithm is described in docs/remove-duplicate-grid-nodes.md
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::removeDuplicateNodes()
 {
