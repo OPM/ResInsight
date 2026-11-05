@@ -18,10 +18,12 @@
 
 #pragma once
 
+#include "RimPlainPlotDataProducer.h"
 #include "RimPlotWindow.h"
 
 #include "RiaDateTimeDefines.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressDefines.h"
 
 #include "RimRegularLegendConfig.h"
@@ -34,8 +36,15 @@
 #include <QPointer>
 #include <QString>
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 class RifSummaryReaderInterface;
 class RimSummaryCase;
+class RimSummaryEnsemble;
+class RimEnsembleStatisticsCase;
 class RimRegularLegendConfig;
 class RiuMatrixPlotWidget;
 class RifEclipseSummaryAddress;
@@ -43,7 +52,7 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryTable : public RimPlotWindow
+class RimSummaryTable : public RimPlotWindow, public RimPlainPlotDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -52,6 +61,22 @@ public:
     {
         AUTOMATIC,
         USER_DEFINED
+    };
+
+    enum class DataSource
+    {
+        SINGLE_CASE,
+        ENSEMBLE_STATISTICS
+    };
+
+    enum class EnsembleStatistic
+    {
+        MIN,
+        P90,
+        P50,
+        MEAN,
+        P10,
+        MAX
     };
 
 public:
@@ -64,6 +89,7 @@ public:
                                                  const QString&                                   vectorName );
     void    setDescription( const QString& description );
     QString description() const override;
+    QString asciiDataForPlotExport() const override;
 
 private:
     void cleanupBeforeClose();
@@ -98,25 +124,35 @@ private:
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
 
-    std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*                 summaryReader,
-                                                                      RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                                      const QString&                                   vector ) const;
-    std::set<QString>                  getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                 summaryReader,
-                                                                           RifEclipseSummaryAddressDefines::SummaryCategory category ) const;
+    std::set<RifEclipseSummaryAddress> getSummaryAddressesFromAddresses( const std::set<RifEclipseSummaryAddress>&        allAddresses,
+                                                                         RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                                         const QString&                                   vector ) const;
+    std::set<QString>                  getCategoryVectorFromAddresses( const std::set<RifEclipseSummaryAddress>&        allAddresses,
+                                                                       RifEclipseSummaryAddressDefines::SummaryCategory category ) const;
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
     void                         initializeDateRange();
 
-    RifSummaryReaderInterface* summaryReaderWithAddresses();
+    RifSummaryReaderInterface*         summaryReaderWithAddresses();
+    std::set<RifEclipseSummaryAddress> availableAddresses();
+    bool                               hasDataSource() const;
+    bool                               isEnsembleStatistics() const;
+    void                               resetVectorToFirstAvailable();
+    QString                            dataSourceDescription() const;
+    std::vector<QString>               timeStepStrings() const;
+    std::set<QString>                  excludedRows() const;
 
 private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
-    caf::PdmField<QString>            m_tableName;
-    caf::PdmField<bool>               m_isAutomaticName;
-    caf::PdmPtrField<RimSummaryCase*> m_case;
+    caf::PdmField<QString>                         m_tableName;
+    caf::PdmField<bool>                            m_isAutomaticName;
+    caf::PdmField<caf::AppEnum<DataSource>>        m_dataSource;
+    caf::PdmPtrField<RimSummaryCase*>              m_case;
+    caf::PdmPtrField<RimSummaryEnsemble*>          m_ensemble;
+    caf::PdmField<caf::AppEnum<EnsembleStatistic>> m_ensembleStatistic;
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<QString>                                                        m_vector;
@@ -147,6 +183,22 @@ private:
     using TableData  = RimSummaryTableTools::TableData;
 
     TableData m_tableData;
+
+    std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatisticsCase;
+
+    struct EnsembleStatisticsData
+    {
+        std::vector<time_t>                              timeSteps;
+        std::map<EnsembleStatistic, std::vector<double>> values;
+        std::string                                      unitName;
+    };
+
+    std::map<RifEclipseSummaryAddress, EnsembleStatisticsData> m_ensembleStatisticsCache;
+    const RimSummaryEnsemble*                                  m_ensembleStatisticsCacheEnsemble  = nullptr;
+    size_t                                                     m_ensembleStatisticsCacheCaseCount = 0;
+
+    const EnsembleStatisticsData& ensembleStatisticsData( const RifEclipseSummaryAddress& address );
+    void                          clearEnsembleStatisticsCache();
 
     void createTableData();
     void setExcludedRowsUiSelectionsFromTableData();
