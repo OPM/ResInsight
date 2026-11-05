@@ -694,13 +694,13 @@ void RiuMainWindowBase::setDefaultDockLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::setDockLayout()
+void RiuMainWindowBase::setUserDockLayout()
 {
     QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString layoutName = action->text();
-        RiuDockWidgetTools::setDockLayout( this, layoutName );
+        RiuDockWidgetTools::setDockLayout( this, layoutName, true /* user layout */ );
     }
 }
 
@@ -816,7 +816,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         for ( auto& layout : names )
         {
             QAction* chooseLayoutAction = layoutsMenu->addAction( layout );
-            connect( chooseLayoutAction, SIGNAL( triggered() ), this, SLOT( setDockLayout() ) );
+            connect( chooseLayoutAction, SIGNAL( triggered() ), this, SLOT( setUserDockLayout() ) );
             QAction* deleteLayoutAction = deleteLayoutMenu->addAction( layout );
             connect( deleteLayoutAction, SIGNAL( triggered() ), this, SLOT( deleteDockLayout() ) );
         }

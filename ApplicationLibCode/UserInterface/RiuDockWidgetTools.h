@@ -93,7 +93,7 @@ public:
     static QString dockStateHideAllPlotWindowName();
     static QString dockStateHideAll3DWindowName();
 
-    static void setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName );
+    static void setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName, bool userLayout = false );
 
     static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
