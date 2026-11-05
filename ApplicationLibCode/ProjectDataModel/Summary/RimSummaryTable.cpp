@@ -29,8 +29,11 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleStatisticsCase.h"
+#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 
 #include "RiuMatrixPlotWidget.h"
@@ -43,6 +46,7 @@
 
 #include <cmath>
 #include <limits>
+#include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 
@@ -58,6 +62,26 @@ void AppEnum<RimSummaryTable::RangeType>::setUp()
     addItem( RimSummaryTable::RangeType::USER_DEFINED, "USER_DEFINED_MAX_MIN", "User Defined Range" );
     setDefault( RimSummaryTable::RangeType::AUTOMATIC );
 }
+
+template <>
+void AppEnum<RimSummaryTable::DataSource>::setUp()
+{
+    addItem( RimSummaryTable::DataSource::SINGLE_CASE, "SINGLE_CASE", "Single Case" );
+    addItem( RimSummaryTable::DataSource::ENSEMBLE_STATISTICS, "ENSEMBLE_STATISTICS", "Ensemble Statistics" );
+    setDefault( RimSummaryTable::DataSource::SINGLE_CASE );
+}
+
+template <>
+void AppEnum<RimSummaryTable::EnsembleStatistic>::setUp()
+{
+    addItem( RimSummaryTable::EnsembleStatistic::MIN, "MIN", "Min" );
+    addItem( RimSummaryTable::EnsembleStatistic::P90, "P90", "P90" );
+    addItem( RimSummaryTable::EnsembleStatistic::P50, "P50", "P50" );
+    addItem( RimSummaryTable::EnsembleStatistic::MEAN, "MEAN", "Mean" );
+    addItem( RimSummaryTable::EnsembleStatistic::P10, "P10", "P10" );
+    addItem( RimSummaryTable::EnsembleStatistic::MAX, "MAX", "Max" );
+    setDefault( RimSummaryTable::EnsembleStatistic::MEAN );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -71,8 +95,12 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitField( &m_tableName, "TableName", QString( "Summary Table" ), "Name" );
     CAF_PDM_InitField( &m_isAutomaticName, "AutomaticTableName", true, "Automatic Name" );
 
+    CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "SummaryEnsemble", "Ensemble" );
+    m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleStatistic, "EnsembleStatistic", "Statistic" );
     CAF_PDM_InitFieldNoDefault( &m_vector, "Vector", "Vector" );
     m_vector.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -158,6 +186,8 @@ RimSummaryTable::RimSummaryTable()
     dockAsPlotWindow();
     setShowWindow( true );
     setDeletable( true );
+
+    m_ensembleStatisticsCase = std::make_unique<RimEnsembleStatisticsCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,14 +215,7 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 
     m_case = summaryCases.front();
 
-    const auto summaryReader = summaryReaderWithAddresses();
-    if ( !summaryReader ) return;
-
-    const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
-    if ( !categoryVectors.empty() )
-    {
-        m_vector = *categoryVectors.begin();
-    }
+    resetVectorToFirstAvailable();
     m_tableName = createTableName();
 
     initializeDateRange();
@@ -264,46 +287,32 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case )
+    if ( changedField == &m_case || changedField == &m_ensemble || changedField == &m_dataSource )
     {
-        if ( m_case )
+        clearEnsembleStatisticsCache();
+        resetVectorToFirstAvailable();
+        if ( changedField == &m_dataSource && m_dataSource() == DataSource::ENSEMBLE_STATISTICS && m_ensemble() == nullptr )
         {
-            const auto summaryReader   = summaryReaderWithAddresses();
-            const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
-            if ( summaryReader && !categoryVectors.empty() )
+            for ( auto ensemble : RimProject::current()->summaryEnsembles() )
             {
-                m_vector = *categoryVectors.begin();
-            }
-            else
-            {
-                m_vector = QString( "" );
+                if ( ensemble->isEnsemble() )
+                {
+                    m_ensemble = ensemble;
+                    resetVectorToFirstAvailable();
+                    break;
+                }
             }
         }
         if ( m_isAutomaticName )
         {
             m_tableName = createTableName();
         }
+        if ( changedField != &m_case ) initializeDateRange();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_category )
     {
-        if ( m_case )
-        {
-            const auto summaryReader   = summaryReaderWithAddresses();
-            const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
-            if ( summaryReader && !categoryVectors.empty() )
-            {
-                m_vector = *categoryVectors.begin();
-            }
-            else
-            {
-                m_vector = QString( "" );
-            }
-        }
-        else
-        {
-            m_vector = QString( " " );
-        }
+        resetVectorToFirstAvailable();
         if ( m_isAutomaticName )
         {
             m_tableName = createTableName();
@@ -311,7 +320,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_upperThreshold ||
-              changedField == &m_lowerThreshold )
+              changedField == &m_lowerThreshold || changedField == &m_ensembleStatistic )
     {
         if ( m_isAutomaticName )
         {
@@ -385,7 +394,16 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup( "Plot Data" );
     dataGroup.add( &m_tableName );
     dataGroup.add( &m_isAutomaticName );
-    dataGroup.add( &m_case );
+    dataGroup.add( &m_dataSource );
+    if ( isEnsembleStatistics() )
+    {
+        dataGroup.add( &m_ensemble );
+        dataGroup.add( &m_ensembleStatistic );
+    }
+    else
+    {
+        dataGroup.add( &m_case );
+    }
     dataGroup.add( &m_category );
     dataGroup.add( &m_vector );
     dataGroup.add( &m_resamplingSelection );
@@ -435,16 +453,22 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     {
         options = RiaSummaryTools::optionsForAllSummaryCases();
     }
-    else if ( fieldNeedingOptions == &m_vector && m_case )
+    else if ( fieldNeedingOptions == &m_ensemble )
     {
-        const auto summaryReader = summaryReaderWithAddresses();
-        if ( summaryReader )
+        for ( auto ensemble : RimProject::current()->summaryEnsembles() )
         {
-            const auto categoryVectorsUnion = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
-            for ( const auto& vectorName : categoryVectorsUnion )
+            if ( ensemble->isEnsemble() )
             {
-                options.push_back( caf::PdmOptionItemInfo( vectorName, vectorName ) );
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
             }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_vector )
+    {
+        const auto categoryVectorsUnion = getCategoryVectorFromAddresses( availableAddresses(), m_category() );
+        for ( const auto& vectorName : categoryVectorsUnion )
+        {
+            options.push_back( caf::PdmOptionItemInfo( vectorName, vectorName ) );
         }
     }
     else if ( fieldNeedingOptions == &m_excludedRowsUiField )
@@ -468,13 +492,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
     createTableData();
     setExcludedRowsUiSelectionsFromTableData();
 
-    if ( m_matrixPlotWidget == nullptr || m_case == nullptr )
-    {
-        return;
-    }
-
-    const auto summaryReader = summaryReaderWithAddresses();
-    if ( !summaryReader )
+    if ( m_matrixPlotWidget == nullptr || !hasDataSource() )
     {
         return;
     }
@@ -516,9 +534,10 @@ void RimSummaryTable::onLoadDataAndUpdate()
     }
 
     // Set titles and font sizes
-    const QString title = QString( "Summary Table - %1 [%2]<br>Date Resampling: %3</br>" )
+    const QString title = QString( "Summary Table - %1 [%2]<br>%3Date Resampling: %4</br>" )
                               .arg( m_vector() )
                               .arg( m_tableData.unitName )
+                              .arg( isEnsembleStatistics() ? dataSourceDescription() + "<br>" : QString() )
                               .arg( m_resamplingSelection().uiText() );
     m_matrixPlotWidget->setPlotTitle( title );
     m_matrixPlotWidget->setRowTitle( QString( "%1s" ).arg( m_category().uiText() ) );
@@ -619,6 +638,10 @@ int RimSummaryTable::valueLabelFontSize() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryTable::createTableName() const
 {
+    if ( isEnsembleStatistics() )
+    {
+        return QString( "Summary Table - %1 (%2)" ).arg( m_vector() ).arg( m_ensembleStatistic().uiText() );
+    }
     return QString( "Summary Table - %1" ).arg( m_vector() );
 }
 
@@ -642,16 +665,13 @@ QString RimSummaryTable::dateFormatString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReader( const RifSummaryReaderInterface* summaryReader,
-                                                                                   RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                                                   const QString& vector ) const
+std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses,
+                                                                                      RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                                                      const QString& vector ) const
 {
-    if ( !summaryReader ) return {};
-
-    std::set<RifEclipseSummaryAddress>       categoryAddresses;
-    const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
-    const std::string                        selectedVector     = vector.toStdString();
-    for ( const auto& resAdr : allResultAddresses )
+    std::set<RifEclipseSummaryAddress> categoryAddresses;
+    const std::string                  selectedVector = vector.toStdString();
+    for ( const auto& resAdr : allAddresses )
     {
         if ( resAdr.category() != category || resAdr.vectorName() != selectedVector ) continue;
         categoryAddresses.emplace( resAdr );
@@ -662,10 +682,9 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                 summaryReader,
-                                                                       RifEclipseSummaryAddressDefines::SummaryCategory category ) const
+std::set<QString> RimSummaryTable::getCategoryVectorFromAddresses( const std::set<RifEclipseSummaryAddress>&        allAddresses,
+                                                                   RifEclipseSummaryAddressDefines::SummaryCategory category ) const
 {
-    if ( !summaryReader ) return {};
     if ( category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL &&
          category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP &&
          category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
@@ -673,9 +692,8 @@ std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const Rif
         return {};
     }
 
-    std::set<QString>                        categoryVectors;
-    const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
-    for ( const auto& resAdr : allResultAddresses )
+    std::set<QString> categoryVectors;
+    for ( const auto& resAdr : allAddresses )
     {
         if ( resAdr.category() != category ) continue;
         const QString vectorName = QString::fromStdString( resAdr.vectorName() );
@@ -720,17 +738,81 @@ std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::initializeDateRange()
 {
-    auto summaryReader = summaryReaderWithAddresses();
-    if ( !summaryReader ) return;
+    std::vector<time_t> timeSteps;
+    if ( isEnsembleStatistics() )
+    {
+        if ( !m_ensemble ) return;
+        const auto ensembleTimeSteps = m_ensemble->ensembleTimeSteps();
+        timeSteps                    = std::vector<time_t>( ensembleTimeSteps.begin(), ensembleTimeSteps.end() );
+    }
+    else
+    {
+        auto summaryReader = summaryReaderWithAddresses();
+        if ( !summaryReader ) return;
 
-    const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
-    if ( allResultAddresses.empty() ) return;
+        const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
+        if ( allResultAddresses.empty() ) return;
 
-    auto timeSteps = summaryReader->timeSteps( *allResultAddresses.begin() );
+        timeSteps = summaryReader->timeSteps( *allResultAddresses.begin() );
+    }
     if ( timeSteps.empty() ) return;
 
     m_startDate = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
     m_endDate   = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimSummaryTable::availableAddresses()
+{
+    if ( isEnsembleStatistics() )
+    {
+        if ( !m_ensemble ) return {};
+        return m_ensemble->ensembleSummaryAddresses();
+    }
+
+    if ( auto summaryReader = summaryReaderWithAddresses() )
+    {
+        return summaryReader->allResultAddresses();
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTable::isEnsembleStatistics() const
+{
+    return m_dataSource() == DataSource::ENSEMBLE_STATISTICS;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTable::hasDataSource() const
+{
+    return isEnsembleStatistics() ? m_ensemble() != nullptr : m_case() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::resetVectorToFirstAvailable()
+{
+    const auto categoryVectors = getCategoryVectorFromAddresses( availableAddresses(), m_category() );
+    m_vector                   = categoryVectors.empty() ? QString( "" ) : *categoryVectors.begin();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryTable::dataSourceDescription() const
+{
+    if ( !isEnsembleStatistics() ) return m_case ? m_case->displayCaseName() : QString();
+
+    const QString ensembleName = m_ensemble ? m_ensemble->name() : QString();
+    return QString( "Ensemble %1: %2" ).arg( ensembleName ).arg( m_ensembleStatistic().uiText() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -755,6 +837,87 @@ RifSummaryReaderInterface* RimSummaryTable::summaryReaderWithAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisticsData( const RifEclipseSummaryAddress& address )
+{
+    // The cache is invalid if the ensemble or the number of realizations has changed
+    const size_t caseCount = m_ensemble ? m_ensemble->allSummaryCases().size() : 0;
+    if ( m_ensembleStatisticsCacheEnsemble != m_ensemble() || m_ensembleStatisticsCacheCaseCount != caseCount )
+    {
+        clearEnsembleStatisticsCache();
+        m_ensembleStatisticsCacheEnsemble  = m_ensemble();
+        m_ensembleStatisticsCacheCaseCount = caseCount;
+    }
+
+    if ( auto it = m_ensembleStatisticsCache.find( address ); it != m_ensembleStatisticsCache.end() ) return it->second;
+
+    EnsembleStatisticsData data;
+    if ( m_ensemble )
+    {
+        m_ensembleStatisticsCase->calculate( m_ensemble->allSummaryCases(), address, false, { 0, 100 } );
+
+        // Percentiles use the switched (oil industry) convention: percentile 0 is the maximum, percentile 100 is the minimum
+        const auto statisticsAddress = [&address]( EnsembleStatistic statistic )
+        {
+            auto adr = address;
+            switch ( statistic )
+            {
+                case EnsembleStatistic::MIN:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM );
+                    adr.setPercentile( 100 );
+                    break;
+                case EnsembleStatistic::MAX:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::CUSTOM );
+                    adr.setPercentile( 0 );
+                    break;
+                case EnsembleStatistic::P10:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P10 );
+                    break;
+                case EnsembleStatistic::P50:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P50 );
+                    break;
+                case EnsembleStatistic::P90:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::P90 );
+                    break;
+                case EnsembleStatistic::MEAN:
+                    adr.setStatisticsType( RifEclipseSummaryAddressDefines::StatisticsType::MEAN );
+                    break;
+            }
+            return adr;
+        };
+
+        data.timeSteps = m_ensembleStatisticsCase->timeSteps( address );
+
+        // The unit is read from the first realization, which only knows the plain (non-statistics) address
+        data.unitName = m_ensembleStatisticsCase->unitName( address );
+
+        for ( auto statistic : { EnsembleStatistic::MIN,
+                                 EnsembleStatistic::P90,
+                                 EnsembleStatistic::P50,
+                                 EnsembleStatistic::MEAN,
+                                 EnsembleStatistic::P10,
+                                 EnsembleStatistic::MAX } )
+        {
+            auto [isOk, values]    = m_ensembleStatisticsCase->values( statisticsAddress( statistic ) );
+            data.values[statistic] = std::move( values );
+        }
+    }
+
+    return m_ensembleStatisticsCache.emplace( address, std::move( data ) ).first->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::clearEnsembleStatisticsCache()
+{
+    m_ensembleStatisticsCache.clear();
+    m_ensembleStatisticsCacheEnsemble  = nullptr;
+    m_ensembleStatisticsCacheCaseCount = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTable::createTableData()
 {
     // Without thresholds, all rows are kept, and values above zero are used to find the first and last time step
@@ -766,21 +929,49 @@ void RimSummaryTable::createTableData()
     const auto lowerThreshold     = m_tableData.lowerThresholdValue;
     const bool useThresholdFilter = upperThreshold || lowerThreshold;
 
-    const auto summaryReader = summaryReaderWithAddresses();
-    if ( !summaryReader ) return;
+    // Get all summary addresses for selected category (group, region, well)
+    RifSummaryReaderInterface* summaryReader = nullptr;
+    if ( !isEnsembleStatistics() )
+    {
+        summaryReader = summaryReaderWithAddresses();
+        if ( !summaryReader ) return;
+    }
+    else if ( !m_ensemble )
+    {
+        return;
+    }
 
     // Create time step value for vectors with no values above threshold
     const time_t invalidTimeStep = 0;
 
-    // Get all summary addresses for selected category (group, region, well)
-    const auto summaryAddresses = getSummaryAddressesFromReader( summaryReader, m_category(), m_vector() );
-    QString    unitName;
+    const auto summaryAddresses = getSummaryAddressesFromAddresses( availableAddresses(), m_category(), m_vector() );
+
+    // Time steps, values and unit name for one address. Ensemble statistics are calculated from all realizations.
+    const auto readTimeStepsAndValues =
+        [&]( const RifEclipseSummaryAddress& adr ) -> std::tuple<std::vector<time_t>, std::vector<double>, std::string>
+    {
+        if ( summaryReader )
+        {
+            auto [isOk, values] = summaryReader->values( adr );
+            return { summaryReader->timeSteps( adr ), values, summaryReader->unitName( adr ) };
+        }
+
+        // Ensemble statistics for all statistic types are calculated once per address, and reused when only the selected
+        // statistic, the thresholds or other display settings change
+        const auto& statisticsData = ensembleStatisticsData( adr );
+        const auto  valuesIt       = statisticsData.values.find( m_ensembleStatistic() );
+        if ( valuesIt == statisticsData.values.end() ) return {};
+
+        return { statisticsData.timeSteps, valuesIt->second, statisticsData.unitName };
+    };
+
     for ( const auto& adr : summaryAddresses )
     {
-        auto [isOk, values]                    = summaryReader->values( adr );
-        const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
-        const QString             vectorName   = QString::fromStdString( adr.vectorName() );
-        const QString             categoryName = getCategoryNameFromAddress( adr );
+        const auto [timeSteps, values, unitName] = readTimeStepsAndValues( adr );
+        const QString vectorName                 = QString::fromStdString( adr.vectorName() );
+        const QString categoryName               = getCategoryNameFromAddress( adr );
+
+        if ( timeSteps.size() != values.size() ) continue;
 
         // Get resampled time steps and values
         auto [resampledTimeSteps, resampledValues] =
@@ -866,7 +1057,7 @@ void RimSummaryTable::createTableData()
         // Set unit name
         if ( m_tableData.unitName.isEmpty() )
         {
-            m_tableData.unitName = QString::fromStdString( summaryReader->unitName( adr ) );
+            m_tableData.unitName = QString::fromStdString( unitName );
         }
     }
 
