@@ -36,6 +36,7 @@
 #include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuMatrixPlotWidget.h"
 
 #include "cafPdmUiCheckBoxAndTextEditor.h"
@@ -498,14 +499,10 @@ void RimSummaryTable::onLoadDataAndUpdate()
     }
 
     // Exclude rows that are selected
-    const auto excludedRows = std::set<QString>( m_excludedRowsUiField().begin(), m_excludedRowsUiField().end() );
+    const auto excludedRows = this->excludedRows();
 
     // Convert to strings
-    std::vector<QString> timeStepStrings;
-    for ( const auto& timeStep : m_tableData.timeStepsUnion )
-    {
-        timeStepStrings.push_back( RiaQDateTimeTools::fromTime_t( timeStep ).toString( dateFormatString() ) );
-    }
+    const auto timeStepStrings = this->timeStepStrings();
 
     // Clear matrix plot
     m_matrixPlotWidget->clearPlotData();
@@ -577,6 +574,9 @@ QWidget* RimSummaryTable::createViewWidget( QWidget* mainWindowParent )
     m_matrixPlotWidget = new RiuMatrixPlotWidget( this, m_legendConfig, mainWindowParent );
     m_matrixPlotWidget->setShowValueLabel( m_showValueLabels );
     m_matrixPlotWidget->setUseInvalidValueColor( true );
+
+    new RiuContextMenuLauncher( m_matrixPlotWidget, { "RicShowPlotDataFeature" } );
+    new RiuContextMenuLauncher( m_matrixPlotWidget->qwtPlot(), { "RicShowPlotDataFeature" } );
     return m_matrixPlotWidget;
 }
 
@@ -813,6 +813,56 @@ QString RimSummaryTable::dataSourceDescription() const
 
     const QString ensembleName = m_ensemble ? m_ensemble->name() : QString();
     return QString( "Ensemble %1: %2" ).arg( ensembleName ).arg( m_ensembleStatistic().uiText() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimSummaryTable::timeStepStrings() const
+{
+    std::vector<QString> strings;
+    for ( const auto& timeStep : m_tableData.timeStepsUnion )
+    {
+        strings.push_back( RiaQDateTimeTools::fromTime_t( timeStep ).toString( dateFormatString() ) );
+    }
+    return strings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimSummaryTable::excludedRows() const
+{
+    return std::set<QString>( m_excludedRowsUiField().begin(), m_excludedRowsUiField().end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryTable::asciiDataForPlotExport() const
+{
+    const auto excludedRows = this->excludedRows();
+
+    QString text = m_category().uiText();
+    for ( const auto& timeStepString : timeStepStrings() )
+    {
+        text += "\t" + timeStepString;
+    }
+    text += "\n";
+
+    for ( const auto& vectorData : m_tableData.vectorDataCollection )
+    {
+        if ( excludedRows.contains( vectorData.category ) ) continue;
+
+        text += vectorData.category;
+        for ( const double value : vectorData.values )
+        {
+            text += "\t" + QString::number( value, 'g', 10 );
+        }
+        text += "\n";
+    }
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

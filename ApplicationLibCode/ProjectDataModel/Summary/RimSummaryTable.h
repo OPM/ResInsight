@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimPlainPlotDataProducer.h"
 #include "RimPlotWindow.h"
 
 #include "RiaDateTimeDefines.h"
@@ -51,7 +52,7 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryTable : public RimPlotWindow
+class RimSummaryTable : public RimPlotWindow, public RimPlainPlotDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -88,6 +89,7 @@ public:
                                                  const QString&                                   vectorName );
     void    setDescription( const QString& description );
     QString description() const override;
+    QString asciiDataForPlotExport() const override;
 
 private:
     void cleanupBeforeClose();
@@ -138,6 +140,8 @@ private:
     bool                               isEnsembleStatistics() const;
     void                               resetVectorToFirstAvailable();
     QString                            dataSourceDescription() const;
+    std::vector<QString>               timeStepStrings() const;
+    std::set<QString>                  excludedRows() const;
 
 private:
     // Matrix plot for visualizing table data
