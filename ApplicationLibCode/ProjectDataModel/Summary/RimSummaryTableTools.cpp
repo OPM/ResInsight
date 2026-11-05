@@ -25,23 +25,32 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryTableTools::hasValueAboveThreshold( const std::vector<double>& values, double thresholdValue )
+bool RimSummaryTableTools::hasValueAboveThreshold( const std::vector<double>& values,
+                                                   std::optional<double>      upperThresholdValue,
+                                                   std::optional<double>      lowerThresholdValue )
 {
-    // Detect if values contain at least one value above threshold
-    const auto valueAboveThresholdItr = std::find_if( values.begin(), values.end(), [&]( double value ) { return value > thresholdValue; } );
-    return valueAboveThresholdItr != values.end();
+    const bool hasThreshold = upperThresholdValue || lowerThresholdValue;
+
+    const auto isBeyondThreshold = [&]( double value )
+    {
+        if ( !hasThreshold ) return value > 0.0;
+        return ( upperThresholdValue && value >= *upperThresholdValue ) || ( lowerThresholdValue && value <= *lowerThresholdValue );
+    };
+
+    return std::any_of( values.begin(), values.end(), isBeyondThreshold );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryTableTools::VectorData>
-    RimSummaryTableTools::vectorsAboveThreshold( const std::vector<VectorData>& vectorDataCollection, double thresholdValue )
+std::vector<RimSummaryTableTools::VectorData> RimSummaryTableTools::vectorsAboveThreshold( const std::vector<VectorData>& vectorDataCollection,
+                                                                                           std::optional<double> upperThresholdValue,
+                                                                                           std::optional<double> lowerThresholdValue )
 {
     std::vector<VectorData> vectorsAboveThreshold;
     for ( const auto& vectorData : vectorDataCollection )
     {
-        if ( hasValueAboveThreshold( vectorData.values, thresholdValue ) )
+        if ( hasValueAboveThreshold( vectorData.values, upperThresholdValue, lowerThresholdValue ) )
         {
             vectorsAboveThreshold.push_back( vectorData );
         }
@@ -60,8 +69,10 @@ void RimSummaryTableTools::sortVectorDataOnDate( TableData& rTableData )
                rTableData.vectorDataCollection.end(),
                [&rTableData]( const VectorData& v1, const VectorData& v2 )
                {
-                   const bool firstHasNoValueAboveThreshold  = !hasValueAboveThreshold( v1.values, rTableData.thresholdValue );
-                   const bool secondHasNoValueAboveThreshold = !hasValueAboveThreshold( v2.values, rTableData.thresholdValue );
+                   const bool firstHasNoValueAboveThreshold =
+                       !hasValueAboveThreshold( v1.values, rTableData.upperThresholdValue, rTableData.lowerThresholdValue );
+                   const bool secondHasNoValueAboveThreshold =
+                       !hasValueAboveThreshold( v2.values, rTableData.upperThresholdValue, rTableData.lowerThresholdValue );
                    return std::tie( firstHasNoValueAboveThreshold, v1.firstTimeStep, v1.lastTimeStep, v1.category ) <
                           std::tie( secondHasNoValueAboveThreshold, v2.firstTimeStep, v2.lastTimeStep, v2.category );
                } );

@@ -26,7 +26,6 @@ TEST( RimSummaryTableToolsTest, SortVectorDataOnDateIsIndependentOfInputOrder )
     for ( bool reverse : { false, true } )
     {
         TableData tableData;
-        tableData.thresholdValue       = 0.0;
         tableData.vectorDataCollection = input;
         if ( reverse ) std::reverse( tableData.vectorDataCollection.begin(), tableData.vectorDataCollection.end() );
 
@@ -34,4 +33,39 @@ TEST( RimSummaryTableToolsTest, SortVectorDataOnDateIsIndependentOfInputOrder )
 
         EXPECT_EQ( expected, categoryNames( tableData.vectorDataCollection ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimSummaryTableToolsTest, LowerThresholdKeepsLargePositiveAndNegativeValues )
+{
+    using namespace RimSummaryTableTools;
+
+    const std::vector<double> onlyZeros     = { 0.0, 0.0, 0.0 };
+    const std::vector<double> smallValues   = { -10.0, 0.0, 20.0 };
+    const std::vector<double> largePositive = { 0.0, 80.0 };
+    const std::vector<double> largeNegative = { 0.0, -80.0 };
+
+    EXPECT_FALSE( hasValueAboveThreshold( onlyZeros, 50.0, -50.0 ) );
+    EXPECT_FALSE( hasValueAboveThreshold( smallValues, 50.0, -50.0 ) );
+    EXPECT_TRUE( hasValueAboveThreshold( largePositive, 50.0, -50.0 ) );
+    EXPECT_TRUE( hasValueAboveThreshold( largeNegative, 50.0, -50.0 ) );
+
+    // Without lower threshold, negative values are not considered
+    EXPECT_FALSE( hasValueAboveThreshold( largeNegative, 50.0 ) );
+
+    // Without upper threshold, positive values are not considered
+    EXPECT_FALSE( hasValueAboveThreshold( largePositive, std::nullopt, -50.0 ) );
+    EXPECT_TRUE( hasValueAboveThreshold( largeNegative, std::nullopt, -50.0 ) );
+
+    // Without any threshold, values above zero are significant
+    EXPECT_FALSE( hasValueAboveThreshold( onlyZeros, std::nullopt, std::nullopt ) );
+    EXPECT_TRUE( hasValueAboveThreshold( smallValues, std::nullopt, std::nullopt ) );
+    EXPECT_FALSE( hasValueAboveThreshold( largeNegative, std::nullopt, std::nullopt ) );
+
+    // Values equal to a threshold are included, consistent with the row filter in the Summary Table
+    EXPECT_TRUE( hasValueAboveThreshold( { 50.0 }, 50.0, std::nullopt ) );
+    EXPECT_TRUE( hasValueAboveThreshold( { -50.0 }, std::nullopt, -50.0 ) );
+    EXPECT_FALSE( hasValueAboveThreshold( { 49.9, -49.9 }, 50.0, -50.0 ) );
 }
