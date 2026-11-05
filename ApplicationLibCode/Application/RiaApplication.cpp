@@ -113,6 +113,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSurfaceCollection.h"
+#include "RimTriangulatedSurface.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -1052,6 +1053,12 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
     if ( auto sumCaseMainColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseMainCollection() : nullptr )
     {
         sumCaseMainColl->onProjectBeingSaved();
+    }
+
+    // Write triangulated surfaces to the project folder before the project file is written
+    for ( auto surface : m_project->descendantsOfType<RimTriangulatedSurface>() )
+    {
+        surface->onProjectBeingSaved();
     }
 
     onProjectBeingSaved();
