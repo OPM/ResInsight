@@ -592,7 +592,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     {
         const double  effectiveSgas = applyOneMinusSgas ? 1.0 - sgas : sgas;
         const QString sgasLabel     = applyOneMinusSgas ? "1-" + RiaResultNames::sgas() : RiaResultNames::sgas();
-        addVerticalSaturationMarkerLine( effectiveSgas, sgasLabel, gasColor, plot, myPlotMarkers );
+        // With 1-SGAS the gas line coincides with the SWAT line in gas-water systems, so place the label on the opposite side
+        const Qt::Alignment labelAlignment = applyOneMinusSgas ? Qt::AlignLeft : Qt::AlignRight;
+        addVerticalSaturationMarkerLine( effectiveSgas, sgasLabel, gasColor, plot, myPlotMarkers, labelAlignment );
     }
 
     if ( logScaleLeftAxis )
@@ -753,14 +755,15 @@ void RiuRelativePermeabilityPlotPanel::addVerticalSaturationMarkerLine( double  
                                                                         QString                      label,
                                                                         QColor                       color,
                                                                         QwtPlot*                     plot,
-                                                                        std::vector<QwtPlotMarker*>* myPlotMarkers )
+                                                                        std::vector<QwtPlotMarker*>* myPlotMarkers,
+                                                                        Qt::Alignment                labelHorizontalAlignment )
 {
     QwtPlotMarker* lineMarker = new QwtPlotMarker;
     lineMarker->setXValue( saturationValue );
     lineMarker->setLineStyle( QwtPlotMarker::VLine );
     lineMarker->setLinePen( QPen( color, 1, Qt::DotLine ) );
     lineMarker->setLabel( label );
-    lineMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
+    lineMarker->setLabelAlignment( Qt::AlignTop | labelHorizontalAlignment );
     lineMarker->setLabelOrientation( Qt::Vertical );
 
     lineMarker->attach( plot );
