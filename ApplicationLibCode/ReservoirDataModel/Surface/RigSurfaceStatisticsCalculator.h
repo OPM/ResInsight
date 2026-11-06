@@ -20,6 +20,8 @@
 
 #include "RigSurface.h"
 
+#include "RiaStatisticsDefines.h"
+
 #include "cvfObject.h"
 
 #include <vector>
@@ -31,16 +33,6 @@
 class RigSurfaceStatisticsCalculator
 {
 public:
-    enum class StatisticsType
-    {
-        MIN,
-        MAX,
-        P10,
-        P50,
-        P90,
-        MEAN
-    };
-
     static cvf::ref<RigSurface> computeStatistics( const std::vector<cvf::ref<RigSurface>>& surfaces );
     static bool                 areSurfacesSameSize( const std::vector<cvf::ref<RigSurface>>& surfaces );
 };

@@ -46,6 +46,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaQuickAccessScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGridDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaModelExportDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsDefines.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

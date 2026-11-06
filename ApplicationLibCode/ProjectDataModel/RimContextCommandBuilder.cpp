@@ -628,6 +628,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryTable*>( firstUiItem ) )
         {
             menuBuilder << "RicDuplicateSummaryTableFeature";
+            menuBuilder << "RicShowPlotDataFeature";
         }
         else if ( dynamic_cast<RimWellRftPlot*>( firstUiItem ) )
         {

@@ -53,7 +53,7 @@ public:
 
     void loadData() override;
 
-    RimSurface* findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
+    RimSurface* findStatisticsSurface( RiaDefines::StatisticsType statisticsType );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
