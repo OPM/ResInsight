@@ -22,8 +22,10 @@
 #include "RiaDefines.h"
 #include "RicMswTableDataTools.h"
 #include "RigActiveCellInfo.h"
+#include "RimWellPathAicdParameters.h"
 #include "Well/RigWellLogExtractor.h"
 
+#include <array>
 #include <optional>
 #include <set>
 #include <string>
@@ -140,6 +142,12 @@ void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExpor
 /// Convert a WellPathCellIntersectionInfo global-cell index to a RigMswCellIntersection (1-based i,j,k).
 /// Returns std::nullopt for gap-segments (globCellIndex >= totalCellCount).|
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+/// Copy the AICD template parameters into a WSEGAICD row. Undefined (infinite) optional values are
+/// left unset so they are exported as defaults.
+//--------------------------------------------------------------------------------------------------
+void applyAicdTemplateValues( const std::array<double, AICD_NUM_PARAMS>& aicdValues, WsegaicdRow& row );
+
 std::optional<RigMswCellIntersection>
     toMswCellIntersection( const WellPathCellIntersectionInfo& cellInfo, const RigMainGrid* mainGrid, double distanceStart, double distanceEnd );
 
