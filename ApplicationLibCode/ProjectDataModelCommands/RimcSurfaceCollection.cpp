@@ -27,6 +27,7 @@
 #include "RimRegularSurface.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimTriangulatedSurface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -37,6 +38,7 @@
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_importSurface, "ImportSurface" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newSurface, "NewSurface" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newRegularSurface, "NewRegularSurface" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newTriangulatedSurface, "NewTriangulatedSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -213,4 +215,59 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
 QString RimcSurfaceCollection_newRegularSurface::classKeywordReturnedType() const
 {
     return RimRegularSurface::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSurfaceCollection_newTriangulatedSurface::RimcSurfaceCollection_newTriangulatedSurface( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "New Triangulated Surface", "", "", "Create a new triangulated surface" );
+
+    CAF_PDM_InitScriptableField( &m_name, "Name", QString( "" ), "Name" );
+    CAF_PDM_InitScriptableField( &m_onNameConflict,
+                                 "OnNameConflict",
+                                 caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How to handle a surface name already used in this folder" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newTriangulatedSurface::execute()
+{
+    RimSurfaceCollection* coll = self<RimSurfaceCollection>();
+    if ( !coll ) return std::unexpected( "No surface collection found" );
+
+    auto resolution = RiaNameUniquenessTools::applyConflictPolicy( &coll->itemsField(), m_name(), m_onNameConflict().value() );
+    if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
+
+    if ( auto* existingSurface = dynamic_cast<RimSurface*>( resolution.objectToReplace ) )
+    {
+        coll->deleteItem( existingSurface );
+    }
+
+    RimTriangulatedSurface* surface = new RimTriangulatedSurface;
+    surface->setUserDescription( resolution.nameToUse );
+
+    surface->setColor( cvf::Color3f::BLUE );
+    surface->setOpacity( true, 0.6f );
+
+    coll->addSurface( surface );
+    coll->updateViews();
+    coll->updateConnectedEditors();
+
+    return surface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcSurfaceCollection_newTriangulatedSurface::classKeywordReturnedType() const
+{
+    return RimTriangulatedSurface::classKeywordStatic();
 }

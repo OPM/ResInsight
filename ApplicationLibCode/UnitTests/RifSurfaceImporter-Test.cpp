@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "RifSurfaceExporter.h"
 #include "RifSurfaceImporter.h"
 
 #include "RiaTestDataDirectory.h"
@@ -8,6 +9,7 @@
 #include "QDir"
 #include <QString>
 #include <QStringList>
+#include <QTemporaryDir>
 
 TEST( RifSurfaceImporter, GocadReadValidFile )
 {
@@ -123,6 +125,41 @@ TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
     std::vector<float> propValues = triangleMeshData.propertyValues( "NonExistingProperty" );
 
     EXPECT_TRUE( propValues.empty() );
+}
+
+TEST( RifSurfaceImporter, GocadWriteAndReadProperties )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    const QString filePath = tempDir.path() + "/written_with_properties.ts";
+
+    std::vector<cvf::Vec3d>         vertices = { { 456333.25, 7319649.5, -2494.125 },
+                                                 { 456433.25, 7319649.5, -2495.125 },
+                                                 { 456333.25, 7319749.5, -2496.125 },
+                                                 { 456433.25, 7319749.5, -2497.125 } };
+    std::vector<unsigned>           indices  = { 0, 1, 2, 1, 3, 2 };
+    std::vector<QString>            names    = { "porosity", "net to gross" };
+    std::vector<std::vector<float>> values   = { { 0.1f, 0.2f, 0.3f, 0.4f }, { 1.0f, 0.5f, 0.25f, 0.125f } };
+
+    ASSERT_TRUE( RifSurfaceExporter::writeGocadTSurfFile( filePath, "written", vertices, indices, names, values ) );
+
+    RigTriangleMeshData triangleMeshData;
+    RifSurfaceImporter::readGocadFile( filePath, &triangleMeshData );
+
+    auto [readVertices, readIndices] = triangleMeshData.geometry();
+    ASSERT_EQ( vertices.size(), readVertices.size() );
+    for ( size_t i = 0; i < vertices.size(); i++ )
+    {
+        EXPECT_DOUBLE_EQ( vertices[i].x(), readVertices[i].x() );
+        EXPECT_DOUBLE_EQ( vertices[i].y(), readVertices[i].y() );
+        EXPECT_DOUBLE_EQ( vertices[i].z(), readVertices[i].z() );
+    }
+    EXPECT_EQ( indices, readIndices );
+
+    std::vector<QString> expectedNames = { "porosity", "net_to_gross" };
+    EXPECT_EQ( expectedNames, triangleMeshData.propertyNames() );
+    EXPECT_EQ( values[0], triangleMeshData.propertyValues( "porosity" ) );
+    EXPECT_EQ( values[1], triangleMeshData.propertyValues( "net_to_gross" ) );
 }
 
 TEST( RifSurfaceImporter, ReadWrongFileType )

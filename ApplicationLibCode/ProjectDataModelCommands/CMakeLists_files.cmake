@@ -38,6 +38,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataFilterCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcCombinedFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcRegularSurface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcTriangulatedSurface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPerforationInterval.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCompletionSettings.cpp

@@ -34,6 +34,13 @@ public:
                                      const std::vector<cvf::Vec3d>& vertices,
                                      const std::vector<unsigned>&   triangleIndices );
 
+    static bool writeGocadTSurfFile( const QString&                         fileName,
+                                     const QString&                         headerText,
+                                     const std::vector<cvf::Vec3d>&         vertices,
+                                     const std::vector<unsigned>&           triangleIndices,
+                                     const std::vector<QString>&            propertyNames,
+                                     const std::vector<std::vector<float>>& propertyValues );
+
     static bool writePetrelPtlFile( const QString&                                            fileName,
                                     const std::vector<cvf::Vec3d>&                            vertices,
                                     const std::vector<std::pair<unsigned int, unsigned int>>& columnRowIndices );
