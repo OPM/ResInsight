@@ -818,3 +818,27 @@ TEST( RicMswBranchBuilder, AicdTemplateValues_UndefinedValuesAreUnset )
     EXPECT_FALSE( row.waterViscFraction.has_value() );
     EXPECT_FALSE( row.gasViscFraction.has_value() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// SICD template values are copied to WSEGSICD; undefined optional values are left unset.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, SicdTemplateValues_DefinedValuesAreExportedAndUndefinedAreUnset )
+{
+    std::array<double, SICD_NUM_PARAMS> values;
+    values.fill( std::numeric_limits<double>::infinity() );
+    values[SICD_STRENGTH]            = 0.002;
+    values[SICD_CALIBRATION_DENSITY] = 1020.0;
+    values[SICD_EML_MAX]             = 5.5;
+    values[SICD_MAX_CALIB_RATE]      = 799.0;
+
+    WsegsicdRow row{};
+    applySicdTemplateValues( values, row );
+
+    EXPECT_EQ( 0.002, row.strength );
+    EXPECT_EQ( 1020.0, row.densityCali );
+    EXPECT_EQ( 5.5, row.maxViscRatio );
+    EXPECT_EQ( 799.0, row.maxAbsRate );
+    EXPECT_FALSE( row.viscosityCali.has_value() );
+    EXPECT_FALSE( row.criticalValue.has_value() );
+    EXPECT_FALSE( row.widthTrans.has_value() );
+}

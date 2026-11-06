@@ -199,6 +199,23 @@ void applyAicdTemplateValues( const std::array<double, AICD_NUM_PARAMS>& aicdVal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void applySicdTemplateValues( const std::array<double, SICD_NUM_PARAMS>& sicdValues, WsegsicdRow& row )
+{
+    auto setOptional = []( double value ) -> std::optional<double>
+    { return std::isinf( value ) ? std::nullopt : std::optional<double>{ value }; };
+
+    row.strength      = sicdValues[SICD_STRENGTH];
+    row.densityCali   = setOptional( sicdValues[SICD_CALIBRATION_DENSITY] );
+    row.viscosityCali = setOptional( sicdValues[SICD_CALIBRATION_VISCOSITY] );
+    row.criticalValue = setOptional( sicdValues[SICD_EML_CRT] );
+    row.widthTrans    = setOptional( sicdValues[SICD_EML_TRANS] );
+    row.maxViscRatio  = setOptional( sicdValues[SICD_EML_MAX] );
+    row.maxAbsRate    = sicdValues[SICD_MAX_CALIB_RATE];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<RigMswCellIntersection>
     toMswCellIntersection( const WellPathCellIntersectionInfo& cellInfo, const RigMainGrid* mainGrid, double distanceStart, double distanceEnd )
 {
@@ -754,14 +771,23 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                 continue;
             }
 
-            // AICD: one branch per overlapping cell with proportional flow scaling factor, matching tree approach
-            if ( valveType == RiaDefines::WellPathComponentType::AICD )
+            // AICD/SICD: one branch per overlapping cell with proportional flow scaling factor, matching tree approach
+            if ( isAicdOrSicd )
             {
-                const RimWellPathAicdParameters* aicdParams = valve->aicdParameters();
-                if ( aicdParams && aicdParams->isValid() )
+                const bool                       isAicd     = valveType == RiaDefines::WellPathComponentType::AICD;
+                const RimWellPathAicdParameters* aicdParams = isAicd ? valve->aicdParameters() : nullptr;
+                const RimWellPathSicdParameters* sicdParams = isAicd ? nullptr : valve->sicdParameters();
+                const bool isValid = isAicd ? ( aicdParams && aicdParams->isValid() ) : ( sicdParams && sicdParams->isValid() );
+                if ( !isValid )
                 {
-                    const auto aicdValues = aicdParams->doubleValues();
-
+                    RiaLogging::error(
+                        QString( "Export %1 Valve (%2): Valve is invalid. At least one required template parameter is not set." )
+                            .arg( isAicd ? "AICD" : "SICD" )
+                            .arg( valve->name() )
+                            .toStdString() );
+                }
+                else
+                {
                     for ( size_t vi = 0; vi < valveLocations.size(); ++vi )
                     {
                         const double valveSegStart = valveSegs[vi].first;
@@ -819,16 +845,33 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                             seg.description         = QString( "%1 #%2" ).arg( valve->name() ).arg( vi + 1 ).toStdString();
                             seg.intersections       = { entry.ci };
 
-                            WsegaicdRow wa;
-                            applyAicdTemplateValues( aicdValues, wa );
-                            wa.well                = wellNameForExport;
-                            wa.segment1            = segmentNumber;
-                            wa.segment2            = segmentNumber;
-                            wa.length              = totalOverlapMD > 0.0 ? totalOverlapMD / entry.overlapMD : 0.0;
-                            wa.methodScalingFactor = 1;
-                            wa.status              = aicdParams->isOpen() ? "OPEN" : "SHUT";
-                            wa.description         = valve->name().toStdString();
-                            seg.wsegaicdData       = wa;
+                            const double flowScalingFactor = totalOverlapMD > 0.0 ? totalOverlapMD / entry.overlapMD : 0.0;
+                            if ( isAicd )
+                            {
+                                WsegaicdRow wa;
+                                applyAicdTemplateValues( aicdParams->doubleValues(), wa );
+                                wa.well                = wellNameForExport;
+                                wa.segment1            = segmentNumber;
+                                wa.segment2            = segmentNumber;
+                                wa.length              = flowScalingFactor;
+                                wa.methodScalingFactor = 1;
+                                wa.status              = aicdParams->isOpen() ? "OPEN" : "SHUT";
+                                wa.description         = valve->name().toStdString();
+                                seg.wsegaicdData       = wa;
+                            }
+                            else
+                            {
+                                WsegsicdRow ws;
+                                applySicdTemplateValues( sicdParams->doubleValues(), ws );
+                                ws.well                = wellNameForExport;
+                                ws.segment1            = segmentNumber;
+                                ws.segment2            = segmentNumber;
+                                ws.length              = flowScalingFactor;
+                                ws.methodScalingFactor = 1;
+                                ws.status              = sicdParams->isOpen() ? "OPEN" : "SHUT";
+                                ws.description         = valve->name().toStdString();
+                                seg.wsegsicdData       = ws;
+                            }
 
                             segmentNumber++;
                             result.push_back( RigMswBranch{ cellBranch, std::nullopt, { std::move( seg ) } } );
