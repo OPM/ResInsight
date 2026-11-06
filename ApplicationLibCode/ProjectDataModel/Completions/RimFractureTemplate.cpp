@@ -393,7 +393,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         nonDarcyFlowGroup->add( &m_relativeGasDensity );
         nonDarcyFlowGroup->add( &m_gasViscosity );
 
-        if ( orientationType() != ALONG_WELL_PATH )
+        if ( !hasLinearInflowAlongWellPath() )
         {
             nonDarcyFlowGroup->add( &m_dFactorDisplayField );
         }
@@ -510,7 +510,7 @@ QString RimFractureTemplate::dFactorSummary() const
     {
         auto candidateFractures = fracturesUsingThisTemplate();
 
-        if ( orientationType() != ALONG_WELL_PATH )
+        if ( !hasLinearInflowAlongWellPath() )
         {
             // D-factor values are identical for all fractures, only show summary for the first fracture
             if ( !candidateFractures.empty() )
@@ -528,7 +528,7 @@ QString RimFractureTemplate::dFactorSummary() const
     {
         f->ensureValidNonDarcyProperties();
 
-        if ( orientationType() == ALONG_WELL_PATH )
+        if ( hasLinearInflowAlongWellPath() )
         {
             text += QString( "Fracture name : %1" ).arg( f->name() );
         }
@@ -572,7 +572,7 @@ QString RimFractureTemplate::dFactorSummary() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::dFactorForTemplate() const
 {
-    if ( orientationType() == ALONG_WELL_PATH )
+    if ( hasLinearInflowAlongWellPath() )
     {
         return std::numeric_limits<double>::infinity();
     }
@@ -616,7 +616,7 @@ double RimFractureTemplate::computeWellRadiusForDFactorCalculation( const RimFra
 {
     double radius = 0.0;
 
-    if ( m_orientationType == ALONG_WELL_PATH && fractureInstance )
+    if ( hasLinearInflowAlongWellPath() && fractureInstance )
     {
         auto perforationLength = fractureInstance->perforationLength();
 
@@ -665,7 +665,7 @@ double RimFractureTemplate::computeDFactor( const RimFracture* fractureInstance 
 
         d = numerator / denumerator;
 
-        if ( m_orientationType == ALONG_WELL_PATH )
+        if ( hasLinearInflowAlongWellPath() )
         {
             // Correction for linear inflow into the well
             // Dlinear = cgeometric * Dradial
@@ -883,6 +883,15 @@ double RimFractureTemplate::perforationLength() const
 bool RimFractureTemplate::useUserDefinedPerforationLength() const
 {
     return m_userDefinedPerforationLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Along well path fractures and azimuth fractures with a user-defined perforation length have linear inflow
+/// into the well along the perforation, other fractures have radial inflow
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::hasLinearInflowAlongWellPath() const
+{
+    return m_orientationType() == ALONG_WELL_PATH || ( m_orientationType() == AZIMUTH && m_userDefinedPerforationLength() );
 }
 
 //--------------------------------------------------------------------------------------------------

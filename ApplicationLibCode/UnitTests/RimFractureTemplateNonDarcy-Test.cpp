@@ -67,6 +67,7 @@ public:
 
     void   setRelativePermeability( double value ) { m_relativePermeability = value; }
     void   setOrientation( FracOrientationEnum orientation ) { m_orientationType = orientation; }
+    void   setUserDefinedPerforationLength( bool enable ) { m_userDefinedPerforationLength = enable; }
     double wellDiameterValue() const { return m_wellDiameter; }
     double gasDensity() const { return m_relativeGasDensity; }
     double gasViscosityValue() const { return m_gasViscosity; }
@@ -179,6 +180,26 @@ TEST( RimFractureTemplateNonDarcy, DFactorScaleFactorAndAlongWellPathCorrection 
     // Linear inflow correction factor of 1.2 for fractures along the well path
     tmpl.setScaleFactors( 1.0, 1.0, 1.0, 1.0 );
     tmpl.setOrientation( RimFractureTemplate::ALONG_WELL_PATH );
+    EXPECT_NEAR( 1.2 * base, tmpl.computeDFactor( nullptr ), base * 1.0e-12 );
+}
+
+TEST( RimFractureTemplateNonDarcy, AzimuthWithPerforationLengthUsesAlongWellPathCorrection )
+{
+    TestEllipseFractureTemplate tmpl( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+    tmpl.useFractureData();
+    tmpl.useComputedDFactor( 0.5 );
+
+    tmpl.setOrientation( RimFractureTemplate::TRANSVERSE_WELL_PATH );
+    const double base = tmpl.computeDFactor( nullptr );
+
+    // Azimuth fractures without a perforation length have radial inflow, as transverse fractures
+    tmpl.setOrientation( RimFractureTemplate::AZIMUTH );
+    EXPECT_FALSE( tmpl.hasLinearInflowAlongWellPath() );
+    EXPECT_NEAR( base, tmpl.computeDFactor( nullptr ), base * 1.0e-12 );
+
+    // Azimuth fractures with a perforation length have linear inflow, as fractures along the well path
+    tmpl.setUserDefinedPerforationLength( true );
+    EXPECT_TRUE( tmpl.hasLinearInflowAlongWellPath() );
     EXPECT_NEAR( 1.2 * base, tmpl.computeDFactor( nullptr ), base * 1.0e-12 );
 }
 
