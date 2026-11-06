@@ -24,6 +24,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include <array>
+#include <limits>
+
 using namespace RicMswBranchBuilder;
 
 //==================================================================================================
@@ -765,4 +768,53 @@ TEST( RicMswBranchBuilder, EffectiveDiameters_FirstSegmentInheritsSecond )
 
     // The second lateral has a single intersection and keeps the combined value of cell 100.
     EXPECT_NEAR( std::sqrt( 2.0 ) * 0.0096, *segments[2].diameter, 1.0e-12 );
+}
+
+//==================================================================================================
+// applyAicdTemplateValues tests
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+/// Phase density and viscosity exponents (WSEGAICD items 16-21) are taken from the template.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, AicdTemplateValues_PhaseExponentsAreExported )
+{
+    std::array<double, AICD_NUM_PARAMS> values;
+    values.fill( std::numeric_limits<double>::infinity() );
+    values[AICD_EXP_OIL_FRAC_DENSITY]     = 0.1;
+    values[AICD_EXP_WATER_FRAC_DENSITY]   = 0.2;
+    values[AICD_EXP_GAS_FRAC_DENSITY]     = 0.3;
+    values[AICD_EXP_OIL_FRAC_VISCOSITY]   = 0.4;
+    values[AICD_EXP_WATER_FRAC_VISCOSITY] = 0.5;
+    values[AICD_EXP_GAS_FRAC_VISCOSITY]   = 0.6;
+
+    WsegaicdRow row{};
+    applyAicdTemplateValues( values, row );
+
+    EXPECT_EQ( 0.1, row.oilFlowFraction );
+    EXPECT_EQ( 0.2, row.waterFlowFraction );
+    EXPECT_EQ( 0.3, row.gasFlowFraction );
+    EXPECT_EQ( 0.4, row.oilViscFraction );
+    EXPECT_EQ( 0.5, row.waterViscFraction );
+    EXPECT_EQ( 0.6, row.gasViscFraction );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Undefined optional template values are left unset so they are exported as defaults.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, AicdTemplateValues_UndefinedValuesAreUnset )
+{
+    std::array<double, AICD_NUM_PARAMS> values;
+    values.fill( std::numeric_limits<double>::infinity() );
+
+    WsegaicdRow row{};
+    applyAicdTemplateValues( values, row );
+
+    EXPECT_FALSE( row.densityCali.has_value() );
+    EXPECT_FALSE( row.oilFlowFraction.has_value() );
+    EXPECT_FALSE( row.waterFlowFraction.has_value() );
+    EXPECT_FALSE( row.gasFlowFraction.has_value() );
+    EXPECT_FALSE( row.oilViscFraction.has_value() );
+    EXPECT_FALSE( row.waterViscFraction.has_value() );
+    EXPECT_FALSE( row.gasViscFraction.has_value() );
 }

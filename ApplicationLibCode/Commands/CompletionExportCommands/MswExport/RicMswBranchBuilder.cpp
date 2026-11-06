@@ -174,6 +174,31 @@ void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExpor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void applyAicdTemplateValues( const std::array<double, AICD_NUM_PARAMS>& aicdValues, WsegaicdRow& row )
+{
+    auto setOptional = []( double value ) -> std::optional<double>
+    { return std::isinf( value ) ? std::nullopt : std::optional<double>{ value }; };
+
+    row.strength          = aicdValues[AICD_STRENGTH];
+    row.densityCali       = setOptional( aicdValues[AICD_DENSITY_CALIB_FLUID] );
+    row.viscosityCali     = setOptional( aicdValues[AICD_VISCOSITY_CALIB_FLUID] );
+    row.criticalValue     = setOptional( aicdValues[AICD_CRITICAL_WATER_IN_LIQUID_FRAC] );
+    row.widthTrans        = setOptional( aicdValues[AICD_EMULSION_VISC_TRANS_REGION] );
+    row.maxViscRatio      = setOptional( aicdValues[AICD_MAX_RATIO_EMULSION_VISC] );
+    row.maxAbsRate        = aicdValues[AICD_MAX_FLOW_RATE];
+    row.flowRateExponent  = aicdValues[AICD_VOL_FLOW_EXP];
+    row.viscExponent      = aicdValues[AICD_VISOSITY_FUNC_EXP];
+    row.oilFlowFraction   = setOptional( aicdValues[AICD_EXP_OIL_FRAC_DENSITY] );
+    row.waterFlowFraction = setOptional( aicdValues[AICD_EXP_WATER_FRAC_DENSITY] );
+    row.gasFlowFraction   = setOptional( aicdValues[AICD_EXP_GAS_FRAC_DENSITY] );
+    row.oilViscFraction   = setOptional( aicdValues[AICD_EXP_OIL_FRAC_VISCOSITY] );
+    row.waterViscFraction = setOptional( aicdValues[AICD_EXP_WATER_FRAC_VISCOSITY] );
+    row.gasViscFraction   = setOptional( aicdValues[AICD_EXP_GAS_FRAC_VISCOSITY] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<RigMswCellIntersection>
     toMswCellIntersection( const WellPathCellIntersectionInfo& cellInfo, const RigMainGrid* mainGrid, double distanceStart, double distanceEnd )
 {
@@ -737,9 +762,6 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                 {
                     const auto aicdValues = aicdParams->doubleValues();
 
-                    auto setOptional = []( double value ) -> std::optional<double>
-                    { return std::isinf( value ) ? std::nullopt : std::optional<double>{ value }; };
-
                     for ( size_t vi = 0; vi < valveLocations.size(); ++vi )
                     {
                         const double valveSegStart = valveSegs[vi].first;
@@ -798,20 +820,12 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                             seg.intersections       = { entry.ci };
 
                             WsegaicdRow wa;
+                            applyAicdTemplateValues( aicdValues, wa );
                             wa.well                = wellNameForExport;
                             wa.segment1            = segmentNumber;
                             wa.segment2            = segmentNumber;
-                            wa.strength            = aicdValues[AICD_STRENGTH];
                             wa.length              = totalOverlapMD > 0.0 ? totalOverlapMD / entry.overlapMD : 0.0;
-                            wa.densityCali         = setOptional( aicdValues[AICD_DENSITY_CALIB_FLUID] );
-                            wa.viscosityCali       = setOptional( aicdValues[AICD_VISCOSITY_CALIB_FLUID] );
-                            wa.criticalValue       = setOptional( aicdValues[AICD_CRITICAL_WATER_IN_LIQUID_FRAC] );
-                            wa.widthTrans          = setOptional( aicdValues[AICD_EMULSION_VISC_TRANS_REGION] );
-                            wa.maxViscRatio        = setOptional( aicdValues[AICD_MAX_RATIO_EMULSION_VISC] );
                             wa.methodScalingFactor = 1;
-                            wa.maxAbsRate          = aicdValues[AICD_MAX_FLOW_RATE];
-                            wa.flowRateExponent    = aicdValues[AICD_VOL_FLOW_EXP];
-                            wa.viscExponent        = aicdValues[AICD_VISOSITY_FUNC_EXP];
                             wa.status              = aicdParams->isOpen() ? "OPEN" : "SHUT";
                             wa.description         = valve->name().toStdString();
                             seg.wsegaicdData       = wa;
