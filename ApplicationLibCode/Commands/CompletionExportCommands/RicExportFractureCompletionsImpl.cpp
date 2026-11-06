@@ -550,9 +550,7 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
 {
     // If fracture has orientation Azimuth (without user-defined perforation length) or Transverse,
     // assume only radial inflow
-    bool useRadialInflow =
-        ( fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH && !fracTemplate->useUserDefinedPerforationLength() ) ||
-        fracTemplate->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH;
+    bool useRadialInflow = !fracTemplate->hasLinearInflowAlongWellPath();
 
     const double infiniteWellTrans = 1000000.0;
 
