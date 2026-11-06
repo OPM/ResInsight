@@ -128,7 +128,7 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
     containerWidget->setLayout( layout );
 
     m_spinBox = new QSpinBox( containerWidget );
-    m_spinBox->setMaximumWidth( 60 );
+    m_spinBox->setMaximumWidth( 120 );
     m_spinBox->setKeyboardTracking( false );
     connect( m_spinBox, SIGNAL( valueChanged( int ) ), this, SLOT( slotSpinBoxValueChanged( int ) ) );
 
