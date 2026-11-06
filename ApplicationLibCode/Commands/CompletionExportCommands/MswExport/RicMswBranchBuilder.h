@@ -23,6 +23,7 @@
 #include "RicMswTableDataTools.h"
 #include "RigActiveCellInfo.h"
 #include "RimWellPathAicdParameters.h"
+#include "RimWellPathSicdParameters.h"
 #include "Well/RigWellLogExtractor.h"
 
 #include <array>
@@ -147,6 +148,12 @@ void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExpor
 /// left unset so they are exported as defaults.
 //--------------------------------------------------------------------------------------------------
 void applyAicdTemplateValues( const std::array<double, AICD_NUM_PARAMS>& aicdValues, WsegaicdRow& row );
+
+//--------------------------------------------------------------------------------------------------
+/// Copy the SICD template parameters into a WSEGSICD row. Undefined (infinite) optional values are
+/// left unset so they are exported as defaults.
+//--------------------------------------------------------------------------------------------------
+void applySicdTemplateValues( const std::array<double, SICD_NUM_PARAMS>& sicdValues, WsegsicdRow& row );
 
 std::optional<RigMswCellIntersection>
     toMswCellIntersection( const WellPathCellIntersectionInfo& cellInfo, const RigMainGrid* mainGrid, double distanceStart, double distanceEnd );
