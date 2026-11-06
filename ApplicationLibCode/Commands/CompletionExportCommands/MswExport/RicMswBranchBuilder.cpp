@@ -900,13 +900,13 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Measured depth where the fracture segment starts. A fracture along the well path is centred on
-/// the fracture MD, and starts half a perforation length above it.
+/// Measured depth where the fracture segment starts. A fracture with linear inflow along the well path
+/// is centred on the fracture MD, and starts half a perforation length above it.
 //--------------------------------------------------------------------------------------------------
 double fractureStartMD( const RimWellPathFracture* fracture )
 {
     double startMD = fracture->fractureMD();
-    if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    if ( fracture->fractureTemplate()->hasLinearInflowAlongWellPath() )
     {
         startMD -= 0.5 * fracture->fractureTemplate()->perforationLength();
     }
@@ -944,7 +944,7 @@ std::vector<RigMswBranch> buildFractureBranches( RimEclipseCase*                
         const double position = fractureStartMD( fracture );
 
         double width = fracture->fractureTemplate()->computeFractureWidth( fracture );
-        if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+        if ( fracture->fractureTemplate()->hasLinearInflowAlongWellPath() )
         {
             width = fracture->fractureTemplate()->perforationLength();
         }

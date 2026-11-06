@@ -140,6 +140,7 @@ public:
     FracConductivityEnum                        conductivityType() const;
     double                                      perforationLength() const;
     bool                                        useUserDefinedPerforationLength() const;
+    bool                                        hasLinearInflowAlongWellPath() const;
     bool                                        useFiniteConductivityInFracture() const;
 
     double                            wellPathDepthAtFracture() const;
