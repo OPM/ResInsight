@@ -230,7 +230,7 @@ void RigGridQualityResultCalculator::calculateCollapsed( const RigEclipseResultA
         if ( resultIndex != cvf::UNDEFINED_SIZE_T )
         {
             const RigCell& cell        = mainGrid->cell( nativeResvCellIndex );
-            int            result      = cell.isCollapsedCell() ? 1 : 0;
+            int            result      = cell.isCollapsedVertically() ? 1 : 0;
             outputResults[resultIndex] = result;
         }
     }
@@ -241,6 +241,11 @@ void RigGridQualityResultCalculator::calculateCollapsed( const RigEclipseResultA
 //--------------------------------------------------------------------------------------------------
 void RigGridQualityResultCalculator::calculateFaulted( const RigEclipseResultAddress& resVarAddr )
 {
+    static const double faultedThreshold = 1e-5; // threshold for z coord difference considering a fault
+
+    // map from cell face corner index to neighbor cell face corner index, ref StructGridInterface::cellFaceVertexIndices
+    static const std::vector<size_t> cornerMap = { 0, 3, 2, 1 };
+
     auto mainGrid = m_resultsData->mainGrid();
     if ( !mainGrid ) return;
 
@@ -262,8 +267,38 @@ void RigGridQualityResultCalculator::calculateFaulted( const RigEclipseResultAdd
         size_t resultIndex = activeCellInfo->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
         if ( resultIndex != cvf::UNDEFINED_SIZE_T )
         {
-            const RigCell& cell        = mainGrid->cell( nativeResvCellIndex );
-            int            result      = 0;
+            const RigCell& cell   = mainGrid->cell( nativeResvCellIndex );
+            int            result = 0;
+
+            // for every corner point in this cell, check the corresponding neighbour cell corner point and see if the difference in z
+            // coordinate is above a certain threshold. If so, this cell is considered to be faulted.
+
+            static std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::POS_I,
+                                                                             cvf::StructGridInterface::NEG_I,
+                                                                             cvf::StructGridInterface::POS_J,
+                                                                             cvf::StructGridInterface::NEG_J };
+
+            for ( auto face : faces )
+            {
+                RigCell neighborCell = cell.neighborCell( face );
+                if ( neighborCell.isInvalid() ) continue;
+
+                auto cellCorners     = cell.faceCorners( face );
+                auto neighborCorners = neighborCell.faceCorners( cvf::StructGridInterface::oppositeFace( face ) );
+
+                for ( size_t i = 0; i < cellCorners.size(); i++ )
+                {
+                    // map from cell face corner index to neighbor cell face corner index
+                    auto& toIdx = cornerMap[i];
+
+                    double zDiff = std::abs( cellCorners[i].z() - neighborCorners[toIdx].z() );
+                    if ( zDiff > faultedThreshold )
+                    {
+                        result += 1;
+                    }
+                }
+            }
+
             outputResults[resultIndex] = result;
         }
     }

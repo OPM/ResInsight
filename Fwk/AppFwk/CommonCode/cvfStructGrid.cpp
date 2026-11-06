@@ -102,13 +102,6 @@ void StructGridInterface::cellFaceVertexIndices( FaceType face, cvf::ubyte verte
         vertexIndices[2] = 5;
         vertexIndices[3] = 4;
     }
-    else if ( face == POS_I )
-    {
-        vertexIndices[0] = 1;
-        vertexIndices[1] = 2;
-        vertexIndices[2] = 6;
-        vertexIndices[3] = 5;
-    }
     else if ( face == POS_J )
     {
         vertexIndices[0] = 3;
@@ -122,6 +115,13 @@ void StructGridInterface::cellFaceVertexIndices( FaceType face, cvf::ubyte verte
         vertexIndices[1] = 4;
         vertexIndices[2] = 7;
         vertexIndices[3] = 3;
+    }
+    else if ( face == POS_I )
+    {
+        vertexIndices[0] = 1;
+        vertexIndices[1] = 2;
+        vertexIndices[2] = 6;
+        vertexIndices[3] = 5;
     }
 }
 

@@ -73,6 +73,7 @@ public:
     bool isLongPyramidCell( double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
     bool isCollapsedCell( double nodeNearTolerance = 1e-3 ) const;
     bool isConcave() const;
+    bool isCollapsedVertically() const;
 
     std::pair<double, double> minMaxAnglesTopBottom( bool ignoreZ = false ) const;
     std::pair<double, double> minMaxAnglesSides() const;
