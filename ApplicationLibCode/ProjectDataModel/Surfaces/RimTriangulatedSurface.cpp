@@ -22,7 +22,6 @@
 #include "RiaQStringFormatter.h"
 
 #include "RimProject.h"
-#include "RimSurfaceCollection.h"
 
 #include "RifSurfaceExporter.h"
 #include "RifSurfaceImporter.h"
@@ -36,6 +35,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QUuid>
 
 #include <algorithm>
 
@@ -45,11 +45,16 @@ CAF_PDM_SOURCE_INIT( RimTriangulatedSurface, "TriangulatedSurface" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimTriangulatedSurface::RimTriangulatedSurface()
+    : m_hasUnsavedChanges( false )
 {
     CAF_PDM_InitScriptableObject( "Triangulated Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceFilePath, "SurfaceFilePath", "File" );
     m_surfaceFilePath.uiCapability()->setUiReadOnly( true );
+
+    // Created once, so every save of the project writes the same file
+    CAF_PDM_InitFieldNoDefault( &m_fileId, "FileId", "File Id" );
+    m_fileId.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,8 +77,15 @@ bool RimTriangulatedSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimTriangulatedSurface::createCopy()
 {
+    if ( !m_triangleMeshData ) loadDataFromFile();
+
     auto newSurface = copyObject<RimTriangulatedSurface>();
     if ( m_triangleMeshData ) newSurface->m_triangleMeshData = std::make_unique<RigTriangleMeshData>( *m_triangleMeshData );
+
+    // The copy gets a file of its own when the project is saved
+    newSurface->m_fileId            = QString();
+    newSurface->m_surfaceFilePath   = QString();
+    newSurface->m_hasUnsavedChanges = true;
 
     if ( !newSurface->onLoadData() )
     {
@@ -92,6 +104,7 @@ void RimTriangulatedSurface::setGeometry( const std::vector<cvf::Vec3d>& vertice
     // Properties are per vertex, so a new geometry removes them
     m_triangleMeshData = std::make_unique<RigTriangleMeshData>();
     m_triangleMeshData->setGeometryData( vertices, triangleIndices );
+    m_hasUnsavedChanges = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,8 +112,8 @@ void RimTriangulatedSurface::setGeometry( const std::vector<cvf::Vec3d>& vertice
 //--------------------------------------------------------------------------------------------------
 void RimTriangulatedSurface::setProperty( const QString& key, const std::vector<float>& values )
 {
-    CAF_ASSERT( values.size() == vertexCount() );
     if ( !m_triangleMeshData ) return;
+    CAF_ASSERT( values.size() == vertexCount() );
 
     auto                            names = m_triangleMeshData->propertyNames();
     std::vector<std::vector<float>> propertyValues;
@@ -121,6 +134,7 @@ void RimTriangulatedSurface::setProperty( const QString& key, const std::vector<
     }
 
     m_triangleMeshData->setPropertyData( names, propertyValues );
+    m_hasUnsavedChanges = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +193,8 @@ void RimTriangulatedSurface::onProjectBeingSaved()
         return;
     }
 
-    m_surfaceFilePath = fileName;
+    m_surfaceFilePath   = fileName;
+    m_hasUnsavedChanges = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,14 +210,14 @@ bool RimTriangulatedSurface::updateSurfaceData()
 
     if ( !m_triangleMeshData ) return false;
 
-    auto [vertices, tringleIndices] = m_triangleMeshData->geometry();
+    auto [vertices, triangleIndices] = m_triangleMeshData->geometry();
 
     auto surface = new RigSurface;
-    if ( !vertices.empty() && !tringleIndices.empty() )
+    if ( !vertices.empty() && !triangleIndices.empty() )
     {
         RimSurface::applyDepthOffsetIfNeeded( &vertices );
 
-        surface->setTriangleData( tringleIndices, vertices );
+        surface->setTriangleData( triangleIndices, vertices );
     }
 
     for ( const auto& name : m_triangleMeshData->propertyNames() )
@@ -221,8 +236,11 @@ bool RimTriangulatedSurface::updateSurfaceData()
 //--------------------------------------------------------------------------------------------------
 void RimTriangulatedSurface::clearCachedNativeData()
 {
-    // The geometry only exists in memory until the project is saved
-    if ( !m_surfaceFilePath().path().isEmpty() ) m_triangleMeshData.reset();
+    // Only drop data that can be read back from the file: the geometry exists only in memory until the project is
+    // saved, and changes made after the last save are not in the file yet
+    if ( m_hasUnsavedChanges || m_surfaceFilePath().path().isEmpty() ) return;
+
+    m_triangleMeshData.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,19 +258,24 @@ bool RimTriangulatedSurface::loadDataFromFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The surface name, prefixed with the folder name for surfaces in a sub folder
+/// <project folder>/<project name>_surfaces/<surface name>_<file id>.ts
+///
+/// The file id keeps surfaces with names that sanitize to the same string apart, and keeps the files of this project
+/// apart from a project saved under another name in the same folder. The file id is kept stable once assigned.
 //--------------------------------------------------------------------------------------------------
-QString RimTriangulatedSurface::fileNameInProjectFolder() const
+QString RimTriangulatedSurface::fileNameInProjectFolder()
 {
     const QString projectFileName = RimProject::current() ? RimProject::current()->fileName() : QString();
     if ( projectFileName.isEmpty() ) return {};
 
+    if ( m_fileId().isEmpty() ) m_fileId = QUuid::createUuid().toString( QUuid::WithoutBraces ).left( 8 );
+
     QString name = m_userDescription();
-    if ( auto folder = firstAncestorOrThisOfType<RimSurfaceCollection>() )
-    {
-        if ( folder->firstAncestorOfType<RimSurfaceCollection>() ) name = folder->collectionName() + "_" + name;
-    }
     name.replace( QRegularExpression( "[^A-Za-z0-9._-]" ), "_" );
 
-    return QFileInfo( projectFileName ).dir().absoluteFilePath( name + ".ts" );
+    const QFileInfo projectFileInfo( projectFileName );
+    QDir            surfaceDir( projectFileInfo.dir().absoluteFilePath( projectFileInfo.completeBaseName() + "_surfaces" ) );
+    if ( !surfaceDir.mkpath( "." ) ) return {};
+
+    return surfaceDir.absoluteFilePath( name + "_" + m_fileId() + ".ts" );
 }

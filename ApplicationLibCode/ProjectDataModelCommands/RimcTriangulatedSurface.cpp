@@ -28,6 +28,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include <QRegularExpression>
+
 #include <cmath>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimTriangulatedSurface, RimcTriangulatedSurface_setGeometryFromKeys, "SetGeometryFromKeys" );
@@ -127,6 +129,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_setPropert
 
     if ( values.size() != surface->vertexCount() )
         return std::unexpected( "Failed to set property: incorrect dimensions. Must be one value per vertex." );
+
+    // Property names are written space separated to the GOCAD TSurf file, so a name with a space would not read back
+    if ( m_name().isEmpty() || m_name().contains( QRegularExpression( "\\s" ) ) )
+        return std::unexpected( QString( "Invalid property name '%1'. Property names can not be empty or contain spaces." ).arg( m_name() ) );
 
     surface->setProperty( m_name, values );
 

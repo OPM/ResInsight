@@ -282,6 +282,10 @@ def test_triangulated_surface_invalid_values(rips_instance, initialize_test):
     with pytest.raises(rips.RipsError, match="incorrect dimensions"):
         s.set_property("too_short", [1.0, 2.0])
 
+    # The property name is written space separated to the surface file
+    with pytest.raises(rips.RipsError, match="Invalid property name"):
+        s.set_property("net to gross", [1.0, 2.0, 3.0])
+
 
 def test_triangulated_surface_name_uniqueness(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
@@ -321,9 +325,10 @@ def test_triangulated_surface_persistence(rips_instance, initialize_test, tmp_pa
     project_file = tmp_path / "persisted.rsp"
     project.save(project_file.as_posix())
 
-    surface_file = tmp_path / "Top_Brent.ts"
-    assert surface_file.exists()
-    written = surface_file.read_text()
+    # Written to a project specific folder, with a file id that keeps names apart
+    surface_files = list((tmp_path / "persisted_surfaces").glob("Top_Brent_*.ts"))
+    assert len(surface_files) == 1
+    written = surface_files[0].read_text()
     assert "PROPERTIES porosity" in written
     assert "PVRTX 1 456333.25 7319649.5 2494.125 0.25" in written
     assert "TRGL  2 4 3" in written
@@ -336,11 +341,49 @@ def test_triangulated_surface_persistence(rips_instance, initialize_test, tmp_pa
     assert surface.available_properties() == ["porosity"]
     assert surface.get_property("porosity") == [0.25, 0.5, 0.75, 1.0]
 
-    # Saving the reopened project writes the same geometry and values again
+    # Saving the reopened project writes the same file name, geometry and values again
     copy_folder = tmp_path / "copy"
     copy_folder.mkdir()
     reopened.save((copy_folder / "persisted.rsp").as_posix())
-    assert (copy_folder / "Top_Brent.ts").read_text() == written
+    copied_file = copy_folder / "persisted_surfaces" / surface_files[0].name
+    assert copied_file.read_text() == written
+
+
+def test_triangulated_surface_persistence_name_clash(
+    rips_instance, initialize_test, tmp_path
+):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    project = rips_instance.project
+    project.load_case(path=case_path)
+
+    surface_collection = project.descendants(rips.SurfaceCollection)[0]
+    vertices = [[0.0, 0.0, 1000.0], [100.0, 0.0, 1000.0], [0.0, 100.0, 1000.0]]
+
+    # Both names sanitize to Top_Brent, and a folder does not change the file name
+    folder = surface_collection.add_folder(folder_name="Brent")
+    # Values that float32 holds exactly
+    names_and_values = [
+        (surface_collection, "Top Brent", [0.125, 0.25, 0.375]),
+        (surface_collection, "Top_Brent", [0.5, 0.625, 0.75]),
+        (folder, "Top Brent", [0.875, 1.0, 1.125]),
+    ]
+    for collection, name, values in names_and_values:
+        s = collection.new_triangulated_surface(name=name)
+        s.set_geometry(vertices, [[0, 1, 2]])
+        s.set_property("porosity", values)
+
+    project_file = tmp_path / "clash.rsp"
+    project.save(project_file.as_posix())
+    assert len(list((tmp_path / "clash_surfaces").glob("Top_Brent_*.ts"))) == 3
+
+    project.close()
+    reopened = rips_instance.project.open(project_file.as_posix())
+    surfaces = reopened.descendants(rips.TriangulatedSurface)
+    assert sorted(s.get_property("porosity") for s in surfaces) == [
+        [0.125, 0.25, 0.375],
+        [0.5, 0.625, 0.75],
+        [0.875, 1.0, 1.125],
+    ]
 
 
 def test_import_surface_errors(rips_instance, initialize_test):

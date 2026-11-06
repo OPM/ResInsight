@@ -121,12 +121,13 @@ def set_property(  # noqa: F811
         name(str): Name of the property.
         values (List[float]): One value per vertex (float32).
     """
-    key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_key")
-
     project = self.ancestor(Project)
-    if project:
-        project.set_key_values(key, values)
-        self.set_property_from_key(name=name, value_key=key)
+    if not project:
+        raise RipsError("Could not find parent project")
+
+    key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_key")
+    project.set_key_values(key, values)
+    self.set_property_from_key(name=name, value_key=key)
 
 
 @add_method(TriangulatedSurface)  # type: ignore[no-redef]
