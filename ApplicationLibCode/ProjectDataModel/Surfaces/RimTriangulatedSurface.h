@@ -54,10 +54,12 @@ private:
     void clearCachedNativeData() override;
 
     bool    loadDataFromFile();
-    QString fileNameInProjectFolder() const;
+    QString fileNameInProjectFolder();
 
 private:
     caf::PdmField<caf::FilePath> m_surfaceFilePath;
+    caf::PdmField<QString>       m_fileId;
 
     std::unique_ptr<RigTriangleMeshData> m_triangleMeshData;
+    bool                                 m_hasUnsavedChanges;
 };
