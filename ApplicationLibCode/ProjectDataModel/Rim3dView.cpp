@@ -156,8 +156,8 @@ Rim3dView::Rim3dView()
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
-    CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines" );
-    CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface" );
+    CAF_PDM_InitScriptableField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines" );
+    CAF_PDM_InitScriptableFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface" );
 
     CAF_PDM_InitScriptableField( &m_showGridBox, "ShowGridBox", RiaPreferences::current()->showGridBox(), "Show Grid Box" );
 
@@ -1002,8 +1002,11 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     {
         onCreateDisplayModel();
         updateDisplayModelVisibility();
-        RiuMainWindow::instance()->refreshDrawStyleActions();
-        RiuMainWindow::instance()->refreshAnimationActions();
+        if ( auto mainWindow = RiuMainWindow::instance() )
+        {
+            mainWindow->refreshDrawStyleActions();
+            mainWindow->refreshAnimationActions();
+        }
     }
     else if ( changedField == &isPerspectiveView )
     {
@@ -1023,7 +1026,10 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
 
         updateScaling();
 
-        RiuMainWindow::instance()->updateScaleValue();
+        if ( auto mainWindow = RiuMainWindow::instance() )
+        {
+            mainWindow->updateScaleValue();
+        }
 
         RimViewLinker* viewLinker = this->assosiatedViewLinker();
         if ( viewLinker )
@@ -1036,8 +1042,11 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     {
         onCreateDisplayModel();
         updateDisplayModelVisibility();
-        RiuMainWindow::instance()->refreshDrawStyleActions();
-        RiuMainWindow::instance()->refreshAnimationActions();
+        if ( auto mainWindow = RiuMainWindow::instance() )
+        {
+            mainWindow->refreshDrawStyleActions();
+            mainWindow->refreshAnimationActions();
+        }
     }
     else if ( changedField == &m_showGridBox )
     {
@@ -1046,8 +1055,11 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     else if ( changedField == &m_disableLighting )
     {
         onCreateDisplayModel();
-        RiuMainWindow::instance()->refreshDrawStyleActions();
-        RiuMainWindow::instance()->refreshAnimationActions();
+        if ( auto mainWindow = RiuMainWindow::instance() )
+        {
+            mainWindow->refreshDrawStyleActions();
+            mainWindow->refreshAnimationActions();
+        }
     }
     else if ( changedField == m_nameConfig->nameField() )
     {
