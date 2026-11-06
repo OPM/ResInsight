@@ -11,7 +11,7 @@ set(RESINSIGHT_VERSION_TEXT "-dev")
 # Must be unique and increasing within one combination of major/minor/patch version 
 # The uniqueness of this text is independent of RESINSIGHT_VERSION_TEXT 
 # Format of text must be ".xx"
-set(RESINSIGHT_DEV_VERSION ".01")
+set(RESINSIGHT_DEV_VERSION ".02")
 
 set(STRPRODUCTVER ${RESINSIGHT_MAJOR_VERSION}.${RESINSIGHT_MINOR_VERSION}.${RESINSIGHT_PATCH_VERSION}${RESINSIGHT_VERSION_TEXT}${RESINSIGHT_DEV_VERSION})
 
