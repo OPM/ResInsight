@@ -149,3 +149,15 @@ TEST( RimStimPlanFractureTemplateTest, IntersectionDataAlongWellPath )
     EXPECT_NEAR( 300.0, tmpl.computeKh( fracture ), 1.0e-6 );
     EXPECT_NEAR( 2.0, tmpl.getOrComputeBetaFactor( fracture ), 1.0e-9 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A file where no time steps are found (reading of time steps stops at the second grid) must not
+/// index the empty time step list
+//--------------------------------------------------------------------------------------------------
+TEST( RimStimPlanFractureTemplateTest, FileWithoutTimeStepsDoesNotCrash )
+{
+    TestStimPlanFractureTemplate tmpl( STIMPLAN_TEMPLATE_TEST_DATA_DIRECTORY + "no_time_steps.xml" );
+    tmpl.setDefaultsBasedOnFile();
+
+    EXPECT_TRUE( tmpl.timeSteps().empty() );
+}
