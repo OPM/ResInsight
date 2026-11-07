@@ -50,7 +50,9 @@ try:
     )
 
     # Export a snapshot of all 3D views in the project
-    resinsight.project.export_snapshots(snapshot_type="VIEWS", width=800, height=600)
+    resinsight.project.export_snapshots(
+        content_type=rips.SnapshotContentType.VIEWS, width=800, height=600
+    )
 
     exported_files = (
         sorted(os.listdir(snapshot_folder)) if os.path.isdir(snapshot_folder) else []

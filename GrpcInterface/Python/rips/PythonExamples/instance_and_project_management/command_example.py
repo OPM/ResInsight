@@ -30,21 +30,17 @@ view1.apply_cell_result(
 with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     print("Temporary folder: ", tmpdirname)
 
-    # Set export folder for snapshots and properties
+    # Set export folder for snapshots
     resinsight.set_export_folder(export_type="SNAPSHOTS", path=tmpdirname)
-    resinsight.set_export_folder(export_type="PROPERTIES", path=tmpdirname)
 
     # Export all snapshots
     resinsight.project.export_snapshots(width=1024, height=768)
 
     assert len(os.listdir(tmpdirname)) > 0
 
-    # Export properties in the view
-    view1.export_property()
-
-    # Check that the exported file exists
-    expected_file_name = case.name + "-" + str("3D_View") + "-" + "T2" + "-SOIL"
-    full_path = tmpdirname + "/" + expected_file_name
+    # Export the cell result currently shown in the view
+    full_path = os.path.join(tmpdirname, case.name + "-T2-SOIL.grdecl")
+    view1.export_current_property(export_file=full_path)
 
     # Print contents of temporary folder
     print(os.listdir(tmpdirname))
