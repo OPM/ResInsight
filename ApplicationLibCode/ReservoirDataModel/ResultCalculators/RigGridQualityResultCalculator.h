@@ -22,6 +22,8 @@
 
 #include "RigEclipseResultCalculator.h"
 
+class RigCell;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -36,11 +38,12 @@ public:
     static void calculateResults( RigEclipseCaseData* data );
 
 private:
-    void calculateNegativeThickness( const RigEclipseResultAddress& resVarAddr );
-    void calculateConcaveProjection( const RigEclipseResultAddress& resVarAddr );
-    void calculateCollapsed( const RigEclipseResultAddress& resVarAddr );
-    void calculateFaulted( const RigEclipseResultAddress& resVarAddr );
-    void calculateAngles( const RigEclipseResultAddress& resVarAddr );
+    static int faulted( const RigCell& cell );
+    static int negativeThickness( const RigCell& cell );
 
-    RigEclipseResultAddress createAddress( QString resultName );
+    static RigEclipseResultAddress createDoubleAddress( QString resultName );
+    static RigEclipseResultAddress createIntegerAddress( QString resultName );
+
+    // map from cell face corner index to neighbor cell face corner index, ref StructGridInterface::cellFaceVertexIndices
+    static const std::vector<size_t> m_cornerMap;
 };
