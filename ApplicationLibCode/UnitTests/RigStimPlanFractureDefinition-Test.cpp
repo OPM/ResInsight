@@ -15,3 +15,20 @@ TEST( RigStimPlanFractureDefinitionTest, MinMaxYWithEmptyYsDoesNotCrash )
     EXPECT_NO_FATAL_FAILURE( fractureData->minDepth() );
     EXPECT_NO_FATAL_FAILURE( fractureData->maxDepth() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Data for a time step that is not in the time step list is ignored
+//--------------------------------------------------------------------------------------------------
+TEST( RigStimPlanFractureDefinitionTest, SetDataAtUnknownTimeValueIsIgnored )
+{
+    cvf::ref<RigStimPlanFractureDefinition> fractureData = new RigStimPlanFractureDefinition;
+
+    const std::vector<std::vector<double>> data = { { 1.0, 2.0 } };
+    EXPECT_FALSE( fractureData->setDataAtTimeValue( "CONDUCTIVITY", "md-m", data, 10.0 ) );
+    EXPECT_TRUE( fractureData->getDataAtTimeIndex( "CONDUCTIVITY", "md-m", 0 ).empty() );
+
+    fractureData->addTimeStep( 10.0 );
+    EXPECT_TRUE( fractureData->setDataAtTimeValue( "CONDUCTIVITY", "md-m", data, 10.0 ) );
+    EXPECT_FALSE( fractureData->setDataAtTimeValue( "CONDUCTIVITY", "md-m", data, 20.0 ) );
+    EXPECT_EQ( data, fractureData->getDataAtTimeIndex( "CONDUCTIVITY", "md-m", 0 ) );
+}

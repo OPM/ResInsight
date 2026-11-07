@@ -104,7 +104,8 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     QString unit;
 
     RiaLogging::info( "Properties available in file:" );
-    int propertiesElementCount = 0;
+    int    propertiesElementCount = 0;
+    size_t ignoredValueCount      = 0;
     while ( !xmlStream2.atEnd() && propertiesElementCount < 2 )
     {
         xmlStream2.readNext();
@@ -149,12 +150,22 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                     }
                 }
 
-                stimPlanFileData->setDataAtTimeValue( parameter, unit, propertyValuesAtTimestep, timeStepValue );
+                if ( !stimPlanFileData->setDataAtTimeValue( parameter, unit, propertyValuesAtTimestep, timeStepValue ) )
+                {
+                    ignoredValueCount++;
+                }
             }
         }
     }
 
     dataFile.close();
+
+    if ( ignoredValueCount > 0 )
+    {
+        RiaLogging::warning( std::format( "Ignored {} property values in '{}' with time steps not found in the time step list",
+                                          ignoredValueCount,
+                                          stimPlanFileName.toStdString() ) );
+    }
 
     if ( xmlStream2.hasError() )
     {
