@@ -22,6 +22,8 @@
 
 #include "RigEclipseResultCalculator.h"
 
+#include <QString>
+
 #include <vector>
 
 class RigCell;
