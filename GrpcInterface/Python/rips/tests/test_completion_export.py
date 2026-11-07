@@ -129,6 +129,40 @@ def test_export_completion_files_unified(rips_instance, initialize_test):
         pass  # Keep exported files in the output directory
 
 
+def test_export_completion_files_custom_file_name_without_folder(
+    rips_instance, initialize_test
+):
+    """A custom file name without a folder is written to the working directory of ResInsight,
+    which is inherited from the Python process when ResInsight is launched by rips."""
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case = rips_instance.project.load_case(
+        path=case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
+    )
+    rips_instance.project.import_well_paths([case_root_path + "/wellpath_a.dev"])
+    well_path = rips_instance.project.well_path_by_name("Well Path A")
+    well_path.append_perforation_interval(
+        start_md=400.0, end_md=1200.0, diameter=0.2, skin_factor=0.76
+    )
+
+    custom_file_name = "rips_test_custom_file_name_without_folder.sch"
+    expected_file = os.path.join(os.getcwd(), custom_file_name)
+    file_stem = os.path.splitext(custom_file_name)[0]
+    try:
+        with pytest.warns(DeprecationWarning):
+            case.export_well_path_completions(
+                time_step=0,
+                well_path_names="Well Path A",
+                file_split="UNIFIED_FILE",
+                export_comments=False,
+                custom_file_name=custom_file_name,
+            )
+        assert os.path.exists(expected_file)
+    finally:
+        for file_name in os.listdir(os.getcwd()):
+            if file_name.startswith(file_stem):
+                os.remove(os.path.join(os.getcwd(), file_name))
+
+
 def test_export_completion_files_split_by_well(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
     project_path = case_root_path + "/well_completions_export.rsp"
