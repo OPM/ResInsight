@@ -58,8 +58,12 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
 
     for ( auto curve : plot->summaryCurves() )
     {
+        // The case is null if it has been deleted
+        auto summaryCase = curve->summaryCaseY();
+        if ( !summaryCase ) continue;
+
         RimSummaryAddress* addr = RimSummaryAddress::wrapFileReaderAddress( curve->summaryAddressY() );
-        addr->setCaseId( curve->summaryCaseY()->caseId() );
+        addr->setCaseId( summaryCase->caseId() );
         objects.push_back( addr );
     }
 
@@ -69,6 +73,8 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
         addr->setEnsembleId( curveSet->ensembleId() );
         objects.push_back( addr );
     }
+
+    if ( objects.empty() ) return;
 
     RiaSummaryPlotTools::createAndAppendSummaryMultiPlot( objects );
 
