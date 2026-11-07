@@ -111,7 +111,7 @@ public:
 
     std::vector<std::pair<QString, QString>> getStimPlanPropertyNamesUnits() const;
 
-    void setDataAtTimeValue( const QString& resultName, const QString& unit, const std::vector<std::vector<double>>& data, double timeStepValue );
+    bool setDataAtTimeValue( const QString& resultName, const QString& unit, const std::vector<std::vector<double>>& data, double timeStepValue );
 
     const std::vector<std::vector<double>>& getDataAtTimeIndex( const QString& resultName, const QString& unit, size_t timeStepIndex ) const;
 

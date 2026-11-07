@@ -109,16 +109,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
 
     RiaLogging::info( std::format( "Setting well/fracture intersection depth at {}", m_wellPathDepthAtFracture() ) );
 
-    m_activeTimeStepIndex = static_cast<int>( m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1 );
-
-    bool polygonPropertySet = setBorderPolygonResultNameToDefault();
-    if ( polygonPropertySet )
-        RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
-                              .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
-                              .toStdString() );
-    else
-        RiaLogging::info( "Property for polygon calculation not set." );
+    setActiveTimeStepAndBorderPolygonToDefault();
 
     if ( m_stimPlanFractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
     {
@@ -166,6 +157,34 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
         return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Use the last time step. A file without time steps gets index 0, which result lookups treat as no data.
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::setActiveTimeStepAndBorderPolygonToDefault()
+{
+    const auto& timeSteps = m_stimPlanFractureDefinitionData->timeSteps();
+
+    m_activeTimeStepIndex = timeSteps.empty() ? 0 : static_cast<int>( timeSteps.size() - 1 );
+
+    if ( timeSteps.empty() )
+    {
+        RiaLogging::warning( std::format( "No time steps found in StimPlan file '{}'. The fracture template has no result data.",
+                                          m_stimPlanFileName().path().toStdString() ) );
+    }
+
+    if ( !setBorderPolygonResultNameToDefault() )
+    {
+        RiaLogging::info( "Property for polygon calculation not set." );
+    }
+    else if ( !timeSteps.empty() )
+    {
+        RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
+                              .arg( m_borderPolygonResultName )
+                              .arg( timeSteps[m_activeTimeStepIndex] )
+                              .toStdString() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,16 +508,7 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSy
         m_wellPathDepthAtFracture = RiaEclipseUnitTools::feetToMeter( m_wellPathDepthAtFracture );
     }
 
-    m_activeTimeStepIndex   = static_cast<int>( m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1 );
-    bool polygonPropertySet = setBorderPolygonResultNameToDefault();
-
-    if ( polygonPropertySet )
-        RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
-                              .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
-                              .toStdString() );
-    else
-        RiaLogging::info( "Property for polygon calculation not set." );
+    setActiveTimeStepAndBorderPolygonToDefault();
 
     if ( !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
     {

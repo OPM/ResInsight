@@ -643,16 +643,19 @@ size_t RigStimPlanFractureDefinition::resultIndex( const QString& resultName, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setDataAtTimeValue( const QString&                          resultName,
+bool RigStimPlanFractureDefinition::setDataAtTimeValue( const QString&                          resultName,
                                                         const QString&                          unit,
                                                         const std::vector<std::vector<double>>& data,
                                                         double                                  timeStepValue )
 {
+    const size_t timeStepIndex = getTimeStepIndex( timeStepValue );
+    if ( timeStepIndex >= m_timeSteps.size() ) return false;
+
     size_t resIndex = resultIndex( resultName, unit );
 
     if ( resIndex != cvf::UNDEFINED_SIZE_T )
     {
-        m_stimPlanResults[resIndex].parameterValues[getTimeStepIndex( timeStepValue )] = data;
+        m_stimPlanResults[resIndex].parameterValues[timeStepIndex] = data;
     }
     else
     {
@@ -662,11 +665,13 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue( const QString&          
         resultData.unit       = unit;
 
         std::vector<std::vector<std::vector<double>>> values( m_timeSteps.size() );
-        resultData.parameterValues                                    = values;
-        resultData.parameterValues[getTimeStepIndex( timeStepValue )] = data;
+        resultData.parameterValues                = values;
+        resultData.parameterValues[timeStepIndex] = data;
 
         m_stimPlanResults.push_back( resultData );
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

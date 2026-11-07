@@ -83,6 +83,7 @@ public:
 
     void setDefaultConductivityResultIfEmpty();
     bool setBorderPolygonResultNameToDefault();
+    void setActiveTimeStepAndBorderPolygonToDefault();
 
     void computeDepthOfWellPathAtFracture();
     void computePerforationLength();
