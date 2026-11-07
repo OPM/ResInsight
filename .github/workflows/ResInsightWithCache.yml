@@ -354,6 +354,13 @@ jobs:
           cd GrpcInterface/Python
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} check_gencode_compatibility.py
 
+      - name: (Python) Check examples for deprecated rips API usage
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          cd GrpcInterface/Python
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} check_deprecated_api_usage.py
+
       - name: (Python) Build Python module
         if: matrix.config.build-python-module
         shell: bash

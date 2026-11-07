@@ -31,14 +31,14 @@ view1.apply_cell_result(
     result_type=rips.PropertyType.DYNAMIC_NATIVE, result_variable="SOIL"
 )
 
-# Set export folder for snapshots and properties
-resinsight.set_export_folder(export_type="SNAPSHOTS", path="e:/temp")
-resinsight.set_export_folder(export_type="PROPERTIES", path="e:/temp")
+# Set export folder for snapshots
+export_folder = "e:/temp"
+resinsight.set_export_folder(export_type="SNAPSHOTS", path=export_folder)
 
 # Export all snapshots
 resinsight.project.export_snapshots(width=800, height=600)
 
-# Export properties in the view
-view1.export_property()
+# Export the cell result currently shown in the view
+view1.export_current_property(export_file=os.path.join(export_folder, "SOIL.grdecl"))
 
 resinsight.exit()
