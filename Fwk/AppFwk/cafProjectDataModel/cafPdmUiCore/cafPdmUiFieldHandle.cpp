@@ -83,8 +83,13 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 
             // Field editors
 
-            for ( const auto& editorForThisField : m_editors )
+            // Updating a containing editor can delete field editors and remove them from m_editors, so iterate a
+            // copy and skip editors that are no longer connected
+            const auto editorsForThisField = m_editors;
+            for ( const auto& editorForThisField : editorsForThisField )
             {
+                if ( !hasEditor( editorForThisField ) ) continue;
+
                 PdmUiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
 
                 bool editorContainingThisFieldIsNotUpdated = false;
