@@ -487,10 +487,11 @@ const PdmUiItemInfo* PdmUiItem::defaultInfo() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiItem::updateConnectedEditors() const
 {
-    std::set<PdmUiEditorHandle*>::iterator it;
-    for ( it = m_editors.begin(); it != m_editors.end(); ++it )
+    // Updating an editor can delete other editors of this item, so iterate a copy
+    const auto editors = m_editors;
+    for ( auto editor : editors )
     {
-        ( *it )->updateUi();
+        if ( hasEditor( editor ) ) editor->updateUi();
     }
 }
 
