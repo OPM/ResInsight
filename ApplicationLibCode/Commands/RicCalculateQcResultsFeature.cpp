@@ -18,6 +18,8 @@
 
 #include "RicCalculateQcResultsFeature.h"
 
+#include "RiaResultNames.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -42,8 +44,14 @@ void RicCalculateQcResultsFeature::onActionTriggered( bool isChecked )
 
     for ( auto item : selectedItems )
     {
-        RimEclipseCase* eCase = item->reservoirView()->eclipseCase();
-        RicCalculateQcResultsFeature::calculateResults( eCase );
+        if ( auto eclipseView = item->reservoirView() )
+        {
+            RimEclipseCase* eCase = eclipseView->eclipseCase();
+            RicCalculateQcResultsFeature::calculateResults( eCase );
+            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::QUALITY_CONTROL );
+            eclipseView->cellResult()->setResultVariable( RiaResultNames::qcMaxangleTopbase() );
+            eclipseView->loadDataAndUpdate();
+        }
     }
 }
 
@@ -55,7 +63,7 @@ void RicCalculateQcResultsFeature::onActionTriggered( bool isChecked )
 void RicCalculateQcResultsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/qualitycontrol.svg" ) );
-    actionToSetup->setText( "Calculate Grid QC Results" );
+    actionToSetup->setText( "Calculate Grid Quality Results" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +75,8 @@ void RicCalculateQcResultsFeature::calculateResults( RimEclipseCase* eclipseCase
     auto* resultsData = eclipseCase->eclipseCaseData();
     if ( !resultsData ) return;
 
-    RigGridQualityResultCalculator::calculateResults( resultsData );
-
-    // TODO - select calculated result as default result in active view
+    if ( auto results = resultsData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+    {
+        RigGridQualityResultCalculator::calculateResults( results );
+    }
 }

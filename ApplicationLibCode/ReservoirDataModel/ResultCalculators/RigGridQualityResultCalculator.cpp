@@ -149,12 +149,11 @@ void RigGridQualityResultCalculator::calculate( const RigEclipseResultAddress&, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridQualityResultCalculator::calculateResults( RigEclipseCaseData* data )
+void RigGridQualityResultCalculator::calculateResults( RigCaseCellResultsData* data )
 {
     if ( !data ) return;
 
-    RigCaseCellResultsData*        resultData = data->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigGridQualityResultCalculator calc( *resultData );
+    RigGridQualityResultCalculator calc( *data );
 
     // all qc results are calculated together, so asking to calculate one of them is sufficient
     auto address = createDoubleAddress( RiaResultNames::qcNegativeThickness() );
@@ -236,4 +235,26 @@ int RigGridQualityResultCalculator::negativeThickness( const RigCell& cell )
     }
 
     return isNegative;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseResultAddress> RigGridQualityResultCalculator::createQcResultAddresses()
+{
+    std::vector<RigEclipseResultAddress> resultAddresses;
+
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMinangleTopbase() ) );
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMaxangleTopbase() ) );
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMinangleSides() ) );
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMaxangleSides() ) );
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMinangleTopbaseProj() ) );
+    resultAddresses.push_back( createDoubleAddress( RiaResultNames::qcMaxangleTopbaseProj() ) );
+
+    resultAddresses.push_back( createIntegerAddress( RiaResultNames::qcCollapsed() ) );
+    resultAddresses.push_back( createIntegerAddress( RiaResultNames::qcFaulted() ) );
+    resultAddresses.push_back( createIntegerAddress( RiaResultNames::qcNegativeThickness() ) );
+    resultAddresses.push_back( createIntegerAddress( RiaResultNames::qcConcaveProj() ) );
+
+    return resultAddresses;
 }

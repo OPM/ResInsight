@@ -22,6 +22,8 @@
 
 #include "RigEclipseResultCalculator.h"
 
+#include <vector>
+
 class RigCell;
 
 //==================================================================================================
@@ -35,7 +37,8 @@ public:
     bool isMatching( const RigEclipseResultAddress& resVarAddr ) const override;
     void calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) override;
 
-    static void calculateResults( RigEclipseCaseData* data );
+    static void                                 calculateResults( RigCaseCellResultsData* data );
+    static std::vector<RigEclipseResultAddress> createQcResultAddresses();
 
 private:
     static int faulted( const RigCell& cell );
