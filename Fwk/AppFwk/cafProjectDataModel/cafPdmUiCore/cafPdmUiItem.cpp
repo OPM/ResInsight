@@ -487,10 +487,12 @@ const PdmUiItemInfo* PdmUiItem::defaultInfo() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiItem::updateConnectedEditors() const
 {
-    std::set<PdmUiEditorHandle*>::iterator it;
-    for ( it = m_editors.begin(); it != m_editors.end(); ++it )
+    // Updating an editor can delete and recreate editors of this item, so iterate guarded copies. QPointer is used as
+    // a new editor may reuse the address of a deleted one.
+    std::vector<QPointer<PdmUiEditorHandle>> editors( m_editors.begin(), m_editors.end() );
+    for ( const auto& editor : editors )
     {
-        ( *it )->updateUi();
+        if ( editor && hasEditor( editor ) ) editor->updateUi();
     }
 }
 
