@@ -104,14 +104,10 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     }
     else
     {
+        // A relative custom file name is resolved against the current working directory, as in the legacy export
         QFileInfo fi( m_customFileNameIncludingPath() );
-        customFileName = fi.fileName();
-
-        auto pathCandidate = fi.path();
-        if ( pathCandidate.size() > 2 )
-        {
-            exportFolderPath = pathCandidate;
-        }
+        customFileName   = fi.fileName();
+        exportFolderPath = fi.absolutePath();
     }
 
     caf::PdmScriptResponse response;
