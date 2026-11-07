@@ -1,0 +1,20 @@
+<contours>
+<grid xCount="4" yCount="3" uom="m" cs="tvd" frac="1">
+<xs><![CDATA[0 50 100 150 ]]></xs>
+<ys><![CDATA[2025 2015 2005 ]]></ys>
+</grid>
+<grid xCount="4" yCount="3" uom="m" cs="tvd" frac="2">
+</grid>
+<properties>
+<property name="CONDUCTIVITY" uom="md-m">
+<time value="117.238">
+<depth>2005.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2015.00</depth>
+<![CDATA[300 300 300 300]]>
+<depth>2025.00</depth>
+<![CDATA[300 300 300 300]]>
+</time>
+</property>
+</properties>
+</contours>
