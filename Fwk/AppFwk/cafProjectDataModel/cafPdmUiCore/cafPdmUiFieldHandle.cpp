@@ -83,8 +83,14 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 
             // Field editors
 
-            for ( const auto& editorForThisField : m_editors )
+            // Updating a containing editor can delete and recreate field editors, so iterate guarded copies and skip
+            // editors that are destroyed or no longer connected. QPointer is used as a new editor may reuse the
+            // address of a deleted one.
+            std::vector<QPointer<PdmUiEditorHandle>> editorsForThisField( m_editors.begin(), m_editors.end() );
+            for ( const auto& editorForThisField : editorsForThisField )
             {
+                if ( !editorForThisField || !hasEditor( editorForThisField ) ) continue;
+
                 PdmUiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
 
                 bool editorContainingThisFieldIsNotUpdated = false;

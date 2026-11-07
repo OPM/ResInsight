@@ -217,6 +217,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionDataGridCell-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafVecIjk-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafPdmUiFieldHandle-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../TestModels/RimMockSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase-Test.cpp
