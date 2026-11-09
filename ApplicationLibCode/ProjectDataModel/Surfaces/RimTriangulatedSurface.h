@@ -47,7 +47,7 @@ public:
     std::vector<float>   getProperty( const QString& key ) const;
     std::vector<QString> propertyNames() const;
 
-    void onProjectBeingSaved();
+    bool onProjectBeingSaved();
 
 private:
     bool updateSurfaceData() override;

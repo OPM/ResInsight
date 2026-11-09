@@ -1058,7 +1058,12 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
     // Write triangulated surfaces to the project folder before the project file is written
     for ( auto surface : m_project->descendantsOfType<RimTriangulatedSurface>() )
     {
-        surface->onProjectBeingSaved();
+        if ( !surface->onProjectBeingSaved() )
+        {
+            *errorMessage = QString( "Could not write surface '%1' to the project folder.\n\nProject file location : %2" )
+                                .arg( surface->userDescription(), fileName );
+            return false;
+        }
     }
 
     onProjectBeingSaved();

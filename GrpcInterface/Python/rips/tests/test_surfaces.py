@@ -386,6 +386,24 @@ def test_triangulated_surface_persistence_name_clash(
     ]
 
 
+def test_triangulated_surface_save_failure(rips_instance, initialize_test, tmp_path):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    project = rips_instance.project
+    project.load_case(path=case_path)
+
+    surface_collection = project.descendants(rips.SurfaceCollection)[0]
+    s = surface_collection.new_triangulated_surface(name="Top Brent")
+    s.set_geometry(
+        [[0.0, 0.0, 1000.0], [100.0, 0.0, 1000.0], [0.0, 100.0, 1000.0]], [[0, 1, 2]]
+    )
+
+    # A file where the surface folder should go makes the surface write fail, and the save must fail with it
+    (tmp_path / "blocked_surfaces").write_text("not a folder")
+    with pytest.raises(rips.RipsError, match="Could not write surface 'Top Brent'"):
+        project.save((tmp_path / "blocked.rsp").as_posix())
+    assert not (tmp_path / "blocked.rsp").exists()
+
+
 def test_import_surface_errors(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     case = rips_instance.project.load_case(path=case_path)
