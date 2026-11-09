@@ -420,16 +420,30 @@ void RimParameterRftCrossPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
+QString RimParameterRftCrossPlot::reportTitle() const
 {
-    QString       asciiData;
-    const QString pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
-    asciiData += QString( "Realization\tParameter\t%1\n" ).arg( pressureLabel );
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One row per realization, or per RFT sample when all samples are shown
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimParameterRftCrossPlot::reportSections() const
+{
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_CONSISE, 6 );
+    const QString                          pressureLabel = m_samplingMode() == SamplingMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
+
+    RiaReportTable table;
+    table.columns = { RiaReportColumn{ .title = "Realization", .alignment = LEFT },
+                      RiaReportColumn{ .title = "Parameter", .doubleFormat = valueFormat },
+                      RiaReportColumn{ .title = pressureLabel, .doubleFormat = valueFormat } };
+
     for ( const auto& [paramValue, pressureValue, summaryCase] : createCaseData() )
     {
-        asciiData += QString( "%1\t%2\t%3\n" ).arg( summaryCase->displayCaseName() ).arg( paramValue ).arg( pressureValue );
+        table.rows.push_back( { summaryCase->displayCaseName(), paramValue, pressureValue } );
     }
-    return asciiData;
+
+    return { RiaReportSection{ .title = description(), .tables = { std::move( table ) } } };
 }
 
 //--------------------------------------------------------------------------------------------------

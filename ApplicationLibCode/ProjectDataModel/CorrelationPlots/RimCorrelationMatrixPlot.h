@@ -98,18 +98,19 @@ public:
     RimCorrelationMatrixPlot();
     ~RimCorrelationMatrixPlot() override;
 
-    bool                    showAbsoluteValues() const;
-    void                    setShowAbsoluteValues( bool showAbsoluteValues );
-    bool                    sortByAbsoluteValues() const;
-    void                    setSortByAbsoluteValues( bool sortByAbsoluteValues );
-    RimRegularLegendConfig* legendConfig();
-    void                    selectAllParameters();
-    bool                    showTopNCorrelations() const;
-    void                    setShowTopNCorrelations( bool showTopN );
-    int                     topNFilterCount() const;
-    void                    setTopNFilterCount( int filterCount );
-    bool                    isCurveHighlightSupported() const override;
-    QString                 asciiDataForPlotExport() const override;
+    bool                          showAbsoluteValues() const;
+    void                          setShowAbsoluteValues( bool showAbsoluteValues );
+    bool                          sortByAbsoluteValues() const;
+    void                          setSortByAbsoluteValues( bool sortByAbsoluteValues );
+    RimRegularLegendConfig*       legendConfig();
+    void                          selectAllParameters();
+    bool                          showTopNCorrelations() const;
+    void                          setShowTopNCorrelations( bool showTopN );
+    int                           topNFilterCount() const;
+    void                          setTopNFilterCount( int filterCount );
+    bool                          isCurveHighlightSupported() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
 
     void setSelectedParameter( const QString& paramName );
 

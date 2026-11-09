@@ -361,9 +361,17 @@ RimParameterResultCrossPlot* RimCorrelationReportPlot::crossPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimCorrelationReportPlot::childPlotsForTextExport() const
+QString RimCorrelationReportPlot::reportTitle() const
 {
-    return { matrixPlot(), correlationPlot(), crossPlot() };
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per child plot
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimCorrelationReportPlot::reportSections() const
+{
+    return childReportSections( { matrixPlot(), correlationPlot(), crossPlot() } );
 }
 
 //--------------------------------------------------------------------------------------------------
