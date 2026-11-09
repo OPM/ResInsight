@@ -127,6 +127,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseEnsemble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCameraPosition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetClusterStatistics.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRegularGridCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCornerPointCase.cpp

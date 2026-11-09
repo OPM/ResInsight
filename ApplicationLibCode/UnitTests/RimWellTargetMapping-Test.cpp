@@ -304,3 +304,50 @@ TEST_P( RimWellTargetMappingFilterTest, FiltersClustersWithoutViews )
 INSTANTIATE_TEST_SUITE_P( SingleCaseAndEnsemble,
                           RimWellTargetMappingFilterTest,
                           testing::Combine( testing::Bool(), testing::Bool(), testing::Bool() ) );
+
+TEST( RimWellTargetMappingTest, ComputeStoresClusterStatistics )
+{
+    const int timeStep    = 5;
+    auto      eclipseCase = openCase( "Real0", "BRUGGE_0000.EGRID" );
+    ASSERT_NE( nullptr, eclipseCase );
+
+    auto mapping = new TestableWellTargetMapping;
+    eclipseCase->addWellTargetMapping( mapping );
+    RimWellTargetMapping::Settings settings;
+    settings.timeStep      = timeStep;
+    settings.maxIterations = 1000;
+    settings.maxNumTargets = 3;
+    mapping->applySettings( settings );
+
+    auto result = mapping->compute();
+    ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
+
+    auto                    results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigEclipseResultAddress address( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );
+    const auto&             clusters = results->cellScalarResults( address, timeStep );
+
+    auto statisticsField = mapping->findField( "ClusterStatistics" );
+    ASSERT_NE( nullptr, statisticsField );
+    std::vector<caf::PdmObjectHandle*> statistics = statisticsField->children();
+    ASSERT_GT( statistics.size(), 0u );
+    ASSERT_LE( statistics.size(), 3u );
+
+    for ( auto object : statistics )
+    {
+        auto clusterId = dynamic_cast<caf::PdmField<int>*>( object->findField( "ClusterId" ) );
+        auto numCells  = dynamic_cast<caf::PdmField<int>*>( object->findField( "NumCells" ) );
+        ASSERT_NE( nullptr, clusterId );
+        ASSERT_NE( nullptr, numCells );
+
+        auto cellCount = std::count_if( clusters.begin(),
+                                        clusters.end(),
+                                        [id = clusterId->value()]( double v ) { return std::isfinite( v ) && static_cast<int>( v ) == id; } );
+        EXPECT_EQ( numCells->value(), cellCount );
+    }
+
+    settings          = {};
+    settings.timeStep = 1000;
+    mapping->applySettings( settings );
+    EXPECT_FALSE( mapping->compute().has_value() );
+    EXPECT_TRUE( statisticsField->children().empty() );
+}

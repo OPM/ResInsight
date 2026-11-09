@@ -45,11 +45,12 @@ class RimEclipseCase;
 class RigWellTargetMappingTools
 {
 public:
-    using CellFaceType     = cvf::StructGridInterface::FaceType;
-    using VolumeType       = RigWellTargetMapping::VolumeType;
-    using VolumesType      = RigWellTargetMapping::VolumesType;
-    using VolumeResultType = RigWellTargetMapping::VolumeResultType;
-    using ClusteringLimits = RigWellTargetMapping::ClusteringLimits;
+    using CellFaceType      = cvf::StructGridInterface::FaceType;
+    using VolumeType        = RigWellTargetMapping::VolumeType;
+    using VolumesType       = RigWellTargetMapping::VolumesType;
+    using VolumeResultType  = RigWellTargetMapping::VolumeResultType;
+    using ClusteringLimits  = RigWellTargetMapping::ClusteringLimits;
+    using ClusterStatistics = RigWellTargetMapping::ClusterStatistics;
 
     struct DataContainer
     {
@@ -64,41 +65,6 @@ public:
         std::vector<double>        transmissibilityZ;
         const std::vector<double>* transmissibilityNNC;
         std::vector<bool>          isFaultNnc; // empty if fault barriers are not used
-    };
-
-    class ClusterStatistics
-    {
-    public:
-        ClusterStatistics()
-            : id( -1 )
-            , numCells( 0 )
-            , totalPorvSoil( 0.0 )
-            , totalPorvSgas( 0.0 )
-            , totalPorvSoilAndSgas( 0.0 )
-            , totalFipOil( 0.0 )
-            , totalFipGas( 0.0 )
-            , totalRfipOil( 0.0 )
-            , totalRfipGas( 0.0 )
-            , totalSfipOil( 0.0 )
-            , totalSfipGas( 0.0 )
-            , permeability( 0.0 )
-            , pressure( 0.0 )
-        {
-        }
-
-        int    id;
-        size_t numCells;
-        double totalPorvSoil;
-        double totalPorvSgas;
-        double totalPorvSoilAndSgas;
-        double totalFipOil;
-        double totalFipGas;
-        double totalRfipOil;
-        double totalRfipGas;
-        double totalSfipOil;
-        double totalSfipGas;
-        double permeability;
-        double pressure;
     };
 
     static std::vector<bool> findFaultNncs( RigMainGrid* mainGrid );

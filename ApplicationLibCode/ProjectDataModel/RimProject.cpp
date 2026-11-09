@@ -690,6 +690,12 @@ std::vector<RimCase*> RimProject::allGridCases() const
                         cases.push_back( eclipseCase );
                     }
                 }
+
+                for ( RimWellTargetMapping* wellTargetMapping : ensemble->wellTargetMappings() )
+                {
+                    if ( auto ensembleStatisticsCase = wellTargetMapping->ensembleStatisticsCase() )
+                        cases.push_back( ensembleStatisticsCase );
+                }
             }
 
             RimGeoMechModels* geomModels = oilField->geoMechModels();

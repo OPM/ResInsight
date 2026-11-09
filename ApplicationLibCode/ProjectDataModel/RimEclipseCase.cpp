@@ -140,7 +140,7 @@ RimEclipseCase::RimEclipseCase()
     m_dataFilterCollection = new RimDataFilterCollection;
     m_dataFilterCollection->setCase( this );
 
-    CAF_PDM_InitFieldNoDefault( &m_dataAnalyticsCollection, "DataAnalyticsCollection", "Data Analytics" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dataAnalyticsCollection, "DataAnalyticsCollection", "Data Analytics" );
     m_dataAnalyticsCollection = new RimDataAnalyticsCollection;
 
     // Obsolete: well target mappings used to be stored directly on the case. They are migrated into

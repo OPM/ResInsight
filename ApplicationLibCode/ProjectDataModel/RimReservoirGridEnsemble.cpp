@@ -123,7 +123,7 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
     m_viewCollection = new RimEclipseViewCollection;
     m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
     CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour Maps" );
 
     m_unionOfMatrixActiveCells   = new RigActiveCellInfo;
