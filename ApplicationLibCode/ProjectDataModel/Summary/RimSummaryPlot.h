@@ -20,11 +20,11 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "RimPlot.h"
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryDataSourceStepping.h"
-#include "RimTabbedTextProducer.h"
 
 #include "RiuPlotWidget.h"
 #include "RiuSummaryPlot.h"
@@ -77,7 +77,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping, public RimTabbedTextProducer
+class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -152,10 +152,13 @@ public:
 
     QWidget* viewWidget() override;
 
-    QString asciiDataForPlotExport() const override;
     QString asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
-    std::unique_ptr<RimTabbedTextProvider> createTabbedTextProvider() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    std::vector<RiaReportSection> compactReportSections() const override;
+    bool                          supportsLiveUpdate() const override;
+    std::vector<RiaReportTable>   reportTables( RiaDefines::DateTimePeriod resamplingPeriod ) const;
 
     std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
     std::set<RiaSummaryCurveDefinition> summaryAndEnsembleCurveDefinitions() const;
