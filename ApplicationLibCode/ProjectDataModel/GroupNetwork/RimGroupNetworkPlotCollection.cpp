@@ -41,6 +41,7 @@ RimGroupNetworkPlot* RimGroupNetworkPlotCollection::createPlot( RimGroupNetworkD
 {
     auto* plot = new RimGroupNetworkPlot();
     plot->setDataSource( dataSource );
+    plot->collapseAll();
     addItem( plot );
 
     return plot;
