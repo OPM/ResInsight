@@ -22,6 +22,8 @@
 #include <QFrame>
 #include <QString>
 
+#include <vector>
+
 class RiuAbstractLegendFrame : public RiuAbstractOverlayContentFrame
 {
     Q_OBJECT
@@ -33,6 +35,8 @@ public:
     QSize minimumSizeHint() const override;
 
     void renderTo( QPainter* painter, const QRect& targetRect ) override;
+
+    static std::vector<int> visibleLabelIndices( const std::vector<QRect>& labelRects );
 
 protected:
     struct LayoutInfo
