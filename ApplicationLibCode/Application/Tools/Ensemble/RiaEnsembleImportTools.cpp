@@ -205,15 +205,42 @@ std::pair<QString, QString> findPathPattern( const QStringList& filePaths, const
 
     if ( numbers.size() != static_cast<size_t>( filePaths.size() ) ) return {};
 
+    // A number zero-padded to the same width in all files is replaced by one placeholder per digit, so the padding is
+    // restored when creating paths from the pattern
+    auto zeroPaddedWidth = [&filePaths, &numberRegex]( int numberIndex ) -> int
+    {
+        int  width         = -1;
+        bool hasZeroPrefix = false;
+        for ( const auto& f : filePaths )
+        {
+            auto matchIterator = numberRegex.globalMatch( f );
+            int  index         = 0;
+            while ( matchIterator.hasNext() )
+            {
+                auto match = matchIterator.next();
+                if ( index++ != numberIndex ) continue;
+
+                const QString number = match.captured( 0 );
+                if ( width != -1 && width != number.length() ) return 1;
+                width = number.length();
+                if ( number.length() > 1 && number.startsWith( '0' ) ) hasZeroPrefix = true;
+                break;
+            }
+        }
+        return hasZeroPrefix ? width : 1;
+    };
+
     auto pattern = filePaths.front();
 
     // Loop over varying number positions in reverse order to avoid messing up the positions when replacing the varying part with a
     // placeholder
-    for ( int i = varyingNumberPositions.size() - 1; i >= 0; --i )
+    for ( int i = static_cast<int>( numberPositions.size() ) - 1; i >= 0; --i )
     {
-        const auto& [start, length] = varyingNumberPositions[i];
+        if ( !varyingNumberPositions.contains( numberPositions[i] ) ) continue;
 
-        pattern.replace( start, length, placeholderString );
+        const auto& [start, length] = numberPositions[i];
+
+        pattern.replace( start, length, placeholderString.repeated( zeroPaddedWidth( i ) ) );
     }
 
     auto rangeString = QString::fromStdString( RiaStdStringTools::formatRangeSelection( numbers ) );
@@ -228,11 +255,30 @@ QStringList createPathsFromPattern( const QString& basePath, const QString& numb
 {
     QStringList paths;
 
+    if ( placeholderString.isEmpty() ) return paths;
+
     auto numbers = RiaStdStringTools::valuesFromRangeSelection( numberRange.toStdString() );
     for ( const auto& number : numbers )
     {
-        QString path = basePath;
-        path.replace( placeholderString, QString::number( number ) );
+        // A run of N placeholders is replaced by the number zero-padded to N digits
+        QString path;
+        int     pos = 0;
+        while ( pos < basePath.length() )
+        {
+            if ( !QStringView( basePath ).mid( pos ).startsWith( placeholderString ) )
+            {
+                path += basePath[pos++];
+                continue;
+            }
+
+            int width = 0;
+            while ( QStringView( basePath ).mid( pos ).startsWith( placeholderString ) )
+            {
+                pos += placeholderString.length();
+                width++;
+            }
+            path += QString( "%1" ).arg( number, width, 10, QChar( '0' ) );
+        }
         paths.push_back( path );
     }
 
