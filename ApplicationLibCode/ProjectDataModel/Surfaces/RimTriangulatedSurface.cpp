@@ -168,15 +168,20 @@ std::vector<QString> RimTriangulatedSurface::propertyNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Write the surface to the project folder before the project file is written
+/// Write the surface to the project folder before the project file is written. Returns false when the surface has data
+/// that could not be written, so the project save can fail instead of losing the data.
 //--------------------------------------------------------------------------------------------------
-void RimTriangulatedSurface::onProjectBeingSaved()
+bool RimTriangulatedSurface::onProjectBeingSaved()
 {
-    const QString fileName = fileNameInProjectFolder();
-    if ( fileName.isEmpty() ) return;
-
     if ( !m_triangleMeshData ) loadDataFromFile();
-    if ( !m_triangleMeshData || m_triangleMeshData->geometry().first.empty() ) return;
+    if ( !m_triangleMeshData || m_triangleMeshData->geometry().first.empty() ) return true;
+
+    const QString fileName = fileNameInProjectFolder();
+    if ( fileName.isEmpty() )
+    {
+        RiaLogging::error( std::format( "Could not create the surface folder for '{}' in the project folder", m_userDescription() ) );
+        return false;
+    }
 
     auto [vertices, triangleIndices] = m_triangleMeshData->geometry();
 
@@ -190,11 +195,13 @@ void RimTriangulatedSurface::onProjectBeingSaved()
     if ( !RifSurfaceExporter::writeGocadTSurfFile( fileName, m_userDescription(), vertices, triangleIndices, names, propertyValues ) )
     {
         RiaLogging::error( std::format( "Could not write surface '{}' to {}", m_userDescription(), fileName ) );
-        return;
+        return false;
     }
 
     m_surfaceFilePath   = fileName;
     m_hasUnsavedChanges = false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
