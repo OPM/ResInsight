@@ -51,6 +51,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
+#include "RifReportTableFormatter.h"
+
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -902,17 +904,42 @@ void RimDepthTrackPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& d
 //--------------------------------------------------------------------------------------------------
 QString RimDepthTrackPlot::asciiDataForPlotExport() const
 {
-    QString plotContentAsText;
+    const auto sections = reportSections();
 
+    // The formatter omits section titles for a single section, so use it as the title to identify the track
+    const QString title = sections.size() == 1 ? sections.front().title : QString();
+
+    return RifReportTableFormatter::format( title, sections, RifReportTableFormatter::Format::TEXT, RifReportFormatOptions() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimDepthTrackPlot::reportTitle() const
+{
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per visible track
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimDepthTrackPlot::reportSections() const
+{
+    std::vector<const RiaReportDataProducer*> children;
     for ( RimPlot* plot : plots() )
     {
-        if ( plot->showWindow() )
-        {
-            plotContentAsText += plot->asciiDataForPlotExport();
-        }
+        if ( plot->showWindow() ) children.push_back( dynamic_cast<const RiaReportDataProducer*>( plot ) );
     }
 
-    return plotContentAsText;
+    return childReportSections( children );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDepthTrackPlot::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,6 +951,8 @@ void RimDepthTrackPlot::onPlotAdditionOrRemoval()
     updateZoom();
     updateSubPlotNames();
     updateAllRequiredEditors();
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------

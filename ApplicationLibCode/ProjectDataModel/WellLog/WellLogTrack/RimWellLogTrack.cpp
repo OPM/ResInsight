@@ -617,10 +617,12 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RimDepthTrackPlot* depthTrackPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
         depthTrackPlot->updateDepthAxisVisibility();
+        RiuPlotMainWindowTools::updateReportWindow( this );
     }
     else if ( changedField == &m_description )
     {
         updateParentLayout();
+        RiuPlotMainWindowTools::updateReportWindow( this );
     }
     else if ( changedField == &m_autoCheckStateBasedOnCurveData )
     {
@@ -654,6 +656,8 @@ void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter,
     {
         updateStackedCurveData();
     }
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -793,13 +797,12 @@ void RimWellLogTrack::updateLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Collects the visible curve values at common depths, in the row order used for export
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogTrack::asciiDataForPlotExport() const
+RimWellLogTrack::ExportData RimWellLogTrack::exportData() const
 {
-    QString out = "\n" + description() + "\n";
+    ExportData data;
 
-    std::vector<QString>             curveNames;
     std::vector<double>              curveDepths;
     std::vector<std::vector<double>> curvesPlotXValues;
 
@@ -807,7 +810,8 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     auto depthUnit       = parentWellLogPlot()->depthUnit();
     bool isWellAllocPlot = parentWellLogPlot()->firstAncestorOfType<RimWellAllocationPlot>() != nullptr;
 
-    const bool exportCellTexts = depthType == RiaDefines::DepthType::CONNECTION_NUMBER && !m_connectionCellTexts.empty();
+    data.depthType       = depthType;
+    data.exportCellTexts = depthType == RiaDefines::DepthType::CONNECTION_NUMBER && !m_connectionCellTexts.empty();
 
     RiaWellLogCurveMerger curveMerger;
     bool                  foundNonMatchingDepths = false;
@@ -817,9 +821,9 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         if ( !curve->isChecked() ) continue;
 
         const RigWellLogCurveData& curveData = curve->curveData();
-        curveNames.push_back( curve->curveName() );
+        data.curveNames.push_back( curve->curveName() );
 
-        if ( curveNames.size() == 1 )
+        if ( data.curveNames.size() == 1 )
         {
             curveDepths = curveData.depthValuesByIntervals( depthType, depthUnit );
         }
@@ -827,9 +831,9 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         std::vector<double> xPlotValues = curveData.propertyValuesByIntervals();
         if ( xPlotValues.empty() )
         {
-            curveNames.pop_back();
+            data.curveNames.pop_back();
 
-            if ( curveNames.empty() )
+            if ( data.curveNames.empty() )
             {
                 curveDepths.clear();
             }
@@ -846,36 +850,6 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
         curvesPlotXValues.push_back( xPlotValues );
     }
-
-    // Header
-
-    if ( depthType == RiaDefines::DepthType::CONNECTION_NUMBER )
-    {
-        out += "Connection";
-        if ( exportCellTexts ) out += " \tCell (I, J, K)";
-    }
-    else if ( depthType == RiaDefines::DepthType::MEASURED_DEPTH )
-    {
-        out += "MD   ";
-    }
-    else if ( depthType == RiaDefines::DepthType::PSEUDO_LENGTH )
-    {
-        out += "PL   ";
-    }
-    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH )
-    {
-        out += "TVDMSL  ";
-    }
-    else if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
-    {
-        out += "TVDRKB  ";
-    }
-
-    for ( QString name : curveNames )
-    {
-        out += "  \t" + name;
-    }
-    out += "\n";
 
     // Resample when curves have different depth
     if ( foundNonMatchingDepths )
@@ -924,20 +898,97 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
             }
         }
 
-        out += QString::number( curveDepth, 'f', 3 );
-        if ( exportCellTexts )
+        ExportRow row;
+        row.depth = curveDepth;
+        if ( data.exportCellTexts )
         {
-            auto it = m_connectionCellTexts.find( std::lround( curveDepth ) );
-            out += " \t" + ( it != m_connectionCellTexts.end() ? it->second : QString( "-" ) );
+            auto it      = m_connectionCellTexts.find( std::lround( curveDepth ) );
+            row.cellText = it != m_connectionCellTexts.end() ? it->second : QString( "-" );
         }
-        for ( std::vector<double> plotVector : curvesPlotXValues )
+        for ( const std::vector<double>& plotVector : curvesPlotXValues )
         {
-            out += QString( " \t%1" ).arg( QString::number( plotVector[i], 'f', 3 ), 12 );
+            row.values.push_back( plotVector[i] );
         }
-        out += "\n";
+        data.rows.push_back( std::move( row ) );
     }
 
-    return out;
+    return data;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::reportTitle() const
+{
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimWellLogTrack::reportSections() const
+{
+    const ExportData data = exportData();
+
+    QString depthTitle;
+    switch ( data.depthType )
+    {
+        case RiaDefines::DepthType::CONNECTION_NUMBER:
+            depthTitle = "Connection";
+            break;
+        case RiaDefines::DepthType::MEASURED_DEPTH:
+            depthTitle = "MD";
+            break;
+        case RiaDefines::DepthType::PSEUDO_LENGTH:
+            depthTitle = "PL";
+            break;
+        case RiaDefines::DepthType::TRUE_VERTICAL_DEPTH:
+            depthTitle = "TVDMSL";
+            break;
+        case RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB:
+            depthTitle = "TVDRKB";
+            break;
+        default:
+            break;
+    }
+
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_FLOAT, 3 );
+
+    RiaReportTable table;
+    table.columns.push_back( RiaReportColumn{ .title = depthTitle, .doubleFormat = valueFormat } );
+    if ( data.exportCellTexts ) table.columns.push_back( RiaReportColumn{ .title = "Cell (I, J, K)", .alignment = LEFT } );
+    for ( const QString& name : data.curveNames )
+    {
+        table.columns.push_back( RiaReportColumn{ .title = name, .doubleFormat = valueFormat } );
+    }
+
+    for ( const ExportRow& row : data.rows )
+    {
+        std::vector<RiaReportCellValue> cells;
+        cells.emplace_back( row.depth );
+        if ( data.exportCellTexts ) cells.emplace_back( row.cellText );
+        for ( double value : row.values )
+        {
+            cells.emplace_back( value );
+        }
+        table.rows.push_back( std::move( cells ) );
+    }
+
+    RiaReportSection section;
+    section.title = description();
+    section.tables.push_back( std::move( table ) );
+
+    std::vector<RiaReportSection> sections;
+    sections.push_back( std::move( section ) );
+    return sections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1249,6 +1300,8 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     updateDepthZoom();
 
     updateLegend();
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,10 +21,10 @@
 
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
-#include "RimPlainPlotDataProducer.h"
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
 
@@ -57,10 +57,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>,
-                          public RimPlotWindow,
-                          public RimNameConfigHolderInterface,
-                          public RimPlainPlotDataProducer
+class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>, public RimPlotWindow, public RimNameConfigHolderInterface, public RiaReportDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -159,8 +156,13 @@ public:
     void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
     void setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes );
 
-    QString asciiDataForPlotExport() const override;
-    void    handleKeyPressEvent( QKeyEvent* keyEvent );
+    QString asciiDataForPlotExport() const;
+
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
+
+    void handleKeyPressEvent( QKeyEvent* keyEvent );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
