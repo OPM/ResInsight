@@ -43,6 +43,7 @@ public:
     void                 setNetwork( RimGroupNetworkPlot* network );
     RimGroupNetworkPlot* network() const;
     void                 clear();
+    void                 zoomAll();
 
 signals:
     void nodeSelected( const QString& nodeName );

@@ -47,6 +47,7 @@ constexpr qreal edgeOpacity        = 0.3;
 constexpr qreal labelOffset        = 21.0;
 constexpr qreal nodeBorderLeaf     = 1.0;
 constexpr qreal nodeBorderChildren = 2.5;
+constexpr qreal fitMargin          = 40.0;
 
 const QColor nodeBorderColor( "#60be6c" );
 const QColor nodeBackground( Qt::white );
@@ -264,7 +265,7 @@ void RiuGroupNetworkGraphView::setNodes( const std::vector<RimGroupNetworkGraph:
     }
 
     const QRectF bounds = m_scene->itemsBoundingRect();
-    m_scene->setSceneRect( bounds.adjusted( -40, -40, 40, 40 ) );
+    m_scene->setSceneRect( bounds.adjusted( -fitMargin, -fitMargin, fitMargin, fitMargin ) );
 
     if ( NetworkNode* selected = m_nodes.value( m_selectedNode ) )
     {
@@ -279,9 +280,8 @@ void RiuGroupNetworkGraphView::setNodes( const std::vector<RimGroupNetworkGraph:
 
     if ( structure != m_structure )
     {
-        m_structure   = structure;
-        m_fitOnResize = true;
-        fitGraph();
+        m_structure = structure;
+        zoomAll();
     }
 }
 
@@ -299,14 +299,33 @@ void RiuGroupNetworkGraphView::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Fits the graph in the view, but does not magnify small graphs beyond the natural size
+/// Fits the visible nodes in the view, but does not magnify small graphs beyond the natural size. The
+/// view keeps fitting the graph when resized until the user zooms or pans.
 //--------------------------------------------------------------------------------------------------
-void RiuGroupNetworkGraphView::fitGraph()
+void RiuGroupNetworkGraphView::zoomAll()
 {
-    if ( m_scene->sceneRect().isEmpty() ) return;
+    m_fitOnResize = true;
 
-    fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
+    const QRectF bounds = visibleItemsBoundingRect();
+    if ( bounds.isEmpty() ) return;
+
+    const QRectF target = bounds.adjusted( -fitMargin, -fitMargin, fitMargin, fitMargin );
+    fitInView( target, Qt::KeepAspectRatio );
     if ( transform().m11() > 1.0 ) resetTransform();
+    centerOn( target.center() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRectF RiuGroupNetworkGraphView::visibleItemsBoundingRect() const
+{
+    QRectF bounds;
+    for ( const QGraphicsItem* item : m_scene->items() )
+    {
+        if ( item->isVisible() ) bounds |= item->sceneBoundingRect();
+    }
+    return bounds;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,7 +342,7 @@ QString RiuGroupNetworkGraphView::selectedNode() const
 void RiuGroupNetworkGraphView::resizeEvent( QResizeEvent* event )
 {
     QGraphicsView::resizeEvent( event );
-    if ( m_fitOnResize ) fitGraph();
+    if ( m_fitOnResize ) zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -398,14 +417,7 @@ void RiuGroupNetworkGraphView::contextMenuEvent( QContextMenuEvent* event )
     }
     menu.addAction( QIcon( ":/Plus.svg" ), "Expand All", this, [this]() { emit expandAllRequested(); } );
     menu.addAction( QIcon( ":/Minus.svg" ), "Collapse All", this, [this]() { emit collapseAllRequested(); } );
-    menu.addAction( QIcon( ":/ZoomAll.svg" ),
-                    "Fit to View",
-                    this,
-                    [this]()
-                    {
-                        m_fitOnResize = true;
-                        fitGraph();
-                    } );
+    menu.addAction( QIcon( ":/ZoomAll.svg" ), "Zoom All", this, [this]() { zoomAll(); } );
     menu.exec( event->globalPos() );
 }
 
