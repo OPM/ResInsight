@@ -45,6 +45,7 @@
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
@@ -56,6 +57,8 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_scale_draw.h"
+
+#include <QRegularExpression>
 
 CAF_PDM_SOURCE_INIT( RimWellAllocationOverTimePlot, "RimWellAllocationOverTimePlot" );
 
@@ -190,33 +193,55 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellAllocationOverTimePlot::asciiDataForPlotExport() const
+QString RimWellAllocationOverTimePlot::reportTitle() const
 {
-    // Retrieve allocation over time data for wells
+    return m_userName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One row per time step and one column per well, as shown in the plot
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimWellAllocationOverTimePlot::reportSections() const
+{
+    if ( !m_case || !m_case->eclipseCaseData() ) return {};
+
     RigWellAllocationOverTime allocationOverTime = createWellAllocationOverTime();
+    const auto&               wellValuesMap      = allocationOverTime.wellValuesMap();
 
-    QString titleText = m_userName + "\n\n";
-
-    QString dataText = "Time Step\t";
-    for ( auto& [wellName, wellValues] : allocationOverTime.wellValuesMap() )
+    RiaReportTable table;
+    // The value type text is HTML for the plot axis title
+    QString valueTypeText = getValueTypeText();
+    valueTypeText.replace( QRegularExpression( "<sup>(.*?)</sup>" ), "^\\1" );
+    valueTypeText.remove( QRegularExpression( "<[^>]*>" ) );
+    table.description = valueTypeText;
+    table.columns.push_back( RiaReportColumn{ .title = "Time Step", .alignment = LEFT } );
+    for ( const auto& [wellName, wellValues] : wellValuesMap )
     {
-        dataText += wellName + "\t";
+        table.columns.push_back( RiaReportColumn{ .title = wellName, .doubleFormat = RifTextDataTableDoubleFormatting( RIF_CONSISE, 6 ) } );
     }
-    dataText += "\n";
 
-    const QString dateFormatStr = dateFormatString();
     for ( const auto& timeStep : allocationOverTime.timeStepDates() )
     {
-        dataText += timeStep.toString( dateFormatStr ) + "\t";
-        for ( auto& [wellName, wellValues] : allocationOverTime.wellValuesMap() )
+        std::vector<RiaReportCellValue> row;
+        row.reserve( table.columns.size() );
+        row.emplace_back( timeStep );
+        for ( const auto& [wellName, wellValues] : wellValuesMap )
         {
-            dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 ) : QString::number( wellValues.at( timeStep ) );
-            dataText += "\t";
+            auto it = wellValues.find( timeStep );
+            row.emplace_back( it != wellValues.end() ? it->second : 0.0 );
         }
-        dataText += "\n";
+        table.rows.push_back( std::move( row ) );
     }
 
-    return titleText + dataText;
+    return { RiaReportSection{ .title = "Allocation", .tables = { std::move( table ) } } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellAllocationOverTimePlot::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,21 +329,19 @@ void RimWellAllocationOverTimePlot::onLoadDataAndUpdate()
 {
     updateDockWindowVisibility();
 
-    if ( m_plotWidget == nullptr || m_case == nullptr )
-    {
-        return;
-    }
+    if ( m_plotWidget == nullptr ) return;
 
     // If no 3D view is open, we have to make sure the case is opened
-    if ( !m_case->ensureReservoirCaseIsOpen() )
+    if ( m_case != nullptr && m_case->ensureReservoirCaseIsOpen() )
     {
-        return;
+        updateFromWell();
+
+        // Must be called after curves are added to plot - to apply correct legend font size
+        doUpdateLayout();
     }
 
-    updateFromWell();
-
-    // Must be called after curves are added to plot - to apply correct legend font size
-    doUpdateLayout();
+    // Also notified when the case is missing or cannot be opened, so the report window does not show stale data
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
