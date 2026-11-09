@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "Summary/RiaSummaryDefines.h"
+
 #include "RiaDefines.h"
 
 #include "cafAppEnum.h"
@@ -68,6 +70,24 @@ public:
 private:
     caf::PdmField<std::vector<QString>> m_fileNames;
     caf::PdmField<QString>              m_ensembleName;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_createReservoirGridEnsemble : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_createReservoirGridEnsemble( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>>                           m_fileNames;
+    caf::PdmField<caf::AppEnum<RiaDefines::EnsembleGroupingMode>> m_groupingMode;
 };
 
 //==================================================================================================

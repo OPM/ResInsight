@@ -23,6 +23,7 @@
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaEnsembleNameTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
@@ -42,6 +43,7 @@
 
 #include "RifReaderSettings.h"
 
+#include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "Formations/RimFormationNames.h"
 #include "Rim3dView.h"
 #include "RimCalcScript.h"
@@ -57,6 +59,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
@@ -199,6 +202,68 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importSummaryEnsemble::
 QString RimProject_importSummaryEnsemble::classKeywordReturnedType() const
 {
     return RimSummaryEnsemble::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createReservoirGridEnsemble, "createReservoirGridEnsemble" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createReservoirGridEnsemble::RimProject_createReservoirGridEnsemble( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create Reservoir Grid Ensemble", "", "", "Create a reservoir grid ensemble from grid files, one for each realization" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileNames, "FileNames", "", "", "", "Grid files (EGRID), one for each realization" );
+    CAF_PDM_InitScriptableField( &m_groupingMode,
+                                 "GroupingMode",
+                                 caf::AppEnum<RiaDefines::EnsembleGroupingMode>( RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How realizations are found from the file paths. The files must form one ensemble" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createReservoirGridEnsemble::execute()
+{
+    QStringList gridFileNames;
+    for ( const QString& fileName : m_fileNames() )
+    {
+        QString absolutePath = fileName;
+        if ( !QFileInfo( absolutePath ).exists() )
+        {
+            absolutePath = QDir( RiaApplication::instance()->startDir() ).absoluteFilePath( fileName );
+        }
+        if ( !QFileInfo( absolutePath ).exists() ) return std::unexpected( QString( "File not found: %1" ).arg( fileName ) );
+
+        gridFileNames.push_back( absolutePath );
+    }
+
+    if ( gridFileNames.isEmpty() ) return std::unexpected( "No grid files specified." );
+
+    const auto groups = RiaEnsembleNameTools::groupFilesByEnsembleName( gridFileNames, m_groupingMode() );
+    if ( groups.size() != 1 )
+    {
+        return std::unexpected(
+            QString( "The files form %1 ensembles with grouping mode %2. Expected one." ).arg( groups.size() ).arg( m_groupingMode().text() ) );
+    }
+
+    auto fileSets  = RimEnsembleFileSetTools::createEnsembleFileSets( gridFileNames, m_groupingMode() );
+    auto ensembles = RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( fileSets );
+    if ( ensembles.empty() ) return std::unexpected( "Unable to create the reservoir grid ensemble." );
+
+    return ensembles.front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createReservoirGridEnsemble::classKeywordReturnedType() const
+{
+    return RimReservoirGridEnsemble::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
