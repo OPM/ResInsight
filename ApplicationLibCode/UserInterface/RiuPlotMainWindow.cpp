@@ -62,6 +62,7 @@
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuReportWindow.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
@@ -249,6 +250,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
         pdmUiPropertyView->showProperties( nullptr );
     }
     if ( m_curveStyleRulesView ) m_curveStyleRulesView->showProperties( nullptr );
+    if ( m_reportWindow ) m_reportWindow->setProducerObject( nullptr );
 
     cleanUpTemporaryWidgets();
 
@@ -631,6 +633,14 @@ void RiuPlotMainWindow::createDockPanels()
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, rightArea );
+
+        // the report window showing plot data, hidden by default
+        auto reportDockWidget =
+            RiuDockWidgetTools::createDockWidget( "Plot Data", RiuDockWidgetTools::plotMainWindowReportName(), dockManager() );
+        m_reportWindow = new RiuReportWindow( reportDockWidget );
+        reportDockWidget->setWidget( m_reportWindow );
+        dockManager()->addDockWidgetTabToArea( reportDockWidget, dockWidget->dockAreaWidget() );
+        reportDockWidget->toggleView( false );
     }
 
     auto createPropertyView = [this]( const QString& displayName, const QString& internalName, ads::CDockAreaWidget* dockArea )
@@ -808,6 +818,35 @@ void RiuPlotMainWindow::showCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuReportWindow* RiuPlotMainWindow::reportWindow()
+{
+    return m_reportWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::showReportWindow( caf::PdmObjectHandle* producerObject )
+{
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowReportName() );
+    if ( !dockWidget || !m_reportWindow ) return;
+
+    // A dock widget missing in a restored dock layout is not assigned to any area, and would be shown floating
+    if ( !dockWidget->dockAreaWidget() )
+    {
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
+    }
+
+    dockWidget->toggleView( true );
+    dockWidget->setAsCurrentTab();
+    dockWidget->raise();
+
+    m_reportWindow->showProducerObject( producerObject );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
     auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
@@ -928,6 +967,13 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
     }
 
     propertyView->showProperties( firstSelectedObject );
+
+    if ( m_reportWindow )
+    {
+        // Keep the current content if the selection is not related to a plot providing report data
+        auto producerObject = RiuReportWindow::findProducerObject( firstSelectedObject );
+        if ( producerObject && producerObject != m_reportWindow->producerObject() ) m_reportWindow->setProducerObject( producerObject );
+    }
 
     std::vector<RimSummaryCase*> summaryCases;
     for ( auto uiItem : uiItems )

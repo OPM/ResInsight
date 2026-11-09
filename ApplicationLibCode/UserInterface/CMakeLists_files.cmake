@@ -44,6 +44,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuReportWindow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuReportTableModel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuReportHeaderView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuToolTipMenu.cpp
