@@ -48,7 +48,7 @@ public:
 
     void setNodes( const std::vector<RimGroupNetworkGraph::Node>& nodes );
     void clear();
-    void fitGraph();
+    void zoomAll();
 
     QString selectedNode() const;
 
@@ -68,7 +68,8 @@ protected:
     void contextMenuEvent( QContextMenuEvent* event ) override;
 
 private:
-    void onSelectionChanged();
+    void   onSelectionChanged();
+    QRectF visibleItemsBoundingRect() const;
 
     RiuGroupNetworkGraphViewItems::NetworkNode* nodeAt( const QPoint& viewPos ) const;
 
