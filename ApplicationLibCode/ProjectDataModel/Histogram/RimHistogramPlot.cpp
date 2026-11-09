@@ -213,9 +213,19 @@ RiuPlotWidget* RimHistogramPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimHistogramPlot::asciiDataForPlotExport() const
+QString RimHistogramPlot::reportTitle() const
 {
-    QString text;
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per visible curve, with bin centers and frequencies
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimHistogramPlot::reportSections() const
+{
+    std::vector<RiaReportSection> sections;
+
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_CONSISE, 6 );
 
     for ( RimHistogramCurve* curve : histogramCurves() )
     {
@@ -225,36 +235,32 @@ QString RimHistogramPlot::asciiDataForPlotExport() const
         auto result = curve->dataSource()->compute( GraphType::LINE_GRAPH, frequencyType(), curve->isCumulative() );
         if ( result.valuesX.empty() || result.valuesX.size() != result.valuesY.size() ) continue;
 
-        QString headerX = "Bin Center";
-        if ( !curve->unitNameX().empty() ) headerX += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameX() ) );
+        QString frequencyTitle = caf::AppEnum<FrequencyType>::uiText( frequencyType() );
+        if ( curve->isCumulative() ) frequencyTitle = "Cumulative " + frequencyTitle;
 
-        QString headerY = caf::AppEnum<FrequencyType>::uiText( frequencyType() );
-        if ( curve->isCumulative() ) headerY = "Cumulative " + headerY;
-        if ( !curve->unitNameY().empty() ) headerY += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameY() ) );
+        RiaReportTable table;
+        table.columns =
+            { RiaReportColumn{ .title = "Bin Center", .unit = QString::fromStdString( curve->unitNameX() ), .doubleFormat = valueFormat },
+              RiaReportColumn{ .title = frequencyTitle, .unit = QString::fromStdString( curve->unitNameY() ), .doubleFormat = valueFormat } };
 
-        QString     tableText;
-        QTextStream stringStream( &tableText );
-
-        // Use tab as field separator to make the text paste into separate columns in Excel
-        RifCsvDataTableFormatter formatter( stringStream, "\t" );
-        formatter.setUseQuotes( false );
-
-        formatter.header( { RifTextDataTableColumn( headerX ), RifTextDataTableColumn( headerY ) } );
-
+        table.rows.reserve( result.valuesX.size() );
         for ( size_t i = 0; i < result.valuesX.size(); i++ )
         {
-            formatter.add( result.valuesX[i] );
-            formatter.add( result.valuesY[i] );
-            formatter.rowCompleted();
+            table.rows.push_back( { result.valuesX[i], result.valuesY[i] } );
         }
-        formatter.tableCompleted();
 
-        if ( !text.isEmpty() ) text += "\n";
-        text += curve->curveName() + "\n";
-        text += tableText;
+        sections.push_back( RiaReportSection{ .title = curve->curveName(), .tables = { std::move( table ) } } );
     }
 
-    return text;
+    return sections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimHistogramPlot::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,6 +668,7 @@ void RimHistogramPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_description )
     {
         m_useAutoPlotTitle = false;
+        RiuPlotMainWindowTools::updateReportWindow( this );
     }
 
     if ( changedField == &m_useAutoPlotTitle || changedField == &m_description )
@@ -774,6 +781,8 @@ void RimHistogramPlot::onLoadDataAndUpdate()
     updateStackedCurveData();
 
     updatePlotInfoLabel();
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1229,6 +1238,7 @@ void RimHistogramPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
     scheduleReplotIfVisible();
 
     updateAllRequiredEditors();
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
