@@ -18,6 +18,8 @@
 
 #include "RimSummaryTable.h"
 
+#include "RiaFeatureCommandContext.h"
+#include "RiaHashTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStdStringTools.h"
@@ -36,20 +38,65 @@
 #include "RimSummaryEnsemble.h"
 #include "RimTools.h"
 
-#include "RiuContextMenuLauncher.h"
 #include "RiuMatrixPlotWidget.h"
 
-#include "cafPdmUiCheckBoxAndTextEditor.h"
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafProgressInfo.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <tuple>
 
+#include <QContextMenuEvent>
+#include <QMenu>
+
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Shows the context menu for a summary table widget. The table data is passed through the command context, as clicking
+/// the matrix plot does not select the table in the project tree.
+//--------------------------------------------------------------------------------------------------
+class SummaryTableContextMenuLauncher : public QObject
+{
+public:
+    SummaryTableContextMenuLauncher( QWidget* widget, RimSummaryTable* table )
+        : QObject( widget )
+        , m_table( table )
+    {
+        widget->installEventFilter( this );
+    }
+
+protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override
+    {
+        if ( event->type() != QEvent::ContextMenu ) return QObject::eventFilter( watched, event );
+
+        if ( m_table )
+        {
+            const QString                      title = m_table->description();
+            RiaFeatureCommandContextTextHelper helper( title, title + "\n\n" + m_table->asciiDataForPlotExport() );
+
+            caf::CmdFeatureMenuBuilder menuBuilder;
+            menuBuilder << "RicShowPlotDataFeature";
+
+            QMenu menu;
+            menuBuilder.appendToMenu( &menu );
+            if ( !menu.actions().empty() ) menu.exec( static_cast<QContextMenuEvent*>( event )->globalPos() );
+        }
+        return true;
+    }
+
+private:
+    caf::PdmPointer<RimSummaryTable> m_table;
+};
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -70,6 +117,17 @@ void AppEnum<RimSummaryTable::DataSource>::setUp()
     addItem( RimSummaryTable::DataSource::SINGLE_CASE, "SINGLE_CASE", "Single Case" );
     addItem( RimSummaryTable::DataSource::ENSEMBLE_STATISTICS, "ENSEMBLE_STATISTICS", "Ensemble Statistics" );
     setDefault( RimSummaryTable::DataSource::SINGLE_CASE );
+}
+
+template <>
+void AppEnum<RimSummaryTableTools::ValueFilterType>::setUp()
+{
+    addItem( RimSummaryTableTools::ValueFilterType::NONE, "NONE", "Disabled" );
+    addItem( RimSummaryTableTools::ValueFilterType::ABOVE, "ABOVE", "Above" );
+    addItem( RimSummaryTableTools::ValueFilterType::BELOW, "BELOW", "Below" );
+    addItem( RimSummaryTableTools::ValueFilterType::BETWEEN, "BETWEEN", "Between" );
+    addItem( RimSummaryTableTools::ValueFilterType::OUTSIDE, "OUTSIDE", "Outside" );
+    setDefault( RimSummaryTableTools::ValueFilterType::NONE );
 }
 } // namespace caf
 
@@ -104,18 +162,11 @@ RimSummaryTable::RimSummaryTable()
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_resamplingSelection = RiaDefines::DateTimePeriod::YEAR;
 
-    CAF_PDM_InitField( &m_upperThreshold, "UpperThreshold", std::make_pair( false, 0.0 ), "Upper Threshold" );
-    m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-    m_upperThreshold.uiCapability()->setUiToolTip(
-        "Keep rows with at least one value greater than or equal to this threshold. When both thresholds are enabled, rows are kept "
-        "if they have values beyond any of the thresholds. Use for example -50 and 50 to remove rows with all values between -50 "
-        "and 50." );
-    CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", std::make_pair( false, 0.0 ), "Lower Threshold" );
-    m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
-    m_lowerThreshold.uiCapability()->setUiToolTip(
-        "Keep rows with at least one value less than or equal to this threshold. When both thresholds are enabled, rows are kept "
-        "if they have values beyond any of the thresholds. Use for example -50 and 50 to remove rows with all values between -50 "
-        "and 50." );
+    CAF_PDM_InitFieldNoDefault( &m_valueFilterType, "ValueFilterType", "Value Filter" );
+    m_valueFilterType.uiCapability()->setUiToolTip( "Keep rows with at least one value matching the filter. Use Outside to remove rows "
+                                                    "where all values are in a range, for example between -50 and 50." );
+    CAF_PDM_InitField( &m_upperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
+    CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", 0.0, "Lower Threshold" );
 
     // The default is NaN to detect if the keyword was present in the project file
     CAF_PDM_InitField( &m_thresholdValue_OBSOLETE, "ThresholdValue", std::numeric_limits<double>::quiet_NaN(), "Threshold" );
@@ -256,14 +307,16 @@ void RimSummaryTable::initAfterRead()
 {
     RimPlotWindow::initAfterRead();
 
-    // The threshold was always applied in older project files. A threshold of 0.0 (the old default) only excluded vectors
-    // without any non-negative values, which corresponds to having no threshold enabled. Enabling an upper threshold of
-    // 0.0 would also mark zero values as significant, so only non-zero thresholds are migrated.
+    // The threshold was always applied in older project files, and kept rows with at least one value equal to or above the
+    // threshold. A threshold of 0.0 (the old default) only excluded rows where all values are negative. Such rows are rare for
+    // rates, so a threshold of 0.0 is not migrated, and these rows are now kept.
     if ( !std::isnan( m_thresholdValue_OBSOLETE() ) )
     {
         if ( m_thresholdValue_OBSOLETE() != 0.0 )
         {
-            m_upperThreshold = std::make_pair( true, m_thresholdValue_OBSOLETE() );
+            const auto valueFilter = RimSummaryTableTools::valueFilterFromLegacyThreshold( m_thresholdValue_OBSOLETE() );
+            m_valueFilterType      = valueFilter.type;
+            m_lowerThreshold       = valueFilter.lowerThreshold;
         }
         m_thresholdValue_OBSOLETE = std::numeric_limits<double>::quiet_NaN();
     }
@@ -297,7 +350,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             m_tableName = createTableName();
         }
         if ( changedField != &m_case ) initializeDateRange();
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
     else if ( changedField == &m_category )
     {
@@ -306,20 +359,20 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
-    else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_upperThreshold ||
-              changedField == &m_lowerThreshold || changedField == &m_ensembleStatistic )
+    else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_valueFilterType ||
+              changedField == &m_upperThreshold || changedField == &m_lowerThreshold || changedField == &m_ensembleStatistic )
     {
         if ( m_isAutomaticName )
         {
             m_tableName = createTableName();
         }
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
     else if ( changedField == &m_excludedRowsUiField )
     {
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
     else if ( changedField == &m_isAutomaticName && m_isAutomaticName )
     {
@@ -347,7 +400,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                              : RimLegendConfig::RangeModeType::USER_DEFINED;
         m_legendConfig->setRangeMode( rangeMode );
         m_legendConfig->updateTickCountAndUserDefinedRange();
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
     else if ( changedField == &m_mappingType && m_legendConfig )
     {
@@ -356,12 +409,12 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_legendConfig->updateTickCountAndUserDefinedRange();
         }
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
     else if ( changedField == &m_maxTimeLabelCount || changedField == &m_startDate || changedField == &m_endDate ||
               changedField == &m_filterTimeSteps )
     {
-        onLoadDataAndUpdate();
+        updateTableAndPlot();
     }
 }
 
@@ -370,7 +423,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    onLoadDataAndUpdate();
+    updateTableAndPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,8 +452,36 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     dataGroup.add( &m_excludedRowsUiField );
 
     caf::PdmUiGroup* valueFilterGroup = dataGroup.addNewGroup( "Value Filter" );
-    valueFilterGroup->add( &m_upperThreshold );
-    valueFilterGroup->add( &m_lowerThreshold );
+    valueFilterGroup->add( &m_valueFilterType );
+    switch ( m_valueFilterType() )
+    {
+        case RimSummaryTableTools::ValueFilterType::ABOVE:
+            m_lowerThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            break;
+
+        case RimSummaryTableTools::ValueFilterType::BELOW:
+            m_upperThreshold.uiCapability()->setUiName( "Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            break;
+
+        case RimSummaryTableTools::ValueFilterType::BETWEEN:
+        case RimSummaryTableTools::ValueFilterType::OUTSIDE:
+            m_upperThreshold.uiCapability()->setUiName( "Upper Threshold" );
+            valueFilterGroup->add( &m_upperThreshold );
+            m_lowerThreshold.uiCapability()->setUiName( "Lower Threshold" );
+            valueFilterGroup->add( &m_lowerThreshold );
+            break;
+
+        case RimSummaryTableTools::ValueFilterType::NONE:
+        default:
+            break;
+    }
+
+    if ( m_valueFilterType() != RimSummaryTableTools::ValueFilterType::NONE )
+    {
+        valueFilterGroup->addNewLabel( "Value range: " + valueRangeText() );
+    }
 
     caf::PdmUiGroup* timeFilterGroup = dataGroup.addNewGroup( "Time Filter" );
     timeFilterGroup->add( &m_filterTimeSteps );
@@ -477,6 +558,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::onLoadDataAndUpdate()
 {
+    // Called when data is loaded or reloaded from outside the property editor, so the source data may have changed
+    clearEnsembleStatisticsCache();
+    updateTableAndPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::updateTableAndPlot()
+{
     updateDockWindowVisibility();
     createTableData();
     setExcludedRowsUiSelectionsFromTableData();
@@ -509,7 +600,8 @@ void RimSummaryTable::onLoadDataAndUpdate()
             if ( value < 0.0 && value > negClosestToZeroValue ) negClosestToZeroValue = value;
         }
 
-        m_matrixPlotWidget->setRowValues( vectorData.category, vectorData.values );
+        m_matrixPlotWidget->setRowValues( vectorData.category,
+                                          RimSummaryTableTools::valuesForTimeSteps( vectorData, m_tableData.timeStepsUnion ) );
     }
 
     if ( m_legendConfig )
@@ -563,8 +655,8 @@ QWidget* RimSummaryTable::createViewWidget( QWidget* mainWindowParent )
     m_matrixPlotWidget->setShowValueLabel( m_showValueLabels );
     m_matrixPlotWidget->setUseInvalidValueColor( true );
 
-    new RiuContextMenuLauncher( m_matrixPlotWidget, { "RicShowPlotDataFeature" } );
-    new RiuContextMenuLauncher( m_matrixPlotWidget->qwtPlot(), { "RicShowPlotDataFeature" } );
+    new SummaryTableContextMenuLauncher( m_matrixPlotWidget, this );
+    new SummaryTableContextMenuLauncher( m_matrixPlotWidget->qwtPlot(), this );
     return m_matrixPlotWidget;
 }
 
@@ -619,6 +711,17 @@ int RimSummaryTable::axisLabelFontSize() const
 int RimSummaryTable::valueLabelFontSize() const
 {
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_valueLabelFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryTable::valueRangeText() const
+{
+    const auto& minMax = m_tableData.unfilteredMinMax;
+    if ( !minMax ) return "No data";
+
+    return QString( "[%1..%2]" ).arg( m_legendConfig->valueToText( minMax->first ) ).arg( m_legendConfig->valueToText( minMax->second ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -846,10 +949,11 @@ QString RimSummaryTable::asciiDataForPlotExport() const
     {
         if ( excludedRows.contains( vectorData.category ) ) continue;
 
+        // Values are aligned to the time steps of the header, and time steps without a value are left empty
         std::vector<QString> row = { vectorData.category };
-        for ( const double value : vectorData.values )
+        for ( const double value : RimSummaryTableTools::valuesForTimeSteps( vectorData, m_tableData.timeStepsUnion ) )
         {
-            row.push_back( QString::number( value, 'g', 6 ) );
+            row.push_back( std::isnan( value ) ? QString() : QString::number( value, 'g', 6 ) );
         }
         rows.push_back( row );
     }
@@ -901,23 +1005,41 @@ RifSummaryReaderInterface* RimSummaryTable::summaryReaderWithAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisticsData( const RifEclipseSummaryAddress& address )
+void RimSummaryTable::updateEnsembleStatisticsCacheKey()
 {
-    // The cache is invalid if the ensemble or the number of realizations has changed
-    const size_t caseCount = m_ensemble ? m_ensemble->allSummaryCases().size() : 0;
-    if ( m_ensembleStatisticsCacheEnsemble != m_ensemble() || m_ensembleStatisticsCacheCaseCount != caseCount )
+    // Only the statistics for the current vector and category are kept. The realizations are part of the key, so that the
+    // cache is cleared if realizations are added, removed or replaced.
+    std::vector<RimSummaryCase*> summaryCases;
+    if ( m_ensemble ) summaryCases = m_ensemble->allSummaryCases();
+
+    const auto cacheKey = RiaHashTools::hash( m_ensemble(), summaryCases, static_cast<int>( m_category().value() ), m_vector().toStdString() );
+    if ( cacheKey != m_ensembleStatisticsCacheKey )
     {
         clearEnsembleStatisticsCache();
-        m_ensembleStatisticsCacheEnsemble  = m_ensemble();
-        m_ensembleStatisticsCacheCaseCount = caseCount;
+        m_ensembleStatisticsCacheKey = cacheKey;
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisticsData( const RifEclipseSummaryAddress& address )
+{
     if ( auto it = m_ensembleStatisticsCache.find( address ); it != m_ensembleStatisticsCache.end() ) return it->second;
 
     EnsembleStatisticsData data;
     if ( m_ensemble )
     {
-        m_ensembleStatisticsCase->calculate( m_ensemble->allSummaryCases(), address, false, { 0, 100 } );
+        // The realization tooltips and read-only state are not updated, as they would only reflect the last calculated address
+        const bool includeIncompleteCurves  = false;
+        const bool includeZeroValues        = true;
+        const bool updateRealizationUiState = false;
+        m_ensembleStatisticsCase->calculate( m_ensemble->allSummaryCases(),
+                                             address,
+                                             includeIncompleteCurves,
+                                             { 0, 100 },
+                                             includeZeroValues,
+                                             updateRealizationUiState );
 
         // Percentiles use the switched (oil industry) convention: percentile 0 is the maximum, percentile 100 is the minimum
         const auto statisticsAddress = [&address]( RiaDefines::StatisticsType statistic )
@@ -975,8 +1097,10 @@ const RimSummaryTable::EnsembleStatisticsData& RimSummaryTable::ensembleStatisti
 void RimSummaryTable::clearEnsembleStatisticsCache()
 {
     m_ensembleStatisticsCache.clear();
-    m_ensembleStatisticsCacheEnsemble  = nullptr;
-    m_ensembleStatisticsCacheCaseCount = 0;
+    m_ensembleStatisticsCacheKey = 0;
+
+    // The statistics case skips the calculation if the input is unchanged, which would return stale values after a reload
+    m_ensembleStatisticsCase = std::make_unique<RimEnsembleStatisticsCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -984,14 +1108,12 @@ void RimSummaryTable::clearEnsembleStatisticsCache()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::createTableData()
 {
-    // Without thresholds, all rows are kept, and values above zero are used to find the first and last time step
-    m_tableData                     = TableData();
-    m_tableData.upperThresholdValue = m_upperThreshold().first ? std::optional<double>( m_upperThreshold().second ) : std::nullopt;
-    m_tableData.lowerThresholdValue = m_lowerThreshold().first ? std::optional<double>( m_lowerThreshold().second ) : std::nullopt;
+    // Without a value filter, all rows are kept, and values above zero are used to find the first and last time step
+    m_tableData             = TableData();
+    m_tableData.valueFilter = { .type = m_valueFilterType(), .lowerThreshold = m_lowerThreshold(), .upperThreshold = m_upperThreshold() };
 
-    const auto upperThreshold     = m_tableData.upperThresholdValue;
-    const auto lowerThreshold     = m_tableData.lowerThresholdValue;
-    const bool useThresholdFilter = upperThreshold || lowerThreshold;
+    const auto valueFilter        = m_tableData.valueFilter;
+    const bool useThresholdFilter = valueFilter.type != RimSummaryTableTools::ValueFilterType::NONE;
 
     // Get all summary addresses for selected category (group, region, well)
     RifSummaryReaderInterface* summaryReader = nullptr;
@@ -1005,10 +1127,26 @@ void RimSummaryTable::createTableData()
         return;
     }
 
-    // Create time step value for vectors with no values above threshold
+    // Create time step value for vectors with no values matching the value filter
     const time_t invalidTimeStep = 0;
 
     const auto summaryAddresses = getSummaryAddressesFromAddresses( availableAddresses(), m_category(), m_vector() );
+
+    // Ensemble statistics are calculated on the GUI thread, so show progress when statistics for any address must be calculated
+    std::unique_ptr<caf::ProgressInfo> progressInfo;
+    if ( isEnsembleStatistics() )
+    {
+        updateEnsembleStatisticsCacheKey();
+
+        const bool isCalculationRequired = std::any_of( summaryAddresses.begin(),
+                                                        summaryAddresses.end(),
+                                                        [this]( const RifEclipseSummaryAddress& adr )
+                                                        { return !m_ensembleStatisticsCache.contains( adr ); } );
+        if ( isCalculationRequired )
+        {
+            progressInfo = std::make_unique<caf::ProgressInfo>( summaryAddresses.size(), "Calculating Ensemble Statistics" );
+        }
+    }
 
     // Time steps, values and unit name for one address. Ensemble statistics are calculated from all realizations.
     const auto readTimeStepsAndValues =
@@ -1021,7 +1159,7 @@ void RimSummaryTable::createTableData()
         }
 
         // Ensemble statistics for all statistic types are calculated once per address, and reused when only the selected
-        // statistic, the thresholds or other display settings change
+        // statistic, the value filter or other display settings change
         const auto& statisticsData = ensembleStatisticsData( adr );
         const auto  valuesIt       = statisticsData.values.find( m_ensembleStatistic() );
         if ( valuesIt == statisticsData.values.end() ) return {};
@@ -1032,8 +1170,10 @@ void RimSummaryTable::createTableData()
     for ( const auto& adr : summaryAddresses )
     {
         const auto [timeSteps, values, unitName] = readTimeStepsAndValues( adr );
-        const QString vectorName                 = QString::fromStdString( adr.vectorName() );
-        const QString categoryName               = getCategoryNameFromAddress( adr );
+        if ( progressInfo ) progressInfo->incrementProgress();
+
+        const QString vectorName   = QString::fromStdString( adr.vectorName() );
+        const QString categoryName = getCategoryNameFromAddress( adr );
 
         if ( timeSteps.size() != values.size() ) continue;
 
@@ -1080,35 +1220,42 @@ void RimSummaryTable::createTableData()
             if ( resampledValues.empty() ) continue;
         }
 
-        // Vectors are kept if they have values equal to or above the upper threshold, or equal to or below the lower
-        // threshold. This matches RimSummaryTableTools::hasValueAboveThreshold.
-        const auto maxRowValue  = *std::max_element( resampledValues.begin(), resampledValues.end() );
-        const auto minRowValue  = *std::min_element( resampledValues.begin(), resampledValues.end() );
-        const bool isAboveUpper = upperThreshold && maxRowValue >= *upperThreshold;
-        const bool isBelowLower = lowerThreshold && minRowValue <= *lowerThreshold;
-        if ( useThresholdFilter && !isAboveUpper && !isBelowLower ) continue;
+        // The value range of all rows is shown in the property editor when a value filter is active
+        const auto maxRowValue = *std::max_element( resampledValues.begin(), resampledValues.end() );
+        const auto minRowValue = *std::min_element( resampledValues.begin(), resampledValues.end() );
+        if ( m_tableData.unfilteredMinMax )
+        {
+            auto& [unfilteredMin, unfilteredMax] = *m_tableData.unfilteredMinMax;
+            unfilteredMin                        = std::min( unfilteredMin, minRowValue );
+            unfilteredMax                        = std::max( unfilteredMax, maxRowValue );
+        }
+        else
+        {
+            m_tableData.unfilteredMinMax = std::make_pair( minRowValue, maxRowValue );
+        }
 
-        // Detect if values contain at least one value beyond the threshold(s)
-        const bool hasValueAboveThreshold = RimSummaryTableTools::hasValueAboveThreshold( resampledValues, upperThreshold, lowerThreshold );
+        // Vectors are kept if they have values matching the value filter
+        const bool hasValueMatchingFilter = RimSummaryTableTools::hasValueMatchingFilter( resampledValues, valueFilter );
+        if ( useThresholdFilter && !hasValueMatchingFilter ) continue;
 
-        // Find first and last time step with value above 0.0 (or beyond the thresholds when filtering) when
-        // hasValueAboveThreshold flag is true (first and last should be valid/invalid simultaneously)
-        const auto isSignificant = [&]( double value )
-        { return RimSummaryTableTools::hasValueAboveThreshold( { value }, upperThreshold, lowerThreshold ); };
+        // Find first and last time step with value above 0.0 (or matching the value filter when filtering) when
+        // hasValueMatchingFilter flag is true (first and last should be valid/invalid simultaneously)
+        const auto isSignificant    = [&]( double value ) { return RimSummaryTableTools::isValueMatchingFilter( value, valueFilter ); };
         const auto firstTimeStepItr = std::find_if( resampledValues.begin(), resampledValues.end(), isSignificant );
         const auto lastTimeStepItr  = std::find_if( resampledValues.rbegin(), resampledValues.rend(), isSignificant );
         const auto firstIdx         = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
         const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
 
-        const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
-        const auto lastTimeStep  = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
+        const auto firstTimeStep = hasValueMatchingFilter ? resampledTimeSteps[firstIdx] : invalidTimeStep;
+        const auto lastTimeStep  = hasValueMatchingFilter ? resampledTimeSteps[lastIdx] : invalidTimeStep;
 
         // Add to collection of VectorData for table data
         VectorData vectorData{ .category      = categoryName,
                                .name          = vectorName,
                                .values        = resampledValues,
                                .firstTimeStep = firstTimeStep,
-                               .lastTimeStep  = lastTimeStep };
+                               .lastTimeStep  = lastTimeStep,
+                               .timeSteps     = resampledTimeSteps };
         m_tableData.vectorDataCollection.push_back( vectorData );
 
         // Update min/max values
