@@ -178,20 +178,44 @@ void RiuAbstractLegendFrame::paintEvent( QPaintEvent* e )
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QRect, QString>> RiuAbstractLegendFrame::visibleLabels( const LayoutInfo& layout ) const
 {
-    std::vector<std::pair<QRect, QString>> visibleTickLabels;
-
-    QRect lastRect;
-
-    int numLabels = labelCount();
-    for ( int i = 0; i < numLabels; i++ )
+    std::vector<QRect> labelRects;
+    for ( int i = 0; i < labelCount(); i++ )
     {
-        QRect rect = labelRect( layout, i );
+        labelRects.push_back( labelRect( layout, i ) );
+    }
 
-        if ( !lastRect.isEmpty() && rect.intersects( lastRect ) ) continue;
-
-        QString valueString = label( i );
-        lastRect            = rect;
-        visibleTickLabels.emplace_back( rect, valueString );
+    std::vector<std::pair<QRect, QString>> visibleTickLabels;
+    for ( int index : visibleLabelIndices( labelRects ) )
+    {
+        visibleTickLabels.emplace_back( labelRects[index], label( index ) );
     }
     return visibleTickLabels;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Skip labels overlapping the previous visible label. The first and last labels are always visible, so labels
+/// overlapping the last label are removed instead.
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RiuAbstractLegendFrame::visibleLabelIndices( const std::vector<QRect>& labelRects )
+{
+    const int numLabels = static_cast<int>( labelRects.size() );
+    if ( numLabels == 0 ) return {};
+
+    std::vector<int> visibleIndices = { 0 };
+    for ( int i = 1; i < numLabels - 1; i++ )
+    {
+        if ( !labelRects[i].intersects( labelRects[visibleIndices.back()] ) ) visibleIndices.push_back( i );
+    }
+
+    if ( numLabels > 1 )
+    {
+        const int lastIndex = numLabels - 1;
+        while ( visibleIndices.size() > 1 && labelRects[visibleIndices.back()].intersects( labelRects[lastIndex] ) )
+        {
+            visibleIndices.pop_back();
+        }
+        visibleIndices.push_back( lastIndex );
+    }
+
+    return visibleIndices;
 }
