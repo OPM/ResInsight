@@ -56,13 +56,33 @@ def normalized_lines(file_path):
     return lines
 
 
+def last_digit_unit(token):
+    """Value of one unit in the last printed digit, e.g. 1e-7 for "0.0538243" and 1e-8 for "5.382464E-02".
+    Returns 0 for integers, which must match exactly."""
+    mantissa, _, exponent = token.upper().partition("E")
+    _, separator, decimals = mantissa.partition(".")
+    if not separator:
+        return 0.0
+    return 10.0 ** (int(exponent or 0) - len(decimals))
+
+
 def tokens_equal(actual, expected):
     if actual == expected:
         return True
     try:
-        return math.isclose(float(actual), float(expected), rel_tol=RELATIVE_TOLERANCE)
+        actual_value = float(actual)
+        expected_value = float(expected)
     except ValueError:
         return False
+
+    # Values printed with few significant digits can round differently across platforms
+    rounding_tolerance = 1.5 * min(last_digit_unit(actual), last_digit_unit(expected))
+    return math.isclose(
+        actual_value,
+        expected_value,
+        rel_tol=RELATIVE_TOLERANCE,
+        abs_tol=rounding_tolerance,
+    )
 
 
 def assert_files_equal(actual_path, expected_path, relative_path):
