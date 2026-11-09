@@ -6,7 +6,10 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiPropertyView.h"
 
+#include <QCoreApplication>
 #include <QLabel>
+#include <QResizeEvent>
+#include <QScrollArea>
 
 #include <new>
 
@@ -158,6 +161,81 @@ TEST( PdmUiFormLayoutObjectEditorTest, StaleWidgetsAreHiddenWithoutEventLoop )
     view.showProperties( &second );
     EXPECT_EQ( 1, visibleLabelCount( view, "InfoLabel" ) );
     EXPECT_EQ( 1, visibleLabelCount( view, "FieldLabel" ) );
+
+    view.showProperties( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A word-wrapped label must not enable height-for-width on the form, as QScrollArea then sizes the form from size
+/// hints and stretchable editors grow to their full size hint
+//--------------------------------------------------------------------------------------------------
+TEST( PdmUiFormLayoutObjectEditorTest, LabelDoesNotEnableHeightForWidth )
+{
+    FormLayoutTestLabelObject object;
+
+    PdmUiPropertyView view;
+    view.showProperties( &object );
+
+    auto scrollAreas = view.findChildren<QScrollArea*>();
+    ASSERT_EQ( 1, scrollAreas.size() );
+    ASSERT_TRUE( scrollAreas.front()->widget() );
+    EXPECT_FALSE( scrollAreas.front()->widget()->hasHeightForWidth() );
+
+    view.showProperties( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class FormLayoutTestLongLabelObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    FormLayoutTestLongLabelObject() { CAF_PDM_InitObject( "FormLayoutTestLongLabelObject" ); }
+
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override
+    {
+        uiOrdering.addNewLabel( "LongLabel with a text that has to be wrapped into several lines in a narrow view" );
+        uiOrdering.skipRemainingFields();
+    }
+};
+CAF_PDM_SOURCE_INIT( FormLayoutTestLongLabelObject, "FormLayoutTestLongLabelObject" );
+
+//--------------------------------------------------------------------------------------------------
+/// Without height-for-width, the minimum height of a word-wrapped label must grow when the label becomes narrower
+//--------------------------------------------------------------------------------------------------
+TEST( PdmUiFormLayoutObjectEditorTest, NarrowLabelGrowsInHeight )
+{
+    FormLayoutTestLongLabelObject object;
+
+    PdmUiPropertyView view;
+    view.showProperties( &object );
+
+    QLabel* label = nullptr;
+    for ( auto candidate : view.findChildren<QLabel*>() )
+    {
+        if ( candidate->text().startsWith( "LongLabel" ) ) label = candidate;
+    }
+    ASSERT_TRUE( label );
+
+    auto sendResize = [label]( int width )
+    {
+        QSize oldSize = label->size();
+        label->resize( width, label->height() );
+        QResizeEvent event( label->size(), oldSize );
+        QCoreApplication::sendEvent( label, &event );
+    };
+
+    sendResize( 2000 );
+    const int wideHeight = label->minimumHeight();
+
+    sendResize( 60 );
+    const int narrowHeight = label->minimumHeight();
+
+    EXPECT_GT( narrowHeight, wideHeight );
+    EXPECT_EQ( label->heightForWidth( 60 ), narrowHeight );
 
     view.showProperties( nullptr );
 }

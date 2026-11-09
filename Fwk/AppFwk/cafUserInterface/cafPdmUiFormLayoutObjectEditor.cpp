@@ -57,6 +57,7 @@
 
 #include <QCoreApplication>
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
@@ -64,6 +65,36 @@
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+/// Keeps the minimum height of a word-wrapped label in sync with the height required at its current width. Used
+/// when height-for-width is disabled on the label, so that the wrapped text is not clipped in narrow layouts.
+//--------------------------------------------------------------------------------------------------
+class LabelMinimumHeightUpdater : public QObject
+{
+public:
+    explicit LabelMinimumHeightUpdater( QLabel* label )
+        : QObject( label )
+    {
+        label->installEventFilter( this );
+    }
+
+    static void update( QLabel* label )
+    {
+        const int height = label->heightForWidth( label->width() );
+        if ( height > 0 && height != label->minimumHeight() ) label->setMinimumHeight( height );
+    }
+
+protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override
+    {
+        if ( event->type() == QEvent::Resize )
+        {
+            if ( auto label = qobject_cast<QLabel*>( watched ) ) update( label );
+        }
+        return false;
+    }
+};
+
 //--------------------------------------------------------------------------------------------------
 /// Hide and detach a widget that is about to be deleted with deleteLater().
 ///
@@ -521,6 +552,14 @@ QLabel* caf::PdmUiFormLayoutObjectEditor::createLabel( QWidget* parent, const Pd
         qLabel->setTextInteractionFlags( Qt::LinksAccessibleByMouse );
         QObject::connect( qLabel, &QLabel::linkActivated, qLabel, [callback]( const QString& link ) { callback( link ); } );
     }
+
+    // A word-wrapped QLabel enables height-for-width, which propagates to the form. QScrollArea then sizes the form
+    // from heightForWidth(), which is based on size hints, causing stretchable editors to grow to their full size hint.
+    // The required height of the wrapped text is instead applied as minimum height when the label is resized.
+    QSizePolicy policy = qLabel->sizePolicy();
+    policy.setHeightForWidth( false );
+    qLabel->setSizePolicy( policy );
+    new LabelMinimumHeightUpdater( qLabel );
 
     m_labels.push_back( qLabel );
     return qLabel;
