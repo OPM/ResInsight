@@ -12,7 +12,7 @@ import rips
 
 CASE_PATH = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
 OTHER_CASE_PATH = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
-GRID_ENSEMBLE_GLOB = dataroot.PATH + "/grid_ensemble/realization-*/iter-1/*.EGRID"
+ENSEMBLE_GLOB = dataroot.PATH + "/Case_with_10_timesteps/Real*/*.EGRID"
 
 
 def _cluster_ids(case, time_step):
@@ -112,11 +112,11 @@ def test_invalid_input_fails(rips_instance, initialize_test):
 
 
 def test_reservoir_grid_ensemble(rips_instance, initialize_test):
-    file_names = sorted(glob.glob(GRID_ENSEMBLE_GLOB))
+    file_names = sorted(glob.glob(ENSEMBLE_GLOB))
     assert len(file_names) > 1
 
     ensemble = rips_instance.project.create_reservoir_grid_ensemble(
-        file_names=file_names
+        file_names=file_names, grouping_mode=rips.GroupingMode.None_
     )
     assert ensemble is not None
 
