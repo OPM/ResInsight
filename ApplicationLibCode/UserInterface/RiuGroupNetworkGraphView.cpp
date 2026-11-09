@@ -188,9 +188,13 @@ RiuGroupNetworkGraphView::RiuGroupNetworkGraphView( QWidget* parent )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The scene is deleted after this view and emits selectionChanged when the selected node is removed, which
+/// would update the model from a widget being destroyed
 //--------------------------------------------------------------------------------------------------
-RiuGroupNetworkGraphView::~RiuGroupNetworkGraphView() = default;
+RiuGroupNetworkGraphView::~RiuGroupNetworkGraphView()
+{
+    disconnect( m_scene, nullptr, this, nullptr );
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Rebuilds the graph. The zoom and scroll position are kept if the nodes are the same as before, so
