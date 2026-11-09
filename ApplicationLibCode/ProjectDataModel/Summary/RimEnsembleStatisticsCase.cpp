@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <optional>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -169,7 +170,8 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
                                            const RifEclipseSummaryAddress&     inputAddress,
                                            bool                                includeIncompleteCurves,
                                            const std::vector<int>&             percentiles,
-                                           bool                                includeZeroValues )
+                                           bool                                includeZeroValues,
+                                           bool                                updateRealizationUiState )
 {
     auto hash =
         RiaHashTools::hash( summaryCases, inputAddress.toEclipseTextAddress(), includeIncompleteCurves, percentiles, includeZeroValues );
@@ -204,16 +206,23 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     // The last time step for the individual realizations in an ensemble is usually identical. Add a small threshold to improve robustness.
     const auto timeThreshold = RiaSummaryTools::calculateTimeThreshold( minTime, maxTime );
 
-    auto                      interpolationMethod = inputAddress.hasAccumulatedData() ? RiaCurveDefines::InterpolationMethod::LINEAR
-                                                                                      : RiaCurveDefines::InterpolationMethod::STEP_RIGHT;
+    auto interpolationMethod = inputAddress.hasAccumulatedData() ? RiaCurveDefines::InterpolationMethod::LINEAR
+                                                                 : RiaCurveDefines::InterpolationMethod::STEP_RIGHT;
+    const auto setRealizationUiState = [updateRealizationUiState]( RimSummaryCase* sumCase, const QString& toolTip, std::optional<bool> readOnly )
+    {
+        if ( !updateRealizationUiState ) return;
+
+        sumCase->setUiToolTip( toolTip );
+        if ( readOnly ) sumCase->setUiReadOnly( *readOnly );
+    };
+
     RiaTimeHistoryCurveMerger curveMerger( interpolationMethod );
     for ( const auto& sumCase : summaryCases )
     {
         const auto& reader = sumCase->summaryReader();
         if ( !reader )
         {
-            sumCase->setUiToolTip( "No data available for realization" );
-            sumCase->setUiReadOnly( true );
+            setRealizationUiState( sumCase, "No data available for realization", true );
         }
         else
         {
@@ -222,19 +231,17 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
             if ( values.empty() || timeSteps.empty() )
             {
-                sumCase->setUiToolTip( "No data available for realization" );
-                sumCase->setUiReadOnly( true );
+                setRealizationUiState( sumCase, "No data available for realization", true );
 
                 continue;
             }
 
             if ( !includeIncompleteCurves && ( timeSteps.back() < timeThreshold ) )
             {
-                sumCase->setUiToolTip( "Incomplete realization" );
+                setRealizationUiState( sumCase, "Incomplete realization", std::nullopt );
                 continue;
             }
-            sumCase->setUiToolTip( "" );
-            sumCase->setUiReadOnly( false );
+            setRealizationUiState( sumCase, "", false );
 
             curveMerger.addCurveData( timeSteps, values );
         }

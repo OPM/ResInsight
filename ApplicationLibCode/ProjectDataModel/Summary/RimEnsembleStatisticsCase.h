@@ -46,11 +46,14 @@ public:
     RifSummaryReaderInterface*    summaryReader() override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
+    // If updateRealizationUiState is true, the tooltip and read-only state of each realization is updated to show missing or
+    // incomplete data for the input address
     void calculate( const std::vector<RimSummaryCase*>& summaryCases,
                     const RifEclipseSummaryAddress&     inputAddress,
                     bool                                includeIncompleteCurves,
-                    const std::vector<int>&             percentiles       = { 10, 50, 90 },
-                    bool                                includeZeroValues = true );
+                    const std::vector<int>&             percentiles              = { 10, 50, 90 },
+                    bool                                includeZeroValues        = true,
+                    bool                                updateRealizationUiState = true );
 
     std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;

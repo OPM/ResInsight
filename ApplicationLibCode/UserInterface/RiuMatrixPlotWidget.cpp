@@ -42,6 +42,8 @@
 
 #include <QHBoxLayout>
 
+#include <cmath>
+
 class MatrixShapeItem : public QwtPlotShapeItem
 {
 public:
@@ -406,7 +408,9 @@ void RiuMatrixPlotWidget::createMatrixCells()
         for ( size_t colIdx = 0u; colIdx < m_rowValues[rowIdx].size(); ++colIdx )
         {
             const double value = m_rowValues[rowIdx][colIdx];
-            const auto   label = QString( "%1" ).arg( value, 0, 'f', 2 );
+            if ( std::isnan( value ) ) continue; // No value for this cell
+
+            const auto label = QString( "%1" ).arg( value, 0, 'f', 2 );
 
             cvf::Color3ub color = m_legendConfig->scalarMapper()->mapToColor( value );
 

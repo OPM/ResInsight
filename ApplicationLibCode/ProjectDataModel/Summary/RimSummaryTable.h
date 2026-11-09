@@ -111,6 +111,7 @@ private:
     int valueLabelFontSize() const;
 
     QString createTableName() const;
+    QString valueRangeText() const;
 
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
@@ -148,8 +149,9 @@ private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<QString>                                                        m_vector;
     caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                       m_resamplingSelection;
-    caf::PdmField<std::pair<bool, double>>                                        m_upperThreshold;
-    caf::PdmField<std::pair<bool, double>>                                        m_lowerThreshold;
+    caf::PdmField<caf::AppEnum<RimSummaryTableTools::ValueFilterType>>            m_valueFilterType;
+    caf::PdmField<double>                                                         m_upperThreshold;
+    caf::PdmField<double>                                                         m_lowerThreshold;
     caf::PdmField<double>                                                         m_thresholdValue_OBSOLETE;
 
     caf::PdmField<std::vector<QString>> m_excludedRowsUiField;
@@ -185,12 +187,13 @@ private:
     };
 
     std::map<RifEclipseSummaryAddress, EnsembleStatisticsData> m_ensembleStatisticsCache;
-    const RimSummaryEnsemble*                                  m_ensembleStatisticsCacheEnsemble  = nullptr;
-    size_t                                                     m_ensembleStatisticsCacheCaseCount = 0;
+    size_t                                                     m_ensembleStatisticsCacheKey = 0;
 
+    void                          updateEnsembleStatisticsCacheKey();
     const EnsembleStatisticsData& ensembleStatisticsData( const RifEclipseSummaryAddress& address );
     void                          clearEnsembleStatisticsCache();
 
+    void updateTableAndPlot();
     void createTableData();
     void setExcludedRowsUiSelectionsFromTableData();
 };

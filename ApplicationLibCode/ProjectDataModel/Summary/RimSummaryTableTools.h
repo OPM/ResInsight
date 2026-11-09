@@ -22,6 +22,7 @@
 
 #include <optional>
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace RimSummaryTableTools
@@ -34,6 +35,24 @@ struct VectorData
     std::vector<double> values;
     time_t              firstTimeStep;
     time_t              lastTimeStep;
+    std::vector<time_t> timeSteps; // Time step for each value
+};
+
+// Value filter for table rows. Rows are kept if they have at least one value matching the filter.
+enum class ValueFilterType
+{
+    NONE,
+    ABOVE,
+    BELOW,
+    BETWEEN,
+    OUTSIDE
+};
+
+struct ValueFilter
+{
+    ValueFilterType type           = ValueFilterType::NONE;
+    double          lowerThreshold = 0.0;
+    double          upperThreshold = 0.0;
 };
 
 // Struct for storing table data
@@ -43,19 +62,27 @@ struct TableData
     std::set<time_t>        timeStepsUnion;
     double                  maxValue = 0.0;
     double                  minValue = 0.0;
-    std::optional<double>   upperThresholdValue;
-    std::optional<double>   lowerThresholdValue;
-    QString                 unitName;
+    ValueFilter             valueFilter;
+    // Value range of all rows before the value filter is applied
+    std::optional<std::pair<double, double>> unfilteredMinMax;
+    QString                                  unitName;
 };
 
-// A value is beyond the thresholds if it is equal to or above upperThresholdValue, or equal to or below lowerThresholdValue.
-// When no threshold is given, values above zero are beyond the thresholds.
-bool                    hasValueAboveThreshold( const std::vector<double>& values,
-                                                std::optional<double>      upperThresholdValue,
-                                                std::optional<double>      lowerThresholdValue = std::nullopt );
-std::vector<VectorData> vectorsAboveThreshold( const std::vector<VectorData>& vectorDataCollection,
-                                               std::optional<double>          upperThresholdValue,
-                                               std::optional<double>          lowerThresholdValue = std::nullopt );
+// ABOVE:   value > lowerThreshold
+// BELOW:   value < upperThreshold
+// BETWEEN: lowerThreshold <= value <= upperThreshold
+// OUTSIDE: value < lowerThreshold or value > upperThreshold, used to exclude values in a range
+// NONE:    value > 0
+bool                    isValueMatchingFilter( double value, const ValueFilter& filter );
+bool                    hasValueMatchingFilter( const std::vector<double>& values, const ValueFilter& filter );
+std::vector<VectorData> vectorsMatchingFilter( const std::vector<VectorData>& vectorDataCollection, const ValueFilter& filter );
 void                    sortVectorDataOnDate( TableData& rTableData );
 std::vector<QString>    categoryNames( const std::vector<VectorData>& vectorDataCollection );
+
+// Values of the vector for each of the given time steps. Time steps without a value are set to NaN.
+std::vector<double> valuesForTimeSteps( const VectorData& vectorData, const std::set<time_t>& timeSteps );
+
+// Value filter equivalent to the threshold in older project files, which kept rows with at least one value equal to or above
+// the threshold
+ValueFilter valueFilterFromLegacyThreshold( double thresholdValue );
 } // namespace RimSummaryTableTools
