@@ -41,14 +41,16 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
+#include <QContextMenuEvent>
 #include <QFileInfo>
-#include <QFontDatabase>
 #include <QHBoxLayout>
+#include <QIcon>
+#include <QKeyEvent>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMenu>
-#include <QMimeData>
-#include <QPlainTextEdit>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QSettings>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QSplitter>
@@ -61,6 +63,7 @@
 
 #include <algorithm>
 #include <format>
+#include <functional>
 #include <limits>
 #include <map>
 
@@ -95,6 +98,70 @@ QString escapeClipboardCell( const QString& text )
     escaped.replace( "\"", "\"\"" );
     return "\"" + escaped + "\"";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Handles Ctrl+C and the context menu of a table view. An event filter is used instead of a widget
+/// shortcut, because the application wide Ctrl+C shortcut would make a widget shortcut ambiguous.
+//--------------------------------------------------------------------------------------------------
+class TableCopyHandler : public QObject
+{
+public:
+    TableCopyHandler( QTableView* tableView, std::function<void()> copyFunction, std::function<void()> copyAllFunction )
+        : QObject( tableView )
+        , m_tableView( tableView )
+        , m_copyFunction( std::move( copyFunction ) )
+        , m_copyAllFunction( std::move( copyAllFunction ) )
+    {
+        tableView->installEventFilter( this );
+        tableView->viewport()->installEventFilter( this );
+    }
+
+protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override
+    {
+        if ( watched == m_tableView && ( event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress ) )
+        {
+            auto keyEvent = static_cast<QKeyEvent*>( event );
+            if ( !keyEvent->matches( QKeySequence::Copy ) ) return false;
+
+            // Accepting the override makes sure the key press is delivered to the table, and not to a global shortcut
+            if ( event->type() == QEvent::ShortcutOverride )
+                event->accept();
+            else
+                m_copyFunction();
+            return true;
+        }
+
+        if ( watched == m_tableView->viewport() && event->type() == QEvent::ContextMenu )
+        {
+            auto contextEvent = static_cast<QContextMenuEvent*>( event );
+
+            // Right-clicking outside the selection selects the clicked cell
+            const QModelIndex index = m_tableView->indexAt( contextEvent->pos() );
+            if ( index.isValid() && !m_tableView->selectionModel()->isSelected( index ) )
+            {
+                m_tableView->setCurrentIndex( index );
+            }
+
+            QMenu menu( m_tableView );
+            auto  copyAction = menu.addAction( QIcon( ":/Copy.svg" ), "Copy" );
+            copyAction->setShortcut( QKeySequence::Copy );
+            connect( copyAction, &QAction::triggered, this, [this]() { m_copyFunction(); } );
+
+            auto copyAllAction = menu.addAction( QIcon( ":/Copy.svg" ), "Copy All" );
+            connect( copyAllAction, &QAction::triggered, this, [this]() { m_copyAllFunction(); } );
+            menu.exec( contextEvent->globalPos() );
+            return true;
+        }
+
+        return false;
+    }
+
+private:
+    QTableView*           m_tableView;
+    std::function<void()> m_copyFunction;
+    std::function<void()> m_copyAllFunction;
+};
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -121,9 +188,13 @@ RiuReportWindow::RiuReportWindow( QWidget* parent )
     m_sourceLabel->setToolTip( "Select the source object in the project tree" );
     connect( m_sourceLabel, &QLabel::linkActivated, this, &RiuReportWindow::selectProducerObject );
 
-    mainLayout->addWidget( createToolBar() );
-    mainLayout->addWidget( m_titleLabel );
-    mainLayout->addWidget( m_sourceLabel );
+    // Title to the left and source to the right, on the same row
+    auto headerLayout = new QHBoxLayout;
+    headerLayout->setContentsMargins( 0, 0, 0, 0 );
+    headerLayout->addWidget( m_titleLabel );
+    headerLayout->addStretch( 1 );
+    headerLayout->addWidget( m_sourceLabel );
+    mainLayout->addLayout( headerLayout );
 
     m_stackedWidget = new QStackedWidget( this );
 
@@ -134,21 +205,17 @@ RiuReportWindow::RiuReportWindow( QWidget* parent )
 
     m_tabWidget = new QTabWidget( this );
     m_tabWidget->setDocumentMode( true );
+    m_tabWidget->setTabBarAutoHide( true );
     connect( m_tabWidget, &QTabWidget::currentChanged, this, &RiuReportWindow::onCurrentTabChanged );
     m_stackedWidget->addWidget( m_tabWidget );
 
     mainLayout->addWidget( m_stackedWidget, 1 );
+    mainLayout->addWidget( createBottomBar() );
 
     m_refreshTimer = new QTimer( this );
     m_refreshTimer->setSingleShot( true );
     m_refreshTimer->setInterval( 200 );
     connect( m_refreshTimer, &QTimer::timeout, this, &RiuReportWindow::refresh );
-
-    // Filtering large tables is slow, so wait until the user stops typing
-    m_filterTimer = new QTimer( this );
-    m_filterTimer->setSingleShot( true );
-    m_filterTimer->setInterval( 300 );
-    connect( m_filterTimer, &QTimer::timeout, this, &RiuReportWindow::onFilterTextChanged );
 
     rebuildContent();
 }
@@ -203,6 +270,8 @@ caf::PdmObjectHandle* RiuReportWindow::producerObject() const
 void RiuReportWindow::showProducerObject( caf::PdmObjectHandle* producerObject )
 {
     if ( producerObject && !dynamic_cast<RiaReportDataProducer*>( producerObject ) ) producerObject = nullptr;
+
+    if ( producerObject != m_producerObject.p() ) m_tableViewStates.clear();
 
     m_producerObject = producerObject;
     refresh();
@@ -275,88 +344,88 @@ void RiuReportWindow::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RiuReportWindow::createToolBar()
+QWidget* RiuReportWindow::createBottomBar()
 {
     auto toolBar = new QWidget( this );
     auto layout  = new QHBoxLayout( toolBar );
     layout->setContentsMargins( 0, 0, 0, 0 );
     layout->setSpacing( 6 );
 
-    m_displayModeCombo = new QComboBox( toolBar );
-    m_displayModeCombo->addItem( "Table", static_cast<int>( DisplayMode::TABLE ) );
-    m_displayModeCombo->addItem( "CSV", static_cast<int>( DisplayMode::CSV ) );
-    m_displayModeCombo->addItem( "Plain Text", static_cast<int>( DisplayMode::TEXT ) );
+    m_outputFormatCombo = new QComboBox( toolBar );
+    m_outputFormatCombo->addItem( "CSV", static_cast<int>( RifReportTableFormatter::Format::CSV ) );
+    m_outputFormatCombo->addItem( "Text", static_cast<int>( RifReportTableFormatter::Format::TEXT ) );
+    m_outputFormatCombo->setToolTip( "Format used when copying and exporting" );
 
     m_numberFormatCombo = new QComboBox( toolBar );
-    m_numberFormatCombo->addItem( "Default", static_cast<int>( RifReportFormatOptions::DoubleFormat::COLUMN_DEFAULT ) );
-    m_numberFormatCombo->addItem( "Fixed", static_cast<int>( RifReportFormatOptions::DoubleFormat::FLOAT ) );
-    m_numberFormatCombo->addItem( "Scientific", static_cast<int>( RifReportFormatOptions::DoubleFormat::SCIENTIFIC ) );
-    m_numberFormatCombo->addItem( "Concise", static_cast<int>( RifReportFormatOptions::DoubleFormat::CONCISE ) );
+    for ( auto format : { RimPlotAxisProperties::NUMBER_FORMAT_AUTO,
+                          RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL,
+                          RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC } )
+    {
+        m_numberFormatCombo->addItem( caf::AppEnum<RimPlotAxisProperties::NumberFormatType>::uiText( format ), static_cast<int>( format ) );
+    }
+    m_numberFormatCombo->setToolTip( "Auto uses the default format of each column" );
 
     m_precisionSpinBox = new QSpinBox( toolBar );
-    m_precisionSpinBox->setRange( -1, 16 );
-    m_precisionSpinBox->setValue( -1 );
-    m_precisionSpinBox->setSpecialValueText( "Auto" );
-    m_precisionSpinBox->setToolTip( "Number of decimals. Auto uses the default precision of each column." );
+    m_precisionSpinBox->setRange( 0, 16 );
+    m_precisionSpinBox->setValue( 2 );
 
     m_delimiterCombo = new QComboBox( toolBar );
     m_delimiterCombo->addItem( "Comma", "," );
     m_delimiterCombo->addItem( "Semicolon", ";" );
     m_delimiterCombo->addItem( "Tab", "\t" );
 
-    m_filterEdit = new QLineEdit( toolBar );
-    m_filterEdit->setPlaceholderText( "Filter rows" );
-    m_filterEdit->setClearButtonEnabled( true );
-    m_filterEdit->setToolTip( "Show only table rows containing this text. Click a column header to sort, right-click to "
-                              "show or hide columns." );
-    m_filterEdit->setMaximumWidth( 200 );
-
-    m_refreshButton = new QToolButton( toolBar );
-    m_refreshButton->setText( "Refresh" );
-    m_refreshButton->setToolTip( "Read the data from the plot again" );
-    connect( m_refreshButton, &QToolButton::clicked, this, &RiuReportWindow::refresh );
-
     m_copyButton = new QToolButton( toolBar );
     m_copyButton->setText( "Copy" );
-    m_copyButton->setToolTip( "Copy the data in the current tab to the clipboard" );
-    m_copyButton->setPopupMode( QToolButton::MenuButtonPopup );
-    auto copyMenu = new QMenu( m_copyButton );
-    copyMenu->addAction( "Copy Current Tab", this, &RiuReportWindow::copyCurrentTab );
-    copyMenu->addAction( "Copy All Tabs", this, &RiuReportWindow::copyAllTabs );
-    m_copyButton->setMenu( copyMenu );
+    m_copyButton->setIcon( QIcon( ":/Copy.svg" ) );
+    m_copyButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    m_copyButton->setToolTip( "Copy the data in the current tab to the clipboard in the selected output format" );
     connect( m_copyButton, &QToolButton::clicked, this, &RiuReportWindow::copyCurrentTab );
 
     m_exportButton = new QToolButton( toolBar );
     m_exportButton->setText( "Export..." );
-    m_exportButton->setToolTip( "Export all tabs to a file using the selected format" );
+    m_exportButton->setToolTip( "Export all tabs to a file in the selected output format" );
     connect( m_exportButton, &QToolButton::clicked, this, &RiuReportWindow::exportToFile );
 
-    layout->addWidget( new QLabel( "Format", toolBar ) );
-    layout->addWidget( m_displayModeCombo );
-    layout->addSpacing( 6 );
-    layout->addWidget( new QLabel( "Numbers", toolBar ) );
+    layout->addWidget( new QLabel( "Number Format", toolBar ) );
     layout->addWidget( m_numberFormatCombo );
-    layout->addWidget( new QLabel( "Precision", toolBar ) );
+    layout->addWidget( new QLabel( "Number of Decimals", toolBar ) );
     layout->addWidget( m_precisionSpinBox );
-    layout->addSpacing( 6 );
+    layout->addStretch( 1 );
+    layout->addWidget( new QLabel( "Output", toolBar ) );
+    layout->addWidget( m_outputFormatCombo );
     layout->addWidget( new QLabel( "Delimiter", toolBar ) );
     layout->addWidget( m_delimiterCombo );
-    layout->addSpacing( 6 );
-    layout->addWidget( m_filterEdit );
-    layout->addStretch( 1 );
-    layout->addWidget( m_refreshButton );
     layout->addWidget( m_copyButton );
     layout->addWidget( m_exportButton );
 
-    connect( m_displayModeCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::onDisplayModeChanged );
+    loadSettings();
+
+    connect( m_outputFormatCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::onOutputFormatChanged );
     connect( m_numberFormatCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::onFormatOptionsChanged );
     connect( m_precisionSpinBox, &QSpinBox::valueChanged, this, &RiuReportWindow::onFormatOptionsChanged );
-    connect( m_delimiterCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::onFormatOptionsChanged );
-    connect( m_filterEdit, &QLineEdit::textChanged, m_filterTimer, qOverload<>( &QTimer::start ) );
+    connect( m_delimiterCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::saveSettings );
 
-    m_delimiterCombo->setEnabled( false );
+    onOutputFormatChanged();
+    m_precisionSpinBox->setEnabled( numberFormat() != RimPlotAxisProperties::NUMBER_FORMAT_AUTO );
+    // The toolbar scrolls horizontally when the window is narrow, so that it does not force a minimum width on the window
+    auto scrollArea = new QScrollArea( this );
+    scrollArea->setWidget( toolBar );
+    scrollArea->setWidgetResizable( true );
+    scrollArea->setFrameShape( QFrame::NoFrame );
+    scrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+    scrollArea->setMinimumWidth( 0 );
 
-    return toolBar;
+    auto updateScrollAreaHeight = [scrollArea, toolBar]()
+    {
+        auto*     scrollBar = scrollArea->horizontalScrollBar();
+        const int extra     = scrollBar->maximum() > 0 ? scrollBar->sizeHint().height() : 0;
+        scrollArea->setFixedHeight( toolBar->sizeHint().height() + extra );
+    };
+    connect( scrollArea->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollArea, updateScrollAreaHeight );
+    updateScrollAreaHeight();
+
+    return scrollArea;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,7 +454,6 @@ void RiuReportWindow::rebuildContent()
     const bool hasData = !m_sections.empty();
     m_copyButton->setEnabled( hasData );
     m_exportButton->setEnabled( hasData );
-    m_refreshButton->setEnabled( producer() != nullptr );
 
     if ( !hasData )
     {
@@ -494,8 +562,6 @@ void RiuReportWindow::selectProducerObject()
 //--------------------------------------------------------------------------------------------------
 QWidget* RiuReportWindow::createSectionWidget( const RiaReportSection& section )
 {
-    if ( displayMode() != DisplayMode::TABLE ) return createTextWidget( section );
-
     if ( section.tables.empty() )
     {
         auto label = new QLabel( "No data available." );
@@ -565,13 +631,8 @@ QWidget* RiuReportWindow::createTableWidget( const RiaReportTable& table, const 
         layout->addWidget( descriptionLabel );
     }
 
-    auto rowCountLabel = new QLabel( widget );
-    rowCountLabel->setStyleSheet( QString( "color: %1;" ).arg( mutedTextColor().name() ) );
-    layout->addWidget( rowCountLabel );
-
     auto tableView = new QTableView( widget );
     auto model     = new RiuReportTableModel( table, formatOptions(), mutedTextColor(), tableView );
-    model->setFilterText( m_filterEdit->text() );
 
     RiuReportHeaderView::Colors headerColors{ .background = themeColor( "backgroundColor2" ),
                                               .text       = themeColor( "textColor" ),
@@ -603,18 +664,14 @@ QWidget* RiuReportWindow::createTableWidget( const RiaReportTable& table, const 
         if ( tableView->columnWidth( col ) > maxInitialColumnWidth ) tableView->setColumnWidth( col, maxInitialColumnWidth );
     }
 
-    // The omitted row and the row count change when the table is filtered or sorted
-    auto onRowsChanged = [tableView, model, rowCountLabel]()
+    // The omitted row changes when the table is sorted
+    auto onRowsChanged = [tableView, model]()
     {
         tableView->clearSpans();
         if ( model->omittedRowIndex() >= 0 && model->columnCount() > 1 )
         {
             tableView->setSpan( model->omittedRowIndex(), 0, 1, model->columnCount() );
         }
-
-        const size_t totalRowCount = model->table().rows.size();
-        rowCountLabel->setText( QString( "Showing %1 of %2 rows" ).arg( model->filteredRowCount() ).arg( totalRowCount ) );
-        rowCountLabel->setVisible( model->filteredRowCount() != totalRowCount );
     };
     onRowsChanged();
     connect( model, &QAbstractItemModel::modelReset, tableView, onRowsChanged );
@@ -635,29 +692,11 @@ QWidget* RiuReportWindow::createTableWidget( const RiaReportTable& table, const 
              tableView,
              [tableView]( const QPoint& position ) { showColumnMenu( tableView, position ); } );
 
-    auto copyAction = new QAction( "Copy", tableView );
-    copyAction->setShortcut( QKeySequence::Copy );
-    copyAction->setShortcutContext( Qt::WidgetShortcut );
-    connect( copyAction, &QAction::triggered, tableView, [tableView]() { copySelectedCells( tableView ); } );
-    tableView->addAction( copyAction );
+    new TableCopyHandler( tableView, [tableView]() { copySelectedCells( tableView ); }, [this]() { copyCurrentTab(); } );
 
     layout->addWidget( tableView, 1 );
 
     return widget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RiuReportWindow::createTextWidget( const RiaReportSection& section )
-{
-    auto textEdit = new QPlainTextEdit;
-    textEdit->setReadOnly( true );
-    textEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
-    textEdit->setFont( QFontDatabase::systemFont( QFontDatabase::FixedFont ) );
-    textEdit->setPlainText( RifReportTableFormatter::format( section, textFormat(), formatOptions() ) );
-
-    return textEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -668,42 +707,20 @@ void RiuReportWindow::copyCurrentTab()
     const int index = m_tabWidget->currentIndex();
     if ( index < 0 || index >= static_cast<int>( m_sections.size() ) ) return;
 
-    copyToClipboard( QString(), { m_sections[index] } );
+    std::vector<RiaReportSection> sections;
+    sections.push_back( m_sections[index] );
+    copyToClipboard( sections );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuReportWindow::copyAllTabs()
-{
-    if ( m_sections.empty() ) return;
-
-    loadAllSections();
-    copyToClipboard( m_title, m_sections );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuReportWindow::copyToClipboard( const QString& title, const std::vector<RiaReportSection>& sections )
+void RiuReportWindow::copyToClipboard( const std::vector<RiaReportSection>& sections )
 {
     auto clipboard = QApplication::clipboard();
     if ( !clipboard ) return;
 
-    auto options = formatOptions();
-    if ( displayMode() == DisplayMode::TABLE )
-    {
-        // Rich text for documents, tab separated text for spreadsheets
-        options.delimiter = "\t";
-
-        auto mimeData = new QMimeData;
-        mimeData->setHtml( RifReportTableFormatter::format( title, sections, RifReportTableFormatter::Format::HTML, options ) );
-        mimeData->setText( RifReportTableFormatter::format( title, sections, RifReportTableFormatter::Format::CSV, options ) );
-        clipboard->setMimeData( mimeData );
-        return;
-    }
-
-    clipboard->setText( RifReportTableFormatter::format( title, sections, textFormat(), options ) );
+    clipboard->setText( RifReportTableFormatter::format( QString(), sections, textFormat(), formatOptions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -713,24 +730,10 @@ void RiuReportWindow::exportToFile()
 {
     if ( m_sections.empty() ) return;
 
-    QString filter;
-    QString suffix;
-    switch ( displayMode() )
-    {
-        case DisplayMode::TABLE:
-            filter = "HTML File (*.html)";
-            suffix = "html";
-            break;
-        case DisplayMode::CSV:
-            filter = "CSV File (*.csv)";
-            suffix = "csv";
-            break;
-        case DisplayMode::TEXT:
-        default:
-            filter = "Text File (*.txt)";
-            suffix = "txt";
-            break;
-    }
+    const auto    format = textFormat();
+    const bool    isCsv  = format == RifReportTableFormatter::Format::CSV;
+    const QString filter = isCsv ? "CSV File (*.csv)" : "Text File (*.txt)";
+    const QString suffix = isCsv ? "csv" : "txt";
 
     const QString baseName        = caf::Utils::makeValidFileBasename( m_title.isEmpty() ? QString( "PlotData" ) : m_title );
     const QString defaultFileName = RicAsciiExportSummaryPlotFeature::defaultExportDir() + "/" + baseName + "." + suffix;
@@ -742,8 +745,7 @@ void RiuReportWindow::exportToFile()
 
     loadAllSections();
 
-    const auto format = displayMode() == DisplayMode::TABLE ? RifReportTableFormatter::Format::HTML : textFormat();
-    const auto text   = RifReportTableFormatter::format( m_title, m_sections, format, formatOptions() );
+    const auto text = RifReportTableFormatter::format( m_title, m_sections, format, formatOptions() );
     if ( !RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, text ) )
     {
         RiaLogging::error( std::format( "Could not write plot data to file {}", fileName ) );
@@ -753,11 +755,10 @@ void RiuReportWindow::exportToFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuReportWindow::onDisplayModeChanged()
+void RiuReportWindow::onOutputFormatChanged()
 {
-    m_delimiterCombo->setEnabled( displayMode() == DisplayMode::CSV );
-    m_filterEdit->setEnabled( displayMode() == DisplayMode::TABLE );
-    rebuildContent();
+    m_delimiterCombo->setEnabled( textFormat() == RifReportTableFormatter::Format::CSV );
+    saveSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -765,18 +766,44 @@ void RiuReportWindow::onDisplayModeChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuReportWindow::onFormatOptionsChanged()
 {
+    m_precisionSpinBox->setEnabled( numberFormat() != RimPlotAxisProperties::NUMBER_FORMAT_AUTO );
+    saveSettings();
     rebuildContent();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Restore the output and number format settings from the previous session
+//--------------------------------------------------------------------------------------------------
+void RiuReportWindow::loadSettings()
+{
+    QSettings settings;
+    settings.beginGroup( "reportWindow" );
+
+    auto selectData = []( QComboBox* combo, const QVariant& data )
+    {
+        const int index = combo->findData( data );
+        if ( index >= 0 ) combo->setCurrentIndex( index );
+    };
+
+    selectData( m_outputFormatCombo, settings.value( "outputFormat", m_outputFormatCombo->currentData() ) );
+    selectData( m_numberFormatCombo, settings.value( "numberFormat", m_numberFormatCombo->currentData() ) );
+    selectData( m_delimiterCombo, settings.value( "delimiter", m_delimiterCombo->currentData() ) );
+
+    const int precision = settings.value( "decimals", m_precisionSpinBox->value() ).toInt();
+    m_precisionSpinBox->setValue( std::clamp( precision, m_precisionSpinBox->minimum(), m_precisionSpinBox->maximum() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuReportWindow::onFilterTextChanged()
+void RiuReportWindow::saveSettings()
 {
-    for ( auto* model : m_tabWidget->findChildren<RiuReportTableModel*>() )
-    {
-        model->setFilterText( m_filterEdit->text() );
-    }
+    QSettings settings;
+    settings.beginGroup( "reportWindow" );
+    settings.setValue( "outputFormat", m_outputFormatCombo->currentData() );
+    settings.setValue( "numberFormat", m_numberFormatCombo->currentData() );
+    settings.setValue( "delimiter", m_delimiterCombo->currentData() );
+    settings.setValue( "decimals", m_precisionSpinBox->value() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -862,21 +889,35 @@ void RiuReportWindow::copySelectedCells( QTableView* tableView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuReportWindow::DisplayMode RiuReportWindow::displayMode() const
+RifReportFormatOptions RiuReportWindow::formatOptions() const
 {
-    return static_cast<DisplayMode>( m_displayModeCombo->currentData().toInt() );
+    RifReportFormatOptions options;
+    switch ( numberFormat() )
+    {
+        case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
+            options.doubleFormat    = RifReportFormatOptions::DoubleFormat::FLOAT;
+            options.doublePrecision = m_precisionSpinBox->value();
+            break;
+        case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
+            options.doubleFormat    = RifReportFormatOptions::DoubleFormat::SCIENTIFIC;
+            options.doublePrecision = m_precisionSpinBox->value();
+            break;
+        case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
+        default:
+            options.doubleFormat    = RifReportFormatOptions::DoubleFormat::COLUMN_DEFAULT;
+            options.doublePrecision = -1;
+            break;
+    }
+    options.delimiter = m_delimiterCombo->currentData().toString();
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReportFormatOptions RiuReportWindow::formatOptions() const
+RimPlotAxisProperties::NumberFormatType RiuReportWindow::numberFormat() const
 {
-    RifReportFormatOptions options;
-    options.doubleFormat    = static_cast<RifReportFormatOptions::DoubleFormat>( m_numberFormatCombo->currentData().toInt() );
-    options.doublePrecision = m_precisionSpinBox->value();
-    options.delimiter       = m_delimiterCombo->currentData().toString();
-    return options;
+    return static_cast<RimPlotAxisProperties::NumberFormatType>( m_numberFormatCombo->currentData().toInt() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -884,7 +925,7 @@ RifReportFormatOptions RiuReportWindow::formatOptions() const
 //--------------------------------------------------------------------------------------------------
 RifReportTableFormatter::Format RiuReportWindow::textFormat() const
 {
-    return displayMode() == DisplayMode::CSV ? RifReportTableFormatter::Format::CSV : RifReportTableFormatter::Format::TEXT;
+    return static_cast<RifReportTableFormatter::Format>( m_outputFormatCombo->currentData().toInt() );
 }
 
 //--------------------------------------------------------------------------------------------------

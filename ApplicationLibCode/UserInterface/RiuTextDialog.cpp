@@ -20,8 +20,6 @@
 #include "RiuTextDialog.h"
 #include "RiuTools.h"
 
-#include "RimTabbedTextProvider.h"
-
 #include "cafCmdFeature.h"
 
 #include <QAction>
@@ -29,9 +27,6 @@
 #include <QBoxLayout>
 #include <QClipboard>
 #include <QMenu>
-#include <QTabWidget>
-
-#include <cafAssert.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -152,174 +147,6 @@ void RiuTextDialog::contextMenuEvent( QContextMenuEvent* event )
         caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::SelectAll );
 
         connect( actionToSetup, SIGNAL( triggered() ), m_textEdit, SLOT( slotSelectAll() ) );
-
-        menu.addAction( actionToSetup );
-    }
-
-    menu.exec( event->globalPos() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuTabbedTextDialog::RiuTabbedTextDialog( std::unique_ptr<RimTabbedTextProvider> textProvider, QWidget* parent /*= nullptr*/ )
-    : QDialog( parent, RiuTools::defaultDialogFlags() )
-    , m_textProvider( std::move( textProvider ) )
-{
-    m_tabWidget = new QTabWidget( this );
-
-    connect( m_tabWidget, SIGNAL( currentChanged( int ) ), this, SLOT( slotTabChanged( int ) ) );
-
-    CAF_ASSERT( m_textProvider && m_textProvider->isValid() );
-    setWindowTitle( m_textProvider->description() );
-
-    for ( int tabIndex = 0; tabIndex < m_textProvider->tabCount(); ++tabIndex )
-    {
-        QString            tabTitle = m_textProvider->tabTitle( tabIndex );
-        RiuQPlainTextEdit* textEdit = new RiuQPlainTextEdit();
-        textEdit->setReadOnly( true );
-        textEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
-
-        QFont font( "Courier", 8 );
-        textEdit->setFont( font );
-        textEdit->setContextMenuPolicy( Qt::NoContextMenu );
-
-        auto fontWidth = QFontMetrics( font ).boundingRect( "m" ).width();
-        textEdit->setTabStopDistance( fontWidth * 4 );
-
-        m_tabWidget->addTab( textEdit, tabTitle );
-    }
-    m_tabTexts.resize( m_textProvider->tabCount() );
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget( m_tabWidget );
-    setLayout( layout );
-
-    updateTabText();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuTabbedTextDialog::~RiuTabbedTextDialog() = default;
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiuTabbedTextDialog::description() const
-{
-    if ( m_textProvider && m_textProvider->isValid() )
-    {
-        return m_textProvider->description();
-    }
-    else
-    {
-        return "Data Invalid";
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuTabbedTextDialog::redrawText()
-{
-    auto textEdit  = currentTextEdit();
-    auto currIndex = m_tabWidget->currentIndex();
-
-    textEdit->setPlainText( "Populating Text View..." );
-    textEdit->repaint();
-
-    if ( currIndex < (int)m_tabTexts.size() )
-    {
-        if ( m_tabTexts[currIndex].isEmpty() )
-        {
-            updateTabText();
-        }
-        textEdit->setPlainText( m_tabTexts[currIndex] );
-        textEdit->repaint();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQPlainTextEdit* RiuTabbedTextDialog::currentTextEdit() const
-{
-    return dynamic_cast<RiuQPlainTextEdit*>( m_tabWidget->currentWidget() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuTabbedTextDialog::updateTabText()
-{
-    auto currIndex = m_tabWidget->currentIndex();
-    if ( m_textProvider && m_textProvider->isValid() && m_tabWidget->tabText( currIndex ) == m_textProvider->tabTitle( currIndex ) )
-    {
-        m_tabTexts[currIndex] = m_textProvider->tabText( currIndex );
-    }
-    else
-    {
-        m_tabTexts[currIndex] = "Data Source No Longer Valid";
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuTabbedTextDialog::slotTabChanged( int index )
-{
-    redrawText();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuTabbedTextDialog::slotExportToFile()
-{
-    auto textEdit = currentTextEdit();
-    if ( !textEdit ) return;
-
-    emit exportToFileRequested( description(), textEdit->toPlainText() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuTabbedTextDialog::contextMenuEvent( QContextMenuEvent* event )
-{
-    QMenu              menu;
-    RiuQPlainTextEdit* textEdit = dynamic_cast<RiuQPlainTextEdit*>( m_tabWidget->currentWidget() );
-
-    {
-        QAction* actionToSetup = new QAction( this );
-
-        actionToSetup->setText( "Copy" );
-        actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
-        caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
-
-        connect( actionToSetup, SIGNAL( triggered() ), textEdit, SLOT( slotCopyContentToClipboard() ) );
-
-        menu.addAction( actionToSetup );
-    }
-
-    {
-        QAction* actionToSetup = new QAction( this );
-
-        actionToSetup->setText( "Select All" );
-        caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::SelectAll );
-
-        connect( actionToSetup, SIGNAL( triggered() ), textEdit, SLOT( slotSelectAll() ) );
-
-        menu.addAction( actionToSetup );
-    }
-
-    {
-        QAction* actionToSetup = new QAction( this );
-
-        actionToSetup->setText( "Export to File..." );
-
-        connect( actionToSetup, SIGNAL( triggered() ), this, SLOT( slotExportToFile() ) );
 
         menu.addAction( actionToSetup );
     }

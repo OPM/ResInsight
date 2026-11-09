@@ -638,7 +638,7 @@ void RiuPlotMainWindow::createDockPanels()
         auto reportDockWidget =
             RiuDockWidgetTools::createDockWidget( "Plot Data", RiuDockWidgetTools::plotMainWindowReportName(), dockManager() );
         m_reportWindow = new RiuReportWindow( reportDockWidget );
-        reportDockWidget->setWidget( m_reportWindow );
+        reportDockWidget->setWidget( m_reportWindow, ads::CDockWidget::ForceNoScrollArea );
         dockManager()->addDockWidgetTabToArea( reportDockWidget, dockWidget->dockAreaWidget() );
         reportDockWidget->toggleView( false );
     }

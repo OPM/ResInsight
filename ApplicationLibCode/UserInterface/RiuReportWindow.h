@@ -20,6 +20,8 @@
 
 #include "RifReportTableFormatter.h"
 
+#include "RimPlotAxisProperties.h"
+
 #include "cafPdmPointer.h"
 
 #include <QWidget>
@@ -31,7 +33,6 @@ class RiaReportDataProducer;
 
 class QComboBox;
 class QLabel;
-class QLineEdit;
 class QSpinBox;
 class QStackedWidget;
 class QTabWidget;
@@ -45,21 +46,14 @@ class PdmObjectHandle;
 }
 
 //==================================================================================================
-/// Shows report data from a RiaReportDataProducer as tables, CSV or plain text, with one tab per
-/// report section
+/// Shows report data from a RiaReportDataProducer as tables, with one tab per report section. The
+/// data can be copied or exported as CSV or plain text.
 //==================================================================================================
 class RiuReportWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    enum class DisplayMode
-    {
-        TABLE,
-        CSV,
-        TEXT
-    };
-
     explicit RiuReportWindow( QWidget* parent = nullptr );
 
     // Returns the object itself or the first ancestor implementing RiaReportDataProducer
@@ -80,7 +74,7 @@ protected:
     void showEvent( QShowEvent* event ) override;
 
 private:
-    QWidget* createToolBar();
+    QWidget* createBottomBar();
     void     rebuildContent();
     void     updateSourceLabel();
     void     selectProducerObject();
@@ -88,27 +82,26 @@ private:
     QWidget* createSectionWidget( const RiaReportSection& section );
     QWidget* createTableWidget( const RiaReportTable& table, const QString& viewStateKey );
     void     saveTableViewStates();
-    QWidget* createTextWidget( const RiaReportSection& section );
 
     void copyCurrentTab();
-    void copyAllTabs();
-    void copyToClipboard( const QString& title, const std::vector<RiaReportSection>& sections );
+    void copyToClipboard( const std::vector<RiaReportSection>& sections );
     void exportToFile();
 
-    void onDisplayModeChanged();
+    void onOutputFormatChanged();
     void onFormatOptionsChanged();
+    void loadSettings();
+    void saveSettings();
     void onCurrentTabChanged( int index );
     void loadAllSections();
-    void onFilterTextChanged();
 
     static void showColumnMenu( QTableView* tableView, const QPoint& position );
 
     static void copySelectedCells( QTableView* tableView );
 
-    DisplayMode                     displayMode() const;
-    RifReportFormatOptions          formatOptions() const;
-    RifReportTableFormatter::Format textFormat() const;
-    RiaReportDataProducer*          producer() const;
+    RifReportFormatOptions                  formatOptions() const;
+    RimPlotAxisProperties::NumberFormatType numberFormat() const;
+    RifReportTableFormatter::Format         textFormat() const;
+    RiaReportDataProducer*                  producer() const;
 
     QString themeStyleSheet() const;
 
@@ -120,19 +113,16 @@ private:
 
     QLabel*         m_titleLabel;
     QLabel*         m_sourceLabel;
-    QComboBox*      m_displayModeCombo;
+    QComboBox*      m_outputFormatCombo;
     QComboBox*      m_numberFormatCombo;
     QSpinBox*       m_precisionSpinBox;
     QComboBox*      m_delimiterCombo;
-    QLineEdit*      m_filterEdit;
     QToolButton*    m_copyButton;
     QToolButton*    m_exportButton;
-    QToolButton*    m_refreshButton;
     QStackedWidget* m_stackedWidget;
     QLabel*         m_placeholderLabel;
     QTabWidget*     m_tabWidget;
     QTimer*         m_refreshTimer;
-    QTimer*         m_filterTimer;
 
     // Sort order, column widths and hidden columns of the table views, restored when the views are recreated
     std::map<QString, QByteArray> m_tableViewStates;
