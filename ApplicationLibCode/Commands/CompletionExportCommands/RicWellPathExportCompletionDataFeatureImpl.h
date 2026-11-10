@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <optional>
+#include <set>
 #include <vector>
 
 class RigCell;
@@ -94,6 +95,7 @@ private:
                                       QFilePtr                                                 exportFile,
                                       const std::map<QString, std::vector<RigCompletionData>>& completions );
 
+    // Completions of wells listed in wellsInTrajectoryOrder are already ordered along each trajectory and keep their order
     static void sortAndExportCompletionsToFile( RimEclipseCase*                                      eclipseCase,
                                                 const QString&                                       exportFolder,
                                                 const QString&                                       fileName,
@@ -101,13 +103,15 @@ private:
                                                 const std::vector<RicWellPathFractureReportItem>&    wellPathFractureReportItems,
                                                 RicExportCompletionDataSettingsUi::CompdatExportType exportType,
                                                 bool                                                 exportDataSourceAsComment,
-                                                bool                                                 exportWelspec );
+                                                bool                                                 exportWelspec,
+                                                const std::set<QString>&                             wellsInTrajectoryOrder );
 
     static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
                                                QFilePtr                                                 exportFile,
                                                const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
                                                RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
-                                               bool                                                     exportDataSourceAsComment );
+                                               bool                                                     exportDataSourceAsComment,
+                                               const std::set<QString>&                                 wellsInTrajectoryOrder );
 
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 };

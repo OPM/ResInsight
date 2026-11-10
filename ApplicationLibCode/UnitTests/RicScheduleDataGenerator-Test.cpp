@@ -121,3 +121,30 @@ TEST( RicScheduleDataGeneratorTest, MultipleLateralsAreOrderedDepthFirst )
     EXPECT_EQ( lateral1Perf, compdata[1].sourcePdmObject() );
     EXPECT_EQ( lateral2Perf, compdata[2].sourcePdmObject() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Combined completions arrive in cell index order. Each trajectory is listed completely, ordered by
+/// measured depth along it, before the next lateral.
+//--------------------------------------------------------------------------------------------------
+TEST( RicScheduleDataGeneratorTest, ConnectionsAreOrderedByMeasuredDepthWithinEachTrajectory )
+{
+    RimWellPath mainBore;
+    RimWellPath lateral;
+    lateral.connectWellPaths( &mainBore, 10.0 );
+
+    auto* mainBorePerf = addPerforation( mainBore );
+    auto* lateralPerf  = addPerforation( lateral );
+
+    std::vector<RigCompletionData> compdata = { makeCompletion( "WELL", 1, 40.0, lateralPerf ),
+                                                makeCompletion( "WELL", 2, 30.0, mainBorePerf ),
+                                                makeCompletion( "WELL", 3, 20.0, lateralPerf ),
+                                                makeCompletion( "WELL", 4, 10.0, mainBorePerf ) };
+
+    RicScheduleDataGenerator::sortCompletionsMainBoreFirst( { &mainBore }, compdata );
+
+    ASSERT_EQ( 4u, compdata.size() );
+    EXPECT_EQ( 4u, compdata[0].completionDataGridCell().globalCellIndex() );
+    EXPECT_EQ( 2u, compdata[1].completionDataGridCell().globalCellIndex() );
+    EXPECT_EQ( 3u, compdata[2].completionDataGridCell().globalCellIndex() );
+    EXPECT_EQ( 1u, compdata[3].completionDataGridCell().globalCellIndex() );
+}
