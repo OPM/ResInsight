@@ -24,6 +24,7 @@
 #include "RivAnnotationSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
+#include "RivPipeSurfaceLabelSourceInfo.h"
 #include "RivPolylineGenerator.h"
 
 #include "cafEffectGenerator.h"
@@ -33,6 +34,8 @@
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStatePoint.h"
 #include "cvfViewport.h"
 
 #include <algorithm>
@@ -277,6 +280,115 @@ auto createMultipleLabels = []( const cvf::Camera*             camera,
     return labelInfo;
 };
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void addPipeSurfaceLabels( const RivPipeSurfaceLabelSourceInfo* labelSource, const cvf::Camera* camera, cvf::ModelBasicList* model )
+{
+    if ( !labelSource || !camera || !model || labelSource->labels().empty() ) return;
+
+    // Distance in pixels between the anchor point on the pipe surface and the label
+    const double labelOffsetInPixels = 20.0;
+
+    const auto backgroundColor = labelSource->backgroundColor();
+
+    cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+    drawableText->setFont( labelSource->font() );
+    drawableText->setCheckPosVisible( false );
+    // Disable depth testing to make sure the labels are visible, as the well path can have geometry with a larger radius
+    // than the pipe, e.g. perforation intervals and casing
+    drawableText->setUseDepthBuffer( false );
+    drawableText->setDrawBorder( true );
+    drawableText->setDrawBackground( true );
+    drawableText->setBackgroundColor( backgroundColor );
+    drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.5f ) );
+    drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
+    drawableText->setTextColor( RiaColorTools::contrastColor( backgroundColor ) );
+
+    std::vector<cvf::Vec3d>              anchorPoints;
+    std::vector<std::vector<cvf::Vec3d>> anchorLines;
+
+    for ( const auto& label : labelSource->labels() )
+    {
+        const auto anchor = labelSource->anchorDisplayCoord( label, camera );
+        if ( !isInFrontOfNearPlane( camera, anchor ) ) continue;
+
+        cvf::Vec3d screenAnchor;
+        if ( !camera->project( anchor, &screenAnchor ) ) continue;
+
+        cvf::Vec2d screenTangent( 0.0, 0.0 );
+        cvf::Vec3d screenTangentEnd;
+        if ( isInFrontOfNearPlane( camera, anchor + label.tangent ) && camera->project( anchor + label.tangent, &screenTangentEnd ) )
+        {
+            screenTangent = { screenTangentEnd.x() - screenAnchor.x(), screenTangentEnd.y() - screenAnchor.y() };
+        }
+
+        const auto screenDirection = RivPipeSurfaceLabelSourceInfo::screenOffsetDirection( screenTangent );
+
+        // The text is drawn to the right of the label position, and vertically centered. Shift the text to avoid
+        // overlap between the text and the anchor line.
+        cvf::Vec2d textShift( 0.0, 0.0 );
+        if ( labelSource->font() )
+        {
+            const auto textExtent = labelSource->font()->textExtent( cvf::String( label.text ) );
+            textShift             = { -0.5 * textExtent.x() * ( 1.0 - screenDirection.x() ), 0.5 * textExtent.y() * screenDirection.y() };
+        }
+
+        const cvf::Vec3d screenLineEnd( screenAnchor.x() + screenDirection.x() * labelOffsetInPixels,
+                                        screenAnchor.y() + screenDirection.y() * labelOffsetInPixels,
+                                        screenAnchor.z() );
+        const cvf::Vec3d screenLabel( screenLineEnd.x() + textShift.x(), screenLineEnd.y() + textShift.y(), screenAnchor.z() );
+
+        cvf::Vec3d lineEnd;
+        cvf::Vec3d labelPosition;
+        if ( !camera->unproject( screenLineEnd, &lineEnd ) || !camera->unproject( screenLabel, &labelPosition ) ) continue;
+
+        anchorPoints.push_back( anchor );
+        anchorLines.push_back( { anchor, lineEnd } );
+        drawableText->addText( cvf::String( label.text ), cvf::Vec3f( labelPosition ) );
+    }
+
+    if ( anchorPoints.empty() ) return;
+
+    // Shared by anchor lines and points. The point size render state has no effect on the lines.
+    caf::MeshEffectGenerator effectGenerator( labelSource->anchorColor() );
+    cvf::ref<cvf::Effect>    anchorEffect = effectGenerator.generateUnCachedEffect();
+    {
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthTest( false );
+        anchorEffect->setRenderState( depth.p() );
+
+        cvf::ref<cvf::RenderStatePoint> pointRenderState = new cvf::RenderStatePoint( cvf::RenderStatePoint::FIXED_SIZE );
+        pointRenderState->setSize( 5.0f );
+        anchorEffect->setRenderState( pointRenderState.p() );
+    }
+
+    if ( auto lineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( anchorLines ); lineGeo.notNull() )
+    {
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivAnnotationTools: pipe surface label anchor lines" );
+        part->setDrawable( lineGeo.p() );
+        part->setEffect( anchorEffect.p() );
+        part->setPriority( RivPartPriority::PartType::Highlight );
+        model->addPart( part.p() );
+    }
+
+    if ( auto pointGeo = RivPolylineGenerator::createPointsFromPolylineDrawable( anchorPoints ); pointGeo.notNull() )
+    {
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivAnnotationTools: pipe surface label anchor points" );
+        part->setDrawable( pointGeo.p() );
+        part->setEffect( anchorEffect.p() );
+        part->setPriority( RivPartPriority::PartType::Highlight );
+        model->addPart( part.p() );
+    }
+
+    auto part = RivAnnotationTools::createPart( drawableText.p() );
+    part->setName( "RivAnnotationTools: pipe surface labels" );
+
+    model->addPart( part.p() );
+}
+
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +406,12 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
 
     for ( auto p : partCollection )
     {
+        if ( auto pipeLabels = dynamic_cast<RivPipeSurfaceLabelSourceInfo*>( p->sourceInfo() ) )
+        {
+            addPipeSurfaceLabels( pipeLabels, camera, model );
+            continue;
+        }
+
         auto annotationObject = dynamic_cast<RivAnnotationSourceInfo*>( p->sourceInfo() );
         if ( annotationObject )
         {

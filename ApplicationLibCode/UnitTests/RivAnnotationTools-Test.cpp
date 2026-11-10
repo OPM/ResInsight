@@ -20,6 +20,7 @@
 
 #include "RivAnnotationSourceInfo.h"
 #include "RivAnnotationTools.h"
+#include "RivPipeSurfaceLabelSourceInfo.h"
 
 #include "cvfCamera.h"
 #include "cvfDrawableText.h"
@@ -162,4 +163,85 @@ TEST( RivAnnotationToolsTest, AnchorPointsBehindCameraAreIgnored )
 
     EXPECT_GT( screenCoord.z(), 0.0 );
     EXPECT_LT( screenCoord.z(), 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Labels along a pipe are placed at the radial position of the pipe closest to the camera
+//--------------------------------------------------------------------------------------------------
+TEST( RivAnnotationToolsTest, PipeSurfaceLabelIsClosestToCamera )
+{
+    const cvf::Vec3d center( 10.0, 20.0, 30.0 );
+    const cvf::Vec3d tangent( 2.0, 0.0, 0.0 );
+    const double     radius = 2.0;
+
+    // The component of the direction to the camera along the pipe is ignored
+    auto position = RivPipeSurfaceLabelSourceInfo::closestSurfacePointToCamera( center, tangent, radius, { 5.0, 0.0, 1.0 } );
+
+    auto offset = position - center;
+    EXPECT_NEAR( 0.0, offset * tangent, 1e-9 );
+    EXPECT_GT( offset.z(), 0.0 );
+    EXPECT_NEAR( 0.0, offset.y(), 1e-9 );
+    EXPECT_NEAR( radius, offset.length(), 1e-9 );
+
+    // Looking along the pipe, there is no radial position closest to the camera
+    position = RivPipeSurfaceLabelSourceInfo::closestSurfacePointToCamera( center, tangent, radius, { -3.0, 0.0, 0.0 } );
+    EXPECT_NEAR( 0.0, ( position - center ).length(), 1e-9 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Labels are offset from the anchor point perpendicular to the pipe on the screen, and upwards
+//--------------------------------------------------------------------------------------------------
+TEST( RivAnnotationToolsTest, PipeSurfaceLabelOffsetDirection )
+{
+    auto direction = RivPipeSurfaceLabelSourceInfo::screenOffsetDirection( { 10.0, 0.0 } );
+    EXPECT_NEAR( 0.0, direction.x(), 1e-9 );
+    EXPECT_NEAR( 1.0, direction.y(), 1e-9 );
+
+    direction = RivPipeSurfaceLabelSourceInfo::screenOffsetDirection( { -3.0, 3.0 } );
+    EXPECT_NEAR( 0.0, direction * cvf::Vec2d( -3.0, 3.0 ), 1e-9 );
+    EXPECT_GT( direction.y(), 0.0 );
+    EXPECT_NEAR( 1.0, direction.length(), 1e-9 );
+
+    // A pipe seen end-on has no direction on the screen
+    direction = RivPipeSurfaceLabelSourceInfo::screenOffsetDirection( { 0.0, 0.0 } );
+    EXPECT_NEAR( 0.0, direction.x(), 1e-9 );
+    EXPECT_NEAR( 1.0, direction.y(), 1e-9 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A pipe surface label creates an anchor line, an anchor point and a text drawn above the anchor point
+//--------------------------------------------------------------------------------------------------
+TEST( RivAnnotationToolsTest, PipeSurfaceLabelIsAboveAnchorPoint )
+{
+    const double radius = 2.0;
+
+    std::vector<RivPipeSurfaceLabelSourceInfo::Label> labels = { { "1000", cvf::Vec3d::ZERO, cvf::Vec3d::X_AXIS } };
+
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setSourceInfo( new RivPipeSurfaceLabelSourceInfo( labels, radius, cvf::Color3f::BLACK, cvf::Color3f::RED, nullptr ) );
+
+    cvf::Collection<cvf::Part> parts;
+    parts.push_back( part.p() );
+
+    auto camera = createPerspectiveCamera( { 0.0, -100.0, 0.0 }, cvf::Vec3d::ZERO, 1.0, 1000.0 );
+
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+
+    RivAnnotationTools annotationTools;
+    annotationTools.addAnnotationLabels( parts, camera.p(), model.p(), true );
+
+    ASSERT_EQ( 3u, model->partCount() );
+
+    const auto labelPosition = findLabelPosition( model.p() );
+    ASSERT_TRUE( labelPosition.has_value() );
+
+    const cvf::Vec3d anchor( 0.0, -radius, 0.0 );
+
+    cvf::Vec3d screenAnchor;
+    cvf::Vec3d screenLabel;
+    ASSERT_TRUE( camera->project( anchor, &screenAnchor ) );
+    ASSERT_TRUE( camera->project( labelPosition.value(), &screenLabel ) );
+
+    EXPECT_GT( screenLabel.y(), screenAnchor.y() );
+    EXPECT_NEAR( screenAnchor.x(), screenLabel.x(), 1.0 );
 }

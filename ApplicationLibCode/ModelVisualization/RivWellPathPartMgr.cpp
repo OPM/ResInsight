@@ -59,13 +59,14 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
-#include "RivAnnotationSourceInfo.h"
+#include "RivAnnotationTools.h"
 #include "RivBoxGeometryGenerator.h"
 #include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
+#include "RivPipeSurfaceLabelSourceInfo.h"
 #include "RivSectionFlattener.h"
 #include "RivTextLabelSourceInfo.h"
 #include "RivWellConnectionFactorPartMgr.h"
@@ -90,6 +91,8 @@
 #include "cvfShaderProgram.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
+
+#include <cmath>
 
 // MSW segment visualization scaling constants
 const double MSW_SEGMENT_RADIUS_SCALE = 1.1; // Segment radius relative to well path radius
@@ -860,32 +863,46 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         cvf::ref<cvf::Effect>    eff = gen.generateCachedEffect();
 
         m_centerLinePart->setEffect( eff.p() );
+    }
 
-        if ( m_rimWellPath->measuredDepthLabelInterval().has_value() && clippedWellPathCenterLine.size() > 2 )
+    const auto& measuredDepths = wellPathGeometry->measuredDepths();
+    if ( !doFlatten && m_centerLinePart.notNull() && m_rimWellPath->measuredDepthLabelInterval().has_value() &&
+         m_rimWellPath->measuredDepthLabelInterval().value() > 0.0 && !measuredDepths.empty() )
+    {
+        const double distanceBetweenLabels = m_rimWellPath->measuredDepthLabelInterval().value();
+
+        // The well path can start at a non-zero measured depth, e.g. modeled well paths and laterals
+        const double measuredDepthAtFirstVisiblePoint = measuredDepths.front() + measuredDepthAtFirstClipPoint;
+
+        // Create a round number as start for measured depth label
+        const double startMeasuredDepth = ( std::floor( measuredDepthAtFirstVisiblePoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
+
+        std::vector<RivPipeSurfaceLabelSourceInfo::Label> labels;
+
+        const double tangentDelta = 0.5 * std::min( distanceBetweenLabels, 1.0 );
+
+        double measuredDepth = startMeasuredDepth;
+        while ( measuredDepth < measuredDepths.back() )
         {
-            const double distanceBetweenLabels = m_rimWellPath->measuredDepthLabelInterval().value();
+            auto centerDisplayCoord =
+                displayCoordTransform->transformToDisplayCoord( wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth ) );
 
-            // Create a round number as start for measured depth label
-            const double startMeasuredDepth =
-                ( static_cast<int>( measuredDepthAtFirstClipPoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
+            auto tangent = displayCoordTransform->transformToDisplayCoord(
+                               wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth + tangentDelta ) ) -
+                           displayCoordTransform->transformToDisplayCoord(
+                               wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth - tangentDelta ) );
 
-            std::vector<std::string> labelTexts;
-            std::vector<cvf::Vec3d>  labelDisplayCoords;
+            labels.push_back( { std::to_string( static_cast<int>( std::round( measuredDepth ) ) ), centerDisplayCoord, tangent } );
 
-            double measuredDepth = startMeasuredDepth;
-            while ( measuredDepth < wellPathGeometry->measuredDepths().back() )
-            {
-                labelTexts.push_back( std::to_string( static_cast<int>( measuredDepth ) ) );
-                auto domainCoord = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
-
-                auto displayCoord = displayCoordTransform->transformToDisplayCoord( domainCoord );
-                labelDisplayCoords.push_back( displayCoord );
-
-                measuredDepth += distanceBetweenLabels;
-            }
-
-            m_centerLinePart->setSourceInfo( new RivAnnotationSourceInfo( labelTexts, labelDisplayCoords ) );
+            measuredDepth += distanceBetweenLabels;
         }
+
+        // The label positions depend on the camera, and are computed when the screen space model is updated
+        m_centerLinePart->setSourceInfo( new RivPipeSurfaceLabelSourceInfo( labels,
+                                                                            wellPathRadius,
+                                                                            wellPathCollection->wellPathLabelColor(),
+                                                                            m_rimWellPath->wellPathColor(),
+                                                                            RiaGuiApplication::instance()->defaultSceneFont() ) );
     }
 
     // Generate label with well-path name at a position that is slightly offset towards the end of the well path
