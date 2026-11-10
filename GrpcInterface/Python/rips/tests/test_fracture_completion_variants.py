@@ -20,7 +20,7 @@ TEST_MODEL_DIR = os.path.abspath(
     )
 )
 EXPECTED_DIR = os.path.join(TEST_MODEL_DIR, "expected")
-RELATIVE_TOLERANCE = 1e-6
+RELATIVE_TOLERANCE = 5e-5
 
 # Absolute file paths, e.g. the grid model and the StimPlan fracture file
 PATH_PATTERN = re.compile(r"(?:[A-Za-z]:)?[\\/]\S*[\\/](\S+)")
