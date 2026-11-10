@@ -36,6 +36,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RivAnnotationTools.h"
 #include "RivFaultGeometryGenerator.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivNNCGeometryGenerator.h"

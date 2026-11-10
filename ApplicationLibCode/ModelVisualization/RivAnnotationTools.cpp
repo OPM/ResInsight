@@ -26,7 +26,6 @@
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"
 
-#include "cafAppEnum.h"
 #include "cafEffectGenerator.h"
 
 #include "cvfCamera.h"
@@ -39,24 +38,6 @@
 #include <algorithm>
 #include <cmath>
 #include <optional>
-
-namespace caf
-{
-
-template <>
-void caf::AppEnum<RivAnnotationTools::LabelPositionStrategy>::setUp()
-{
-    addItem( RivAnnotationTools::LabelPositionStrategy::LEFT, "LEFT", "Left" );
-    addItem( RivAnnotationTools::LabelPositionStrategy::RIGHT, "RIGHT", "Right" );
-    addItem( RivAnnotationTools::LabelPositionStrategy::LEFT_AND_RIGHT, "LEFT_AND_RIGHT", "Left and Right" );
-    addItem( RivAnnotationTools::LabelPositionStrategy::COUNT_HINT, "COUNT_HINT", "Count Hint" );
-    addItem( RivAnnotationTools::LabelPositionStrategy::ALL, "All", "All" );
-    addItem( RivAnnotationTools::LabelPositionStrategy::NONE, "None", "Disabled" );
-    // RivAnnotationTools::LabelPositionStrategy::UNKNOWN is not included, as this is enum is not supposed to be displayed in GUI
-    setDefault( RivAnnotationTools::LabelPositionStrategy::RIGHT );
-}
-
-} // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///

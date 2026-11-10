@@ -31,6 +31,7 @@
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 
+#include "RivAnnotationTools.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"

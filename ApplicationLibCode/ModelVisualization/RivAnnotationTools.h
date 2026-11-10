@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RivAnnotationLabelPositionStrategy.h"
+
 #include "cvfCollection.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -38,16 +40,7 @@ class Font;
 class RivAnnotationTools
 {
 public:
-    enum class LabelPositionStrategy
-    {
-        RIGHT,
-        LEFT,
-        LEFT_AND_RIGHT,
-        COUNT_HINT,
-        ALL,
-        NONE,
-        UNDEFINED
-    };
+    using LabelPositionStrategy = RivAnnotationLabelPositionStrategy;
 
     RivAnnotationTools();
 
