@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "ContourMap/RimEclipseContourMapView.h"
+#include "GeoMech/RimGeoMechContourMapView.h"
 #include "Rim3dPropertiesInterface.h"
 #include "Rim3dView.h"
 
@@ -54,37 +56,57 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return;
 
+    bool isContourMap = ( dynamic_cast<RimEclipseContourMapView*>( activeView ) != nullptr ) ||
+                        ( dynamic_cast<RimGeoMechContourMapView*>( activeView ) != nullptr );
+
     RiuViewer* destinationViewer = activeView->viewer();
     if ( !destinationViewer ) return;
 
     cvf::BoundingBox bb = RicFlyToObjectFeature::boundingBoxForSelectedObjects();
-    CAF_ASSERT( bb.isValid() );
+    if ( !bb.isValid() ) return;
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
-
-    cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord( bb.center() );
-
-    cvf::Vec3d directionNormalToLargesExtent = cvf::Vec3d::X_AXIS;
-    double     largesExtent                  = fabs( bb.extent().y() );
-    if ( fabs( bb.extent().x() ) > largesExtent )
+    if ( !isContourMap )
     {
-        largesExtent                  = fabs( bb.extent().x() );
-        directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
+        cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+
+        cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord( bb.center() );
+
+        cvf::Vec3d directionNormalToLargesExtent = cvf::Vec3d::X_AXIS;
+        double     largesExtent                  = fabs( bb.extent().y() );
+        if ( fabs( bb.extent().x() ) > largesExtent )
+        {
+            largesExtent                  = fabs( bb.extent().x() );
+            directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
+        }
+
+        double zExtent = fabs( bb.extent().z() ) * activeView->scaleZ();
+        largesExtent   = std::max( largesExtent, zExtent );
+
+        // Scale to make the object fit in view
+        largesExtent *= 2.0;
+        cvf::Vec3d cameraEye          = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
+        cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
+        cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
+
+        destinationViewer->mainCamera()->setFromLookAt( cameraEye, cameraViewRefPoint, cameraUp );
+        destinationViewer->setPointOfInterest( cameraViewRefPoint );
     }
+    else
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm             = activeView->displayCoordTransform();
+        cvf::Vec3d                           centerInDisplayCoords = transForm->transformToDisplayCoord( bb.center() );
 
-    double zExtent = fabs( bb.extent().z() ) * activeView->scaleZ();
-    largesExtent   = std::max( largesExtent, zExtent );
+        // get current camera settings
+        cvf::Vec3d eye, vrp, up;
+        destinationViewer->mainCamera()->toLookAt( &eye, &vrp, &up );
 
-    // Scale to make the object fit in view
-    largesExtent *= 2.0;
+        cvf::Vec3d cameraEye = centerInDisplayCoords;
+        cameraEye.z()        = eye.z(); // keep current zoom level
 
-    cvf::Vec3d cameraEye          = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
-    cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
-    cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
-
-    destinationViewer->mainCamera()->setFromLookAt( cameraEye, cameraViewRefPoint, cameraUp );
-
-    destinationViewer->setPointOfInterest( cameraViewRefPoint );
+        // move camera to look at the center of the selected object(s), keeping current height
+        destinationViewer->mainCamera()->setFromLookAt( cameraEye, centerInDisplayCoords, up );
+        destinationViewer->setPointOfInterest( centerInDisplayCoords );
+    }
 
     activeView->updateDisplayModelForCurrentTimeStepAndRedraw();
 }
