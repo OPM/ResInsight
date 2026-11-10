@@ -274,7 +274,7 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   message(STATUS "Installing Python dev modules")
   add_custom_command(
     TARGET PipInstall COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip
-                              install -e ${GRPC_PYTHON_SOURCE_PATH}[dev]
+                              install -e ${GRPC_PYTHON_SOURCE_PATH}[dev] --quiet
   )
 endif()
 
@@ -283,7 +283,7 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
   add_custom_command(
     TARGET PipInstall
     COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user
-            --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+            --quiet --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
   )
 endif()
 
