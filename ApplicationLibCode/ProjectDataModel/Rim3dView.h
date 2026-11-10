@@ -26,7 +26,7 @@
 
 #include "RiuViewerToViewInterface.h"
 
-#include "RivAnnotationTools.h"
+#include "RivAnnotationLabelPositionStrategy.h"
 #include "RivCellSetEnum.h"
 #include "RivNamedVisualizationModels.h"
 
@@ -367,9 +367,9 @@ private:
     caf::PdmProxyValueField<cvf::Vec3d> m_cameraPointOfInterestProxy;
     caf::PdmProxyValueField<cvf::Mat4d> m_cameraPositionProxy;
 
-    caf::PdmField<bool>                                                    m_useCustomAnnotationStrategy;
-    caf::PdmField<caf::AppEnum<RivAnnotationTools::LabelPositionStrategy>> m_annotationStrategy;
-    caf::PdmField<int>                                                     m_annotationCountHint;
+    caf::PdmField<bool>                                             m_useCustomAnnotationStrategy;
+    caf::PdmField<caf::AppEnum<RivAnnotationLabelPositionStrategy>> m_annotationStrategy;
+    caf::PdmField<int>                                              m_annotationCountHint;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 

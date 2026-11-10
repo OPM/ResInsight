@@ -34,6 +34,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "RivAnnotationTools.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivSectionFlattener.h"

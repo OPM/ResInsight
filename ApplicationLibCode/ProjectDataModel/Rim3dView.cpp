@@ -48,6 +48,7 @@
 #include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
 
+#include "RivAnnotationTools.h"
 #include "RivAnnotationsPartMgr.h"
 #include "RivMeasurementPartMgr.h"
 #include "RivWellPathsPartMgr.h"
