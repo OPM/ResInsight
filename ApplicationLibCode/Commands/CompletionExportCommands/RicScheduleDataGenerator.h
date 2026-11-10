@@ -84,11 +84,10 @@ public:
 
     // Reorder completions so all connections for a well's mainbore come before connections for its side steps
     // (laterals), matching ResInsight's internal completion ordering (see
-    // https://github.com/OPM/ResInsight/issues/14963). Connections are otherwise left in the relative order
-    // produced by RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPaths(), which already
-    // combines connections sharing a grid cell into a single record and applies this ordering itself.
+    // https://github.com/OPM/ResInsight/issues/14963). The connections of each well path (trajectory) are listed
+    // completely, ordered by measured depth along that well path, before moving on to the next lateral.
     // A connection whose owning well path cannot be determined (e.g. unexpected source object) is left
-    // after all connections with a known well.
+    // after all connections with a known well, in its original relative order.
     static void sortCompletionsMainBoreFirst( const std::vector<RimWellPath*>& topLevelWells, std::vector<RigCompletionData>& compdata );
 
 private:
