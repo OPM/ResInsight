@@ -22,6 +22,9 @@
 
 #include "cvfVector3.h"
 
+#include <QString>
+
+#include <expected>
 #include <vector>
 
 class RigCaseCellResultsData;
@@ -73,15 +76,32 @@ public:
         RimCellFilter*          growDataFilter  = nullptr;
     };
 
-    static void generateCandidates( RimEclipseCase*            eclipseCase,
-                                    size_t                     timeStepIdx,
-                                    VolumeType                 volumeType,
-                                    VolumesType                volumesType,
-                                    VolumeResultType           volumeResultType,
-                                    const RigFloodingSettings& floodingSettings,
-                                    const ClusteringLimits&    limits,
-                                    bool                       skipUndefinedResults,
-                                    bool                       setTimeStepInView );
+    struct ClusterStatistics
+    {
+        int    id                   = -1;
+        size_t numCells             = 0;
+        double totalPorvSoil        = 0.0;
+        double totalPorvSgas        = 0.0;
+        double totalPorvSoilAndSgas = 0.0;
+        double totalFipOil          = 0.0;
+        double totalFipGas          = 0.0;
+        double totalRfipOil         = 0.0;
+        double totalRfipGas         = 0.0;
+        double totalSfipOil         = 0.0;
+        double totalSfipGas         = 0.0;
+        double permeability         = 0.0;
+        double pressure             = 0.0;
+    };
+
+    static std::expected<std::vector<ClusterStatistics>, QString> generateCandidates( RimEclipseCase*            eclipseCase,
+                                                                                      size_t                     timeStepIdx,
+                                                                                      VolumeType                 volumeType,
+                                                                                      VolumesType                volumesType,
+                                                                                      VolumeResultType           volumeResultType,
+                                                                                      const RigFloodingSettings& floodingSettings,
+                                                                                      const ClusteringLimits&    limits,
+                                                                                      bool                       skipUndefinedResults,
+                                                                                      bool                       setTimeStepInView );
 
     static std::vector<double> getVolumeVector( RigCaseCellResultsData&       resultsData,
                                                 RiaDefines::EclipseUnitSystem unitsType,

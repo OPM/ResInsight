@@ -103,8 +103,43 @@ TEST( RimPathPatternFileSetTest, OneVaryingNumber )
 {
     QStringList filePaths = { "file_001.txt", "file_002.txt", "file_003.txt" };
     auto        result    = RiaEnsembleImportTools::findPathPattern( filePaths, internal::placeholderText() );
-    EXPECT_STREQ( result.first.toStdString().data(), "file_$(INDEX).txt" );
+    EXPECT_STREQ( result.first.toStdString().data(), "file_$(INDEX)$(INDEX)$(INDEX).txt" );
     EXPECT_STREQ( result.second.toStdString().data(), "1-3" );
+}
+
+TEST( RimPathPatternFileSetTest, ZeroPaddedNumbersRoundTrip )
+{
+    QStringList filePaths = { "Case/Real0/BRUGGE_0000.EGRID",
+                              "Case/Real10/BRUGGE_0010.EGRID",
+                              "Case/Real30/BRUGGE_0030.EGRID",
+                              "Case/Real40/BRUGGE_0040.EGRID" };
+
+    const auto& [pattern, numberRange] = RiaEnsembleImportTools::findPathPattern( filePaths, "*" );
+    EXPECT_STREQ( pattern.toStdString().data(), "Case/Real*/BRUGGE_****.EGRID" );
+    EXPECT_STREQ( numberRange.toStdString().data(), "0, 10, 30, 40" );
+
+    const auto paths = RiaEnsembleImportTools::createPathsFromPattern( pattern, numberRange, "*" );
+    ASSERT_EQ( paths.size(), filePaths.size() );
+    for ( auto i = 0; i < paths.size(); i++ )
+    {
+        EXPECT_STREQ( paths[i].toStdString().data(), filePaths[i].toStdString().data() );
+    }
+}
+
+TEST( RimPathPatternFileSetTest, ZeroPaddedPatternMatchesFileSystem )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString rootFolder = QDir::fromNativeSeparators( tempDir.path() );
+    for ( int realizationNumber : { 1, 2, 12 } )
+    {
+        internal::createEmptyFile(
+            QString( "%1/realization-%2/CASE_%3.EGRID" ).arg( rootFolder ).arg( realizationNumber ).arg( realizationNumber, 3, 10, QChar( '0' ) ) );
+    }
+
+    const auto paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( rootFolder + "/realization-*/CASE_***", ".EGRID", "*" );
+    EXPECT_EQ( paths.size(), 3 );
 }
 
 TEST( RimPathPatternFileSetTest, EmptyInput )

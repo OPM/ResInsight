@@ -21,6 +21,8 @@
 #include "RimNamedObject.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -28,10 +30,14 @@
 #include "RigFloodingSettings.h"
 #include "Well/RigWellTargetMapping.h"
 
+#include <expected>
+#include <optional>
+
 class RimEclipseResultDefinition;
 class RimEclipseCase;
 class RimCellFilter;
 class RimDataFilterCollection;
+class RimWellTargetClusterStatistics;
 
 //==================================================================================================
 ///
@@ -44,6 +50,34 @@ class RimWellTargetMapping : public RimNamedObject
 public:
     using FloodingType = caf::AppEnum<RigFloodingSettings::FloodingType>;
 
+    // Values to override after setDefaults(). Unset values keep their current value.
+    struct Settings
+    {
+        std::optional<int>                                    timeStep;
+        std::optional<RigWellTargetMapping::VolumeType>       volumeType;
+        std::optional<RigWellTargetMapping::VolumeResultType> volumeResultType;
+        std::optional<RigWellTargetMapping::VolumesType>      volumesType;
+        std::optional<RigFloodingSettings::FloodingType>      oilFloodingType;
+        std::optional<double>                                 userDefinedFloodingOil;
+        std::optional<RigFloodingSettings::FloodingType>      gasFloodingType;
+        std::optional<double>                                 userDefinedFloodingGas;
+        std::optional<double>                                 minimumSaturationOil;
+        std::optional<double>                                 minimumSaturationGas;
+        std::optional<double>                                 minimumPressure;
+        std::optional<double>                                 minimumPermeability;
+        std::optional<double>                                 minimumTransmissibility;
+        std::optional<int>                                    maxNumTargets;
+        std::optional<int>                                    maxIterations;
+        std::optional<RimCellFilter*>                         startDataFilter;
+        std::optional<RimCellFilter*>                         growDataFilter;
+        std::optional<bool>                                   avoidFaults;
+        std::optional<int>                                    cellCountI;
+        std::optional<int>                                    cellCountJ;
+        std::optional<int>                                    cellCountK;
+        std::optional<double>                                 expandBoundingBoxXYPercent;
+        std::optional<double>                                 expandBoundingBoxZPercent;
+    };
+
     RimWellTargetMapping();
     ~RimWellTargetMapping() override;
 
@@ -52,6 +86,9 @@ public:
     RimEclipseCase* ensembleStatisticsCase() const;
 
     void setDefaults();
+    void applySettings( const Settings& settings );
+
+    std::expected<void, QString> compute();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -62,10 +99,11 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    void        generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView = true );
-    void        updateAllBoundaries();
-    void        generateEnsembleStatistics();
-    cvf::Vec3st getResultGridCellCount() const;
+    std::expected<void, QString> generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView = true );
+    std::expected<void, QString> generateEnsembleStatistics();
+    std::expected<void, QString> validateInput( RimEclipseCase* eclipseCase ) const;
+    void                         updateAllBoundaries();
+    cvf::Vec3st                  getResultGridCellCount() const;
 
     RimEclipseCase*          firstCase() const;
     RimDataFilterCollection* dataFilterCollection() const;
@@ -112,6 +150,8 @@ private:
     caf::PdmField<bool> m_avoidFaults;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
+
+    caf::PdmChildArrayField<RimWellTargetClusterStatistics*> m_clusterStatistics;
 
     double m_minimumSaturationOil;
     double m_maximumSaturationOil;

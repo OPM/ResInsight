@@ -60,40 +60,37 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclipseCase,
-                                               size_t                     timeStepIdx,
-                                               VolumeType                 volumeType,
-                                               VolumesType                volumesType,
-                                               VolumeResultType           volumeResultType,
-                                               const RigFloodingSettings& floodingSettings,
-                                               const ClusteringLimits&    limits,
-                                               bool                       skipUndefinedResults,
-                                               bool                       setTimeStepInView = true )
+std::expected<std::vector<RigWellTargetMapping::ClusterStatistics>, QString>
+    RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclipseCase,
+                                              size_t                     timeStepIdx,
+                                              VolumeType                 volumeType,
+                                              VolumesType                volumesType,
+                                              VolumeResultType           volumeResultType,
+                                              const RigFloodingSettings& floodingSettings,
+                                              const ClusteringLimits&    limits,
+                                              bool                       skipUndefinedResults,
+                                              bool                       setTimeStepInView = true )
 {
-    if ( !eclipseCase->ensureReservoirCaseIsOpen() ) return;
+    auto fail = []( const QString& message ) { return std::unexpected( message ); };
+
+    if ( !eclipseCase ) return fail( "No case for well target mapping" );
+    if ( !eclipseCase->ensureReservoirCaseIsOpen() )
+        return fail( QString( "Unable to open case '%1' for well target mapping" ).arg( eclipseCase->caseUserDescription() ) );
 
     auto activeCellCount = RigWellTargetMappingTools::getActiveCellCount( eclipseCase );
-    if ( !activeCellCount )
-    {
-        RiaLogging::error( "No active cells found" );
-        return;
-    }
+    if ( !activeCellCount ) return fail( "No active cells found" );
 
     auto resultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    if ( !resultsData ) return;
+    if ( !resultsData ) return fail( "No results found for well target mapping" );
 
     auto caseData = eclipseCase->eclipseCaseData();
-    if ( !caseData ) return;
+    if ( !caseData ) return fail( "No case data found for well target mapping" );
 
     RiaDefines::EclipseUnitSystem unitsType = caseData->unitsType();
 
     RigWellTargetMappingTools::DataContainer data;
     data.volume = getVolumeVector( *resultsData, unitsType, volumeType, volumesType, volumeResultType, timeStepIdx, floodingSettings );
-    if ( data.volume.empty() )
-    {
-        RiaLogging::error( "Unable to produce volume vector." );
-        return;
-    }
+    if ( data.volume.empty() ) return fail( "Unable to produce volume vector." );
 
     RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
     if ( resultsData->ensureKnownResultLoaded( soilAddress ) )
@@ -110,9 +107,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     {
         if ( volumeType == VolumeType::GAS || volumeType == VolumeType::HYDROCARBON )
         {
-            RiaLogging::error( std::format( "Missing SGAS result needed for well target mapping volume type: {}",
-                                            caf::AppEnum<VolumeType>::uiText( volumeType ) ) );
-            return;
+            return fail( QString( "Missing SGAS result needed for well target mapping volume type: %1" )
+                             .arg( caf::AppEnum<VolumeType>::uiText( volumeType ) ) );
         }
     }
 
@@ -356,6 +352,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
             eclipseView->propertyFilterCollection()->updateConnectedEditors();
         }
     }
+
+    return statistics;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -488,7 +486,13 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
 
         if ( eclipseCase->ensureReservoirCaseIsOpen() )
         {
-            generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
+            // A failed realization still contributes to the occurrence count.
+            if ( auto result =
+                     generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
+                 !result )
+            {
+                RiaLogging::error( QString( "%1: %2" ).arg( eclipseCase->caseUserDescription() ).arg( result.error() ).toStdString() );
+            }
             RigWellTargetMappingTools::accumulateResultsForSingleCase( *eclipseCase, *targetCase, resultNamesAndSamples, occurrence, timeStepIdx );
         }
         if ( closeGrid )

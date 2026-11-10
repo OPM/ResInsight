@@ -24,6 +24,8 @@
 #include "RimWellTargetMapping.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimDataAnalyticsCollection, "DataAnalyticsCollection" );
@@ -33,12 +35,17 @@ CAF_PDM_SOURCE_INIT( RimDataAnalyticsCollection, "DataAnalyticsCollection" );
 //--------------------------------------------------------------------------------------------------
 RimDataAnalyticsCollection::RimDataAnalyticsCollection()
 {
-    CAF_PDM_InitObject( "Data Analytics", ":/Folder.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Data Analytics",
+                                                    ":/Folder.png",
+                                                    "",
+                                                    "",
+                                                    "DataAnalyticsCollection",
+                                                    "Data analytics objects of a case" );
 
     CAF_PDM_InitFieldNoDefault( &m_faultDistanceCollection, "FaultDistanceCollection", "Fault Distance" );
     m_faultDistanceCollection = new RimFaultDistanceCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 }
 
 //--------------------------------------------------------------------------------------------------

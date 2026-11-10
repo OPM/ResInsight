@@ -42,16 +42,30 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimProject.h"
 #include "RimRegularGridCase.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
+#include "RimWellTargetClusterStatistics.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <cmath>
 #include <limits>
+
+namespace
+{
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<RigFloodingSettings::FloodingType>( "FloodingType" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RimWellTargetMapping, "RimWellTargetMapping" );
 
@@ -93,52 +107,108 @@ void caf::AppEnum<RigWellTargetMapping::VolumesType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellTargetMapping::RimWellTargetMapping()
 {
-    CAF_PDM_InitObject( "Well Target Mapping", ":/WellTargets.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target Mapping",
+                                                    ":/WellTargets.png",
+                                                    "",
+                                                    "",
+                                                    "WellTargetMapping",
+                                                    "Finds well target candidates as clusters of cells. Call compute() after changing "
+                                                    "fields." );
 
     setName( "Well Target Mapping" );
 
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_volumeType, "VolumeType", "Volume" );
-    CAF_PDM_InitFieldNoDefault( &m_volumeResultType, "VolumeResultType", "Result" );
-    CAF_PDM_InitFieldNoDefault( &m_volumesType, "VolumesType", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_volumeType, "VolumeType", "Volume" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_volumeResultType, "VolumeResultType", "Result" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_volumesType, "VolumesType", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_oilFloodingType, "OilFloodingType", "Residual Oil Given By" );
     m_oilFloodingType.setValue( RigFloodingSettings::FloodingType::WATER_FLOODING );
-    CAF_PDM_InitField( &m_userDefinedFloodingOil, "UserDefinedFloodingOil", 0.0, "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedFloodingOil,
+                                 "UserDefinedFloodingOil",
+                                 0.0,
+                                 "",
+                                 "",
+                                 "",
+                                 "Residual oil saturation used when oil_flooding_type is USER_DEFINED" );
     m_userDefinedFloodingOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
     m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
     m_userDefinedFloodingOil.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
-    CAF_PDM_InitField( &m_gasFloodingType, "GasFloodingType", RigFloodingSettings::FloodingType::GAS_FLOODING, "Residual Oil-in-Gas Given By" );
+    CAF_PDM_InitScriptableField( &m_gasFloodingType,
+                                 "GasFloodingType",
+                                 RigFloodingSettings::FloodingType::GAS_FLOODING,
+                                 "Residual Oil-in-Gas Given By" );
     caf::AppEnum<RigFloodingSettings::FloodingType>::setEnumSubset( &m_gasFloodingType,
                                                                     { RigFloodingSettings::FloodingType::GAS_FLOODING,
                                                                       RigFloodingSettings::FloodingType::USER_DEFINED } );
 
-    CAF_PDM_InitField( &m_userDefinedFloodingGas, "UserDefinedFloodingGas", 0.0, "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedFloodingGas,
+                                 "UserDefinedFloodingGas",
+                                 0.0,
+                                 "",
+                                 "",
+                                 "",
+                                 "Residual oil-in-gas saturation used when gas_flooding_type is USER_DEFINED" );
     m_userDefinedFloodingGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MINIMUM, 0.0 );
     m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::MAXIMUM, 1.0 );
     m_userDefinedFloodingGas.uiCapability()->setAttribute( caf::PdmUiDoubleSliderEditor::Keys::SLIDER_TICK_COUNT, 20 );
 
-    CAF_PDM_InitField( &m_saturationOil, "SaturationOil", 0.0, "Saturation Oil" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_saturationOil,
+                                                  "SaturationOil",
+                                                  "MinimumSaturationOil",
+                                                  0.0,
+                                                  "Saturation Oil",
+                                                  "",
+                                                  "",
+                                                  "Minimum SOIL for cells in a cluster" );
     m_saturationOil.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_saturationGas, "SaturationGas", 0.0, "Saturation Gas" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_saturationGas,
+                                                  "SaturationGas",
+                                                  "MinimumSaturationGas",
+                                                  0.0,
+                                                  "Saturation Gas",
+                                                  "",
+                                                  "",
+                                                  "Minimum SGAS for cells in a cluster" );
     m_saturationGas.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_pressure,
+                                                  "Pressure",
+                                                  "MinimumPressure",
+                                                  0.0,
+                                                  "Pressure",
+                                                  "",
+                                                  "",
+                                                  "Minimum PRESSURE for cells in a cluster" );
     m_pressure.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability [K<sub>h</sub>]" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_permeability,
+                                                  "Permeability",
+                                                  "MinimumPermeability",
+                                                  0.0,
+                                                  "Permeability [K<sub>h</sub>]",
+                                                  "",
+                                                  "",
+                                                  "Minimum PERMX for cells in a cluster" );
     m_permeability.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_transmissibility, "Transmissibility", 0.0, "Transmissibility" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_transmissibility,
+                                                  "Transmissibility",
+                                                  "MinimumTransmissibility",
+                                                  0.0,
+                                                  "Transmissibility",
+                                                  "",
+                                                  "",
+                                                  "Minimum transmissibility between cells in a cluster" );
     m_transmissibility.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxIterations, "Iterations", 100000, "Max Iterations" );
-    CAF_PDM_InitField( &m_maxNumTargets, "MaxNumTargets", 5, "Maximum Number of Well Targets" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_maxIterations, "Iterations", "MaxIterations", 100000, "Max Iterations" );
+    CAF_PDM_InitScriptableField( &m_maxNumTargets, "MaxNumTargets", 5, "Maximum Number of Well Targets" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -147,46 +217,57 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
 
-    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
-    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
-    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
+    CAF_PDM_InitScriptableField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
+    CAF_PDM_InitScriptableField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
+    CAF_PDM_InitScriptableField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
 
-    CAF_PDM_InitField( &m_expandBoundingBoxXYPercent,
-                       "ExpandBoundingBoxXYPercent",
-                       5.0,
-                       "Expand Bounding Box XY [%]",
-                       "",
-                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
-                       "ensemble." );
-    CAF_PDM_InitField( &m_expandBoundingBoxZPercent,
-                       "ExpandBoundingBoxZPercent",
-                       10.0,
-                       "Expand Bounding Box Z [%]",
-                       "",
-                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
-                       "ensemble." );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_expandBoundingBoxXYPercent,
+                                                  "ExpandBoundingBoxXYPercent",
+                                                  "ExpandBoundingBoxXyPercent",
+                                                  5.0,
+                                                  "Expand Bounding Box XY [%]",
+                                                  "",
+                                                  "How much to increase the bounding box of the first case to cover for any grid size "
+                                                  "differences across the "
+                                                  "ensemble." );
+    CAF_PDM_InitScriptableField( &m_expandBoundingBoxZPercent,
+                                 "ExpandBoundingBoxZPercent",
+                                 10.0,
+                                 "Expand Bounding Box Z [%]",
+                                 "",
+                                 "How much to increase the bounding box of the first case to cover for any grid size differences across "
+                                 "the "
+                                 "ensemble." );
 
     // "DataFilter" is the grow filter; keeping the keyword keeps old project files working (an empty start filter falls back to it).
-    CAF_PDM_InitFieldNoDefault( &m_startDataFilter,
-                                "StartDataFilter",
-                                "Start Data Filter",
-                                "",
-                                "Limits where starting cells are searched for. If empty, the grow data filter is used." );
-    CAF_PDM_InitFieldNoDefault( &m_dataFilter,
-                                "DataFilter",
-                                "Grow Data Filter",
-                                "",
-                                "Limits where clusters can grow. If empty, clusters can grow anywhere in the model." );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_startDataFilter,
+                                          "StartDataFilter",
+                                          "Start Data Filter",
+                                          "",
+                                          "Limits where starting cells are searched for. If empty, the grow data filter is used." );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_dataFilter,
+                                                           "DataFilter",
+                                                           "GrowDataFilter",
+                                                           "Grow Data Filter",
+                                                           "",
+                                                           "Limits where clusters can grow. If empty, clusters can grow anywhere in the "
+                                                           "model." );
 
-    CAF_PDM_InitField( &m_avoidFaults,
-                       "AvoidFaults",
-                       false,
-                       "Avoid Growing Across Faults",
-                       "",
-                       "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault faces per "
-                       "cell." );
+    CAF_PDM_InitScriptableField( &m_avoidFaults,
+                                 "AvoidFaults",
+                                 false,
+                                 "Avoid Growing Across Faults",
+                                 "",
+                                 "Do not grow clusters across fault faces or fault NNCs. Also generates a result with the number of fault "
+                                 "faces per "
+                                 "cell." );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleStatisticsCase,
+                                          "EnsembleStatisticsCase",
+                                          "Ensemble Statistics Case",
+                                          "",
+                                          "",
+                                          "Statistics grid case created when computing for an ensemble" );
 
     m_minimumSaturationOil = cvf::UNDEFINED_DOUBLE;
     m_maximumSaturationOil = cvf::UNDEFINED_DOUBLE;
@@ -207,6 +288,15 @@ RimWellTargetMapping::RimWellTargetMapping()
     m_minimumTransmissibility = cvf::UNDEFINED_DOUBLE;
     m_maximumTransmissibility = cvf::UNDEFINED_DOUBLE;
     m_defaultTransmissibility = cvf::UNDEFINED_DOUBLE;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_clusterStatistics,
+                                          "ClusterStatistics",
+                                          "Cluster Statistics",
+                                          "",
+                                          "",
+                                          "Statistics per cluster from the last computation. Empty for ensembles." );
+    m_clusterStatistics.xmlCapability()->setIOWritable( false );
+    m_clusterStatistics.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }
@@ -280,6 +370,7 @@ void RimWellTargetMapping::updateAllBoundaries()
     if ( !resultsData ) return;
 
     const int timeStepIdx = m_timeStep();
+    if ( timeStepIdx < 0 || timeStepIdx >= static_cast<int>( eclipseCase->timeStepDates().size() ) ) return;
 
     auto updateBoundaryValues =
         []( auto resultsData, const std::vector<RigEclipseResultAddress>& addresses, size_t timeStepIdx ) -> std::tuple<double, double, double>
@@ -347,30 +438,44 @@ cvf::Vec3st RimWellTargetMapping::getResultGridCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView )
+std::expected<void, QString> RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView )
 {
+    m_clusterStatistics.deleteChildren();
+
     RigWellTargetMapping::ClusteringLimits limits = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
 
     bool skipUndefinedResults = true;
-    RigWellTargetMapping::generateCandidates( eclipseCase,
-                                              m_timeStep(),
-                                              m_volumeType(),
-                                              m_volumesType(),
-                                              m_volumeResultType(),
-                                              floodingSettings,
-                                              limits,
-                                              skipUndefinedResults,
-                                              setTimeStepInView );
+    auto statistics           = RigWellTargetMapping::generateCandidates( eclipseCase,
+                                                                m_timeStep(),
+                                                                m_volumeType(),
+                                                                m_volumesType(),
+                                                                m_volumeResultType(),
+                                                                floodingSettings,
+                                                                limits,
+                                                                skipUndefinedResults,
+                                                                setTimeStepInView );
+    if ( !statistics ) return std::unexpected( statistics.error() );
+
+    for ( const auto& clusterStatistics : statistics.value() )
+    {
+        auto item = new RimWellTargetClusterStatistics;
+        item->setStatistics( clusterStatistics );
+        m_clusterStatistics.push_back( item );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::generateEnsembleStatistics()
+std::expected<void, QString> RimWellTargetMapping::generateEnsembleStatistics()
 {
+    m_clusterStatistics.deleteChildren();
+
     auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
-    if ( !ensemble ) return;
+    if ( !ensemble ) return std::unexpected( "Well target mapping is not in a reservoir grid ensemble" );
 
     const cvf::Vec3st&                     resultGridCellCount = getResultGridCellCount();
     RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
@@ -389,6 +494,7 @@ void RimWellTargetMapping::generateEnsembleStatistics()
                                                                                             limits,
                                                                                             expandXY,
                                                                                             expandZ );
+    if ( !regularGridCase ) return std::unexpected( "Failed to generate the ensemble statistics case" );
 
     regularGridCase->setCustomCaseName( "Ensemble Grid" );
     regularGridCase->setDeletable( false );
@@ -399,6 +505,7 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     }
 
     m_ensembleStatisticsCase = regularGridCase;
+    RimProject::current()->assignCaseIdToCase( regularGridCase );
 
     auto eclipseView = regularGridCase->createAndAddReservoirView();
 
@@ -412,10 +519,12 @@ void RimWellTargetMapping::generateEnsembleStatistics()
 
     ensemble->reloadMetaDataIfNeeded();
 
-    if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
+    if ( RiaGuiApplication::isRunning() && RiuMainWindow::instance() )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -591,7 +700,10 @@ void RimWellTargetMapping::initAfterRead()
         m_resultDefinition->setEclipseCase( eclipseCase );
 
         bool setTimeStepInView = false;
-        generateCandidates( eclipseCase, setTimeStepInView );
+        if ( auto result = generateCandidates( eclipseCase, setTimeStepInView ); !result )
+        {
+            RiaLogging::error( result.error().toStdString() );
+        }
     }
 }
 
@@ -648,6 +760,41 @@ void RimWellTargetMapping::setDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::applySettings( const Settings& settings )
+{
+    auto apply = []( auto& field, const auto& value )
+    {
+        if ( value ) field = *value;
+    };
+
+    apply( m_timeStep, settings.timeStep );
+    apply( m_volumeType, settings.volumeType );
+    apply( m_volumeResultType, settings.volumeResultType );
+    apply( m_volumesType, settings.volumesType );
+    apply( m_oilFloodingType, settings.oilFloodingType );
+    apply( m_userDefinedFloodingOil, settings.userDefinedFloodingOil );
+    apply( m_gasFloodingType, settings.gasFloodingType );
+    apply( m_userDefinedFloodingGas, settings.userDefinedFloodingGas );
+    apply( m_saturationOil, settings.minimumSaturationOil );
+    apply( m_saturationGas, settings.minimumSaturationGas );
+    apply( m_pressure, settings.minimumPressure );
+    apply( m_permeability, settings.minimumPermeability );
+    apply( m_transmissibility, settings.minimumTransmissibility );
+    apply( m_maxNumTargets, settings.maxNumTargets );
+    apply( m_maxIterations, settings.maxIterations );
+    apply( m_startDataFilter, settings.startDataFilter );
+    apply( m_dataFilter, settings.growDataFilter );
+    apply( m_avoidFaults, settings.avoidFaults );
+    apply( m_cellCountI, settings.cellCountI );
+    apply( m_cellCountJ, settings.cellCountJ );
+    apply( m_cellCountK, settings.cellCountK );
+    apply( m_expandBoundingBoxXYPercent, settings.expandBoundingBoxXYPercent );
+    apply( m_expandBoundingBoxZPercent, settings.expandBoundingBoxZPercent );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 {
     auto clampIfValid = []( double defaultValue, double minValue, double maxValue ) -> double
@@ -673,32 +820,110 @@ void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::onGenerateButtonClicked()
 {
-    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr )
+    if ( auto result = compute(); !result )
     {
-        generateEnsembleStatistics();
+        RiaLogging::error( result.error().toStdString() );
+        return;
     }
-    else if ( auto eclipseCase = firstCase() )
+
+    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr ) return;
+
+    auto eclipseCase = firstCase();
+    if ( !eclipseCase ) return;
+
+    if ( auto views = eclipseCase->reservoirViews(); !views.empty() )
     {
-        generateCandidates( eclipseCase );
-        if ( auto views = eclipseCase->reservoirViews(); !views.empty() )
+        auto eclipseView = views.front();
+        eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+        eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
+        eclipseView->cellResult()->updateConnectedEditors();
+
+        if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
         {
-            auto eclipseView = views.front();
-            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
-            eclipseView->cellResult()->setResultVariable( RigWellTargetMapping::wellTargetResultName() );
-            eclipseView->cellResult()->updateConnectedEditors();
+            eclipseView->eclipsePropertyFilterCollection()->addFilterLinkedToCellResult();
+            eclipseView->eclipsePropertyFilterCollection()->updateConnectedEditors();
+        }
 
-            if ( eclipseView->eclipsePropertyFilterCollection()->propertyFilters().empty() )
-            {
-                eclipseView->eclipsePropertyFilterCollection()->addFilterLinkedToCellResult();
-                eclipseView->eclipsePropertyFilterCollection()->updateConnectedEditors();
-            }
-
-            if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
-            {
-                RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
-            }
+        if ( RiaGuiApplication::isRunning() && RiuMainWindow::instance() )
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Runs the mapping for the parent case, or for all cases of the parent reservoir grid ensemble
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimWellTargetMapping::compute()
+{
+    RimEclipseCase* eclipseCase = firstCase();
+    if ( !eclipseCase )
+    {
+        m_clusterStatistics.deleteChildren();
+        return std::unexpected( "No case found for well target mapping" );
+    }
+
+    if ( auto valid = validateInput( eclipseCase ); !valid )
+    {
+        m_clusterStatistics.deleteChildren();
+        return valid;
+    }
+
+    std::expected<void, QString> result = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() ? generateEnsembleStatistics()
+                                                                                                : generateCandidates( eclipseCase );
+    updateConnectedEditors();
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimWellTargetMapping::validateInput( RimEclipseCase* eclipseCase ) const
+{
+    if ( !eclipseCase->ensureReservoirCaseIsOpen() )
+    {
+        return std::unexpected( QString( "Unable to open case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    const int timeStepCount = static_cast<int>( eclipseCase->timeStepDates().size() );
+    if ( m_timeStep() < 0 || m_timeStep() >= timeStepCount )
+    {
+        return std::unexpected( QString( "Invalid time step %1. The case has %2 time steps." ).arg( m_timeStep() ).arg( timeStepCount ) );
+    }
+
+    if ( m_gasFloodingType() == RigFloodingSettings::FloodingType::WATER_FLOODING )
+    {
+        return std::unexpected( "Gas flooding type must be GAS_FLOODING or USER_DEFINED" );
+    }
+
+    if ( m_maxNumTargets() < 1 ) return std::unexpected( "Maximum number of well targets must be at least 1" );
+    if ( m_maxIterations() < 1 ) return std::unexpected( "Maximum number of iterations must be at least 1" );
+
+    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() && ( m_cellCountI() < 1 || m_cellCountJ() < 1 || m_cellCountK() < 1 ) )
+    {
+        return std::unexpected( "Cell counts for the ensemble statistics grid must be at least 1" );
+    }
+
+    auto collection    = dataFilterCollection();
+    auto isValidFilter = [collection]( RimCellFilter* filter )
+    {
+        if ( !filter ) return true;
+        if ( !collection ) return false;
+
+        auto filters = collection->filters();
+        return std::find( filters.begin(), filters.end(), filter ) != filters.end();
+    };
+
+    if ( !isValidFilter( m_startDataFilter() ) )
+    {
+        return std::unexpected( "The start data filter must be a data filter of the case or ensemble owning the well target mapping" );
+    }
+    if ( !isValidFilter( m_dataFilter() ) )
+    {
+        return std::unexpected( "The grow data filter must be a data filter of the case or ensemble owning the well target mapping" );
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
