@@ -178,7 +178,8 @@ RigEclipseResultAddress RigGridQualityResultCalculator::createIntegerAddress( QS
 
 //--------------------------------------------------------------------------------------------------
 /// for every corner point in this cell, check the corresponding neighbour cell corner point and see if the difference in z
-/// coordinate is above the threshold. If so, this cell is considered to be faulted.
+/// coordinate is above the threshold. If so, this cell corner is considered to be faulted.
+/// Result returns the number of faulted corners in the cell (max 24: 4 per face, 6 faces).
 //--------------------------------------------------------------------------------------------------
 int RigGridQualityResultCalculator::faulted( const RigCell& cell )
 {

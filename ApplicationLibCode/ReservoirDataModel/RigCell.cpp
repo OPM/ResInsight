@@ -552,7 +552,7 @@ std::pair<double, double> RigCell::minMaxAnglesSides() const
 bool RigCell::isCollapsedVertically() const
 {
     static const double              collapsedThreshold = 1e-5;
-    static const std::vector<size_t> cornerMap          = { 0, 3, 2, 1 };
+    static const std::vector<size_t> cornerMap          = { 0, 3, 2, 1 }; // map from top to bottom inside cell
 
     auto cornersTop    = faceCorners( cvf::StructGridInterface::POS_K );
     auto cornersBottom = faceCorners( cvf::StructGridInterface::NEG_K );
