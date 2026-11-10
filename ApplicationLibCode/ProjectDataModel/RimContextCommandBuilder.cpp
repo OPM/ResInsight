@@ -314,6 +314,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "RicShowGridCalculatorFeature";
         }

@@ -8,6 +8,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSelectedFaultDistanceResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigIndexIjkResultCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigGridQualityResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigOilVolumeResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellVolumeResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanUtil.cpp

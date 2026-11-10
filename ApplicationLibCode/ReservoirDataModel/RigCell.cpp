@@ -481,3 +481,87 @@ std::vector<size_t> RigCell::allNeighborMainGridCellIndexes() const
     }
     return neighbors;
 }
+
+//--------------------------------------------------------------------------------------------------
+// Detect if a cell is concave seen from above (XY plane). A cell is concave if one corner
+// is within the triangle formed by the other corners at top and/or base.
+//--------------------------------------------------------------------------------------------------
+bool RigCell::isConcave() const
+{
+    auto cornersTop = faceCorners( cvf::StructGridInterface::POS_K );
+    auto cornersBot = faceCorners( cvf::StructGridInterface::NEG_K );
+
+    for ( auto& corners : { cornersTop, cornersBot } )
+    {
+        // Check if any of the corners are inside the triangle formed by the other three corners
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            cvf::Vec3d p = corners[i];
+            cvf::Vec3d a = corners[( i + 1 ) % 4];
+            cvf::Vec3d b = corners[( i + 2 ) % 4];
+            cvf::Vec3d c = corners[( i + 3 ) % 4];
+
+            if ( RigCellGeometryTools::pointInsidePolygon2D( p, { a, b, c, a } ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Return the min and max corner angle of the top and bottom faces of the cell. If ignoreZ is true,
+// the Z component is ignored in the calculation. Angle are returned in degrees.
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigCell::minMaxAnglesTopBottom( bool ignoreZ ) const
+{
+    auto cornersTop    = faceCorners( cvf::StructGridInterface::POS_K );
+    auto cornersBottom = faceCorners( cvf::StructGridInterface::NEG_K );
+
+    auto [minAngle, maxAngle]             = RigCellGeometryTools::minMaxFaceAngles( cornersTop, ignoreZ );
+    auto [minAngleBottom, maxAngleBottom] = RigCellGeometryTools::minMaxFaceAngles( cornersBottom, ignoreZ );
+
+    return std::make_pair( std::min( minAngle, minAngleBottom ), std::max( maxAngle, maxAngleBottom ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Return the min and max corner angle of the four side faces of the cell. Angles are returned in degrees
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigCell::minMaxAnglesSides() const
+{
+    auto side1 = faceCorners( cvf::StructGridInterface::POS_I );
+    auto side2 = faceCorners( cvf::StructGridInterface::NEG_I );
+    auto side3 = faceCorners( cvf::StructGridInterface::POS_J );
+    auto side4 = faceCorners( cvf::StructGridInterface::NEG_J );
+
+    auto [minAngle1, maxAngle1] = RigCellGeometryTools::minMaxFaceAngles( side1 );
+    auto [minAngle2, maxAngle2] = RigCellGeometryTools::minMaxFaceAngles( side2 );
+    auto [minAngle3, maxAngle3] = RigCellGeometryTools::minMaxFaceAngles( side3 );
+    auto [minAngle4, maxAngle4] = RigCellGeometryTools::minMaxFaceAngles( side4 );
+
+    return std::make_pair( std::min( { minAngle1, minAngle2, minAngle3, minAngle4 } ),
+                           std::max( { maxAngle1, maxAngle2, maxAngle3, maxAngle4 } ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Check if the cell is collapsed vertically, meaning that any of the top face corners are very close to the corresponding bottom face
+// corners. This can indicate a degenerate cell shape.
+//--------------------------------------------------------------------------------------------------
+bool RigCell::isCollapsedVertically() const
+{
+    static const double              collapsedThreshold = 1e-5;
+    static const std::vector<size_t> cornerMap          = { 0, 3, 2, 1 }; // map from top to bottom inside cell
+
+    auto cornersTop    = faceCorners( cvf::StructGridInterface::POS_K );
+    auto cornersBottom = faceCorners( cvf::StructGridInterface::NEG_K );
+    for ( size_t i = 0; i < 4; i++ )
+    {
+        if ( isNear( cornersTop[i], cornersBottom[cornerMap[i]], collapsedThreshold ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}

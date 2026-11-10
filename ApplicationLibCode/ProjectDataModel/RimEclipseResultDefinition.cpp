@@ -1217,6 +1217,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         {
             return true;
         }
+        else if ( m_resultType() == RiaDefines::ResultCatType::QUALITY_CONTROL )
+        {
+            return false;
+        }
 
         if ( currentGridCellResults() )
         {

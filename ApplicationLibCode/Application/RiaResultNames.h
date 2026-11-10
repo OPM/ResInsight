@@ -121,6 +121,19 @@ QString wbsPPMaxResult();
 QString wbsPPExpResult();
 QString wbsPPInitialResult();
 
+// grid quality results
+QString           qcMinangleTopbase();
+QString           qcMaxangleTopbase();
+QString           qcMinangleTopbaseProj();
+QString           qcMaxangleTopbaseProj();
+QString           qcMinangleSides();
+QString           qcMaxangleSides();
+QString           qcCollapsed();
+QString           qcFaulted();
+QString           qcNegativeThickness();
+QString           qcConcaveProj();
+std::set<QString> qcResultNames();
+
 // Fault results
 QString           formationBinaryAllanResultName();
 QString           formationAllanResultName();

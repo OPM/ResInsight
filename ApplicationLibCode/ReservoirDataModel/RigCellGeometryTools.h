@@ -24,7 +24,9 @@
 #include "cvfPlane.h"
 
 #include <array>
+#include <expected>
 #include <list>
+#include <string>
 #include <vector>
 
 class RigCell;
@@ -87,6 +89,10 @@ public:
     static bool lineIntersectsLine2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 );
     static bool lineIntersectsPolygon2D( const cvf::Vec3d a, const cvf::Vec3d b, const std::vector<cvf::Vec3d>& polygon );
     static bool polylineIntersectsCellNegK2D( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners );
+
+    static double lineAngle( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, bool ignoreZ = false );
+
+    static std::pair<double, double> minMaxFaceAngles( const std::array<cvf::Vec3d, 4>& hexCorners, bool ignoreZ = false );
 
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,

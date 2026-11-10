@@ -336,6 +336,28 @@ TEST( RigCellGeometryTools, lineIntersectsPolygon2DTest )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RigCellGeometryTools, angleBetweenLinesTest )
+{
+    cvf::Vec3d p1( 1, 1, 1 );
+    cvf::Vec3d p2( 0, 0, 0 );
+    cvf::Vec3d p3( -1, 1, 1 );
+
+    double angle = RigCellGeometryTools::lineAngle( p1, p2, p3 );
+    EXPECT_NEAR( angle, 70.53, 0.01 ); // ~70.5 degrees
+
+    angle = RigCellGeometryTools::lineAngle( p1, p2, p3, true );
+    EXPECT_NEAR( angle, 90.0, 0.001 ); // 90 degrees
+
+    angle = RigCellGeometryTools::lineAngle( p3, p2, p1, true );
+    EXPECT_NEAR( angle, 90.0, 0.001 ); // 90 degrees
+
+    angle = RigCellGeometryTools::lineAngle( p1, p1, p1 );
+    EXPECT_DOUBLE_EQ( angle, 0.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
 {
     std::vector<cvf::Vec3d> polygonExample;

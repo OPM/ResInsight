@@ -43,6 +43,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigFaultDistanceResultCalculator.h"
 #include "RigFormationNames.h"
+#include "RigGridQualityResultCalculator.h"
 #include "RigIndexIjkResultCalculator.h"
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
@@ -1258,17 +1259,19 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     }
 
     // Fault distance
-    {
-        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
-                                       needsToBeStored );
-    }
+    findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
+                                   needsToBeStored );
 
     // NNC cells, 1 for cells with NNC and 0 for other cells
+    findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                            RiaDefines::ResultDataType::INTEGER,
+                                                            RiaResultNames::riNncCells() ),
+                                   needsToBeStored );
+
+    // Quality control results
+    for ( auto& addr : RigGridQualityResultCalculator::createQcResultAddresses() )
     {
-        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                RiaDefines::ResultDataType::INTEGER,
-                                                                RiaResultNames::riNncCells() ),
-                                       needsToBeStored );
+        findOrCreateScalarResultIndex( addr, needsToBeStored );
     }
 }
 
@@ -1388,7 +1391,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                                                                RiaDefines::ResultCatType::SOURSIMRL,
                                                                RiaDefines::ResultCatType::GENERATED,
                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                               RiaDefines::ResultCatType::FORMATION_NAMES };
+                                                               RiaDefines::ResultCatType::FORMATION_NAMES,
+                                                               RiaDefines::ResultCatType::QUALITY_CONTROL };
 
         size_t scalarResultIndex = findOrLoadKnownScalarResultByResultTypeOrder( resVarAddr, searchOrder );
 
@@ -1617,6 +1621,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     else if ( resultName == RiaResultNames::mobilePoreVolumeName() )
     {
         computeMobilePV();
+    }
+    else if ( ( type == RiaDefines::ResultCatType::QUALITY_CONTROL ) && RiaResultNames::qcResultNames().contains( resultName ) )
+    {
+        RigGridQualityResultCalculator::calculateResults( this );
     }
 
     if ( type == RiaDefines::ResultCatType::GENERATED )
@@ -3349,6 +3357,12 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
             resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::FORMATION_NAMES );
+            scalarResultIndex = findScalarResultIndexFromAddress( resVarAddressWithType );
+        }
+
+        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
+        {
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::QUALITY_CONTROL );
             scalarResultIndex = findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
