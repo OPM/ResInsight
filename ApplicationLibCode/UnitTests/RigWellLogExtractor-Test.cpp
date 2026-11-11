@@ -499,8 +499,8 @@ cvf::ref<RigEclipseCaseData> createTwoCellReservoir( double pillarTwist = 0.0, d
 
 //--------------------------------------------------------------------------------------------------
 /// Intersects the part [startMD, endMD] of a horizontal well along X in layer K = 1, the same way as the completion export
-/// does for a perforation interval. MD equals X along the well. The well is moved off the cell centres, as the point in cell
-/// test is ambiguous at face centres.
+/// does for a perforation interval. MD equals X along the well. The well is moved off the cell centres, so it crosses the
+/// fault face away from the edges of the face triangles.
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo> perforationIntersections( RigEclipseCaseData* reservoir, double startMD, double endMD )
 {

@@ -21,10 +21,13 @@
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
-#include "cvfRay.h"
 
 #include "cafAssert.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -120,33 +123,78 @@ bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d& p1, const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Casts a ray downwards from the point and counts the crossings of the cell surface. The faces are split into four triangles
+/// around the face centre, so a ray through a face centre, a triangle edge or a cell edge hits several triangles at the same
+/// point. These hits are one crossing of the surface, and are counted once.
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d& point, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
-    cvf::Ray ray;
-    ray.setOrigin( point );
-    size_t intersections = 0;
+    // Corners relative to the point, to keep the precision at UTM coordinates
+    std::array<cvf::Vec3d, 8> corners;
+    double                    minX = std::numeric_limits<double>::max();
+    double                    maxX = -minX;
+    double                    minY = minX;
+    double                    maxY = -minX;
+    double                    minZ = minX;
+    for ( size_t i = 0; i < 8; ++i )
+    {
+        corners[i] = hexCorners[i] - point;
+        minX       = std::min( minX, corners[i].x() );
+        maxX       = std::max( maxX, corners[i].x() );
+        minY       = std::min( minY, corners[i].y() );
+        maxY       = std::max( maxY, corners[i].y() );
+        minZ       = std::min( minZ, corners[i].z() );
+    }
+    if ( minX > 0.0 || maxX < 0.0 || minY > 0.0 || maxY < 0.0 || minZ >= 0.0 ) return false;
+
+    // Barycentric tolerance accepting hits on the edges shared by two triangles, which the exact test can miss on both triangles
+    const double edgeTolerance = 1e-9;
+
+    std::array<double, 24> hitDepths;
+    size_t                 hitCount = 0;
+
+    // The ray is vertical, so a triangle is hit when the point is inside the triangle projected to the XY plane, and the
+    // triangle is below the point. Vertical triangles are parallel to the ray and are not hit.
+    auto addHit = [&]( const cvf::Vec3d& a, const cvf::Vec3d& b, const cvf::Vec3d& c )
+    {
+        const double det = ( b.x() - a.x() ) * ( c.y() - a.y() ) - ( c.x() - a.x() ) * ( b.y() - a.y() );
+        if ( std::abs( det ) < 1e-12 ) return;
+
+        const double wa = ( b.x() * c.y() - c.x() * b.y() ) / det;
+        const double wb = ( c.x() * a.y() - a.x() * c.y() ) / det;
+        const double wc = 1.0 - wa - wb;
+        if ( wa < -edgeTolerance || wb < -edgeTolerance || wc < -edgeTolerance ) return;
+
+        const double z = wa * a.z() + wb * b.z() + wc * c.z();
+        if ( z <= 0.0 ) hitDepths[hitCount++] = z;
+    };
 
     for ( int face = 0; face < 6; ++face )
     {
         cvf::ubyte faceVertexIndices[4];
         cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
-                                                                       hexCorners[faceVertexIndices[1]],
-                                                                       hexCorners[faceVertexIndices[2]],
-                                                                       hexCorners[faceVertexIndices[3]] );
+        const cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( corners[faceVertexIndices[0]],
+                                                                             corners[faceVertexIndices[1]],
+                                                                             corners[faceVertexIndices[2]],
+                                                                             corners[faceVertexIndices[3]] );
 
         for ( int i = 0; i < 4; ++i )
         {
-            int next = i < 3 ? i + 1 : 0;
-            if ( ray.triangleIntersect( hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter ) )
-            {
-                ++intersections;
-            }
+            const int next = i < 3 ? i + 1 : 0;
+            addHit( corners[faceVertexIndices[i]], corners[faceVertexIndices[next]], faceCenter );
         }
     }
-    return intersections % 2 == 1;
+
+    std::sort( hitDepths.begin(), hitDepths.begin() + hitCount );
+
+    const double depthTolerance = 1e-6;
+    size_t       crossings      = 0;
+    for ( size_t i = 0; i < hitCount; ++i )
+    {
+        if ( i == 0 || hitDepths[i] - hitDepths[i - 1] > depthTolerance ) ++crossings;
+    }
+
+    return crossings % 2 == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
