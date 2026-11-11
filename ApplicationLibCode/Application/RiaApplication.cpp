@@ -35,6 +35,7 @@
 #include "RiaLogging.h"
 #include "RiaNetworkTools.h"
 #include "RiaOpenMPTools.h"
+#include "RiaOpenTelemetryManager.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesCloudApi.h"
@@ -216,6 +217,10 @@ RiaApplication::RiaApplication()
 //--------------------------------------------------------------------------------------------------
 RiaApplication::~RiaApplication()
 {
+    // The telemetry manager is a function-local static that outlives this object. Shut it down while preferences
+    // are still alive, otherwise its destructor flushes events using dangling preferences.
+    RiaOpenTelemetryManager::instance().shutdown();
+
     if ( m_cloudApiService )
     {
         m_cloudApiService->stop();
