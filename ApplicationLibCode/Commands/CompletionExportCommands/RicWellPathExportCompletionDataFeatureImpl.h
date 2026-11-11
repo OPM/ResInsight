@@ -106,12 +106,13 @@ private:
                                                 bool                                                 exportWelspec,
                                                 const std::set<QString>&                             wellsInTrajectoryOrder );
 
-    static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
-                                               QFilePtr                                                 exportFile,
-                                               const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-                                               RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
-                                               bool                                                     exportDataSourceAsComment,
-                                               const std::set<QString>&                                 wellsInTrajectoryOrder );
+    // A non-empty gridName exports the LGR variants of the tables (COMPDATL, WPIMULTL, COMPLMPL)
+    static void exportCompdatAndWpimultTables( QFilePtr                                             exportFile,
+                                               const QString&                                       gridName,
+                                               std::vector<RigCompletionData>                       completions,
+                                               RicExportCompletionDataSettingsUi::CompdatExportType exportType,
+                                               bool                                                 exportDataSourceAsComment,
+                                               const std::set<QString>&                             wellsInTrajectoryOrder );
 
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 };
