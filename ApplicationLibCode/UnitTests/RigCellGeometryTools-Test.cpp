@@ -358,6 +358,28 @@ TEST( RigCellGeometryTools, angleBetweenLinesTest )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RigCellGeometryTools, pointInsideCellNegK2DUsesNegKFace )
+{
+    // NEG_K face (corners 0-3) covers [0,1]x[0,1], the POS_K face (corners 4-7) is shifted to [10,11]x[0,1]
+    const std::array<cvf::Vec3d, 8> corners = { cvf::Vec3d( 0, 0, 0 ),
+                                                cvf::Vec3d( 1, 0, 0 ),
+                                                cvf::Vec3d( 1, 1, 0 ),
+                                                cvf::Vec3d( 0, 1, 0 ),
+                                                cvf::Vec3d( 10, 0, 1 ),
+                                                cvf::Vec3d( 11, 0, 1 ),
+                                                cvf::Vec3d( 11, 1, 1 ),
+                                                cvf::Vec3d( 10, 1, 1 ) };
+
+    EXPECT_TRUE( RigCellGeometryTools::pointInsideCellNegK2D( cvf::Vec3d( 0.5, 0.5, 0.0 ), corners ) );
+    EXPECT_TRUE( RigCellGeometryTools::pointInsideCellNegK2D( cvf::Vec3d( 0.9, 0.1, 123.0 ), corners ) );
+    EXPECT_FALSE( RigCellGeometryTools::pointInsideCellNegK2D( cvf::Vec3d( 1.5, 0.5, 0.0 ), corners ) );
+    EXPECT_FALSE( RigCellGeometryTools::pointInsideCellNegK2D( cvf::Vec3d( 0.5, -0.5, 0.0 ), corners ) );
+    EXPECT_FALSE( RigCellGeometryTools::pointInsideCellNegK2D( cvf::Vec3d( 10.5, 0.5, 1.0 ), corners ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
 {
     std::vector<cvf::Vec3d> polygonExample;
