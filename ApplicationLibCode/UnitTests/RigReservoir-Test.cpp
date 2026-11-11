@@ -309,6 +309,102 @@ TEST( RigGridManager, GridsWithEqualNodesAndDifferentCellCornersAreNotEqual )
     EXPECT_FALSE( RigGridManager::isEqual( gridA.p(), gridB.p() ) );
 }
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigEclipseCaseData> createSingleCellCase()
+{
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( 1, 1, 1 ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 1.0, 2.0, 3.0 ) );
+
+    cvf::ref<RigEclipseCaseData> caseData = new RigEclipseCaseData( nullptr );
+    builder.createGridsAndCells( caseData.p() );
+    caseData->mainGrid()->computeCachedData();
+
+    return caseData;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigCellTest, FaceCornersFollowStructGridFaceVertexIndices )
+{
+    auto        caseData = createSingleCellCase();
+    const auto* mainGrid = caseData->mainGrid();
+    ASSERT_EQ( 1u, mainGrid->cellCount() );
+
+    const RigCell& cell  = mainGrid->cell( 0 );
+    const auto     nodes = mainGrid->nodes();
+
+    for ( int faceIdx = 0; faceIdx < 6; faceIdx++ )
+    {
+        const auto  face          = static_cast<cvf::StructGridInterface::FaceType>( faceIdx );
+        const auto  corners       = cell.faceCorners( face );
+        const auto& vertexIndices = cvf::StructGridInterface::cellFaceVertexIndices( face );
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            EXPECT_EQ( nodes[cell.cornerIndices()[vertexIndices[i]]], corners[i] ) << "face " << faceIdx << " corner " << i;
+        }
+    }
+
+    // Opposite faces are parallel and separated along their own axis only
+    for ( auto [posFace, axis] : { std::pair{ cvf::StructGridInterface::POS_I, 0 },
+                                   std::pair{ cvf::StructGridInterface::POS_J, 1 },
+                                   std::pair{ cvf::StructGridInterface::POS_K, 2 } } )
+    {
+        const auto  posCorners = cell.faceCorners( posFace );
+        const auto  negCorners = cell.faceCorners( cvf::StructGridInterface::oppositeFace( posFace ) );
+        const auto& map        = cvf::StructGridInterface::oppositeFaceVertexIndexMap();
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            const cvf::Vec3d diff = posCorners[i] - negCorners[map[i]];
+            for ( int dim = 0; dim < 3; dim++ )
+            {
+                if ( dim == axis )
+                    EXPECT_GT( std::abs( diff[dim] ), 0.5 ) << "axis " << axis << " corner " << i;
+                else
+                    EXPECT_NEAR( 0.0, diff[dim], 1e-9 ) << "axis " << axis << " corner " << i;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigCellTest, IsCollapsedVertically )
+{
+    {
+        auto caseData = createSingleCellCase();
+        EXPECT_FALSE( caseData->mainGrid()->cell( 0 ).isCollapsedVertically() );
+    }
+
+    // Move each top corner onto the bottom corner on the same pillar
+    for ( size_t bottomCorner = 0; bottomCorner < 4; bottomCorner++ )
+    {
+        auto        caseData      = createSingleCellCase();
+        auto*       mainGrid      = caseData->mainGrid();
+        const auto& cornerIndices = mainGrid->cell( 0 ).cornerIndices();
+
+        mainGrid->modifiableNodes()[cornerIndices[bottomCorner + 4]] = mainGrid->nodes()[cornerIndices[bottomCorner]];
+        EXPECT_TRUE( mainGrid->cell( 0 ).isCollapsedVertically() ) << "corner " << bottomCorner;
+    }
+
+    // Moving a top corner onto a bottom corner of another pillar is not a vertical collapse
+    {
+        auto        caseData      = createSingleCellCase();
+        auto*       mainGrid      = caseData->mainGrid();
+        const auto& cornerIndices = mainGrid->cell( 0 ).cornerIndices();
+
+        mainGrid->modifiableNodes()[cornerIndices[5]] = mainGrid->nodes()[cornerIndices[3]];
+        EXPECT_FALSE( mainGrid->cell( 0 ).isCollapsedVertically() );
+    }
+}
+
 /*
 
 //--------------------------------------------------------------------------------------------------
