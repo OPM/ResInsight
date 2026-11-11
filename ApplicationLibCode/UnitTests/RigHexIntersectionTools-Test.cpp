@@ -267,3 +267,64 @@ TEST( RigHexIntersectionTools, lineHexCellIntersectionParametricTolerance )
         EXPECT_LT( withTolerance[0].m_intersectionPoint.pointDistance( p2 ), 1e-12 );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The vertical ray of the point in cell test can go through a face centre, a triangle edge or a cell edge, where it hits
+/// several triangles at the same point. Each of these is one crossing of the cell surface.
+//--------------------------------------------------------------------------------------------------
+TEST( RigHexIntersectionTools, isPointInCellRayThroughTriangleEdges )
+{
+    const std::array<cvf::Vec3d, 8> unitCube = { cvf::Vec3d( 0, 0, 0 ),
+                                                 cvf::Vec3d( 1, 0, 0 ),
+                                                 cvf::Vec3d( 1, 1, 0 ),
+                                                 cvf::Vec3d( 0, 1, 0 ),
+                                                 cvf::Vec3d( 0, 0, 1 ),
+                                                 cvf::Vec3d( 1, 0, 1 ),
+                                                 cvf::Vec3d( 1, 1, 1 ),
+                                                 cvf::Vec3d( 0, 1, 1 ) };
+
+    // Face centre, and the two diagonals the faces are split along
+    EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.5, 0.5, 0.5 ), unitCube ) );
+    EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.3, 0.3, 0.5 ), unitCube ) );
+    EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.7, 0.3, 0.5 ), unitCube ) );
+    EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.2, 0.6, 0.5 ), unitCube ) );
+
+    EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.5, 0.5, 1.5 ), unitCube ) );
+    EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.3, 0.3, 1.5 ), unitCube ) );
+    EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 0.5, 0.5, -0.5 ), unitCube ) );
+    EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 1.5, 0.5, 0.5 ), unitCube ) );
+
+    // The top is moved 0.5 in X, so the ray from the point goes through the edge between the bottom face and the I+ face
+    std::array<cvf::Vec3d, 8> shearedCube = unitCube;
+    for ( size_t i = 4; i < 8; ++i )
+    {
+        shearedCube[i].x() += 0.5;
+    }
+    EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 1.0, 0.5, 0.8 ), shearedCube ) );
+    EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( cvf::Vec3d( 1.0, 0.5, 1.2 ), shearedCube ) );
+
+    // Distorted cells at UTM coordinates, with the ray through the bottom face centre and a triangle edge of the bottom face
+    std::mt19937                           rng( 15153 );
+    std::uniform_real_distribution<double> easting( 400000.0, 600000.0 );
+    std::uniform_real_distribution<double> northing( 6000000.0, 7000000.0 );
+    std::uniform_real_distribution<double> depth( -4000.0, -1000.0 );
+
+    for ( int hexIdx = 0; hexIdx < 500; ++hexIdx )
+    {
+        std::array<cvf::Vec3d, 8> hexCorners = createDistortedHex( rng, cvf::Vec3d( easting( rng ), northing( rng ), depth( rng ) ) );
+
+        cvf::ubyte faceVertexIndices[4];
+        cvf::StructGridInterface::cellFaceVertexIndices( cvf::StructGridInterface::NEG_K, faceVertexIndices );
+        const cvf::Vec3d bottomCenter   = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
+                                                                               hexCorners[faceVertexIndices[1]],
+                                                                               hexCorners[faceVertexIndices[2]],
+                                                                               hexCorners[faceVertexIndices[3]] );
+        const cvf::Vec3d onTriangleEdge = 0.5 * ( bottomCenter + hexCorners[faceVertexIndices[0]] );
+
+        for ( const auto& onBottomFace : { bottomCenter, onTriangleEdge } )
+        {
+            EXPECT_TRUE( RigHexIntersectionTools::isPointInCell( onBottomFace + cvf::Vec3d( 0, 0, 3.0 ), hexCorners ) );
+            EXPECT_FALSE( RigHexIntersectionTools::isPointInCell( onBottomFace - cvf::Vec3d( 0, 0, 3.0 ), hexCorners ) );
+        }
+    }
+}
