@@ -85,39 +85,6 @@
 ///
 //--------------------------------------------------------------------------------------------------
 
-// The indexing conventions for vertices in ECLIPSE
-//
-//      2-------------3
-//     /|            /|
-//    / |           / |               /j
-//   /  |          /  |              /
-//  0-------------1   |             *---i
-//  |   |         |   |             |
-//  |   6---------|---7             |
-//  |  /          |  /              |k
-//  | /           | /
-//  |/            |/
-//  4-------------5
-//  vertex indices
-//
-// The indexing conventions for vertices in ResInsight
-//
-//      7-------------6             |k
-//     /|            /|             | /j
-//    / |           / |             |/
-//   /  |          /  |             *---i
-//  4-------------5   |
-//  |   |         |   |
-//  |   3---------|---2
-//  |  /          |  /
-//  | /           | /
-//  |/            |/
-//  0-------------1
-//  vertex indices
-//
-
-static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
@@ -211,10 +178,11 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         }
 
         // Corner coordinates
-        int cIdx;
+        const auto& cornerIndexMapping = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping();
+        int         cIdx;
         for ( cIdx = 0; cIdx < 8; ++cIdx )
         {
-            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cornerIndexMapping[cIdx]].ptr();
             ecl_grid_get_cell_corner_xyz1( localEclGrid, gridLocalCellIndex, cIdx, &( point[0] ), &( point[1] ), &( point[2] ) );
             point[2]                   = -point[2]; // Flipping Z making depth become negative z values
             cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
@@ -667,14 +635,6 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
 void RifReaderEclipseOutput::setFileDataAccess( RifEclipseRestartDataAccess* restartDataAccess )
 {
     m_dynamicResultsAccess = restartDataAccess;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
-{
-    return cellMappingECLRi;
 }
 
 //--------------------------------------------------------------------------------------------------

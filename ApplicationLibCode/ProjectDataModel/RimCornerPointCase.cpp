@@ -269,7 +269,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
 
     std::span<cvf::Vec3d> gridNodes = mainGrid->allocateNodes( static_cast<size_t>( cellCount ) * 8 );
 
-    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+    const auto& cornerIndexMapping = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping();
 
     cvf::Vec3d offset( 0.0, 0.0, 0.0 );
     cvf::Vec3d scale( 1.0, 1.0, 1.0 );
@@ -308,7 +308,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
         // Corner coordinates
         for ( int cIdx = 0; cIdx < 8; ++cIdx )
         {
-            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            double* point = gridNodes[(size_t)gridLocalCellIndex * 8 + cornerIndexMapping[cIdx]].ptr();
 
             point[0] = corners[cIdx].x();
             point[1] = corners[cIdx].y();

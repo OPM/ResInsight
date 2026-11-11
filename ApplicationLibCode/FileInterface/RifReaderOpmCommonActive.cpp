@@ -264,8 +264,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
     auto radialGridCenterTopLayerOpm = isRadialGrid ? RifOpmRadialGridTools::computeXyCenterForTopOfCells( opmMainGrid, opmGrid, localGrid )
                                                     : std::map<int, std::pair<double, double>>();
 
-    // use same mapping as resdata
-    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+    const auto& cornerIndexMapping = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping();
 
     std::map<int, int> activeCellMap;
     int                nativeIdx = 0;
@@ -324,7 +323,7 @@ void RifReaderOpmCommonActive::transferActiveGeometry( Opm::EclIO::EGrid&  opmMa
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
-            auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
+            auto   riCornerIndex = cornerIndexMapping[opmNodeIndex];
             size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
 
             auto& riNode = riNodes[riNodeIndex - nodeStartIndex];

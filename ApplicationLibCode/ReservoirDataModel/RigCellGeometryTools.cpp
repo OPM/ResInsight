@@ -894,12 +894,12 @@ bool RigCellGeometryTools::pointInsideCellNegK2D( const cvf::Vec3d& point, const
 {
     std::vector<cvf::Vec3d> polygon;
 
-    const std::vector<size_t> negK = { 0, 3, 2, 1, 0 };
-
+    const auto& negK = cvf::StructGridInterface::cellFaceVertexIndices( cvf::StructGridInterface::NEG_K );
     for ( auto i : negK )
     {
         polygon.push_back( cellCorners[i] );
     }
+    polygon.push_back( cellCorners[negK.front()] );
 
     return RigCellGeometryTools::pointInsidePolygon2D( point, polygon );
 }

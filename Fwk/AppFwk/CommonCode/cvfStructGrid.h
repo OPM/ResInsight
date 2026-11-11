@@ -109,7 +109,11 @@ public:
     virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const   = 0;
 
 public:
-    static void     cellFaceVertexIndices( FaceType face, cvf::ubyte vertexIndices[4] );
+    static void                        cellFaceVertexIndices( FaceType face, cvf::ubyte vertexIndices[4] );
+    static const std::array<ubyte, 4>& cellFaceVertexIndices( FaceType face );
+    static const std::array<ubyte, 4>& oppositeFaceVertexIndexMap();
+    static const std::array<ubyte, 8>& reservoirSimulatorCornerIndexMapping();
+
     static FaceType oppositeFace( FaceType face );
     static void     neighborIJKAtCellFace( size_t                        i,
                                            size_t                        j,

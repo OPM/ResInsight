@@ -44,7 +44,13 @@ int RigFemTypes::elementFaceCount( RigElementType elmType )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// HEX8 node and face ordering matches the reservoir grid definition in
+/// cvf::StructGridInterface::cellFaceVertexIndices() (Fwk/AppFwk/CommonCode/cvfStructGrid.cpp), and the
+/// face index equals cvf::StructGridInterface::FaceType.
 ///
+/// The tables are intentionally kept as a local copy, as FEM elements are a separate grid definition and
+/// the explicit indices are easier to check against element documentation. Consistency with the reservoir
+/// grid is verified by unit tests.
 //--------------------------------------------------------------------------------------------------
 // HEX8
 //     7---------6     Increased k -> Increased depth : 4 5 6 7 is the deepest quad
@@ -58,8 +64,15 @@ int RigFemTypes::elementFaceCount( RigElementType elmType )
 
 const int* RigFemTypes::localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount )
 {
-    static const int HEX8_Faces[6][4] = { { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 3, 7, 6, 2 }, { 0, 1, 5, 4 }, { 4, 5, 6, 7 }, { 0, 3, 2, 1 } };
-    static const int CAX4_Faces[4]    = { 0, 1, 2, 3 };
+    static const int HEX8_Faces[6][4] = {
+        { 1, 2, 6, 5 }, // POS_I
+        { 0, 4, 7, 3 }, // NEG_I
+        { 3, 7, 6, 2 }, // POS_J
+        { 0, 1, 5, 4 }, // NEG_J
+        { 4, 5, 6, 7 }, // POS_K
+        { 0, 3, 2, 1 }, // NEG_K
+    };
+    static const int CAX4_Faces[4] = { 0, 1, 2, 3 };
 
     switch ( elmType )
     {
