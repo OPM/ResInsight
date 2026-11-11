@@ -1167,3 +1167,40 @@ TEST( RicWellPathExportMswGeometryPath, SingleSegmentOutsidePerforations )
 
     EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *collapsed ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// perf_two_back_to_back has the perforations 3100 - 3800 and 3800 - 3900, split inside cell (3, 4, 5).
+/// The cell is connected once, and the COMPSEGS row covers the part of the cell in both perforations.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, PerforationSplitInsideCell_CellCoversBothPerforations )
+{
+    ProjectCloser projectCloser;
+
+    QDir projectFolder( TEST_MODEL_DIR );
+    ASSERT_TRUE( projectFolder.cd( "msw-export/project-files" ) );
+    ASSERT_TRUE( RiaApplication::instance()->loadProject( projectFolder.absoluteFilePath( "perf_two_back_to_back.rsp" ) ) );
+
+    RimProject* project = RimProject::current();
+    ASSERT_TRUE( project != nullptr );
+    ASSERT_FALSE( project->eclipseCases().empty() );
+
+    RimWellPath* wellPath = nullptr;
+    for ( auto* candidate : project->allWellPaths() )
+    {
+        if ( candidate && candidate->name() == "Well-1" ) wellPath = candidate;
+    }
+    ASSERT_TRUE( wellPath != nullptr );
+
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( project->eclipseCases().front(), wellPath );
+    ASSERT_TRUE( tableData.has_value() );
+
+    std::vector<CompsegsRow> splitCellRows;
+    for ( const auto& row : tableData->compsegsData() )
+    {
+        if ( row.i == 3 && row.j == 4 && row.k == 5 ) splitCellRows.push_back( row );
+    }
+
+    ASSERT_EQ( 1u, splitCellRows.size() );
+    EXPECT_NEAR( 3550.233, splitCellRows.front().distanceStart, 1.0e-2 );
+    EXPECT_NEAR( 3900.0, splitCellRows.front().distanceEnd, 1.0e-2 );
+}

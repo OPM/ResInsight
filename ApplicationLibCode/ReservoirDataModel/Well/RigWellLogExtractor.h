@@ -96,6 +96,9 @@ protected:
 
     virtual cvf::Vec3d calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const = 0;
 
+    // Used to confirm that the well path starts or ends inside a cell whose triangulated faces cross those of a neighbour cell
+    virtual bool isPointInCell( const cvf::Vec3d& point, size_t cellIndex ) const;
+
 protected:
     cvf::cref<RigWellPath> m_wellPathGeometry;
     std::string            m_wellCaseErrorMsgName;

@@ -160,6 +160,14 @@ void RigWellLogExtractor::resampleIntersections( double maxDistanceBetweenInters
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigWellLogExtractor::isPointInCell( const cvf::Vec3d& /*point*/, size_t /*cellIndex*/ ) const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<double> RigWellLogExtractor::averageMdForCell( size_t cellIndex ) const
 {
     std::vector<size_t> indicesForCell;
@@ -304,11 +312,23 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 
     // Add points for the endpoint of the wellpath, if it starts/ends inside a cell
     {
-        // Add an intersection for the well startpoint that is inside the first cell
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it = sortedUniqueIntersections.begin();
-        if ( it != sortedUniqueIntersections.end() && !it->first.isEnteringCell ) // Leaving a cell as first
-                                                                                  // intersection. Well starts inside a
-                                                                                  // cell.
+        // Add an intersection for the well startpoint that is inside the first cell. Usually the first intersection is leaving
+        // this cell, but the next cell can be entered before the first cell is left. Cells do not overlap, but when the surface
+        // between two neighbour cells is non-planar, the triangulated faces of the two cells can cross each other, for instance
+        // at a fault. The first leaving point is then preceded by entering points of other cells only.
+        auto it = std::find_if( sortedUniqueIntersections.begin(),
+                                sortedUniqueIntersections.end(),
+                                []( const auto& keyAndInfo ) { return keyAndInfo.first.isLeavingCell(); } );
+
+        const bool startsInsideCell =
+            it != sortedUniqueIntersections.end() &&
+            ( it == sortedUniqueIntersections.begin() ||
+              ( std::none_of( sortedUniqueIntersections.begin(),
+                              it,
+                              [&it]( const auto& keyAndInfo ) { return keyAndInfo.first.hexIndex == it->first.hexIndex; } ) &&
+                isPointInCell( m_wellPathGeometry->wellPathPoints().front(), it->first.hexIndex ) ) );
+
+        if ( startsInsideCell )
         {
             // Needs wellpath start point in front
             HexIntersectionInfo firstLeavingPoint      = it->second;
@@ -323,11 +343,21 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                                                               firstLeavingPoint ) );
         }
 
-        // Add an intersection for the well endpoint possibly inside the last cell.
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit = sortedUniqueIntersections.rbegin();
-        if ( rit != sortedUniqueIntersections.rend() && rit->first.isEnteringCell ) // Entering a cell as last
-                                                                                    // intersection. Well ends inside a
-                                                                                    // cell.
+        // Add an intersection for the well endpoint possibly inside the last cell. As for the start point, the last entering
+        // point can be followed by leaving points of neighbour cells.
+        auto rit = std::find_if( sortedUniqueIntersections.rbegin(),
+                                 sortedUniqueIntersections.rend(),
+                                 []( const auto& keyAndInfo ) { return keyAndInfo.first.isEnteringCell; } );
+
+        const bool endsInsideCell =
+            rit != sortedUniqueIntersections.rend() &&
+            ( rit == sortedUniqueIntersections.rbegin() ||
+              ( std::none_of( sortedUniqueIntersections.rbegin(),
+                              rit,
+                              [&rit]( const auto& keyAndInfo ) { return keyAndInfo.first.hexIndex == rit->first.hexIndex; } ) &&
+                isPointInCell( m_wellPathGeometry->wellPathPoints().back(), rit->first.hexIndex ) ) );
+
+        if ( endsInsideCell )
         {
             // Needs wellpath end point at end
             HexIntersectionInfo lastEnterPoint      = rit->second;

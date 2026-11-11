@@ -303,6 +303,16 @@ cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t cellIndex, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigEclipseWellLogExtractor::isPointInCell( const cvf::Vec3d& point, size_t cellIndex ) const
+{
+    if ( cellIndex >= m_caseData->mainGrid()->totalCellCount() ) return false;
+
+    return RigHexIntersectionTools::isPointInCell( point, m_caseData->mainGrid()->cellCornerVertices( cellIndex ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigEclipseWellLogExtractor::computeLengthThreshold() const
 {
     // Default length tolerance for most common grid sizes

@@ -27,6 +27,7 @@
 #include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 
+#include <cmath>
 #include <set>
 #include <tuple>
 
@@ -454,4 +455,121 @@ TEST( RigWellLogExtractor, LimitsPointsBetweenEnterAndLeave )
     std::vector<double> discarded;
     EXPECT_TRUE( pairPoints( pointsWithStrays( limit + 1 ), &discarded ).empty() );
     EXPECT_EQ( limit + 3, discarded.size() );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// 2x1x3 corner point grid with cells of 10 m in X, and a fault between column I = 0 and I = 1. Column I = 1 is thrown down
+/// along the fault pillars by faultThrow. The two fault pillars are straight, but skewed by pillarTwist, so the fault face is
+/// the bilinear surface x = 10 + pillarTwist * (y - 5) * (z + 1015). The cells do not overlap, but the triangulated fault
+/// faces of the two cells differ as they cover different depth ranges of the same surface.
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigEclipseCaseData> createTwoCellReservoir( double pillarTwist = 0.0, double faultThrow = 0.0 )
+{
+    cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( nullptr );
+    cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
+
+    mockFileInterface->setWorldCoordinates( cvf::Vec3d( 0, 0, -1030 ), cvf::Vec3d( 20, 10, -1000 ) );
+    mockFileInterface->setCellCounts( cvf::Vec3st( 2, 1, 3 ) );
+    mockFileInterface->enableWellData( false );
+    mockFileInterface->open( "", reservoir.p() );
+
+    auto* mainGrid = reservoir->mainGrid();
+    if ( pillarTwist != 0.0 || faultThrow != 0.0 )
+    {
+        auto nodes = mainGrid->modifiableNodes();
+        for ( size_t i = 0; i < 2; i++ )
+        {
+            for ( size_t k = 0; k < 3; k++ )
+            {
+                for ( size_t nodeIndex : mainGrid->cell( mainGrid->cellIndexFromIJK( i, 0, k ) ).cornerIndices() )
+                {
+                    auto& node = nodes[nodeIndex];
+                    if ( i == 1 ) node.z() -= faultThrow;
+                    if ( std::abs( node.x() - 10.0 ) < 1e-9 ) node.x() = 10.0 + pillarTwist * ( node.y() - 5.0 ) * ( node.z() + 1015.0 );
+                }
+            }
+        }
+    }
+    mainGrid->computeCachedData();
+
+    return reservoir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Intersects the part [startMD, endMD] of a horizontal well along X in layer K = 1, the same way as the completion export
+/// does for a perforation interval. MD equals X along the well. The well is moved off the cell centres, as the point in cell
+/// test is ambiguous at face centres.
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo> perforationIntersections( RigEclipseCaseData* reservoir, double startMD, double endMD )
+{
+    const cvf::Vec3d center = reservoir->mainGrid()->cell( reservoir->mainGrid()->cellIndexFromIJK( 0, 0, 1 ) ).center() +
+                              cvf::Vec3d( 0, 1.3, 0.7 );
+
+    cvf::ref<RigWellPath> wellPath = new RigWellPath;
+    wellPath->setWellPathPoints( { cvf::Vec3d( 0.0, center.y(), center.z() ), cvf::Vec3d( 20.0, center.y(), center.z() ) }, { 0.0, 20.0 } );
+
+    const auto [coords, mds] = wellPath->clippedPointSubset( startMD, endMD );
+
+    cvf::ref<RigWellPath>                clippedPath = new RigWellPath( coords, mds );
+    cvf::ref<RigEclipseWellLogExtractor> e           = new RigEclipseWellLogExtractor( reservoir, clippedPath.p(), "" );
+    return e->cellIntersectionInfosAlongWellPath();
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Perforation A ends inside cell 0 and perforation B continues from there. Both perforations must connect to cell 0, each
+/// with its own part of the cell.
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, PerforationSplitInsideCell )
+{
+    auto       reservoir = createTwoCellReservoir();
+    const auto cell0     = reservoir->mainGrid()->cellIndexFromIJK( 0, 0, 1 );
+    const auto cell1     = reservoir->mainGrid()->cellIndexFromIJK( 1, 0, 1 );
+
+    auto perfA = perforationIntersections( reservoir.p(), 2.0, 5.0 );
+    ASSERT_EQ( 1u, perfA.size() );
+    EXPECT_EQ( cell0, perfA[0].globCellIndex );
+    EXPECT_NEAR( 2.0, perfA[0].startMD, 1e-6 );
+    EXPECT_NEAR( 5.0, perfA[0].endMD, 1e-6 );
+
+    auto perfB = perforationIntersections( reservoir.p(), 5.0, 16.0 );
+    ASSERT_EQ( 2u, perfB.size() );
+    EXPECT_EQ( cell0, perfB[0].globCellIndex );
+    EXPECT_NEAR( 5.0, perfB[0].startMD, 1e-6 );
+    EXPECT_NEAR( 10.0, perfB[0].endMD, 1e-6 );
+    EXPECT_EQ( cell1, perfB[1].globCellIndex );
+    EXPECT_NEAR( 10.0, perfB[1].startMD, 1e-6 );
+    EXPECT_NEAR( 16.0, perfB[1].endMD, 1e-6 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// As PerforationSplitInsideCell, but with a fault on skewed pillars between cell 0 and cell 1. The cells do not overlap, but
+/// their triangulated fault faces do, so perforation B enters cell 1 before it leaves cell 0 and the first intersection
+/// along B is not the one leaving cell 0. The part of cell 0 after the split must still be connected to perforation B
+/// (A4 cell 35,49,2 in the Drogon test, MD 3040.71 - 3079.44).
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, PerforationSplitInsideCellNextToFault )
+{
+    auto       reservoir = createTwoCellReservoir( -0.1, 0.5 );
+    const auto cell0     = reservoir->mainGrid()->cellIndexFromIJK( 0, 0, 1 );
+    const auto cell1     = reservoir->mainGrid()->cellIndexFromIJK( 1, 0, 1 );
+
+    auto perfA = perforationIntersections( reservoir.p(), 2.0, 5.0 );
+    ASSERT_EQ( 1u, perfA.size() );
+    EXPECT_EQ( cell0, perfA[0].globCellIndex );
+    EXPECT_NEAR( 2.0, perfA[0].startMD, 1e-6 );
+    EXPECT_NEAR( 5.0, perfA[0].endMD, 1e-6 );
+
+    // The well crosses the fault face at x = 9.909. The triangle of the fault face of cell 0 is crossed at x = 9.65, and the
+    // triangle of cell 1 at x = 9.465, so the triangulated faces overlap by 0.185 m along the well.
+    auto perfB = perforationIntersections( reservoir.p(), 5.0, 16.0 );
+    ASSERT_EQ( 2u, perfB.size() );
+    EXPECT_EQ( cell0, perfB[0].globCellIndex );
+    EXPECT_NEAR( 5.0, perfB[0].startMD, 1e-6 );
+    EXPECT_NEAR( 9.65, perfB[0].endMD, 1e-6 );
+    EXPECT_EQ( cell1, perfB[1].globCellIndex );
+    EXPECT_NEAR( 9.465, perfB[1].startMD, 1e-6 );
+    EXPECT_NEAR( 16.0, perfB[1].endMD, 1e-6 );
 }
