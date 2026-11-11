@@ -715,7 +715,11 @@ void appendCompletionsDepthFirst( const RimWellPath*                            
                           {
                               if ( lhs.firstOrderingValue() != rhs.firstOrderingValue() )
                                   return lhs.firstOrderingValue() < rhs.firstOrderingValue();
-                              return lhs.secondOrderingValue() < rhs.secondOrderingValue();
+                              if ( lhs.secondOrderingValue() != rhs.secondOrderingValue() )
+                                  return lhs.secondOrderingValue() < rhs.secondOrderingValue();
+
+                              // Connections at the same depth, e.g. all cells of a fracture, are ordered by cell
+                              return lhs.completionDataGridCell() < rhs.completionDataGridCell();
                           } );
 
         for ( const auto& completion : it->second )
