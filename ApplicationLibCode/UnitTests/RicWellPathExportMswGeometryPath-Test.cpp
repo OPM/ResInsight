@@ -869,6 +869,44 @@ RimSegmentInterval* addSegmentIntervalCoveringWell( RimWellPath* wellPath )
     return segments->createInterval( 0.0, 1.0e5, segments->linerDiameter(), segments->roughnessFactor() );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// The user specified depths exported as nodes on the branch: perforation and segment interval limits,
+/// and the tie-in of child laterals
+//--------------------------------------------------------------------------------------------------
+std::vector<double> requiredDepths( const RimWellPath* wellPath, const BranchExport& branch )
+{
+    std::vector<double> depths;
+    for ( const auto* perf : wellPath->perforationIntervalCollection()->activePerforations() )
+    {
+        depths.push_back( perf->startMD() );
+        depths.push_back( perf->endMD() );
+    }
+    for ( const auto& [startMD, endMD] : wellPath->segmentCollection()->getSegmentIntervals() )
+    {
+        depths.push_back( startMD );
+        depths.push_back( endMD );
+    }
+    for ( const auto* child : RicWellPathExportMswTableData::wellPathsWithTieIn( wellPath ) )
+    {
+        depths.push_back( child->wellPathTieIn()->tieInMeasuredDepth() );
+    }
+
+    const double tieInMD = wellPath->wellPathTieIn()->tieInMeasuredDepth();
+    std::erase_if( depths, [&]( double md ) { return md <= tieInMD || md > branch.nodeMDs.back(); } );
+    return depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The nodes placed by the segmentation rules, without the nodes at user specified depths
+//--------------------------------------------------------------------------------------------------
+std::vector<double> ruleNodeMDs( const RimWellPath* wellPath, const BranchExport& branch )
+{
+    const auto          depths = requiredDepths( wellPath, branch );
+    std::vector<double> nodes  = branch.nodeMDs;
+    std::erase_if( nodes, [&]( double md ) { return std::ranges::find( depths, md ) != depths.end(); } );
+    return nodes;
+}
+
 } // anonymous namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -908,7 +946,7 @@ TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MinSegmentLengthMergesCe
     EXPECT_LT( merged->nodeMDs.size(), baseline->nodeMDs.size() );
 
     double previousMD = tieInMD;
-    for ( double nodeMD : merged->nodeMDs )
+    for ( double nodeMD : ruleNodeMDs( lateral, *merged ) )
     {
         EXPECT_GE( nodeMD - previousMD, minLength - 1.0e-6 );
         previousMD = nodeMD;
@@ -1060,10 +1098,11 @@ TEST( RicWellPathExportMswGeometryPath, SegmentInterval_FixedSegmentLength )
     ASSERT_TRUE( fixedExport.has_value() );
 
     // Nodes of full segments are one fixed length apart, the first and last segments are cut by the branch ends
-    ASSERT_GE( fixedExport->nodeMDs.size(), 4u );
-    for ( size_t k = 1; k + 2 < fixedExport->nodeMDs.size(); ++k )
+    const auto fixedNodes = ruleNodeMDs( lateral, *fixedExport );
+    ASSERT_GE( fixedNodes.size(), 4u );
+    for ( size_t k = 1; k + 2 < fixedNodes.size(); ++k )
     {
-        EXPECT_NEAR( fixedExport->nodeMDs[k + 1] - fixedExport->nodeMDs[k], fixedLength, 1.0e-6 ) << "node " << k;
+        EXPECT_NEAR( fixedNodes[k + 1] - fixedNodes[k], fixedLength, 1.0e-6 ) << "node " << k;
     }
 
     EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *fixedExport ) );
@@ -1104,7 +1143,7 @@ TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MinAndMaxSegmentLengthCo
     ASSERT_TRUE( combined.has_value() );
 
     double previousMD = tieInMD;
-    for ( double nodeMD : combined->nodeMDs )
+    for ( double nodeMD : ruleNodeMDs( lateral, *combined ) )
     {
         EXPECT_GE( nodeMD - previousMD, minLength - 1.0e-6 );
         EXPECT_LE( nodeMD - previousMD, maxLength + 1.0e-6 );
@@ -1157,8 +1196,8 @@ TEST( RicWellPathExportMswGeometryPath, SingleSegmentOutsidePerforations )
     const auto collapsed = exportLateralBranch( input, lateral );
     ASSERT_TRUE( collapsed.has_value() );
 
-    EXPECT_LE( countBefore( collapsed->nodeMDs ), 1 );
-    EXPECT_LE( countAfter( collapsed->nodeMDs ), 1 );
+    EXPECT_LE( countBefore( ruleNodeMDs( lateral, *collapsed ) ), 1 );
+    EXPECT_LE( countAfter( ruleNodeMDs( lateral, *collapsed ) ), 1 );
     EXPECT_LE( collapsed->nodeMDs.size(), baseline->nodeMDs.size() );
 
     const auto insideCount = [&]( const std::vector<double>& nodes )
@@ -1166,6 +1205,71 @@ TEST( RicWellPathExportMswGeometryPath, SingleSegmentOutsidePerforations )
     EXPECT_EQ( insideCount( baseline->nodeMDs ), insideCount( collapsed->nodeMDs ) );
 
     EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *collapsed ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The perforation and segment interval limits and the tie-in of laterals are exported as node depths
+/// without modification, and a lateral is connected to the node at its tie-in
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, UserSpecifiedDepthsAreExactNodes )
+{
+    ProjectCloser projectCloser;
+
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    RimWellPath* lateral = findLateralY2();
+    ASSERT_TRUE( lateral != nullptr );
+    ASSERT_EQ( input.wellPath, lateral->wellPathTieIn()->parentWell() );
+
+    const auto baseline = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( baseline.has_value() );
+
+    const double tieInMD      = lateral->wellPathTieIn()->tieInMeasuredDepth();
+    const double branchLength = baseline->nodeMDs.back() - tieInMD;
+    auto*        segments     = lateral->segmentCollection();
+    segments->createInterval( tieInMD + 0.3137 * branchLength,
+                              tieInMD + 0.6713 * branchLength,
+                              segments->linerDiameter(),
+                              segments->roughnessFactor() );
+
+    const auto lateralExport = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( lateralExport.has_value() );
+
+    const auto depths = requiredDepths( lateral, *lateralExport );
+    ASSERT_GE( depths.size(), 4u );
+    for ( double md : depths )
+    {
+        EXPECT_TRUE( std::ranges::find( lateralExport->nodeMDs, md ) != lateralExport->nodeMDs.end() ) << "depth " << md;
+    }
+
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( input.eclipseCase, input.wellPath );
+    ASSERT_TRUE( tableData.has_value() );
+
+    const bool isIncremental = tableData->welsegsHeader().infoType == "INC";
+    const auto lateralName   = QString( "Segments on lateral %1" ).arg( lateral->name() ).toStdString();
+
+    std::map<int, double> mainBoreNodeMD;
+    std::optional<int>    lateralOutletSegment;
+    for ( const auto& branch : tableData->mswBranches() )
+    {
+        if ( branch.segments.empty() ) continue;
+        if ( branch.segments.front().description == "Segments on main bore" )
+        {
+            double outletMD = tableData->welsegsHeader().topLength;
+            for ( const auto& segment : branch.segments )
+            {
+                outletMD                              = isIncremental ? outletMD + segment.length : segment.length;
+                mainBoreNodeMD[segment.segmentNumber] = outletMD;
+            }
+        }
+        if ( branch.segments.front().description == lateralName ) lateralOutletSegment = branch.segments.front().outletSegmentNumber;
+    }
+
+    ASSERT_TRUE( lateralOutletSegment.has_value() );
+    ASSERT_TRUE( mainBoreNodeMD.contains( *lateralOutletSegment ) );
+    EXPECT_EQ( tieInMD, mainBoreNodeMD[*lateralOutletSegment] );
 }
 
 //--------------------------------------------------------------------------------------------------

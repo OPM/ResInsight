@@ -93,6 +93,14 @@ std::vector<double> collapseNodesOutsidePerforations( const std::vector<double>&
                                                       bool                       singleAfter );
 
 //--------------------------------------------------------------------------------------------------
+/// Add nodes at the required measured depths, so that these depths are exported unmodified as WELSEGS
+/// node lengths. Depths outside (outletMD, lastMD] are ignored. An existing node within the tolerance
+/// of a required depth is moved to the required depth instead of adding a new node.
+//--------------------------------------------------------------------------------------------------
+std::vector<double>
+    insertRequiredNodes( const std::vector<double>& nodes, const std::vector<double>& requiredMDs, double outletMD, double lastMD );
+
+//--------------------------------------------------------------------------------------------------
 /// Index of the nearest node upstream of md, i.e. the node with the largest MD not greater than md.
 /// If md is upstream of all nodes, the most upstream node is used. Returns std::nullopt if there are
 /// no nodes.

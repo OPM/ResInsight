@@ -3387,6 +3387,89 @@ class TestSimulatorEventsIntegration:
         assert segment_collection.reference_md_type == "UserDefined"
         assert segment_collection.user_defined_reference_md == 1200.0
 
+    def test_event_depths_are_exported_unmodified_in_welsegs(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+
+        reference = (3736.27, 4630.61, 4133.5)
+        main = project.well_path_collection().add_new_object(rips.ModeledWellPath)
+        main.name = "MAIN"
+        main.update()
+        geometry = main.well_path_geometry()
+        geometry.reference_point = list(reference)
+        geometry.update()
+        for x, y, z in [
+            (3736.27, 4630.61, 4133.5),
+            (4556.6, 4868.06, 4160.31),
+            (5105.97, 5198.67, 4148.41),
+            (5422.32, 5747.19, 4137.33),
+        ]:
+            geometry.append_well_target(
+                [x - reference[0], y - reference[1], z - reference[2]]
+            )
+        geometry.update()
+
+        tie_in_md = 5100.37
+        lateral = main.append_lateral(tie_in_md)
+        lateral.name = "LAT"
+        lateral.update()
+        lateral_geometry = lateral.well_path_geometry()
+        for x, y, z in [(5300.0, 4900.0, 4150.0), (5600.0, 4800.0, 4150.0)]:
+            lateral_geometry.append_well_target(
+                [x - reference[0], y - reference[1], z - reference[2]]
+            )
+        lateral_geometry.update()
+        main_name = next(
+            wp.name for wp in project.well_paths() if wp.name.startswith("MAIN")
+        )
+
+        document = parse_simulator_events(
+            "SIMEVENTS 1.2\n"
+            f'WELL "{main_name}"\n'
+            "  2024-01-01 SEGMENT      MDSTART=4450.37  MDEND=6201.73\n"
+            "  2024-01-01 PERFORATION  MDSTART=5012.41  MDEND=5187.93\n"
+            'WELL "LAT"\n'
+            "  2024-01-01 PERFORATION  MDSTART=5300.11  MDEND=5420.77\n"
+        )
+        report = apply_simulator_events_document(document, timeline, project)
+        assert report.errors == []
+
+        timeline.set_timestamp(timestamp="2024-01-15")
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[main]
+        )
+        block = schedule.split("WELSEGS\n", 1)[1].split("\n/", 1)[0]
+        lines = [
+            line.split()
+            for line in block.splitlines()
+            if line.strip() and not line.strip().startswith("--")
+        ]
+        assert float(lines[0][2]) == 4450.37
+        assert lines[0][4] == "'ABS'"
+
+        # Segment number -> (branch, node MD) and the outlet of the first lateral segment
+        nodes = {}
+        lateral_outlet = None
+        for row in lines[1:]:
+            segment, branch, outlet, length = (
+                int(row[0]),
+                int(row[2]),
+                int(row[3]),
+                float(row[4]),
+            )
+            nodes[segment] = (branch, length)
+            if branch != 1 and lateral_outlet is None:
+                lateral_outlet = outlet
+
+        main_mds = [md for branch, md in nodes.values() if branch == 1]
+        lateral_mds = [md for branch, md in nodes.values() if branch != 1]
+        for md in (5012.41, 5187.93, 6201.73, tie_in_md):
+            assert md in main_mds
+        for md in (5300.11, 5420.77):
+            assert md in lateral_mds
+        assert nodes[lateral_outlet] == (1, tie_in_md)
+
     def test_apply_unknown_well_warns_and_applies_nothing(
         self, project_with_case_and_wells
     ):

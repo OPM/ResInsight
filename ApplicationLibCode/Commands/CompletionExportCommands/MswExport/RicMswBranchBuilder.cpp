@@ -21,6 +21,7 @@
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicMswTableDataTools.h"
 #include "RicPerforationCellFilterEvaluator.h"
+#include "RicWellPathExportMswTableData.h"
 
 #include "RimCellFilter.h"
 
@@ -41,6 +42,7 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathTieIn.h"
 #include "RimWellPathValve.h"
 
 #include "RiaLogging.h"
@@ -551,6 +553,46 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                                                                         segmentationSettings.singleSegmentAfterLastPerforation );
     }
 
+    // The cell pieces are assigned to the nodes placed by the segmentation rules
+    std::vector<NodeSpan> spans = segmentSpans( cellPieces, nodes );
+
+    // User specified depths are exported unmodified: perforation and segment interval limits, and the tie-in of
+    // child laterals, which are connected to the node at their tie-in. These nodes serve no cell piece.
+    if ( !cellPieces.empty() )
+    {
+        std::vector<double> requiredMDs;
+        for ( const auto* perf : perforationIntervals )
+        {
+            if ( exportDate && !perf->isActiveOnDate( *exportDate ) ) continue;
+            requiredMDs.push_back( perf->startMD() );
+            requiredMDs.push_back( perf->endMD() );
+        }
+        for ( const auto& [intervalStartMD, intervalEndMD] : customSegmentIntervals )
+        {
+            requiredMDs.push_back( intervalStartMD );
+            requiredMDs.push_back( intervalEndMD );
+        }
+        for ( const auto* childWellPath : RicWellPathExportMswTableData::wellPathsWithTieIn( wellPath ) )
+        {
+            requiredMDs.push_back( childWellPath->wellPathTieIn()->tieInMeasuredDepth() );
+        }
+
+        const std::vector<double> ruleNodes = nodes;
+        nodes = RicMswTableDataTools::insertRequiredNodes( ruleNodes, requiredMDs, heelMD, cellPieces.back().second );
+
+        std::vector<bool> servesPiece( nodes.size(), false );
+        for ( auto& span : spans )
+        {
+            span.nodeIndex              = *RicMswTableDataTools::nearestNodeIndex( nodes, ruleNodes[span.nodeIndex] );
+            servesPiece[span.nodeIndex] = true;
+        }
+        for ( size_t i = 0; i < nodes.size(); ++i )
+        {
+            if ( !servesPiece[i] ) spans.push_back( { nodes[i], nodes[i], i } );
+        }
+        std::ranges::stable_sort( spans, []( const NodeSpan& lhs, const NodeSpan& rhs ) { return lhs.startMD < rhs.startMD; } );
+    }
+
     // Pass 2: one segment per node, the outlet is the previous node
     const int firstSegmentNumber = segmentNumber;
     for ( const double nodeMD : nodes )
@@ -625,7 +667,7 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
 
     if ( cellSegMap )
     {
-        for ( const auto& span : segmentSpans( cellPieces, nodes ) )
+        for ( const auto& span : spans )
         {
             cellSegMap->push_back(
                 { span.startMD, span.endMD, firstSegmentNumber + static_cast<int>( span.nodeIndex ), nodes[span.nodeIndex] } );
