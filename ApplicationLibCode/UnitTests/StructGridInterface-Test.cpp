@@ -49,3 +49,58 @@ TEST( StructGridInterfaceTest, TestEdgeVertices )
         EXPECT_EQ( indices.second, 1 );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( StructGridInterfaceTest, OppositeFaceVertexIndexMapConnectsCoincidentPillarVertices )
+{
+    // Unit cube corners using the ResInsight corner ordering
+    const std::array<Vec3d, 8> corners = { Vec3d( 0, 0, 0 ),
+                                           Vec3d( 1, 0, 0 ),
+                                           Vec3d( 1, 1, 0 ),
+                                           Vec3d( 0, 1, 0 ),
+                                           Vec3d( 0, 0, 1 ),
+                                           Vec3d( 1, 0, 1 ),
+                                           Vec3d( 1, 1, 1 ),
+                                           Vec3d( 0, 1, 1 ) };
+
+    const auto& map = StructGridInterface::oppositeFaceVertexIndexMap();
+
+    for ( auto face : StructGridInterface::validFaceTypes() )
+    {
+        const auto axis = static_cast<int>( StructGridInterface::gridAxisFromFace( face ) );
+
+        const auto& faceIndices     = StructGridInterface::cellFaceVertexIndices( face );
+        const auto& oppositeIndices = StructGridInterface::cellFaceVertexIndices( StructGridInterface::oppositeFace( face ) );
+
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            Vec3d diff = corners[faceIndices[i]] - corners[oppositeIndices[map[i]]];
+            diff[axis] = 0.0;
+            EXPECT_DOUBLE_EQ( 0.0, diff.length() ) << "face " << face << " local vertex " << i;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( StructGridInterfaceTest, LegacyCellFaceVertexIndicesMatchesTable )
+{
+    for ( auto face : StructGridInterface::validFaceTypes() )
+    {
+        ubyte legacy[4];
+        StructGridInterface::cellFaceVertexIndices( face, legacy );
+
+        const auto& indices = StructGridInterface::cellFaceVertexIndices( face );
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            EXPECT_EQ( indices[i], legacy[i] );
+        }
+    }
+
+    ubyte untouched[4] = { 9, 9, 9, 9 };
+    StructGridInterface::cellFaceVertexIndices( StructGridInterface::NO_FACE, untouched );
+    EXPECT_EQ( 9, untouched[0] );
+}

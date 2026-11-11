@@ -61,8 +61,6 @@ public:
     void setHdf5FileName( const QString& fileName );
     void setFileDataAccess( RifEclipseRestartDataAccess* restartDataAccess );
 
-    static const size_t* eclipseCellIndexMapping();
-
     bool openAndReadActiveCellData( const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase );
 
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;

@@ -71,58 +71,87 @@ StructGridInterface::StructGridInterface()
 //--------------------------------------------------------------------------------------------------
 void StructGridInterface::cellFaceVertexIndices( FaceType face, cvf::ubyte vertexIndices[4] )
 {
-    //
-    //     7---------6
-    //    /|        /|     |k
-    //   / |       / |     | /j
-    //  4---------5  |     |/
-    //  |  3------|--2     *---i
-    //  | /       | /
-    //  |/        |/
-    //  0---------1
+    if ( face < POS_I || face > NEG_K ) return;
 
-    if ( face == NEG_K )
-    {
-        vertexIndices[0] = 0;
-        vertexIndices[1] = 3;
-        vertexIndices[2] = 2;
-        vertexIndices[3] = 1;
-    }
-    else if ( face == POS_K )
-    {
-        vertexIndices[0] = 4;
-        vertexIndices[1] = 5;
-        vertexIndices[2] = 6;
-        vertexIndices[3] = 7;
-    }
-    else if ( face == NEG_J )
-    {
-        vertexIndices[0] = 0;
-        vertexIndices[1] = 1;
-        vertexIndices[2] = 5;
-        vertexIndices[3] = 4;
-    }
-    else if ( face == POS_J )
-    {
-        vertexIndices[0] = 3;
-        vertexIndices[1] = 7;
-        vertexIndices[2] = 6;
-        vertexIndices[3] = 2;
-    }
-    else if ( face == NEG_I )
-    {
-        vertexIndices[0] = 0;
-        vertexIndices[1] = 4;
-        vertexIndices[2] = 7;
-        vertexIndices[3] = 3;
-    }
-    else if ( face == POS_I )
-    {
-        vertexIndices[0] = 1;
-        vertexIndices[1] = 2;
-        vertexIndices[2] = 6;
-        vertexIndices[3] = 5;
-    }
+    const auto& indices = cellFaceVertexIndices( face );
+    std::copy( indices.begin(), indices.end(), vertexIndices );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Corner indices of a cell face
+///
+///     7---------6
+///    /|        /|     |k
+///   / |       / |     | /j
+///  4---------5  |     |/
+///  |  3------|--2     *---i
+///  | /       | /
+///  |/        |/
+///  0---------1
+//--------------------------------------------------------------------------------------------------
+const std::array<ubyte, 4>& StructGridInterface::cellFaceVertexIndices( FaceType face )
+{
+    // Indexed by FaceType: POS_I, NEG_I, POS_J, NEG_J, POS_K, NEG_K
+    static constexpr std::array<std::array<ubyte, 4>, 6> faceVertexIndices = { {
+        { 1, 2, 6, 5 },
+        { 0, 4, 7, 3 },
+        { 3, 7, 6, 2 },
+        { 0, 1, 5, 4 },
+        { 4, 5, 6, 7 },
+        { 0, 3, 2, 1 },
+    } };
+
+    CVF_ASSERT( face >= POS_I && face <= NEG_K );
+    return faceVertexIndices[face];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Maps a face-local vertex index on a face to the face-local vertex index of the coincident vertex on the
+/// opposite face, either of the same cell (connected by an edge) or of the neighbor cell across the face.
+/// See cellFaceVertexIndices(). The mapping is its own inverse.
+//--------------------------------------------------------------------------------------------------
+const std::array<ubyte, 4>& StructGridInterface::oppositeFaceVertexIndexMap()
+{
+    static constexpr std::array<ubyte, 4> map = { 0, 3, 2, 1 };
+    return map;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Maps between reservoir simulator corner ordering and ResInsight corner ordering.
+/// The mapping is its own inverse.
+///
+/// Reservoir simulator corner ordering (i fastest, then j, then k, with k pointing downwards)
+///
+///      2-------------3
+///     /|            /|
+///    / |           / |               /j
+///   /  |          /  |              /
+///  0-------------1   |             *---i
+///  |   |         |   |             |
+///  |   6---------|---7             |
+///  |  /          |  /              |k
+///  | /           | /
+///  |/            |/
+///  4-------------5
+///
+/// ResInsight corner ordering
+///
+///      7-------------6             |k
+///     /|            /|             | /j
+///    / |           / |             |/
+///   /  |          /  |             *---i
+///  4-------------5   |
+///  |   |         |   |
+///  |   3---------|---2
+///  |  /          |  /
+///  | /           | /
+///  |/            |/
+///  0-------------1
+//--------------------------------------------------------------------------------------------------
+const std::array<ubyte, 8>& StructGridInterface::reservoirSimulatorCornerIndexMapping()
+{
+    static constexpr std::array<ubyte, 8> map = { 0, 1, 3, 2, 4, 5, 7, 6 };
+    return map;
 }
 
 //--------------------------------------------------------------------------------------------------

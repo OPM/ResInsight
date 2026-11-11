@@ -29,9 +29,6 @@
 
 #include <utility>
 
-// map from cell face corner index to neighbor cell face corner index, ref StructGridInterface::cellFaceVertexIndices
-const std::vector<size_t> RigGridQualityResultCalculator::m_cornerMap = { 0, 3, 2, 1 };
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -201,10 +198,11 @@ int RigGridQualityResultCalculator::faulted( const RigCell& cell )
         auto cellCorners     = cell.faceCorners( face );
         auto neighborCorners = neighborCell.faceCorners( cvf::StructGridInterface::oppositeFace( face ) );
 
+        const auto& cornerMap = cvf::StructGridInterface::oppositeFaceVertexIndexMap();
         for ( size_t i = 0; i < cellCorners.size(); i++ )
         {
             // map from cell face corner index to neighbor cell face corner index
-            double zDiff = std::abs( cellCorners[i].z() - neighborCorners[m_cornerMap[i]].z() );
+            double zDiff = std::abs( cellCorners[i].z() - neighborCorners[cornerMap[i]].z() );
             if ( zDiff > faultedThreshold )
             {
                 result += 1;
@@ -225,10 +223,11 @@ int RigGridQualityResultCalculator::negativeThickness( const RigCell& cell )
     auto cornersTop    = cell.faceCorners( cvf::StructGridInterface::POS_K );
     auto cornersBottom = cell.faceCorners( cvf::StructGridInterface::NEG_K );
 
+    const auto& cornerMap = cvf::StructGridInterface::oppositeFaceVertexIndexMap();
     for ( size_t i = 0; i < 4; i++ )
     {
         // map from top face corner index to bottom face corner index
-        if ( cornersTop[i].z() > cornersBottom[m_cornerMap[i]].z() )
+        if ( cornersTop[i].z() > cornersBottom[cornerMap[i]].z() )
         {
             isNegative = 1;
             break;

@@ -229,9 +229,6 @@ public:
 static bool RiaGetActiveCellCenters_init =
     RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>( RiaGetActiveCellCenters::commandName() );
 
-// NB: Match this mapping with the mapping in RifReaderEclipseOutput.cpp
-static const size_t cellCornerMappingEclipse[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -288,7 +285,7 @@ public:
         {
             for ( size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++ )
             {
-                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+                size_t cornerIndexMapping = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping()[cornerIdx];
 
                 quint64 valueIndex = 0;
 
@@ -375,7 +372,7 @@ public:
         {
             for ( size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++ )
             {
-                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+                size_t cornerIndexMapping = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping()[cornerIdx];
 
                 quint64 valueIndex = 0;
 

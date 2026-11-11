@@ -26,8 +26,6 @@
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicCreateTemporaryLgrFeature.h"
 
-#include "RifReaderEclipseOutput.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -219,8 +217,8 @@ void RifOpmRadialGridTools::transferCylindricalCoords( Opm::EclIO::EGrid& opmMai
     std::array<double, 8> opmY{};
     std::array<double, 8> opmZ{};
 
-    const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
-    const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
+    const auto  hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
+    const auto& cornerIndexMapping    = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping();
 
     bool convertCylindricalCoords = false;
 
@@ -236,7 +234,7 @@ void RifOpmRadialGridTools::transferCylindricalCoords( Opm::EclIO::EGrid& opmMai
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
-            size_t riNodeIndex = riNodeStartIndex + cellMappingECLRi[opmNodeIndex];
+            size_t riNodeIndex = riNodeStartIndex + cornerIndexMapping[opmNodeIndex];
 
             // The radial grid is specified with (0,0) as center, add grid center to get correct global coordinates
             riNodes[riNodeIndex] = cvf::Vec3d( opmX[opmNodeIndex], opmY[opmNodeIndex], -opmZ[opmNodeIndex] );
@@ -267,10 +265,10 @@ void RifOpmRadialGridTools::convertRadialGridToCartesianGrid( Opm::EclIO::EGrid&
     std::array<double, 8> opmY{};
     std::array<double, 8> opmZ{};
 
-    const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
-    const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
-    const auto    gridDimension         = opmGrid.dimension();
-    const auto    riNodes               = riMainGrid->modifiableNodes();
+    const auto  hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
+    const auto& cornerIndexMapping    = cvf::StructGridInterface::reservoirSimulatorCornerIndexMapping();
+    const auto  gridDimension         = opmGrid.dimension();
+    const auto  riNodes               = riMainGrid->modifiableNodes();
 
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
@@ -292,7 +290,7 @@ void RifOpmRadialGridTools::convertRadialGridToCartesianGrid( Opm::EclIO::EGrid&
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
-            size_t riNodeIndex = riNodeStartIndex + cellMappingECLRi[opmNodeIndex];
+            size_t riNodeIndex = riNodeStartIndex + cornerIndexMapping[opmNodeIndex];
 
             // The radial grid is specified with (0,0) as center, add grid center to get correct global coordinates
             cvf::Vec3d riNode( opmX[opmNodeIndex] + xCenterCoordOpm, opmY[opmNodeIndex] + yCenterCoordOpm, -opmZ[opmNodeIndex] );

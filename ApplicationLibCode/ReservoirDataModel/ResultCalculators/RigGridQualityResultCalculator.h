@@ -48,7 +48,4 @@ private:
 
     static RigEclipseResultAddress createDoubleAddress( QString resultName );
     static RigEclipseResultAddress createIntegerAddress( QString resultName );
-
-    // map from cell face corner index to neighbor cell face corner index, ref StructGridInterface::cellFaceVertexIndices
-    static const std::vector<size_t> m_cornerMap;
 };
