@@ -642,15 +642,12 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 
         if ( exportFile )
         {
-            std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
-            completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
-
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             if ( exportWelspec )
             {
                 exportWelspecsToFile( eclipseCase, exportFile, completionsForMainGrid, exportDataSourceAsComment );
             }
-            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForGrid, exportType, exportDataSourceAsComment, wellsInTrajectoryOrder );
+            exportCompdatAndWpimultTables( exportFile, QString(), completionsForMainGrid, exportType, exportDataSourceAsComment, wellsInTrajectoryOrder );
         }
     }
 
@@ -669,7 +666,15 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             {
                 exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
             }
-            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForSubGrids, exportType, exportDataSourceAsComment, wellsInTrajectoryOrder );
+            // All LGRs share one set of tables (COMPDATL, WPIMULTL, COMPLMPL) where each row carries its own LGR name.
+            // Collect the rows from the unpartitioned list to keep the order along each trajectory across LGRs.
+            std::vector<RigCompletionData> completionsForAllSubGrids;
+            std::copy_if( completions.begin(),
+                          completions.end(),
+                          std::back_inserter( completionsForAllSubGrids ),
+                          []( const RigCompletionData& completion ) { return !completion.completionDataGridCell().lgrName().isEmpty(); } );
+
+            exportCompdatAndWpimultTables( exportFile, "LGR", completionsForAllSubGrids, exportType, exportDataSourceAsComment, wellsInTrajectoryOrder );
         }
     }
 }
@@ -677,15 +682,14 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
-    RimEclipseCase*                                          sourceCase,
-    QFilePtr                                                 exportFile,
-    const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-    RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
-    bool                                                     exportDataSourceAsComment,
-    const std::set<QString>&                                 wellsInTrajectoryOrder )
+void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables( QFilePtr                       exportFile,
+                                                                                const QString&                 gridName,
+                                                                                std::vector<RigCompletionData> completions,
+                                                                                RicExportCompletionDataSettingsUi::CompdatExportType exportType,
+                                                                                bool                     exportDataSourceAsComment,
+                                                                                const std::set<QString>& wellsInTrajectoryOrder )
 {
-    if ( completionsPerGrid.empty() ) return;
+    if ( completions.empty() ) return;
 
     QTextStream stream( exportFile.get() );
 
@@ -693,44 +697,29 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     formatter.setColumnSpacing( 3 );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    // All LGRs share one set of tables (COMPDATL, WPIMULTL, COMPLMPL) where each row carries its own LGR name
-    std::map<QString, std::vector<RigCompletionData>> completionsPerTable;
-    for ( const auto& [gridName, gridCompletions] : completionsPerGrid )
+    // Sort by well name / cell index. Wells already ordered along each trajectory keep their order.
+    std::stable_sort( completions.begin(),
+                      completions.end(),
+                      [&wellsInTrajectoryOrder]( const RigCompletionData& lhs, const RigCompletionData& rhs )
+                      {
+                          if ( lhs.wellName() != rhs.wellName() ) return lhs.wellName() < rhs.wellName();
+                          if ( wellsInTrajectoryOrder.contains( lhs.wellName() ) ) return false;
+                          return lhs < rhs;
+                      } );
+
+    RicCompletionDataExportTools::exportCompdatTableUsingFormatter( formatter, gridName, completions );
+
+    if ( exportType == RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
-        auto& tableCompletions = completionsPerTable[gridName.isEmpty() ? QString() : QString( "LGR" )];
-        tableCompletions.insert( tableCompletions.end(), gridCompletions.begin(), gridCompletions.end() );
+        RicCompletionDataExportTools::exportWpimultTableUsingFormatter( formatter, gridName, completions );
     }
 
-    for ( const auto& gridCompletions : completionsPerTable )
+    for ( auto& completion : completions )
     {
-        std::vector<RigCompletionData> completions = gridCompletions.second;
-
-        // Sort by well name / cell index. Wells already ordered along each trajectory keep their order.
-        std::stable_sort( completions.begin(),
-                          completions.end(),
-                          [&wellsInTrajectoryOrder]( const RigCompletionData& lhs, const RigCompletionData& rhs )
-                          {
-                              if ( lhs.wellName() != rhs.wellName() ) return lhs.wellName() < rhs.wellName();
-                              if ( wellsInTrajectoryOrder.contains( lhs.wellName() ) ) return false;
-                              return lhs < rhs;
-                          } );
-
-        // Print completion data
-        QString gridName = gridCompletions.first;
-        RicCompletionDataExportTools::exportCompdatTableUsingFormatter( formatter, gridName, completions );
-
-        if ( exportType == RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
+        if ( completion.completionNumber().has_value() )
         {
-            RicCompletionDataExportTools::exportWpimultTableUsingFormatter( formatter, gridName, completions );
-        }
-
-        for ( auto& completion : completions )
-        {
-            if ( completion.completionNumber().has_value() )
-            {
-                RicCompletionDataExportTools::exportComplumpTableUsingFormatter( formatter, gridName, completions );
-                break;
-            }
+            RicCompletionDataExportTools::exportComplumpTableUsingFormatter( formatter, gridName, completions );
+            break;
         }
     }
 
