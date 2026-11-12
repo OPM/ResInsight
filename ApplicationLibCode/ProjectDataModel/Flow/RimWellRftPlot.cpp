@@ -933,6 +933,26 @@ void RimWellRftPlot::setSimWellOrWellPathName( const QString& currWellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::setWellNameReadOnly( bool readOnly )
+{
+    m_isWellNameReadOnly = readOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::setEnsembleEclipseCaseReadOnly( bool readOnly )
+{
+    m_isEnsembleEclipseCaseReadOnly = readOnly;
+    for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
+    {
+        curveSet->setEclipseCaseReadOnly( readOnly );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimWellRftPlot::branchIndex() const
 {
     return m_branchIndex;
@@ -1221,6 +1241,8 @@ void RimWellRftPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_wellPathNameOrSimWellName.uiCapability()->setUiReadOnly( m_isWellNameReadOnly );
+
     uiOrdering.add( &m_wellPathNameOrSimWellName );
     uiOrdering.add( &m_showStatisticsCurves );
     uiOrdering.add( &m_showEnsembleCurves );
@@ -1241,6 +1263,7 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     if ( !m_ensembleCurveSets.empty() )
     {
         uiOrdering.add( &m_ensembleCurveSetEclipseCase );
+        m_ensembleCurveSetEclipseCase.uiCapability()->setUiReadOnly( m_isEnsembleEclipseCaseReadOnly );
     }
 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword( "Time Steps", "TimeSteps" );
@@ -1716,6 +1739,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
             auto index = m_ensembleCurveSets.size();
             auto color = colorTable.at( index % colorTable.size() );
             curveSet->setCurveColor( color );
+            curveSet->setEclipseCaseReadOnly( m_isEnsembleEclipseCaseReadOnly );
             m_ensembleCurveSets.push_back( curveSet );
         }
     }

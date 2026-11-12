@@ -146,6 +146,8 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_wellRftPlot = new RimWellRftPlot;
     m_wellRftPlot->detachFromDockPermanently();
     m_wellRftPlot->setShowWindow( true );
+    m_wellRftPlot->setWellNameReadOnly( true );
+    m_wellRftPlot->setEnsembleEclipseCaseReadOnly( true );
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
 
@@ -392,6 +394,8 @@ void RimRftCorrelationReportPlot::initAfterRead()
     {
         m_wellRftPlot->detachFromDockPermanently();
         m_wellRftPlot->setShowWindow( true );
+        m_wellRftPlot->setWellNameReadOnly( true );
+        m_wellRftPlot->setEnsembleEclipseCaseReadOnly( true );
     }
 
     applyDepthTypeToSubPlots();
