@@ -120,6 +120,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     for ( RimPlot* plot : plots )
     {
         m_plots.push_back( plot );
+        plot->setContainingViewWindow( this );
     }
 
     // Deliberately don't set m_plotWindowTitle. This operator is used for copying parameters from children.
@@ -206,6 +207,7 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
         if ( index > m_plots.size() ) index = m_plots.size();
 
         m_plots.insert( index, plot );
+        plot->setContainingViewWindow( this );
 
         if ( m_viewer )
         {
@@ -233,6 +235,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
         {
             m_viewer->removePlot( plot->plotWidget() );
         }
+        plot->setContainingViewWindow( nullptr );
         m_plots.removeChild( plot );
 
         onPlotAdditionOrRemoval();
@@ -250,6 +253,7 @@ void RimMultiPlot::removePlotNoUpdate( RimPlot* plot )
         {
             m_viewer->removePlotNoUpdate( plot->plotWidget() );
         }
+        plot->setContainingViewWindow( nullptr );
         m_plots.removeChild( plot );
     }
 }
@@ -867,6 +871,11 @@ void RimMultiPlot::onLoadDataAndUpdate()
 void RimMultiPlot::initAfterRead()
 {
     RimPlotWindow::initAfterRead();
+
+    for ( RimPlot* plot : m_plots() )
+    {
+        plot->setContainingViewWindow( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

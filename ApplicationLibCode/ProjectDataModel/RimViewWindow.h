@@ -25,6 +25,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
 #include <QPointer>
 
@@ -86,6 +87,10 @@ public:
     void    resetDockWindowId();
     QString dockWindowName();
 
+    // Window hosting this window as a sub plot. Set explicitly by the owner; not persisted.
+    void           setContainingViewWindow( RimViewWindow* containingWindow );
+    RimViewWindow* activationWindow();
+
 protected:
     //// Interface for the Window controller
     friend class RimDockWindowController;
@@ -124,4 +129,6 @@ protected:
     QPointer<ads::CDockWidget> m_dockWidget;
     caf::PdmField<QString>     m_dockWindowId;
     bool                       m_isActiveViewer;
+
+    caf::PdmPointer<RimViewWindow> m_containingViewWindow;
 };

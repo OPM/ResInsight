@@ -235,12 +235,24 @@ void RimWellDistributionPlotCollection::doRenderWindowContent( QPaintDevice* pai
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::initAfterRead()
+{
+    for ( RimPlot* plot : m_plots )
+    {
+        plot->setContainingViewWindow( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::addPlot( RimPlot* plot )
 {
     if ( plot )
     {
         size_t index = m_plots.size();
         m_plots.insert( index, plot );
+        plot->setContainingViewWindow( this );
 
         if ( m_viewer )
         {

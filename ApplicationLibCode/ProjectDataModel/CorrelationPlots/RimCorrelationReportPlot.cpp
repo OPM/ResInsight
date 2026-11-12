@@ -292,6 +292,12 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_correlationMatrixPlot->matrixCellSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
     m_correlationPlot->tornadoItemSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
+
+    for ( RimViewWindow* subPlot :
+          std::vector<RimViewWindow*>{ m_correlationMatrixPlot(), m_correlationPlot(), m_parameterResultCrossPlot(), m_summaryPlot() } )
+    {
+        subPlot->setContainingViewWindow( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -675,6 +681,12 @@ void RimCorrelationReportPlot::initAfterRead()
     m_correlationMatrixPlot->setReportSubPlot( true );
     m_correlationPlot->setReportSubPlot( true );
     m_parameterResultCrossPlot->setReportSubPlot( true );
+
+    for ( RimViewWindow* subPlot :
+          std::vector<RimViewWindow*>{ m_correlationMatrixPlot(), m_correlationPlot(), m_parameterResultCrossPlot(), m_summaryPlot() } )
+    {
+        subPlot->setContainingViewWindow( this );
+    }
 
     updateSummaryPlotTimeAnnotation();
 }

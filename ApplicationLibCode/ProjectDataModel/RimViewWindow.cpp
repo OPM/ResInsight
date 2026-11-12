@@ -413,6 +413,22 @@ QString RimViewWindow::dockWindowName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewWindow::setContainingViewWindow( RimViewWindow* containingWindow )
+{
+    m_containingViewWindow = containingWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The window to activate when this window, or an object within it, is selected in the project tree
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RimViewWindow::activationWindow()
+{
+    return m_containingViewWindow ? m_containingViewWindow->activationWindow() : this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::resetDockWindowId()
 {
     m_dockWindowId = "";
