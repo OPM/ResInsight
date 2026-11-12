@@ -113,8 +113,11 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
 
 private:
+    void assignContainingViewWindowToSubPlots();
+
     void setCase( RimEclipseResultCase* eclipseCase );
     void updateFromWell();
     void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );

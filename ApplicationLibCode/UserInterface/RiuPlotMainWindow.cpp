@@ -957,22 +957,29 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
             selectedWindow = firstSelectedObject->firstAncestorOrThisOfType<RimViewWindow>();
         }
 
+        if ( selectedWindow ) selectedWindow = selectedWindow->activationWindow();
+
+        // The toolbar shows fields from the multi plot. When a child object is selected, the first ancestor
+        // view window is the sub plot, not the multi plot. Use the multi plot as active plot view window to
+        // make sure the toolbar is available for any object in the multi plot.
+        auto activateMultiPlot = [this]( RimViewWindow* multiPlot )
+        {
+            m_activePlotViewWindow = multiPlot;
+
+            setBlockViewSelectionOnSubWindowActivated( true );
+            setActiveViewer( multiPlot->dockWindowName() );
+            setBlockViewSelectionOnSubWindowActivated( false );
+
+            updateMultiPlotToolBar();
+        };
+
         if ( selectedWindow )
         {
             m_activePlotViewWindow = selectedWindow;
 
             if ( auto multiSummaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
             {
-                // The toolbar shows fields from the summary multi plot. When a child object is selected, the first
-                // ancestor view window is the sub plot, not the multi plot. Use the multi plot as active plot view
-                // window to make sure the toolbar is available for any object in the multi plot.
-                m_activePlotViewWindow = multiSummaryPlot;
-
-                setBlockViewSelectionOnSubWindowActivated( true );
-                setActiveViewer( multiSummaryPlot->dockWindowName() );
-                setBlockViewSelectionOnSubWindowActivated( false );
-
-                updateMultiPlotToolBar();
+                activateMultiPlot( multiSummaryPlot );
 
                 auto summaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryPlot>();
                 if ( summaryPlot )
@@ -982,16 +989,7 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
             }
             else if ( auto multiHistogramPlot = firstSelectedObject->firstAncestorOrThisOfType<RimHistogramMultiPlot>() )
             {
-                // The toolbar shows fields from the histogram multi plot. When a child object is selected, the first
-                // ancestor view window is the sub plot, not the multi plot. Use the multi plot as active plot view
-                // window to make sure the toolbar is available for any object in the multi plot.
-                m_activePlotViewWindow = multiHistogramPlot;
-
-                setBlockViewSelectionOnSubWindowActivated( true );
-                setActiveViewer( multiHistogramPlot->dockWindowName() );
-                setBlockViewSelectionOnSubWindowActivated( false );
-
-                updateMultiPlotToolBar();
+                activateMultiPlot( multiHistogramPlot );
 
                 auto histogramPlot = firstSelectedObject->firstAncestorOrThisOfType<RimHistogramPlot>();
                 if ( histogramPlot )

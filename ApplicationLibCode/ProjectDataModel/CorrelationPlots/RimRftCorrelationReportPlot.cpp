@@ -154,6 +154,10 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_tornadoPlot = new RimRftTornadoPlot;
     m_tornadoPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
 
+    m_wellRftPlot->setContainingViewWindow( this );
+    m_parameterRftCrossPlot->setContainingViewWindow( this );
+    m_tornadoPlot->setContainingViewWindow( this );
+
     applyDepthTypeToSubPlots();
 }
 
@@ -396,6 +400,11 @@ void RimRftCorrelationReportPlot::initAfterRead()
         m_wellRftPlot->setShowWindow( true );
         m_wellRftPlot->setWellNameReadOnly( true );
         m_wellRftPlot->setEnsembleEclipseCaseReadOnly( true );
+    }
+
+    for ( RimViewWindow* subPlot : std::vector<RimViewWindow*>{ m_wellRftPlot(), m_parameterRftCrossPlot(), m_tornadoPlot() } )
+    {
+        if ( subPlot ) subPlot->setContainingViewWindow( this );
     }
 
     applyDepthTypeToSubPlots();

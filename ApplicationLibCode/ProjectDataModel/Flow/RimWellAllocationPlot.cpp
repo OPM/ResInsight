@@ -159,8 +159,30 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
     m_accumulatedWellFlowPlot->updateAutoName();
 
+    assignContainingViewWindowToSubPlots();
+
     m_showWindow = false;
     setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::initAfterRead()
+{
+    assignContainingViewWindowToSubPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::assignContainingViewWindowToSubPlots()
+{
+    for ( RimViewWindow* subPlot :
+          std::vector<RimViewWindow*>{ m_accumulatedWellFlowPlot(), m_totalWellAllocationPlot(), m_tofAccumulatedPhaseFractionsPlot() } )
+    {
+        if ( subPlot ) subPlot->setContainingViewWindow( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

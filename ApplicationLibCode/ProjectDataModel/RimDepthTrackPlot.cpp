@@ -204,6 +204,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     for ( auto plot : plots )
     {
         m_plots.push_back( plot );
+        plot->setContainingViewWindow( this );
     }
 
     // Deliberately don't set m_plotWindowTitle and m_nameConfig. This operator is used for copying parameters from
@@ -1208,6 +1209,11 @@ void RimDepthTrackPlot::initAfterRead()
 {
     RimPlotWindow::initAfterRead();
 
+    for ( RimPlot* plot : m_plots() )
+    {
+        plot->setContainingViewWindow( this );
+    }
+
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
     {
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
@@ -1309,6 +1315,7 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
     if ( wellLogTrack )
     {
         m_plots.insert( index, wellLogTrack );
+        wellLogTrack->setContainingViewWindow( this );
 
         if ( m_viewer )
         {
@@ -1332,6 +1339,7 @@ void RimDepthTrackPlot::removePlot( RimPlot* plot )
         {
             m_viewer->removePlot( plot->plotWidget() );
         }
+        plot->setContainingViewWindow( nullptr );
         m_plots.removeChild( plot );
 
         onPlotAdditionOrRemoval();
