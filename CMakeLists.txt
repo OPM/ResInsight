@@ -189,35 +189,82 @@ find_program(buildcache_program buildcache)
 if(buildcache_program)
   set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
   message(STATUS "Found buildcache from : ${buildcache_program}")
-
-  if(MSVC)
-    # New concept for defining MSVC debug info flags introduced in 3.25.
-    # Evaluate this concept to simplify the setting of CXX-flags
-    # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
-    # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
-
-    # It is required to use compiler flag /Z7 to be able to use buildcache
-    # https://github.com/mbitsnbites/buildcache/blob/master/doc/usage.md
-    # https://learn.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=msvc-170
-
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
-                         "${CMAKE_CXX_FLAGS_DEBUG}"
-    )
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                         "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
-    )
-
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
-
-    # Add this to avoid the warning: overriding '/Zi' with '/Z7'
-    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
-        "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
-    )
-  endif()
 else()
   message(STATUS "No buildcache found")
+endif()
+
+if(MSVC)
+  # New concept for defining MSVC debug info flags introduced in 3.25. Evaluate
+  # this concept to simplify the setting of CXX-flags
+  # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
+  # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
+
+  # It is required to use compiler flag /Z7 to be able to use buildcache
+  # https://github.com/mbitsnbites/buildcache/blob/master/doc/usage.md
+  # https://learn.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=msvc-170
+  #
+  # Applied also when buildcache is not found, so that builds with and without
+  # cache use identical flags, and parallel compiles avoid the shared PDB used
+  # by /Zi.
+
+  string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
+                       "${CMAKE_CXX_FLAGS_DEBUG}"
+  )
+  string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
+  )
+
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
+
+  # Add this to avoid the warning: overriding '/Zi' with '/Z7'
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+      "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
+  )
+endif()
+
+# ##############################################################################
+# Build instrumentation
+# ##############################################################################
+# Toggling the option changes every build command, as CMake then wraps them with
+# 'ctest --instrument', and causes a full rebuild
+option(RESINSIGHT_ENABLE_BUILD_INSTRUMENTATION
+       "Write a build time report after each build, requires CMake 4.5" OFF
+)
+if(RESINSIGHT_ENABLE_BUILD_INSTRUMENTATION)
+  # Data version 1.2 with process metrics was added in CMake 4.5
+  if(CMAKE_VERSION VERSION_LESS 4.5)
+    message(
+      WARNING
+        "RESINSIGHT_ENABLE_BUILD_INSTRUMENTATION requires CMake 4.5, found ${CMAKE_VERSION}"
+    )
+  else()
+    # Prefer the Python used for gRPC. NAMES_PER_DIR avoids picking the python3
+    # stub in WindowsApps before a real Python found earlier in PATH
+    if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+      cmake_path(GET RESINSIGHT_GRPC_PYTHON_EXECUTABLE PARENT_PATH pythonDir)
+    endif()
+    find_program(
+      RESINSIGHT_BUILD_INSTRUMENTATION_PYTHON
+      NAMES python3 python NAMES_PER_DIR
+      HINTS ${pythonDir} REQUIRED
+    )
+    message(
+      STATUS
+        "Build instrumentation enabled, reports in ${CMAKE_BINARY_DIR}/instrumentation-reports"
+    )
+    # cmake-format: off
+    cmake_instrumentation(
+      API_VERSION 1
+      DATA_VERSION 1.2
+      HOOKS postCMakeBuild
+      OPTIONS staticSystemInformation dynamicSystemInformation processMetrics trace
+      CALLBACK ${RESINSIGHT_BUILD_INSTRUMENTATION_PYTHON}
+               ${CMAKE_SOURCE_DIR}/scripts/build-instrumentation/build_report.py
+    )
+    # cmake-format: on
+  endif()
 endif()
 
 # ##############################################################################
@@ -307,6 +354,11 @@ if(RESINSIGHT_ENABLE_GRPC)
   )
   option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
          "Bundle the gRPC python modules into the install folder" OFF
+  )
+  option(
+    RESINSIGHT_GRPC_GENERATE_PYTHON_ON_BUILD
+    "Regenerate the Python classes after every ResInsight link. Takes seconds; when OFF, build RipsGeneratedPythonClasses after changing scriptable classes"
+    ON
   )
   # NOTE: ENABLE_GRPC is defined per-target (see ApplicationLibCode,
   # ApplicationExeCode, GrpcInterface), to avoid a full project rebuild on

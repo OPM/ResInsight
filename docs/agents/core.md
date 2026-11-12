@@ -131,7 +131,7 @@ CAF_PDM_SOURCE_INIT(RimClassName, "ClassKeyword");
 
 After making objects scriptable:
 1. Build the project: `ninja -C build`
-2. Python classes are automatically generated in `build/Python/rips/generated/generated_classes.py`
+2. Python classes are generated in `build/Python/rips/generated/generated_classes.py`. With `RESINSIGHT_GRPC_GENERATE_PYTHON_ON_BUILD=OFF` a normal build only generates them when the file is missing; run `ninja -C build RipsGeneratedPythonClasses` to regenerate
 3. The scriptable class will appear as a Python class with appropriate attributes
 
 ### 6. GRPC Method Integration

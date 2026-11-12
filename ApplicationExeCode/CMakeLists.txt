@@ -275,51 +275,61 @@ endif()
 add_library(ResInsightDummyTarget EXCLUDE_FROM_ALL empty.cpp)
 set_property(TARGET ResInsightDummyTarget PROPERTY FOLDER "FileCopyTargets")
 
-# create a custom target that copies the files to the build folder
-foreach(riFileName ${RI_FILENAMES})
-  list(
-    APPEND
-    copyCommands
-    COMMAND
-    ${CMAKE_COMMAND}
-    -E
-    copy_if_different
-    ${riFileName}
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+# create a custom target that copies the files to the build folder. Use a single
+# command, as this target runs on every build.
+if(RI_FILENAMES)
+  set(copyCommands COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   ${RI_FILENAMES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
-endforeach()
+endif()
 add_custom_target(PreBuildFileCopy ${copyCommands})
 set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
 
 # Make ResInsight depend on the prebuild target.
 add_dependencies(ResInsight PreBuildFileCopy)
 
-# Generate Python code in a target that is part of ALL_BUILD and depends on
-# ResInsight
+# Generate Python code from the scripting metadata in ResInsight. Running
+# ResInsight takes seconds, so with RESINSIGHT_GRPC_GENERATE_PYTHON_ON_BUILD OFF
+# it is not done after every relink: the file is then generated when missing, by
+# the RipsGeneratedPythonClasses target and on install.
 if(RESINSIGHT_ENABLE_GRPC)
   set(GENERATED_CLASSES_FILE
       ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py
   )
-  add_custom_command(
-    OUTPUT ${GENERATED_CLASSES_FILE}
-    COMMAND ResInsight ARGS --console --generate ${GENERATED_CLASSES_FILE}
-    DEPENDS ResInsight
-    COMMENT "Generating ${GENERATED_CLASSES_FILE}"
-  )
-  add_custom_target(
-    RipsGeneratedPythonClasses ALL SOURCES ${GENERATED_CLASSES_FILE}
-  )
-  add_dependencies(RipsGeneratedPythonClasses ResInsight)
+  set(generateCommand ResInsight --console --generate ${GENERATED_CLASSES_FILE})
 
   # Copy the Python folder to build folder. This will ease debugging of Python
   # scripts
-  add_custom_command(
-    TARGET RipsGeneratedPythonClasses
-    POST_BUILD
-    COMMAND
+  set(copyPythonCommand
       ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_SOURCE_DIR}/GrpcInterface/Python"
       $<TARGET_FILE_DIR:ResInsight>/Python
+  )
+
+  # Without the file dependency on ResInsight, this only runs when the file is
+  # missing
+  if(RESINSIGHT_GRPC_GENERATE_PYTHON_ON_BUILD)
+    set(generateDepends DEPENDS ResInsight)
+  endif()
+  add_custom_command(
+    OUTPUT ${GENERATED_CLASSES_FILE}
+    COMMAND ${generateCommand}
+    COMMAND ${copyPythonCommand}
+    COMMENT "Generating ${GENERATED_CLASSES_FILE}" ${generateDepends}
+  )
+  add_custom_target(
+    RipsGeneratedPythonClassesOnBuild ALL DEPENDS ${GENERATED_CLASSES_FILE}
+  )
+
+  add_custom_target(
+    RipsGeneratedPythonClasses
+    COMMAND ${generateCommand}
+    COMMAND ${copyPythonCommand}
+    COMMENT "Generating ${GENERATED_CLASSES_FILE}"
+  )
+
+  install(
+    CODE "execute_process(COMMAND \"$<TARGET_FILE:ResInsight>\" --console --generate \"${GENERATED_CLASSES_FILE}\" COMMAND_ERROR_IS_FATAL ANY)"
   )
 
 endif(RESINSIGHT_ENABLE_GRPC)

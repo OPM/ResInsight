@@ -54,18 +54,12 @@ endif()
 # Copy required Dll/.so to output folder
 # ##############################################################################
 
-foreach(riFileName ${RI_FILENAMES})
-  list(
-    APPEND
-    copyFeatureTestCommands
-    COMMAND
-    ${CMAKE_COMMAND}
-    -E
-    copy_if_different
-    ${riFileName}
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+# Use a single copy command, as this target runs on every build
+if(RI_FILENAMES)
+  set(copyFeatureTestCommands COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                              ${RI_FILENAMES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
-endforeach()
+endif()
 add_custom_target(PreBuildFileCopyFeatureTest ${copyFeatureTestCommands})
 set_property(
   TARGET PreBuildFileCopyFeatureTest PROPERTY FOLDER "FileCopyTargetsTest"
