@@ -26,6 +26,47 @@
 #include "cafAssert.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool isLexicographicallyLess( const cvf::Vec3d& a, const cvf::Vec3d& b )
+{
+    if ( a.x() != b.x() ) return a.x() < b.x();
+    if ( a.y() != b.y() ) return a.y() < b.y();
+    return a.z() < b.z();
+}
+
+using SegmentHit = RigHexIntersectionTools::SegmentHit;
+
+//--------------------------------------------------------------------------------------------------
+/// Exact ordering on (t, entering, face, point)
+//--------------------------------------------------------------------------------------------------
+bool isHitLess( const SegmentHit& a, const SegmentHit& b )
+{
+    if ( a.t != b.t ) return a.t < b.t;
+    if ( a.isEntering != b.isEntering ) return a.isEntering < b.isEntering;
+    if ( a.face != b.face ) return a.face < b.face;
+    return isLexicographicallyLess( a.point, b.point );
+}
+
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Face corners are listed in cyclic order. Any rotation or reversal of that order keeps the two diagonals as the
+/// same pairs of corners, and floating point addition is commutative, so summing the diagonals first gives a
+/// bit-identical result for every listing of the same face.
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigHexIntersectionTools::canonicalFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
+{
+    return ( ( v0 + v2 ) + ( v1 + v3 ) ) * 0.25;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -38,44 +79,87 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
 {
     CAF_ASSERT( intersections != nullptr );
 
-    std::set<HexIntersectionInfo> uniqueIntersections;
+    const cvf::Vec3d direction     = p2 - p1;
+    const double     lengthSquared = direction.lengthSquared();
 
-    for ( int face = 0; face < 6; ++face )
+    // At most one hit per surface triangle
+    std::array<SegmentHit, 24> hits;
+    size_t                     hitCount = 0;
+
+    forEachCellSurfaceTriangle( hexCorners,
+                                [&]( cvf::StructGridInterface::FaceType face, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
+                                {
+                                    cvf::Vec3d intersection;
+                                    bool       isEntering = false;
+
+                                    int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle( p1,
+                                                                                                       p2,
+                                                                                                       t0,
+                                                                                                       t1,
+                                                                                                       t2,
+                                                                                                       &intersection,
+                                                                                                       &isEntering,
+                                                                                                       parametricTolerance );
+                                    if ( intsStatus == 1 )
+                                    {
+                                        const double t = lengthSquared > 0.0 ? ( intersection - p1 ).dot( direction ) / lengthSquared : 0.0;
+                                        hits[hitCount++] = { t, intersection, isEntering, face };
+                                    }
+                                    return true;
+                                } );
+
+    if ( hitCount == 0 ) return 0;
+
+    // Hits on a shared triangle or face edge are reported once per triangle. Merge hits in the same direction
+    // that are closer than a tolerance relative to the segment length. The tolerance is never below what the
+    // coordinate magnitude allows to resolve.
+    double mergeTolerance = intersectionMergeTolerance;
+    if ( hitCount > 1 && lengthSquared > 0.0 )
     {
-        cvf::ubyte faceVertexIndices[4];
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
-
-        cvf::Vec3d intersection;
-        bool       isEntering = false;
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
-                                                                       hexCorners[faceVertexIndices[1]],
-                                                                       hexCorners[faceVertexIndices[2]],
-                                                                       hexCorners[faceVertexIndices[3]] );
-
-        for ( int i = 0; i < 4; ++i )
+        double coordinateMagnitude = 0.0;
+        for ( int i = 0; i < 3; ++i )
         {
-            int next = i < 3 ? i + 1 : 0;
-
-            int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle( p1,
-                                                                               p2,
-                                                                               hexCorners[faceVertexIndices[i]],
-                                                                               hexCorners[faceVertexIndices[next]],
-                                                                               faceCenter,
-                                                                               &intersection,
-                                                                               &isEntering,
-                                                                               parametricTolerance );
-            if ( intsStatus == 1 )
-            {
-                uniqueIntersections.insert(
-                    HexIntersectionInfo( intersection, isEntering, static_cast<cvf::StructGridInterface::FaceType>( face ), hexIndex ) );
-            }
+            coordinateMagnitude = std::max( { coordinateMagnitude, std::abs( p1[i] ), std::abs( p2[i] ) } );
         }
+        const double resolvableTolerance = 64.0 * std::numeric_limits<double>::epsilon() * coordinateMagnitude / std::sqrt( lengthSquared );
+        mergeTolerance                   = std::max( mergeTolerance, resolvableTolerance );
     }
 
-    int intersectionCount = 0;
-    for ( const auto& intersection : uniqueIntersections )
+    return sortMergeAndAppendHits( std::span<SegmentHit>( hits.data(), hitCount ), mergeTolerance, hexIndex, intersections );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigHexIntersectionTools::sortMergeAndAppendHits( std::span<SegmentHit>             hits,
+                                                     double                            mergeTolerance,
+                                                     size_t                            hexIndex,
+                                                     std::vector<HexIntersectionInfo>* intersections )
+{
+    CAF_ASSERT( intersections != nullptr );
+
+    // Insertion sort, as there are only a few hits
+    for ( size_t i = 1; i < hits.size(); ++i )
     {
-        intersections->push_back( intersection );
+        SegmentHit hit = hits[i];
+        size_t     j   = i;
+        for ( ; j > 0 && isHitLess( hit, hits[j - 1] ); --j )
+        {
+            hits[j] = hits[j - 1];
+        }
+        hits[j] = hit;
+    }
+
+    // The last kept hit is the first hit of the current run, so comparing to it avoids chaining
+    const SegmentHit* runStart = nullptr;
+
+    int intersectionCount = 0;
+    for ( const SegmentHit& hit : hits )
+    {
+        if ( runStart && runStart->isEntering == hit.isEntering && hit.t - runStart->t <= mergeTolerance ) continue;
+
+        runStart = &hit;
+        intersections->emplace_back( hit.point, hit.isEntering, hit.face, hexIndex );
         ++intersectionCount;
     }
 
@@ -87,36 +171,16 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
-    for ( int face = 0; face < 6; ++face )
-    {
-        cvf::ubyte faceVertexIndices[4];
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
-
-        cvf::Vec3d intersection;
-        bool       isEntering = false;
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
-                                                                       hexCorners[faceVertexIndices[1]],
-                                                                       hexCorners[faceVertexIndices[2]],
-                                                                       hexCorners[faceVertexIndices[3]] );
-
-        for ( int i = 0; i < 4; ++i )
-        {
-            int next = i < 3 ? i + 1 : 0;
-
-            int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle( p1,
-                                                                               p2,
-                                                                               hexCorners[faceVertexIndices[i]],
-                                                                               hexCorners[faceVertexIndices[next]],
-                                                                               faceCenter,
-                                                                               &intersection,
-                                                                               &isEntering );
-            if ( intsStatus == 1 )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
+    const bool allVisited =
+        forEachCellSurfaceTriangle( hexCorners,
+                                    [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
+                                    {
+                                        cvf::Vec3d intersection;
+                                        bool       isEntering = false;
+                                        return cvf::GeometryTools::intersectLineSegmentTriangle( p1, p2, t0, t1, t2, &intersection, &isEntering ) !=
+                                               1;
+                                    } );
+    return !allVisited;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,24 +192,13 @@ bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d& point, const std:
     ray.setOrigin( point );
     size_t intersections = 0;
 
-    for ( int face = 0; face < 6; ++face )
-    {
-        cvf::ubyte faceVertexIndices[4];
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
-                                                                       hexCorners[faceVertexIndices[1]],
-                                                                       hexCorners[faceVertexIndices[2]],
-                                                                       hexCorners[faceVertexIndices[3]] );
+    forEachCellSurfaceTriangle( hexCorners,
+                                [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
+                                {
+                                    if ( ray.triangleIntersect( t0, t1, t2 ) ) ++intersections;
+                                    return true;
+                                } );
 
-        for ( int i = 0; i < 4; ++i )
-        {
-            int next = i < 3 ? i + 1 : 0;
-            if ( ray.triangleIntersect( hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter ) )
-            {
-                ++intersections;
-            }
-        }
-    }
     return intersections % 2 == 1;
 }
 
@@ -157,42 +210,33 @@ bool RigHexIntersectionTools::planeHexCellIntersection( const std::array<cvf::Ve
                                                         std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments )
 {
     bool                                  isCellIntersected = false;
-    cvf::ubyte                            faceVertexIndices[4];
     caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint1;
     caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint2;
     bool                                  isMostVxesOnPositiveSideOfP1 = false;
 
-    for ( int face = 0; face < 6; ++face )
-    {
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
+    forEachCellSurfaceTriangle( hexCorners,
+                                [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
+                                {
+                                    bool isIntersectingPlane =
+                                        caf::HexGridIntersectionTools::planeTriangleIntersection( fracturePlane,
+                                                                                                  t0,
+                                                                                                  0,
+                                                                                                  t1,
+                                                                                                  1,
+                                                                                                  t2,
+                                                                                                  2,
+                                                                                                  &triangleIntersectionPoint1,
+                                                                                                  &triangleIntersectionPoint2,
+                                                                                                  &isMostVxesOnPositiveSideOfP1 );
 
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]],
-                                                                       hexCorners[faceVertexIndices[1]],
-                                                                       hexCorners[faceVertexIndices[2]],
-                                                                       hexCorners[faceVertexIndices[3]] );
+                                    if ( isIntersectingPlane )
+                                    {
+                                        isCellIntersected = true;
+                                        intersectionLineSegments.emplace_back( triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx );
+                                    }
+                                    return true;
+                                } );
 
-        for ( int i = 0; i < 4; i++ )
-        {
-            int next = i < 3 ? i + 1 : 0;
-
-            bool isIntersectingPlane = caf::HexGridIntersectionTools::planeTriangleIntersection( fracturePlane,
-                                                                                                 hexCorners[faceVertexIndices[i]],
-                                                                                                 0,
-                                                                                                 hexCorners[faceVertexIndices[next]],
-                                                                                                 1,
-                                                                                                 faceCenter,
-                                                                                                 2,
-                                                                                                 &triangleIntersectionPoint1,
-                                                                                                 &triangleIntersectionPoint2,
-                                                                                                 &isMostVxesOnPositiveSideOfP1 );
-
-            if ( isIntersectingPlane )
-            {
-                isCellIntersected = true;
-                intersectionLineSegments.emplace_back( triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx );
-            }
-        }
-    }
     return isCellIntersected;
 }
 
@@ -223,19 +267,9 @@ bool RigHexIntersectionTools::planeHexIntersectionPolygons( const std::array<cvf
 //--------------------------------------------------------------------------------------------------
 bool operator<( const HexIntersectionInfo& hi1, const HexIntersectionInfo& hi2 )
 {
-    const double tolerance = 1e-6;
-
     if ( hi1.m_hexIndex != hi2.m_hexIndex ) return hi1.m_hexIndex < hi2.m_hexIndex;
     if ( hi1.m_face != hi2.m_face ) return hi1.m_face < hi2.m_face;
     if ( hi1.m_isIntersectionEntering != hi2.m_isIntersectionEntering ) return hi1.m_isIntersectionEntering < hi2.m_isIntersectionEntering;
-    if ( hi1.m_face != hi2.m_face ) return hi1.m_face < hi2.m_face;
 
-    if ( cvf::Math::abs( hi2.m_intersectionPoint.x() - hi1.m_intersectionPoint.x() ) > tolerance )
-        return hi1.m_intersectionPoint.x() < hi2.m_intersectionPoint.x();
-    if ( cvf::Math::abs( hi2.m_intersectionPoint.y() - hi1.m_intersectionPoint.y() ) > tolerance )
-        return hi1.m_intersectionPoint.y() < hi2.m_intersectionPoint.y();
-    if ( cvf::Math::abs( hi2.m_intersectionPoint.z() - hi1.m_intersectionPoint.z() ) > tolerance )
-        return hi1.m_intersectionPoint.z() < hi2.m_intersectionPoint.z();
-
-    return false;
+    return isLexicographicallyLess( hi1.m_intersectionPoint, hi2.m_intersectionPoint );
 }
