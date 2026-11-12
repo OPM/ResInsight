@@ -71,7 +71,7 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
     , m_xValueRange( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() )
     , m_yValueRange( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() )
 {
-    CAF_PDM_InitObject( "ParameterResultCross Plot", ":/CorrelationCrossPlot16x16.png" );
+    CAF_PDM_InitObject( "Parameter Cross Plot", ":/CorrelationCrossPlot16x16.png" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );

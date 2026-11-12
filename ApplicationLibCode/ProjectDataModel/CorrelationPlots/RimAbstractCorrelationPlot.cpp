@@ -203,6 +203,9 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimAbstractCorrelationPlot::userDescriptionField()
 {
+    // Report sub-plots use their fixed object name in the project tree; the title is shown in the plot only
+    if ( isContainedInReportPlot() ) return nullptr;
+
     return &m_description;
 }
 

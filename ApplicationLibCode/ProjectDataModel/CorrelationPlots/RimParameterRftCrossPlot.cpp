@@ -73,7 +73,7 @@ CAF_PDM_SOURCE_INIT( RimParameterRftCrossPlot, "ParameterRftCrossPlot" );
 //--------------------------------------------------------------------------------------------------
 RimParameterRftCrossPlot::RimParameterRftCrossPlot()
 {
-    CAF_PDM_InitObject( "Parameter RFT Cross Plot", ":/CorrelationCrossPlot16x16.png" );
+    CAF_PDM_InitObject( "RFT Parameter Cross Plot", ":/CorrelationCrossPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
     CAF_PDM_InitField( &m_wellName, "WellName", QString(), "Well Name" );
