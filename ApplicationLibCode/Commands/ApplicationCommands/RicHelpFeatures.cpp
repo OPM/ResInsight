@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaBuildDate.h"
 #include "RiaNetworkTools.h"
 #include "RiaPreferences.h"
 #include "RiaVersionInfo.h"

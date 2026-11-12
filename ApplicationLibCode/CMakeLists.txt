@@ -60,6 +60,10 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Adm/RiaVersionInfo.h.cmake
   ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/RiaBuildDate.h.cmake
+  ${CMAKE_BINARY_DIR}/Generated/RiaBuildDate.h
+)
 
 configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/RiuThemesDirectory.h.cmake
