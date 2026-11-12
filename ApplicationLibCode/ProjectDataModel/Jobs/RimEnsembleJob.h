@@ -35,6 +35,7 @@ class RimOpmFlowJob;
 class RimOpmFlowJobSettings;
 class RimJobWellSettings;
 class RimEnsembleFileSet;
+class RimPolygon;
 
 //==================================================================================================
 ///
@@ -102,6 +103,9 @@ private:
 
     caf::PdmField<bool> m_createGridEnsemble;
     caf::PdmField<bool> m_createSummaryEnsemble;
+    caf::PdmField<bool> m_createSectorEnsemble;
+
+    caf::PdmPtrField<RimPolygon*> m_sectorPolygon;
 
     std::vector<std::string> m_expectedOutputFiles;
 

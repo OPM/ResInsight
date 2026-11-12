@@ -44,6 +44,9 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun or mpiexec executable" );
     m_mpirunCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_makeFluxCommand, "makefluxCommand", QString( "/usr/bin/make_flux" ), "Path to OPM Flow make_flux executable" );
+    m_makeFluxCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
     m_wslDistribution.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -73,6 +76,7 @@ void RiaPreferencesOpm::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* opmGrp = uiOrdering.addNewGroup( "General Settings" );
     opmGrp->add( &m_opmFlowCommand );
+    opmGrp->add( &m_makeFluxCommand );
     auto wslCmd = RiaWslTools::wslCommand();
     if ( !wslCmd.isEmpty() )
     {
@@ -125,6 +129,14 @@ QString RiaPreferencesOpm::opmFlowCommand() const
 QString RiaPreferencesOpm::mpirunCommand() const
 {
     return m_mpirunCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesOpm::makeFluxCommand() const
+{
+    return m_makeFluxCommand;
 }
 
 //--------------------------------------------------------------------------------------------------
