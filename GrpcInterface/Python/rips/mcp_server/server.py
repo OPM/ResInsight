@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import fnmatch
-import math
 import tempfile
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,8 +20,8 @@ import rips
 
 INSTRUCTIONS = (
     "Read-only access to the project open in ResInsight. Start with list_cases;"
-    " grid cases and summary cases have separate ids. Cell properties and"
-    " summary vectors are returned as statistics or a capped number of points."
+    " grid cases and summary cases have separate ids. Summary vectors are"
+    " returned as a capped number of points."
 )
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
@@ -30,38 +29,8 @@ READ_ONLY = ToolAnnotations(read_only_hint=True)
 # Longest list a tool returns. Longer lists are cut and reported with their total.
 MAX_ITEMS = 500
 
-# Property types looked up by list_properties and property_statistics
+# Property types looked up by list_properties
 PROPERTY_TYPES = ("DYNAMIC_NATIVE", "STATIC_NATIVE", "INPUT_PROPERTY", "GENERATED")
-
-
-def statistics(values: Iterable[float]) -> dict[str, Any]:
-    """Summarize values. Percentiles are plain percentiles: p10 is the value
-    10 % of the defined values lie below."""
-    all_values = list(values)
-    defined = sorted(v for v in all_values if math.isfinite(v))
-    count = len(defined)
-    result: dict[str, Any] = {
-        "count": count,
-        "undefined_count": len(all_values) - count,
-    }
-    if count == 0:
-        return result
-
-    def percentile(fraction: float) -> float:
-        position = fraction * (count - 1)
-        lower = int(position)
-        upper = min(lower + 1, count - 1)
-        return defined[lower] + (defined[upper] - defined[lower]) * (position - lower)
-
-    result.update(
-        min=defined[0],
-        max=defined[-1],
-        mean=math.fsum(defined) / count,
-        p10=percentile(0.1),
-        p50=percentile(0.5),
-        p90=percentile(0.9),
-    )
-    return result
 
 
 def _capped(items: list[Any]) -> dict[str, Any]:
@@ -196,32 +165,6 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
             }
 
     @server.tool(annotations=READ_ONLY)
-    def property_statistics(
-        case_id: int, property: str, time_step: int = 0
-    ) -> dict[str, Any]:
-        """Statistics of a cell property over the active cells of a grid case.
-
-        time_step is a zero-based index into the time steps of case_info, and is
-        ignored for static properties.
-        """
-        with _reported():
-            case = grid_case(case_id)
-            for property_type in PROPERTY_TYPES:
-                if property in _available_properties(case, property_type):
-                    break
-            else:
-                raise ToolError(
-                    f"Case {case_id} has no property '{property}'. See list_properties."
-                )
-            values = case.active_cell_property(property_type, property, time_step)
-            return {
-                "property": property,
-                "property_type": property_type,
-                "time_step": time_step,
-                **statistics(values),
-            }
-
-    @server.tool(annotations=READ_ONLY)
     def list_wells(case_id: int) -> dict[str, Any]:
         """Simulation wells of a grid case. ResInsight reads them through a view
         of the case, so a case without a view lists none."""
@@ -246,8 +189,8 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
     def summary_values(
         case_id: int, vector: str, max_points: int = 50
     ) -> dict[str, Any]:
-        """Statistics of a summary vector, and at most max_points of its values
-        spread evenly over time."""
+        """At most max_points values of a summary vector, spread evenly over
+        time. count is the number of values the vector has."""
         if not 1 <= max_points <= MAX_ITEMS:
             raise ToolError(f"max_points must be between 1 and {MAX_ITEMS}.")
         with _reported():
@@ -261,7 +204,7 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
             times = case.available_time_steps().values
             return {
                 "vector": vector,
-                **statistics(values),
+                "count": len(values),
                 "points": [
                     {
                         "time": datetime.fromtimestamp(
@@ -319,7 +262,7 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
     @server.tool(annotations=READ_ONLY)
     def snapshot(view_id: int) -> Image:
         """PNG image of a 3D view or a plot window, by the id from list_views or
-        list_plots. Needs a ResInsight with a GUI."""
+        list_plots. Needs a ResInsight started with a GUI or with --headless."""
         with _reported():
             window = project().view(view_id) or project().plot(view_id)
             if window is None:

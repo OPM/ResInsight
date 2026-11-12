@@ -19,7 +19,7 @@ from mcp import Client, StdioServerParameters  # noqa: E402
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot  # noqa: E402
-from rips.mcp_server.server import create_server, statistics  # noqa: E402
+from rips.mcp_server.server import create_server  # noqa: E402
 
 GRID_CASE = "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
 SUMMARY_CASE = "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
@@ -29,7 +29,6 @@ TOOLS = {
     "list_cases",
     "case_info",
     "list_properties",
-    "property_statistics",
     "list_wells",
     "list_summary_vectors",
     "summary_values",
@@ -46,21 +45,6 @@ def call_tool(rips_instance: Any, name: str, **arguments: Any) -> Any:
             return await client.call_tool(name, arguments)
 
     return anyio.run(run)
-
-
-def test_statistics() -> None:
-    result = statistics([4.0, float("inf"), 1.0, 2.0, 3.0, 5.0])
-    assert result == {
-        "count": 5,
-        "undefined_count": 1,
-        "min": 1.0,
-        "max": 5.0,
-        "mean": 3.0,
-        "p10": 1.4,
-        "p50": 3.0,
-        "p90": 4.6,
-    }
-    assert statistics([]) == {"count": 0, "undefined_count": 0}
 
 
 def test_all_tools_are_read_only(rips_instance, initialize_test):
@@ -115,24 +99,6 @@ def test_grid_case_tools(rips_instance, initialize_test):
     assert "PORO" in properties["STATIC_NATIVE"]["items"]
     assert "SOIL" in properties["DYNAMIC_NATIVE"]["items"]
 
-    poro = call_tool(
-        rips_instance, "property_statistics", case_id=case.id, property="PORO"
-    ).structured_content
-    assert poro["property_type"] == "STATIC_NATIVE"
-    assert poro["count"] == 11125
-    assert poro["min"] <= poro["p10"] <= poro["p50"] <= poro["p90"] <= poro["max"]
-    assert poro["mean"] == pytest.approx(0.1630879, abs=1e-6)
-
-    soil = call_tool(
-        rips_instance,
-        "property_statistics",
-        case_id=case.id,
-        property="SOIL",
-        time_step=1,
-    ).structured_content
-    assert soil["property_type"] == "DYNAMIC_NATIVE"
-    assert soil["count"] == 11125
-
     wells = call_tool(rips_instance, "list_wells", case_id=case.id).structured_content
     assert wells["simulation_wells"]["items"] == ["GI1", "GP1", "GP2"]
 
@@ -164,10 +130,9 @@ def test_summary_tools(rips_instance, initialize_test):
         rips_instance, "summary_values", case_id=case.id, vector="FOPT", max_points=4
     ).structured_content
     assert fopt["count"] == 60
-    assert fopt["max"] == pytest.approx(51395.199, abs=1e-3)
     assert len(fopt["points"]) == 4
     assert fopt["points"][0]["time"].startswith("2015-04-09")
-    assert fopt["points"][-1]["value"] == fopt["max"]
+    assert fopt["points"][-1]["value"] == pytest.approx(51395.199, abs=1e-3)
 
 
 def test_empty_project_lists(rips_instance, initialize_test):
@@ -177,15 +142,9 @@ def test_empty_project_lists(rips_instance, initialize_test):
 
 
 def test_unknown_ids_are_tool_errors(rips_instance, initialize_test):
-    case = rips_instance.project.load_case(dataroot.PATH + GRID_CASE)
     for name, arguments, message in [
         ("case_info", {"case_id": 99}, "No grid case with id 99"),
         ("summary_values", {"case_id": 99, "vector": "FOPT"}, "No summary case"),
-        (
-            "property_statistics",
-            {"case_id": case.id, "property": "NOPE"},
-            "has no property 'NOPE'",
-        ),
         ("snapshot", {"view_id": 99}, "No view or plot with id 99"),
     ]:
         result = call_tool(rips_instance, name, **arguments)
