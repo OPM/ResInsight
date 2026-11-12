@@ -539,7 +539,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
 void RimTools::polygonOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
     auto project = RimProject::current();
-    auto coll    = project->activeOilField()->polygonCollection();
+    auto coll    = project->activeOilField()->polygonCollection().p();
 
     for ( auto* p : coll->allPolygons() )
     {

@@ -31,6 +31,7 @@
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
+#include "Polygons/RimPolygon.h"
 #include "RimEclipseCase.h"
 #include "RimJobWellSettings.h"
 #include "RimOpmFlowJob.h"
@@ -74,6 +75,9 @@ RimEnsembleJob::RimEnsembleJob()
     CAF_PDM_InitFieldNoDefault( &m_subJobs, "SubJobs", "Jobs" );
     m_subJobs.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_sectorPolygon, "SectorPolygon", "Sector Polygon" );
+    CAF_PDM_InitField( &m_createSectorEnsemble, "CreateSectorEnsemble", false, "Use Sector Model Defined by Polygon" );
+
     CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "Opm Flow Settings" );
     m_jobSettings = RiaPreferencesOpm::current()->createDefaultJobSettings();
     m_jobSettings.uiCapability()->setUiTreeChildrenHidden( true );
@@ -97,6 +101,7 @@ RimEnsembleJob::RimEnsembleJob()
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createGridEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSummaryEnsemble );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSectorEnsemble );
 
     setDeletable( true );
 }
@@ -210,7 +215,7 @@ void RimEnsembleJob::setInputEnsemble( RimReservoirGridEnsemble* ensemble )
     m_datesInInputDeck = RifOpmDeckFileTools::datesInDeckFile( deckName );
 
     std::vector<QString> newWellGroups;
-    for ( auto grp : RifOpmDeckFileTools::wellGroupsInFileDeck( deckName ) )
+    for ( auto& grp : RifOpmDeckFileTools::wellGroupsInFileDeck( deckName ) )
     {
         newWellGroups.push_back( QString::fromStdString( grp ) );
     }
@@ -237,6 +242,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
     else if ( fieldNeedingOptions == &m_inputEnsemble )
     {
         RimTools::reservoirGridEnsembleOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_sectorPolygon )
+    {
+        RimTools::polygonOptionItems( &options );
     }
 
     return options;
@@ -462,6 +471,13 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     genGrp->add( &m_outputEnsembleName );
     genGrp->add( &m_createSummaryEnsemble );
     genGrp->add( &m_createGridEnsemble );
+
+    auto sectorGrp = genGrp->addNewGroup( "Sector Model" );
+    sectorGrp->add( &m_createSectorEnsemble );
+    if ( m_createSectorEnsemble() )
+    {
+        sectorGrp->add( &m_sectorPolygon );
+    }
 
     auto runButton = genGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
     runButton->setUiIconFromResourceString( ":/Play.svg" );

@@ -46,6 +46,7 @@ public:
     bool        useWsl() const;
     bool        useMpi() const;
     QString     mpirunCommand() const;
+    QString     makeFluxCommand() const;
 
     RiaWslTools::WslOptions wslOptions() const;
 
@@ -61,6 +62,7 @@ private:
     caf::PdmField<bool>                        m_useMpi;
     caf::PdmField<QString>                     m_mpirunCommand;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
+    caf::PdmField<QString>                     m_makeFluxCommand;
 
     QStringList m_availableWslDists;
 };
