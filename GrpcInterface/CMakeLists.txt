@@ -272,9 +272,14 @@ endif()
 # install gRPC Python files
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   message(STATUS "Installing Python dev modules")
+  # Suppress the setuptools "BuildBackendWarning: Editable installation" notice
   add_custom_command(
-    TARGET PipInstall COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip
-                              install -e ${GRPC_PYTHON_SOURCE_PATH}[dev] --quiet
+    TARGET PipInstall
+    COMMAND
+      ${CMAKE_COMMAND} -E env "PYTHONWARNINGS=ignore:Editable installation"
+      ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install -e
+      ${GRPC_PYTHON_SOURCE_PATH}[dev] --quiet
+    VERBATIM
   )
 endif()
 
