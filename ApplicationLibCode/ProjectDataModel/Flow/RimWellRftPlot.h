@@ -85,6 +85,8 @@ public:
 
     const QString& simWellOrWellPathName() const;
     void           setSimWellOrWellPathName( const QString& currWellName );
+    void           setWellNameReadOnly( bool readOnly );
+    void           setEnsembleEclipseCaseReadOnly( bool readOnly );
 
     int branchIndex() const;
 
@@ -207,5 +209,7 @@ private:
     caf::PdmPointer<RimSummaryCase>                      m_selectedRealization;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
-    bool                                m_isInitialized = false;
+    bool                                m_isInitialized                 = false;
+    bool                                m_isWellNameReadOnly            = false;
+    bool                                m_isEnsembleEclipseCaseReadOnly = false;
 };

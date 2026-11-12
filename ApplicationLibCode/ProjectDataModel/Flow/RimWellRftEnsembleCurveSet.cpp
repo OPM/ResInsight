@@ -185,6 +185,14 @@ void RimWellRftEnsembleCurveSet::setEclipseCase( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftEnsembleCurveSet::setEclipseCaseReadOnly( bool readOnly )
+{
+    m_isEclipseCaseReadOnly = readOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimWellRftEnsembleCurveSet::eclipseCase() const
 {
     return m_eclipseCase();
@@ -229,6 +237,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftEnsembleCurveSet::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_eclipseCase.uiCapability()->setUiReadOnly( m_isEclipseCaseReadOnly );
     uiOrdering.add( &m_eclipseCase );
 
     auto group = uiOrdering.addNewGroup( "Appearance" );

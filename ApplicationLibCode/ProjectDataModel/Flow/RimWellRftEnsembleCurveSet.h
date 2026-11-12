@@ -55,6 +55,7 @@ public:
     RimRegularLegendConfig* legendConfig();
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
+    void            setEclipseCaseReadOnly( bool readOnly );
     RimEclipseCase* eclipseCase() const;
 
     RifReaderRftInterface* statisticsEclipseRftReader();
@@ -74,6 +75,7 @@ private:
 
 private:
     caf::PdmPtrField<RimEclipseCase*>          m_eclipseCase;
+    bool                                       m_isEclipseCaseReadOnly = false;
     caf::PdmPtrField<RimSummaryEnsemble*>      m_ensemble;
     caf::PdmProxyValueField<QString>           m_ensembleName;
     caf::PdmChildField<RimCurveSetAppearance*> m_appearance;
