@@ -421,7 +421,13 @@ QString RimCorrelationReportPlot::createDescription() const
     QString ensembleNames = ensembles.join( ", " );
     QString timeStep      = m_correlationMatrixPlot->timeStepString();
 
-    return QString( "%1 at %2" ).arg( ensembleNames ).arg( timeStep );
+    QString vectorText;
+    if ( const auto addresses = m_correlationPlot->addresses(); addresses.size() == 1 )
+    {
+        vectorText = QString::fromStdString( addresses.begin()->uiText() ) + ", ";
+    }
+
+    return QString( "Summary Correlation: %1%2 at %3" ).arg( vectorText ).arg( ensembleNames ).arg( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,18 +705,37 @@ void RimCorrelationReportPlot::updateSummaryPlotHistoryCurve( RimSummaryEnsemble
 {
     auto* collection = m_summaryPlot->ensembleCurveSetCollection();
 
-    if ( m_historyCurveSet ) collection->deleteCurveSet( m_historyCurveSet );
+    // A history curve set restored from a project file is not referenced by m_historyCurveSet. Treat any curve set
+    // after the main one that shows a history vector as report-owned, and leave other curve sets untouched.
+    std::vector<RimEnsembleCurveSet*> historyCurveSets;
+    const auto                        curveSets = collection->curveSets();
+    for ( size_t i = 1; i < curveSets.size(); i++ )
+    {
+        if ( curveSets[i] == m_historyCurveSet || curveSets[i]->summaryAddressY().isHistoryVector() )
+            historyCurveSets.push_back( curveSets[i] );
+    }
+    collection->deleteCurveSets( historyCurveSets );
     m_historyCurveSet = nullptr;
 
-    if ( !ensemble || address.isHistoryVector() ) return;
+    // The project tree is not notified when a curve set is deleted, so refresh it to avoid stale items
+    auto refreshTree = [this]() { m_summaryPlot->updateAllRequiredEditors(); };
+
+    if ( !ensemble || address.isHistoryVector() )
+    {
+        refreshTree();
+        return;
+    }
 
     auto historyAddress = address;
     historyAddress.setVectorName( address.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
 
-    if ( !ensemble->ensembleSummaryAddresses().contains( historyAddress ) ) return;
+    if ( ensemble->ensembleSummaryAddresses().contains( historyAddress ) )
+    {
+        m_historyCurveSet = RiaSummaryPlotTools::createCurveSet( ensemble, historyAddress );
+        collection->addCurveSet( m_historyCurveSet );
+    }
 
-    m_historyCurveSet = RiaSummaryPlotTools::createCurveSet( ensemble, historyAddress );
-    collection->addCurveSet( m_historyCurveSet );
+    refreshTree();
 }
 
 //--------------------------------------------------------------------------------------------------
