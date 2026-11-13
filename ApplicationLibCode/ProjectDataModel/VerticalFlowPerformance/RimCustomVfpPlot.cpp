@@ -358,49 +358,49 @@ void RimCustomVfpPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCustomVfpPlot::asciiDataForPlotExport() const
+QString RimCustomVfpPlot::reportTitle() const
 {
-    QString asciiData;
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One table per curve
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimCustomVfpPlot::reportSections() const
+{
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_FLOAT, 2 );
+
+    RiaReportSection section;
+    section.title = description();
 
     size_t plotCurveIdx = 0;
-
     for ( const auto& curveData : m_plotData )
     {
         for ( size_t curveIdx = 0; curveIdx < curveData.size(); curveIdx++ )
         {
-            asciiData += curveData.curveTitle( curveIdx );
-
+            RiaReportTable table;
+            table.title = curveData.curveTitle( curveIdx );
             if ( !m_comparisonTables.empty() && plotCurveIdx < m_plotCurveMetaData.size() )
             {
-                auto plotCurveData = m_plotCurveMetaData[plotCurveIdx];
-                asciiData += QString( " (Table: %1)" ).arg( plotCurveData.tableNumber );
+                table.title += QString( " (Table: %1)" ).arg( m_plotCurveMetaData[plotCurveIdx].tableNumber );
             }
 
-            asciiData += "\n";
+            table.columns = { RiaReportColumn{ .title = curveData.xAxisTitle(), .doubleFormat = valueFormat },
+                              RiaReportColumn{ .title = curveData.yAxisTitle(), .doubleFormat = valueFormat } };
 
-            QTextStream              stream( &asciiData );
-            RifCsvDataTableFormatter formatter( stream, RiaPreferences::current()->csvTextExportFieldSeparator );
-
-            std::vector<RifTextDataTableColumn> header;
-            const int                           precision = 2;
-            header.emplace_back( curveData.xAxisTitle(), RifTextDataTableDoubleFormatting( RIF_FLOAT, precision ) );
-            header.emplace_back( curveData.yAxisTitle(), RifTextDataTableDoubleFormatting( RIF_FLOAT, precision ) );
-            formatter.header( header );
-
-            for ( size_t i = 0; i < curveData.xData( curveIdx ).size(); i++ )
+            const auto& xValues = curveData.xData( curveIdx );
+            const auto& yValues = curveData.yData( curveIdx );
+            for ( size_t i = 0; i < std::min( xValues.size(), yValues.size() ); i++ )
             {
-                formatter.add( curveData.xData( curveIdx )[i] );
-                formatter.add( curveData.yData( curveIdx )[i] );
-                formatter.rowCompleted();
+                table.rows.push_back( { xValues[i], yValues[i] } );
             }
-            formatter.tableCompleted();
 
+            section.tables.push_back( std::move( table ) );
             plotCurveIdx++;
         }
-        asciiData += "\n";
     }
 
-    return asciiData;
+    return { section };
 }
 
 //--------------------------------------------------------------------------------------------------

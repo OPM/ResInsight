@@ -20,17 +20,13 @@
 
 #include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
+#include "RiaReportDataProducer.h"
 
-#include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"
-
-#include "RimPlainPlotDataProducer.h"
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
-#include "RimReportPlotGroup.h"
-#include "RimTabbedTextProducer.h"
-#include "RimTabbedTextProvider.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuTextDialog.h"
 
 #include "cafSelectionManagerTools.h"
@@ -55,9 +51,7 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
 
     for ( auto plot : selection )
     {
-        if ( dynamic_cast<const RimTabbedTextProducer*>( plot ) ) return true;
-        if ( dynamic_cast<const RimReportPlotGroup*>( plot ) ) return true;
-        if ( dynamic_cast<const RimPlainPlotDataProducer*>( plot ) ) return true;
+        if ( dynamic_cast<const RiaReportDataProducer*>( plot ) ) return true;
     }
     return false;
 }
@@ -85,33 +79,13 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
-    auto showPlainForProducer = []( RimPlainPlotDataProducer* producer )
-    {
-        QString title = producer->description();
-        QString text  = title + "\n\n" + producer->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    };
-
+    // The report window shows one plot at a time
     for ( auto* plot : selection )
     {
-        if ( auto* producer = dynamic_cast<RimTabbedTextProducer*>( plot ) )
+        if ( dynamic_cast<RiaReportDataProducer*>( plot ) )
         {
-            RicShowPlotDataFeature::showTabbedTextWindow( producer->createTabbedTextProvider() );
-            continue;
-        }
-
-        if ( auto* group = dynamic_cast<RimReportPlotGroup*>( plot ) )
-        {
-            for ( auto* child : group->childPlotsForTextExport() )
-            {
-                if ( child ) showPlainForProducer( child );
-            }
-            continue;
-        }
-
-        if ( auto* plainProducer = dynamic_cast<RimPlainPlotDataProducer*>( plot ) )
-        {
-            showPlainForProducer( plainProducer );
+            RiuPlotMainWindowTools::showReportWindow( plot );
+            return;
         }
     }
 }
@@ -123,32 +97,6 @@ void RicShowPlotDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Show Plot Data" );
     actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicShowPlotDataFeature::showTabbedTextWindow( std::unique_ptr<RimTabbedTextProvider> textProvider )
-{
-    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    CAF_ASSERT( plotwindow );
-
-    auto* textWidget = new RiuTabbedTextDialog( std::move( textProvider ) );
-    textWidget->setMinimumSize( 800, 600 );
-
-    QObject::connect( textWidget,
-                      &RiuTabbedTextDialog::exportToFileRequested,
-                      []( const QString& title, const QString& text )
-                      {
-                          QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
-                          QString fileName   = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( title, defaultDir );
-                          if ( fileName.isEmpty() ) return;
-                          RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, text );
-                      } );
-
-    plotwindow->addToTemporaryWidgets( textWidget );
-    textWidget->show();
-    textWidget->redrawText();
 }
 
 //--------------------------------------------------------------------------------------------------

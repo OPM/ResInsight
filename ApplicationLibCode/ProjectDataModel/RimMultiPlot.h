@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "RimAbstractPlotCollection.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -40,7 +41,7 @@
 
 class RimPlot;
 
-class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot>
+class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot>, public RiaReportDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -105,7 +106,9 @@ public:
     void zoomAll() override;
     void zoomAllYAxes();
 
-    QString asciiDataForPlotExport() const;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     bool previewModeEnabled() const;
 

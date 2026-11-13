@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026 Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,36 @@
 
 #pragma once
 
-#include "RimTabbedTextProvider.h"
-
-#include "cafPdmPointer.h"
-
-class RimSummaryPlot;
+#include <QColor>
+#include <QHeaderView>
 
 //==================================================================================================
-/// Tabbed text provider for a RimSummaryPlot. Each tab corresponds to a resampling period.
+/// Horizontal header showing the column title in bold, and the unit as a smaller muted second line
 //==================================================================================================
-class RimSummaryPlotTextProvider : public RimTabbedTextProvider
+class RiuReportHeaderView : public QHeaderView
 {
-public:
-    explicit RimSummaryPlotTextProvider( const RimSummaryPlot* summaryPlot );
+    Q_OBJECT
 
-    bool    isValid() const override;
-    QString description() const override;
-    QString tabTitle( int tabIndex ) const override;
-    QString tabText( int tabIndex ) const override;
-    int     tabCount() const override;
+public:
+    struct Colors
+    {
+        QColor background;
+        QColor text;
+        QColor mutedText;
+        QColor border;
+    };
+
+    RiuReportHeaderView( const Colors& colors, QWidget* parent = nullptr );
+
+protected:
+    void  paintSection( QPainter* painter, const QRect& rect, int logicalIndex ) const override;
+    QSize sectionSizeFromContents( int logicalIndex ) const override;
 
 private:
-    caf::PdmConstPointer<RimSummaryPlot> m_summaryPlot;
+    QFont titleFont() const;
+    QFont unitFont() const;
+    bool  anyColumnHasUnit() const;
+
+private:
+    Colors m_colors;
 };

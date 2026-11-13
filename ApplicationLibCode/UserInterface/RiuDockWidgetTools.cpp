@@ -290,6 +290,14 @@ QString RiuDockWidgetTools::plotMainWindowMessagesName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowReportName()
+{
+    return "dockReport_plotMainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowUndoStackName()
 {
     return "dockUndoStack_plotMainWindow";
@@ -440,6 +448,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/property-editor.svg" );
     else if ( dockWidgetName == plotMainWindowMessagesName() )
         return QIcon( ":/messages.svg" );
+    else if ( dockWidgetName == plotMainWindowReportName() )
+        return QIcon( ":/PlotWindow.svg" );
     else if ( dockWidgetName == plotMainWindowUndoStackName() )
         return QIcon( ":/undo-stack.svg" );
     else if ( dockWidgetName == plotMainWindowPlotManagerName() )

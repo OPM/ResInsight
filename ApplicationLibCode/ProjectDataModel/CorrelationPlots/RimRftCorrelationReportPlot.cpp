@@ -551,9 +551,17 @@ RimRftTornadoPlot* RimRftCorrelationReportPlot::tornadoPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimRftCorrelationReportPlot::childPlotsForTextExport() const
+QString RimRftCorrelationReportPlot::reportTitle() const
 {
-    return { crossPlot(), tornadoPlot() };
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per child plot
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimRftCorrelationReportPlot::reportSections() const
+{
+    return childReportSections( { crossPlot(), tornadoPlot() } );
 }
 
 //--------------------------------------------------------------------------------------------------

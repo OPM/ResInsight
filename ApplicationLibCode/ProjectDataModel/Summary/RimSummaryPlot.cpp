@@ -58,7 +58,6 @@
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
-#include "RimSummaryPlotTextProvider.h"
 #include "RimSummaryPlotTools.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "Summary/RiaSummaryAddressCollectionTools.h"
@@ -134,6 +133,70 @@ std::optional<TimeFromSimulationStartInfo> createTimeFromSimulationStartInfo( Ri
     return TimeFromSimulationStartInfo{ RiaQDateTimeTools::fromTime_t( summaryPlot->firstTimeStepOfFirstCurve() ),
                                         timeAxisProperties->timeUnit(),
                                         caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::uiText( timeAxisProperties->timeUnit() ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Curves grouped by how they are exported
+//--------------------------------------------------------------------------------------------------
+struct ExportCurves
+{
+    std::vector<RimSummaryCurve*> curves;
+    std::vector<RimSummaryCurve*> observedCurves;
+    std::vector<RimSummaryCurve*> crossPlotCurves;
+};
+
+ExportCurves categorizeCurvesForExport( const std::vector<RimSummaryCurve*>& allCurves )
+{
+    ExportCurves exportCurves;
+    for ( auto c : allCurves )
+    {
+        if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            exportCurves.crossPlotCurves.push_back( c );
+        }
+        else if ( c->summaryCaseY() && c->summaryCaseY()->isObservedData() && !c->isRegressionCurve() )
+        {
+            exportCurves.observedCurves.push_back( c );
+        }
+        else
+        {
+            exportCurves.curves.push_back( c );
+        }
+    }
+    return exportCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Resampling periods shown as separate sections in the report window
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaDefines::DateTimePeriod> reportResamplingPeriods()
+{
+    return { RiaDefines::DateTimePeriod::NONE,
+             RiaDefines::DateTimePeriod::YEAR,
+             RiaDefines::DateTimePeriod::HALFYEAR,
+             RiaDefines::DateTimePeriod::QUARTER,
+             RiaDefines::DateTimePeriod::MONTH,
+             RiaDefines::DateTimePeriod::WEEK,
+             RiaDefines::DateTimePeriod::DAY,
+             RiaDefines::DateTimePeriod::HOUR,
+             RiaDefines::DateTimePeriod::MINUTE };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The tables are created when the section is shown, as resampling can be expensive
+//--------------------------------------------------------------------------------------------------
+RiaReportSection createReportSection( const RimSummaryPlot* summaryPlot, RiaDefines::DateTimePeriod period )
+{
+    RiaReportSection section;
+    section.title = period == RiaDefines::DateTimePeriod::NONE ? QString( "No Resampling" ) : RiaQDateTimeTools::dateTimePeriodName( period );
+
+    caf::PdmPointer<RimSummaryPlot> plot( const_cast<RimSummaryPlot*>( summaryPlot ) );
+    section.tableFactory = [plot, period]() -> std::vector<RiaReportTable>
+    {
+        if ( plot.isNull() ) return {};
+        return plot->reportTables( period );
+    };
+    return section;
 }
 } // namespace
 
@@ -369,17 +432,93 @@ RiuSummaryPlot* RimSummaryPlot::summaryPlotWidget() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForPlotExport() const
+QString RimSummaryPlot::reportTitle() const
 {
-    return asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::YEAR, false );
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per resampling period
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimSummaryPlot::reportSections() const
+{
+    std::vector<RiaReportSection> sections;
+    for ( auto period : reportResamplingPeriods() )
+    {
+        sections.push_back( createReportSection( this, period ) );
+    }
+    return sections;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<RimTabbedTextProvider> RimSummaryPlot::createTabbedTextProvider() const
+std::vector<RiaReportSection> RimSummaryPlot::compactReportSections() const
 {
-    return std::make_unique<RimSummaryPlotTextProvider>( this );
+    return { createReportSection( this, RiaDefines::DateTimePeriod::NONE ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::supportsLiveUpdate() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportTable> RimSummaryPlot::reportTables( RiaDefines::DateTimePeriod resamplingPeriod ) const
+{
+    const auto allCurves    = descendantsIncludingThisOfType<RimSummaryCurve>();
+    const auto exportCurves = categorizeCurvesForExport( allCurves );
+
+    const bool showTimeAsLongString    = RiaPreferencesSummary::current()->showSummaryTimeAsLongString();
+    const auto timeFromSimulationStart = createTimeFromSimulationStartInfo( const_cast<RimSummaryPlot*>( this ) );
+
+    auto tables = RimSummaryCurvesData::createReportTables( exportCurves.curves,
+                                                            m_asciiDataCurves.childrenByType(),
+                                                            m_gridTimeHistoryCurves.childrenByType(),
+                                                            resamplingPeriod,
+                                                            showTimeAsLongString,
+                                                            timeFromSimulationStart );
+
+    if ( !exportCurves.observedCurves.empty() )
+    {
+        auto observedTables = RimSummaryCurvesData::createReportTables( exportCurves.observedCurves,
+                                                                        {},
+                                                                        {},
+                                                                        RiaDefines::DateTimePeriod::NONE,
+                                                                        showTimeAsLongString,
+                                                                        timeFromSimulationStart );
+        for ( auto& table : observedTables )
+        {
+            table.title = table.title.isEmpty() ? QString( "Observed Curves" ) : "Observed Curves - " + table.title;
+            tables.push_back( std::move( table ) );
+        }
+    }
+
+    for ( auto& table : RimSummaryCurvesData::createReportTablesForCrossPlotCurves( exportCurves.crossPlotCurves ) )
+    {
+        tables.push_back( std::move( table ) );
+    }
+
+    RiaReportTable equationTable;
+    equationTable.title   = "Decline Curve Equations";
+    equationTable.columns = { RiaReportColumn{ .title = "Curve", .alignment = LEFT },
+                              RiaReportColumn{ .title = "Equation", .alignment = LEFT } };
+    for ( auto curve : allCurves )
+    {
+        if ( auto declineCurve = dynamic_cast<RimSummaryDeclineCurve*>( curve ); declineCurve && declineCurve->isChecked() )
+        {
+            const QString equation = declineCurve->equationText().split( '\n', Qt::SkipEmptyParts ).join( "  " );
+            equationTable.rows.push_back( { declineCurve->curveName(), equation } );
+        }
+    }
+    if ( !equationTable.rows.empty() ) tables.push_back( std::move( equationTable ) );
+
+    return tables;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -387,27 +526,12 @@ std::unique_ptr<RimTabbedTextProvider> RimSummaryPlot::createTabbedTextProvider(
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
-    std::vector<RimSummaryCurve*> allCurves = descendantsIncludingThisOfType<RimSummaryCurve>();
+    std::vector<RimSummaryCurve*> allCurves    = descendantsIncludingThisOfType<RimSummaryCurve>();
+    const auto                    exportCurves = categorizeCurvesForExport( allCurves );
 
-    std::vector<RimSummaryCurve*> crossPlotCurves;
-    std::vector<RimSummaryCurve*> curves;
-    std::vector<RimSummaryCurve*> observedCurves;
-
-    for ( auto c : allCurves )
-    {
-        if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
-        {
-            crossPlotCurves.push_back( c );
-        }
-        else if ( c->summaryCaseY() && c->summaryCaseY()->isObservedData() && !c->isRegressionCurve() )
-        {
-            observedCurves.push_back( c );
-        }
-        else
-        {
-            curves.push_back( c );
-        }
-    }
+    const auto& crossPlotCurves = exportCurves.crossPlotCurves;
+    const auto& curves          = exportCurves.curves;
+    const auto& observedCurves  = exportCurves.observedCurves;
 
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
@@ -2417,6 +2541,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     updateStackedCurveData();
 
     updateLoadingOverlayFrame();
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------

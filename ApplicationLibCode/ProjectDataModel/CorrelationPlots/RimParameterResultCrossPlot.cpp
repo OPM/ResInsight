@@ -713,20 +713,29 @@ RiuPlotWidget* RimParameterResultCrossPlot::doCreatePlotViewWidget( QWidget* mai
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimParameterResultCrossPlot::asciiDataForPlotExport() const
+QString RimParameterResultCrossPlot::reportTitle() const
 {
-    QString asciiData;
+    return description();
+}
 
-    auto data = createCaseData();
+//--------------------------------------------------------------------------------------------------
+/// One row per realization
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimParameterResultCrossPlot::reportSections() const
+{
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_CONSISE, 6 );
 
-    asciiData += "Realization\tParameter\tResult\n";
-    for ( const auto& [parameterValue, summaryValue, summaryCase] : data )
+    RiaReportTable table;
+    table.columns = { RiaReportColumn{ .title = "Realization", .alignment = LEFT },
+                      RiaReportColumn{ .title = "Parameter", .doubleFormat = valueFormat },
+                      RiaReportColumn{ .title = "Result", .doubleFormat = valueFormat } };
+
+    for ( const auto& [parameterValue, summaryValue, summaryCase] : createCaseData() )
     {
-        auto caseName = summaryCase->displayCaseName();
-        asciiData += QString( "%1\t%2\t%3\n" ).arg( caseName ).arg( parameterValue ).arg( summaryValue );
+        table.rows.push_back( { summaryCase->displayCaseName(), parameterValue, summaryValue } );
     }
 
-    return asciiData;
+    return { RiaReportSection{ .title = description(), .tables = { std::move( table ) } } };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDateTimeDefines.h"
+#include "RiaReportTable.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryTimeAxisProperties.h"
@@ -75,6 +76,15 @@ public:
 
     static QString createTextForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves );
 
+    static std::vector<RiaReportTable> createReportTables( const std::vector<RimSummaryCurve*>&              curves,
+                                                           const std::vector<RimAsciiDataCurve*>&            asciiCurves,
+                                                           const std::vector<RimGridTimeHistoryCurve*>&      gridCurves,
+                                                           RiaDefines::DateTimePeriod                        resamplingPeriod,
+                                                           bool                                              showTimeAsLongString,
+                                                           const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart = {} );
+
+    static std::vector<RiaReportTable> createReportTablesForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves );
+
 private:
     static void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, RimSummaryCurvesData* curvesData );
     static void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, RimSummaryCurvesData* curvesData );
@@ -89,6 +99,10 @@ private:
                                            const std::vector<CurveData>&                     curveData,
                                            const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart );
     static void appendToExportData( QString&                                          out,
+                                    const std::vector<RimSummaryCurvesData>&          curvesData,
+                                    bool                                              showTimeAsLongString,
+                                    const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart );
+    static void appendReportTables( std::vector<RiaReportTable>&                      tables,
                                     const std::vector<RimSummaryCurvesData>&          curvesData,
                                     bool                                              showTimeAsLongString,
                                     const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart );

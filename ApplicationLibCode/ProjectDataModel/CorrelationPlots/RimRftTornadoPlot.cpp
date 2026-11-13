@@ -246,11 +246,20 @@ void RimRftTornadoPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimRftTornadoPlot::asciiDataForPlotExport() const
+QString RimRftTornadoPlot::reportTitle() const
+{
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimRftTornadoPlot::reportSections() const
 {
     RiuGroupedBarChartBuilder chartBuilder;
     addDataToChartBuilder( chartBuilder );
-    return chartBuilder.plotContentAsText();
+
+    return { RiaReportSection{ .title = description(), .tables = { chartBuilder.reportTable() } } };
 }
 
 //--------------------------------------------------------------------------------------------------

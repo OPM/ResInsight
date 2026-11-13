@@ -20,6 +20,8 @@
 
 #include "Summary/RiaSummaryCurveDefinition.h" // use of caf::Signal requires this include
 
+#include "RiaReportDataProducer.h"
+
 #include "RimAbstractCorrelationPlot.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -45,6 +47,10 @@ public:
     RimCorrelationPlot();
     ~RimCorrelationPlot() override;
 
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
+
     bool showAbsoluteValues() const;
     void setShowAbsoluteValues( bool showAbsoluteValues );
 
@@ -66,10 +72,9 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void    onLoadDataAndUpdate() override;
-    void    onDataSourceChanged() override;
-    void    updateAxes() override;
-    QString asciiDataForPlotExport() const override;
+    void onLoadDataAndUpdate() override;
+    void onDataSourceChanged() override;
+    void updateAxes() override;
 
     // Private methods
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const;

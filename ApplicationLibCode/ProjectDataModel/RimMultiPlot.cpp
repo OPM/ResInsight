@@ -574,19 +574,32 @@ void RimMultiPlot::zoomAllYAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimMultiPlot::asciiDataForPlotExport() const
+QString RimMultiPlot::reportTitle() const
 {
-    QString out = multiPlotTitle() + "\n";
+    const QString title = multiPlotTitle();
+    return title.isEmpty() ? description() : title;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// One section per visible plot, using the compact sections of each plot to limit the number of tabs
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimMultiPlot::reportSections() const
+{
+    std::vector<const RiaReportDataProducer*> children;
     for ( RimPlot* plot : plots() )
     {
-        if ( plot->showWindow() )
-        {
-            out += plot->asciiDataForPlotExport();
-        }
+        if ( plot->showWindow() ) children.push_back( dynamic_cast<const RiaReportDataProducer*>( plot ) );
     }
 
-    return out;
+    return childReportSections( children );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultiPlot::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -600,6 +613,7 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
     updateAllRequiredEditors();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -82,6 +82,7 @@ public:
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowPropertyEditorRightName();
     static QString plotMainWindowMessagesName();
+    static QString plotMainWindowReportName();
     static QString plotMainWindowUndoStackName();
     static QString plotMainWindowPlotManagerName();
     static QString plotMainWindowCurveAppearanceName();

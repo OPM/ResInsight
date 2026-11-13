@@ -32,11 +32,13 @@ class RimViewWindow;
 class RicSummaryPlotEditorDialog;
 class RicSummaryCurveCalculatorDialog;
 class RiuMessagePanel;
+class RiuReportWindow;
 
 namespace caf
 {
 class PdmUiTreeView;
 class PdmObject;
+class PdmObjectHandle;
 class PdmUiPropertyView;
 class PdmUiItem;
 class PdmUiToolBarEditor;
@@ -86,6 +88,9 @@ public:
     void showAndSetKeyboardFocusToSummaryPlotManager();
     void showCurveAppearance();
 
+    RiuReportWindow* reportWindow();
+    void             showReportWindow( caf::PdmObjectHandle* producerObject );
+
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
@@ -125,6 +130,7 @@ private slots:
 private:
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
     QPointer<RiuMessagePanel>      m_messagePanel;
+    QPointer<RiuReportWindow>      m_reportWindow;
 
     std::unique_ptr<caf::PdmUiToolBarEditor> m_wellLogPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;

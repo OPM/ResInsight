@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaPlotDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "RimPlot.h"
 #include "RimPlotAxisProperties.h"
@@ -103,7 +104,9 @@ public:
 
     QWidget* viewWidget() override;
 
-    QString asciiDataForPlotExport() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     FrequencyType frequencyType() const;
     GraphType     graphType() const;

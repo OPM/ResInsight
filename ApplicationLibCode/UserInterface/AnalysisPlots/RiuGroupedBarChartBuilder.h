@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaReportTable.h"
+
 #include <QColor>
 #include <QPointF>
 #include <QString>
@@ -55,7 +57,7 @@ public:
     // placing them next to the bars
     void setBarTextAnchor( double valueAxisPosition );
 
-    QString plotContentAsText() const;
+    RiaReportTable reportTable() const;
 
 private:
     double midPoint( double v1, double v2 ) { return v1 + 0.5 * ( v2 - 1.0 - v1 ); }

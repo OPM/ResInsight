@@ -72,15 +72,16 @@ public:
     RiuQwtPlotWidget* viewer();
 
     // RimPlot pure virtual overrides
-    RiuPlotWidget* plotWidget() override;
-    void           setAutoScaleXEnabled( bool ) override {}
-    void           setAutoScaleYEnabled( bool ) override {}
-    void           updateAxes() override;
-    void           updateLegend() override {}
-    QString        asciiDataForPlotExport() const override;
-    void           reattachAllCurves() override {}
-    void           detachAllCurves() override;
-    QString        description() const override;
+    RiuPlotWidget*                plotWidget() override;
+    void                          setAutoScaleXEnabled( bool ) override {}
+    void                          setAutoScaleYEnabled( bool ) override {}
+    void                          updateAxes() override;
+    void                          updateLegend() override {}
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    void                          reattachAllCurves() override {}
+    void                          detachAllCurves() override;
+    QString                       description() const override;
 
 private:
     QWidget*       viewWidget() override;

@@ -22,6 +22,7 @@
 #include "RimWellLogPlot.h"
 
 #include "RiaPlotDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "Well/RigWellPathFormations.h"
 
@@ -224,7 +225,9 @@ public:
 
     void updateLegend() override;
 
-    QString asciiDataForPlotExport() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
@@ -262,6 +265,23 @@ protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
+    struct ExportRow
+    {
+        double              depth = 0.0;
+        QString             cellText;
+        std::vector<double> values;
+    };
+
+    struct ExportData
+    {
+        RiaDefines::DepthType  depthType       = RiaDefines::DepthType::MEASURED_DEPTH;
+        bool                   exportCellTexts = false;
+        std::vector<QString>   curveNames;
+        std::vector<ExportRow> rows;
+    };
+
+    ExportData exportData() const;
+
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void cleanupBeforeClose();

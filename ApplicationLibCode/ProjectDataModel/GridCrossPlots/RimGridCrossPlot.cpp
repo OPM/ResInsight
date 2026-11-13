@@ -26,7 +26,6 @@
 
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridCrossPlotTextProvider.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 
@@ -475,6 +474,8 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     updateCurveNamesAndPlotTitle();
     updatePlot();
     updateInfoBox();
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -631,62 +632,47 @@ void RimGridCrossPlot::swapAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiDataForPlotExport() const
+QString RimGridCrossPlot::reportTitle() const
 {
-    QString fullData;
-    for ( int i = 0; i < (int)m_crossPlotDataSets.size(); ++i )
+    return createAutoName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One section per data set. The tables are created when shown, as a data set can contain all grid cells.
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimGridCrossPlot::reportSections() const
+{
+    std::vector<RiaReportSection> sections;
+    for ( RimGridCrossPlotDataSet* dataSet : m_crossPlotDataSets )
     {
-        fullData += asciiTitleForPlotExport( i ) + "\n";
-        fullData += asciiDataForGridCrossPlotExport( i ) + "\n";
+        RiaReportSection section;
+        section.title = dataSet->createAutoName();
+
+        caf::PdmPointer<RimGridCrossPlotDataSet> dataSetPtr( dataSet );
+        section.tableFactory = [dataSetPtr]() -> std::vector<RiaReportTable>
+        {
+            if ( dataSetPtr.isNull() ) return {};
+
+            auto table = dataSetPtr->createReportTable();
+            if ( table.columns.empty() ) return {};
+
+            // An initializer list would copy the table
+            std::vector<RiaReportTable> tables;
+            tables.push_back( std::move( table ) );
+            return tables;
+        };
+
+        sections.push_back( std::move( section ) );
     }
-    return fullData;
+    return sections;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<RimTabbedTextProvider> RimGridCrossPlot::createTabbedTextProvider() const
+bool RimGridCrossPlot::supportsLiveUpdate() const
 {
-    return std::make_unique<RimGridCrossPlotTextProvider>( const_cast<RimGridCrossPlot*>( this ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiTitleForPlotExport( int dataSetIndex ) const
-{
-    if ( (size_t)dataSetIndex < m_crossPlotDataSets.size() )
-    {
-        return m_crossPlotDataSets[dataSetIndex]->createAutoName();
-    }
-    return "Data invalid";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiDataForGridCrossPlotExport( int dataSetIndex ) const
-{
-    if ( (size_t)dataSetIndex < m_crossPlotDataSets.size() )
-    {
-        QString     asciiData;
-        QTextStream stringStream( &asciiData );
-
-        RifTextDataTableFormatter formatter( stringStream );
-        formatter.setCommentPrefix( "" );
-        formatter.setHeaderPrefix( "" );
-        formatter.setTableRowPrependText( "" );
-        formatter.setTableRowLineAppendText( "" );
-        formatter.setColumnSpacing( 3 );
-
-        m_crossPlotDataSets[dataSetIndex]->exportFormattedData( formatter );
-        formatter.tableCompleted();
-        return asciiData;
-    }
-    else
-    {
-        return "Data invalid and may have been deleted.";
-    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

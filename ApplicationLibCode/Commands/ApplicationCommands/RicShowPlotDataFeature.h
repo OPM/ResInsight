@@ -20,11 +20,9 @@
 
 #include "cafCmdFeature.h"
 
-#include <memory>
 #include <vector>
 
 class RimPlotWindow;
-class RimTabbedTextProvider;
 
 //==================================================================================================
 ///
@@ -42,6 +40,5 @@ private:
     void getSelection( std::vector<RimPlotWindow*>& selection ) const;
 
 public:
-    static void showTabbedTextWindow( std::unique_ptr<RimTabbedTextProvider> textProvider );
     static void showTextWindow( const QString& title, const QString& text );
 };
