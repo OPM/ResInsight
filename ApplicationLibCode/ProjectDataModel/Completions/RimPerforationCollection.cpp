@@ -165,6 +165,19 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<RigMdRange> RimPerforationCollection::activePerforationMdRange( const QDateTime& date ) const
+{
+    std::vector<RigMdRange> ranges;
+    for ( const auto* perforation : activePerforations() )
+    {
+        if ( perforation->isActiveOnDate( date ) ) ranges.emplace_back( perforation->startMD(), perforation->endMD() );
+    }
+    return RigMdRange::merged( ranges );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_nonDarcyParameters->uiOrdering( uiConfigName, uiOrdering );
