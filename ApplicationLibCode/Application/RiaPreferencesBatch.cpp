@@ -30,7 +30,10 @@
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 
-constexpr int DISABLE_LOG_MONITORING_VALUE = 9999;
+namespace
+{
+static constexpr int DISABLE_LOG_MONITORING_VALUE = 9999;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
