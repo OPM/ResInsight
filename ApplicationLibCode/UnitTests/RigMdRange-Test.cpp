@@ -10,8 +10,8 @@
 TEST( RigMdRange, ConstructorOrdersStartAndEnd )
 {
     const RigMdRange range( 200.0, 100.0 );
-    EXPECT_DOUBLE_EQ( 100.0, range.start );
-    EXPECT_DOUBLE_EQ( 200.0, range.end );
+    EXPECT_DOUBLE_EQ( 100.0, range.start() );
+    EXPECT_DOUBLE_EQ( 200.0, range.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -29,13 +29,13 @@ TEST( RigMdRange, MergedSpansGapsAndIgnoresInputOrder )
 {
     const auto single = RigMdRange::merged( { RigMdRange( 100.0, 200.0 ) } );
     ASSERT_TRUE( single.has_value() );
-    EXPECT_DOUBLE_EQ( 100.0, single->start );
-    EXPECT_DOUBLE_EQ( 200.0, single->end );
+    EXPECT_DOUBLE_EQ( 100.0, single->start() );
+    EXPECT_DOUBLE_EQ( 200.0, single->end() );
 
     const auto merged = RigMdRange::merged( { RigMdRange( 500.0, 600.0 ), RigMdRange( 100.0, 200.0 ), RigMdRange( 150.0, 250.0 ) } );
     ASSERT_TRUE( merged.has_value() );
-    EXPECT_DOUBLE_EQ( 100.0, merged->start );
-    EXPECT_DOUBLE_EQ( 600.0, merged->end );
+    EXPECT_DOUBLE_EQ( 100.0, merged->start() );
+    EXPECT_DOUBLE_EQ( 600.0, merged->end() );
 }
 
 //--------------------------------------------------------------------------------------------------

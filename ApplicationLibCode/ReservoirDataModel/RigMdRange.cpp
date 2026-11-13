@@ -24,8 +24,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigMdRange::RigMdRange( double startMD, double endMD )
-    : start( std::min( startMD, endMD ) )
-    , end( std::max( startMD, endMD ) )
+    : m_start( std::min( startMD, endMD ) )
+    , m_end( std::max( startMD, endMD ) )
 {
 }
 
@@ -38,9 +38,9 @@ bool RigMdRange::overlaps( double startMD, double endMD ) const
     const double upper = std::max( startMD, endMD );
 
     // A zero length range is a point, and is overlapped by any interval containing the point
-    if ( start == end ) return lower <= start && start <= upper;
+    if ( m_start == m_end ) return lower <= m_start && m_start <= upper;
 
-    return upper > start && lower < end;
+    return upper > m_start && lower < m_end;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,11 +50,28 @@ std::optional<RigMdRange> RigMdRange::merged( const std::vector<RigMdRange>& ran
 {
     if ( ranges.empty() ) return std::nullopt;
 
-    RigMdRange result = ranges.front();
+    double minStart = ranges.front().start();
+    double maxEnd   = ranges.front().end();
     for ( const auto& range : ranges )
     {
-        result.start = std::min( result.start, range.start );
-        result.end   = std::max( result.end, range.end );
+        minStart = std::min( minStart, range.start() );
+        maxEnd   = std::max( maxEnd, range.end() );
     }
-    return result;
+    return RigMdRange( minStart, maxEnd );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigMdRange::start() const
+{
+    return m_start;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigMdRange::end() const
+{
+    return m_end;
 }

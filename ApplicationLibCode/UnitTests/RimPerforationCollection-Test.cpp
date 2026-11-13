@@ -50,8 +50,8 @@ TEST( RimPerforationCollection, MdRangeSpansCheckedIntervalsIncludingGaps )
 
     const auto range = collection->activePerforationMdRange( QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0 ) ) );
     ASSERT_TRUE( range.has_value() );
-    EXPECT_DOUBLE_EQ( 100.0, range->start );
-    EXPECT_DOUBLE_EQ( 400.0, range->end );
+    EXPECT_DOUBLE_EQ( 100.0, range->start() );
+    EXPECT_DOUBLE_EQ( 400.0, range->end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,11 +71,11 @@ TEST( RimPerforationCollection, IntervalsNotActiveOnDateAreExcluded )
 
     const auto before = collection->activePerforationMdRange( QDateTime( QDate( 2020, 6, 1 ), QTime( 0, 0 ) ) );
     ASSERT_TRUE( before.has_value() );
-    EXPECT_DOUBLE_EQ( 100.0, before->start );
-    EXPECT_DOUBLE_EQ( 200.0, before->end );
+    EXPECT_DOUBLE_EQ( 100.0, before->start() );
+    EXPECT_DOUBLE_EQ( 200.0, before->end() );
 
     const auto after = collection->activePerforationMdRange( QDateTime( QDate( 2021, 6, 1 ), QTime( 0, 0 ) ) );
     ASSERT_TRUE( after.has_value() );
-    EXPECT_DOUBLE_EQ( 100.0, after->start );
-    EXPECT_DOUBLE_EQ( 400.0, after->end );
+    EXPECT_DOUBLE_EQ( 100.0, after->start() );
+    EXPECT_DOUBLE_EQ( 400.0, after->end() );
 }

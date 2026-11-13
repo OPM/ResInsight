@@ -22,10 +22,11 @@
 #include <vector>
 
 //==================================================================================================
-/// A measured depth interval along a well path. start <= end is guaranteed by the constructor.
+/// A measured depth interval along a well path. Immutable, and start <= end is guaranteed by the constructor.
 //==================================================================================================
-struct RigMdRange
+class RigMdRange
 {
+public:
     RigMdRange( double startMD, double endMD );
 
     // True if the interval [startMD, endMD] has a part in common with this range. Intervals that only touch the
@@ -35,6 +36,10 @@ struct RigMdRange
     // The smallest range covering all ranges, including the gaps between them. No value if ranges is empty.
     static std::optional<RigMdRange> merged( const std::vector<RigMdRange>& ranges );
 
-    double start;
-    double end;
+    double start() const;
+    double end() const;
+
+private:
+    double m_start;
+    double m_end;
 };
