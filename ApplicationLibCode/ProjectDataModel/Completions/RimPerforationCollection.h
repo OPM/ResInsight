@@ -21,11 +21,14 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RigMdRange.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class QDateTime;
 class RimPerforationInterval;
 class RimNonDarcyPerforationParameters;
 
@@ -47,6 +50,10 @@ public:
     std::vector<const RimPerforationInterval*> perforations() const;
     std::vector<RimPerforationInterval*>       perforationsNoConst() const;
     std::vector<const RimPerforationInterval*> activePerforations() const;
+
+    // The MD range covering all checked perforation intervals active on the date, including gaps between them.
+    // The check state of the collection itself is ignored. Callers must check isChecked() on the collection.
+    std::optional<RigMdRange> activePerforationMdRange( const QDateTime& date ) const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

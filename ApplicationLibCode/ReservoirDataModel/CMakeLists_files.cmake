@@ -80,6 +80,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigMdRange.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellRegionResultTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFloodingSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHydrocarbonFlowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDoglegTools.cpp
