@@ -154,3 +154,53 @@ def test_import_well_path_from_points_large_coordinates(rips_instance, initializ
 
     assert well_path is not None
     assert well_path.name == "UTMCoordinatesWell"
+
+
+def test_import_well_path_from_points_with_measured_depths(
+    rips_instance, initialize_test
+):
+    """Supplied measured depths are used instead of the cumulative length"""
+    well_path_coll = rips_instance.project.well_path_collection()
+
+    coordinates = [
+        [100, 200, -500],
+        [100, 200, -590],
+        [110, 205, -700],
+        [130, 210, -820],
+    ]
+    well_path = well_path_coll.import_well_path_from_points(
+        name="MD_START",
+        coordinates=coordinates,
+        measured_depths=[500, 600, 750, 900],
+    )
+
+    geometry = well_path.trajectory_properties(resampling_interval=1e6)
+    assert geometry["measured_depth"] == pytest.approx([500.0, 900.0])
+
+    default_well = well_path_coll.import_well_path_from_points(
+        name="MD_DEFAULT", coordinates=coordinates
+    )
+    default_geometry = default_well.trajectory_properties(resampling_interval=1e6)
+    assert default_geometry["measured_depth"][0] == pytest.approx(0.0)
+
+
+def test_import_well_path_from_points_invalid_measured_depths(
+    rips_instance, initialize_test
+):
+    well_path_coll = rips_instance.project.well_path_collection()
+    coordinates = [[0, 0, 0], [0, 0, -10], [0, 0, -20]]
+
+    with pytest.raises(ValueError, match="same length"):
+        well_path_coll.import_well_path_from_points(
+            name="W", coordinates=coordinates, measured_depths=[0, 10]
+        )
+
+    with pytest.raises(ValueError, match="strictly increasing"):
+        well_path_coll.import_well_path_from_points(
+            name="W", coordinates=coordinates, measured_depths=[0, 10, 10]
+        )
+
+    with pytest.raises(ValueError, match="numeric"):
+        well_path_coll.import_well_path_from_points(
+            name="W", coordinates=coordinates, measured_depths=[0, "a", 20]
+        )

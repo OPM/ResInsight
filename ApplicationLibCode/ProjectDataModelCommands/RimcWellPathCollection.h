@@ -62,6 +62,7 @@ private:
     caf::PdmField<QString> m_coordinateXKey;
     caf::PdmField<QString> m_coordinateYKey;
     caf::PdmField<QString> m_coordinateZKey;
+    caf::PdmField<QString> m_coordinateMdKey;
 };
 
 //==================================================================================================
