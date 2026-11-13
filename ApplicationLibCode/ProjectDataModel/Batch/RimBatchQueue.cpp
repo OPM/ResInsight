@@ -170,6 +170,8 @@ QString RimBatchQueue::generateJobName()
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueue::readStdOutErrIntoProcessLog()
 {
+    m_process->clearStdOutErr();
+
     if ( !m_stdOutFileName.isEmpty() )
     {
         QFile file( m_stdOutFileName );

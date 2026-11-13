@@ -37,6 +37,7 @@ protected:
     void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
     void started() override;
     void appendStdOut( QString line ) override;
+    void clearStdOutErr() override;
 
 private:
     caf::PdmPointer<RimGenericJob> m_job;

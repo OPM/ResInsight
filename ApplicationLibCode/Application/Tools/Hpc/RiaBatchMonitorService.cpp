@@ -119,7 +119,7 @@ void RiaBatchMonitorService::internalStop()
     {
         m_monitorWorker->stopMonitoring();
         m_monitorWorker = nullptr;
-        RiaLogging::debug( "Stopping Batch Job monitor." );
+        RiaLogging::debug( "Stopping Batch Job Monitor" );
     }
 }
 
@@ -150,7 +150,7 @@ void RiaBatchMonitorService::internalStart()
 
     thread->start();
 
-    RiaLogging::debug( "Starting Batch Job monitor." );
+    RiaLogging::debug( "Starting Batch Job Monitor" );
 }
 
 //--------------------------------------------------------------------------------------------------

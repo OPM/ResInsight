@@ -30,12 +30,12 @@ class RimProcessMonitor : public QObject
 public:
     explicit RimProcessMonitor( size_t processId, bool logStdOutErr = true );
 
-    void               clearStdOutErr();
     const QStringList& stdOut() const;
     const QStringList& stdErr() const;
 
     virtual void appendStdOut( QString line );
     virtual void appendStdErr( QString line );
+    virtual void clearStdOutErr();
 
     void setProcessId( size_t processId );
 

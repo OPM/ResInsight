@@ -18,7 +18,7 @@
 
 #include "RiaLogMonitorService.h"
 
-#include "Hpc/RiaBatchMonitorWorker.h"
+#include "Hpc/RiaLogMonitorWorker.h"
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
@@ -32,7 +32,7 @@
 RiaLogMonitorService::RiaLogMonitorService()
     : m_monitorWorker( nullptr )
     , m_usageCount( 0 )
-    , logInfoUpdateSignal( this )
+    , logUpdateSignal( this )
 {
 }
 
@@ -48,49 +48,50 @@ RiaLogMonitorService::~RiaLogMonitorService()
 //--------------------------------------------------------------------------------------------------
 RiaLogMonitorService* RiaLogMonitorService::instance()
 {
-    return nullptr;
-    // return RiaApplication::instance()->batchMonitorService();
+    return RiaApplication::instance()->logMonitorService();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogMonitorService::start()
+void RiaLogMonitorService::start( std::string filename )
 {
-    instance()->startMonitoring();
+    instance()->startMonitoring( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogMonitorService::stop()
+void RiaLogMonitorService::stop( std::string filename )
 {
-    instance()->stopMonitoring();
+    instance()->stopMonitoring( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogMonitorService::startMonitoring()
+void RiaLogMonitorService::startMonitoring( std::string filename )
 {
-    m_usageCount++;
-    if ( m_usageCount == 1 )
+    if ( m_usageCount == 0 )
     {
         internalStart();
     }
+    m_usageCount = m_monitorWorker->addLogFileToWatch( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogMonitorService::stopMonitoring()
+void RiaLogMonitorService::stopMonitoring( std::string filename )
 {
-    if ( m_usageCount == 1 )
+    if ( m_monitorWorker != nullptr )
+    {
+        m_usageCount = m_monitorWorker->removeLogFileToWatch( filename );
+    }
+    if ( m_usageCount == 0 )
     {
         internalStop();
     }
-    m_usageCount--;
-    if ( m_usageCount < 0 ) m_usageCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,12 +117,12 @@ void RiaLogMonitorService::shutDown()
 //--------------------------------------------------------------------------------------------------
 void RiaLogMonitorService::internalStop()
 {
-    // if ( m_monitorWorker != nullptr )
-    //{
-    //     m_monitorWorker->stopMonitoring();
-    //     m_monitorWorker = nullptr;
-    //     RiaLogging::debug( "Stopping Batch Job monitor." );
-    // }
+    if ( m_monitorWorker != nullptr )
+    {
+        m_monitorWorker->stopMonitoring();
+        m_monitorWorker = nullptr;
+        RiaLogging::debug( "Stopping Log Monitor" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,36 +130,37 @@ void RiaLogMonitorService::internalStop()
 //--------------------------------------------------------------------------------------------------
 void RiaLogMonitorService::internalStart()
 {
-    // auto hpcPrefs = RiaPreferencesBatch::current();
+    auto hpcPrefs = RiaPreferencesBatch::current();
 
-    // auto schedulerType = hpcPrefs->batchScheduler();
-    // if ( schedulerType == RiaDefines::BatchSchedulerType::LOCAL_COMPUTER ) return;
+    auto schedulerType = hpcPrefs->batchScheduler();
+    if ( schedulerType == RiaDefines::BatchSchedulerType::LOCAL_COMPUTER ) return;
 
-    // int interval = hpcPrefs->statusRefreshInterval();
-    // if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds
-    // if ( interval > 60 ) interval = 60; // maximum interval of 60 seconds
+    if ( !hpcPrefs->logMonitoringEnabled() ) return;
 
-    // m_monitorWorker = new RiaBatchMonitorWorker( schedulerType, interval, RiaPreferencesOpm::current()->wslOptions() );
-    // auto thread     = new QThread( this );
+    int interval = hpcPrefs->logRefreshInterval();
+    if ( interval < 5 ) interval = 5; // minimum interval of 5 seconds
 
-    // m_monitorWorker->moveToThread( thread );
+    m_monitorWorker = new RiaLogMonitorWorker( interval );
+    auto thread     = new QThread( this );
 
-    // connect( thread, &QThread::started, m_monitorWorker, &RiaBatchMonitorWorker::start );
-    // connect( thread, &QThread::finished, m_monitorWorker, &QObject::deleteLater );
-    // connect( thread, &QThread::finished, thread, &QObject::deleteLater );
-    // connect( m_monitorWorker, &RiaBatchMonitorWorker::jobInfoUpdate, this, &RiaBatchMonitorService::onJobInfoUpdateFromMonitor );
-    // connect( m_monitorWorker, &RiaBatchMonitorWorker::finished, thread, &QThread::quit );
+    m_monitorWorker->moveToThread( thread );
 
-    // thread->start();
+    connect( thread, &QThread::started, m_monitorWorker, &RiaLogMonitorWorker::start );
+    connect( thread, &QThread::finished, m_monitorWorker, &QObject::deleteLater );
+    connect( thread, &QThread::finished, thread, &QObject::deleteLater );
+    connect( m_monitorWorker, &RiaLogMonitorWorker::logUpdate, this, &RiaLogMonitorService::onLogUpdateFromMonitor );
+    connect( m_monitorWorker, &RiaLogMonitorWorker::finished, thread, &QThread::quit );
 
-    // RiaLogging::debug( "Starting Batch Job monitor." );
+    thread->start();
+
+    RiaLogging::debug( "Starting Log Monitor" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogMonitorService::onLogUpdateFromMonitor( const QStringList information )
+void RiaLogMonitorService::onLogUpdateFromMonitor( const QString filename, const QStringList loglines )
 {
-    // emit logInfoUpdate( information );
-    // jobInfoUpdateSignal.send( information );
+    emit logUpdate( filename, loglines );
+    logUpdateSignal.send( std::make_pair( filename, loglines ) );
 }

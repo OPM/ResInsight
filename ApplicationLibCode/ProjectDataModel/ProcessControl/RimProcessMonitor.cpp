@@ -202,6 +202,8 @@ void RimProcessMonitor::appendStdOut( QString line )
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::appendStdErr( QString line )
 {
+    if ( line.trimmed().isEmpty() ) return;
+
     m_stdErr.append( line );
     if ( m_logStdOutErr )
     {

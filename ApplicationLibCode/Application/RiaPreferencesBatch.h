@@ -46,6 +46,7 @@ public:
     int                                secondsToWaitForSubmit() const;
     int                                statusRefreshInterval() const;
     int                                logRefreshInterval() const;
+    bool                               logMonitoringEnabled() const;
 
     static QString selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue );
 

@@ -19,8 +19,6 @@
 #pragma once
 
 #include "Hpc/RiaHpcTools.h"
-#include "RiaHpcDefines.h"
-#include "RiaWslTools.h"
 
 #include <atomic>
 #include <iosfwd>
@@ -28,6 +26,7 @@
 
 #include <QMutex>
 #include <QObject>
+#include <QString>
 #include <QStringList>
 #include <QWaitCondition>
 
@@ -39,6 +38,9 @@ class RiaLogMonitorWorker : public QObject
 
 public:
     explicit RiaLogMonitorWorker( int interval, QObject* parent = nullptr );
+
+    int addLogFileToWatch( const std::string& fileName );
+    int removeLogFileToWatch( const std::string& fileName );
 
     void stopMonitoring();
 

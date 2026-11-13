@@ -30,6 +30,8 @@
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 
+constexpr int DISABLE_LOG_MONITORING_VALUE = 9999;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +225,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesBatch::calculateValueOptions( const 
         options.push_back( caf::PdmOptionItemInfo( "10 seconds", QVariant::fromValue( 10 ) ) );
         options.push_back( caf::PdmOptionItemInfo( "30 seconds", QVariant::fromValue( 30 ) ) );
         options.push_back( caf::PdmOptionItemInfo( "60 seconds", QVariant::fromValue( 60 ) ) );
-        options.push_back( caf::PdmOptionItemInfo( "Off", QVariant::fromValue( 9999 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "Off", QVariant::fromValue( DISABLE_LOG_MONITORING_VALUE ) ) );
     }
 
     return options;
@@ -251,4 +253,12 @@ int RiaPreferencesBatch::statusRefreshInterval() const
 int RiaPreferencesBatch::logRefreshInterval() const
 {
     return m_logRefreshInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesBatch::logMonitoringEnabled() const
+{
+    return ( batchScheduler() != RiaDefines::BatchSchedulerType::LOCAL_COMPUTER ) && ( m_logRefreshInterval() < DISABLE_LOG_MONITORING_VALUE );
 }

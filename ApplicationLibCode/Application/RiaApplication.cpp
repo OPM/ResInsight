@@ -27,6 +27,7 @@
 #include "RiaOsduDefines.h"
 
 #include "Hpc/RiaBatchMonitorService.h"
+#include "Hpc/RiaLogMonitorService.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
@@ -188,6 +189,7 @@ RiaApplication::RiaApplication()
     , m_runningWorkerProcess( false )
     , m_currentScriptCaseId( -1 )
     , m_batchMonitorService( std::make_unique<RiaBatchMonitorService>() )
+    , m_logMonitorService( std::make_unique<RiaLogMonitorService>() )
 {
     CAF_ASSERT( s_riaApplication == nullptr );
     s_riaApplication = this;
@@ -222,6 +224,7 @@ RiaApplication::~RiaApplication()
     }
 
     m_batchMonitorService->shutDown();
+    m_logMonitorService->shutDown();
 
     RiaFontCache::clear();
 
@@ -1577,6 +1580,7 @@ void RiaApplication::applyPreferences()
     }
 
     m_batchMonitorService->restartMonitoring();
+    m_logMonitorService->restartMonitoring();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2108,6 +2112,14 @@ std::vector<caf::PdmDeprecation> RiaApplication::defaultDeprecations()
     // Deprecations can be used for adding info messages when pdm fields have been removed.
     // To extend the concept to pdm objects more work is needed.
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaLogMonitorService* RiaApplication::logMonitorService() const
+{
+    return m_logMonitorService.get();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,10 +18,7 @@
 
 #include "RiaLogMonitorWorker.h"
 
-#include "Hpc/RiaHpcTools.h"
-
 #include <QMutexLocker>
-#include <QStringList>
 #include <QThread>
 #include <QWidget>
 
@@ -55,6 +52,29 @@ void RiaLogMonitorWorker::stopMonitoring()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RiaLogMonitorWorker::addLogFileToWatch( const std::string& fileName )
+{
+    QMutexLocker locker( &m_listMutex );
+    m_fileList.push_back( std::make_pair( fileName, std::streampos() ) );
+    return (int)m_fileList.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaLogMonitorWorker::removeLogFileToWatch( const std::string& fileName )
+{
+    QMutexLocker locker( &m_listMutex );
+
+    m_fileList.erase( std::remove_if( m_fileList.begin(), m_fileList.end(), [&]( const auto& pair ) { return pair.first == fileName; } ),
+                      m_fileList.end() );
+
+    return (int)m_fileList.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaLogMonitorWorker::start()
 {
     const int maxI = m_monitoringIntervalSeconds * 5;
@@ -66,7 +86,7 @@ void RiaLogMonitorWorker::start()
         auto         fileList = m_fileList;
         locker.unlock();
 
-        // check if files exist and read new lines from them
+        // check if files exist and read any new lines from them
         for ( auto& [fileName, streamPos] : fileList )
         {
             if ( !std::filesystem::exists( fileName ) ) continue;
@@ -77,22 +97,32 @@ void RiaLogMonitorWorker::start()
             // Move to last read position
             file.seekg( streamPos );
 
+            // get any new lines
             QStringList logLines;
-
             std::string line;
             while ( std::getline( file, line ) )
             {
                 logLines.append( QString::fromStdString( line ) );
+                streamPos = file.tellg();
+                if ( !m_keepRunning ) break;
             }
-
-            streamPos = file.tellg();
             file.close();
 
             if ( logLines.isEmpty() ) continue;
 
+            // notify new lines
             emit logUpdate( QString::fromStdString( fileName ), logLines );
 
-            if ( !m_keepRunning ) break;
+            // store streamPos back to m_fileList, so that we can continue reading from the correct position next time
+            QMutexLocker locker2( &m_listMutex );
+            for ( auto& [candidateName, filePos] : m_fileList )
+            {
+                if ( candidateName == fileName )
+                {
+                    filePos = streamPos;
+                    break;
+                }
+            }
         }
 
         // poll exit flag 5 times per second to respond quickly to program exit

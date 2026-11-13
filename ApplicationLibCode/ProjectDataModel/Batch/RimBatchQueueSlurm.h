@@ -47,6 +47,7 @@ protected:
     void setFinished( bool runOk ) override;
 
     void onJobInfoUpdate( const SignalEmitter* emitter, const std::map<QString, RiaHpcTools::BatchJobInformation>& information );
+    void onLogUpdate( const SignalEmitter* emitter, std::pair<const QString, const QStringList&> logInfo );
 
     QString jobId();
 
@@ -68,6 +69,7 @@ protected:
 
 private:
     bool      m_isBatchMonitorActivated;
+    bool      m_isLogMonitorActivated;
     QString   m_jobId;
     QDateTime m_submitTime;
 };
