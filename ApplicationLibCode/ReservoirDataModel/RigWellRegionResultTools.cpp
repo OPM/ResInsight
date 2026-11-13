@@ -32,6 +32,7 @@
 
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigSimWellData.h"
+#include "Well/RigSimulationWellCenterLineCalculator.h"
 #include "Well/RigWellPath.h"
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
@@ -109,6 +110,48 @@ std::vector<size_t> connectionCells( const RigMainGrid& mainGrid, const RigWellR
         const size_t reservoirCellIdx =
             mainGrid.reservoirCellIndexByGridAndGridLocalCellIndex( resultPoint.gridIndex(), resultPoint.cellIndex() );
         if ( reservoirCellIdx < mainGrid.totalCellCount() ) cells.push_back( reservoirCellIdx );
+    }
+    return cells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reservoir cell indices of all cells intersected by a well path
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> wellPathCells( RigEclipseCaseData* eclipseCaseData, const RigWellPath* wellPath )
+{
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( eclipseCaseData, wellPath, "" );
+    return extractor->intersectedCellsGlobIdx();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reservoir cell indices of all cells intersected by the simulation well pipe. The connections can
+/// have gaps (cells without connections), and the pipe passes through these cells.
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> simWellPipeCells( RigEclipseCaseData* eclipseCaseData, const RigSimWellData* simWellData, size_t timeStepIndex )
+{
+    const bool isAutoDetectBranches = true;
+    const bool useAllCellCenters    = false;
+
+    const auto branches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( eclipseCaseData,
+                                                                                                         simWellData,
+                                                                                                         static_cast<int>( timeStepIndex ),
+                                                                                                         isAutoDetectBranches,
+                                                                                                         useAllCellCenters );
+
+    std::vector<size_t> cells;
+    for ( const auto& [coords, resultPoints] : branches )
+    {
+        if ( coords.size() < 2 ) continue;
+
+        std::vector<double> measuredDepths = { 0.0 };
+        for ( size_t i = 1; i < coords.size(); i++ )
+        {
+            measuredDepths.push_back( measuredDepths.back() + ( coords[i] - coords[i - 1] ).length() );
+        }
+
+        cvf::ref<RigWellPath> pipePath    = new RigWellPath( coords, measuredDepths );
+        const auto            branchCells = wellPathCells( eclipseCaseData, pipePath.p() );
+        cells.insert( cells.end(), branchCells.begin(), branchCells.end() );
     }
     return cells;
 }
@@ -253,22 +296,28 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
         const RigWellResultFrame* frame = simWellData->wellResultFrame( timeStepIndex );
         if ( !frame ) continue;
 
-        const std::vector<size_t> cells = connectionCells( mainGrid, *frame );
+        const std::vector<size_t> cells     = connectionCells( mainGrid, *frame );
+        const std::vector<size_t> pipeCells = simWellPipeCells( eclipseCaseData, simWellData.p(), timeStepIndex );
 
-        const bool isSelected =
-            std::any_of( cells.begin(), cells.end(), [&insidePolygon]( size_t cellIdx ) { return insidePolygon[cellIdx]; } );
+        // The pipe can intersect the polygon without any connection being inside, e.g. between the well head and the first connection
+        auto isInPolygon = [&insidePolygon, cellCount]( size_t cellIdx ) { return cellIdx < cellCount && insidePolygon[cellIdx]; };
+        const bool isSelected = std::any_of( cells.begin(), cells.end(), isInPolygon ) || std::any_of( pipeCells.begin(), pipeCells.end(), isInPolygon );
         if ( !isSelected ) continue;
 
         for ( size_t cellIdx : cells )
         {
             wellCells[cellIdx] = 1;
         }
+
+        for ( size_t cellIdx : pipeCells )
+        {
+            if ( cellIdx < cellCount ) wellCells[cellIdx] = 1;
+        }
     }
 
     if ( wellPath )
     {
-        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( eclipseCaseData, wellPath, "" );
-        for ( size_t cellIdx : extractor->intersectedCellsGlobIdx() )
+        for ( size_t cellIdx : wellPathCells( eclipseCaseData, wellPath ) )
         {
             if ( cellIdx < cellCount ) wellCells[cellIdx] = 1;
         }

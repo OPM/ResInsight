@@ -295,3 +295,49 @@ TEST_F( RigWellRegionResultToolsTest, OpenAndClosedPolygonGiveSameResult )
     EXPECT_EQ( openValues, allValues() );
     EXPECT_GT( std::count( openValues.begin(), openValues.end(), 1.0 ), 0 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// GP1 has no connections in cells (23,48,24) and (31,42,20) (zero based). The well pipe passes through these
+/// cells, and they are marked also without growth.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, CellsWithoutConnectionsAlongSimWellPipe )
+{
+    const auto   gp1Cells  = connectionCells( "GP1" );
+    const size_t firstCell = reservoirCellIndex( 0, 26, 40, 14 );
+    const auto   polygon   = squareAround( sharedCorner( firstCell, reservoirCellIndex( 0, 26, 40, 15 ) ), 1.0 );
+    const size_t gapCellA  = reservoirCellIndex( 0, 23, 48, 24 );
+    const size_t gapCellB  = reservoirCellIndex( 0, 31, 42, 20 );
+    for ( size_t cellIdx : { gapCellA, gapCellB } )
+    {
+        ASSERT_EQ( gp1Cells.end(), std::find( gp1Cells.begin(), gp1Cells.end(), cellIdx ) );
+        ASSERT_TRUE( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) );
+    }
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+
+    EXPECT_EQ( 1.0, value( gapCellA ) );
+    EXPECT_EQ( 1.0, value( gapCellB ) );
+    expectBinaryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The polygon touches only a gap cell on the GP1 pipe, no GP1 connection cell is inside the polygon.
+/// The well is still selected because its pipe intersects cells inside the polygon.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, WellSelectedByPipeCellInsidePolygon )
+{
+    const auto   gp1Cells = connectionCells( "GP1" );
+    const size_t gapCell  = reservoirCellIndex( 0, 23, 48, 24 );
+    const auto   cornersOfGap = s_caseData->mainGrid()->cellCornerVertices( gapCell );
+    const auto   polygon      = squareAround( cornersOfGap[0], 1.0 );
+    ASSERT_EQ( gp1Cells.end(), std::find( gp1Cells.begin(), gp1Cells.end(), gapCell ) );
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+
+    EXPECT_EQ( 1.0, value( gapCell ) );
+    for ( size_t cellIdx : gp1Cells )
+    {
+        EXPECT_EQ( 1.0, value( cellIdx ) );
+    }
+    expectBinaryValues();
+}
