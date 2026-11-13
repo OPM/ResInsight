@@ -99,14 +99,14 @@ std::vector<char> cellsInsidePolygon( const RigMainGrid& mainGrid, const std::ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Reservoir cell indices of the connection cells of a well result frame (all branches, all grids)
+/// Reservoir cell indices of the open connection cells of a well result frame (all branches, all grids)
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> connectionCells( const RigMainGrid& mainGrid, const RigWellResultFrame& frame )
+std::vector<size_t> openConnectionCells( const RigMainGrid& mainGrid, const RigWellResultFrame& frame )
 {
     std::vector<size_t> cells;
     for ( const auto& resultPoint : frame.allResultPoints() )
     {
-        if ( !resultPoint.isCell() || resultPoint.gridIndex() >= mainGrid.gridCount() ) continue;
+        if ( !resultPoint.isCell() || !resultPoint.isOpen() || resultPoint.gridIndex() >= mainGrid.gridCount() ) continue;
 
         const size_t reservoirCellIdx =
             mainGrid.reservoirCellIndexByGridAndGridLocalCellIndex( resultPoint.gridIndex(), resultPoint.cellIndex() );
@@ -116,20 +116,70 @@ std::vector<size_t> connectionCells( const RigMainGrid& mainGrid, const RigWellR
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Reservoir cell indices of all cells intersected by a well path
+/// Intersected cells with the measured depth interval of each intersection
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> wellPathCells( RigEclipseCaseData* eclipseCaseData, const RigWellPath* wellPath )
+struct CellMdInterval
+{
+    size_t cellIdx;
+    double startMD;
+    double endMD;
+};
+
+std::vector<CellMdInterval> cellMdIntervals( RigEclipseCaseData* eclipseCaseData, const RigWellPath* wellPath )
 {
     cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( eclipseCaseData, wellPath, "" );
-    return extractor->intersectedCellsGlobIdx();
+
+    const auto& cells = extractor->intersectedCellsGlobIdx();
+    const auto& mds   = extractor->cellIntersectionMDs();
+
+    // The extractor stores two entries (enter and leave) for each intersected cell
+    std::vector<CellMdInterval> intervals;
+    for ( size_t i = 0; i + 1 < cells.size() && i + 1 < mds.size(); i += 2 )
+    {
+        intervals.push_back( { cells[i], mds[i], mds[i + 1] } );
+    }
+    return intervals;
+}
+
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigWellRegionResultTools::wellPathPerforatedCells( RigEclipseCaseData* eclipseCaseData,
+                                                                       const RigWellPath*  wellPath,
+                                                                       const RigMdRange&   perforation )
+{
+    std::vector<size_t> cells;
+    if ( !eclipseCaseData || !wellPath ) return cells;
+
+    for ( const auto& interval : cellMdIntervals( eclipseCaseData, wellPath ) )
+    {
+        if ( perforation.overlaps( interval.startMD, interval.endMD ) ) cells.push_back( interval.cellIdx );
+    }
+    return cells;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Reservoir cell indices of all cells intersected by the simulation well pipe. The connections can
-/// have gaps (cells without connections), and the pipe passes through these cells.
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> simWellPipeCells( RigEclipseCaseData* eclipseCaseData, const RigSimWellData* simWellData, size_t timeStepIndex )
+std::vector<size_t> RigWellRegionResultTools::simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData,
+                                                                      const RigSimWellData* simWellData,
+                                                                      size_t                timeStepIndex )
 {
+    std::vector<size_t> cells;
+    if ( !eclipseCaseData || !eclipseCaseData->mainGrid() || !simWellData || !simWellData->hasWellResult( timeStepIndex ) ) return cells;
+
+    const RigWellResultFrame* frame = simWellData->wellResultFrame( timeStepIndex );
+    if ( !frame ) return cells;
+
+    const std::vector<size_t> openCells = openConnectionCells( *eclipseCaseData->mainGrid(), *frame );
+    if ( openCells.empty() ) return cells;
+
+    cells = openCells;
+
+    // The open connections can have gaps (closed connections or cells without connections). The pipe between the
+    // first and last open connection of each branch is perforated.
     const bool isAutoDetectBranches = true;
     const bool useAllCellCenters    = false;
 
@@ -139,7 +189,8 @@ std::vector<size_t> simWellPipeCells( RigEclipseCaseData* eclipseCaseData, const
                                                                                                          isAutoDetectBranches,
                                                                                                          useAllCellCenters );
 
-    std::vector<size_t> cells;
+    const std::set<size_t> openCellSet( openCells.begin(), openCells.end() );
+
     for ( const auto& [coords, resultPoints] : branches )
     {
         if ( coords.size() < 2 ) continue;
@@ -150,13 +201,31 @@ std::vector<size_t> simWellPipeCells( RigEclipseCaseData* eclipseCaseData, const
             measuredDepths.push_back( measuredDepths.back() + ( coords[i] - coords[i - 1] ).length() );
         }
 
-        cvf::ref<RigWellPath> pipePath    = new RigWellPath( coords, measuredDepths );
-        const auto            branchCells = wellPathCells( eclipseCaseData, pipePath.p() );
-        cells.insert( cells.end(), branchCells.begin(), branchCells.end() );
+        cvf::ref<RigWellPath> pipePath  = new RigWellPath( coords, measuredDepths );
+        const auto            intervals = cellMdIntervals( eclipseCaseData, pipePath.p() );
+
+        std::vector<RigMdRange> openRanges;
+        for ( const auto& interval : intervals )
+        {
+            if ( openCellSet.count( interval.cellIdx ) ) openRanges.emplace_back( interval.startMD, interval.endMD );
+        }
+
+        const auto perforation = RigMdRange::merged( openRanges );
+        if ( !perforation ) continue;
+
+        for ( const auto& interval : intervals )
+        {
+            if ( perforation->overlaps( interval.startMD, interval.endMD ) ) cells.push_back( interval.cellIdx );
+        }
     }
+
+    std::sort( cells.begin(), cells.end() );
+    cells.erase( std::unique( cells.begin(), cells.end() ), cells.end() );
     return cells;
 }
 
+namespace
+{
 //--------------------------------------------------------------------------------------------------
 /// Neighbors of a cell: lateral face neighbors (I, J +-1) in the same grid, the host cell of an LGR cell,
 /// and the LGR cells of a host cell. The K direction is handled by fillMarkedColumns
@@ -305,6 +374,7 @@ void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vecto
 bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*            eclipseCaseData,
                                                        const std::vector<cvf::Vec3d>& polygon,
                                                        const RigWellPath*             wellPath,
+                                                       const std::optional<RigMdRange>& wellPathPerforation,
                                                        size_t                         timeStepIndex,
                                                        const QString&                 resultName,
                                                        int                            growCellCount )
@@ -331,31 +401,23 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
     {
         if ( simWellData.isNull() || !simWellData->hasWellResult( timeStepIndex ) ) continue;
 
-        const RigWellResultFrame* frame = simWellData->wellResultFrame( timeStepIndex );
-        if ( !frame ) continue;
+        const std::vector<size_t> perforatedCells = simWellPerforatedCells( eclipseCaseData, simWellData.p(), timeStepIndex );
 
-        const std::vector<size_t> cells     = connectionCells( mainGrid, *frame );
-        const std::vector<size_t> pipeCells = simWellPipeCells( eclipseCaseData, simWellData.p(), timeStepIndex );
-
-        // The pipe can intersect the polygon without any connection being inside, e.g. between the well head and the first connection
-        auto isInPolygon = [&insidePolygon, cellCount]( size_t cellIdx ) { return cellIdx < cellCount && insidePolygon[cellIdx]; };
-        const bool isSelected = std::any_of( cells.begin(), cells.end(), isInPolygon ) || std::any_of( pipeCells.begin(), pipeCells.end(), isInPolygon );
+        const bool isSelected = std::any_of( perforatedCells.begin(),
+                                             perforatedCells.end(),
+                                             [&insidePolygon, cellCount]( size_t cellIdx )
+                                             { return cellIdx < cellCount && insidePolygon[cellIdx]; } );
         if ( !isSelected ) continue;
 
-        for ( size_t cellIdx : cells )
-        {
-            wellCells[cellIdx] = 1;
-        }
-
-        for ( size_t cellIdx : pipeCells )
+        for ( size_t cellIdx : perforatedCells )
         {
             if ( cellIdx < cellCount ) wellCells[cellIdx] = 1;
         }
     }
 
-    if ( wellPath )
+    if ( wellPath && wellPathPerforation )
     {
-        for ( size_t cellIdx : wellPathCells( eclipseCaseData, wellPath ) )
+        for ( size_t cellIdx : wellPathPerforatedCells( eclipseCaseData, wellPath, *wellPathPerforation ) )
         {
             if ( cellIdx < cellCount ) wellCells[cellIdx] = 1;
         }

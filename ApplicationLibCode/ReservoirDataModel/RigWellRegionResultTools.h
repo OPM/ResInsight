@@ -18,30 +18,52 @@
 
 #pragma once
 
+#include "RigMdRange.h"
+
 #include "cvfVector3.h"
 
 #include <QString>
 
+#include <optional>
 #include <vector>
 
 class RigEclipseCaseData;
+class RigSimWellData;
 class RigWellPath;
 
 //==================================================================================================
-/// Creates a static binary (1/0) cell result in the GENERATED category. A cell is 1 if it is
-/// inside the polygon (any corner inside, XY only), or if it is a connection cell or intersected by
-/// the pipe of a simulation well where at least one connection cell or pipe cell is inside the polygon, or if it is
-/// intersected by the optional well path. The well cells are grown by growCellCount layers of lateral (I, J) neighbor
-/// cells, and the grown region covers the full K range of its columns.
+/// Creates a static binary (1/0) cell result in the GENERATED category. A cell is 1 if it is inside
+/// the polygon (any corner inside, XY only), or if it is a perforated cell of a selected simulation
+/// well, or if it is a perforated cell of the optional well path.
+///
+/// Only the perforated parts of wells are used:
+///  - Simulation well: the open connection cells at the time step, and the pipe cells between the first
+///    and last open connection of each branch.
+///  - Well path: the cells intersected by the perforation MD range. No range means no well path cells.
+/// A simulation well is selected if at least one of its perforated cells is inside the polygon.
+///
+/// The perforated well cells are grown by growCellCount layers of lateral (I, J) neighbor cells, and the
+/// grown region covers the full K range of its columns.
 //==================================================================================================
 class RigWellRegionResultTools
 {
 public:
     // Returns false on invalid input (null case, polygon with < 3 points, time step out of range)
-    static bool createWellRegionResult( RigEclipseCaseData*            eclipseCaseData,
-                                        const std::vector<cvf::Vec3d>& polygon,
-                                        const RigWellPath*             wellPath,
-                                        size_t                         timeStepIndex,
-                                        const QString&                 resultName,
-                                        int                            growCellCount = 1 );
+    static bool createWellRegionResult( RigEclipseCaseData*              eclipseCaseData,
+                                        const std::vector<cvf::Vec3d>&   polygon,
+                                        const RigWellPath*               wellPath,
+                                        const std::optional<RigMdRange>& wellPathPerforation,
+                                        size_t                           timeStepIndex,
+                                        const QString&                   resultName,
+                                        int                              growCellCount = 1 );
+
+    // Reservoir cell indices of the perforated cells of a simulation well, sorted and unique
+    static std::vector<size_t> simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData,
+                                                       const RigSimWellData* simWellData,
+                                                       size_t                timeStepIndex );
+
+    // Reservoir cell indices of the cells intersected by the well path within the perforation MD range
+    static std::vector<size_t> wellPathPerforatedCells( RigEclipseCaseData* eclipseCaseData,
+                                                        const RigWellPath*  wellPath,
+                                                        const RigMdRange&   perforation );
 };

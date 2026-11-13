@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigMdRange.h"
 #include "RigWellRegionResultTools.h"
 
 #include "Well/RigSimWellData.h"
@@ -37,6 +38,7 @@
 #include <QDir>
 
 #include <algorithm>
+#include <cmath>
 
 namespace
 {
@@ -169,9 +171,9 @@ TEST_F( RigWellRegionResultToolsTest, InvalidInput )
 {
     const auto polygon = polygonOutsideGrid();
 
-    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( nullptr, polygon, nullptr, 0, resultName ) );
-    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), { polygon[0], polygon[1] }, nullptr, 0, resultName ) );
-    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep() + 1, resultName ) );
+    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( nullptr, polygon, nullptr, std::nullopt, 0, resultName ) );
+    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), { polygon[0], polygon[1] }, nullptr, std::nullopt, 0, resultName ) );
+    EXPECT_FALSE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep() + 1, resultName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +187,7 @@ TEST_F( RigWellRegionResultToolsTest, SelectsCompleteSimWell )
     const auto   polygon    = squareAround( sharedCorner( firstCell, cellBelow ), 1.0 );
     const size_t farGi1Cell = reservoirCellIndex( 0, 29, 44, 17 );
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
 
     const auto gi1Cells = connectionCells( "GI1" );
     ASSERT_FALSE( gi1Cells.empty() );
@@ -221,7 +223,7 @@ TEST_F( RigWellRegionResultToolsTest, LgrWellAndGrowth )
         ASSERT_TRUE( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) );
     }
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, lastTimeStep(), resultName, 0 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
     for ( size_t cellIdx : gp2Cells )
     {
         EXPECT_EQ( 1.0, value( cellIdx ) );
@@ -232,7 +234,7 @@ TEST_F( RigWellRegionResultToolsTest, LgrWellAndGrowth )
     EXPECT_EQ( 1.0, value( 1, 6, 6, 14 ) ); // Inside the polygon, not a well cell
     expectBinaryValues();
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, lastTimeStep(), resultName, 1 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, std::nullopt, lastTimeStep(), resultName, 1 ) );
     for ( size_t cellIdx : gp2Cells )
     {
         EXPECT_EQ( 1.0, value( cellIdx ) );
@@ -271,11 +273,11 @@ TEST_F( RigWellRegionResultToolsTest, GrownRegionCoversFullKRange )
     const size_t farBottom = column.back();
     const size_t neighbor  = neighborColumn.front();
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
     EXPECT_EQ( 0.0, value( farTop ) );
     EXPECT_EQ( 0.0, value( farBottom ) );
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 1 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 1 ) );
     EXPECT_EQ( 1.0, value( farTop ) );
     EXPECT_EQ( 1.0, value( farBottom ) );
     EXPECT_EQ( 1.0, value( neighbor ) );
@@ -287,8 +289,8 @@ TEST_F( RigWellRegionResultToolsTest, GrownRegionCoversFullKRange )
 //--------------------------------------------------------------------------------------------------
 TEST_F( RigWellRegionResultToolsTest, EmptyPolygonAreaGivesZero )
 {
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, lastTimeStep(), resultName ) );
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygonOutsideGrid(), nullptr, lastTimeStep(), resultName ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), lgrPolygon(), nullptr, std::nullopt, lastTimeStep(), resultName ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygonOutsideGrid(), nullptr, std::nullopt, lastTimeStep(), resultName ) );
 
     const auto& values = allValues();
     EXPECT_EQ( results()->activeCellInfo()->reservoirActiveCellCount(), values.size() );
@@ -311,7 +313,7 @@ TEST_F( RigWellRegionResultToolsTest, WellPathOutsidePolygon )
                                                       { 0.0, 200.0 } );
 
     ASSERT_TRUE(
-        RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygonOutsideGrid(), wellPath.p(), lastTimeStep(), resultName, 0 ) );
+        RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygonOutsideGrid(), wellPath.p(), RigMdRange( 0.0, 200.0 ), lastTimeStep(), resultName, 0 ) );
 
     EXPECT_EQ( 1.0, value( targetCell ) );
     EXPECT_EQ( 0.0, value( 0, 38, 55, 14 ) ); // GP1 is not selected by the polygon
@@ -327,10 +329,10 @@ TEST_F( RigWellRegionResultToolsTest, OpenAndClosedPolygonGiveSameResult )
     auto       closedPolygon = openPolygon;
     closedPolygon.push_back( closedPolygon.front() );
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), openPolygon, nullptr, lastTimeStep(), resultName ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), openPolygon, nullptr, std::nullopt, lastTimeStep(), resultName ) );
     const std::vector<double> openValues = allValues();
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), closedPolygon, nullptr, lastTimeStep(), resultName ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), closedPolygon, nullptr, std::nullopt, lastTimeStep(), resultName ) );
     EXPECT_EQ( openValues, allValues() );
     EXPECT_GT( std::count( openValues.begin(), openValues.end(), 1.0 ), 0 );
 }
@@ -352,7 +354,7 @@ TEST_F( RigWellRegionResultToolsTest, CellsWithoutConnectionsAlongSimWellPipe )
         ASSERT_TRUE( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) );
     }
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
 
     EXPECT_EQ( 1.0, value( gapCellA ) );
     EXPECT_EQ( 1.0, value( gapCellB ) );
@@ -371,7 +373,7 @@ TEST_F( RigWellRegionResultToolsTest, WellSelectedByPipeCellInsidePolygon )
     const auto   polygon      = squareAround( cornersOfGap[0], 1.0 );
     ASSERT_EQ( gp1Cells.end(), std::find( gp1Cells.begin(), gp1Cells.end(), gapCell ) );
 
-    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
 
     EXPECT_EQ( 1.0, value( gapCell ) );
     for ( size_t cellIdx : gp1Cells )
@@ -379,4 +381,152 @@ TEST_F( RigWellRegionResultToolsTest, WellSelectedByPipeCellInsidePolygon )
         EXPECT_EQ( 1.0, value( cellIdx ) );
     }
     expectBinaryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Closes the first and last connection of the first branch of GP1 at the given time step for the lifetime of the object
+//--------------------------------------------------------------------------------------------------
+namespace
+{
+struct ScopedClosedGp1Ends
+{
+    ScopedClosedGp1Ends( const RigSimWellData* constSimWell, size_t timeStepIndex )
+        : frame( const_cast<RigSimWellData*>( constSimWell )->m_wellCellsTimeSteps[constSimWell->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex]] )
+        , saved( frame )
+    {
+        auto branches = frame.wellResultBranches();
+        auto points   = branches.front().branchResultPoints();
+        points.front().setIsOpen( false );
+        points.back().setIsOpen( false );
+        branches.front().setBranchResultPoints( points );
+        frame.setWellResultBranches( branches );
+    }
+
+    ~ScopedClosedGp1Ends() { frame = saved; }
+
+    RigWellResultFrame& frame;
+    RigWellResultFrame  saved;
+};
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Closed connections at the ends of a well are not perforated, and neither is the pipe beyond the
+/// last open connection. The cells of the closed connections are still marked if they are inside the polygon.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, ClosedConnectionsAtWellEndsAreNotPerforated )
+{
+    const auto*        gp1 = s_caseData->findSimWellData( "GP1" );
+    const auto         allCellsBefore = RigWellRegionResultTools::simWellPerforatedCells( s_caseData.p(), gp1, lastTimeStep() );
+    ScopedClosedGp1Ends closedEnds( gp1, lastTimeStep() );
+
+    const auto perforated = RigWellRegionResultTools::simWellPerforatedCells( s_caseData.p(), gp1, lastTimeStep() );
+    EXPECT_TRUE( std::is_sorted( perforated.begin(), perforated.end() ) );
+    EXPECT_LT( perforated.size(), allCellsBefore.size() );
+
+    const auto branchPoints = closedEnds.saved.wellResultBranches().front().branchResultPoints();
+    auto       cellOf       = [&]( const RigWellResultPoint& p )
+    { return s_caseData->mainGrid()->reservoirCellIndexByGridAndGridLocalCellIndex( p.gridIndex(), p.cellIndex() ); };
+    const size_t firstClosed = cellOf( branchPoints.front() );
+    const size_t lastClosed  = cellOf( branchPoints.back() );
+
+    auto contains = [&]( size_t cellIdx ) { return std::find( perforated.begin(), perforated.end(), cellIdx ) != perforated.end(); };
+    EXPECT_FALSE( contains( firstClosed ) );
+    EXPECT_FALSE( contains( lastClosed ) );
+    EXPECT_TRUE( contains( cellOf( branchPoints[1] ) ) );
+    EXPECT_TRUE( contains( cellOf( branchPoints[branchPoints.size() - 2] ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A well is only selected if a perforated cell is inside the polygon. The polygon around a closed
+/// end connection selects the cells inside the polygon, but not the rest of the well.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, WellNotSelectedByNonPerforatedCellInsidePolygon )
+{
+    const auto*         gp1 = s_caseData->findSimWellData( "GP1" );
+    ScopedClosedGp1Ends closedEnds( gp1, lastTimeStep() );
+
+    const auto branchPoints = closedEnds.saved.wellResultBranches().front().branchResultPoints();
+    const auto perforated   = RigWellRegionResultTools::simWellPerforatedCells( s_caseData.p(), gp1, lastTimeStep() );
+    ASSERT_FALSE( perforated.empty() );
+
+    // A corner of a closed end cell which is not near any perforated cell in XY. The polygon test is XY only.
+    auto isNearPerforatedCell = [&]( const cvf::Vec3d& corner )
+    {
+        for ( size_t cellIdx : perforated )
+        {
+            for ( const auto& c : s_caseData->mainGrid()->cellCornerVertices( cellIdx ) )
+            {
+                if ( std::max( std::abs( c.x() - corner.x() ), std::abs( c.y() - corner.y() ) ) < 2.0 ) return true;
+            }
+        }
+        return false;
+    };
+
+    size_t                  closedCell = 0;
+    std::vector<cvf::Vec3d> polygon;
+    for ( const auto& point : { branchPoints.front(), branchPoints.back() } )
+    {
+        const size_t cellIdx = s_caseData->mainGrid()->reservoirCellIndexByGridAndGridLocalCellIndex( point.gridIndex(), point.cellIndex() );
+        for ( const auto& corner : s_caseData->mainGrid()->cellCornerVertices( cellIdx ) )
+        {
+            if ( polygon.empty() && !isNearPerforatedCell( corner ) )
+            {
+                closedCell = cellIdx;
+                polygon    = squareAround( corner, 1.0 );
+            }
+        }
+    }
+    ASSERT_FALSE( polygon.empty() );
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 0 ) );
+
+    EXPECT_EQ( 1.0, value( closedCell ) ); // inside the polygon
+    for ( size_t cellIdx : perforated )
+    {
+        ASSERT_NE( cellIdx, closedCell );
+        if ( value( cellIdx ) >= 0.0 ) EXPECT_EQ( 0.0, value( cellIdx ) );
+    }
+    expectBinaryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only the cells intersected by the perforation MD range are used for the well path
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, WellPathUsesPerforatedPartOnly )
+{
+    const size_t     targetCell = reservoirCellIndex( 0, 26, 40, 14 );
+    const cvf::Vec3d center     = s_caseData->mainGrid()->cell( targetCell ).center();
+
+    cvf::ref<RigWellPath> wellPath = new RigWellPath( { cvf::Vec3d( center.x(), center.y(), center.z() + 100.0 ),
+                                                        cvf::Vec3d( center.x(), center.y(), center.z() - 100.0 ) },
+                                                      { 0.0, 200.0 } );
+
+    const auto allCells    = RigWellRegionResultTools::wellPathPerforatedCells( s_caseData.p(), wellPath.p(), RigMdRange( 0.0, 200.0 ) );
+    const auto middleCells = RigWellRegionResultTools::wellPathPerforatedCells( s_caseData.p(), wellPath.p(), RigMdRange( 99.0, 101.0 ) );
+    ASSERT_FALSE( middleCells.empty() );
+    EXPECT_LT( middleCells.size(), allCells.size() );
+    EXPECT_NE( middleCells.end(), std::find( middleCells.begin(), middleCells.end(), targetCell ) );
+
+    // The region contains the perforated cells only
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(),
+                                                                   polygonOutsideGrid(),
+                                                                   wellPath.p(),
+                                                                   RigMdRange( 99.0, 101.0 ),
+                                                                   lastTimeStep(),
+                                                                   resultName,
+                                                                   0 ) );
+    for ( size_t cellIdx : allCells )
+    {
+        if ( value( cellIdx ) < 0.0 ) continue; // inactive cell
+
+        const bool isPerforated = std::find( middleCells.begin(), middleCells.end(), cellIdx ) != middleCells.end();
+        EXPECT_EQ( isPerforated ? 1.0 : 0.0, value( cellIdx ) );
+    }
+
+    // No perforation means the well path does not contribute
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygonOutsideGrid(), wellPath.p(), std::nullopt, lastTimeStep(), resultName, 0 ) );
+    for ( double v : allValues() )
+    {
+        EXPECT_EQ( 0.0, v );
+    }
 }
