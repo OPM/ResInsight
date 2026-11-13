@@ -196,6 +196,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultName-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellRegionResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInView-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase-Test.cpp
