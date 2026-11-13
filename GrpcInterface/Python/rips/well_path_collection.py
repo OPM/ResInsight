@@ -1,3 +1,4 @@
+import math
 import uuid
 import grpc
 from typing import List, Optional, Union, cast
@@ -21,19 +22,28 @@ def __custom_init__(
 
 @add_method(WellPathCollection)
 def import_well_path_from_points(
-    self: WellPathCollection, name: str, coordinates: List[List[float]]
+    self: WellPathCollection,
+    name: str,
+    coordinates: List[List[float]],
+    measured_depths: Optional[List[float]] = None,
 ) -> object:
     """Create a well path from a list of XYZ coordinates.
+
+    Note that the Z values use upward scene Z (negative below sea level), while
+    trajectory_properties().coordinate_z returns positive-down TVD.
 
     Arguments:
         name (str): Name of the well path
         coordinates (List[List[float]]): List of [x, y, z] coordinate triplets
+        measured_depths (Optional[List[float]]): Measured depth for each coordinate. Must have
+            the same length as coordinates and be strictly increasing. If omitted, MD is computed
+            from the cumulative length of the trajectory, starting at 0.
 
     Returns:
         RimPointBasedWellPath: The created well path object
 
     Raises:
-        ValueError: If coordinates are invalid or have wrong dimensions
+        ValueError: If coordinates or measured depths are invalid
     """
 
     if not name:
@@ -59,6 +69,21 @@ def import_well_path_from_points(
                 f"All coordinate values must be numeric. Invalid coordinate at index {i}: {coord}"
             )
 
+    if measured_depths is not None:
+        if len(measured_depths) != len(coordinates):
+            raise ValueError(
+                "measured_depths must have the same length as coordinates "
+                f"({len(measured_depths)} != {len(coordinates)})"
+            )
+        try:
+            md_values = [float(md) for md in measured_depths]
+        except (ValueError, TypeError):
+            raise ValueError("All measured depth values must be numeric")
+        if not all(math.isfinite(md) for md in md_values):
+            raise ValueError("All measured depth values must be finite")
+        if any(b <= a for a, b in zip(md_values, md_values[1:])):
+            raise ValueError("measured_depths must be strictly increasing")
+
     # Extract separate x, y, z arrays
     x_coords = [float(coord[0]) for coord in coordinates]
     y_coords = [float(coord[1]) for coord in coordinates]
@@ -79,6 +104,11 @@ def import_well_path_from_points(
     project.set_key_values(y_key, y_coords)
     project.set_key_values(z_key, z_coords)
 
+    md_key = None
+    if measured_depths is not None:
+        md_key = f"{shared_uuid}_coordinate_md"
+        project.set_key_values(md_key, md_values)
+
     try:
         # Call internal method to create the well path
         well_path = self.import_well_path_from_points_internal(
@@ -86,6 +116,7 @@ def import_well_path_from_points(
             coordinate_x_key=x_key,
             coordinate_y_key=y_key,
             coordinate_z_key=z_key,
+            coordinate_md_key=md_key or "",
         )
 
         return well_path
@@ -95,6 +126,8 @@ def import_well_path_from_points(
         project.remove_key_values(x_key)
         project.remove_key_values(y_key)
         project.remove_key_values(z_key)
+        if md_key:
+            project.remove_key_values(md_key)
 
 
 @add_method(WellPathCollection)
