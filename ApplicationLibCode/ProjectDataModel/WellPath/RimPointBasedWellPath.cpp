@@ -35,6 +35,9 @@ RimPointBasedWellPath::RimPointBasedWellPath()
 
     CAF_PDM_InitField( &m_trajectoryPoints, "TrajectoryPoints", std::vector<cvf::Vec3d>(), "Trajectory Points" );
     m_trajectoryPoints.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_measuredDepths, "MeasuredDepths", std::vector<double>(), "Measured Depths" );
+    m_measuredDepths.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,9 +50,10 @@ RimPointBasedWellPath::~RimPointBasedWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPointBasedWellPath::setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets )
+void RimPointBasedWellPath::setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets, const std::vector<double>& measuredDepths )
 {
     m_trajectoryPoints = wellTargets;
+    m_measuredDepths   = measuredDepths;
     createWellPathGeometry();
 }
 
@@ -72,7 +76,11 @@ void RimPointBasedWellPath::createWellPathGeometry()
     }
 
     // Create well path geometry from the target points
-    auto measuredDepths = RigWellPathGeometryTools::calculateMeasuredDepth( m_trajectoryPoints );
+    std::vector<double> measuredDepths = m_measuredDepths();
+    if ( measuredDepths.size() != m_trajectoryPoints().size() )
+    {
+        measuredDepths = RigWellPathGeometryTools::calculateMeasuredDepth( m_trajectoryPoints );
+    }
 
     auto wellPathGeometry = new RigWellPath( m_trajectoryPoints, measuredDepths );
 
