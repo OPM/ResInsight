@@ -40,6 +40,9 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <algorithm>
+#include <cmath>
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathCollection, RimcWellPathCollection_importWellPath, "ImportWellPath" );
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +111,7 @@ RimcWellPathCollection_importWellPathFromPointsInternal::RimcWellPathCollection_
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateXKey, "CoordinateXKey", "Coordinate X Key" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateYKey, "CoordinateYKey", "Coordinate Y Key" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateZKey, "CoordinateZKey", "Coordinate Z Key" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_coordinateMdKey, "CoordinateMdKey", "Coordinate MD Key" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,10 +170,46 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
             cvf::Vec3d( static_cast<double>( xCoords[i] ), static_cast<double>( yCoords[i] ), static_cast<double>( zCoords[i] ) ) );
     }
 
+    // Measured depths are optional. If not given, MD is computed from the trajectory length.
+    std::vector<double> measuredDepths;
+    if ( !m_coordinateMdKey().isEmpty() )
+    {
+        auto mdData = keyValueStore->get( m_coordinateMdKey().toStdString() );
+        if ( !mdData )
+        {
+            return std::unexpected( QString( "Failed to retrieve measured depth data from key-value store." ) );
+        }
+
+        for ( float md : RiaKeyValueStoreUtil::convertToFloatVector( mdData ) )
+        {
+            measuredDepths.push_back( static_cast<double>( md ) );
+        }
+
+        if ( measuredDepths.size() != trajectoryPoints.size() )
+        {
+            return std::unexpected( QString( "Measured depths size (%1) differs from number of coordinates (%2)." )
+                                        .arg( measuredDepths.size() )
+                                        .arg( trajectoryPoints.size() ) );
+        }
+
+        if ( !std::ranges::all_of( measuredDepths, []( double md ) { return std::isfinite( md ); } ) )
+        {
+            return std::unexpected( QString( "Measured depths must be finite." ) );
+        }
+
+        for ( size_t i = 1; i < measuredDepths.size(); ++i )
+        {
+            if ( measuredDepths[i] <= measuredDepths[i - 1] )
+            {
+                return std::unexpected( QString( "Measured depths must be strictly increasing." ) );
+            }
+        }
+    }
+
     // Create the fixed trajectory well path
     auto fixedTrajectoryWellPath = std::make_unique<RimPointBasedWellPath>();
     fixedTrajectoryWellPath->setName( m_name() );
-    fixedTrajectoryWellPath->setTrajectoryPoints( trajectoryPoints );
+    fixedTrajectoryWellPath->setTrajectoryPoints( trajectoryPoints, measuredDepths );
 
     auto* wellPath = fixedTrajectoryWellPath.release();
     wellPathCollection->addWellPath( wellPath );
