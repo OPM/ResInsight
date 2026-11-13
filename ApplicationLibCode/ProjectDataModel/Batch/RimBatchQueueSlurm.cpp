@@ -20,6 +20,7 @@
 
 #include "Hpc/RiaBatchMonitorService.h"
 #include "Hpc/RiaHpcTools.h"
+#include "Hpc/RiaLogMonitorService.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesBatch.h"
 #include "RiaPreferencesOpm.h"
@@ -36,8 +37,10 @@ CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
 RimBatchQueueSlurm::RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType )
     : RimBatchQueue( schedulerType )
     , m_isBatchMonitorActivated( false )
+    , m_isLogMonitorActivated( false )
 {
     RiaBatchMonitorService::instance()->jobInfoUpdateSignal.connect( this, &RimBatchQueueSlurm::onJobInfoUpdate );
+    RiaLogMonitorService::instance()->logUpdateSignal.connect( this, &RimBatchQueueSlurm::onLogUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,6 +52,11 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
     {
         m_isBatchMonitorActivated = false;
         RiaBatchMonitorService::stop();
+    }
+    if ( m_isLogMonitorActivated )
+    {
+        m_isLogMonitorActivated = false;
+        RiaLogMonitorService::stop( m_stdOutFileName.toStdString() );
     }
 }
 
@@ -137,6 +145,12 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
                 RiaBatchMonitorService::start();
                 m_isBatchMonitorActivated = true;
                 m_submitTime              = QDateTime::currentDateTime();
+
+                if ( prefs->logMonitoringEnabled() )
+                {
+                    RiaLogMonitorService::start( m_stdOutFileName.toStdString() );
+                    m_isLogMonitorActivated = true;
+                }
             }
         }
         else
@@ -234,6 +248,12 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
         RiaBatchMonitorService::stop();
     }
 
+    if ( m_isLogMonitorActivated )
+    {
+        m_isLogMonitorActivated = false;
+        RiaLogMonitorService::stop( m_stdOutFileName.toStdString() );
+    }
+
     readStdOutErrIntoProcessLog();
     if ( runOk )
     {
@@ -276,5 +296,24 @@ void RimBatchQueueSlurm::onJobInfoUpdate( const SignalEmitter* emitter, const st
         }
 
         setFinished( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueueSlurm::onLogUpdate( const SignalEmitter* emitter, std::pair<const QString, const QStringList&> logInfo )
+{
+    if ( !m_isLogMonitorActivated ) return;
+
+    auto& [logFileName, logLines] = logInfo;
+    if ( logFileName != m_stdOutFileName ) return;
+
+    if ( m_process && m_process->monitor() )
+    {
+        for ( auto& line : logLines )
+        {
+            m_process->monitor()->appendStdOut( line );
+        }
     }
 }

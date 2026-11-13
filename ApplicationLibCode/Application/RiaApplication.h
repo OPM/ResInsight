@@ -46,6 +46,12 @@ class RiaGrpcServer;
 class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;
+class RiaArgumentParser;
+class RiaCloudApiService;
+class RiaOsduConnector;
+class RiaSumoConnector;
+class RiaBatchMonitorService;
+class RiaLogMonitorService;
 
 class RigEclipseCaseData;
 
@@ -66,11 +72,6 @@ class RiuMainWindow;
 class RiuMainWindowBase;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
-class RiaArgumentParser;
-class RiaCloudApiService;
-class RiaOsduConnector;
-class RiaSumoConnector;
-class RiaBatchMonitorService;
 
 namespace caf
 {
@@ -208,6 +209,7 @@ public:
     RiaCloudApiService* cloudApiService();
 
     RiaBatchMonitorService* batchMonitorService() const;
+    RiaLogMonitorService*   logMonitorService() const;
 
     RiaKeyValueStore<char>* keyValueStore() const;
 
@@ -284,4 +286,5 @@ private:
 
     std::unique_ptr<RiaCloudApiService>     m_cloudApiService;
     std::unique_ptr<RiaBatchMonitorService> m_batchMonitorService;
+    std::unique_ptr<RiaLogMonitorService>   m_logMonitorService;
 };

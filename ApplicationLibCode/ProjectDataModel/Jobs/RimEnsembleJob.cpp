@@ -346,7 +346,14 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
     if ( m_subJobsCompleted >= m_subJobsStarted )
     {
         m_jobLog.push_back( "All jobs completed!" );
-        setFinished( true );
+
+        bool runOk = true;
+        for ( auto job : m_subJobs().childrenByType() )
+        {
+            if ( job->state() != RimGenericJob::JobState::Completed ) runOk = false;
+        }
+
+        setFinished( runOk );
     }
 }
 

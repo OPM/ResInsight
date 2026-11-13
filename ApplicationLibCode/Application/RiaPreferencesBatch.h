@@ -45,6 +45,8 @@ public:
     RiaDefines::BatchJobMonitoringType jobMonitoring() const;
     int                                secondsToWaitForSubmit() const;
     int                                statusRefreshInterval() const;
+    int                                logRefreshInterval() const;
+    bool                               logMonitoringEnabled() const;
 
     static QString selectQueue( RiaDefines::BatchSchedulerType scheduler, QString currentQueue );
 
@@ -59,6 +61,7 @@ private:
     caf::PdmField<bool>    m_exclusive;
     caf::PdmField<int>     m_updateInterval;
     caf::PdmField<int>     m_submitWaitSeconds;
+    caf::PdmField<int>     m_logRefreshInterval;
 
     caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>>     m_batchScheduler;
     caf::PdmField<caf::AppEnum<RiaDefines::BatchJobMonitoringType>> m_batchJobMonitoring;

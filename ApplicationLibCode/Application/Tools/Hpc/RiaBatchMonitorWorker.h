@@ -23,7 +23,6 @@
 #include "RiaWslTools.h"
 
 #include <atomic>
-#include <map>
 
 #include <QMutex>
 #include <QObject>
