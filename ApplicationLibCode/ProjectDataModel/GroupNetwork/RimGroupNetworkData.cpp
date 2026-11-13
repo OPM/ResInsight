@@ -19,18 +19,24 @@
 #include "RimGroupNetworkData.h"
 
 #include "RiaEclipseFileNameTools.h"
+#include "RiaLogging.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "RifGroupNetworkEnsembleStatistics.h"
 #include "RifGroupNetworkReader.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QDateTime>
+#include <QDir>
 #include <QFileInfo>
+#include <QStringList>
 #include <QTimeZone>
 
 namespace caf
@@ -42,14 +48,145 @@ void AppEnum<RigGroupNetwork::TreeType>::setUp()
     addItem( RigGroupNetwork::TreeType::BRANPROP, "BRANPROP", "Extended Network (BRANPROP)" );
     setDefault( RigGroupNetwork::TreeType::GRUPTREE );
 }
+
+template <>
+void AppEnum<RimGroupNetworkData::SourceType>::setUp()
+{
+    addItem( RimGroupNetworkData::SourceType::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
+    addItem( RimGroupNetworkData::SourceType::SUMMARY_ENSEMBLE, "SUMMARY_ENSEMBLE", "Summary Ensemble" );
+    setDefault( RimGroupNetworkData::SourceType::SUMMARY_CASE );
+}
+
+template <>
+void AppEnum<RimGroupNetworkData::EnsembleValue>::setUp()
+{
+    addItem( RimGroupNetworkData::EnsembleValue::REALIZATION, "REALIZATION", "Realization" );
+    addItem( RimGroupNetworkData::EnsembleValue::MEAN, "MEAN", "Mean" );
+    addItem( RimGroupNetworkData::EnsembleValue::P10, "P10", "P10" );
+    addItem( RimGroupNetworkData::EnsembleValue::P50, "P50", "P50" );
+    addItem( RimGroupNetworkData::EnsembleValue::P90, "P90", "P90" );
+    addItem( RimGroupNetworkData::EnsembleValue::MINIMUM, "MINIMUM", "Min" );
+    addItem( RimGroupNetworkData::EnsembleValue::MAXIMUM, "MAXIMUM", "Max" );
+    setDefault( RimGroupNetworkData::EnsembleValue::MEAN );
+}
 } // namespace caf
 
 namespace
 {
+// The deck is located in the folder of the summary header file, with the same base name. If there is no such file, a single deck
+// in the folder is used.
+QString findDeckFile( const QString& summaryHeaderFile )
+{
+    if ( summaryHeaderFile.isEmpty() ) return {};
+
+    if ( const QString deck = RiaEclipseFileNameTools( summaryHeaderFile ).findRelatedDataFile(); !deck.isEmpty() ) return deck;
+
+    const QFileInfo headerInfo( summaryHeaderFile );
+    const QDir      folder( headerInfo.absolutePath() );
+
+    const QFileInfo sameBaseName( folder.filePath( headerInfo.completeBaseName() + ".DATA" ) );
+    if ( sameBaseName.exists() ) return sameBaseName.absoluteFilePath();
+
+    const auto decks = folder.entryInfoList( { "*.DATA" }, QDir::Files );
+    return decks.size() == 1 ? decks.front().absoluteFilePath() : QString();
+}
+
 QString findDeckFile( const RimSummaryCase* summaryCase )
 {
-    if ( !summaryCase || summaryCase->summaryHeaderFilename().isEmpty() ) return {};
-    return RiaEclipseFileNameTools( summaryCase->summaryHeaderFilename() ).findRelatedDataFile();
+    return summaryCase ? findDeckFile( summaryCase->summaryHeaderFilename() ) : QString();
+}
+
+RimSummaryCase* firstRealization( const RimSummaryEnsemble* ensemble )
+{
+    if ( !ensemble ) return nullptr;
+    const auto cases = ensemble->allSummaryCases();
+    return cases.empty() ? nullptr : cases.front();
+}
+
+// The deck of the first realization that has a deck
+QString findDeckFile( const RimSummaryEnsemble* ensemble )
+{
+    if ( !ensemble ) return {};
+    for ( const auto* realization : ensemble->allSummaryCases() )
+    {
+        if ( const QString deck = findDeckFile( realization ); !deck.isEmpty() ) return deck;
+    }
+    return {};
+}
+
+RifGroupNetworkEnsembleStatistics::Statistic toStatistic( RimGroupNetworkData::EnsembleValue value )
+{
+    using Statistic = RifGroupNetworkEnsembleStatistics::Statistic;
+    switch ( value )
+    {
+        case RimGroupNetworkData::EnsembleValue::P10:
+            return Statistic::P10;
+        case RimGroupNetworkData::EnsembleValue::P50:
+            return Statistic::P50;
+        case RimGroupNetworkData::EnsembleValue::P90:
+            return Statistic::P90;
+        case RimGroupNetworkData::EnsembleValue::MINIMUM:
+            return Statistic::MINIMUM;
+        case RimGroupNetworkData::EnsembleValue::MAXIMUM:
+            return Statistic::MAXIMUM;
+        default:
+            return Statistic::MEAN;
+    }
+}
+
+struct RealizationDeck
+{
+    QString name;
+    QString summaryHeaderFile;
+};
+
+// Compares the networks of the realizations with the reference network. Runs in a worker thread, so only copies of the data are used.
+void checkTopology( RigGroupNetwork                          reference,
+                    QString                                  referenceDeckFile,
+                    std::vector<RealizationDeck>             realizations,
+                    std::shared_ptr<const std::atomic<bool>> cancelled )
+{
+    QStringList differing;
+    QStringList unreadable;
+    for ( const auto& realization : realizations )
+    {
+        if ( *cancelled ) return;
+
+        const QString deckFile = findDeckFile( realization.summaryHeaderFile );
+        if ( deckFile.isEmpty() || deckFile == referenceDeckFile ) continue;
+
+        const auto network = RifGroupNetworkReader::readFromFile( deckFile, false );
+        if ( !network )
+            unreadable.push_back( realization.name );
+        else if ( !network->hasSameTopology( reference ) )
+            differing.push_back( realization.name );
+    }
+
+    const auto nameList = []( const QStringList& names )
+    {
+        constexpr int maxNames = 10;
+        QString       text     = names.mid( 0, maxNames ).join( ", " );
+        if ( names.size() > maxNames ) text += QString( " and %1 more" ).arg( names.size() - maxNames );
+        return text;
+    };
+
+    if ( !differing.empty() )
+    {
+        RiaLogging::warning( QString( "Production network: The network of %1 realization(s) differs from the network in '%2', which is "
+                                      "shown: %3" )
+                                 .arg( differing.size() )
+                                 .arg( referenceDeckFile )
+                                 .arg( nameList( differing ) )
+                                 .toStdString() );
+    }
+    if ( !unreadable.empty() )
+    {
+        RiaLogging::warning( QString( "Production network: Could not read the network of %1 realization(s) to compare with '%2': %3" )
+                                 .arg( unreadable.size() )
+                                 .arg( referenceDeckFile )
+                                 .arg( nameList( unreadable ) )
+                                 .toStdString() );
+    }
 }
 } // namespace
 
@@ -65,7 +202,9 @@ RimGroupNetworkData::RimGroupNetworkData()
     setDeletable( true );
 
     CAF_PDM_InitField( &m_name, "Name", QString( "Production Network" ), "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceType, "SourceType", "Source" );
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Summary Case" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryEnsemble, "SummaryEnsemble", "Summary Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_deckFile, "DeckFile", "Deck File" );
     m_deckFile.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_deckFile.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::FILE_SELECTION_FILTER,
@@ -76,7 +215,10 @@ RimGroupNetworkData::RimGroupNetworkData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGroupNetworkData::~RimGroupNetworkData() = default;
+RimGroupNetworkData::~RimGroupNetworkData()
+{
+    stopTopologyCheck();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -99,12 +241,61 @@ RimSummaryCase* RimGroupNetworkData::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 void RimGroupNetworkData::setSummaryCase( RimSummaryCase* summaryCase )
 {
-    const RimSummaryCase* previousCase = m_summaryCase();
-    m_summaryCase                      = summaryCase;
+    const QString previousDeckFile = defaultDeckFile();
+    m_sourceType                   = SourceType::SUMMARY_CASE;
+    m_summaryCase                  = summaryCase;
     if ( summaryCase ) m_name = "Network - " + summaryCase->displayCaseName();
-    updateDeckFile( previousCase );
+    updateDeckFile( previousDeckFile );
     clearCache();
     dataChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsemble* RimGroupNetworkData::summaryEnsemble() const
+{
+    return m_summaryEnsemble();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkData::setSummaryEnsemble( RimSummaryEnsemble* ensemble )
+{
+    const QString previousDeckFile = defaultDeckFile();
+    m_sourceType                   = SourceType::SUMMARY_ENSEMBLE;
+    m_summaryEnsemble              = ensemble;
+    if ( ensemble ) m_name = "Network - " + ensemble->name();
+    updateDeckFile( previousDeckFile );
+    clearCache();
+    dataChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGroupNetworkData::isEnsemble() const
+{
+    return m_sourceType() == SourceType::SUMMARY_ENSEMBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimGroupNetworkData::realizations() const
+{
+    if ( !isEnsemble() || !m_summaryEnsemble() ) return {};
+    return m_summaryEnsemble()->allSummaryCases();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimGroupNetworkData::referenceRealization() const
+{
+    if ( !isEnsemble() ) return nullptr;
+    return firstRealization( m_summaryEnsemble() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,10 +310,71 @@ const RigGroupNetwork* RimGroupNetworkData::network() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RifGroupNetworkSummaryData* RimGroupNetworkData::summaryData() const
+const RifGroupNetworkSummaryData* RimGroupNetworkData::summaryData( EnsembleValue value, RimSummaryCase* realization ) const
 {
     ensureLoaded();
-    return m_summaryCase() ? m_summaryData.get() : nullptr;
+
+    if ( !isEnsemble() ) return m_summaryCase() ? m_summaryData.get() : nullptr;
+    if ( !m_summaryEnsemble() ) return nullptr;
+
+    if ( value == EnsembleValue::REALIZATION )
+    {
+        RimSummaryCase* summaryCase = realization ? realization : referenceRealization();
+        if ( !summaryCase ) return nullptr;
+
+        // A deleted case can be replaced by a new case at the same address, so the entry is validated by the PDM pointer
+        auto& entry = m_realizationData[summaryCase];
+        if ( !entry.data || entry.summaryCase.isNull() || entry.summaryCase.p() != summaryCase )
+        {
+            entry.summaryCase = summaryCase;
+            entry.data        = createCaseData( summaryCase );
+        }
+        return entry.data.get();
+    }
+
+    auto& data = m_statisticData[value];
+    if ( !data )
+    {
+        if ( !m_ensembleStatistics )
+        {
+            caf::PdmPointer<RimSummaryEnsemble> ensemble = m_summaryEnsemble();
+            m_ensembleStatistics                         = std::make_shared<RifGroupNetworkEnsembleStatistics>(
+                [ensemble]() -> std::vector<RifSummaryReaderInterface*>
+                {
+                    std::vector<RifSummaryReaderInterface*> readers;
+                    if ( ensemble.isNull() ) return readers;
+
+                    for ( auto* summaryCase : ensemble->allSummaryCases() )
+                    {
+                        readers.push_back( summaryCase ? summaryCase->summaryReader() : nullptr );
+                    }
+                    return readers;
+                } );
+        }
+
+        // The reference realization gives the units and the node categories
+        caf::PdmPointer<RimSummaryEnsemble> ensemble = m_summaryEnsemble();
+        data                                         = std::make_unique<RifGroupNetworkSummaryData>(
+            [ensemble]() -> RifSummaryReaderInterface*
+            {
+                auto* reference = ensemble.isNull() ? nullptr : firstRealization( ensemble.p() );
+                return reference ? reference->summaryReader() : nullptr;
+            },
+            m_treeType(),
+            m_ensembleStatistics,
+            toStatistic( value ) );
+    }
+    return data.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The summary time steps, or the dates of the network definitions if there is no summary data
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::time_t>& RimGroupNetworkData::timeSteps( EnsembleValue value, RimSummaryCase* realization ) const
+{
+    ensureLoaded();
+    if ( const auto* data = summaryData( value, realization ); data && !data->timeSteps().empty() ) return data->timeSteps();
+    return m_networkDates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,26 +394,28 @@ QString RimGroupNetworkData::statusText( const RigGroupNetwork::TreeRevision* sh
     if ( !m_loadError.isEmpty() ) return m_loadError;
     if ( !m_network ) return "No deck file";
 
-    const auto& dates = m_networkDates;
-    if ( dates.empty() ) return QString( "No %1 network in %2" ).arg( m_treeType().uiText(), QFileInfo( m_deckFile().path() ).fileName() );
+    const auto&   dates    = m_networkDates;
+    const QString deckName = QFileInfo( deckFile() ).fileName();
+    if ( dates.empty() ) return QString( "No %1 network in %2" ).arg( m_treeType().uiText(), deckName );
 
-    QString text = QString( "%1: %2 network definition(s)" ).arg( QFileInfo( m_deckFile().path() ).fileName() ).arg( dates.size() );
+    QString text = QString( "%1: %2 network definition(s)" ).arg( deckName ).arg( dates.size() );
     if ( shownTree )
     {
         text += QString( ", showing the network defined at %1" ).arg( dateText( shownTree->date ) );
     }
-    if ( !summaryData() ) text += ". Select a summary case to show values";
-    return text;
-}
 
-//--------------------------------------------------------------------------------------------------
-/// The summary time steps, or the dates of the network definitions if there is no summary data
-//--------------------------------------------------------------------------------------------------
-const std::vector<std::time_t>& RimGroupNetworkData::timeSteps() const
-{
-    ensureLoaded();
-    if ( const auto* data = summaryData(); data && !data->timeSteps().empty() ) return data->timeSteps();
-    return m_networkDates;
+    if ( isEnsemble() )
+    {
+        if ( m_summaryEnsemble() )
+            text += QString( ". Ensemble with %1 realization(s)" ).arg( realizations().size() );
+        else
+            text += ". Select a summary ensemble to show values";
+    }
+    else if ( !summaryData() )
+    {
+        text += ". Select a summary case to show values";
+    }
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,7 +461,19 @@ void RimGroupNetworkData::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     if ( changedField == &m_summaryCase )
     {
         const auto* previousCase = dynamic_cast<RimSummaryCase*>( oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>().rawPtr() );
-        updateDeckFile( previousCase );
+        updateDeckFile( findDeckFile( previousCase ) );
+        clearCache();
+    }
+    else if ( changedField == &m_summaryEnsemble )
+    {
+        const auto* previousEnsemble = dynamic_cast<RimSummaryEnsemble*>( oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>().rawPtr() );
+        updateDeckFile( findDeckFile( previousEnsemble ) );
+        clearCache();
+    }
+    else if ( changedField == &m_sourceType )
+    {
+        // The deck file field is used for a summary case only, so the deck of the case is always the default after the switch
+        if ( !isEnsemble() ) updateDeckFile( m_deckFile().path() );
         clearCache();
     }
     else if ( changedField == &m_deckFile )
@@ -237,6 +503,14 @@ QList<caf::PdmOptionItemInfo> RimGroupNetworkData::calculateValueOptions( const 
     {
         options = RiaSummaryTools::optionsForAllSummaryCases();
     }
+    else if ( fieldNeedingOptions == &m_summaryEnsemble )
+    {
+        for ( auto* ensemble : RimProject::current()->summaryEnsembles() )
+        {
+            if ( ensemble->isEnsemble() )
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
+        }
+    }
     return options;
 }
 
@@ -246,8 +520,12 @@ QList<caf::PdmOptionItemInfo> RimGroupNetworkData::calculateValueOptions( const 
 void RimGroupNetworkData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
-    uiOrdering.add( &m_summaryCase );
-    uiOrdering.add( &m_deckFile );
+    uiOrdering.add( &m_sourceType );
+    if ( isEnsemble() )
+        uiOrdering.add( &m_summaryEnsemble );
+    else
+        uiOrdering.add( &m_summaryCase );
+    if ( !isEnsemble() ) uiOrdering.add( &m_deckFile );
     uiOrdering.add( &m_treeType );
 
     uiOrdering.skipRemainingFields( true );
@@ -281,26 +559,26 @@ void RimGroupNetworkData::ensureLoaded() const
     {
         m_isLoaded = true;
 
-        const QString deckFile = m_deckFile().path();
-        if ( !deckFile.isEmpty() )
+        const QString deckFilePath = deckFile();
+        if ( !deckFilePath.isEmpty() )
         {
-            auto network = RifGroupNetworkReader::readFromFile( deckFile );
+            auto network = RifGroupNetworkReader::readFromFile( deckFilePath );
             if ( network )
+            {
                 m_network = std::make_unique<RigGroupNetwork>( std::move( *network ) );
+                startTopologyCheck();
+            }
             else
+            {
                 m_loadError = network.error();
+            }
         }
     }
 
     if ( m_summaryData ) return;
 
     m_networkDates = m_network ? m_network->dates( m_treeType() ) : std::vector<std::time_t>();
-
-    // The reader is looked up on each access, as the summary case replaces it on reload. The pointer field is set to
-    // nullptr when the summary case is deleted. The summary data is owned by this object, so capturing this is safe.
-    m_summaryData = std::make_unique<RifGroupNetworkSummaryData>( [this]() -> RifSummaryReaderInterface*
-                                                                  { return m_summaryCase() ? m_summaryCase()->summaryReader() : nullptr; },
-                                                                  m_treeType() );
+    m_summaryData  = createCaseData( m_summaryCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,29 +586,102 @@ void RimGroupNetworkData::ensureLoaded() const
 //--------------------------------------------------------------------------------------------------
 void RimGroupNetworkData::clearCache()
 {
+    stopTopologyCheck();
     m_isLoaded = false;
     m_loadError.clear();
     m_network.reset();
+    m_ensembleStatistics.reset();
     clearTreeTypeCache();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Clears the data that depends on the tree type
+/// Clears the data that depends on the tree type. The ensemble statistics are cached by summary address, and are kept.
 //--------------------------------------------------------------------------------------------------
 void RimGroupNetworkData::clearTreeTypeCache()
 {
     m_summaryData.reset();
     m_networkDates.clear();
+    m_realizationData.clear();
+    m_statisticData.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Use the deck of the current summary case, unless the user has selected a deck that is not the deck of the
-/// previous summary case
+/// Use the deck of the current summary case or ensemble, unless the user has selected a deck that is not the deck of the
+/// previous summary case or ensemble
 //--------------------------------------------------------------------------------------------------
-void RimGroupNetworkData::updateDeckFile( const RimSummaryCase* previousCase )
+void RimGroupNetworkData::updateDeckFile( const QString& previousDeckFile )
 {
     const QString deckFile = m_deckFile().path();
-    if ( !deckFile.isEmpty() && deckFile != findDeckFile( previousCase ) ) return;
+    if ( !deckFile.isEmpty() && deckFile != previousDeckFile ) return;
 
-    m_deckFile = caf::FilePath( findDeckFile( m_summaryCase() ) );
+    m_deckFile = caf::FilePath( defaultDeckFile() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The deck that is read. The deck file field is used for a summary case only; the deck of an ensemble is found in the
+/// realization folders.
+//--------------------------------------------------------------------------------------------------
+QString RimGroupNetworkData::deckFile() const
+{
+    return isEnsemble() ? defaultDeckFile() : m_deckFile().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The deck of the summary case, or of the first realization of the ensemble that has a deck
+//--------------------------------------------------------------------------------------------------
+QString RimGroupNetworkData::defaultDeckFile() const
+{
+    return isEnsemble() ? findDeckFile( m_summaryEnsemble() ) : findDeckFile( m_summaryCase() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RifGroupNetworkSummaryData> RimGroupNetworkData::createCaseData( RimSummaryCase* summaryCase ) const
+{
+    // The reader is looked up on each access, as the summary case replaces it on reload. The PDM pointer is set to nullptr when
+    // the summary case is deleted.
+    caf::PdmPointer<RimSummaryCase> casePointer = summaryCase;
+    return std::make_unique<RifGroupNetworkSummaryData>( [casePointer]() -> RifSummaryReaderInterface*
+                                                         { return casePointer.isNull() ? nullptr : casePointer->summaryReader(); },
+                                                         m_treeType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compare the networks of the other realizations with the network that is shown, in a worker thread as reading hundreds of
+/// decks takes time
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkData::startTopologyCheck() const
+{
+    stopTopologyCheck();
+    if ( !isEnsemble() || !m_network ) return;
+
+    std::vector<RealizationDeck> decks;
+    for ( auto* realization : realizations() )
+    {
+        if ( realization && !realization->summaryHeaderFilename().isEmpty() )
+        {
+            decks.push_back( { realization->displayCaseName(), realization->summaryHeaderFilename() } );
+        }
+    }
+    if ( decks.size() < 2 ) return;
+
+    m_topologyCheckCancelled = std::make_shared<std::atomic<bool>>( false );
+    m_topologyCheck          = std::async( std::launch::async,
+                                  checkTopology,
+                                  *m_network,
+                                  deckFile(),
+                                  std::move( decks ),
+                                  std::shared_ptr<const std::atomic<bool>>( m_topologyCheckCancelled ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The check is cancelled between two decks, so this waits for at most one deck to be read
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkData::stopTopologyCheck() const
+{
+    if ( m_topologyCheckCancelled ) *m_topologyCheckCancelled = true;
+    if ( m_topologyCheck.valid() ) m_topologyCheck.wait();
+    m_topologyCheck          = {};
+    m_topologyCheckCancelled = nullptr;
 }

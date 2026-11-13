@@ -23,6 +23,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -50,16 +51,29 @@ void RicNewGroupNetworkDataFeature::onActionTriggered( bool isChecked )
     if ( !project || !project->activeOilField() || !project->activeOilField()->groupNetworkCollection() ) return;
     RimGroupNetworkDataCollection* collection = project->activeOilField()->groupNetworkCollection();
 
-    RimSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
-    if ( !summaryCase )
-    {
-        const auto summaryCases = project->allSummaryCases();
-        if ( !summaryCases.empty() ) summaryCase = summaryCases.front();
-    }
-    if ( !summaryCase ) return;
-
     auto* network = new RimGroupNetworkData();
-    network->setSummaryCase( summaryCase );
+
+    RimSummaryCase*     summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
+    RimSummaryEnsemble* ensemble    = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryEnsemble>();
+    if ( !summaryCase && ensemble && ensemble->isEnsemble() )
+    {
+        network->setSummaryEnsemble( ensemble );
+    }
+    else
+    {
+        if ( !summaryCase )
+        {
+            const auto summaryCases = project->allSummaryCases();
+            if ( !summaryCases.empty() ) summaryCase = summaryCases.front();
+        }
+        if ( !summaryCase )
+        {
+            delete network;
+            return;
+        }
+        network->setSummaryCase( summaryCase );
+    }
+
     collection->addItem( network );
     collection->updateConnectedEditors();
 

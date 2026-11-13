@@ -25,26 +25,56 @@
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
+#include <atomic>
 #include <ctime>
+#include <future>
+#include <map>
 #include <memory>
 #include <vector>
 
 class RimSummaryCase;
+class RimSummaryEnsemble;
+class RifGroupNetworkEnsembleStatistics;
 
 //==================================================================================================
 /// A production network tree read from a deck (GRUPTREE or BRANPROP), with node and edge values from
-/// a summary case. This is a data source, shown in the data source tree. The network is shown by one
-/// or more RimGroupNetworkPlot objects.
+/// a summary case or a summary ensemble. This is a data source, shown in the data source tree. The
+/// network is shown by one or more RimGroupNetworkPlot objects.
+///
+/// For an ensemble, the network is read from the deck of the first realization, and the values are
+/// taken from a realization or from a statistic of all realizations. The networks of the other
+/// realizations are compared in the background, and a warning is logged if they differ.
 //==================================================================================================
 class RimGroupNetworkData : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    using TreeTypeEnum = caf::AppEnum<RigGroupNetwork::TreeType>;
+    enum class SourceType
+    {
+        SUMMARY_CASE,
+        SUMMARY_ENSEMBLE
+    };
+
+    // The values shown for an ensemble
+    enum class EnsembleValue
+    {
+        REALIZATION,
+        MEAN,
+        P10,
+        P50,
+        P90,
+        MINIMUM,
+        MAXIMUM
+    };
+
+    using TreeTypeEnum      = caf::AppEnum<RigGroupNetwork::TreeType>;
+    using SourceTypeEnum    = caf::AppEnum<SourceType>;
+    using EnsembleValueEnum = caf::AppEnum<EnsembleValue>;
 
     caf::Signal<> dataChanged;
 
@@ -52,15 +82,26 @@ public:
     RimGroupNetworkData();
     ~RimGroupNetworkData() override;
 
-    QString         name() const;
-    RimSummaryCase* summaryCase() const;
-    void            setSummaryCase( RimSummaryCase* summaryCase );
+    QString             name() const;
+    RimSummaryCase*     summaryCase() const;
+    void                setSummaryCase( RimSummaryCase* summaryCase );
+    RimSummaryEnsemble* summaryEnsemble() const;
+    void                setSummaryEnsemble( RimSummaryEnsemble* ensemble );
+    bool                isEnsemble() const;
 
-    const RigGroupNetwork*               network() const;
-    const RifGroupNetworkSummaryData*    summaryData() const;
+    // The realizations of the ensemble, and the realization used for the network and the units
+    std::vector<RimSummaryCase*> realizations() const;
+    RimSummaryCase*              referenceRealization() const;
+
+    const RigGroupNetwork* network() const;
+
+    // The values of a summary case, or of the given value of an ensemble. The first realization is used if no realization is given.
+    const RifGroupNetworkSummaryData* summaryData( EnsembleValue   value       = EnsembleValue::REALIZATION,
+                                                   RimSummaryCase* realization = nullptr ) const;
+    const std::vector<std::time_t>& timeSteps( EnsembleValue value = EnsembleValue::REALIZATION, RimSummaryCase* realization = nullptr ) const;
+
     RigGroupNetwork::TreeType            treeType() const;
     QString                              statusText( const RigGroupNetwork::TreeRevision* shownTree ) const;
-    const std::vector<std::time_t>&      timeSteps() const;
     const RigGroupNetwork::TreeRevision* treeAtDate( std::time_t date ) const;
 
     void reload();
@@ -78,17 +119,38 @@ private:
     void ensureLoaded() const;
     void clearCache();
     void clearTreeTypeCache();
-    void updateDeckFile( const RimSummaryCase* previousCase );
+    void updateDeckFile( const QString& previousDeckFile );
+    void startTopologyCheck() const;
+    void stopTopologyCheck() const;
+
+    QString                                     deckFile() const;
+    QString                                     defaultDeckFile() const;
+    std::unique_ptr<RifGroupNetworkSummaryData> createCaseData( RimSummaryCase* summaryCase ) const;
 
 private:
-    caf::PdmField<QString>            m_name;
-    caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
-    caf::PdmField<caf::FilePath>      m_deckFile;
-    caf::PdmField<TreeTypeEnum>       m_treeType;
+    caf::PdmField<QString>                m_name;
+    caf::PdmField<SourceTypeEnum>         m_sourceType;
+    caf::PdmPtrField<RimSummaryCase*>     m_summaryCase;
+    caf::PdmPtrField<RimSummaryEnsemble*> m_summaryEnsemble;
+    caf::PdmField<caf::FilePath>          m_deckFile;
+    caf::PdmField<TreeTypeEnum>           m_treeType;
 
     mutable bool                                        m_isLoaded = false;
     mutable QString                                     m_loadError;
     mutable std::unique_ptr<RigGroupNetwork>            m_network;
     mutable std::unique_ptr<RifGroupNetworkSummaryData> m_summaryData;
     mutable std::vector<std::time_t>                    m_networkDates;
+
+    // Ensemble data, created on demand
+    struct RealizationData
+    {
+        caf::PdmPointer<RimSummaryCase>             summaryCase;
+        std::unique_ptr<RifGroupNetworkSummaryData> data;
+    };
+    mutable std::map<const RimSummaryCase*, RealizationData>                     m_realizationData;
+    mutable std::shared_ptr<RifGroupNetworkEnsembleStatistics>                   m_ensembleStatistics;
+    mutable std::map<EnsembleValue, std::unique_ptr<RifGroupNetworkSummaryData>> m_statisticData;
+
+    mutable std::shared_ptr<std::atomic<bool>> m_topologyCheckCancelled;
+    mutable std::future<void>                  m_topologyCheck;
 };

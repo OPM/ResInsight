@@ -27,9 +27,12 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleStatistics.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuGroupNetworkWidget.h"
@@ -39,6 +42,8 @@
 #include "cafFontTools.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <optional>
 #include <set>
 
 namespace caf
@@ -126,6 +131,8 @@ RimGroupNetworkPlot::RimGroupNetworkPlot()
 
     CAF_PDM_InitField( &m_name, "Name", QString( "Production Network" ), "Name" );
     CAF_PDM_InitFieldNoDefault( &m_data, "Data", "Data Source" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleValue, "EnsembleValue", "Show" );
+    CAF_PDM_InitFieldNoDefault( &m_realization, "Realization", "Realization" );
     CAF_PDM_InitFieldNoDefault( &m_edgeMetric, "EdgeMetric", "Edge Value" );
     CAF_PDM_InitFieldNoDefault( &m_nodeMetric, "NodeMetric", "Node Value" );
     CAF_PDM_InitField( &m_showProducers, "ShowProducers", true, "Producers" );
@@ -192,6 +199,16 @@ void RimGroupNetworkPlot::updateFonts()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The window title shows the statistic or the realization for an ensemble
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkPlot::updateWindowTitle()
+{
+    QString title = windowTitle();
+    if ( isEnsemble() ) title += " - " + ensembleValueText();
+    updateWindowTitleIcon( title );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QWidget* RimGroupNetworkPlot::createViewWidget( QWidget* mainWindowParent )
@@ -227,6 +244,7 @@ void RimGroupNetworkPlot::deleteViewWidget()
 void RimGroupNetworkPlot::onLoadDataAndUpdate()
 {
     updateDockWindowVisibility();
+    updateWindowTitle();
     networkChanged.send();
 }
 
@@ -255,6 +273,7 @@ void RimGroupNetworkPlot::setDataSource( RimGroupNetworkData* data )
     if ( data ) m_name = data->name();
     connectToData();
     resetTimeStep();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,6 +290,18 @@ std::vector<RimGroupNetworkGraph::Node> RimGroupNetworkPlot::graphNodes() const
     const auto  edgeUnit  = data ? data->edgeUnit( m_edgeMetric() ) : std::string();
     const auto  nodeUnit  = data ? data->nodeUnit( m_nodeMetric() ) : std::string();
     const auto  edgeColor = edgeMetricColor( m_edgeMetric() );
+
+    if ( data && data->isStatistic() )
+    {
+        // Compute the statistics of all nodes in one operation, as the realizations are then read in parallel
+        std::vector<RifGroupNetworkSummaryData::NodeId> nodeIds;
+        nodeIds.reserve( tree->edges.size() );
+        for ( const RigGroupNetwork::Edge& edge : tree->edges )
+        {
+            nodeIds.emplace_back( edge.child, edge.isWell() );
+        }
+        data->prefetch( nodeIds, { m_edgeMetric() }, { m_nodeMetric() } );
+    }
 
     std::vector<RimGroupNetworkGraph::Node> nodes;
     for ( const RigGroupNetwork::Edge& edge : tree->edges )
@@ -296,7 +327,7 @@ std::vector<RimGroupNetworkGraph::Node> RimGroupNetworkPlot::graphNodes() const
             node.valueText       = valueWithUnit( nodeValue, nodeUnit );
         }
 
-        node.toolTip = toolTip( edge, node );
+        node.toolTip = toolTip( data, edge, node );
         nodes.push_back( node );
     }
 
@@ -315,7 +346,10 @@ std::vector<RimGroupNetworkGraph::Node> RimGroupNetworkPlot::graphNodes() const
 QString RimGroupNetworkPlot::statusText() const
 {
     if ( !m_data ) return "No data source selected";
-    return m_data->statusText( currentTree() );
+
+    QString text = m_data->statusText( currentTree() );
+    if ( isEnsemble() ) text += QString( ". Showing %1" ).arg( ensembleValueText() );
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,10 +454,11 @@ void RimGroupNetworkPlot::selectNode( const QString& nodeName )
         return;
     }
 
-    QString nodeType = edge->isWell() ? "Well" : "Group";
-    if ( summaryData() )
+    QString     nodeType = edge->isWell() ? "Well" : "Group";
+    const auto* data     = summaryData();
+    if ( data )
     {
-        const auto category = summaryData()->category( edge->child, edge->isWell() );
+        const auto category = data->category( edge->child, edge->isWell() );
         if ( category.isProducer && category.isInjector )
             nodeType += " (producer and injector)";
         else if ( category.isProducer )
@@ -436,7 +471,7 @@ void RimGroupNetworkPlot::selectNode( const QString& nodeName )
     m_selectedNode->setDescription( nodeType,
                                     QString::fromStdString( edge->parent ),
                                     QString::fromStdString( RigGroupNetwork::keywordText( edge->keyword ) ) );
-    m_selectedNode->setValues( propertiesText( *edge ), valueTexts( *edge ) );
+    m_selectedNode->setValues( propertiesText( *edge ), valueTexts( data, *edge ) );
     m_selectedNode->updateConnectedEditors();
     m_selectedNode.uiCapability()->updateConnectedEditors();
 
@@ -444,24 +479,46 @@ void RimGroupNetworkPlot::selectNode( const QString& nodeName )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Plot the rates and pressures of a node
+/// Plot the rates and pressures of a node. For an ensemble, the realizations are plotted with the ensemble statistics. The
+/// realization curves are hidden if a statistic is shown in the network.
 //--------------------------------------------------------------------------------------------------
 void RimGroupNetworkPlot::createSummaryPlot( const QString& nodeName )
 {
-    const RigGroupNetwork::Edge* edge        = findEdge( nodeName );
-    RimSummaryCase*              summaryCase = m_data ? m_data->summaryCase() : nullptr;
-    if ( !edge || !summaryData() || !summaryCase || !summaryCase->summaryReader() ) return;
+    const RigGroupNetwork::Edge* edge = findEdge( nodeName );
+    const auto*                  data = summaryData();
+    if ( !edge || !data || !m_data ) return;
 
-    const auto& available = summaryCase->summaryReader()->allResultAddresses();
+    RimSummaryCase* referenceCase = isEnsemble() ? m_data->referenceRealization() : m_data->summaryCase();
+    if ( !referenceCase || !referenceCase->summaryReader() ) return;
+
+    // The vectors of the shown realization, or of any realization for a statistic
+    std::set<RifEclipseSummaryAddress> available;
+    if ( isEnsemble() && ensembleValue() != RimGroupNetworkData::EnsembleValue::REALIZATION )
+    {
+        for ( auto* realization : m_data->realizations() )
+        {
+            if ( realization && realization->summaryReader() )
+            {
+                const auto& realizationAddresses = realization->summaryReader()->allResultAddresses();
+                available.insert( realizationAddresses.begin(), realizationAddresses.end() );
+            }
+        }
+    }
+    else
+    {
+        RimSummaryCase* shownCase = isEnsemble() && m_realization() ? m_realization() : referenceCase;
+        if ( !shownCase->summaryReader() ) return;
+        available = shownCase->summaryReader()->allResultAddresses();
+    }
 
     std::set<RifEclipseSummaryAddress> addresses;
     for ( auto metric : allEdgeMetrics )
     {
-        addresses.insert( summaryData()->edgeAddress( edge->child, edge->isWell(), metric ) );
+        addresses.insert( data->edgeAddress( edge->child, edge->isWell(), metric ) );
     }
     for ( auto metric : { RifGroupNetworkSummaryData::NodeMetric::PRESSURE, RifGroupNetworkSummaryData::NodeMetric::BHP } )
     {
-        addresses.insert( summaryData()->nodeAddress( edge->child, edge->isWell(), metric ) );
+        addresses.insert( data->nodeAddress( edge->child, edge->isWell(), metric ) );
     }
 
     std::set<RifEclipseSummaryAddress> plotAddresses;
@@ -471,7 +528,40 @@ void RimGroupNetworkPlot::createSummaryPlot( const QString& nodeName )
     }
     if ( plotAddresses.empty() ) return;
 
-    RimSummaryPlot* plot = RiaSummaryPlotTools::createPlot( plotAddresses, { summaryCase }, {} );
+    RimSummaryPlot* plot = nullptr;
+    if ( isEnsemble() )
+    {
+        RimSummaryEnsemble* ensemble = m_data->summaryEnsemble();
+        if ( !ensemble ) return;
+
+        if ( ensembleValue() == RimGroupNetworkData::EnsembleValue::REALIZATION )
+        {
+            RimSummaryCase* realization = m_realization() ? m_realization() : referenceCase;
+            plot                        = RiaSummaryPlotTools::createPlot( plotAddresses, { realization }, { ensemble } );
+        }
+        else
+        {
+            plot             = RiaSummaryPlotTools::createPlot( plotAddresses, {}, { ensemble } );
+            const auto value = ensembleValue();
+            for ( auto* curveSet : plot->curveSets() )
+            {
+                auto* statistics = curveSet->statisticsOptions();
+                statistics->setHideEnsembleCurves( true );
+                statistics->setShownStatistics( value == RimGroupNetworkData::EnsembleValue::MEAN,
+                                                value == RimGroupNetworkData::EnsembleValue::P10,
+                                                value == RimGroupNetworkData::EnsembleValue::P50,
+                                                value == RimGroupNetworkData::EnsembleValue::P90,
+                                                value == RimGroupNetworkData::EnsembleValue::MINIMUM   ? "0"
+                                                : value == RimGroupNetworkData::EnsembleValue::MAXIMUM ? "100"
+                                                                                                       : "" );
+            }
+        }
+    }
+    else
+    {
+        plot = RiaSummaryPlotTools::createPlot( plotAddresses, { referenceCase }, {} );
+    }
+
     RiaSummaryPlotTools::createAndAppendSingleSummaryMultiPlot( plot );
 }
 
@@ -498,6 +588,26 @@ void RimGroupNetworkPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         disconnectFromData( previousData );
         connectToData();
         resetTimeStep();
+        updateWindowTitle();
+    }
+    else if ( changedField == &m_ensembleValue || changedField == &m_realization )
+    {
+        // Keep the shown date, as the time steps of the realizations and the statistics may differ
+        std::optional<std::time_t> shownDate;
+        if ( m_data )
+        {
+            const auto& previousSteps = m_data->timeSteps( m_shownEnsembleValue, m_shownRealization.p() );
+            if ( !previousSteps.empty() ) shownDate = previousSteps[std::clamp<size_t>( m_timeStepIndex(), 0, previousSteps.size() - 1 )];
+        }
+
+        updateShownSelection();
+        if ( shownDate )
+            showClosestTimeStep( *shownDate );
+        else
+            resetTimeStep();
+
+        updateWindowTitle();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_name )
     {
@@ -530,6 +640,16 @@ QList<caf::PdmOptionItemInfo> RimGroupNetworkPlot::calculateValueOptions( const 
             }
         }
     }
+    else if ( fieldNeedingOptions == &m_realization )
+    {
+        if ( m_data )
+        {
+            for ( RimSummaryCase* realization : m_data->realizations() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( realization->displayCaseName(), realization ) );
+            }
+        }
+    }
     else if ( fieldNeedingOptions == &m_timeStepIndex )
     {
         const QStringList texts = timeStepTexts();
@@ -550,6 +670,11 @@ void RimGroupNetworkPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_data );
 
     caf::PdmUiGroup* valueGroup = uiOrdering.addNewGroup( "Values" );
+    if ( isEnsemble() )
+    {
+        valueGroup->add( &m_ensembleValue );
+        if ( m_ensembleValue() == RimGroupNetworkData::EnsembleValue::REALIZATION ) valueGroup->add( &m_realization );
+    }
     valueGroup->add( &m_timeStepIndex );
     valueGroup->add( &m_edgeMetric );
     valueGroup->add( &m_nodeMetric );
@@ -568,6 +693,7 @@ void RimGroupNetworkPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 void RimGroupNetworkPlot::initAfterRead()
 {
     connectToData();
+    updateShownSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,6 +728,7 @@ void RimGroupNetworkPlot::disconnectFromData( RimGroupNetworkData* data )
 void RimGroupNetworkPlot::onDataChanged( const caf::SignalEmitter* emitter )
 {
     resetTimeStep();
+    updateWindowTitle();
     updateConnectedEditors();
     networkChanged.send();
 }
@@ -611,8 +738,46 @@ void RimGroupNetworkPlot::onDataChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimGroupNetworkPlot::resetTimeStep()
 {
+    if ( m_realization() )
+    {
+        const auto realizations = m_data ? m_data->realizations() : std::vector<RimSummaryCase*>();
+        if ( std::find( realizations.begin(), realizations.end(), m_realization() ) == realizations.end() ) m_realization = nullptr;
+    }
+
+    updateShownSelection();
     const auto& steps = timeSteps();
     m_timeStepIndex   = steps.empty() ? 0 : static_cast<int>( steps.size() ) - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the time step closest to the given date
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkPlot::showClosestTimeStep( std::time_t date )
+{
+    const auto& steps = timeSteps();
+    if ( steps.empty() )
+    {
+        m_timeStepIndex = 0;
+        return;
+    }
+
+    const auto it    = std::lower_bound( steps.begin(), steps.end(), date );
+    size_t     index = std::min( static_cast<size_t>( it - steps.begin() ), steps.size() - 1 );
+    if ( index > 0 &&
+         std::llabs( static_cast<long long>( steps[index - 1] - date ) ) <= std::llabs( static_cast<long long>( steps[index] - date ) ) )
+    {
+        index--;
+    }
+    m_timeStepIndex = static_cast<int>( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGroupNetworkPlot::updateShownSelection()
+{
+    m_shownEnsembleValue = ensembleValue();
+    m_shownRealization   = m_realization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -620,7 +785,35 @@ void RimGroupNetworkPlot::resetTimeStep()
 //--------------------------------------------------------------------------------------------------
 const RifGroupNetworkSummaryData* RimGroupNetworkPlot::summaryData() const
 {
-    return m_data ? m_data->summaryData() : nullptr;
+    return m_data ? m_data->summaryData( ensembleValue(), m_realization() ) : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGroupNetworkPlot::isEnsemble() const
+{
+    return m_data && m_data->isEnsemble();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGroupNetworkData::EnsembleValue RimGroupNetworkPlot::ensembleValue() const
+{
+    if ( !isEnsemble() ) return RimGroupNetworkData::EnsembleValue::REALIZATION;
+    return m_ensembleValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The statistic, or the name of the realization
+//--------------------------------------------------------------------------------------------------
+QString RimGroupNetworkPlot::ensembleValueText() const
+{
+    if ( ensembleValue() != RimGroupNetworkData::EnsembleValue::REALIZATION ) return m_ensembleValue().uiText();
+
+    RimSummaryCase* realization = m_realization() ? m_realization() : ( m_data ? m_data->referenceRealization() : nullptr );
+    return realization ? realization->displayCaseName() : "Realization";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -673,36 +866,50 @@ const std::vector<std::time_t>& RimGroupNetworkPlot::timeSteps() const
 {
     static const std::vector<std::time_t> noTimeSteps;
     if ( !m_data ) return noTimeSteps;
-    return m_data->timeSteps();
+    return m_data->timeSteps( ensembleValue(), m_realization() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGroupNetworkPlot::valueTexts( const RigGroupNetwork::Edge& edge ) const
+QString RimGroupNetworkPlot::valueTexts( const RifGroupNetworkSummaryData* data, const RigGroupNetwork::Edge& edge ) const
 {
-    if ( !summaryData() ) return "No summary case";
+    if ( !data ) return isEnsemble() ? "No summary ensemble" : "No summary case";
+
+    if ( data->isStatistic() )
+    {
+        std::vector<RifGroupNetworkSummaryData::NodeMetric> nodeMetrics;
+        for ( auto metric : allNodeMetrics )
+        {
+            if ( !RifGroupNetworkSummaryData::isDiscrete( metric ) ) nodeMetrics.push_back( metric );
+        }
+        data->prefetch( { { edge.child, edge.isWell() } }, allEdgeMetrics, nodeMetrics );
+    }
 
     const size_t timeStep = currentSummaryTimeStep();
     QStringList  lines;
-    lines.append( QString( "Values at %1" ).arg( dateText( currentDate() ) ) );
+    if ( isEnsemble() )
+        lines.append( QString( "%1 values at %2" ).arg( ensembleValueText() ).arg( dateText( currentDate() ) ) );
+    else
+        lines.append( QString( "Values at %1" ).arg( dateText( currentDate() ) ) );
+
     for ( auto metric : allEdgeMetrics )
     {
-        const auto value = summaryData()->edgeValue( edge.child, edge.isWell(), metric, timeStep );
+        const auto value = data->edgeValue( edge.child, edge.isWell(), metric, timeStep );
         if ( !value ) continue;
         lines.append( QString( "%1 (%2): %3" )
                           .arg( QString::fromStdString( RifGroupNetworkSummaryData::edgeMetricText( metric ) ) )
-                          .arg( QString::fromStdString( summaryData()->edgeAddress( edge.child, edge.isWell(), metric ).vectorName() ) )
-                          .arg( valueWithUnit( value, summaryData()->edgeUnit( metric ) ) ) );
+                          .arg( QString::fromStdString( data->edgeAddress( edge.child, edge.isWell(), metric ).vectorName() ) )
+                          .arg( valueWithUnit( value, data->edgeUnit( metric ) ) ) );
     }
     for ( auto metric : allNodeMetrics )
     {
-        const auto value = summaryData()->nodeValue( edge.child, edge.isWell(), metric, timeStep );
+        const auto value = data->nodeValue( edge.child, edge.isWell(), metric, timeStep );
         if ( !value ) continue;
         lines.append( QString( "%1 (%2): %3" )
                           .arg( QString::fromStdString( RifGroupNetworkSummaryData::nodeMetricText( metric ) ) )
-                          .arg( QString::fromStdString( summaryData()->nodeAddress( edge.child, edge.isWell(), metric ).vectorName() ) )
-                          .arg( valueWithUnit( value, summaryData()->nodeUnit( metric ) ) ) );
+                          .arg( QString::fromStdString( data->nodeAddress( edge.child, edge.isWell(), metric ).vectorName() ) )
+                          .arg( valueWithUnit( value, data->nodeUnit( metric ) ) ) );
     }
     if ( lines.size() == 1 ) lines.append( "No summary vectors found for the node" );
     return lines.join( "\n" );
@@ -711,7 +918,9 @@ QString RimGroupNetworkPlot::valueTexts( const RigGroupNetwork::Edge& edge ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGroupNetworkPlot::toolTip( const RigGroupNetwork::Edge& edge, const RimGroupNetworkGraph::Node& node ) const
+QString RimGroupNetworkPlot::toolTip( const RifGroupNetworkSummaryData* data,
+                                      const RigGroupNetwork::Edge&      edge,
+                                      const RimGroupNetworkGraph::Node& node ) const
 {
     QStringList lines;
     lines.append( QString( "<b>%1</b> (%2)" ).arg( node.name.toHtmlEscaped(), edge.isWell() ? "well" : "group" ) );
@@ -721,12 +930,18 @@ QString RimGroupNetworkPlot::toolTip( const RigGroupNetwork::Edge& edge, const R
     const QString properties = propertiesText( edge );
     if ( !properties.isEmpty() ) lines.append( properties );
 
-    if ( summaryData() )
+    if ( data )
     {
-        const QString edgeName = QString::fromStdString( RifGroupNetworkSummaryData::edgeMetricText( m_edgeMetric() ) );
-        const QString nodeName = QString::fromStdString( RifGroupNetworkSummaryData::nodeMetricText( m_nodeMetric() ) );
-        lines.append( QString( "%1: %2" ).arg( edgeName, node.edgeText.isEmpty() ? "-" : node.edgeText ) );
-        lines.append( QString( "%1: %2" ).arg( nodeName, node.valueText.isEmpty() ? "-" : node.valueText ) );
+        QString edgeName = QString::fromStdString( RifGroupNetworkSummaryData::edgeMetricText( m_edgeMetric() ) );
+        QString nodeName = QString::fromStdString( RifGroupNetworkSummaryData::nodeMetricText( m_nodeMetric() ) );
+        if ( data->isStatistic() )
+        {
+            const QString statistic = m_ensembleValue().uiText();
+            edgeName += QString( " (%1)" ).arg( statistic );
+            nodeName += QString( " (%1)" ).arg( statistic );
+        }
+        lines.append( QString( "%1: %2" ).arg( edgeName.toHtmlEscaped(), node.edgeText.isEmpty() ? "-" : node.edgeText ) );
+        lines.append( QString( "%1: %2" ).arg( nodeName.toHtmlEscaped(), node.valueText.isEmpty() ? "-" : node.valueText ) );
     }
     return lines.join( "<br>" );
 }

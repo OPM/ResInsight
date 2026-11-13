@@ -21,6 +21,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace
 {
@@ -53,10 +54,69 @@ RifGroupNetworkSummaryData::RifGroupNetworkSummaryData( ReaderProvider readerPro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifGroupNetworkSummaryData::RifGroupNetworkSummaryData( ReaderProvider                                           referenceReaderProvider,
+                                                        RigGroupNetwork::TreeType                                treeType,
+                                                        std::shared_ptr<const RifGroupNetworkEnsembleStatistics> statistics,
+                                                        Statistic                                                statistic )
+    : m_readerProvider( std::move( referenceReaderProvider ) )
+    , m_treeType( treeType )
+    , m_statistics( std::move( statistics ) )
+    , m_statistic( statistic )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifGroupNetworkSummaryData::isStatistic() const
+{
+    return m_statistics != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RifGroupNetworkSummaryData::Statistic> RifGroupNetworkSummaryData::statistic() const
+{
+    if ( !m_statistics ) return std::nullopt;
+    return m_statistic;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<std::time_t>& RifGroupNetworkSummaryData::timeSteps() const
 {
+    if ( m_statistics ) return m_statistics->timeSteps();
+
     reader();
     return m_timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifGroupNetworkSummaryData::prefetch( const std::vector<NodeId>&     nodes,
+                                           const std::vector<EdgeMetric>& edgeMetrics,
+                                           const std::vector<NodeMetric>& nodeMetrics ) const
+{
+    if ( !m_statistics ) return;
+
+    std::vector<RifEclipseSummaryAddress> addresses;
+    addresses.reserve( nodes.size() * ( edgeMetrics.size() + nodeMetrics.size() ) );
+    for ( const auto& [nodeName, isWell] : nodes )
+    {
+        for ( auto metric : edgeMetrics )
+        {
+            addresses.push_back( edgeAddress( nodeName, isWell, metric ) );
+        }
+        for ( auto metric : nodeMetrics )
+        {
+            if ( !isDiscrete( metric ) ) addresses.push_back( nodeAddress( nodeName, isWell, metric ) );
+        }
+    }
+
+    m_statistics->prefetch( addresses );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +155,9 @@ const RifSummaryReaderInterface* RifGroupNetworkSummaryData::reader() const
 std::optional<double>
     RifGroupNetworkSummaryData::edgeValue( const std::string& nodeName, bool isWell, EdgeMetric metric, size_t timeStepIndex ) const
 {
-    return valueAt( edgeAddress( nodeName, isWell, metric ), timeStepIndex );
+    const auto edge = edgeAddress( nodeName, isWell, metric );
+    if ( m_statistics ) return statisticValueAt( edge, timeStepIndex );
+    return valueAt( edge, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +166,9 @@ std::optional<double>
 std::optional<double>
     RifGroupNetworkSummaryData::nodeValue( const std::string& nodeName, bool isWell, NodeMetric metric, size_t timeStepIndex ) const
 {
-    return valueAt( nodeAddress( nodeName, isWell, metric ), timeStepIndex );
+    const auto node = nodeAddress( nodeName, isWell, metric );
+    if ( m_statistics ) return isDiscrete( metric ) ? std::nullopt : statisticValueAt( node, timeStepIndex );
+    return valueAt( node, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,6 +327,14 @@ std::string RifGroupNetworkSummaryData::nodeMetricText( NodeMetric metric )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifGroupNetworkSummaryData::isDiscrete( NodeMetric metric )
+{
+    return metric == NodeMetric::CONTROL_MODE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<double>* RifGroupNetworkSummaryData::values( const RifEclipseSummaryAddress& address ) const
 {
     const auto* summaryReader = reader();
@@ -291,6 +363,19 @@ std::optional<double> RifGroupNetworkSummaryData::valueAt( const RifEclipseSumma
     const auto* vectorValues = values( address );
     if ( !vectorValues || timeStepIndex >= vectorValues->size() ) return std::nullopt;
     return ( *vectorValues )[timeStepIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RifGroupNetworkSummaryData::statisticValueAt( const RifEclipseSummaryAddress& address, size_t timeStepIndex ) const
+{
+    const auto* vectorValues = m_statistics->values( address, m_statistic );
+    if ( !vectorValues || timeStepIndex >= vectorValues->size() ) return std::nullopt;
+
+    const double value = ( *vectorValues )[timeStepIndex];
+    if ( !std::isfinite( value ) ) return std::nullopt;
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------
