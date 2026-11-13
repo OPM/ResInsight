@@ -44,7 +44,8 @@ class RigWellPath;
 ///
 /// The perforated well cells are grown by growCellCount layers of lateral (I, J) neighbor cells. If
 /// fillFullKRange is true, the grown region covers the full K range of its columns. No growth and no
-/// K filling is done when growCellCount is 0.
+/// K filling is done when growCellCount is 0. If fillFullKRange is false, the polygon only marks cells
+/// within the K range spanned by the well cells (if there are any).
 //==================================================================================================
 class RigWellRegionResultTools
 {

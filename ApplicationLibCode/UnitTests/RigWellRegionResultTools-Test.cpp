@@ -316,6 +316,18 @@ TEST_F( RigWellRegionResultToolsTest, GrowthWithoutKFillStaysInPerforatedKRange 
     ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 1, false ) );
     EXPECT_GT( markedCount(), 0u );
     EXPECT_LT( markedCount(), column.size() );
+
+    // The polygon does not mark its whole column either
+    std::vector<size_t> polygonColumn;
+    for ( size_t k = 0; k < s_caseData->mainGrid()->cellCountK(); k++ )
+    {
+        const size_t cellIdx = reservoirCellIndex( 0, 31, 63, k );
+        if ( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) ) polygonColumn.push_back( cellIdx );
+    }
+    ASSERT_GT( polygonColumn.size(), 1u );
+    const size_t polygonMarked = std::count_if( polygonColumn.begin(), polygonColumn.end(), [&]( size_t c ) { return value( c ) == 1.0; } );
+    EXPECT_GT( polygonMarked, 0u );
+    EXPECT_LT( polygonMarked, polygonColumn.size() );
     expectBinaryValues();
 }
 

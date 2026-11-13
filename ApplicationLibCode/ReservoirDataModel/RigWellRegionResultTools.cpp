@@ -41,6 +41,8 @@
 
 #include <algorithm>
 #include <array>
+#include <limits>
+#include <optional>
 #include <set>
 #include <unordered_map>
 
@@ -368,6 +370,46 @@ void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, bool fillF
     if ( fillFullKRange ) fillMarkedColumns( mainGrid, lgrCellsInHostCell, marked );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// K index in the main grid of a cell. LGR cells use the K index of their host cell.
+//--------------------------------------------------------------------------------------------------
+std::optional<size_t> mainGridK( const RigMainGrid& mainGrid, size_t cellIdx )
+{
+    const RigCell& cell = mainGrid.cell( cellIdx );
+    if ( cell.hostGrid() && !cell.hostGrid()->isMainGrid() ) return mainGridK( mainGrid, cell.mainGridCellIndex() );
+
+    size_t i = 0, j = 0, k = 0;
+    if ( !mainGrid.ijkFromCellIndex( cell.gridLocalCellIndex(), &i, &j, &k ) ) return std::nullopt;
+    return k;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Remove cells from insidePolygon which are outside the main grid K range spanned by the marked cells.
+/// Nothing is removed if there are no marked cells.
+//--------------------------------------------------------------------------------------------------
+void limitToKRangeOfMarkedCells( const RigMainGrid& mainGrid, const std::vector<char>& marked, std::vector<char>& insidePolygon )
+{
+    size_t minK = std::numeric_limits<size_t>::max();
+    size_t maxK = 0;
+    for ( size_t cellIdx = 0; cellIdx < marked.size(); cellIdx++ )
+    {
+        if ( !marked[cellIdx] ) continue;
+        if ( auto k = mainGridK( mainGrid, cellIdx ) )
+        {
+            minK = std::min( minK, *k );
+            maxK = std::max( maxK, *k );
+        }
+    }
+    if ( minK > maxK ) return;
+
+    for ( size_t cellIdx = 0; cellIdx < insidePolygon.size(); cellIdx++ )
+    {
+        if ( !insidePolygon[cellIdx] ) continue;
+        const auto k = mainGridK( mainGrid, cellIdx );
+        if ( !k || *k < minK || *k > maxK ) insidePolygon[cellIdx] = 0;
+    }
+}
+
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -396,7 +438,7 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
     const RigMainGrid& mainGrid  = *eclipseCaseData->mainGrid();
     const size_t       cellCount = mainGrid.totalCellCount();
 
-    const std::vector<char> insidePolygon = cellsInsidePolygon( mainGrid, polygonClosed );
+    std::vector<char> insidePolygon = cellsInsidePolygon( mainGrid, polygonClosed );
 
     std::vector<char> wellCells( cellCount, 0 );
 
@@ -427,6 +469,9 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
     }
 
     growMarkedCells( mainGrid, growCellCount, fillFullKRange, wellCells );
+
+    // Without K filling, the polygon only applies to the K range covered by the well cells
+    if ( !fillFullKRange ) limitToKRangeOfMarkedCells( mainGrid, wellCells, insidePolygon );
 
     const RigActiveCellInfo* activeCellInfo  = resultsData->activeCellInfo();
     const size_t             activeCellCount = activeCellInfo->reservoirActiveCellCount();
