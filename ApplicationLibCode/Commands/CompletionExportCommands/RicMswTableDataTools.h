@@ -94,11 +94,23 @@ std::vector<double> collapseNodesOutsidePerforations( const std::vector<double>&
 
 //--------------------------------------------------------------------------------------------------
 /// Add nodes at the required measured depths, so that these depths are exported unmodified as WELSEGS
-/// node lengths. Depths outside (outletMD, lastMD] are ignored. An existing node within the tolerance
-/// of a required depth is moved to the required depth instead of adding a new node.
+/// node lengths. The required depths always take precedence over the nodes placed by the segmentation
+/// rules. Required depths at or above outletMD or below lastMD are ignored, and depths within the
+/// tolerance of each other are merged. A rule node in 'nodes' is dropped if
+///  - a required depth is closer than the min length of the segmentation interval it is inside (the
+///    tolerance if there is no min length)
+///  - it is inside a single segment region (exclusive bounds) that contains a required depth
+/// If ruleNodeToNode is given, it is set to the index in the returned nodes of the node serving each
+/// rule node: the rule node itself, or for a dropped rule node the nearest required depth (inside its
+/// single segment region if it has one).
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    insertRequiredNodes( const std::vector<double>& nodes, const std::vector<double>& requiredMDs, double outletMD, double lastMD );
+std::vector<double> insertRequiredNodes( const std::vector<double>&                    nodes,
+                                         const std::vector<double>&                    requiredMDs,
+                                         double                                        outletMD,
+                                         double                                        lastMD,
+                                         const std::vector<SegmentationInterval>&      intervals            = {},
+                                         const std::vector<std::pair<double, double>>& singleSegmentRegions = {},
+                                         std::vector<size_t>*                          ruleNodeToNode       = nullptr );
 
 //--------------------------------------------------------------------------------------------------
 /// Index of the nearest node upstream of md, i.e. the node with the largest MD not greater than md.
