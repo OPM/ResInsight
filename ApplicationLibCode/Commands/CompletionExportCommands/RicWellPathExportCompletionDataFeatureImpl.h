@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <optional>
+#include <set>
 #include <vector>
 
 class RigCell;
@@ -94,6 +95,8 @@ private:
                                       QFilePtr                                                 exportFile,
                                       const std::map<QString, std::vector<RigCompletionData>>& completions );
 
+    // The completions of each well must already be ordered along each trajectory (main bore first, then laterals, by MD).
+    // Rows are grouped by well name, and the order within a well is preserved.
     static void sortAndExportCompletionsToFile( RimEclipseCase*                                      eclipseCase,
                                                 const QString&                                       exportFolder,
                                                 const QString&                                       fileName,
@@ -103,11 +106,12 @@ private:
                                                 bool                                                 exportDataSourceAsComment,
                                                 bool                                                 exportWelspec );
 
-    static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
-                                               QFilePtr                                                 exportFile,
-                                               const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-                                               RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
-                                               bool                                                     exportDataSourceAsComment );
+    // A non-empty gridName exports the LGR variants of the tables (COMPDATL, WPIMULTL, COMPLMPL)
+    static void exportCompdatAndWpimultTables( QFilePtr                                             exportFile,
+                                               const QString&                                       gridName,
+                                               std::vector<RigCompletionData>                       completions,
+                                               RicExportCompletionDataSettingsUi::CompdatExportType exportType,
+                                               bool                                                 exportDataSourceAsComment );
 
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 };
