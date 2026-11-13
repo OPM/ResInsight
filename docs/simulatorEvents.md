@@ -228,6 +228,8 @@ The segment lengths control the MSW segmentation of the interval. Lengths must b
 
 Applying a SEGMENT event also sets the well's segment *Reference MD Type* to *User Defined*, with *User Defined Reference MD* set to the start MD of the first (shallowest) segment interval. This value is written as `TOP_LENGTH` in `WELSEGS`.
 
+The `MDSTART` and `MDEND` values of PERFORATION and SEGMENT events, and the tie-in MD of a lateral, are exported unmodified as segment node depths in `WELSEGS`. These nodes are added to the nodes at the cell centres and the nodes placed by the segment lengths. A lateral is connected to the segment node at its tie-in MD. Depths above the top of the branch or below its last cell are not added.
+
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 
 | Attribute | Required | Maps to |

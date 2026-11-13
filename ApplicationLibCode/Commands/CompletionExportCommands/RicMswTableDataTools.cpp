@@ -264,6 +264,35 @@ std::vector<double> RicMswTableDataTools::collapseNodesOutsidePerforations( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RicMswTableDataTools::insertRequiredNodes( const std::vector<double>& nodes,
+                                                               const std::vector<double>& requiredMDs,
+                                                               double                     outletMD,
+                                                               double                     lastMD )
+{
+    const double tolerance = 1.0e-3;
+
+    std::vector<double> result = nodes;
+    for ( double md : requiredMDs )
+    {
+        if ( md <= outletMD + tolerance || md > lastMD + tolerance ) continue;
+
+        const auto nearest = nearestNodeIndex( result, md );
+        if ( nearest && std::abs( result[*nearest] - md ) <= tolerance )
+        {
+            result[*nearest] = md;
+        }
+        else
+        {
+            result.push_back( md );
+        }
+    }
+    std::ranges::sort( result );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<size_t> RicMswTableDataTools::upstreamNodeIndex( const std::vector<double>& nodes, double md )
 {
     if ( nodes.empty() ) return std::nullopt;

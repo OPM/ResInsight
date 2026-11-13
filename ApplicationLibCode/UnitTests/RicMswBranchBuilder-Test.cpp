@@ -369,6 +369,22 @@ TEST( RicMswBranchBuilder, NearestNodeIndex_TieGoesToFirstNode )
 }
 
 //==================================================================================================
+// Required node tests
+//==================================================================================================
+
+TEST( RicMswBranchBuilder, InsertRequiredNodes_RequiredDepthsAreExactNodes )
+{
+    const std::vector<double> nodes = { 12.0, 31.5, 46.5 };
+
+    // Inserted in order, a node within tolerance is moved to the required depth, duplicates are merged
+    EXPECT_EQ( ( std::vector<double>{ 12.0, 20.37, 31.5004, 46.5, 50.0 } ),
+               RicMswTableDataTools::insertRequiredNodes( nodes, { 50.0, 20.37, 31.5004, 20.37 }, 0.0, 50.0 ) );
+
+    // Depths at or above the outlet and below the last depth are ignored
+    EXPECT_EQ( nodes, RicMswTableDataTools::insertRequiredNodes( nodes, { 5.0, 3.0, 50.1 }, 5.0, 50.0 ) );
+}
+
+//==================================================================================================
 // Segment span tests
 //==================================================================================================
 
