@@ -61,12 +61,10 @@ public:
                                         bool                             fillFullKRange = true );
 
     // Reservoir cell indices of the perforated cells of a simulation well, sorted and unique
-    static std::vector<size_t> simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData,
-                                                       const RigSimWellData* simWellData,
-                                                       size_t                timeStepIndex );
+    static std::vector<size_t>
+        simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData, const RigSimWellData* simWellData, size_t timeStepIndex );
 
     // Reservoir cell indices of the cells intersected by the well path within the perforation MD range
-    static std::vector<size_t> wellPathPerforatedCells( RigEclipseCaseData* eclipseCaseData,
-                                                        const RigWellPath*  wellPath,
-                                                        const RigMdRange&   perforation );
+    static std::vector<size_t>
+        wellPathPerforatedCells( RigEclipseCaseData* eclipseCaseData, const RigWellPath* wellPath, const RigMdRange& perforation );
 };
