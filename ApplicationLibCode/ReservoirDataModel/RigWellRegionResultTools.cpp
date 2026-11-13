@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <array>
+#include <set>
 #include <unordered_map>
 
 namespace
@@ -157,8 +158,8 @@ std::vector<size_t> simWellPipeCells( RigEclipseCaseData* eclipseCaseData, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Neighbors of a cell: face neighbors (I, J, K +-1) in the same grid, the host cell of an LGR cell,
-/// and the LGR cells of a host cell
+/// Neighbors of a cell: lateral face neighbors (I, J +-1) in the same grid, the host cell of an LGR cell,
+/// and the LGR cells of a host cell. The K direction is handled by fillMarkedColumns
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> neighborCells( const RigMainGrid&                                     mainGrid,
                                    const std::unordered_map<size_t, std::vector<size_t>>& lgrCellsInHostCell,
@@ -173,18 +174,16 @@ std::vector<size_t> neighborCells( const RigMainGrid&                           
     size_t i = 0, j = 0, k = 0;
     if ( grid->ijkFromCellIndex( cell.gridLocalCellIndex(), &i, &j, &k ) )
     {
-        const std::array<std::array<int, 3>, 6> offsets = {
-            { { -1, 0, 0 }, { 1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 }, { 0, 0, -1 }, { 0, 0, 1 } } };
-        for ( const auto& [di, dj, dk] : offsets )
+        const std::array<std::array<int, 2>, 4> offsets = { { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } } };
+        for ( const auto& [di, dj] : offsets )
         {
-            if ( ( di < 0 && i == 0 ) || ( dj < 0 && j == 0 ) || ( dk < 0 && k == 0 ) ) continue;
+            if ( ( di < 0 && i == 0 ) || ( dj < 0 && j == 0 ) ) continue;
 
             const size_t ni = i + di;
             const size_t nj = j + dj;
-            const size_t nk = k + dk;
-            if ( ni >= grid->cellCountI() || nj >= grid->cellCountJ() || nk >= grid->cellCountK() ) continue;
+            if ( ni >= grid->cellCountI() || nj >= grid->cellCountJ() ) continue;
 
-            neighbors.push_back( grid->reservoirCellIndex( grid->cellIndexFromIJK( ni, nj, nk ) ) );
+            neighbors.push_back( grid->reservoirCellIndex( grid->cellIndexFromIJK( ni, nj, k ) ) );
         }
     }
 
@@ -228,7 +227,44 @@ std::unordered_map<size_t, std::vector<size_t>> computeLgrCellsInHostCells( cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Expand the marked cells by growCellCount layers of neighbor cells
+/// Mark the full K range of every (I, J) column that has a marked cell, in the grid of the marked cell.
+/// The LGR cells of marked host cells are marked as well.
+//--------------------------------------------------------------------------------------------------
+void fillMarkedColumns( const RigMainGrid& mainGrid, const std::unordered_map<size_t, std::vector<size_t>>& lgrCellsInHostCell, std::vector<char>& marked )
+{
+    std::set<std::array<size_t, 3>> columns;
+    for ( size_t cellIdx = 0; cellIdx < marked.size(); cellIdx++ )
+    {
+        if ( !marked[cellIdx] ) continue;
+
+        const RigCell&     cell = mainGrid.cell( cellIdx );
+        const RigGridBase* grid = cell.hostGrid();
+        size_t             i = 0, j = 0, k = 0;
+        if ( grid && grid->ijkFromCellIndex( cell.gridLocalCellIndex(), &i, &j, &k ) ) columns.insert( { grid->gridIndex(), i, j } );
+    }
+
+    for ( const auto& [gridIdx, i, j] : columns )
+    {
+        const RigGridBase* grid = mainGrid.gridByIndex( gridIdx );
+        for ( size_t k = 0; k < grid->cellCountK(); k++ )
+        {
+            const size_t cellIdx = grid->reservoirCellIndex( grid->cellIndexFromIJK( i, j, k ) );
+            if ( cellIdx >= marked.size() ) continue;
+
+            marked[cellIdx] = 1;
+            if ( auto it = lgrCellsInHostCell.find( cellIdx ); it != lgrCellsInHostCell.end() )
+            {
+                for ( size_t lgrCellIdx : it->second )
+                {
+                    marked[lgrCellIdx] = 1;
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Expand the marked cells by growCellCount layers of lateral neighbor cells, and then to the full K range
 //--------------------------------------------------------------------------------------------------
 void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vector<char>& marked )
 {
@@ -257,6 +293,8 @@ void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vecto
         }
         front.swap( nextFront );
     }
+
+    fillMarkedColumns( mainGrid, lgrCellsInHostCell, marked );
 }
 
 } // namespace

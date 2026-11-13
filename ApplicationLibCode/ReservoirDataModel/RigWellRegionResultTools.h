@@ -31,7 +31,8 @@ class RigWellPath;
 /// Creates a static binary (1/0) cell result in the GENERATED category. A cell is 1 if it is
 /// inside the polygon (any corner inside, XY only), or if it is a connection cell or intersected by
 /// the pipe of a simulation well where at least one connection cell or pipe cell is inside the polygon, or if it is
-/// intersected by the optional well path. The well cells are grown by growCellCount layers of neighbor cells.
+/// intersected by the optional well path. The well cells are grown by growCellCount layers of lateral (I, J) neighbor
+/// cells, and the grown region covers the full K range of its columns.
 //==================================================================================================
 class RigWellRegionResultTools
 {

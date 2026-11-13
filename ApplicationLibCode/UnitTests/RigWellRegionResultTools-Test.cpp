@@ -244,6 +244,45 @@ TEST_F( RigWellRegionResultToolsTest, LgrWellAndGrowth )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Grown well cells cover the full K range of their columns, and the lateral neighbor columns.
+/// Without growth only the connection cells are marked.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, GrownRegionCoversFullKRange )
+{
+    const auto polygon = squareAround( sharedCorner( reservoirCellIndex( 0, 31, 63, 14 ), reservoirCellIndex( 0, 31, 63, 15 ) ), 1.0 );
+
+    auto activeCellsInColumn = [&]( size_t i, size_t j )
+    {
+        std::vector<size_t> cells;
+        for ( size_t k = 0; k < s_caseData->mainGrid()->cellCountK(); k++ )
+        {
+            const size_t cellIdx = reservoirCellIndex( 0, i, j, k );
+            if ( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) ) cells.push_back( cellIdx );
+        }
+        return cells;
+    };
+
+    // Column of a GI1 connection far from the polygon, and a lateral neighbor column
+    const auto column         = activeCellsInColumn( 29, 44 );
+    const auto neighborColumn = activeCellsInColumn( 28, 44 );
+    ASSERT_GT( column.size(), 1u );
+    ASSERT_FALSE( neighborColumn.empty() );
+    const size_t farTop    = column.front();
+    const size_t farBottom = column.back();
+    const size_t neighbor  = neighborColumn.front();
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 0 ) );
+    EXPECT_EQ( 0.0, value( farTop ) );
+    EXPECT_EQ( 0.0, value( farBottom ) );
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, lastTimeStep(), resultName, 1 ) );
+    EXPECT_EQ( 1.0, value( farTop ) );
+    EXPECT_EQ( 1.0, value( farBottom ) );
+    EXPECT_EQ( 1.0, value( neighbor ) );
+    expectBinaryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Also verifies that an existing result with the same name is overwritten
 //--------------------------------------------------------------------------------------------------
 TEST_F( RigWellRegionResultToolsTest, EmptyPolygonAreaGivesZero )
