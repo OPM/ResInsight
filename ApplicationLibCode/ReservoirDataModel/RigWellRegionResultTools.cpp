@@ -163,7 +163,7 @@ std::vector<size_t> RigWellRegionResultTools::wellPathPerforatedCells( RigEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigWellRegionResultTools::simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData,
+std::vector<size_t> RigWellRegionResultTools::simWellPerforatedCells( RigEclipseCaseData*   eclipseCaseData,
                                                                       const RigSimWellData* simWellData,
                                                                       size_t                timeStepIndex )
 {
@@ -299,7 +299,9 @@ std::unordered_map<size_t, std::vector<size_t>> computeLgrCellsInHostCells( cons
 /// Mark the full K range of every (I, J) column that has a marked cell, in the grid of the marked cell.
 /// The LGR cells of marked host cells are marked as well.
 //--------------------------------------------------------------------------------------------------
-void fillMarkedColumns( const RigMainGrid& mainGrid, const std::unordered_map<size_t, std::vector<size_t>>& lgrCellsInHostCell, std::vector<char>& marked )
+void fillMarkedColumns( const RigMainGrid&                                     mainGrid,
+                        const std::unordered_map<size_t, std::vector<size_t>>& lgrCellsInHostCell,
+                        std::vector<char>&                                     marked )
 {
     std::set<std::array<size_t, 3>> columns;
     for ( size_t cellIdx = 0; cellIdx < marked.size(); cellIdx++ )
@@ -333,9 +335,9 @@ void fillMarkedColumns( const RigMainGrid& mainGrid, const std::unordered_map<si
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Expand the marked cells by growCellCount layers of lateral neighbor cells, and then to the full K range
+/// Expand the marked cells by growCellCount layers of lateral neighbor cells, and optionally to the full K range
 //--------------------------------------------------------------------------------------------------
-void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vector<char>& marked )
+void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, bool fillFullKRange, std::vector<char>& marked )
 {
     if ( growCellCount <= 0 ) return;
 
@@ -363,7 +365,7 @@ void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vecto
         front.swap( nextFront );
     }
 
-    fillMarkedColumns( mainGrid, lgrCellsInHostCell, marked );
+    if ( fillFullKRange ) fillMarkedColumns( mainGrid, lgrCellsInHostCell, marked );
 }
 
 } // namespace
@@ -371,13 +373,14 @@ void growMarkedCells( const RigMainGrid& mainGrid, int growCellCount, std::vecto
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*            eclipseCaseData,
-                                                       const std::vector<cvf::Vec3d>& polygon,
-                                                       const RigWellPath*             wellPath,
+bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*              eclipseCaseData,
+                                                       const std::vector<cvf::Vec3d>&   polygon,
+                                                       const RigWellPath*               wellPath,
                                                        const std::optional<RigMdRange>& wellPathPerforation,
-                                                       size_t                         timeStepIndex,
-                                                       const QString&                 resultName,
-                                                       int                            growCellCount )
+                                                       size_t                           timeStepIndex,
+                                                       const QString&                   resultName,
+                                                       int                              growCellCount,
+                                                       bool                             fillFullKRange )
 {
     if ( !eclipseCaseData || !eclipseCaseData->mainGrid() || resultName.isEmpty() ) return false;
 
@@ -423,7 +426,7 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
         }
     }
 
-    growMarkedCells( mainGrid, growCellCount, wellCells );
+    growMarkedCells( mainGrid, growCellCount, fillFullKRange, wellCells );
 
     const RigActiveCellInfo* activeCellInfo  = resultsData->activeCellInfo();
     const size_t             activeCellCount = activeCellInfo->reservoirActiveCellCount();

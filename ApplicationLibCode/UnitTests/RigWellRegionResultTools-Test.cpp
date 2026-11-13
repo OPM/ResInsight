@@ -285,6 +285,41 @@ TEST_F( RigWellRegionResultToolsTest, GrownRegionCoversFullKRange )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigWellRegionResultToolsTest, GrowthWithoutKFillStaysInPerforatedKRange )
+{
+    const auto polygon = squareAround( sharedCorner( reservoirCellIndex( 0, 31, 63, 14 ), reservoirCellIndex( 0, 31, 63, 15 ) ), 1.0 );
+
+    // Column of a GI1 connection far from the polygon
+    std::vector<size_t> column;
+    for ( size_t k = 0; k < s_caseData->mainGrid()->cellCountK(); k++ )
+    {
+        const size_t cellIdx = reservoirCellIndex( 0, 29, 44, k );
+        if ( results()->activeCellInfo()->isActive( ReservoirCellIndex( cellIdx ) ) ) column.push_back( cellIdx );
+    }
+    ASSERT_GT( column.size(), 1u );
+
+    auto markedCount = [&]()
+    {
+        size_t count = 0;
+        for ( size_t cellIdx : column )
+        {
+            if ( value( cellIdx ) == 1.0 ) count++;
+        }
+        return count;
+    };
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 1, true ) );
+    EXPECT_EQ( column.size(), markedCount() );
+
+    ASSERT_TRUE( RigWellRegionResultTools::createWellRegionResult( s_caseData.p(), polygon, nullptr, std::nullopt, lastTimeStep(), resultName, 1, false ) );
+    EXPECT_GT( markedCount(), 0u );
+    EXPECT_LT( markedCount(), column.size() );
+    expectBinaryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Also verifies that an existing result with the same name is overwritten
 //--------------------------------------------------------------------------------------------------
 TEST_F( RigWellRegionResultToolsTest, EmptyPolygonAreaGivesZero )

@@ -42,8 +42,9 @@ class RigWellPath;
 ///  - Well path: the cells intersected by the perforation MD range. No range means no well path cells.
 /// A simulation well is selected if at least one of its perforated cells is inside the polygon.
 ///
-/// The perforated well cells are grown by growCellCount layers of lateral (I, J) neighbor cells, and the
-/// grown region covers the full K range of its columns.
+/// The perforated well cells are grown by growCellCount layers of lateral (I, J) neighbor cells. If
+/// fillFullKRange is true, the grown region covers the full K range of its columns. No growth and no
+/// K filling is done when growCellCount is 0.
 //==================================================================================================
 class RigWellRegionResultTools
 {
@@ -55,7 +56,8 @@ public:
                                         const std::optional<RigMdRange>& wellPathPerforation,
                                         size_t                           timeStepIndex,
                                         const QString&                   resultName,
-                                        int                              growCellCount = 1 );
+                                        int                              growCellCount  = 1,
+                                        bool                             fillFullKRange = true );
 
     // Reservoir cell indices of the perforated cells of a simulation well, sorted and unique
     static std::vector<size_t> simWellPerforatedCells( RigEclipseCaseData* eclipseCaseData,
