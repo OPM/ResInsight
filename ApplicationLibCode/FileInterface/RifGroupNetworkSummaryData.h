@@ -19,13 +19,16 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifGroupNetworkEnsembleStatistics.h"
 #include "RigGroupNetwork.h"
 
 #include <ctime>
 #include <functional>
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 class RifSummaryReaderInterface;
@@ -34,6 +37,10 @@ class RifSummaryReaderInterface;
 /// Binds the nodes of a group network to summary vectors, as the flow network assembler of webviz.
 /// The edge of a node is the flow from the node to its parent, so edge values are the rates of the
 /// node. Missing vectors give no value.
+///
+/// The values are taken from a summary case, or from a statistic of an ensemble. For a statistic, the
+/// reader is a reference realization, used for the units and the node categories. Discrete values,
+/// as the control mode, are not available for a statistic.
 //==================================================================================================
 class RifGroupNetworkSummaryData
 {
@@ -66,9 +73,25 @@ public:
     // so no reader pointer is kept between calls. The cached values are discarded when the reader is replaced.
     using ReaderProvider = std::function<RifSummaryReaderInterface*()>;
 
+    using Statistic = RifGroupNetworkEnsembleStatistics::Statistic;
+
+    // A node, given by the name and if it is a well
+    using NodeId = std::pair<std::string, bool>;
+
     RifGroupNetworkSummaryData( ReaderProvider readerProvider, RigGroupNetwork::TreeType treeType );
+    RifGroupNetworkSummaryData( ReaderProvider                                           referenceReaderProvider,
+                                RigGroupNetwork::TreeType                                treeType,
+                                std::shared_ptr<const RifGroupNetworkEnsembleStatistics> statistics,
+                                Statistic                                                statistic );
+
+    bool                     isStatistic() const;
+    std::optional<Statistic> statistic() const;
 
     const std::vector<std::time_t>& timeSteps() const;
+
+    // Computes the values of the metrics for the nodes in one operation. Only required for a statistic, where it reads the
+    // realizations in parallel. The values are otherwise computed on first access.
+    void prefetch( const std::vector<NodeId>& nodes, const std::vector<EdgeMetric>& edgeMetrics, const std::vector<NodeMetric>& nodeMetrics ) const;
 
     std::optional<double> edgeValue( const std::string& nodeName, bool isWell, EdgeMetric metric, size_t timeStepIndex ) const;
     std::optional<double> nodeValue( const std::string& nodeName, bool isWell, NodeMetric metric, size_t timeStepIndex ) const;
@@ -84,10 +107,14 @@ public:
     static std::string edgeMetricText( EdgeMetric metric );
     static std::string nodeMetricText( NodeMetric metric );
 
+    // Discrete values can not be combined into a statistic
+    static bool isDiscrete( NodeMetric metric );
+
 private:
     const RifSummaryReaderInterface* reader() const;
     const std::vector<double>*       values( const RifEclipseSummaryAddress& address ) const;
     std::optional<double>            valueAt( const RifEclipseSummaryAddress& address, size_t timeStepIndex ) const;
+    std::optional<double>            statisticValueAt( const RifEclipseSummaryAddress& address, size_t timeStepIndex ) const;
     bool                             hasPositiveValue( const RifEclipseSummaryAddress& address ) const;
 
     static RifEclipseSummaryAddress address( const std::string& vectorName, const std::string& nodeName, bool isWell );
@@ -95,6 +122,9 @@ private:
 private:
     ReaderProvider            m_readerProvider;
     RigGroupNetwork::TreeType m_treeType;
+
+    std::shared_ptr<const RifGroupNetworkEnsembleStatistics> m_statistics;
+    Statistic                                                m_statistic = Statistic::MEAN;
 
     mutable int                                                                    m_readerSerialNumber = -1;
     mutable std::vector<std::time_t>                                               m_timeSteps;

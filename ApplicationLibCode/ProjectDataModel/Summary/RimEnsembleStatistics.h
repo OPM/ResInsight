@@ -40,6 +40,8 @@ public:
     bool isActive() const;
     bool showStatisticsCurveLegends() const;
     bool hideEnsembleCurves() const;
+    void setHideEnsembleCurves( bool hide );
+    void setShownStatistics( bool showMean, bool showP10, bool showP50, bool showP90, const QString& customPercentiles );
     bool basedOnFilteredCases() const;
     bool showP10Curve() const;
     bool showP50Curve() const;

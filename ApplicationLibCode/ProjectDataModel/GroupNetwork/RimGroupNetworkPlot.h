@@ -20,12 +20,14 @@
 
 #include "RifGroupNetworkSummaryData.h"
 #include "RigGroupNetwork.h"
+#include "RimGroupNetworkData.h"
 #include "RimGroupNetworkGraph.h"
 #include "RimViewWindow.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
@@ -34,8 +36,8 @@
 #include <ctime>
 #include <vector>
 
-class RimGroupNetworkData;
 class RimGroupNetworkNode;
+class RimSummaryCase;
 class RiuGroupNetworkWidget;
 
 //==================================================================================================
@@ -66,6 +68,7 @@ public:
 
     int  fontSize() const override;
     void updateFonts() override;
+    void updateWindowTitle() override;
 
     std::vector<RimGroupNetworkGraph::Node> graphNodes() const;
     QString                                 statusText() const;
@@ -104,6 +107,8 @@ private:
     void disconnectFromData( RimGroupNetworkData* data );
     void onDataChanged( const caf::SignalEmitter* emitter );
     void resetTimeStep();
+    void showClosestTimeStep( std::time_t date );
+    void updateShownSelection();
 
     const RigGroupNetwork::TreeRevision* currentTree() const;
     const RigGroupNetwork::Edge*         findEdge( const QString& nodeName ) const;
@@ -111,23 +116,34 @@ private:
     size_t                               currentSummaryTimeStep() const;
     const std::vector<std::time_t>&      timeSteps() const;
     const RifGroupNetworkSummaryData*    summaryData() const;
+    bool                                 isEnsemble() const;
 
-    QString valueTexts( const RigGroupNetwork::Edge& edge ) const;
-    QString toolTip( const RigGroupNetwork::Edge& edge, const RimGroupNetworkGraph::Node& node ) const;
+    // The value shown for an ensemble, or REALIZATION if the data is not an ensemble
+    RimGroupNetworkData::EnsembleValue ensembleValue() const;
+    QString                            ensembleValueText() const;
+
+    QString valueTexts( const RifGroupNetworkSummaryData* data, const RigGroupNetwork::Edge& edge ) const;
+    QString toolTip( const RifGroupNetworkSummaryData* data, const RigGroupNetwork::Edge& edge, const RimGroupNetworkGraph::Node& node ) const;
 
     static QString propertiesText( const RigGroupNetwork::Edge& edge );
 
 private:
-    caf::PdmField<QString>                   m_name;
-    caf::PdmPtrField<RimGroupNetworkData*>   m_data;
-    caf::PdmField<EdgeMetricEnum>            m_edgeMetric;
-    caf::PdmField<NodeMetricEnum>            m_nodeMetric;
-    caf::PdmField<bool>                      m_showProducers;
-    caf::PdmField<bool>                      m_showInjectors;
-    caf::PdmField<bool>                      m_showOther;
-    caf::PdmField<int>                       m_timeStepIndex;
-    caf::PdmField<std::vector<QString>>      m_collapsedNodes;
-    caf::PdmChildField<RimGroupNetworkNode*> m_selectedNode;
+    caf::PdmField<QString>                                m_name;
+    caf::PdmPtrField<RimGroupNetworkData*>                m_data;
+    caf::PdmField<RimGroupNetworkData::EnsembleValueEnum> m_ensembleValue;
+    caf::PdmPtrField<RimSummaryCase*>                     m_realization;
+    caf::PdmField<EdgeMetricEnum>                         m_edgeMetric;
+    caf::PdmField<NodeMetricEnum>                         m_nodeMetric;
+    caf::PdmField<bool>                                   m_showProducers;
+    caf::PdmField<bool>                                   m_showInjectors;
+    caf::PdmField<bool>                                   m_showOther;
+    caf::PdmField<int>                                    m_timeStepIndex;
+    caf::PdmField<std::vector<QString>>                   m_collapsedNodes;
+    caf::PdmChildField<RimGroupNetworkNode*>              m_selectedNode;
+
+    // The ensemble value and realization of the shown time steps, used to keep the date when the selection is changed
+    RimGroupNetworkData::EnsembleValue m_shownEnsembleValue = RimGroupNetworkData::EnsembleValue::REALIZATION;
+    caf::PdmPointer<RimSummaryCase>    m_shownRealization;
 
     QPointer<RiuGroupNetworkWidget> m_viewWidget;
 };

@@ -45,6 +45,7 @@ class Deck;
 //==================================================================================================
 namespace RifGroupNetworkReader
 {
-std::expected<RigGroupNetwork, QString> readFromFile( const QString& deckFileName );
-RigGroupNetwork                         readFromDeck( const Opm::Deck& deck );
+// Warnings about ignored keywords are logged if logWarnings is true
+std::expected<RigGroupNetwork, QString> readFromFile( const QString& deckFileName, bool logWarnings = true );
+RigGroupNetwork                         readFromDeck( const Opm::Deck& deck, bool logWarnings = true );
 }; // namespace RifGroupNetworkReader

@@ -163,6 +163,11 @@ std::optional<double> doubleValue( const Opm::DeckItem& item )
 class NetworkAccumulator
 {
 public:
+    explicit NetworkAccumulator( bool logWarnings )
+        : m_logWarnings( logWarnings )
+    {
+    }
+
     void processKeyword( const Opm::DeckKeyword& keyword )
     {
         const std::string& name = keyword.name();
@@ -173,7 +178,7 @@ public:
         {
             if ( !m_actionReported )
             {
-                RiaLogging::warning( "Production network: Network keywords in ACTIONX blocks are ignored" );
+                warning( "Production network: Network keywords in ACTIONX blocks are ignored" );
                 m_actionReported = true;
             }
             m_isInAction = true;
@@ -194,14 +199,14 @@ public:
                 if ( auto date = dateFromRecord( keyword.getRecord( i ) ) )
                     m_date = date;
                 else
-                    RiaLogging::warning( "Production network: Invalid date in " + name + ", ignored" );
+                    warning( "Production network: Invalid date in " + name + ", ignored" );
             }
         }
         else if ( name == Opm::ParserKeywords::TSTEP::keywordName )
         {
             if ( !m_date )
             {
-                RiaLogging::warning( "Production network: TSTEP found before the start date, ignored" );
+                warning( "Production network: TSTEP found before the start date, ignored" );
                 return;
             }
 
@@ -300,7 +305,7 @@ public:
         {
             if ( !m_missingDateReported )
             {
-                RiaLogging::warning( "Production network: Network keywords found before the start date, ignored" );
+                warning( "Production network: Network keywords found before the start date, ignored" );
                 m_missingDateReported = true;
             }
             m_gruptree = {};
@@ -327,6 +332,11 @@ public:
     RigGroupNetwork network() const { return m_network; }
 
 private:
+    void warning( const std::string& text ) const
+    {
+        if ( m_logWarnings ) RiaLogging::warning( text );
+    }
+
     RigGroupNetwork::TreeRevision createTree( const EdgeMap&                       groupEdges,
                                               RigGroupNetwork::EdgeKeyword         keyword,
                                               const std::map<std::string, double>& nodePressure,
@@ -450,6 +460,7 @@ private:
     bool m_missingDateReported = false;
     bool m_isInAction          = false;
     bool m_actionReported      = false;
+    bool m_logWarnings         = true;
 
     RigGroupNetwork m_network;
 };
@@ -459,9 +470,9 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGroupNetwork RifGroupNetworkReader::readFromDeck( const Opm::Deck& deck )
+RigGroupNetwork RifGroupNetworkReader::readFromDeck( const Opm::Deck& deck, bool logWarnings )
 {
-    NetworkAccumulator accumulator;
+    NetworkAccumulator accumulator( logWarnings );
     for ( const auto& keyword : deck )
     {
         accumulator.processKeyword( keyword );
@@ -474,7 +485,7 @@ RigGroupNetwork RifGroupNetworkReader::readFromDeck( const Opm::Deck& deck )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RigGroupNetwork, QString> RifGroupNetworkReader::readFromFile( const QString& deckFileName )
+std::expected<RigGroupNetwork, QString> RifGroupNetworkReader::readFromFile( const QString& deckFileName, bool logWarnings )
 {
     if ( deckFileName.isEmpty() ) return std::unexpected( "No deck file" );
     if ( !std::filesystem::exists( deckFileName.toStdString() ) )
@@ -511,7 +522,7 @@ std::expected<RigGroupNetwork, QString> RifGroupNetworkReader::readFromFile( con
         Opm::ParseContext parseContext( Opm::InputErrorAction::WARN );
         const auto        deck = parser.parseFile( deckFileName.toStdString(), parseContext );
 
-        return readFromDeck( deck );
+        return readFromDeck( deck, logWarnings );
     }
     catch ( const std::exception& e )
     {

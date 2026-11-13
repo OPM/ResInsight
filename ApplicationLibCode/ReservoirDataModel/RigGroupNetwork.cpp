@@ -18,6 +18,31 @@
 
 #include "RigGroupNetwork.h"
 
+#include <utility>
+
+namespace
+{
+using Connectivity = std::map<std::string, std::pair<std::string, bool>>; // child -> (parent, is well)
+
+// The connectivity changes of a tree type. Revisions that only change properties give the same connectivity as the previous
+// revision, and are left out.
+std::vector<std::pair<std::time_t, Connectivity>> connectivityChanges( const std::vector<RigGroupNetwork::TreeRevision>& revisions )
+{
+    std::vector<std::pair<std::time_t, Connectivity>> changes;
+    for ( const auto& revision : revisions )
+    {
+        Connectivity connectivity;
+        for ( const auto& edge : revision.edges )
+        {
+            connectivity[edge.child] = { edge.parent, edge.isWell() };
+        }
+
+        if ( changes.empty() || changes.back().second != connectivity ) changes.emplace_back( revision.date, std::move( connectivity ) );
+    }
+    return changes;
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +129,18 @@ const RigGroupNetwork::TreeRevision* RigGroupNetwork::treeAtDate( TreeType treeT
 bool RigGroupNetwork::isEmpty() const
 {
     return !hasTreeType( TreeType::GRUPTREE ) && !hasTreeType( TreeType::BRANPROP );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGroupNetwork::hasSameTopology( const RigGroupNetwork& other ) const
+{
+    for ( auto treeType : { TreeType::GRUPTREE, TreeType::BRANPROP } )
+    {
+        if ( connectivityChanges( trees( treeType ) ) != connectivityChanges( other.trees( treeType ) ) ) return false;
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

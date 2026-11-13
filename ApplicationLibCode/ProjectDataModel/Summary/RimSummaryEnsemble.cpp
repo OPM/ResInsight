@@ -1030,6 +1030,8 @@ void RimSummaryEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilde
     menuBuilder.addSeparator();
     menuBuilder << "RicExportEnsembleParametersFeature";
     menuBuilder.addSeparator();
+    menuBuilder << "RicNewGroupNetworkDataFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicReloadSummaryCaseFeature";
     menuBuilder << "RicReplaceSummaryEnsembleFeature";
 }
