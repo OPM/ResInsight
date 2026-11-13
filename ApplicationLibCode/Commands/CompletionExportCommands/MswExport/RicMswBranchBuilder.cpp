@@ -532,18 +532,19 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                                                                          cellPieces.empty() ? heelMD : cellPieces.back().second,
                                                                          cellPieces.empty() ? heelMD : cellPieces.front().first );
 
+    const double inf                = std::numeric_limits<double>::infinity();
+    double       firstPerforationMD = inf;
+    double       lastPerforationMD  = -inf;
+    for ( const auto* perf : perforationIntervals )
+    {
+        if ( exportDate && !perf->isActiveOnDate( *exportDate ) ) continue;
+        firstPerforationMD = std::min( firstPerforationMD, perf->startMD() );
+        lastPerforationMD  = std::max( lastPerforationMD, perf->endMD() );
+    }
+
     if ( !cellPieces.empty() && !perforationIntervals.empty() &&
          ( segmentationSettings.singleSegmentBeforeFirstPerforation || segmentationSettings.singleSegmentAfterLastPerforation ) )
     {
-        double firstPerforationMD = std::numeric_limits<double>::infinity();
-        double lastPerforationMD  = -std::numeric_limits<double>::infinity();
-        for ( const auto* perf : perforationIntervals )
-        {
-            if ( exportDate && !perf->isActiveOnDate( *exportDate ) ) continue;
-            firstPerforationMD = std::min( firstPerforationMD, perf->startMD() );
-            lastPerforationMD  = std::max( lastPerforationMD, perf->endMD() );
-        }
-
         nodes = RicMswTableDataTools::collapseNodesOutsidePerforations( nodes,
                                                                         cellPieces.front().first,
                                                                         cellPieces.back().second,
@@ -557,9 +558,18 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
     std::vector<NodeSpan> spans = segmentSpans( cellPieces, nodes );
 
     // User specified depths are exported unmodified: perforation and segment interval limits, and the tie-in of
-    // child laterals, which are connected to the node at their tie-in. These nodes serve no cell piece.
+    // child laterals, which are connected to the node at their tie-in. These nodes serve no cell piece. The user
+    // specified depths take precedence: rule nodes close to a required depth are dropped, as are the rule nodes
+    // of a region collapsed to a single segment before/after the perforations if it contains a required depth.
     if ( !cellPieces.empty() )
     {
+        std::vector<std::pair<double, double>> singleSegmentRegions;
+        if ( firstPerforationMD <= lastPerforationMD )
+        {
+            if ( segmentationSettings.singleSegmentBeforeFirstPerforation ) singleSegmentRegions.push_back( { -inf, firstPerforationMD } );
+            if ( segmentationSettings.singleSegmentAfterLastPerforation ) singleSegmentRegions.push_back( { lastPerforationMD, inf } );
+        }
+
         std::vector<double> requiredMDs;
         for ( const auto* perf : perforationIntervals )
         {
@@ -578,12 +588,19 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
         }
 
         const std::vector<double> ruleNodes = nodes;
-        nodes = RicMswTableDataTools::insertRequiredNodes( ruleNodes, requiredMDs, heelMD, cellPieces.back().second );
+        std::vector<size_t>       ruleNodeToNode;
+        nodes = RicMswTableDataTools::insertRequiredNodes( ruleNodes,
+                                                           requiredMDs,
+                                                           heelMD,
+                                                           cellPieces.back().second,
+                                                           segmentationSettings.intervals,
+                                                           singleSegmentRegions,
+                                                           &ruleNodeToNode );
 
         std::vector<bool> servesPiece( nodes.size(), false );
         for ( auto& span : spans )
         {
-            span.nodeIndex              = *RicMswTableDataTools::nearestNodeIndex( nodes, ruleNodes[span.nodeIndex] );
+            span.nodeIndex              = ruleNodeToNode[span.nodeIndex];
             servesPiece[span.nodeIndex] = true;
         }
         for ( size_t i = 0; i < nodes.size(); ++i )

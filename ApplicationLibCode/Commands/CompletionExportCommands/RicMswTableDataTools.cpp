@@ -264,29 +264,83 @@ std::vector<double> RicMswTableDataTools::collapseNodesOutsidePerforations( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RicMswTableDataTools::insertRequiredNodes( const std::vector<double>& nodes,
-                                                               const std::vector<double>& requiredMDs,
-                                                               double                     outletMD,
-                                                               double                     lastMD )
+std::vector<double> RicMswTableDataTools::insertRequiredNodes( const std::vector<double>&                    nodes,
+                                                               const std::vector<double>&                    requiredMDs,
+                                                               double                                        outletMD,
+                                                               double                                        lastMD,
+                                                               const std::vector<SegmentationInterval>&      intervals,
+                                                               const std::vector<std::pair<double, double>>& singleSegmentRegions,
+                                                               std::vector<size_t>*                          ruleNodeToNode )
 {
     const double tolerance = 1.0e-3;
 
-    std::vector<double> result = nodes;
-    for ( double md : requiredMDs )
+    // Required depths within tolerance of each other are merged. Sorting first makes the lowest depth the one that is
+    // kept, and it is never moved, so it is always exported exactly.
+    std::vector<double> sortedRequiredMDs = requiredMDs;
+    std::ranges::sort( sortedRequiredMDs );
+
+    std::vector<double> required;
+    for ( double md : sortedRequiredMDs )
     {
         if ( md <= outletMD + tolerance || md > lastMD + tolerance ) continue;
+        if ( !required.empty() && md - required.back() <= tolerance ) continue;
+        required.push_back( md );
+    }
 
-        const auto nearest = nearestNodeIndex( result, md );
-        if ( nearest && std::abs( result[*nearest] - md ) <= tolerance )
+    const auto regionContaining = [&singleSegmentRegions]( double md ) -> const std::pair<double, double>*
+    {
+        for ( const auto& region : singleSegmentRegions )
         {
-            result[*nearest] = md;
+            if ( md > region.first && md < region.second ) return &region;
         }
-        else
-        {
-            result.push_back( md );
-        }
+        return nullptr;
+    };
+
+    // A rule node is dropped if a required depth is closer than the min length of its segmentation interval (the
+    // tolerance if there is no min length), or if its single segment region contains a required depth
+    std::vector<bool> keepRuleNode( nodes.size(), true );
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+        const double nodeMD      = nodes[i];
+        const auto*  interval    = intervalAtMD( intervals, nodeMD );
+        const double minDistance = interval && interval->minLength.has_value() ? std::max( *interval->minLength, tolerance ) : tolerance;
+        const auto*  region      = regionContaining( nodeMD );
+        const bool   closeToReq  = std::ranges::any_of( required, [&]( double md ) { return std::abs( md - nodeMD ) < minDistance; } );
+        const bool regionHasReq  = region && std::ranges::any_of( required, [&]( double md ) { return regionContaining( md ) == region; } );
+        keepRuleNode[i]          = !closeToReq && !regionHasReq;
+    }
+
+    std::vector<double> result = required;
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+        if ( keepRuleNode[i] ) result.push_back( nodes[i] );
     }
     std::ranges::sort( result );
+
+    if ( ruleNodeToNode )
+    {
+        ruleNodeToNode->clear();
+        for ( size_t i = 0; i < nodes.size(); ++i )
+        {
+            // A dropped rule node is served by the nearest required depth, inside its single segment region if any
+            std::vector<double> candidates = result;
+            if ( !keepRuleNode[i] )
+            {
+                const auto* region = regionContaining( nodes[i] );
+                candidates.clear();
+                for ( double md : required )
+                {
+                    if ( !region || regionContaining( md ) == region ) candidates.push_back( md );
+                }
+                if ( candidates.empty() ) candidates = result;
+            }
+
+            const auto   nearest = nearestNodeIndex( candidates, nodes[i] );
+            const double target  = nearest ? candidates[*nearest] : nodes[i];
+            ruleNodeToNode->push_back( std::ranges::lower_bound( result, target ) - result.begin() );
+        }
+    }
+
     return result;
 }
 

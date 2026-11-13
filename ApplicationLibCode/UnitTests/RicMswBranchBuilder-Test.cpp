@@ -376,12 +376,50 @@ TEST( RicMswBranchBuilder, InsertRequiredNodes_RequiredDepthsAreExactNodes )
 {
     const std::vector<double> nodes = { 12.0, 31.5, 46.5 };
 
-    // Inserted in order, a node within tolerance is moved to the required depth, duplicates are merged
+    // A rule node within tolerance of a required depth is dropped, duplicate required depths are merged
+    std::vector<size_t> mapping;
     EXPECT_EQ( ( std::vector<double>{ 12.0, 20.37, 31.5004, 46.5, 50.0 } ),
-               RicMswTableDataTools::insertRequiredNodes( nodes, { 50.0, 20.37, 31.5004, 20.37 }, 0.0, 50.0 ) );
+               RicMswTableDataTools::insertRequiredNodes( nodes, { 50.0, 20.37, 31.5004, 20.37 }, 0.0, 50.0, {}, {}, &mapping ) );
+    EXPECT_EQ( ( std::vector<size_t>{ 0, 2, 3 } ), mapping );
 
     // Depths at or above the outlet and below the last depth are ignored
     EXPECT_EQ( nodes, RicMswTableDataTools::insertRequiredNodes( nodes, { 5.0, 3.0, 50.1 }, 5.0, 50.0 ) );
+}
+
+TEST( RicMswBranchBuilder, InsertRequiredNodes_RequiredDepthsWithinToleranceKeepFirstDepth )
+{
+    // Of two required depths within tolerance, the first (lowest) is exported exactly and the second is merged into it
+    EXPECT_EQ( ( std::vector<double>{ 100.0, 120.0 } ),
+               RicMswTableDataTools::insertRequiredNodes( {}, { 100.0005, 120.0, 100.0 }, 0.0, 150.0 ) );
+}
+
+TEST( RicMswBranchBuilder, InsertRequiredNodes_DropsRuleNodesCloserThanMinLength )
+{
+    const std::vector<double>                                     nodes     = { 12.0, 31.5, 46.5 };
+    const std::vector<RicMswTableDataTools::SegmentationInterval> intervals = { { 10.0, 40.0, 5.0, std::nullopt, std::nullopt } };
+
+    // 12.0 and 31.5 are closer than the min length to 13.0 and 28.0, 46.5 is outside the interval
+    std::vector<size_t> mapping;
+    EXPECT_EQ( ( std::vector<double>{ 13.0, 20.0, 28.0, 44.0, 46.5 } ),
+               RicMswTableDataTools::insertRequiredNodes( nodes, { 13.0, 28.0, 20.0, 44.0 }, 0.0, 50.0, intervals, {}, &mapping ) );
+    EXPECT_EQ( ( std::vector<size_t>{ 0, 2, 4 } ), mapping );
+}
+
+TEST( RicMswBranchBuilder, InsertRequiredNodes_DropsRuleNodesOfSingleSegmentRegionWithRequiredDepth )
+{
+    const std::vector<double> nodes = { 10.0, 50.0, 70.0 };
+
+    // The regions before 25 and after 42 contain required depths, the rule nodes inside them are dropped
+    std::vector<size_t> mapping;
+    EXPECT_EQ( ( std::vector<double>{ 5.0, 20.0, 30.0, 40.0, 45.0, 70.0 } ),
+               RicMswTableDataTools::insertRequiredNodes( nodes,
+                                                          { 5.0, 20.0, 30.0, 40.0, 45.0 },
+                                                          0.0,
+                                                          80.0,
+                                                          {},
+                                                          { { 0.0, 25.0 }, { 42.0, 60.0 } },
+                                                          &mapping ) );
+    EXPECT_EQ( ( std::vector<size_t>{ 0, 4, 5 } ), mapping );
 }
 
 //==================================================================================================
