@@ -1405,6 +1405,8 @@ bool RiaGuiApplication::isMainPlotWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::addToRecentFiles( const QString& fileName )
 {
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) return;
+
     CAF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
     m_recentFileActionProvider->addFileName( fileName );
 }
