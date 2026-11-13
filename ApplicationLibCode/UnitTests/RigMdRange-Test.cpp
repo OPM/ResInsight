@@ -45,16 +45,16 @@ TEST( RigMdRange, Overlaps )
 {
     const RigMdRange range( 100.0, 200.0 );
 
-    EXPECT_TRUE( range.overlaps( 150.0, 160.0 ) ); // inside
-    EXPECT_TRUE( range.overlaps( 50.0, 120.0 ) ); // partly before
-    EXPECT_TRUE( range.overlaps( 180.0, 300.0 ) ); // partly after
-    EXPECT_TRUE( range.overlaps( 50.0, 300.0 ) ); // covers the range
-    EXPECT_TRUE( range.overlaps( 160.0, 150.0 ) ); // reversed interval
+    EXPECT_TRUE( range.overlaps( RigMdRange( 150.0, 160.0 ) ) ); // inside
+    EXPECT_TRUE( range.overlaps( RigMdRange( 50.0, 120.0 ) ) ); // partly before
+    EXPECT_TRUE( range.overlaps( RigMdRange( 180.0, 300.0 ) ) ); // partly after
+    EXPECT_TRUE( range.overlaps( RigMdRange( 50.0, 300.0 ) ) ); // covers the range
+    EXPECT_TRUE( range.overlaps( RigMdRange( 160.0, 150.0 ) ) ); // reversed interval
 
-    EXPECT_FALSE( range.overlaps( 0.0, 50.0 ) );
-    EXPECT_FALSE( range.overlaps( 250.0, 300.0 ) );
-    EXPECT_FALSE( range.overlaps( 50.0, 100.0 ) ); // touching the start
-    EXPECT_FALSE( range.overlaps( 200.0, 250.0 ) ); // touching the end
+    EXPECT_FALSE( range.overlaps( RigMdRange( 0.0, 50.0 ) ) );
+    EXPECT_FALSE( range.overlaps( RigMdRange( 250.0, 300.0 ) ) );
+    EXPECT_FALSE( range.overlaps( RigMdRange( 50.0, 100.0 ) ) ); // touching the start
+    EXPECT_FALSE( range.overlaps( RigMdRange( 200.0, 250.0 ) ) ); // touching the end
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,9 @@ TEST( RigMdRange, PointRangeIsOverlappedByContainingInterval )
 {
     const RigMdRange point( 100.0, 100.0 );
 
-    EXPECT_TRUE( point.overlaps( 90.0, 110.0 ) );
-    EXPECT_TRUE( point.overlaps( 100.0, 110.0 ) );
-    EXPECT_FALSE( point.overlaps( 110.0, 120.0 ) );
+    EXPECT_TRUE( point.overlaps( RigMdRange( 90.0, 110.0 ) ) );
+    EXPECT_TRUE( point.overlaps( RigMdRange( 100.0, 110.0 ) ) );
+    EXPECT_FALSE( point.overlaps( RigMdRange( 110.0, 120.0 ) ) );
+    EXPECT_TRUE( RigMdRange( 90.0, 110.0 ).overlaps( point ) ); // symmetric
+    EXPECT_FALSE( RigMdRange( 110.0, 120.0 ).overlaps( point ) );
 }

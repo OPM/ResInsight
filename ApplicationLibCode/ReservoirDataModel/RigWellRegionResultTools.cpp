@@ -157,7 +157,7 @@ std::vector<size_t> RigWellRegionResultTools::wellPathPerforatedCells( RigEclips
 
     for ( const auto& interval : cellMdIntervals( eclipseCaseData, wellPath ) )
     {
-        if ( perforation.overlaps( interval.startMD, interval.endMD ) ) cells.push_back( interval.cellIdx );
+        if ( perforation.overlaps( RigMdRange( interval.startMD, interval.endMD ) ) ) cells.push_back( interval.cellIdx );
     }
     return cells;
 }
@@ -217,7 +217,7 @@ std::vector<size_t> RigWellRegionResultTools::simWellPerforatedCells( RigEclipse
 
         for ( const auto& interval : intervals )
         {
-            if ( perforation->overlaps( interval.startMD, interval.endMD ) ) cells.push_back( interval.cellIdx );
+            if ( perforation->overlaps( RigMdRange( interval.startMD, interval.endMD ) ) ) cells.push_back( interval.cellIdx );
         }
     }
 

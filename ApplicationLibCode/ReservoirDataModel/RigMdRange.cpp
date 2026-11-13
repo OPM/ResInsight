@@ -32,15 +32,13 @@ RigMdRange::RigMdRange( double startMD, double endMD )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigMdRange::overlaps( double startMD, double endMD ) const
+bool RigMdRange::overlaps( const RigMdRange& other ) const
 {
-    const double lower = std::min( startMD, endMD );
-    const double upper = std::max( startMD, endMD );
+    // A zero length range is a point, and is overlapped by any range containing the point
+    if ( m_start == m_end ) return other.m_start <= m_start && m_start <= other.m_end;
+    if ( other.m_start == other.m_end ) return m_start <= other.m_start && other.m_start <= m_end;
 
-    // A zero length range is a point, and is overlapped by any interval containing the point
-    if ( m_start == m_end ) return lower <= m_start && m_start <= upper;
-
-    return upper > m_start && lower < m_end;
+    return other.m_end > m_start && other.m_start < m_end;
 }
 
 //--------------------------------------------------------------------------------------------------

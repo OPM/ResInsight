@@ -29,9 +29,9 @@ class RigMdRange
 public:
     RigMdRange( double startMD, double endMD );
 
-    // True if the interval [startMD, endMD] has a part in common with this range. Intervals that only touch the
-    // range at an endpoint do not overlap, except when the range is a single point.
-    bool overlaps( double startMD, double endMD ) const;
+    // True if the ranges have a part in common. Ranges that only touch at an endpoint do not overlap, except when
+    // one of the ranges is a single point (zero length), which overlaps any range containing the point.
+    bool overlaps( const RigMdRange& other ) const;
 
     // The smallest range covering all ranges, including the gaps between them. No value if ranges is empty.
     static std::optional<RigMdRange> merged( const std::vector<RigMdRange>& ranges );
