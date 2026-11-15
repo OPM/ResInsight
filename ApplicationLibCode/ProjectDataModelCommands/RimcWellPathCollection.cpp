@@ -162,12 +162,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
             QString( "Coordinate arrays have different sizes: X=%1, Y=%2, Z=%3" ).arg( xCoords.size() ).arg( yCoords.size() ).arg( zCoords.size() ) );
     }
 
-    // Convert to cvf::Vec3d
+    // Convert to cvf::Vec3d. Input Z is depth (positive down), as in the well path file formats. Scene Z is positive up.
     std::vector<cvf::Vec3d> trajectoryPoints;
     for ( size_t i = 0; i < xCoords.size(); ++i )
     {
         trajectoryPoints.push_back(
-            cvf::Vec3d( static_cast<double>( xCoords[i] ), static_cast<double>( yCoords[i] ), static_cast<double>( zCoords[i] ) ) );
+            cvf::Vec3d( static_cast<double>( xCoords[i] ), static_cast<double>( yCoords[i] ), -static_cast<double>( zCoords[i] ) ) );
     }
 
     // Measured depths are optional. If not given, MD is computed from the trajectory length.

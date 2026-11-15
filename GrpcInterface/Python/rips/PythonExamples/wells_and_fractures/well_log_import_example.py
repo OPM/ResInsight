@@ -32,11 +32,11 @@ def main():
 
     # Create a well path from coordinates
     coordinates = [
-        [458000, 5934000, -1000],  # X, Y, Z coordinates
-        [458100, 5934100, -1500],
-        [458200, 5934200, -2000],
-        [458300, 5934300, -2500],
-        [458400, 5934400, -3000],
+        [458000, 5934000, 1000],  # X, Y, Z (depth, positive down)
+        [458100, 5934100, 1500],
+        [458200, 5934200, 2000],
+        [458300, 5934300, 2500],
+        [458400, 5934400, 3000],
     ]
 
     well_path = project.well_path_collection().import_well_path_from_points(

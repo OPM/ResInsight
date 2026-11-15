@@ -116,12 +116,12 @@ def export_variant(
 
     case = project.load_case(path=GRID_FILE)
 
-    # Horizontal well path along the x-axis through the center of the model. z is elevation (negative depth)
+    # Horizontal well path along the x-axis through the center of the model. z is depth (positive down)
     well_path = project.well_path_collection().import_well_path_from_points(
         name="FracWell",
         coordinates=[
-            [WELL_START_X, CENTER_Y, -CENTER_DEPTH],
-            [WELL_END_X, CENTER_Y, -CENTER_DEPTH],
+            [WELL_START_X, CENTER_Y, CENTER_DEPTH],
+            [WELL_END_X, CENTER_Y, CENTER_DEPTH],
         ],
     )
 

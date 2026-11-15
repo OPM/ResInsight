@@ -74,9 +74,9 @@ def test_append_lateral_with_geometry(rips_instance, initialize_test):
     # Create main well path with geometry using coordinates
     main_coordinates = [
         [1000.0, 2000.0, 0.0],  # Surface point
-        [1000.0, 2000.0, -100.0],  # 100m down
-        [1000.0, 2000.0, -500.0],  # 500m down
-        [1000.0, 2000.0, -1000.0],  # 1000m down
+        [1000.0, 2000.0, 100.0],  # 100m down
+        [1000.0, 2000.0, 500.0],  # 500m down
+        [1000.0, 2000.0, 1000.0],  # 1000m down
     ]
 
     main_well_path = well_path_coll.import_well_path_from_points(
@@ -85,10 +85,10 @@ def test_append_lateral_with_geometry(rips_instance, initialize_test):
 
     # Create lateral well path with geometry that starts along the main well path
     lateral_coordinates = [
-        [1000.0, 2000.0, -300.0],  # Start along main well at 300m depth
-        [1020.0, 2020.0, -320.0],  # Deviate slightly
-        [1050.0, 2050.0, -350.0],  # Continue deviation
-        [1100.0, 2100.0, -400.0],  # Final lateral point
+        [1000.0, 2000.0, 300.0],  # Start along main well at 300m depth
+        [1020.0, 2020.0, 320.0],  # Deviate slightly
+        [1050.0, 2050.0, 350.0],  # Continue deviation
+        [1100.0, 2100.0, 400.0],  # Final lateral point
     ]
 
     lateral_well_path = well_path_coll.import_well_path_from_points(
@@ -199,8 +199,8 @@ def test_parent_branch_on_imported_well_path(rips_instance, initialize_test):
     # Create an imported well path using coordinates
     coordinates = [
         [1000.0, 2000.0, 0.0],
-        [1000.0, 2000.0, -100.0],
-        [1000.0, 2000.0, -500.0],
+        [1000.0, 2000.0, 100.0],
+        [1000.0, 2000.0, 500.0],
     ]
 
     imported_well_path = well_path_coll.import_well_path_from_points(
