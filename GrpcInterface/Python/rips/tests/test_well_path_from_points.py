@@ -12,9 +12,9 @@ def test_import_well_path_from_points_basic(rips_instance, initialize_test):
     # Define a simple vertical well path
     coordinates = [
         [1000.0, 2000.0, 0.0],  # Surface point
-        [1000.0, 2000.0, -100.0],  # 100m down
-        [1000.0, 2000.0, -500.0],  # 500m down
-        [1000.0, 2000.0, -1000.0],  # 1000m down
+        [1000.0, 2000.0, 100.0],  # 100m down
+        [1000.0, 2000.0, 500.0],  # 500m down
+        [1000.0, 2000.0, 1000.0],  # 1000m down
     ]
 
     well_path = well_path_coll.import_well_path_from_points(
@@ -32,9 +32,9 @@ def test_import_well_path_from_points_deviated(rips_instance, initialize_test):
     # Define a deviated well path
     coordinates = [
         [1000.0, 2000.0, 0.0],  # Surface point
-        [1020.0, 2010.0, -200.0],  # Slight deviation
-        [1050.0, 2030.0, -500.0],  # More deviation
-        [1100.0, 2080.0, -1000.0],  # Final target
+        [1020.0, 2010.0, 200.0],  # Slight deviation
+        [1050.0, 2030.0, 500.0],  # More deviation
+        [1100.0, 2080.0, 1000.0],  # Final target
     ]
 
     well_path = well_path_coll.import_well_path_from_points(
@@ -80,7 +80,7 @@ def test_import_well_path_from_points_multiple(rips_instance, initialize_test):
     # Create first well path
     coordinates1 = [
         [1000.0, 2000.0, 0.0],
-        [1000.0, 2000.0, -500.0],
+        [1000.0, 2000.0, 500.0],
     ]
 
     well_path1 = well_path_coll.import_well_path_from_points(
@@ -90,7 +90,7 @@ def test_import_well_path_from_points_multiple(rips_instance, initialize_test):
     # Create second well path
     coordinates2 = [
         [1500.0, 2500.0, 0.0],
-        [1500.0, 2500.0, -300.0],
+        [1500.0, 2500.0, 300.0],
     ]
 
     well_path2 = well_path_coll.import_well_path_from_points(
@@ -108,7 +108,7 @@ def test_import_well_path_from_points_single_point(rips_instance, initialize_tes
 
     # Single point well path
     coordinates = [
-        [1000.0, 2000.0, -100.0],
+        [1000.0, 2000.0, 100.0],
     ]
 
     well_path = well_path_coll.import_well_path_from_points(
@@ -126,8 +126,8 @@ def test_import_well_path_from_points_various_types(rips_instance, initialize_te
     # Mix of list and tuple coordinates
     coordinates = [
         [1000.0, 2000.0, 0.0],  # List
-        (1010.0, 2010.0, -100.0),  # Tuple
-        [1020, 2020, -200],  # Integers
+        (1010.0, 2010.0, 100.0),  # Tuple
+        [1020, 2020, 200],  # Integers
     ]
 
     well_path = well_path_coll.import_well_path_from_points(
@@ -144,8 +144,8 @@ def test_import_well_path_from_points_large_coordinates(rips_instance, initializ
 
     # Large UTM-style coordinates
     coordinates = [
-        [456789.0, 6789012.0, 50.0],  # Surface
-        [456790.0, 6789013.0, -1500.0],  # Deep point
+        [456789.0, 6789012.0, -50.0],  # Surface
+        [456790.0, 6789013.0, 1500.0],  # Deep point
     ]
 
     well_path = well_path_coll.import_well_path_from_points(
@@ -163,10 +163,10 @@ def test_import_well_path_from_points_with_measured_depths(
     well_path_coll = rips_instance.project.well_path_collection()
 
     coordinates = [
-        [100, 200, -500],
-        [100, 200, -590],
-        [110, 205, -700],
-        [130, 210, -820],
+        [100, 200, 500],
+        [100, 200, 590],
+        [110, 205, 700],
+        [130, 210, 820],
     ]
     well_path = well_path_coll.import_well_path_from_points(
         name="MD_START",
@@ -188,7 +188,7 @@ def test_import_well_path_from_points_invalid_measured_depths(
     rips_instance, initialize_test
 ):
     well_path_coll = rips_instance.project.well_path_collection()
-    coordinates = [[0, 0, 0], [0, 0, -10], [0, 0, -20]]
+    coordinates = [[0, 0, 0], [0, 0, 10], [0, 0, 20]]
 
     with pytest.raises(ValueError, match="same length"):
         well_path_coll.import_well_path_from_points(
@@ -204,3 +204,14 @@ def test_import_well_path_from_points_invalid_measured_depths(
         well_path_coll.import_well_path_from_points(
             name="W", coordinates=coordinates, measured_depths=[0, "a", 20]
         )
+
+
+def test_import_well_path_from_points_z_is_depth_positive_down(
+    rips_instance, initialize_test
+):
+    well_path_coll = rips_instance.project.well_path_collection()
+    well_path = well_path_coll.import_well_path_from_points(
+        name="DepthWell", coordinates=[[100, 200, 0], [100, 200, 500]]
+    )
+    geometry = well_path.trajectory_properties(resampling_interval=1e6)
+    assert geometry["coordinate_z"] == pytest.approx([0.0, 500.0])

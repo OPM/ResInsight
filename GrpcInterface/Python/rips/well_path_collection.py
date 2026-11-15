@@ -28,8 +28,8 @@ def import_well_path_from_points(
 ) -> object:
     """Create a well path from a list of XYZ coordinates.
 
-    Note that the Z values use upward scene Z (negative below sea level), while
-    trajectory_properties().coordinate_z returns positive-down TVD.
+    The Z values are depths (TVD, positive down), consistent with the well path
+    file formats and trajectory_properties().coordinate_z.
 
     Arguments:
         name (str): Name of the well path
