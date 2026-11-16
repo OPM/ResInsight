@@ -9,10 +9,14 @@ This document describes the coding style and formatting conventions for ResInsig
 ResInsight uses clang-format for C++ code formatting:
 - **Configuration**: `.clang-format` file in repository root
 - **Version**: Use clang-format-19 to enforce style
+- **CI**: The `clang-format` workflow fails on unformatted files and does not open fix PRs
+  automatically. Run clang-format on changed files before committing. A fix PR can be requested by
+  running the workflow manually (`workflow_dispatch` with `create_pr`); see `CONTRIBUTING.md`.
 
 ### Python Formatting
 
-Python code should be formatted using `ruff`:
+Python code should be formatted using `ruff`. The `Python Linting` workflow fails on lint or format
+errors and, like `clang-format`, creates a fix PR only when run manually with `create_pr`.
 
 ```bash
 # Format source code

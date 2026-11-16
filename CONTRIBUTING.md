@@ -31,3 +31,34 @@ Search existing issues first, including closed ones. Include:
 ## Pull requests
 
 - Base pull requests on the `dev` branch.
+- Format your code before pushing. CI checks formatting but does not fix it for you.
+
+## Code formatting
+
+The `clang-format` and `Python Linting` GitHub workflows run on every push (and, for Python, on
+pull requests). They fail if any file is not formatted, and the job log shows the required diff.
+They do **not** open fix pull requests automatically.
+
+Format locally before you commit:
+
+- **C++** (clang-format 19, configuration in `.clang-format`):
+
+  ```bash
+  clang-format-19 -i <changed files>
+  ```
+
+- **Python** (ruff, run from `GrpcInterface`):
+
+  ```bash
+  ruff check --fix .
+  ruff format .
+  ```
+
+If you want CI to create a pull request with the fixes, start the workflow manually. In the GitHub
+UI, open **Actions**, select **clang-format** or **Python Linting**, click **Run workflow**, pick
+your branch and leave **Create a PR** selected. You can also use the GitHub CLI:
+
+```bash
+gh workflow run clang-format.yml --ref <branch> -f create_pr=true
+gh workflow run python-linting.yml --ref <branch> -f create_pr=true
+```
