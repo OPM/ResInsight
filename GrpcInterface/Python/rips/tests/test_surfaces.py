@@ -287,6 +287,56 @@ def test_triangulated_surface_invalid_values(rips_instance, initialize_test):
         s.set_property("net to gross", [1.0, 2.0, 3.0])
 
 
+def test_triangulated_surface_float64_vertices(
+    rips_instance, initialize_test, tmp_path
+):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    project = rips_instance.project
+    project.load_case(path=case_path)
+
+    surface_collection = project.descendants(rips.SurfaceCollection)[0]
+    s = surface_collection.new_triangulated_surface(name="Utm")
+
+    # float32 holds 7319649.123 as 7319649.0, the vertices travel as float64
+    vertices = [
+        [456333.25, 7319649.123, 2494.125],
+        [456433.25, 7319649.123, 2495.125],
+        [456333.25, 7319749.5, 2496.125],
+    ]
+    s.set_geometry(vertices, [[0, 1, 2]])
+
+    project_file = tmp_path / "utm.rsp"
+    project.save(project_file.as_posix())
+
+    surface_files = list((tmp_path / "utm_surfaces").glob("Utm_*.ts"))
+    assert len(surface_files) == 1
+    written = surface_files[0].read_text()
+    assert "VRTX 1 456333.25 7319649.123 2494.125" in written
+    assert "VRTX 2 456433.25 7319649.123 2495.125" in written
+
+
+def test_triangulated_surface_uint32_indices(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.load_case(path=case_path)
+
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+    s = surface_collection.new_triangulated_surface(name="Indices")
+
+    vertices = [[0.0, 0.0, 1000.0], [100.0, 0.0, 1000.0], [0.0, 100.0, 1000.0]]
+
+    # The indices travel as uint32, so an index float32 cannot hold arrives exactly
+    with pytest.raises(rips.RipsError, match=r"Invalid triangle index 16777217\."):
+        s.set_geometry(vertices, [[0, 1, 16777217]])
+
+    with pytest.raises(rips.RipsError, match="out of range for element type UINT32"):
+        s.set_geometry(vertices, [[0, 1, 2**32]])
+
+    with pytest.raises(TypeError):
+        s.set_geometry(vertices, [[0.0, 1.0, 2.5]])
+
+    s.set_geometry(vertices, [[0, 1, 2]])
+
+
 def test_triangulated_surface_name_uniqueness(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     rips_instance.project.load_case(path=case_path)

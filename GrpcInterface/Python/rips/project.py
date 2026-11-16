@@ -36,7 +36,7 @@ from .resinsight_classes import (
     WellPath,
 )
 
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 
 @add_method(Project)
@@ -540,28 +540,61 @@ def create_corner_point_grid(
     )
 
 
+# Element type and chunk field for each numpy dtype name the key-value store transports
+_KEY_VALUE_ELEMENT_TYPES = {
+    "float32": (KeyValueStore_pb2.FLOAT32, "values"),
+    "float64": (KeyValueStore_pb2.FLOAT64, "double_values"),
+    "int32": (KeyValueStore_pb2.INT32, "int_values"),
+    "int64": (KeyValueStore_pb2.INT64, "int_values"),
+    "uint32": (KeyValueStore_pb2.UINT32, "uint_values"),
+    "uint64": (KeyValueStore_pb2.UINT64, "uint_values"),
+}
+
+
+def _key_value_element_type(dtype: object) -> Tuple[int, str]:
+    # Accepts a numpy dtype, a numpy scalar type or a dtype name, without importing numpy
+    if isinstance(dtype, type):
+        name = dtype.__name__
+    else:
+        name = str(getattr(dtype, "name", dtype))
+    if name not in _KEY_VALUE_ELEMENT_TYPES:
+        raise ValueError(
+            "Unsupported dtype {}. Supported: {}".format(
+                name, ", ".join(_KEY_VALUE_ELEMENT_TYPES)
+            )
+        )
+    return _KEY_VALUE_ELEMENT_TYPES[name]
+
+
 @add_method(Project)
-def set_key_values(self, key, values):
+def set_key_values(self, key, values, dtype="float32"):
     """Sets values for a given key in the key-value store.
 
     Arguments:
         key(str): The key (should be unique).
-        values(list): a list of double precision floating point numbers
+        values(list): a list of numbers
+        dtype: numpy dtype of the values: float32 (default), float64, int32, int64,
+          uint32 or uint64. Reading the key needs the same dtype.
     """
-    request_iterator = self.__generate_key_value_store_input_chunks(values, key)
+    element_type, field = _key_value_element_type(dtype)
+    request_iterator = self.__generate_key_value_store_input_chunks(
+        values, key, element_type, field
+    )
     reply = self.__key_value_store_stub.SetValue(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
 
 
 @add_method(Project)
-def __generate_key_value_store_input_chunks(self, array, name):
+def __generate_key_value_store_input_chunks(
+    self, array, name, element_type=KeyValueStore_pb2.FLOAT32, field="values"
+):
     index = -1
     while index < len(array):
         chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
         if index == -1:
             parameters = KeyValueStore_pb2.KeyValueInputParameters(
-                name=name, num_elements=len(array)
+                name=name, num_elements=len(array), element_type=element_type
             )
             chunk.parameters.CopyFrom(parameters)
             index += 1
@@ -569,7 +602,7 @@ def __generate_key_value_store_input_chunks(self, array, name):
             actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
             chunk.values.CopyFrom(
                 KeyValueStore_pb2.KeyValueStoreChunk(
-                    values=array[index : index + actual_chunk_size]
+                    **{field: array[index : index + actual_chunk_size]}
                 )
             )
             index += actual_chunk_size
@@ -584,35 +617,46 @@ def __generate_key_value_store_input_chunks(self, array, name):
 def key_values_async(
     self,
     key,
+    dtype="float32",
 ):
-    """Get float values for a given key. Async: returns an iterator.
+    """Get values for a given key. Async: returns an iterator.
 
     Arguments:
         key(str): The key to get.
+        dtype: numpy dtype the values were set with: float32 (default), float64,
+          int32, int64, uint32 or uint64.
 
     Returns:
-        An iterator to a chunk object containing an array of float values
+        An iterator to a chunk object containing an array of values: values for
+        float32, double_values for float64, int_values for int32 and int64 and
+        uint_values for uint32 and uint64.
         Loop through the chunks and then the values within the chunk to get all values.
     """
-    request = KeyValueStore_pb2.KeyValueStoreOutputRequest(name=key)
+    element_type, _ = _key_value_element_type(dtype)
+    request = KeyValueStore_pb2.KeyValueStoreOutputRequest(
+        name=key, element_type=element_type
+    )
     for chunk in self.__key_value_store_stub.GetValue(request):
         yield chunk
 
 
 @add_method(Project)
-def key_values(self, key):
-    """Get float values for a given key. Synchronous: returns a list. `
+def key_values(self, key, dtype="float32"):
+    """Get values for a given key. Synchronous: returns a list. `
 
     Arguments:
         key(str): The key to get.
+        dtype: numpy dtype the values were set with: float32 (default), float64,
+          int32, int64, uint32 or uint64.
 
     Returns:
-        A list of float values
+        A list of values
     """
+    _, field = _key_value_element_type(dtype)
     all_values = []
-    generator = self.key_values_async(key)
+    generator = self.key_values_async(key, dtype)
     for chunk in generator:
-        for value in chunk.values:
+        for value in getattr(chunk, field):
             all_values.append(value)
     return all_values
 

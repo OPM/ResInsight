@@ -19,16 +19,42 @@ message KeyValueStoreInputChunk {
   }
 }
 
+// Element type of the values stored for a key
+enum KeyValueElementType {
+  FLOAT32 = 0;
+  FLOAT64 = 1;
+  INT32 = 2;
+  INT64 = 3;
+  UINT32 = 4;
+  UINT64 = 5;
+}
+
 message KeyValueInputParameters {
   // Name needs to be sent in the first message
   string name = 1;
   int64 num_elements = 2;
+  KeyValueElementType element_type = 3;
 }
 
-message KeyValueStoreChunk { repeated float values = 1; }
+// FLOAT32 values travel in values, FLOAT64 in double_values, INT32 and INT64
+// in int_values, UINT32 and UINT64 in uint_values
+message KeyValueStoreChunk {
+  repeated float values = 1;
+  repeated double double_values = 2;
+  repeated sint64 int_values = 3;
+  repeated uint64 uint_values = 4;
+}
 
-message KeyValueStoreOutputRequest { string name = 1; }
+message KeyValueStoreOutputRequest {
+  string name = 1;
+  KeyValueElementType element_type = 2;
+}
 
-message KeyValueStoreOutputChunk { repeated float values = 1; }
+message KeyValueStoreOutputChunk {
+  repeated float values = 1;
+  repeated double double_values = 2;
+  repeated sint64 int_values = 3;
+  repeated uint64 uint_values = 4;
+}
 
 message KeyValueStoreRemoveRequest { string name = 1; }
