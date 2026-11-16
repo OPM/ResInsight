@@ -450,13 +450,13 @@ void RiaGuiApplication::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::storeDockState()
 {
-    // A closed window has no views docked; its dock state was stored when it was closed
-    if ( m_mainWindow && !m_mainWindow->hasBeenClosed() )
+    // do not store state for closed or never shown windows
+    if ( m_mainWindow && !m_mainWindow->hasBeenClosed() && m_mainWindow->hasBeenVisible() )
     {
         project()->mainWindowDockState = m_mainWindow->dockWidgetStateString();
     }
 
-    if ( m_mainPlotWindow && !m_mainPlotWindow->hasBeenClosed() )
+    if ( m_mainPlotWindow && !m_mainPlotWindow->hasBeenClosed() && m_mainPlotWindow->hasBeenVisible() )
     {
         project()->plotWindowDockState = m_mainPlotWindow->dockWidgetStateString();
     }
