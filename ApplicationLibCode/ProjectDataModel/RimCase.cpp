@@ -19,6 +19,7 @@
 
 #include "RimCase.h"
 
+#include "RiaApplication.h"
 #include "RiaEnsembleNameTools.h"
 
 #include "RicfCommandObject.h"
@@ -87,6 +88,16 @@ RimCase::RimCase()
 RimCase::~RimCase()
 {
     m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+
+    // Deleting the 2D intersection views refreshes the GUI for the active view. If the active view uses this case, the GUI
+    // refresh calls pure virtual functions on this partially destroyed case.
+    if ( auto activeView = RiaApplication::instance()->activeReservoirView() )
+    {
+        if ( activeView->ownerCase() == this || activeView->firstAncestorOrThisOfType<RimCase>() == this )
+        {
+            RiaApplication::instance()->setActiveReservoirView( nullptr );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
