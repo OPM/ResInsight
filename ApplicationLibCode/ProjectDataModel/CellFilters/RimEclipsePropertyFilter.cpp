@@ -803,9 +803,20 @@ void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray*   cellVis
     cvf::ref<RigResultAccessor> resultAccessor =
         RigResultAccessorFactory::createFromResultDefinition( eclipseCase, grid->gridIndex(), timeStepIndex, resultDefinition() );
 
-    CAF_ASSERT( resultAccessor.notNull() );
-
     const RimCellFilter::FilterModeType filterType = filterMode();
+
+    if ( resultAccessor.isNull() )
+    {
+        // The case has no values for the filter result, so no cell matches the filter
+        if ( filterType == RimCellFilter::INCLUDE )
+        {
+            for ( size_t cellIndex = 0; cellIndex < grid->cellCount(); cellIndex++ )
+            {
+                ( *cellVisibility )[cellIndex] = false;
+            }
+        }
+        return;
+    }
 
     if ( isCategorySelectionActive() )
     {
