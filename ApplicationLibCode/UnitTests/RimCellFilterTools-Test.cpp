@@ -399,3 +399,64 @@ TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
     EXPECT_EQ( std::set<size_t>( { 0, 1 } ), visibleKLayers( visibilityA.p(), caseA.get() ) );
     EXPECT_EQ( std::set<size_t>( { 0, 1, 2 } ), visibleKLayers( visibilityB.p(), caseB.get() ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A realization without the filter result, here a case without formation names, has no matching cells
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, CategoryFilterOnCaseWithoutResult )
+{
+    auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
+    auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
+    ASSERT_TRUE( caseA != nullptr );
+    ASSERT_TRUE( caseB != nullptr );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QFile file( tempDir.filePath( "a.lyr" ) );
+    ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+    file.write( "'Upper' 1 - 2\n'Lower' 3 - 4\n" );
+    file.close();
+
+    RimFormationNames formationNames;
+    formationNames.setFileName( file.fileName() );
+    ASSERT_TRUE( formationNames.readFormationNamesFile().has_value() );
+    caseA->eclipseCaseData()->setActiveFormationNames( formationNames.formationNamesData() );
+
+    RimEclipsePropertyFilter propertyFilter;
+    propertyFilter.setCase( caseA.get() );
+    propertyFilter.setActive( true );
+    propertyFilter.resultDefinition()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
+    propertyFilter.resultDefinition()->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
+    propertyFilter.computeResultValueRange();
+
+    auto* categorySelectionField = dynamic_cast<caf::PdmField<bool>*>( propertyFilter.findField( "CategorySelection" ) );
+    auto* selectedValuesField    = dynamic_cast<caf::PdmField<std::vector<int>>*>( propertyFilter.findField( "SelectedValues" ) );
+    ASSERT_TRUE( categorySelectionField && selectedValuesField );
+    categorySelectionField->setValue( true );
+    selectedValuesField->setValue( { 0 } );
+    ASSERT_TRUE( propertyFilter.isCategorySelectionActive() );
+
+    auto countVisible = []( const cvf::UByteArray* visibility )
+    {
+        size_t count = 0;
+        for ( size_t i = 0; i < visibility->size(); i++ )
+        {
+            if ( visibility->val( i ) ) count++;
+        }
+        return count;
+    };
+
+    auto visibilityA = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseA.get(), 0 );
+    ASSERT_TRUE( visibilityA.notNull() );
+    EXPECT_GT( countVisible( visibilityA.p() ), 0u );
+
+    auto includeVisibility = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    ASSERT_TRUE( includeVisibility.notNull() );
+    EXPECT_EQ( 0u, countVisible( includeVisibility.p() ) );
+
+    propertyFilter.setFilterMode( RimCellFilter::EXCLUDE );
+    auto excludeVisibility = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    ASSERT_TRUE( excludeVisibility.notNull() );
+    EXPECT_EQ( excludeVisibility->size(), countVisible( excludeVisibility.p() ) );
+}
