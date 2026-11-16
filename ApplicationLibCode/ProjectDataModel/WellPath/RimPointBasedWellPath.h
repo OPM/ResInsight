@@ -39,7 +39,7 @@ public:
     ~RimPointBasedWellPath() override;
 
     // If measuredDepths is empty, MD is computed from the cumulative length of the trajectory
-    void                    setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets, const std::vector<double>& measuredDepths = {} );
+    void setTrajectoryPoints( const std::vector<cvf::Vec3d>& wellTargets, const std::vector<double>& measuredDepths = {} );
     std::vector<cvf::Vec3d> trajectoryPoints() const;
 
     void createWellPathGeometry();
