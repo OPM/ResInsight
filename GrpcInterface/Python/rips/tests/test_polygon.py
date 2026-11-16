@@ -178,3 +178,79 @@ def test_add_folder_returns_polygon_collection(rips_instance, initialize_test):
         typing.get_type_hints(rips.PolygonCollection.add_folder)["return"]
         is rips.PolygonCollection
     )
+
+
+def _write_pol_file(path, polygons):
+    # .pol files store depth, so z is written with the sign flipped
+    lines = []
+    for polygon in polygons:
+        lines += [f"{x} {y} {-z}" for x, y, z in polygon]
+        lines.append("999.0 999.0 999.0")
+    path.write_text("\n".join(lines) + "\n")
+
+
+def test_import_polygon_file(rips_instance, initialize_test, tmp_path):
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    first = [[0.0, 0.0, -1000.0], [100.0, 0.0, -1000.0], [100.0, 100.0, -1500.0]]
+    second = [[200.0, 0.0, -1000.0], [300.0, 0.0, -1000.0], [300.0, 100.0, -1000.0]]
+
+    single_file = tmp_path / "single.pol"
+    _write_pol_file(single_file, [first])
+
+    polygon = root.import_polygon_file(file_name=str(single_file))
+    assert polygon.name == "single"
+    assert len(polygon.coordinates) == len(first)
+    for expected, actual in zip(first, polygon.coordinates):
+        for e, a in zip(expected, actual):
+            assert math.isclose(e, a, rel_tol=1e-9, abs_tol=0.0)
+
+    multi_file = tmp_path / "multi.pol"
+    _write_pol_file(multi_file, [first, second])
+
+    polygon = root.import_polygon_file(file_name=str(multi_file))
+    assert polygon.name == "multi (1)"
+
+    folder_names = [s.collection_name() for s in root.sub_collections()]
+    assert folder_names == ["single", "multi"]
+
+
+def test_import_polygon_file_errors(rips_instance, initialize_test, tmp_path):
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    with pytest.raises(rips.RipsError, match="does not exist"):
+        root.import_polygon_file(file_name=str(tmp_path / "missing.pol"))
+
+    empty_file = tmp_path / "empty.pol"
+    empty_file.write_text("")
+    with pytest.raises(rips.RipsError, match="No polygons found"):
+        root.import_polygon_file(file_name=str(empty_file))
+
+    assert root.sub_collections() == []
+
+
+def test_import_polygon_file_name_conflict(rips_instance, initialize_test, tmp_path):
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    coordinates = [[0.0, 0.0, -1000.0], [100.0, 0.0, -1000.0], [100.0, 100.0, -1000.0]]
+    pol_file = tmp_path / "fence.pol"
+    _write_pol_file(pol_file, [coordinates])
+
+    root.import_polygon_file(file_name=str(pol_file))
+
+    # The default policy is to fail on a folder name already used in the same folder
+    with pytest.raises(rips.RipsError, match="already exists"):
+        root.import_polygon_file(file_name=str(pol_file))
+
+    renamed = root.import_polygon_file(
+        file_name=str(pol_file), on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME
+    )
+    assert renamed.name == "fence_1"
+
+    overwritten = root.import_polygon_file(
+        file_name=str(pol_file), on_name_conflict=rips.NameConflictPolicy.OVERWRITE
+    )
+    assert overwritten.name == "fence"
+
+    folder_names = [s.collection_name() for s in root.sub_collections()]
+    assert folder_names == ["fence_1", "fence"]

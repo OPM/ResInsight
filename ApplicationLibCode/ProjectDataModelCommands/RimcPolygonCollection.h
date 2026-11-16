@@ -47,3 +47,21 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>>                      m_coordinates;
     caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcPolygonCollection_importPolygonFile : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcPolygonCollection_importPolygonFile( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>                                      m_fileName;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
+};
