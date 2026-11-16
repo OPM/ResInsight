@@ -1,6 +1,14 @@
 name: Python Linting
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: "Create a PR with ruff fixes"
+        type: boolean
+        default: true
 
 jobs:
   lint:
@@ -21,20 +29,20 @@ jobs:
           ruff check .
           ruff format --check --diff .
 
-      # Same-repo PRs and pushes: Apply auto-fixable issues and create PR if needed
-      - name: (Python) Auto-fix and create PR
-        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+      # Manual trigger only: Apply auto-fixable issues and create PR
+      - name: (Python) Auto-fix
+        if: failure() && github.event_name == 'workflow_dispatch' && inputs.create_pr
         run: |
           cd GrpcInterface
           ruff check --fix .
           ruff format .
       - uses: peter-evans/create-pull-request@v8
-        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: failure() && github.event_name == 'workflow_dispatch' && inputs.create_pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Python code linting changes detected by ruff"
           title: "Fixes by ruff (Python)"
           branch: python-ruff-patches
           branch-suffix: random
-          base: ${{ github.head_ref }}
+          base: ${{ github.ref_name }}
 

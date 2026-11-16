@@ -1,6 +1,13 @@
 name: clang-format
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: "Create a PR with clang-format fixes"
+        type: boolean
+        default: true
 
 jobs:
   clang-format-job:
@@ -41,7 +48,10 @@ jobs:
           cd GrpcInterface
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' -o -name '*.proto' | grep -v gtest | xargs clang-format-19 -i
           git diff
+      - name: Verify formatting
+        run: git diff --exit-code
       - uses: peter-evans/create-pull-request@v8
+        if: failure() && github.event_name == 'workflow_dispatch' && inputs.create_pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by clang-format"
