@@ -2042,7 +2042,10 @@ void RimEclipseView::updateDisplayModelForWellResults()
         nativeOrOverrideViewer()->animationControl()->setCurrentFrame( m_currentTimeStep );
     }
 
-    RiuMainWindow::instance()->refreshAnimationActions();
+    if ( auto mainWindow = RiuMainWindow::instance() )
+    {
+        mainWindow->refreshAnimationActions();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -125,8 +125,11 @@ void RimGridView::showGridCells( bool enableGridCells )
 
     onCreateDisplayModel();
     updateDisplayModelVisibility();
-    RiuMainWindow::instance()->refreshDrawStyleActions();
-    RiuMainWindow::instance()->refreshAnimationActions();
+    if ( auto mainWindow = RiuMainWindow::instance() )
+    {
+        mainWindow->refreshDrawStyleActions();
+        mainWindow->refreshAnimationActions();
+    }
 
     m_gridCollection->updateConnectedEditors();
     m_gridCollection->updateUiIconFromState( enableGridCells );
