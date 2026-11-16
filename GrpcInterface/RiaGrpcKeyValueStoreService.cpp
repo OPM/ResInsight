@@ -27,9 +27,38 @@
 
 #include "cafAssert.h"
 
+#include <cstring>
+#include <string>
+#include <type_traits>
+#include <utility>
+
 using namespace rips;
 
 #define NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS 10
+
+// The element types of the store have the same values as the element types on the wire
+static_assert( static_cast<int>( RiaKeyValueStoreElementType::FLOAT32 ) == KeyValueElementType::FLOAT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::FLOAT64 ) == KeyValueElementType::FLOAT64 &&
+               static_cast<int>( RiaKeyValueStoreElementType::INT32 ) == KeyValueElementType::INT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::INT64 ) == KeyValueElementType::INT64 &&
+               static_cast<int>( RiaKeyValueStoreElementType::UINT32 ) == KeyValueElementType::UINT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::UINT64 ) == KeyValueElementType::UINT64 );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static size_t elementSize( RiaKeyValueStoreElementType elementType )
+{
+    switch ( elementType )
+    {
+        case RiaKeyValueStoreElementType::FLOAT32:
+        case RiaKeyValueStoreElementType::INT32:
+        case RiaKeyValueStoreElementType::UINT32:
+            return 4u;
+        default:
+            return 8u;
+    }
+}
 
 class RiaKeyValueStoreStateHandler
 {
@@ -42,6 +71,7 @@ public:
     RiaKeyValueStoreStateHandler( bool clientStreamer = false )
         : m_streamedValueCount( 0u )
         , m_cellCount( 0u )
+        , m_elementType( RiaKeyValueStoreElementType::FLOAT32 )
     {
     }
 
@@ -58,13 +88,14 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status init( const std::string& name, size_t numElements )
+    Status init( const std::string& name, size_t numElements, RiaKeyValueStoreElementType elementType )
     {
         RiaLogging::debug(
             QString( "Initializing stream: %1 size: %2" ).arg( QString::fromStdString( name ) ).arg( numElements ).toStdString() );
 
-        m_name      = name;
-        m_cellCount = numElements;
+        m_name        = name;
+        m_cellCount   = numElements;
+        m_elementType = elementType;
         return grpc::Status::OK;
     }
 
@@ -77,7 +108,13 @@ public:
 
         if ( chunk->has_parameters() )
         {
-            return init( chunk->parameters().name(), chunk->parameters().num_elements() );
+            if ( !KeyValueElementType_IsValid( chunk->parameters().element_type() ) )
+            {
+                return grpc::Status( grpc::INVALID_ARGUMENT, "Unknown element type" );
+            }
+            return init( chunk->parameters().name(),
+                         chunk->parameters().num_elements(),
+                         static_cast<RiaKeyValueStoreElementType>( chunk->parameters().element_type() ) );
         }
         return grpc::Status( grpc::INVALID_ARGUMENT, "Need to have parameters in first message" );
     }
@@ -92,13 +129,28 @@ public:
         RiaLogging::debug(
             QString( "Output stream request. Name='%1'" ).arg( QString::fromStdString( name ) ).toStdString() );
 
-        auto result = RiaApplication::instance()->keyValueStore()->get( name );
+        if ( !KeyValueElementType_IsValid( request->element_type() ) )
+        {
+            return grpc::Status( grpc::INVALID_ARGUMENT, "Unknown element type" );
+        }
+
+        auto keyValueStore = RiaApplication::instance()->keyValueStore();
+        auto elementType   = static_cast<RiaKeyValueStoreElementType>( request->element_type() );
+        auto result        = keyValueStore->get( name, elementType );
         if ( result.has_value() )
         {
-            m_data      = RiaKeyValueStoreUtil::convertToFloatVector( result );
-            m_name      = name;
-            m_cellCount = m_data.size();
+            m_data        = result.value();
+            m_name        = name;
+            m_elementType = elementType;
+            m_cellCount   = m_data.size() / elementSize( elementType );
             return grpc::Status::OK;
+        }
+        else if ( auto storedElementType = keyValueStore->elementType( name ) )
+        {
+            return grpc::Status( grpc::INVALID_ARGUMENT,
+                                 "Key holds values of element type " +
+                                     KeyValueElementType_Name( static_cast<KeyValueElementType>( *storedElementType ) ) +
+                                     ", requested " + KeyValueElementType_Name( request->element_type() ) + "." );
         }
         else
         {
@@ -112,7 +164,7 @@ public:
     Status assignStreamReply( KeyValueStoreOutputChunk* reply )
     {
         // How many data units will fit into one stream package?
-        const size_t packageSize   = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( float ) );
+        const size_t packageSize   = RiaGrpcHelper::numberOfDataUnitsInPackage( elementSize( m_elementType ) );
         const size_t remainingData = m_cellCount - m_streamedValueCount;
         const size_t chunkSize     = std::min( packageSize, remainingData );
 
@@ -122,10 +174,26 @@ public:
                                  "We've reached the end. This is not an error but means transmission is finished" );
         }
 
-        reply->mutable_values()->Reserve( static_cast<int>( chunkSize ) );
-        for ( size_t i = 0; i < chunkSize; ++i )
+        switch ( m_elementType )
         {
-            reply->add_values( m_data[m_streamedValueCount + i] );
+            case RiaKeyValueStoreElementType::FLOAT32:
+                assignValues<float>( reply->mutable_values(), chunkSize );
+                break;
+            case RiaKeyValueStoreElementType::FLOAT64:
+                assignValues<double>( reply->mutable_double_values(), chunkSize );
+                break;
+            case RiaKeyValueStoreElementType::INT32:
+                assignValues<int32_t>( reply->mutable_int_values(), chunkSize );
+                break;
+            case RiaKeyValueStoreElementType::INT64:
+                assignValues<int64_t>( reply->mutable_int_values(), chunkSize );
+                break;
+            case RiaKeyValueStoreElementType::UINT32:
+                assignValues<uint32_t>( reply->mutable_uint_values(), chunkSize );
+                break;
+            case RiaKeyValueStoreElementType::UINT64:
+                assignValues<uint64_t>( reply->mutable_uint_values(), chunkSize );
+                break;
         }
 
         m_streamedValueCount += chunkSize;
@@ -142,17 +210,35 @@ public:
 
         if ( request->has_values() )
         {
-            auto values = request->values().values();
-            if ( !values.empty() )
+            const auto& chunk = request->values();
+
+            size_t currentCellIdx = m_streamedValueCount;
+            Status status         = Status::OK;
+            switch ( m_elementType )
             {
-                size_t currentCellIdx = m_streamedValueCount;
-                m_streamedValueCount += values.size();
+                case RiaKeyValueStoreElementType::FLOAT32:
+                    status = receiveValues<float>( chunk.values() );
+                    break;
+                case RiaKeyValueStoreElementType::FLOAT64:
+                    status = receiveValues<double>( chunk.double_values() );
+                    break;
+                case RiaKeyValueStoreElementType::INT32:
+                    status = receiveValues<int32_t>( chunk.int_values() );
+                    break;
+                case RiaKeyValueStoreElementType::INT64:
+                    status = receiveValues<int64_t>( chunk.int_values() );
+                    break;
+                case RiaKeyValueStoreElementType::UINT32:
+                    status = receiveValues<uint32_t>( chunk.uint_values() );
+                    break;
+                case RiaKeyValueStoreElementType::UINT64:
+                    status = receiveValues<uint64_t>( chunk.uint_values() );
+                    break;
+            }
+            if ( !status.ok() ) return status;
 
-                if ( !values.empty() )
-                {
-                    m_data.insert( m_data.end(), values.begin(), values.end() );
-                }
-
+            if ( m_streamedValueCount > currentCellIdx )
+            {
                 if ( m_streamedValueCount > m_cellCount )
                 {
                     return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
@@ -160,9 +246,9 @@ public:
 
                 RiaLogging::debug( QString( "Received stream request. Start index: %1. Size after request: %2" )
                                        .arg( currentCellIdx )
-                                       .arg( m_data.size() )
+                                       .arg( m_streamedValueCount )
                                        .toStdString() );
-                reply->set_accepted_value_count( static_cast<int64_t>( m_data.size() ) );
+                reply->set_accepted_value_count( static_cast<int64_t>( m_streamedValueCount ) );
                 return Status::OK;
             }
         }
@@ -180,15 +266,61 @@ public:
                                .toStdString() );
         if ( !m_name.empty() && !m_data.empty() )
         {
-            RiaApplication::instance()->keyValueStore()->set( m_name, RiaKeyValueStoreUtil::convertToByteVector( m_data ) );
+            RiaApplication::instance()->keyValueStore()->set( m_name, m_data, m_elementType );
+        }
+    }
+
+private:
+    //--------------------------------------------------------------------------------------------------
+    /// Convert the values from the wire type to the stored type, with a range check for integers
+    //--------------------------------------------------------------------------------------------------
+    template <typename T, typename WireT>
+    Status receiveValues( const google::protobuf::RepeatedField<WireT>& values )
+    {
+        std::vector<T> converted;
+        converted.reserve( values.size() );
+        for ( WireT value : values )
+        {
+            if constexpr ( std::is_integral_v<T> )
+            {
+                if ( !std::in_range<T>( value ) )
+                {
+                    return grpc::Status( grpc::OUT_OF_RANGE,
+                                         "Value " + std::to_string( value ) + " is out of range for element type " +
+                                             KeyValueElementType_Name( static_cast<KeyValueElementType>( m_elementType ) ) +
+                                             "." );
+                }
+            }
+            converted.push_back( static_cast<T>( value ) );
+        }
+
+        auto bytes = RiaKeyValueStoreUtil::convertToByteVector( converted );
+        m_data.insert( m_data.end(), bytes.begin(), bytes.end() );
+        m_streamedValueCount += converted.size();
+        return Status::OK;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    template <typename T, typename WireT>
+    void assignValues( google::protobuf::RepeatedField<WireT>* target, size_t chunkSize )
+    {
+        target->Reserve( static_cast<int>( chunkSize ) );
+        for ( size_t i = 0; i < chunkSize; ++i )
+        {
+            T value;
+            std::memcpy( &value, m_data.data() + ( m_streamedValueCount + i ) * sizeof( T ), sizeof( T ) );
+            target->Add( static_cast<WireT>( value ) );
         }
     }
 
 protected:
-    size_t             m_streamedValueCount;
-    size_t             m_cellCount;
-    std::string        m_name;
-    std::vector<float> m_data;
+    size_t                      m_streamedValueCount;
+    size_t                      m_cellCount;
+    std::string                 m_name;
+    RiaKeyValueStoreElementType m_elementType;
+    std::vector<char>           m_data;
 };
 
 //--------------------------------------------------------------------------------------------------

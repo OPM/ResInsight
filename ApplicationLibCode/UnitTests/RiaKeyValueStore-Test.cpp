@@ -1,7 +1,10 @@
 #include "gtest/gtest.h"
+#include <cstdint>
 #include <future>
+#include <limits>
 
 #include "KeyValueStore/RiaKeyValueStore.h"
+#include "KeyValueStore/RiaKeyValueStoreUtil.h"
 
 // Test set and get operations
 TEST( RiaKeyValueStoreTest, SetAndGet )
@@ -206,4 +209,66 @@ TEST( RiaKeyValueStoreTest, BasicConcurrency )
     // Clear and check
     store.clear();
     EXPECT_TRUE( store.keys().empty() );
+}
+
+// Byte conversion for every element type the key-value store transports
+template <typename T>
+class RiaKeyValueStoreUtilTest : public testing::Test
+{
+};
+
+using RiaKeyValueStoreElementTypes = testing::Types<float, double, int32_t, int64_t, uint32_t, uint64_t>;
+TYPED_TEST_SUITE( RiaKeyValueStoreUtilTest, RiaKeyValueStoreElementTypes );
+
+TYPED_TEST( RiaKeyValueStoreUtilTest, ConvertRoundTrip )
+{
+    using T = TypeParam;
+
+    std::vector<T> values = { std::numeric_limits<T>::lowest(), T( 0 ), T( 1 ), T( 42 ), std::numeric_limits<T>::max() };
+
+    std::vector<char> bytes = RiaKeyValueStoreUtil::convertToByteVector( values );
+    EXPECT_EQ( bytes.size(), values.size() * sizeof( T ) );
+    EXPECT_EQ( RiaKeyValueStoreUtil::convertToVector<T>( bytes ), values );
+
+    RiaKeyValueStore<char> store;
+    store.set( "values", bytes );
+    EXPECT_EQ( RiaKeyValueStoreUtil::convertToVector<T>( store.get( "values" ) ), values );
+}
+
+TYPED_TEST( RiaKeyValueStoreUtilTest, ConvertInvalidInput )
+{
+    using T = TypeParam;
+
+    EXPECT_TRUE( RiaKeyValueStoreUtil::convertToVector<T>( std::nullopt ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::convertToVector<T>( std::vector<char>() ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::convertToVector<T>( std::vector<char>( sizeof( T ) + 1 ) ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::convertToByteVector( std::vector<T>() ).empty() );
+}
+
+TEST( RiaKeyValueStoreTest, ElementType )
+{
+    RiaKeyValueStore<char> store;
+
+    // A coordinate that float32 cannot hold
+    std::vector<double> coordinates = { 7319649.123 };
+    store.set( "coordinates", RiaKeyValueStoreUtil::convertToByteVector( coordinates ), RiaKeyValueStoreElementType::FLOAT64 );
+    EXPECT_EQ( store.elementType( "coordinates" ), RiaKeyValueStoreElementType::FLOAT64 );
+    EXPECT_EQ( RiaKeyValueStoreUtil::convertToVector<double>( store.get( "coordinates", RiaKeyValueStoreElementType::FLOAT64 ) ), coordinates );
+
+    // Reading with the wrong element type fails
+    EXPECT_FALSE( store.get( "coordinates", RiaKeyValueStoreElementType::FLOAT32 ).has_value() );
+    EXPECT_FALSE( store.get( "coordinates", RiaKeyValueStoreElementType::INT64 ).has_value() );
+    EXPECT_FALSE( store.get( "missing", RiaKeyValueStoreElementType::FLOAT64 ).has_value() );
+
+    // Values set without an element type are float32
+    store.set( "coordinates", RiaKeyValueStoreUtil::convertToByteVector( std::vector<float>{ 1.0f } ) );
+    EXPECT_EQ( store.elementType( "coordinates" ), RiaKeyValueStoreElementType::FLOAT32 );
+    EXPECT_TRUE( store.get( "coordinates", RiaKeyValueStoreElementType::FLOAT32 ).has_value() );
+
+    EXPECT_TRUE( store.remove( "coordinates" ) );
+    EXPECT_FALSE( store.elementType( "coordinates" ).has_value() );
+
+    store.set( "indices", RiaKeyValueStoreUtil::convertToByteVector( std::vector<uint32_t>{ 0, 1, 2 } ), RiaKeyValueStoreElementType::UINT32 );
+    store.clear();
+    EXPECT_FALSE( store.elementType( "indices" ).has_value() );
 }

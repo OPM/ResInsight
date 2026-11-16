@@ -30,7 +30,7 @@
 
 #include <QRegularExpression>
 
-#include <cmath>
+#include <cstdint>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimTriangulatedSurface, RimcTriangulatedSurface_setGeometryFromKeys, "SetGeometryFromKeys" );
 
@@ -42,8 +42,8 @@ RimcTriangulatedSurface_setGeometryFromKeys::RimcTriangulatedSurface_setGeometry
 {
     CAF_PDM_InitObject( "Set geometry from keys", "", "", "Set geometry from keys." );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_verticesKey, "VerticesKey", "", "", "", "Key for x, y and depth of each vertex" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_trianglesKey, "TrianglesKey", "", "", "", "Key for three vertex indices per triangle" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_verticesKey, "VerticesKey", "", "", "", "Key for x, y and depth of each vertex (float64)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_trianglesKey, "TrianglesKey", "", "", "", "Key for three vertex indices per triangle (uint32)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,16 +56,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_setGeometr
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> vertexValues   = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_verticesKey().toStdString() ) );
-    std::vector<float> triangleValues = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_trianglesKey().toStdString() ) );
+    std::vector<double> vertexValues = RiaKeyValueStoreUtil::convertToVector<double>(
+        keyValueStore->get( m_verticesKey().toStdString(), RiaKeyValueStoreElementType::FLOAT64 ) );
+    std::vector<uint32_t> triangleValues = RiaKeyValueStoreUtil::convertToVector<uint32_t>(
+        keyValueStore->get( m_trianglesKey().toStdString(), RiaKeyValueStoreElementType::UINT32 ) );
 
     keyValueStore->remove( m_verticesKey().toStdString() );
     keyValueStore->remove( m_trianglesKey().toStdString() );
 
     if ( vertexValues.empty() || vertexValues.size() % 3 != 0 )
-        return std::unexpected( "Invalid vertices. Must be a non-empty list of x, y and depth values." );
+        return std::unexpected( "Invalid vertices. Must be a non-empty list of x, y and depth values (float64)." );
     if ( triangleValues.empty() || triangleValues.size() % 3 != 0 )
-        return std::unexpected( "Invalid triangles. Must be a non-empty list of three vertex indices per triangle." );
+        return std::unexpected( "Invalid triangles. Must be a non-empty list of three vertex indices per triangle (uint32)." );
 
     std::vector<cvf::Vec3d> vertices;
     for ( size_t i = 0; i < vertexValues.size(); i += 3 )
@@ -74,16 +76,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_setGeometr
         vertices.emplace_back( vertexValues[i], vertexValues[i + 1], -vertexValues[i + 2] );
     }
 
-    // The key-value store holds floats, so the indices arrive as floats
     std::vector<unsigned> triangleIndices;
-    for ( float value : triangleValues )
+    for ( uint32_t value : triangleValues )
     {
-        if ( value < 0.0f || value >= static_cast<float>( vertices.size() ) || std::floor( value ) != value )
-            return std::unexpected( QString( "Invalid triangle index %1. Valid range: [0-%2]" )
-                                        .arg( static_cast<double>( value ) )
-                                        .arg( static_cast<int>( vertices.size() ) - 1 ) );
+        if ( value >= vertices.size() )
+            return std::unexpected(
+                QString( "Invalid triangle index %1. Valid range: [0-%2]" ).arg( value ).arg( static_cast<int>( vertices.size() ) - 1 ) );
 
-        triangleIndices.push_back( static_cast<unsigned>( value ) );
+        triangleIndices.push_back( value );
     }
 
     surface->setGeometry( vertices, triangleIndices );
