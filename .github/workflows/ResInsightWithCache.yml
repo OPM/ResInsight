@@ -77,6 +77,23 @@ jobs:
               qt-version: 6.7.0,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
+          - {
+              name: "Ubuntu 26.04 gcc",
+              dist-name: "ResInsight-Ubuntu-26",
+              os: ubuntu-26.04,
+              cc: "gcc-15",
+              cxx: "g++-15",
+              build-python-module: true,
+              execute-unit-tests: true,
+              execute-pytests: true,
+              publish-to-pypi: false,
+              enable-asserts: false,
+              vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
+              buildcache-max-size: 524288000,
+              qt-version: 6.10.2,
+              ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
+            }
     env:
       BUILD_TYPE: Release
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
@@ -176,12 +193,12 @@ jobs:
         if: contains( matrix.config.cc, 'clang')
         run: |
           set -e
-          
+
           # Add LLVM repository
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" | sudo tee /etc/apt/sources.list.d/llvm-19.list
           echo "deb-src http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main" | sudo tee -a /etc/apt/sources.list.d/llvm-19.list
-          
+
           # Update package list and install clang-19
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" -y \
@@ -195,7 +212,7 @@ jobs:
             libc++-19-dev \
             libc++abi-19-dev \
             libomp-19-dev
-          
+
           # Verify installation
           clang-19 --version
           clang++-19 --version
@@ -278,7 +295,7 @@ jobs:
            EXEC_PATH=$(which cmake)
          fi
          echo "Executable path: $EXEC_PATH"
-         "$EXEC_PATH" --version    
+         "$EXEC_PATH" --version
 
       - name: Configure
         shell: bash
@@ -303,6 +320,7 @@ jobs:
           -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
           -DRESINSIGHT_ENABLE_HDF5=false
           -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           -G Ninja
 
       - name: Save vcpkg cache
@@ -413,8 +431,8 @@ jobs:
       name: pypi
       url: https://pypi.org/p/rips
     permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
-    
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+
     # If this is a tagged release
     if: startsWith(github.ref, 'refs/tags')
     steps:
