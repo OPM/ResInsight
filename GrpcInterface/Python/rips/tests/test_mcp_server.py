@@ -19,6 +19,7 @@ from mcp import Client, StdioServerParameters  # noqa: E402
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot  # noqa: E402
+import rips  # noqa: E402
 from rips.mcp_server.server import create_server  # noqa: E402
 
 GRID_CASE = "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
@@ -35,7 +36,8 @@ TOOLS = {
     "list_views",
     "list_plots",
     "list_surfaces",
-    "snapshot",
+    "snapshot_view",
+    "snapshot_plot",
 }
 
 
@@ -91,7 +93,7 @@ def test_grid_case_tools(rips_instance, initialize_test):
     assert info["active_cell_count"] == 11125
     assert info["reservoir_cell_count"] == 316224
     assert info["time_steps"]["total"] == 9
-    assert info["time_steps"]["items"][0] == "2014-01-01"
+    assert info["time_steps"]["items"][0] == "2014-01-01T00:00:00+00:00"
 
     properties = call_tool(
         rips_instance, "list_properties", case_id=case.id
@@ -126,6 +128,11 @@ def test_summary_tools(rips_instance, initialize_test):
     ).structured_content
     assert vectors["items"] == ["FOPR", "FOPT"]
 
+    lower_case = call_tool(
+        rips_instance, "list_summary_vectors", case_id=case.id, pattern="fop?"
+    ).structured_content
+    assert lower_case["items"] == []
+
     fopt = call_tool(
         rips_instance, "summary_values", case_id=case.id, vector="FOPT", max_points=4
     ).structured_content
@@ -145,7 +152,8 @@ def test_unknown_ids_are_tool_errors(rips_instance, initialize_test):
     for name, arguments, message in [
         ("case_info", {"case_id": 99}, "No grid case with id 99"),
         ("summary_values", {"case_id": 99, "vector": "FOPT"}, "No summary case"),
-        ("snapshot", {"view_id": 99}, "No view or plot with id 99"),
+        ("snapshot_view", {"view_id": 99}, "No view with id 99"),
+        ("snapshot_plot", {"plot_id": 99}, "No plot with id 99"),
     ]:
         result = call_tool(rips_instance, name, **arguments)
         assert result.is_error
@@ -158,7 +166,19 @@ def test_snapshot(rips_instance, initialize_test):
 
     case = rips_instance.project.load_case(dataroot.PATH + GRID_CASE)
     view = case.create_view()
-    result = call_tool(rips_instance, "snapshot", view_id=view.id)
-    # The export is a no-op when the view has no OpenGL viewer (e.g. offscreen Qt platform)
-    if not result.is_error:
-        assert result.content[0].mime_type == "image/png"
+    summary_case = rips_instance.project.import_summary_case(
+        dataroot.PATH + SUMMARY_CASE
+    )
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    collection.new_summary_plot(summary_cases=[summary_case], address="FOPT")
+    plot = rips_instance.project.descendants(rips.MultiSummaryPlot)[-1]
+
+    # Views and plots are numbered separately, so the ids can be equal
+    for name, arguments in [
+        ("snapshot_view", {"view_id": view.id}),
+        ("snapshot_plot", {"plot_id": plot.id}),
+    ]:
+        result = call_tool(rips_instance, name, **arguments)
+        # The export is a no-op when the window has no viewer (e.g. offscreen Qt platform)
+        if not result.is_error:
+            assert result.content[0].mime_type == "image/png"

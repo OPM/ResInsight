@@ -138,7 +138,16 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
             grids = case.grids()
             dimensions = grids[0].dimensions() if grids else None
             time_steps = [
-                f"{t.year:04d}-{t.month:02d}-{t.day:02d}" for t in case.time_steps()
+                datetime(
+                    t.year,
+                    t.month,
+                    t.day,
+                    t.hour,
+                    t.minute,
+                    t.second,
+                    tzinfo=timezone.utc,
+                ).isoformat()
+                for t in case.time_steps()
             ]
             return {
                 "id": case.id,
@@ -183,7 +192,9 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
         'FOPT*' or 'WOPR:*'."""
         with _reported():
             addresses = summary_case(case_id).available_addresses().values
-            return _capped(sorted(fnmatch.filter(addresses, pattern)))
+            return _capped(
+                sorted(a for a in addresses if fnmatch.fnmatchcase(a, pattern))
+            )
 
     @server.tool(annotations=READ_ONLY)
     def summary_values(
@@ -218,19 +229,19 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
 
     @server.tool(annotations=READ_ONLY)
     def list_views() -> dict[str, Any]:
-        """3D views in the project, with the grid case each one shows."""
+        """3D views in the project, with the case each one shows."""
         with _reported():
             views = []
-            for case in project().cases():
-                for view in case.views():
-                    views.append(
-                        {
-                            "id": view.id,
-                            "type": type(view).__name__,
-                            "case_id": case.id,
-                            "current_time_step": view.current_time_step,
-                        }
-                    )
+            for view in project().views():
+                case = view.case()
+                views.append(
+                    {
+                        "id": view.id,
+                        "type": type(view).__name__,
+                        "case_id": case.id if case else None,
+                        "current_time_step": view.current_time_step,
+                    }
+                )
             return _capped(views)
 
     @server.tool(annotations=READ_ONLY)
@@ -259,23 +270,34 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
                 ]
             )
 
-    @server.tool(annotations=READ_ONLY)
-    def snapshot(view_id: int) -> Image:
-        """PNG image of a 3D view or a plot window, by the id from list_views or
-        list_plots. Needs a ResInsight started with a GUI or with --headless."""
-        with _reported():
-            window = project().view(view_id) or project().plot(view_id)
-            if window is None:
+    def _snapshot(window: Any) -> Image:
+        with tempfile.TemporaryDirectory(prefix="rips_mcp_") as folder:
+            window.export_snapshot(export_folder=folder)
+            images = sorted(Path(folder).glob("*.png"))
+            if not images:
                 raise ToolError(
-                    f"No view or plot with id {view_id}. See list_views, list_plots."
+                    "ResInsight wrote no snapshot, the window has no viewer."
                 )
-            with tempfile.TemporaryDirectory(prefix="rips_mcp_") as folder:
-                window.export_snapshot(export_folder=folder)
-                images = sorted(Path(folder).glob("*.png"))
-                if not images:
-                    raise ToolError(
-                        "ResInsight wrote no snapshot, the window has no viewer."
-                    )
-                return Image(data=images[0].read_bytes(), format="png")
+            return Image(data=images[0].read_bytes(), format="png")
+
+    @server.tool(annotations=READ_ONLY)
+    def snapshot_view(view_id: int) -> Image:
+        """PNG image of a 3D view, by the id from list_views. Needs a ResInsight
+        started with a GUI or with --headless."""
+        with _reported():
+            view = project().view(view_id)
+            if view is None:
+                raise ToolError(f"No view with id {view_id}. See list_views.")
+            return _snapshot(view)
+
+    @server.tool(annotations=READ_ONLY)
+    def snapshot_plot(plot_id: int) -> Image:
+        """PNG image of a plot window, by the id from list_plots. Needs a
+        ResInsight started with a GUI or with --headless."""
+        with _reported():
+            plot = project().plot(plot_id)
+            if plot is None:
+                raise ToolError(f"No plot with id {plot_id}. See list_plots.")
+            return _snapshot(plot)
 
     return server
