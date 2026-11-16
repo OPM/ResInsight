@@ -100,6 +100,8 @@ public:
     bool hasBeenClosed() const;
     void clearClosedState();
 
+    bool hasBeenVisible() const;
+
     ads::CDockManager* dockManager() const;
 
     QString dockWidgetStateString() const;
