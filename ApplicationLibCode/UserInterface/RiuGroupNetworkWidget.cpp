@@ -22,10 +22,13 @@
 
 #include "RiuGroupNetworkGraphView.h"
 
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSlider>
 #include <QVBoxLayout>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,7 +38,7 @@ RiuGroupNetworkWidget::RiuGroupNetworkWidget( QWidget* parent )
     , m_graphView( new RiuGroupNetworkGraphView( this ) )
     , m_timeStepSlider( new QSlider( Qt::Horizontal, this ) )
     , m_dateLabel( new QLabel( this ) )
-    , m_statusLabel( new QLabel( this ) )
+    , m_statusLabel( new QLabel( m_graphView ) )
 {
     auto* timeLayout = new QHBoxLayout();
     timeLayout->addWidget( new QLabel( "Time Step", this ) );
@@ -43,13 +46,19 @@ RiuGroupNetworkWidget::RiuGroupNetworkWidget( QWidget* parent )
     timeLayout->addWidget( m_dateLabel );
     m_dateLabel->setMinimumWidth( 80 );
 
+    // The status text is shown as a text box in the upper left corner of the graph. The mouse events are passed on to the graph.
     m_statusLabel->setWordWrap( true );
+    m_statusLabel->setAttribute( Qt::WA_TransparentForMouseEvents );
+    m_statusLabel->setStyleSheet( "background-color: rgba(255, 255, 255, 230); color: #404040; border: 1px solid #c8c8c8; "
+                                  "border-radius: 4px; padding: 7px;" );
+    m_statusLabel->setAlignment( Qt::AlignLeft | Qt::AlignTop );
+    m_statusLabel->move( 8, 8 );
+    m_graphView->installEventFilter( this );
 
     auto* layout = new QVBoxLayout( this );
     layout->setContentsMargins( 4, 4, 4, 4 );
     layout->addLayout( timeLayout );
     layout->addWidget( m_graphView, 1 );
-    layout->addWidget( m_statusLabel );
 
     connect( m_timeStepSlider, &QSlider::valueChanged, this, &RiuGroupNetworkWidget::onTimeStepChanged );
     connect( m_graphView, &RiuGroupNetworkGraphView::nodeSelected, this, &RiuGroupNetworkWidget::nodeSelected );
@@ -137,7 +146,7 @@ void RiuGroupNetworkWidget::refresh()
         m_timeStepSlider->setRange( 0, 0 );
         m_timeStepSlider->setEnabled( false );
         m_dateLabel->clear();
-        m_statusLabel->setText( "Select a production network in the project tree" );
+        setStatusText( "Select a production network in the project tree" );
         m_refreshing = false;
         return;
     }
@@ -149,9 +158,38 @@ void RiuGroupNetworkWidget::refresh()
     m_dateLabel->setText( dates.isEmpty() ? QString() : dates[m_network->timeStepIndex()] );
 
     m_graphView->setNodes( m_network->graphNodes() );
-    m_statusLabel->setText( m_network->statusText() );
+    setStatusText( m_network->statusText() );
 
     m_refreshing = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Fits the width of the status text box to the graph
+//--------------------------------------------------------------------------------------------------
+bool RiuGroupNetworkWidget::eventFilter( QObject* watched, QEvent* event )
+{
+    if ( watched == m_graphView && event->type() == QEvent::Resize ) setStatusText( m_statusLabel->text() );
+    return QWidget::eventFilter( watched, event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGroupNetworkWidget::setStatusText( const QString& text )
+{
+    m_statusLabel->setVisible( !text.isEmpty() );
+    m_statusLabel->setText( text );
+
+    const int margin   = 8;
+    const int slack    = 12;
+    const int maxWidth = std::min( 450, std::max( 100, m_graphView->width() - 16 ) );
+
+    // Size the box to the wrapped text. The metrics are measured at a narrower width, and the box is given slack, so the label
+    // never wraps to more lines than measured
+    const QRect textRect =
+        m_statusLabel->fontMetrics().boundingRect( QRect( 0, 0, maxWidth - 2 * margin - slack, 10000 ), Qt::TextWordWrap, text );
+    m_statusLabel->setFixedSize( textRect.width() + 2 * margin + slack, textRect.height() + 2 * margin + slack / 2 );
+    m_statusLabel->raise();
 }
 
 //--------------------------------------------------------------------------------------------------

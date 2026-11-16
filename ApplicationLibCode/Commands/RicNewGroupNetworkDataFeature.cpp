@@ -23,12 +23,15 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryEnsemble.h"
 
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
+
+#include <memory>
 
 CAF_CMD_SOURCE_INIT( RicNewGroupNetworkDataFeature, "RicNewGroupNetworkDataFeature" );
 
@@ -50,21 +53,29 @@ void RicNewGroupNetworkDataFeature::onActionTriggered( bool isChecked )
     if ( !project || !project->activeOilField() || !project->activeOilField()->groupNetworkCollection() ) return;
     RimGroupNetworkDataCollection* collection = project->activeOilField()->groupNetworkCollection();
 
-    RimSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
-    if ( !summaryCase )
+    RimSummaryCase*     summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
+    RimSummaryEnsemble* ensemble    = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryEnsemble>();
+    const bool          useEnsemble = !summaryCase && ensemble && ensemble->isEnsemble();
+
+    if ( !useEnsemble && !summaryCase )
     {
         const auto summaryCases = project->allSummaryCases();
-        if ( !summaryCases.empty() ) summaryCase = summaryCases.front();
+        if ( summaryCases.empty() ) return;
+        summaryCase = summaryCases.front();
     }
-    if ( !summaryCase ) return;
 
-    auto* network = new RimGroupNetworkData();
-    network->setSummaryCase( summaryCase );
-    collection->addItem( network );
+    auto network = std::make_unique<RimGroupNetworkData>();
+    if ( useEnsemble )
+        network->setSummaryEnsemble( ensemble );
+    else
+        network->setSummaryCase( summaryCase );
+
+    auto* networkPtr = network.release();
+    collection->addItem( networkPtr );
     collection->updateConnectedEditors();
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::onObjectAppended( network, collection );
+    RiuPlotMainWindowTools::onObjectAppended( networkPtr, collection );
 }
 
 //--------------------------------------------------------------------------------------------------

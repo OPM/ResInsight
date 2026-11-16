@@ -29,8 +29,8 @@ class RimGroupNetworkPlot;
 class RiuGroupNetworkGraphView;
 
 //==================================================================================================
-/// The view widget of a production network plot: a time step slider above the graph and a status
-/// line below it
+/// The view widget of a production network plot: a time step slider above the graph, and a status
+/// text box in the upper left corner of the graph
 //==================================================================================================
 class RiuGroupNetworkWidget : public QWidget, public caf::SignalObserver
 {
@@ -48,8 +48,12 @@ public:
 signals:
     void nodeSelected( const QString& nodeName );
 
+protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override;
+
 private:
     void refresh();
+    void setStatusText( const QString& text );
     void onNetworkChanged( const caf::SignalEmitter* emitter );
     void onTimeStepChanged( int index );
     void onToggleCollapse( const QString& nodeName );

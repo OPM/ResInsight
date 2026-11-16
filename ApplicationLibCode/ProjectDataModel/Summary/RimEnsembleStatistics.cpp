@@ -114,6 +114,26 @@ bool RimEnsembleStatistics::hideEnsembleCurves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::setHideEnsembleCurves( bool hide )
+{
+    m_hideEnsembleCurves = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::setShownStatistics( bool showMean, bool showP10, bool showP50, bool showP90, const QString& customPercentiles )
+{
+    m_showMeanCurve     = showMean;
+    m_showP10Curve      = showP10;
+    m_showP50Curve      = showP50;
+    m_showP90Curve      = showP90;
+    m_customPercentiles = customPercentiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatistics::basedOnFilteredCases() const
 {
     return m_basedOnFilteredCases;
