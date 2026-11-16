@@ -80,6 +80,9 @@ public:
 
     bool isEmpty() const;
 
+    // True if both networks have the same tree revisions, with the same dates and the same parent of each node
+    bool hasSameTopology( const RigGroupNetwork& other ) const;
+
     static std::string keywordText( EdgeKeyword keyword );
 
 private:

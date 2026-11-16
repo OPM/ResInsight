@@ -319,3 +319,78 @@ TEST( RifGroupNetworkReader, missingFile )
     EXPECT_FALSE( RifGroupNetworkReader::readFromFile( "does_not_exist.DATA" ).has_value() );
     EXPECT_FALSE( RifGroupNetworkReader::readFromFile( "" ).has_value() );
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RifGroupNetworkReader, sameTopology )
+{
+    const auto network = readDeckText( networkDeck );
+    EXPECT_TRUE( network.hasSameTopology( readDeckText( networkDeck ) ) );
+
+    // Other well group
+    QString otherDeck = networkDeck;
+    otherDeck.replace( "'P2' 'G2'", "'P2' 'G1'" );
+    EXPECT_FALSE( network.hasSameTopology( readDeckText( otherDeck ) ) );
+
+    // Other date of a change
+    otherDeck = networkDeck;
+    otherDeck.replace( "1 'APR' 2020", "2 'APR' 2020" );
+    EXPECT_FALSE( network.hasSameTopology( readDeckText( otherDeck ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RifGroupNetworkReader, sameTopologyIgnoresPropertyChanges )
+{
+    const QString deck = R"(
+START
+ 1 'JAN' 2020 /
+SCHEDULE
+GRUPTREE
+ 'G1' 'FIELD' /
+/
+WELSPECS
+ 'P1' 'G1' 1 1 1* 'OIL' /
+/
+GRUPNET
+ 'G1' 20.0 /
+/
+)";
+
+    // A pressure update at a later date does not change the connectivity
+    const QString deckWithPressureUpdate = deck + R"(
+TSTEP
+ 31 /
+GRUPNET
+ 'G1' 25.0 /
+/
+)";
+
+    EXPECT_TRUE( readDeckText( deck ).hasSameTopology( readDeckText( deckWithPressureUpdate ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RifGroupNetworkReader, sameTopologyDistinguishesWellsAndGroups )
+{
+    const QString wellDeck = R"(
+START
+ 1 'JAN' 2020 /
+SCHEDULE
+GRUPTREE
+ 'G1' 'FIELD' /
+/
+WELSPECS
+ 'X' 'G1' 1 1 1* 'OIL' /
+/
+)";
+
+    const QString groupDeck = R"(
+START
+ 1 'JAN' 2020 /
+SCHEDULE
+GRUPTREE
+ 'G1' 'FIELD' /
+ 'X' 'G1' /
+/
+)";
+
+    EXPECT_FALSE( readDeckText( wellDeck ).hasSameTopology( readDeckText( groupDeck ) ) );
+}
