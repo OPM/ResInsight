@@ -48,6 +48,7 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QTemporaryDir>
 
 #include <limits>
@@ -276,6 +277,97 @@ TEST( RigReservoirTest, ReadWellsFromRestartFileWithoutIntehead )
 
     well_info_free( wellInfo );
     ecl_file_close( ecl_file );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Write a restart file with one well, optionally corrupt the data record of a keyword, and return
+/// the number of wells read. Returns -1 if the file could not be created.
+//--------------------------------------------------------------------------------------------------
+int wellCountFromRestartFile( const QString& restartFileName, const char* corruptKeyword )
+{
+    {
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), false, ECL_ENDIAN_FLIP );
+        if ( !fortio ) return -1;
+
+        auto writeKeyword = [fortio]( const char* name, int size, ecl_data_type type, const void* data )
+        {
+            ecl_kw_type* kw = ecl_kw_alloc_new( name, size, type, data );
+            ecl_kw_fwrite( kw, fortio );
+            ecl_kw_free( kw );
+        };
+
+        std::vector<int> seqnum( 1, 1 );
+        writeKeyword( SEQNUM_KW, (int)seqnum.size(), ECL_INT, seqnum.data() );
+
+        std::vector<int> intehead( 411, 0 );
+        intehead[INTEHEAD_DAY_INDEX]    = 1;
+        intehead[INTEHEAD_MONTH_INDEX]  = 1;
+        intehead[INTEHEAD_YEAR_INDEX]   = 2000;
+        intehead[INTEHEAD_NWELLS_INDEX] = 1;
+        intehead[INTEHEAD_NIWELZ_INDEX] = 155;
+        intehead[INTEHEAD_NXWELZ_INDEX] = 130;
+        intehead[INTEHEAD_NZWELZ_INDEX] = 3;
+        writeKeyword( INTEHEAD_KW, (int)intehead.size(), ECL_INT, intehead.data() );
+
+        std::vector<int> iwel( 155, 0 );
+        writeKeyword( IWEL_KW, (int)iwel.size(), ECL_INT, iwel.data() );
+
+        std::vector<double> xwel( 130, 0.0 );
+        writeKeyword( XWEL_KW, (int)xwel.size(), ECL_DOUBLE, xwel.data() );
+
+        ecl_kw_type* zwel = ecl_kw_alloc( ZWEL_KW, 3, ECL_CHAR );
+        ecl_kw_iset_string8( zwel, 0, "WELL" );
+        ecl_kw_fwrite( zwel, fortio );
+        ecl_kw_free( zwel );
+
+        std::vector<int> iseg( 22, 0 );
+        writeKeyword( ISEG_KW, (int)iseg.size(), ECL_INT, iseg.data() );
+
+        fortio_fclose( fortio );
+    }
+
+    if ( corruptKeyword )
+    {
+        // Corrupt the record marker in front of the keyword data
+        QFile file( restartFileName );
+        if ( !file.open( QIODevice::ReadWrite ) ) return -1;
+
+        const QByteArray content   = file.readAll();
+        const qsizetype  headerPos = content.indexOf( QByteArray( corruptKeyword ).leftJustified( 8, ' ' ) );
+        if ( headerPos < 0 || !file.seek( headerPos + 8 + 4 + 4 + 4 ) ) return -1;
+
+        const char invalidMarker[4] = { 0x7f, 0x7f, 0x7f, 0x7f };
+        if ( file.write( invalidMarker, 4 ) != 4 ) return -1;
+    }
+
+    ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), 0 );
+    if ( !ecl_file ) return -1;
+
+    well_info_type* wellInfo = well_info_alloc( { "GLOBAL" } );
+    well_info_add_UNRST_wells( wellInfo, ecl_file, false );
+    const int wellCount = well_info_get_num_wells( wellInfo );
+
+    well_info_free( wellInfo );
+    ecl_file_close( ecl_file );
+
+    return wellCount;
+}
+} // namespace
+
+TEST( RigReservoirTest, ReadWellsFromRestartFileWithUnreadableKeywords )
+{
+    // Keywords are indexed when the file is opened, but their data is not read until requested. If the data block is
+    // corrupt, the keyword lookup returns NULL. The well reader dereferenced a NULL IWEL keyword and crashed. A well
+    // with unreadable keywords is skipped.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    EXPECT_EQ( 1, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "VALID.UNRST" ), nullptr ) );
+    EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "IWEL.UNRST" ), IWEL_KW ) );
+    EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "ISEG.UNRST" ), ISEG_KW ) );
+    EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "XWEL.UNRST" ), XWEL_KW ) );
 }
 
 TEST( RigReservoirTest, TimeStepsFromFileWithoutIntehead )
