@@ -12,15 +12,25 @@
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 
+#include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QString>
+#include <QTemporaryDir>
 
 #include "RiaPreferencesGrid.h"
 
 #include "cafPdmField.h"
 
+#include "opm/utility/ECLResultData.hpp"
+
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
+
+#ifdef _WIN32
+#include <share.h>
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// Test calculateRelPermCurves for Oil relative permeability in Oil-Gas system
@@ -291,4 +301,39 @@ TEST( FlowDiagnosticsTest, calculateRelPermCurves_GasCapillaryPressure )
         EXPECT_EQ( 1, countCurves( RigFlowDiagDefines::RelPermCurve::PCOG ) );
         EXPECT_EQ( expectPcow ? 1 : 0, countCurves( RigFlowDiagDefines::RelPermCurve::PCOW ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A restart file that cannot be opened must throw. The NULL file handle was passed to ecl_file_close()
+/// while the exception unwound, and crashed.
+//--------------------------------------------------------------------------------------------------
+TEST( FlowDiagnosticsTest, OpenUnreadableRestartFileThrows )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString restartFileName = QDir( tempDir.path() ).filePath( "TEST.UNRST" );
+    {
+        QFile file( restartFileName );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly ) );
+        file.write( QByteArray( 64, 'x' ) );
+    }
+
+#ifdef _WIN32
+    // Hold an exclusive lock so ecl_file_open() fails
+    FILE* lockedFile = _wfsopen( restartFileName.toStdWString().c_str(), L"rb", _SH_DENYRW );
+    ASSERT_TRUE( lockedFile );
+#else
+    QFile::setPermissions( restartFileName, QFileDevice::Permissions() );
+    if ( QFile( restartFileName ).open( QIODevice::ReadOnly ) )
+    {
+        GTEST_SKIP() << "Unable to make the restart file unreadable";
+    }
+#endif
+
+    EXPECT_THROW( Opm::ECLRestartData( restartFileName.toStdString() ), std::invalid_argument );
+
+#ifdef _WIN32
+    fclose( lockedFile );
+#endif
 }
