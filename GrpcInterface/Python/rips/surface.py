@@ -111,9 +111,12 @@ def set_geometry(
     triangles_key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_triangles")
 
     project.set_key_values(vertices_key, _flatten(vertices, float), dtype="float64")
-    project.set_key_values(
-        triangles_key, _flatten(triangles, operator.index), dtype="uint32"
-    )
+    indices = _flatten(triangles, operator.index)
+    for index in indices:
+        if index < 0:
+            raise RipsError("Invalid triangle index {}".format(index))
+
+    project.set_key_values(triangles_key, indices, dtype="uint32")
     self.set_geometry_from_keys(vertices_key=vertices_key, triangles_key=triangles_key)
 
 

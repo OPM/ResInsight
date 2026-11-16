@@ -331,6 +331,9 @@ def test_triangulated_surface_uint32_indices(rips_instance, initialize_test):
     with pytest.raises(rips.RipsError, match="out of range for element type UINT32"):
         s.set_geometry(vertices, [[0, 1, 2**32]])
 
+    with pytest.raises(rips.RipsError, match="Invalid triangle index -1"):
+        s.set_geometry(vertices, [[0, 1, -1]])
+
     with pytest.raises(TypeError):
         s.set_geometry(vertices, [[0.0, 1.0, 2.5]])
 
