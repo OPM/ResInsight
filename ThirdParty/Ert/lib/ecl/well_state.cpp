@@ -312,6 +312,14 @@ static bool well_state_add_rates(well_state_type* well_state,
     if (has_xwel_kw) {
         const ecl_kw_type* xwel_kw = ecl_file_view_iget_named_kw(rst_view, XWEL_KW, 0);
         ecl_rsthead_type* header = ecl_rsthead_alloc(rst_view, -1);
+
+        // NULL if the keywords cannot be read, e.g. from a truncated restart file
+        if (!header || !xwel_kw) {
+            if (header)
+                ecl_rsthead_free(header);
+            return false;
+        }
+
         int offset = header->nxwelz * well_nr;
 
         well_state->unit_system = header->unit_system;
@@ -417,6 +425,12 @@ static void well_state_add_connections__(well_state_type* well_state,
     ecl_rsthead_type* header = ecl_rsthead_alloc(rst_view, -1);
     const ecl_kw_type* iwel_kw = ecl_file_view_iget_named_kw(rst_view, IWEL_KW, 0);
 
+    // NULL if the keywords cannot be read, e.g. from a truncated restart file
+    if (!header || !iwel_kw) {
+        if (header)
+            ecl_rsthead_free(header);
+        return;
+    }
 
     well_state_add_wellhead(well_state, header, iwel_kw, well_nr, grid_name, grid_nr);
 
@@ -517,6 +531,13 @@ bool well_state_add_MSW2(well_state_type* well_state,
         const ecl_kw_type* iseg_kw = ecl_file_view_iget_named_kw(rst_view, ISEG_KW, 0);
         well_rseg_loader_type* rseg_loader = NULL;
 
+        // NULL if the keywords cannot be read, e.g. from a truncated restart file
+        if (!rst_head || !iwel_kw || !iseg_kw) {
+            if (rst_head)
+                ecl_rsthead_free(rst_head);
+            return false;
+        }
+
         int segment_count;
 
         if (ecl_file_view_has_kw(rst_view, RSEG_KW)) {
@@ -579,6 +600,16 @@ well_state_type* well_state_alloc_from_file2(ecl_file_view_type* file_view, std:
         ecl_rsthead_type* global_header = ecl_rsthead_alloc(file_view, -1);
         const ecl_kw_type* global_iwel_kw = ecl_file_view_iget_named_kw(file_view, IWEL_KW, 0);
         const ecl_kw_type* global_zwel_kw = ecl_file_view_iget_named_kw(file_view, ZWEL_KW, 0);
+
+        // NULL if the keywords cannot be read, e.g. from a truncated restart file. Skip the well also when
+        // segment or rate data is present but unreadable, instead of loading it with missing data.
+        const bool iseg_unreadable = ecl_file_view_has_kw(file_view, ISEG_KW) && !ecl_file_view_iget_named_kw(file_view, ISEG_KW, 0);
+        const bool xwel_unreadable = ecl_file_view_has_kw(file_view, XWEL_KW) && !ecl_file_view_iget_named_kw(file_view, XWEL_KW, 0);
+        if (!global_header || !global_iwel_kw || !global_zwel_kw || iseg_unreadable || xwel_unreadable) {
+            if (global_header)
+                ecl_rsthead_free(global_header);
+            return NULL;
+        }
 
         const int iwel_offset = global_header->niwelz * global_well_nr;
         {
