@@ -58,6 +58,7 @@ public:
 
 protected:
     void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
@@ -67,6 +68,7 @@ private:
     void disconnectSourceSignals();
     void onSourceFiltersChanged( const caf::SignalEmitter* emitter );
     void cascadeMasterToggle();
+    void selectDataFilterCollection();
 
     caf::PdmPtrField<RimCellFilterCollection*>            m_cellFilters;
     caf::PdmPtrField<RimEclipsePropertyFilterCollection*> m_propertyFilters;
