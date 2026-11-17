@@ -55,6 +55,14 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 {
     disableModelChangeContribution();
 
+    showPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicEditPreferencesFeature::showPreferences( const QString& pageName )
+{
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     QStringList tabNames = app->preferences()->tabNames();
@@ -65,8 +73,10 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 
     RiuPropertyViewListWidget propertyDialog( RiaGuiApplication::widgetToUseAsParent(), app->preferences(), "Preferences", tabNames );
 
+    if ( !pageName.isEmpty() ) propertyDialog.setCurrentPage( pageName );
+
     auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
-    connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );
+    QObject::connect( pushButton, &QPushButton::clicked, []() { RiaNetworkTools::openSearchPage( "preferences" ); } );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
@@ -103,12 +113,4 @@ void RicEditPreferencesFeature::setupActionLook( QAction* actionToSetup )
 std::unique_ptr<RiaPreferences> RicEditPreferencesFeature::clonePreferences( const RiaPreferences* preferences )
 {
     return std::unique_ptr<RiaPreferences>( preferences->copyObject<RiaPreferences>() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicEditPreferencesFeature::showHelp()
-{
-    RiaNetworkTools::openSearchPage( "preferences" );
 }
