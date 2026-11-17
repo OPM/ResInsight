@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaReportTable.h"
+
 #include "RigEclipseCrossPlotDataExtractor.h"
 #include "RigGridCrossPlotCurveGrouping.h"
 
@@ -124,13 +126,13 @@ public:
 
     std::map<NameComponents, QString> nameComponents() const;
 
-    void updateCurveNames( size_t dataSetIndex, size_t dataSetCount );
-    void updateLegendRange();
-    void updateLegendIcons();
-    bool groupingByCategoryResult() const;
-    bool groupingEnabled() const;
-    void swapAxisProperties( bool updatePlot );
-    void exportFormattedData( RifTextDataTableFormatter& formatter ) const;
+    void           updateCurveNames( size_t dataSetIndex, size_t dataSetCount );
+    void           updateLegendRange();
+    void           updateLegendIcons();
+    bool           groupingByCategoryResult() const;
+    bool           groupingEnabled() const;
+    void           swapAxisProperties( bool updatePlot );
+    RiaReportTable createReportTable() const;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
