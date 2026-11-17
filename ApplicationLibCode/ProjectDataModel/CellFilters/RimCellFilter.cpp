@@ -25,11 +25,13 @@
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimTools.h"
 #include "RimViewController.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include "cvfStructGridGeometryGenerator.h"
@@ -91,6 +93,29 @@ RimCellFilter::~RimCellFilter()
 caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 {
     return &m_nameProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Filters listed under an ensemble-level data filter collection are always on, and have no checkbox
+/// in the project tree. Per-view on/off is controlled by the RimDataFilterInView wrappers.
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellFilter::objectToggleField()
+{
+    if ( parentField() )
+    {
+        auto* collection = dynamic_cast<RimDataFilterCollection*>( parentField()->ownerObject() );
+        if ( collection && collection->isEnsembleLevel() ) return nullptr;
+    }
+
+    return RimCheckableNamedObject::objectToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicCombineSelectedFiltersFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

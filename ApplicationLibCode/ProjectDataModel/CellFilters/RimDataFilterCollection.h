@@ -55,10 +55,18 @@ public:
 
     bool shouldBeVisibleInTree() const { return !filters().empty(); }
 
+    // True for the collection owned by a grid ensemble, whose filters are always checked.
+    bool isEnsembleLevel() const;
+
     RimEclipsePropertyFilter* addNewPropertyFilter();
     RimFormationFilter*       addNewFormationFilter();
     RimCellRangeFilter*       addNewRangeFilter();
     RimCombinedFilter*        addNewCombinedFilter();
+
+    // Moves the given direct children of this collection into a new combined filter that replaces them.
+    // Fields referring to a moved filter are re-pointed to the combined filter.
+    // Returns nullptr if fewer than two of the filters are direct children.
+    RimCombinedFilter* combineFilters( const std::vector<RimCellFilter*>& filtersToCombine );
 
     bool hasActiveFilters() const;
 
@@ -70,6 +78,7 @@ protected:
     void onItemsChanged() override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     void connectChildSignal( RimCellFilter* child );

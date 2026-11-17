@@ -28,6 +28,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafSignal.h"
@@ -153,6 +154,36 @@ TEST( RimDataFilterCollection, hasActiveFiltersReflectsChildState )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, combineFiltersMovesChildrenIntoCombinedFilterAtFirstPosition )
+{
+    RimDataFilterCollection coll;
+
+    auto* a = new RimCellRangeFilter();
+    auto* b = new RimCellRangeFilter();
+    auto* c = new RimCellRangeFilter();
+    coll.addFilter( a );
+    coll.addFilter( b );
+    coll.addFilter( c );
+
+    EXPECT_EQ( nullptr, coll.combineFilters( { a } ) );
+    EXPECT_EQ( size_t{ 3 }, coll.count() );
+
+    RimCombinedFilter* combined = coll.combineFilters( { b, c } );
+    ASSERT_NE( nullptr, combined );
+
+    ASSERT_EQ( size_t{ 2 }, coll.count() );
+    EXPECT_EQ( a, coll.filters()[0] );
+    EXPECT_EQ( combined, coll.filters()[1] );
+
+    const auto children = combined->filters();
+    ASSERT_EQ( size_t{ 2 }, children.size() );
+    EXPECT_EQ( b, children[0] );
+    EXPECT_EQ( c, children[1] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RimDataFilterCollection, addNewRangeFilterReturnsConfigured )
 {
     RimDataFilterCollection coll;
@@ -234,6 +265,97 @@ TEST( RimDataFilterCollection, pdmRoundTripPreservesFilters )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Ensemble filters have no checkbox, so a stored unchecked state is reset to checked on load.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, ensembleFilterStoredUncheckedIsCheckedOnLoad )
+{
+    QString xml;
+    {
+        RimReservoirGridEnsemble original;
+        original.dataFilterCollection()->addNewRangeFilter()->setActive( false );
+        xml = original.writeObjectToXmlString();
+    }
+
+    RimReservoirGridEnsemble restored;
+    restored.readObjectFromXmlString( xml, caf::PdmDefaultObjectFactory::instance() );
+    restored.xmlCapability()->initAfterReadRecursively();
+    restored.resolveReferencesRecursively();
+
+    auto filters = restored.dataFilterCollection()->filters();
+    ASSERT_EQ( size_t{ 1 }, filters.size() );
+    EXPECT_TRUE( filters[0]->isChecked() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only ensemble data filters are always on. A filter in a case-level collection has a checkbox,
+/// and its stored state must be kept when loading, and when other filters are added.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, caseLevelFilterKeepsCheckState )
+{
+    EXPECT_FALSE( RimDataFilterCollection().isEnsembleLevel() );
+
+    QString xml;
+    {
+        RimDataFilterCollection original;
+        original.addNewRangeFilter()->setActive( false );
+        xml = original.writeObjectToXmlString();
+    }
+
+    RimDataFilterCollection restored;
+    restored.readObjectFromXmlString( xml, caf::PdmDefaultObjectFactory::instance() );
+    restored.xmlCapability()->initAfterReadRecursively();
+    restored.resolveReferencesRecursively();
+
+    ASSERT_EQ( size_t{ 1 }, restored.count() );
+    EXPECT_FALSE( restored.filters()[0]->isChecked() );
+
+    restored.addNewRangeFilter();
+    EXPECT_FALSE( restored.filters()[0]->isChecked() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Adding a filter must not change the state of the existing filters, also in the ensemble.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, addingFilterKeepsExistingCheckStateInEnsemble )
+{
+    RimReservoirGridEnsemble ensemble;
+    auto*                    collection = ensemble.dataFilterCollection();
+    EXPECT_TRUE( collection->isEnsembleLevel() );
+
+    auto* first = collection->addNewRangeFilter();
+    first->setActive( false );
+    collection->addNewRangeFilter();
+
+    EXPECT_FALSE( first->isChecked() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Objects referring to a filter that is moved into a combined filter should refer to the combined
+/// filter, which is the one selectable among the top-level filters.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, combineFiltersRepointsReferencesToCombinedFilter )
+{
+    RimDataFilterCollection coll;
+    auto*                   a = coll.addNewRangeFilter();
+    auto*                   b = coll.addNewRangeFilter();
+    auto*                   c = coll.addNewRangeFilter();
+
+    RimPerforationInterval referringToB;
+    referringToB.setCellFilter( b );
+    RimPerforationInterval referringToC;
+    referringToC.setCellFilter( c );
+    RimPerforationInterval referringToA;
+    referringToA.setCellFilter( a );
+
+    RimCombinedFilter* combined = coll.combineFilters( { b, c } );
+    ASSERT_NE( nullptr, combined );
+
+    EXPECT_EQ( combined, referringToB.cellFilter() );
+    EXPECT_EQ( combined, referringToC.cellFilter() );
+    EXPECT_EQ( a, referringToA.cellFilter() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RimDataFilterCollection, ensembleViewUsesEnsembleDataFilters )
@@ -282,6 +404,35 @@ TEST( RimDataFilterCollection, viewWrapperAppearsWhenEnsembleFilterAddedAfterVie
 
     ASSERT_EQ( size_t{ 1 }, view->dataFiltersInView()->wrappers().size() );
     EXPECT_EQ( ensemble->dataFilterCollection()->filters().front(), view->dataFiltersInView()->wrappers().front()->sourceFilter() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Combining filters replaces their view wrappers with one wrapper for the combined filter, which is
+/// applied in the view if any of the combined filters was.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, combiningFiltersReplacesViewWrappersAndKeepsActivation )
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    auto* eclipseCase = new RimEclipseResultCase();
+    ensemble->addCase( eclipseCase );
+
+    RimEclipseView* view = eclipseCase->viewCollection()->addView( eclipseCase );
+
+    auto* collection = ensemble->dataFilterCollection();
+    auto* filterA    = collection->addNewRangeFilter();
+    auto* filterB    = collection->addNewRangeFilter();
+
+    ASSERT_EQ( size_t{ 2 }, view->dataFiltersInView()->wrappers().size() );
+    view->dataFiltersInView()->wrappers().front()->setCheckState( true );
+
+    auto* combined = collection->combineFilters( { filterA, filterB } );
+    ASSERT_NE( nullptr, combined );
+
+    auto wrappers = view->dataFiltersInView()->wrappers();
+    ASSERT_EQ( size_t{ 1 }, wrappers.size() );
+    EXPECT_EQ( combined, wrappers.front()->sourceFilter() );
+    EXPECT_TRUE( wrappers.front()->isChecked() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,10 +20,13 @@
 
 #include "Rim3dView.h"
 #include "RimCellFilter.h"
+#include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
 #include "RimDataFilterInView.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimDataFilterInViewCollection, "DataFilterInViewCollection" );
 
@@ -113,10 +116,39 @@ void RimDataFilterInViewCollection::syncWithSource()
         ordered.push_back( wrapper );
     }
 
+    // Wrappers for sources no longer directly in the collection, e.g. filters moved into a combined filter
+    std::vector<RimDataFilterInView*> orphans;
+    for ( auto* w : m_wrappers.childrenByType() )
+    {
+        if ( std::find( ordered.begin(), ordered.end(), w ) == ordered.end() ) orphans.push_back( w );
+    }
+
+    // The wrapper of a combined filter is applied in this view if any wrapper of its filters was
+    for ( auto* w : ordered )
+    {
+        auto* combined = dynamic_cast<RimCombinedFilter*>( w->sourceFilter() );
+        if ( !combined ) continue;
+
+        auto descendants = combined->descendantsOfType<RimCellFilter>();
+        for ( auto* orphan : orphans )
+        {
+            if ( orphan->isChecked() && std::find( descendants.begin(), descendants.end(), orphan->sourceFilter() ) != descendants.end() )
+            {
+                w->setCheckState( true );
+                break;
+            }
+        }
+    }
+
     m_wrappers.clearWithoutDelete();
     for ( auto* w : ordered )
     {
         m_wrappers.push_back( w );
+    }
+
+    for ( auto* orphan : orphans )
+    {
+        delete orphan;
     }
     updateConnectedEditors();
     wrappersChanged.send();
