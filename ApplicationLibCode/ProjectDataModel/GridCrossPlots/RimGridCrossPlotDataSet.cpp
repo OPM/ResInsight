@@ -37,6 +37,7 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
@@ -1329,56 +1330,50 @@ void RimGridCrossPlotDataSet::swapAxisProperties( bool updatePlot )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// One row per data point, with group index and name if the data set is grouped
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::exportFormattedData( RifTextDataTableFormatter& formatter ) const
+RiaReportTable RimGridCrossPlotDataSet::createReportTable() const
 {
-    if ( m_groupedResults.empty() ) return;
+    RiaReportTable table;
+    if ( m_groupedResults.empty() ) return table;
 
-    QString xTitle = QString( "%1" ).arg( m_xAxisProperty->resultVariableUiShortName() );
-    QString yTitle = QString( "%1" ).arg( m_yAxisProperty->resultVariableUiShortName() );
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_CONSISE, 6 );
 
-    if ( m_grouping != NO_GROUPING )
+    table.columns = { RiaReportColumn{ .title = m_xAxisProperty->resultVariableUiShortName(), .doubleFormat = valueFormat },
+                      RiaReportColumn{ .title = m_yAxisProperty->resultVariableUiShortName(), .doubleFormat = valueFormat } };
+
+    const bool isGrouped = m_grouping() != NO_GROUPING;
+    if ( isGrouped )
     {
-        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( xTitle ),
-                                                       RifTextDataTableColumn( yTitle ),
-                                                       RifTextDataTableColumn( "Group Index" ),
-                                                       RifTextDataTableColumn( "Group Description" ) };
-
-        formatter.header( header );
-    }
-    else
-    {
-        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( xTitle ), RifTextDataTableColumn( yTitle ) };
-        formatter.header( header );
+        table.columns.push_back( RiaReportColumn{ .title = "Group Index" } );
+        table.columns.push_back( RiaReportColumn{ .title = "Group Description", .alignment = LEFT } );
     }
 
-    caf::ProgressInfo progress( m_groupedResults.size(), "Gathering Data Points" );
-    for ( auto it = m_groupedResults.begin(); it != m_groupedResults.end(); ++it )
+    size_t totalCount = 0;
+    for ( const auto& [groupIndex, result] : m_groupedResults )
     {
-        auto task = progress.task( QString( "Exporting Group %1" ).arg( it->first ) );
+        totalCount += std::min( result.xValues.size(), result.yValues.size() );
+    }
+    table.rows.reserve( totalCount );
 
-        RigEclipseCrossPlotResult res = it->second;
-
-        for ( size_t i = 0; i < it->second.xValues.size(); ++i )
+    for ( const auto& [groupIndex, result] : m_groupedResults )
+    {
+        const QString groupName = isGrouped ? createGroupName( groupIndex ) : QString();
+        const size_t  count     = std::min( result.xValues.size(), result.yValues.size() );
+        for ( size_t i = 0; i < count; ++i )
         {
-            if ( m_grouping() == NO_GROUPING )
+            if ( isGrouped )
             {
-                formatter.add( res.xValues[i] );
-                formatter.add( res.yValues[i] );
+                table.rows.push_back( { result.xValues[i], result.yValues[i], groupIndex, groupName } );
             }
             else
             {
-                int     groupIndex = it->first;
-                QString groupName  = createGroupName( groupIndex );
-                formatter.add( res.xValues[i] );
-                formatter.add( res.yValues[i] );
-                formatter.add( groupIndex );
-                formatter.add( groupName );
+                table.rows.push_back( { result.xValues[i], result.yValues[i] } );
             }
-            formatter.rowCompleted();
         }
     }
+
+    return table;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1455,6 +1450,7 @@ void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
     {
         parent->updateCurveNamesAndPlotTitle();
         parent->reattachAllCurves();
+        RiuPlotMainWindowTools::updateReportWindow( parent );
 
         // updateConnectedEditors() causes the UI editor to be recreated (and the widgets contained in the UI editor). The function
         // calling this function can in some cases comes from the widget to be destroyed, typically the tree view selection editor

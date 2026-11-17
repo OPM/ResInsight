@@ -21,9 +21,10 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
+#include "RiaReportDataProducer.h"
+
 #include "RimNameConfig.h"
 #include "RimPlot.h"
-#include "RimTabbedTextProducer.h"
 
 #include <QPointer>
 
@@ -54,7 +55,7 @@ private:
     void doEnableAllAutoNameTags( bool enable ) override;
 };
 
-class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface, public RimTabbedTextProducer
+class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -89,11 +90,9 @@ public:
     void updateCurveNamesAndPlotTitle();
     void swapAxes();
 
-    QString asciiDataForPlotExport() const override;
-    QString asciiTitleForPlotExport( int dataSetIndex ) const;
-    QString asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
-
-    std::unique_ptr<RimTabbedTextProvider> createTabbedTextProvider() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;

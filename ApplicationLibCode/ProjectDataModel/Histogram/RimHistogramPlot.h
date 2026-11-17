@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaPlotDefines.h"
+#include "RiaReportDataProducer.h"
 
 #include "RimPlot.h"
 #include "RimPlotAxisProperties.h"
@@ -103,7 +104,9 @@ public:
 
     QWidget* viewWidget() override;
 
-    QString asciiDataForPlotExport() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     FrequencyType frequencyType() const;
     GraphType     graphType() const;
@@ -200,6 +203,7 @@ private:
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveNameChanged( const caf::SignalEmitter* emitter, QString name );
     void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
     void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
