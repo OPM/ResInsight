@@ -22,13 +22,18 @@
 #include "Polygons/RimPolygonCollection.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
+#include "RimDataFilterCollection.h"
 #include "RimDataFilterInView.h"
 #include "RimDataFilterInViewCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFilterDisplayUtil.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiLabel.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QIcon>
@@ -151,6 +156,20 @@ QString RimFilterInViewCollection::activeFiltersDisplayText() const
 void RimFilterInViewCollection::initAfterRead()
 {
     connectSourceSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFilterInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( firstAncestorOfType<RimReservoirGridEnsemble>() )
+    {
+        auto* label =
+            uiOrdering.addNewLabel( "Filters for this view are ensemble filters, created under <a href=\"dummy\">Data Filters</a>. "
+                                    "They can also be used by other ensemble operations, such as ensemble contour maps." );
+        label->setLinkActivatedCallback( [this]( const QString& ) { selectDataFilterCollection(); } );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,4 +315,15 @@ void RimFilterInViewCollection::cascadeMasterToggle()
     }
 
     if ( m_dataFiltersInView() ) m_dataFiltersInView()->setCheckState( checked );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFilterInViewCollection::selectDataFilterCollection()
+{
+    auto* gridEnsemble = firstAncestorOfType<RimReservoirGridEnsemble>();
+    if ( !gridEnsemble || !gridEnsemble->dataFilterCollection() ) return;
+
+    Riu3DMainWindowTools::selectAsCurrentItem( gridEnsemble->dataFilterCollection() );
 }
