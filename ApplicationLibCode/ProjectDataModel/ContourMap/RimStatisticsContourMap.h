@@ -68,6 +68,7 @@ public:
     RimEclipseCase* eclipseCase() const;
 
     RimCellFilter* dataFilter() const;
+    void           setDataFilter( RimCellFilter* filter );
 
     void setGridImportMode( GridImportMode mode );
 
@@ -110,6 +111,9 @@ private:
 
     void computeStatistics();
     void onComputeStatisticsClicked();
+    void selectDataFilterCollection();
+    void onDataFilterChanged( const caf::SignalEmitter* emitter );
+    void connectToDataFilter();
     void doStatisticsCalculation( TimestepResultsMap& timestep_results );
 
     // Project-adjacent statistics cache, keyed by a hash of all settings affecting the results.

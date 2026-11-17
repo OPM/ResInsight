@@ -214,7 +214,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "Separator";
+            if ( auto* eclipseView = dynamic_cast<RimEclipseView*>( firstUiItem );
+                 eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->ensemble() )
+            {
+                menuBuilder << "RicNewStatisticsContourMapFeature";
+            }
             menuBuilder << "RicNewContourMapViewFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicCreateGridCrossPlotFeature";
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
             menuBuilder << "RicNewRefinementRegionFeature";

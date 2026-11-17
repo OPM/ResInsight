@@ -19,6 +19,10 @@
 #include "RicNewStatisticsContourMapFeature.h"
 
 #include "ContourMap/RimStatisticsContourMap.h"
+#include "RimDataFilterInView.h"
+#include "RimDataFilterInViewCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimReservoirGridEnsembleBase.h"
 
@@ -36,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicNewStatisticsContourMapFeature, "RicNewStatisticsContour
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGridEnsembleBase* ensemble )
+void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGridEnsembleBase* ensemble, RimEclipseView* sourceView )
 {
     if ( !ensemble ) return;
 
@@ -71,6 +75,14 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGri
     statisticsContourMap->switchToSelectedSourceCase();
     ensemble->addStatisticsContourMap( statisticsContourMap );
 
+    // Use the data filter of the 3D view if exactly one is active
+    if ( sourceView && sourceView->dataFiltersInView() )
+    {
+        auto activeFilters = sourceView->dataFiltersInView()->activeWrappers();
+        if ( activeFilters.size() == 1 && activeFilters.front() )
+            statisticsContourMap->setDataFilter( activeFilters.front()->sourceFilter() );
+    }
+
     if ( auto* pdmObject = dynamic_cast<caf::PdmObject*>( ensemble ) ) pdmObject->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( statisticsContourMap );
@@ -89,7 +101,7 @@ bool RicNewStatisticsContourMapFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewStatisticsContourMapFeature::onActionTriggered( bool isChecked )
 {
-    addStatisticsContourMap( selectedEnsemble() );
+    addStatisticsContourMap( selectedEnsemble(), caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,5 +119,11 @@ void RicNewStatisticsContourMapFeature::setupActionLook( QAction* actionToSetup 
 RimReservoirGridEnsembleBase* RicNewStatisticsContourMapFeature::selectedEnsemble()
 {
     if ( auto* ens = caf::SelectionManager::instance()->selectedItemOfType<RimReservoirGridEnsembleBase>() ) return ens;
+
+    if ( auto* view = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() )
+    {
+        if ( auto* eCase = view->eclipseCase() ) return eCase->ensemble();
+    }
+
     return nullptr;
 }
