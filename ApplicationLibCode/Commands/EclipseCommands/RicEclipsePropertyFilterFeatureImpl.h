@@ -45,8 +45,10 @@ public:
     // when invoked from the unified facade tree node.
     static RimEclipsePropertyFilterCollection* resolveTargetPropertyFilterCollection();
 
-    static void                      addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection );
-    static RimEclipsePropertyFilter* addPropertyFilterToCombinedFilter( RimCombinedFilter* combined );
+    // When formationNames is true, the new filter is a formation filter instead of a filter on the
+    // view's current cell result.
+    static void addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, bool formationNames = false );
+    static RimEclipsePropertyFilter* addPropertyFilterToCombinedFilter( RimCombinedFilter* combined, bool formationNames = false );
     static void                      insertPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index );
 
     static bool isPropertyFilterCommandAvailable( caf::PdmObjectHandle* object );

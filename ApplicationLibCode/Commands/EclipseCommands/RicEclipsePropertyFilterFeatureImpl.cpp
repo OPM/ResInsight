@@ -29,6 +29,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimFilterInViewCollection.h"
+#include "RimFormationFilter.h"
 #include "RimViewController.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -70,9 +71,9 @@ RimEclipsePropertyFilterCollection* RicEclipsePropertyFilterFeatureImpl::resolve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection )
+void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, bool formationNames )
 {
-    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
+    RimEclipsePropertyFilter* propertyFilter = formationNames ? new RimFormationFilter() : new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFiltersField().push_back( propertyFilter );
     setDefaults( propertyFilter );
 
@@ -94,11 +95,12 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( RimCombinedFilter* combined )
+RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( RimCombinedFilter* combined,
+                                                                                                  bool               formationNames )
 {
     if ( !combined ) return nullptr;
 
-    auto* propertyFilter = new RimEclipsePropertyFilter();
+    auto* propertyFilter = formationNames ? new RimFormationFilter() : new RimEclipsePropertyFilter();
     combined->addFilter( propertyFilter );
 
     setDefaults( propertyFilter );
@@ -176,10 +178,17 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
     // View-tolerant: case-level data filters have no RimEclipseView ancestor; the result
     // definition's eclipse case is already wired by RimEclipsePropertyFilter::setCase via the
     // owning collection's onItemsChanged hook.
-    if ( auto* reservoirView = propertyFilter->firstAncestorOrThisOfType<RimEclipseView>() )
-    {
-        propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
+    auto* reservoirView = propertyFilter->firstAncestorOrThisOfType<RimEclipseView>();
+    if ( reservoirView ) propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
 
+    if ( auto* formationFilter = dynamic_cast<RimFormationFilter*>( propertyFilter ) )
+    {
+        formationFilter->setToFormationNames();
+        return;
+    }
+
+    if ( reservoirView )
+    {
         if ( !RiaResultNames::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
         {
             propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );

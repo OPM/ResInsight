@@ -26,6 +26,7 @@
 #include "RimCombinedFilter.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimFormationFilter.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
@@ -97,6 +98,19 @@ RimEclipsePropertyFilter* RimDataFilterCollection::addNewPropertyFilter()
     addFilter( propertyFilter );
     if ( firstAncestorOfType<RimReservoirGridEnsemble>() ) propertyFilter->setToDefaultValues();
     return propertyFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFormationFilter* RimDataFilterCollection::addNewFormationFilter()
+{
+    auto* formationFilter = new RimFormationFilter();
+    addFilter( formationFilter );
+    formationFilter->setCase( ownerCase() );
+    formationFilter->setToFormationNames();
+    updateConnectedEditors();
+    return formationFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,6 +215,7 @@ void RimDataFilterCollection::updateOwnerEditors()
 //--------------------------------------------------------------------------------------------------
 void RimDataFilterCollection::initAfterRead()
 {
+    RimFormationFilter::convertPropertyFiltersToFormationFilters( m_items );
     for ( RimCellFilter* child : items() )
     {
         connectChildSignal( child );
@@ -212,6 +227,7 @@ void RimDataFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimDataFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+    menuBuilder << "RicEclipseFormationFilterNewFeature";
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
     menuBuilder << "Separator";
 

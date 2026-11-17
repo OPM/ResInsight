@@ -28,6 +28,7 @@ class RimCase;
 class RimCellRangeFilter;
 class RimCombinedFilter;
 class RimEclipsePropertyFilter;
+class RimFormationFilter;
 
 //==================================================================================================
 /// Case-level container of data filters. Filters configured here are shared by all views of the
@@ -55,6 +56,7 @@ public:
     bool shouldBeVisibleInTree() const { return !filters().empty(); }
 
     RimEclipsePropertyFilter* addNewPropertyFilter();
+    RimFormationFilter*       addNewFormationFilter();
     RimCellRangeFilter*       addNewRangeFilter();
     RimCombinedFilter*        addNewCombinedFilter();
 

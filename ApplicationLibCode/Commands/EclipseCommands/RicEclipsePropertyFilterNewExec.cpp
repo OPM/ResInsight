@@ -28,8 +28,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEclipsePropertyFilterNewExec::RicEclipsePropertyFilterNewExec( RimEclipsePropertyFilterCollection* propertyFilterCollection )
+RicEclipsePropertyFilterNewExec::RicEclipsePropertyFilterNewExec( RimEclipsePropertyFilterCollection* propertyFilterCollection,
+                                                                  bool                                formationNames )
     : CmdExecuteCommand( nullptr )
+    , m_formationNames( formationNames )
 {
     assert( propertyFilterCollection );
     m_propertyFilterCollection = propertyFilterCollection;
@@ -47,7 +49,7 @@ RicEclipsePropertyFilterNewExec::~RicEclipsePropertyFilterNewExec()
 //--------------------------------------------------------------------------------------------------
 QString RicEclipsePropertyFilterNewExec::name()
 {
-    return "New Property Filter";
+    return m_formationNames ? "New Formation Filter" : "New Property Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ QString RicEclipsePropertyFilterNewExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewExec::redo()
 {
-    RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( m_propertyFilterCollection );
+    RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( m_propertyFilterCollection, m_formationNames );
 }
 
 //--------------------------------------------------------------------------------------------------
