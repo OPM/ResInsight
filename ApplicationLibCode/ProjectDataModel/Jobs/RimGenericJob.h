@@ -59,6 +59,7 @@ public:
     virtual const QStringList jobLog() const                                                    = 0;
     virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
     virtual void              processLogOutput( const QString& logLine ) {};
+    virtual void              resetErrors() {};
 
     virtual void setFinished( bool runOk );
     virtual void setStarted();

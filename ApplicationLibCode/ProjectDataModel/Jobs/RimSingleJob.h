@@ -52,6 +52,7 @@ public:
 
     void setFinished( bool runOk ) override;
     void setStarted() override;
+    void resetErrors() override;
 
 protected:
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;

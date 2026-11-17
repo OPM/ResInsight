@@ -82,6 +82,7 @@ public:
 
     void appendStdOut( QString line );
     void appendStdErr( QString line );
+    void clearStdOutErr();
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

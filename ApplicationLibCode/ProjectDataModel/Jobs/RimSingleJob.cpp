@@ -149,6 +149,10 @@ bool RimSingleJob::execute()
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::setFinished( bool runOk )
 {
+    if ( m_process && m_process->monitor() )
+    {
+        if ( !m_process->monitor()->stdErr().isEmpty() ) runOk = false;
+    }
     RimGenericJob::setFinished( runOk );
 
     m_percentageDone = 100.0;
@@ -166,6 +170,15 @@ void RimSingleJob::setStarted()
     setState( RimSingleJob::JobState::Running );
     onProgress( m_percentageDone );
     RimGenericJob::setStarted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSingleJob::resetErrors()
+{
+    m_errorsDetected   = 0;
+    m_warningsDetected = 0;
 }
 
 //--------------------------------------------------------------------------------------------------

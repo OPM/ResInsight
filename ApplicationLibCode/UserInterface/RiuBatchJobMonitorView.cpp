@@ -73,6 +73,7 @@ RiuBatchJobMonitorView::RiuBatchJobMonitorView( QWidget* pParent )
 
     m_jobView->setHorizontalHeaderLabels( headerNames );
     m_jobView->setRowCount( 0 );
+    m_jobView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
 
     QVBoxLayout* pLayout = new QVBoxLayout();
     pLayout->addLayout( pTopLayout );

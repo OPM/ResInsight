@@ -92,3 +92,15 @@ void RimJobMonitor::appendStdOut( QString line )
     }
     m_stdOut.append( line );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimJobMonitor::clearStdOutErr()
+{
+    if ( m_job != nullptr )
+    {
+        m_job->resetErrors();
+    }
+    RimProcessMonitor::clearStdOutErr();
+}

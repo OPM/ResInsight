@@ -30,6 +30,11 @@
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesBatch, "RiaPreferencesBatch" );
 
+namespace
+{
+static constexpr int DISABLE_LOG_MONITORING_VALUE = 9999;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +53,9 @@ RiaPreferencesBatch::RiaPreferencesBatch()
 
     CAF_PDM_InitField( &m_updateInterval, "pollUpdateInterval", 10, "Job Status Polling Interval" );
     m_updateInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_logRefreshInterval, "logRefreshInterval", 30, "Log File Refresh Interval" );
+    m_logRefreshInterval.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_submitWaitSeconds,
                        "submitWaitSeconds",
@@ -116,6 +124,8 @@ void RiaPreferencesBatch::appendItems( caf::PdmUiOrdering& uiOrdering )
         {
             hpcGrp->add( &m_submitWaitSeconds );
         }
+
+        hpcGrp->add( &m_logRefreshInterval );
     }
 }
 
@@ -213,6 +223,14 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesBatch::calculateValueOptions( const 
         options.push_back( caf::PdmOptionItemInfo( "30 seconds", QVariant::fromValue( 30 ) ) );
     }
 
+    if ( fieldNeedingOptions == &m_logRefreshInterval )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "10 seconds", QVariant::fromValue( 10 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "30 seconds", QVariant::fromValue( 30 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "60 seconds", QVariant::fromValue( 60 ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "Off", QVariant::fromValue( DISABLE_LOG_MONITORING_VALUE ) ) );
+    }
+
     return options;
 }
 
@@ -230,4 +248,20 @@ int RiaPreferencesBatch::secondsToWaitForSubmit() const
 int RiaPreferencesBatch::statusRefreshInterval() const
 {
     return m_updateInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferencesBatch::logRefreshInterval() const
+{
+    return m_logRefreshInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesBatch::logMonitoringEnabled() const
+{
+    return ( batchScheduler() != RiaDefines::BatchSchedulerType::LOCAL_COMPUTER ) && ( m_logRefreshInterval() < DISABLE_LOG_MONITORING_VALUE );
 }

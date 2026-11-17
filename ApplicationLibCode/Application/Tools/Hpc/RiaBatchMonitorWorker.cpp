@@ -57,14 +57,15 @@ void RiaBatchMonitorWorker::stopMonitoring()
 //--------------------------------------------------------------------------------------------------
 void RiaBatchMonitorWorker::start()
 {
+    const int maxI = m_monitoringIntervalSeconds * 5;
+
     while ( m_keepRunning )
     {
         auto jobInfo = RiaHpcTools::listJobs( m_scheduler, m_wslOptions );
         emit jobInfoUpdate( jobInfo );
 
         // poll exit flag 5 times per second to respond quickly to program exit
-        int       i    = 0;
-        const int maxI = m_monitoringIntervalSeconds * 5;
+        int i = 0;
         while ( i < maxI && m_keepRunning )
         {
             QThread::msleep( 200 );
