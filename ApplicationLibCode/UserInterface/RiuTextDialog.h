@@ -21,12 +21,6 @@
 #include <QDialog>
 #include <QPlainTextEdit>
 
-#include <memory>
-#include <vector>
-
-class QTabWidget;
-class RimTabbedTextProvider;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -61,39 +55,6 @@ public:
 
 private:
     RiuQPlainTextEdit* m_textEdit;
-
-protected:
-    void contextMenuEvent( QContextMenuEvent* ) override;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RiuTabbedTextDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit RiuTabbedTextDialog( std::unique_ptr<RimTabbedTextProvider> textProvider, QWidget* parent = nullptr );
-    ~RiuTabbedTextDialog() override;
-
-    QString description() const;
-    void    redrawText();
-
-signals:
-    void exportToFileRequested( const QString& title, const QString& text );
-
-private:
-    RiuQPlainTextEdit* currentTextEdit() const;
-    void               updateTabText();
-
-    QTabWidget*                            m_tabWidget;
-    std::unique_ptr<RimTabbedTextProvider> m_textProvider;
-    std::vector<QString>                   m_tabTexts;
-
-private slots:
-    void slotTabChanged( int index );
-    void slotExportToFile();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
