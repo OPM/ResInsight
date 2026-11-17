@@ -629,6 +629,27 @@ void RimEclipseCase::updateFormationNamesData()
         {
             RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
 
+            if ( eclView && formationNames )
+            {
+                // The formation result variable is not selectable in the UI, so restore it when
+                // formations become available after having been removed
+                auto restoreFormationResult = []( RimEclipseResultDefinition* resultDefinition )
+                {
+                    if ( resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
+                         resultDefinition->resultVariable() == RiaResultNames::undefinedResultName() )
+                    {
+                        resultDefinition->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
+                        resultDefinition->loadResult();
+                    }
+                };
+
+                restoreFormationResult( eclView->cellResult() );
+                for ( RimEclipsePropertyFilter* propFilter : eclView->eclipsePropertyFilterCollection()->propertyFilters() )
+                {
+                    restoreFormationResult( propFilter->resultDefinition() );
+                }
+            }
+
             if ( eclView && eclView->isUsingFormationNames() )
             {
                 if ( !formationNames )
