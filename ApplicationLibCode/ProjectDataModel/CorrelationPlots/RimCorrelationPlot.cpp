@@ -46,6 +46,10 @@
 #include "qwt_plot.h"
 #include "qwt_text.h"
 
+#include <QCollator>
+
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <map>
 #include <set>
@@ -211,6 +215,8 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
+
+    RiuPlotMainWindowTools::updateReportWindow( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,12 +321,98 @@ void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCorrelationPlot::asciiDataForPlotExport() const
+QString RimCorrelationPlot::reportTitle() const
 {
-    RiuGroupedBarChartBuilder chartBuilder;
-    addDataToChartBuilder( chartBuilder );
+    return description();
+}
 
-    return chartBuilder.plotContentAsText();
+//--------------------------------------------------------------------------------------------------
+/// Correlation per parameter, sorted and filtered as shown in the plot
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimCorrelationPlot::reportSections() const
+{
+    if ( ensembles().empty() || addresses().empty() ) return {};
+
+    auto ensemble = *ensembles().begin();
+    auto address  = *addresses().begin();
+
+    auto correlations =
+        ensemble->parameterCorrelations( address, m_timeStep().toSecsSinceEpoch(), m_selectedParametersList(), filterEnsembleCases( ensemble ) );
+
+    struct ParameterValue
+    {
+        QString name;
+        double  value;
+        double  sortValue;
+    };
+
+    std::vector<ParameterValue> values;
+    for ( const auto& [parameter, correlation] : correlations )
+    {
+        const double value     = m_showAbsoluteValues() ? std::abs( correlation ) : correlation;
+        const double sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
+        values.push_back( { parameter.name, value, sortValue } );
+    }
+
+    // Same order and top N filter as the bars in RiuGroupedBarChartBuilder, so ties at the cutoff keep the same parameters
+    QCollator collator;
+    collator.setNumericMode( true );
+    auto chartOrder = [&collator]( const ParameterValue& a, const ParameterValue& b )
+    {
+        if ( a.sortValue != b.sortValue ) return a.sortValue > b.sortValue;
+        return collator.compare( a.name, b.name ) < 0;
+    };
+    std::stable_sort( values.begin(), values.end(), chartOrder );
+
+    if ( m_showOnlyTopNCorrelations() && m_topNFilterCount() >= 0 && values.size() > static_cast<size_t>( m_topNFilterCount() ) )
+    {
+        const auto                                   maxCount = static_cast<size_t>( m_topNFilterCount() );
+        std::multimap<double, const ParameterValue*> topValues;
+        for ( const auto& parameterValue : values )
+        {
+            const double magnitude = std::abs( parameterValue.value );
+            if ( topValues.size() < maxCount )
+            {
+                topValues.insert( { magnitude, &parameterValue } );
+            }
+            else if ( !topValues.empty() && magnitude > topValues.begin()->first )
+            {
+                topValues.insert( { magnitude, &parameterValue } );
+                topValues.erase( topValues.begin() );
+            }
+        }
+
+        std::vector<ParameterValue> filteredValues;
+        for ( const auto& [magnitude, parameterValue] : topValues )
+        {
+            filteredValues.push_back( *parameterValue );
+        }
+        std::stable_sort( filteredValues.begin(), filteredValues.end(), chartOrder );
+        values = std::move( filteredValues );
+    }
+
+    RiaReportTable table;
+    table.description = QString( "Pearson correlation coefficient%1 between the ensemble parameters and %2 at %3" )
+                            .arg( m_showAbsoluteValues() ? " (absolute value)" : "" )
+                            .arg( QString::fromStdString( address.uiText() ) )
+                            .arg( timeStepString() );
+    table.columns = { RiaReportColumn{ .title = "Parameter", .alignment = LEFT },
+                      RiaReportColumn{ .title = "Correlation", .doubleFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 3 ) } };
+
+    for ( const auto& parameterValue : values )
+    {
+        table.rows.push_back( { parameterValue.name, parameterValue.value } );
+    }
+
+    return { RiaReportSection{ .title = "Correlations", .tables = { std::move( table ) } } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCorrelationPlot::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

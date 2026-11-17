@@ -19,8 +19,8 @@
 
 #include "RiaDefines.h"
 
+#include "RiaReportDataProducer.h"
 #include "RimPlotWindow.h"
-#include "RimReportPlotGroup.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -46,7 +46,7 @@ class CDockWidget;
 /// RimParameterRftCrossPlot (ensemble parameter vs mean pressure in a depth range).
 ///
 //==================================================================================================
-class RimRftCorrelationReportPlot : public QObject, public RimPlotWindow, public RimReportPlotGroup
+class RimRftCorrelationReportPlot : public QObject, public RimPlotWindow, public RiaReportDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -64,7 +64,8 @@ public:
     RimParameterRftCrossPlot* crossPlot() const;
     RimRftTornadoPlot*        tornadoPlot() const;
 
-    std::vector<RimPlot*> childPlotsForTextExport() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
 
     void initializeFromSourcePlot( RimWellRftPlot* source );
     void syncEnsembleParameterToRftCurves();
