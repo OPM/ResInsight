@@ -16,7 +16,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotTextProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.cpp
