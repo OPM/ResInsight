@@ -251,6 +251,8 @@ RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() con
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    bool isVariableSelected = ( &m_resultVariableUiField == changedField );
+
     if ( &m_flowSolutionUiField == changedField || &m_resultTypeUiField == changedField || &m_porosityModelUiField == changedField )
     {
         // If the user are seeing the list with the actually selected result,
@@ -284,10 +286,18 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField          = "";
             m_selectedInjectorTracersUiField = std::vector<QString>();
             m_selectedProducerTracersUiField = std::vector<QString>();
+
+            // The result property is not shown for formation names, as there is only one possible choice
+            if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FORMATION_NAMES &&
+                 varList.contains( RiaResultNames::activeFormationNamesResultName() ) )
+            {
+                m_resultVariableUiField = RiaResultNames::activeFormationNamesResultName();
+                isVariableSelected      = true;
+            }
         }
     }
 
-    if ( &m_resultVariableUiField == changedField )
+    if ( isVariableSelected )
     {
         m_porosityModel  = m_porosityModelUiField;
         m_resultType     = m_resultTypeUiField;
@@ -1551,7 +1561,7 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_selectedSouringTracersUiField );
     }
 
-    uiOrdering.add( &m_resultVariableUiField );
+    if ( m_resultTypeUiField() != RiaDefines::ResultCatType::FORMATION_NAMES ) uiOrdering.add( &m_resultVariableUiField );
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::INPUT_PROPERTY )
     {
         uiOrdering.add( &m_inputPropertyFileName );
