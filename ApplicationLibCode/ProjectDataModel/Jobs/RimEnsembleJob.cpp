@@ -309,6 +309,10 @@ bool RimEnsembleJob::execute()
         subJob->setJobSettings( m_jobSettings.value() );
         subJob->setAutoLoadResults( false );
         subJob->setIsChildJob( true );
+        if ( m_createSectorEnsemble() && m_sectorPolygon() != nullptr )
+        {
+            subJob->setSectorPolygon( m_sectorPolygon() );
+        }
         m_subJobs.push_back( subJob );
 
         m_expectedOutputFiles.push_back( real.realizationOutputDir + "/" + real.outputDeckName + ".DATA" );

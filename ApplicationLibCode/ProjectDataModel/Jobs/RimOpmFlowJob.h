@@ -35,6 +35,7 @@ class RimSummaryEnsemble;
 class RimKeywordWconprod;
 class RimKeywordWconinje;
 class RimOpmFlowJobSettings;
+class RimPolygon;
 
 //==================================================================================================
 ///
@@ -62,6 +63,7 @@ public:
     void setInputDataFile( QString filename );
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
     void setJobWellSettings( RimJobWellSettings* jobWellSettings );
+    void setSectorPolygon( RimPolygon* sectorPolygon );
 
     void initAfterCopy();
 
@@ -97,11 +99,13 @@ protected:
     void loadResults();
 
 private:
-    RimEclipseCase* findExistingCase( QString filename );
-    QString         deckExtension() const;
-    QString         baseDeckName();
-    QString         restartDeckName();
-    QString         inputDeckName() const;
+    QString deckExtension() const;
+    QString baseDeckName();
+    QString restartDeckName();
+    QString inputDeckName() const;
+
+    bool addWellIfNeeded();
+    bool setupSectorModelIfNeeded();
 
     std::vector<QDateTime> datesInFileDeck();
     std::vector<QString>   wellgroupsInFileDeck();
@@ -110,8 +114,6 @@ private:
     std::vector<QDateTime> dateTimes();
     std::vector<QDateTime> addedDateTimes();
 
-    int  mergeBasicWellSettings();
-    int  mergeMswData( int mergePosition );
     void selectOpenWellPosition();
     void resetEnsembleRunId();
 
@@ -129,6 +131,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;
     caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
     caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
+    caf::PdmPtrField<RimPolygon*>             m_sectorPolygon;
 
     caf::PdmField<int>                                            m_openTimeStep;
     caf::PdmField<bool>                                           m_endTimeStepEnabled;
