@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "RimPlainPlotDataProducer.h"
 #include "RimPlotWindow.h"
 
 #include "RiaDateTimeDefines.h"
+#include "RiaReportDataProducer.h"
 #include "RiaStatisticsDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -53,7 +53,7 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimSummaryTable : public RimPlotWindow, public RimPlainPlotDataProducer
+class RimSummaryTable : public RimPlotWindow, public RiaReportDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -80,7 +80,10 @@ public:
                                                  const QString&                                   vectorName );
     void    setDescription( const QString& description );
     QString description() const override;
-    QString asciiDataForPlotExport() const override;
+
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
 private:
     void cleanupBeforeClose();

@@ -18,7 +18,6 @@
 
 #include "RimSummaryTable.h"
 
-#include "RiaFeatureCommandContext.h"
 #include "RiaHashTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
@@ -39,8 +38,8 @@
 #include "RimTools.h"
 
 #include "RiuMatrixPlotWidget.h"
+#include "RiuPlotMainWindowTools.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
@@ -80,15 +79,15 @@ protected:
 
         if ( m_table )
         {
-            const QString                      title = m_table->description();
-            RiaFeatureCommandContextTextHelper helper( title, title + "\n\n" + m_table->asciiDataForPlotExport() );
-
-            caf::CmdFeatureMenuBuilder menuBuilder;
-            menuBuilder << "RicShowPlotDataFeature";
-
             QMenu menu;
-            menuBuilder.appendToMenu( &menu );
-            if ( !menu.actions().empty() ) menu.exec( static_cast<QContextMenuEvent*>( event )->globalPos() );
+            auto* action = menu.addAction( QIcon( ":/PlotWindow.svg" ), "Show Plot Data" );
+            QObject::connect( action,
+                              &QAction::triggered,
+                              [table = m_table]()
+                              {
+                                  if ( table ) RiuPlotMainWindowTools::showReportWindow( table.p() );
+                              } );
+            menu.exec( static_cast<QContextMenuEvent*>( event )->globalPos() );
         }
         return true;
     }
@@ -572,6 +571,8 @@ void RimSummaryTable::updateTableAndPlot()
     createTableData();
     setExcludedRowsUiSelectionsFromTableData();
 
+    RiuPlotMainWindowTools::updateReportWindow( this );
+
     if ( m_matrixPlotWidget == nullptr || !hasDataSource() )
     {
         return;
@@ -930,57 +931,53 @@ std::set<QString> RimSummaryTable::excludedRows() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryTable::asciiDataForPlotExport() const
+QString RimSummaryTable::reportTitle() const
+{
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One row per category item and one column per time step, matching the rows and columns of the matrix plot
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimSummaryTable::reportSections() const
 {
     const auto excludedRows = this->excludedRows();
 
-    // Build all cells first, so that each column can be padded to a common width. The padded cells are still
-    // separated by tabs, to keep the text both readable and easy to paste into a spreadsheet.
-    std::vector<std::vector<QString>> rows;
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_CONSISE, 6 );
 
-    std::vector<QString> header = { m_category().uiText() };
+    RiaReportTable table;
+    table.title       = QString( "%1 [%2]" ).arg( m_vector() ).arg( m_tableData.unitName );
+    table.description = QString( "Date Resampling: %1" ).arg( m_resamplingSelection().uiText() );
+    if ( isEnsembleStatistics() ) table.description = dataSourceDescription() + "\n" + table.description;
+
+    table.columns.push_back( RiaReportColumn{ .title = m_category().uiText(), .alignment = LEFT } );
     for ( const auto& timeStepString : timeStepStrings() )
     {
-        header.push_back( timeStepString );
+        table.columns.push_back( RiaReportColumn{ .title = timeStepString, .unit = m_tableData.unitName, .doubleFormat = valueFormat } );
     }
-    rows.push_back( header );
 
     for ( const auto& vectorData : m_tableData.vectorDataCollection )
     {
         if ( excludedRows.contains( vectorData.category ) ) continue;
 
         // Values are aligned to the time steps of the header, and time steps without a value are left empty
-        std::vector<QString> row = { vectorData.category };
+        std::vector<RiaReportCellValue> row = { vectorData.category };
         for ( const double value : RimSummaryTableTools::valuesForTimeSteps( vectorData, m_tableData.timeStepsUnion ) )
         {
-            row.push_back( std::isnan( value ) ? QString() : QString::number( value, 'g', 6 ) );
+            row.push_back( std::isnan( value ) ? RiaReportCellValue{} : RiaReportCellValue{ value } );
         }
-        rows.push_back( row );
+        table.rows.push_back( std::move( row ) );
     }
 
-    std::vector<qsizetype> columnWidths;
-    for ( const auto& row : rows )
-    {
-        if ( columnWidths.size() < row.size() ) columnWidths.resize( row.size(), 0 );
-        for ( size_t col = 0; col < row.size(); ++col )
-        {
-            columnWidths[col] = std::max( columnWidths[col], row[col].size() );
-        }
-    }
+    return { RiaReportSection{ .title = m_vector(), .tables = { std::move( table ) } } };
+}
 
-    QString text;
-    for ( const auto& row : rows )
-    {
-        QStringList cells;
-        for ( size_t col = 0; col < row.size(); ++col )
-        {
-            // Row names are left aligned, values and dates are right aligned
-            cells.push_back( col == 0 ? row[col].leftJustified( columnWidths[col] ) : row[col].rightJustified( columnWidths[col] ) );
-        }
-        text += cells.join( "\t" ) + "\n";
-    }
-
-    return text;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTable::supportsLiveUpdate() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
