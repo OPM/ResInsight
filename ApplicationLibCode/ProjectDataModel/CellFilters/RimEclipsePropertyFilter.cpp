@@ -187,9 +187,10 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    // A name entered by the user is kept when the filter settings change. Clearing the name makes the
-    // filter generate its name again. This is done before the base handler, as it notifies parents of the change.
-    if ( nameField() == changedField )
+    // For formation filters, a name entered by the user is kept when the filter settings change. Clearing the name
+    // makes the filter generate its name again. This is done before the base handler, as it notifies parents of
+    // the change. Other property filters always derive their name, as clients may write back a stale name.
+    if ( nameField() == changedField && m_resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
     {
         m_hasUserDefinedName = !name().trimmed().isEmpty();
         if ( !m_hasUserDefinedName ) updateFilterName();
