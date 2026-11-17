@@ -181,10 +181,17 @@ void RimWellDistributionPlot::updateAxisRangesFromPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellDistributionPlot::asciiDataForPlotExport() const
+QString RimWellDistributionPlot::reportTitle() const
 {
-    // cvf::Trace::show("RimWellDistributionPlot::asciiDataForPlotExport()");
-    return QString();
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The plot has no data export
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimWellDistributionPlot::reportSections() const
+{
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
