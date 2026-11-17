@@ -27,6 +27,7 @@
 #include <QDateTime>
 #include <QString>
 
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -82,12 +83,16 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
 Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputNncTools::TransformedNNCConnection>& connections );
 
 Opm::DeckKeyword datesKeyword( const QDateTime& date );
-QString          deckKeywordToString( const Opm::DeckKeyword& keyword );
+// recordComments maps a record index to a (possibly multi-line) comment emitted as "--" lines directly above that record.
+// A comment starting with a newline is preceded by a blank line.
+// The comment recordSeparatorComment() is rendered as a line of dashes as wide as the record row.
+QString recordSeparatorComment();
+QString deckKeywordToString( const Opm::DeckKeyword& keyword, const std::map<size_t, QString>& recordComments = {} );
 
 // Serialize a keyword as human-readable text: a "--"-prefixed column-header comment line listing
 // the item names, followed by data rows right-aligned into fixed-width columns with a two-space
 // indent. Unlike deckKeywordToString(), each item renders in its own column (consecutive defaults
 // are not collapsed into "N*"), so columns stay aligned.
-QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword );
+QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword, const std::map<size_t, QString>& recordComments = {} );
 
 } // namespace RimKeywordFactory

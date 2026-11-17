@@ -343,8 +343,17 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
         }
     };
 
-    auto serializeKeyword = [&]( const Opm::DeckKeyword& kw )
-    { return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw ) : RimKeywordFactory::deckKeywordToString( kw ); };
+    // Comments placed above individual records
+    std::map<QString, std::map<size_t, QString>> recordComments;
+
+    std::map<size_t, QString> noComments;
+    auto                      serializeKeyword = [&]( const Opm::DeckKeyword& kw )
+    {
+        const auto  it       = recordComments.find( QString::fromStdString( kw.name() ) );
+        const auto& comments = it != recordComments.end() ? it->second : noComments;
+        return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw, comments )
+                            : RimKeywordFactory::deckKeywordToString( kw, comments );
+    };
 
     // Comments from insert-date events describe the date itself, and are emitted directly above it.
     for ( const auto* event : events )
@@ -437,7 +446,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
             }
         }
 
-        generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks, warnings );
+        generateCompletionsForWellGroup( eclipseCase, group, date, events, keywordBlocks, recordComments, warnings );
 
         // MSW keywords describe the shared well tree, including all its laterals.
         if ( mswIt != group.end() )
@@ -642,12 +651,13 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
-                                                                const std::vector<RimWellPath*>&     wellGroup,
-                                                                const QDateTime&                     date,
-                                                                const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                                std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                                                std::set<QString>&                   warnings )
+void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase*                               eclipseCase,
+                                                                const std::vector<RimWellPath*>&              wellGroup,
+                                                                const QDateTime&                              date,
+                                                                const std::vector<RimWellEvent*>&             eventsAtDate,
+                                                                std::map<QString, Opm::DeckKeyword>&          keywordBlocks,
+                                                                std::map<QString, std::map<size_t, QString>>& recordComments,
+                                                                std::set<QString>&                            warnings )
 {
     if ( wellGroup.empty() ) return;
 
@@ -688,8 +698,20 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
 
     auto wellName = exportNameForWell( representative ).toStdString();
 
-    mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
-    mergeKeyword( keywordBlocks, "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
+    // Separate the wells within the merged keywords with a dashed line.
+    auto mergeWithWellSeparator = [&]( const QString& name, Opm::DeckKeyword kw )
+    {
+        const size_t sizeBefore = keywordBlocks.contains( name ) ? keywordBlocks.at( name ).size() : 0;
+        mergeKeyword( keywordBlocks, name, std::move( kw ) );
+
+        const auto it = keywordBlocks.find( name );
+        if ( it == keywordBlocks.end() || it->second.size() <= sizeBefore ) return;
+
+        recordComments[name][sizeBefore] = RimKeywordFactory::recordSeparatorComment();
+    };
+
+    mergeWithWellSeparator( "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
+    mergeWithWellSeparator( "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
 }
 
 namespace

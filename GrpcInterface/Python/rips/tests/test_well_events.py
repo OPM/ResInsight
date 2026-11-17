@@ -1899,10 +1899,13 @@ class TestScheduleGeneration:
             aligned_lines = aligned.split(f"{keyword}\n", 1)[1].splitlines()
             assert aligned_lines[0].startswith("--")
             assert all(name in aligned_lines[0] for name in column_names)
-            assert aligned_lines[1].startswith("  ")
+            first_data_line = next(
+                line for line in aligned_lines[1:] if not line.startswith("--")
+            )
+            assert first_data_line.startswith("  ")
 
             compact_first_line = default.split(f"{keyword}\n", 1)[1].splitlines()[0]
-            assert not compact_first_line.startswith("--")
+            assert not any(name in compact_first_line for name in column_names)
 
     def test_perf_completion_number_triggers_complump(self, project_with_case_and_well):
         """#13273 follow-up: a completion_number on add_perf_event must surface as a
@@ -2330,6 +2333,55 @@ class TestScheduleGeneration:
         assert schedule_text.count("COMPDAT\n") == 1, (
             f"COMPDAT should stay grouped under one header; got {schedule_text.count('COMPDAT')}:\n{schedule_text}"
         )
+
+    @staticmethod
+    def _add_msw_and_perf(timeline, well_path, valve=False):
+        timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        if valve:
+            timeline.add_valve_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                measured_depth=2100.0,
+                valve_type="ICD",
+                state="OPEN",
+                flow_coefficient=0.7,
+                area=0.0001,
+            )
+
+    def test_compdat_divider_between_wells(self, project_with_case_and_well):
+        """Wells in COMPDAT are separated by a dashed comment line, without a preceding blank line."""
+        project, case, timeline = project_with_case_and_well
+        for well_path in project.well_paths():
+            self._add_msw_and_perf(timeline, well_path)
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        compdat = schedule_text.split("COMPDAT\n")[1].split("/\n\n")[0]
+        lines = compdat.splitlines()
+        dividers = [i for i, line in enumerate(lines) if re.fullmatch(r"-{10,}", line)]
+        assert len(dividers) == 2, f"One divider per well:\n{compdat}"
+        assert dividers[0] == 0
+        assert lines[dividers[1] - 1].strip() != "", "No blank line before the divider"
 
 
 class TestKeywordEvents:

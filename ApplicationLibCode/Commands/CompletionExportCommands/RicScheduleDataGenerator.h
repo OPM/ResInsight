@@ -114,12 +114,13 @@ private:
     // one export name at a specific date based on events, merging both into the accumulator. Connections in cells
     // shared by several well paths in the group are combined into one record. Records are ordered with the
     // mainbore's connections first, followed by each lateral's (see completionDataForWellPaths()).
-    static void generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
-                                                 const std::vector<RimWellPath*>&     wellGroup,
-                                                 const QDateTime&                     date,
-                                                 const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                 std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                                 std::set<QString>&                   warnings );
+    static void generateCompletionsForWellGroup( RimEclipseCase*                               eclipseCase,
+                                                 const std::vector<RimWellPath*>&              wellGroup,
+                                                 const QDateTime&                              date,
+                                                 const std::vector<RimWellEvent*>&             eventsAtDate,
+                                                 std::map<QString, Opm::DeckKeyword>&          keywordBlocks,
+                                                 std::map<QString, std::map<size_t, QString>>& recordComments,
+                                                 std::set<QString>&                            warnings );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across

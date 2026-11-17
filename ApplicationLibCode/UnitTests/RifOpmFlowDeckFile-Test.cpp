@@ -850,3 +850,53 @@ TEST( RimKeywordFactoryTest, DeckKeywordToAlignedStringShortensLongHeaders )
         EXPECT_LE( line.size(), 132 ) << "Line exceeds 132 characters: " << line.toStdString();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimKeywordFactoryTest, RecordCommentsAreEmittedAboveRecords )
+{
+    using W = Opm::ParserKeywords::WTRACER;
+
+    Opm::DeckKeyword kw( ( W() ) );
+    auto             addRecord = [&]( const std::string& well, const std::string& tracer, double conc )
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( W::WELL::itemName, well ) );
+        items.push_back( RifOpmDeckTools::item( W::TRACER::itemName, tracer ) );
+        items.push_back( RifOpmDeckTools::item( W::CONCENTRATION::itemName, conc ) );
+        kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    };
+    addRecord( "A-5", "WT1", 3.125 );
+    addRecord( "A-6", "WT2", 3.125 );
+
+    const std::map<size_t, QString> comments = { { 1, "first line\n\nthird line" } };
+
+    const QString aligned = RimKeywordFactory::deckKeywordToAlignedString( kw, comments );
+    EXPECT_TRUE( aligned.contains( "-- first line\n--\n-- third line\n  'A-6'" ) ) << aligned.toStdString();
+    EXPECT_FALSE( aligned.contains( "-- first line\n--\n-- third line\n  'A-5'" ) );
+
+    const QString plain = RimKeywordFactory::deckKeywordToString( kw, comments );
+    EXPECT_TRUE( plain.startsWith( "WTRACER\n" ) ) << plain.toStdString();
+    EXPECT_TRUE( plain.endsWith( "/\n" ) );
+    const int commentPos = plain.indexOf( "-- first line" );
+    EXPECT_GT( commentPos, plain.indexOf( "A-5" ) );
+    EXPECT_LT( commentPos, plain.indexOf( "A-6" ) );
+    EXPECT_EQ( plain.count( "WTRACER" ), 1 );
+
+    // A leading newline puts a blank line before the comment.
+    const QString blank = RimKeywordFactory::deckKeywordToAlignedString( kw, { { 1, "\nWell: A-6" } } );
+    EXPECT_TRUE( blank.contains( " /\n\n-- Well: A-6\n  'A-6'" ) ) << blank.toStdString();
+
+    // The separator comment is a dashed line as wide as the record rows.
+    const std::map<size_t, QString> separator = { { 1, RimKeywordFactory::recordSeparatorComment() } };
+
+    const QString alignedSeparated = RimKeywordFactory::deckKeywordToAlignedString( kw, separator );
+    const int     rowStart         = alignedSeparated.indexOf( "  'A-5'" );
+    const int     rowEnd           = alignedSeparated.indexOf( '\n', rowStart );
+    const QString dashes( rowEnd - rowStart, '-' );
+    EXPECT_TRUE( alignedSeparated.contains( " /\n" + dashes + "\n  'A-6'" ) ) << alignedSeparated.toStdString();
+
+    const QString plainSeparated = RimKeywordFactory::deckKeywordToString( kw, separator );
+    EXPECT_TRUE( plainSeparated.contains( "/\n---" ) ) << plainSeparated.toStdString();
+}
