@@ -115,6 +115,8 @@ protected:
     virtual QString iconResourceString() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     bool isFilterControlled() const;

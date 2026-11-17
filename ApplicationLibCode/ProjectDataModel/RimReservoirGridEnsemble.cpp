@@ -766,12 +766,6 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
         menuBuilder << "RicNewStatisticsCaseFeature";
     }
 
-    // The "Data Filters" collection node is hidden while empty, so expose the filter creation
-    // commands on the ensemble node to allow creating the first filter.
-    menuBuilder << "Separator";
-    menuBuilder.subMenuStart( "Data Filters", QIcon( ":/CellFilter.png" ) );
-    m_dataFilterCollection->appendMenuItems( menuBuilder );
-    menuBuilder.subMenuEnd();
     menuBuilder.addSeparator();
     menuBuilder << "RicNewEnsembleJobFeature";
 }
@@ -873,10 +867,7 @@ void RimReservoirGridEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.add( &m_caseCollection );
     uiTreeOrdering.add( &m_statisticsCaseCollection );
 
-    if ( m_dataFilterCollection() && m_dataFilterCollection()->shouldBeVisibleInTree() )
-    {
-        uiTreeOrdering.add( m_dataFilterCollection() );
-    }
+    if ( m_dataFilterCollection() ) uiTreeOrdering.add( m_dataFilterCollection() );
 
     uiTreeOrdering.add( &m_viewCollection );
 

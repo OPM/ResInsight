@@ -34,6 +34,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimDataFilterCollection, "DataFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -136,6 +138,39 @@ RimCombinedFilter* RimDataFilterCollection::addNewCombinedFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The selected filters are detached from this collection (not deleted) and re-parented under the
+/// new combined filter, which takes the position of the first of them. Nested filters of a
+/// selected combined filter are left in place.
+//--------------------------------------------------------------------------------------------------
+RimCombinedFilter* RimDataFilterCollection::combineFilters( const std::vector<RimCellFilter*>& filtersToCombine )
+{
+    const std::vector<RimCellFilter*> existing = items();
+
+    std::vector<RimCellFilter*> children;
+    for ( RimCellFilter* candidate : existing )
+    {
+        if ( std::find( filtersToCombine.begin(), filtersToCombine.end(), candidate ) != filtersToCombine.end() )
+            children.push_back( candidate );
+    }
+    if ( children.size() < 2 ) return nullptr;
+
+    auto* combined = new RimCombinedFilter();
+    combined->setCase( ownerCase() );
+    insertItem( children.front(), combined );
+
+    for ( RimCellFilter* child : children )
+    {
+        child->filterChanged.disconnect( this );
+        m_items.removeChild( child );
+        combined->addFilter( child );
+    }
+
+    onItemsChanged();
+    updateConnectedEditors();
+    return combined;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimDataFilterCollection::hasActiveFilters() const
@@ -174,6 +209,7 @@ void RimDataFilterCollection::onItemsChanged()
     for ( RimCellFilter* child : items() )
     {
         connectChildSignal( child );
+        if ( child ) child->setCheckState( true );
         if ( child && m_srcCase() ) child->setCase( m_srcCase() );
     }
     filtersChanged.send();
@@ -219,6 +255,9 @@ void RimDataFilterCollection::initAfterRead()
     for ( RimCellFilter* child : items() )
     {
         connectChildSignal( child );
+
+        // The filters have no checkbox in the tree, so a stored unchecked state could not be undone
+        if ( child ) child->setCheckState( true );
     }
 }
 
@@ -257,6 +296,20 @@ void RimDataFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuB
     menuBuilder << "RicNewUserDefinedIndexFilterFeature";
     menuBuilder << "Separator";
     menuBuilder << "RicEclipseCombinedPropertyFilterNewFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDataFilterCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( firstAncestorOfType<RimReservoirGridEnsemble>() )
+    {
+        uiOrdering.addNewLabel( "These are ensemble filters. They can be used in the 3D views of the ensemble, and by other ensemble "
+                                "operations, such as ensemble contour maps." );
+    }
+
+    caf::PdmObjectCollection<RimCellFilter>::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,6 +60,10 @@ public:
     RimCellRangeFilter*       addNewRangeFilter();
     RimCombinedFilter*        addNewCombinedFilter();
 
+    // Moves the given direct children of this collection into a new combined filter that replaces them.
+    // Returns nullptr if fewer than two of the filters are direct children.
+    RimCombinedFilter* combineFilters( const std::vector<RimCellFilter*>& filtersToCombine );
+
     bool hasActiveFilters() const;
 
     void loadAndInitializeFilters();
@@ -70,6 +74,7 @@ protected:
     void onItemsChanged() override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     void connectChildSignal( RimCellFilter* child );

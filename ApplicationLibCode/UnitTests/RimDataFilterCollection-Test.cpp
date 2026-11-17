@@ -153,6 +153,36 @@ TEST( RimDataFilterCollection, hasActiveFiltersReflectsChildState )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, combineFiltersMovesChildrenIntoCombinedFilterAtFirstPosition )
+{
+    RimDataFilterCollection coll;
+
+    auto* a = new RimCellRangeFilter();
+    auto* b = new RimCellRangeFilter();
+    auto* c = new RimCellRangeFilter();
+    coll.addFilter( a );
+    coll.addFilter( b );
+    coll.addFilter( c );
+
+    EXPECT_EQ( nullptr, coll.combineFilters( { a } ) );
+    EXPECT_EQ( size_t{ 3 }, coll.count() );
+
+    RimCombinedFilter* combined = coll.combineFilters( { b, c } );
+    ASSERT_NE( nullptr, combined );
+
+    ASSERT_EQ( size_t{ 2 }, coll.count() );
+    EXPECT_EQ( a, coll.filters()[0] );
+    EXPECT_EQ( combined, coll.filters()[1] );
+
+    const auto children = combined->filters();
+    ASSERT_EQ( size_t{ 2 }, children.size() );
+    EXPECT_EQ( b, children[0] );
+    EXPECT_EQ( c, children[1] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RimDataFilterCollection, addNewRangeFilterReturnsConfigured )
 {
     RimDataFilterCollection coll;
@@ -282,6 +312,35 @@ TEST( RimDataFilterCollection, viewWrapperAppearsWhenEnsembleFilterAddedAfterVie
 
     ASSERT_EQ( size_t{ 1 }, view->dataFiltersInView()->wrappers().size() );
     EXPECT_EQ( ensemble->dataFilterCollection()->filters().front(), view->dataFiltersInView()->wrappers().front()->sourceFilter() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Combining filters replaces their view wrappers with one wrapper for the combined filter, which is
+/// applied in the view if any of the combined filters was.
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, combiningFiltersReplacesViewWrappersAndKeepsActivation )
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    auto* eclipseCase = new RimEclipseResultCase();
+    ensemble->addCase( eclipseCase );
+
+    RimEclipseView* view = eclipseCase->viewCollection()->addView( eclipseCase );
+
+    auto* collection = ensemble->dataFilterCollection();
+    auto* filterA    = collection->addNewRangeFilter();
+    auto* filterB    = collection->addNewRangeFilter();
+
+    ASSERT_EQ( size_t{ 2 }, view->dataFiltersInView()->wrappers().size() );
+    view->dataFiltersInView()->wrappers().front()->setCheckState( true );
+
+    auto* combined = collection->combineFilters( { filterA, filterB } );
+    ASSERT_NE( nullptr, combined );
+
+    auto wrappers = view->dataFiltersInView()->wrappers();
+    ASSERT_EQ( size_t{ 1 }, wrappers.size() );
+    EXPECT_EQ( combined, wrappers.front()->sourceFilter() );
+    EXPECT_TRUE( wrappers.front()->isChecked() );
 }
 
 //--------------------------------------------------------------------------------------------------
