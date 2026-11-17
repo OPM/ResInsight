@@ -74,7 +74,8 @@ public:
 
     static RiaPreferences* current();
 
-    QStringList tabNames();
+    QStringList    tabNames();
+    static QString tabNameImportExport();
 
     bool useUndoRedo() const;
 
@@ -179,7 +180,6 @@ private:
     static QString tabNameScripting();
     static QString tabNameCloudApi();
     static QString tabNameSystem();
-    static QString tabNameImportExport();
     static QString tabNameOpmFlow();
     static QString tabNameExperimental();
     static QString tabNameBatchScheduler();

@@ -211,6 +211,7 @@ RiaPreferences::RiaPreferences()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &holoLensDisableCertificateVerification );
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator, "csvTextExportFieldSeparator", QString( "," ), "CSV Text Export Field Separator" );
+    csvTextExportFieldSeparator.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -428,6 +429,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         pageSetup->add( &m_pageTopMargin );
         pageSetup->appendToRow( &m_pageBottomMargin );
 
+        caf::PdmUiGroup* plotDataGroup = uiOrdering.addNewGroup( "Plot Data" );
+        plotDataGroup->add( &csvTextExportFieldSeparator );
+
         QString unitLabel = " [mm]";
         if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
         {
@@ -488,10 +492,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* exportGroup = uiOrdering.addNewGroup( "Export" );
         exportGroup->add( &csvTextExportFieldSeparator );
-        exportGroup->add( &m_openExportedPdfInViewer );
-        exportGroup->add( &m_writeEchoInGrdeclFiles );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
+        otherGroup->add( &m_openExportedPdfInViewer );
+        otherGroup->add( &m_writeEchoInGrdeclFiles );
         otherGroup->add( &m_gridCalculationExpressionFolder );
         otherGroup->add( &m_summaryCalculationExpressionFolder );
 
@@ -528,7 +532,22 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_dateFormat )
+    if ( fieldNeedingOptions == &csvTextExportFieldSeparator )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "Comma ( , )", QString( "," ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "Semicolon ( ; )", QString( ";" ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "Space", QString( " " ) ) );
+        options.push_back( caf::PdmOptionItemInfo( "Tab", QString( "\t" ) ) );
+
+        // Keep a custom separator from earlier versions selectable
+        const QString currentSeparator = csvTextExportFieldSeparator();
+        if ( !currentSeparator.isEmpty() && currentSeparator != "," && currentSeparator != ";" && currentSeparator != " " &&
+             currentSeparator != "\t" )
+        {
+            options.push_back( caf::PdmOptionItemInfo( QString( "Custom ( %1 )" ).arg( currentSeparator ), currentSeparator ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_dateFormat )
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
         {

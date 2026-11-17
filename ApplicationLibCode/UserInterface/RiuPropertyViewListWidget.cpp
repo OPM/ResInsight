@@ -157,6 +157,15 @@ RiuPropertyViewListWidget::RiuPropertyViewListWidget( QWidget*           parent,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPropertyViewListWidget::setCurrentPage( const QString& uiConfigName )
+{
+    const auto items = m_propertyModel->findItems( uiConfigName );
+    if ( !items.empty() ) m_propertyList->setCurrentIndex( items.front()->index() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPropertyViewListWidget::~RiuPropertyViewListWidget()
 {
     for ( auto w : m_pageWidgets )

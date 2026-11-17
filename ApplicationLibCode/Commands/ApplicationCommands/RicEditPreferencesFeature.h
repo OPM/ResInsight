@@ -30,12 +30,12 @@ class RicEditPreferencesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void showPreferences( const QString& pageName = QString() );
+
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
     static std::unique_ptr<RiaPreferences> clonePreferences( const RiaPreferences* preferences );
-
-private:
-    void showHelp();
 };

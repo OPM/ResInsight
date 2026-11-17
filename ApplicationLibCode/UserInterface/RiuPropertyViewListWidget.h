@@ -44,6 +44,7 @@ public:
     QSize             minimumSizeHint() const override;
     QSize             sizeHint() const override;
     QDialogButtonBox* dialogButtonBox();
+    void              setCurrentPage( const QString& uiConfigName );
 
 protected:
     void showEvent( QShowEvent* event ) override;
