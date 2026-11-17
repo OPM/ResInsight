@@ -93,9 +93,10 @@ public:
                                  double*                                   min,
                                  double*                                   max ) const;
 
-    std::vector<time_t> selectedTimeSteps() const;
-    QString             description() const override;
-    QString             asciiDataForPlotExport() const override;
+    std::vector<time_t>           selectedTimeSteps() const;
+    QString                       description() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
 
 private:
     // Overridden PDM methods

@@ -112,8 +112,6 @@ protected:
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override;
 
-    QString asciiDataForPlotExport() const override { return ""; }
-
     void         cleanupBeforeClose();
     virtual void updatePlotTitle() = 0;
 

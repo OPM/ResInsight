@@ -248,40 +248,37 @@ bool RimCorrelationMatrixPlot::isCurveHighlightSupported() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCorrelationMatrixPlot::asciiDataForPlotExport() const
+QString RimCorrelationMatrixPlot::reportTitle() const
 {
-    QString text;
+    return description();
+}
 
-    QTextStream              stream( &text );
-    QString                  fieldSeparator = "\t";
-    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
-    formatter.setUseQuotes( false );
+//--------------------------------------------------------------------------------------------------
+/// One row per vector, one column per parameter
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimCorrelationMatrixPlot::reportSections() const
+{
+    const RifTextDataTableDoubleFormatting valueFormat( RIF_FLOAT, 3 );
 
-    std::vector<RifTextDataTableColumn> header;
-    header.emplace_back( RifTextDataTableColumn( "Vector" ) );
-
-    for ( const auto& param : m_paramLabels )
+    RiaReportTable table;
+    table.columns.push_back( RiaReportColumn{ .title = "Vector", .alignment = LEFT } );
+    for ( const auto& [index, label] : m_paramLabels )
     {
-        header.emplace_back( RifTextDataTableColumn( param.second ) );
+        table.columns.push_back( RiaReportColumn{ .title = label, .doubleFormat = valueFormat } );
     }
-
-    formatter.header( header );
 
     for ( const auto& row : m_valuesForTextReport )
     {
-        formatter.add( QString::fromStdString( row.m_key.summaryAddressY().uiText() ) );
-
-        for ( const auto& corr : row.m_correlations )
+        std::vector<RiaReportCellValue> cells;
+        cells.emplace_back( QString::fromStdString( row.m_key.summaryAddressY().uiText() ) );
+        for ( double correlation : row.m_correlations )
         {
-            formatter.add( corr );
+            cells.emplace_back( correlation );
         }
-
-        formatter.rowCompleted();
+        table.rows.push_back( std::move( cells ) );
     }
 
-    formatter.tableCompleted();
-
-    return text;
+    return { RiaReportSection{ .title = description(), .tables = { std::move( table ) } } };
 }
 
 //--------------------------------------------------------------------------------------------------

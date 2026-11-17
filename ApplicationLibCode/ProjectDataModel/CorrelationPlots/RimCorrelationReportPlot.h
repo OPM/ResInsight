@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaReportDataProducer.h"
 #include "RimPlotWindow.h"
-#include "RimReportPlotGroup.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -44,7 +44,7 @@ class CDockManager;
 class CDockWidget;
 } // namespace ads
 
-class RimCorrelationReportPlot : public QObject, public RimPlotWindow, public RimReportPlotGroup
+class RimCorrelationReportPlot : public QObject, public RimPlotWindow, public RiaReportDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -62,7 +62,8 @@ public:
     RimCorrelationPlot*          correlationPlot() const;
     RimParameterResultCrossPlot* crossPlot() const;
 
-    std::vector<RimPlot*> childPlotsForTextExport() const override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
 
     int subTitleFontSize() const;
     int axisTitleFontSize() const;

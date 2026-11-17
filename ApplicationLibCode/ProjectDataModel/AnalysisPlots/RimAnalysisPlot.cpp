@@ -916,12 +916,20 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimAnalysisPlot::asciiDataForPlotExport() const
+QString RimAnalysisPlot::reportTitle() const
+{
+    return description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaReportSection> RimAnalysisPlot::reportSections() const
 {
     RiuGroupedBarChartBuilder chartBuilder;
     addDataToChartBuilder( chartBuilder );
 
-    return chartBuilder.plotContentAsText();
+    return { RiaReportSection{ .title = description(), .tables = { chartBuilder.reportTable() } } };
 }
 
 //--------------------------------------------------------------------------------------------------

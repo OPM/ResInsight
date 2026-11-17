@@ -63,13 +63,14 @@ private:
 
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
-    void                  onLoadDataAndUpdate() override;
-    void                  updateAxes() override;
-    QString               asciiDataForPlotExport() const override;
-    void                  updatePlotTitle() override;
-    void                  createPoints();
-    void                  updateHistoryLine();
-    std::optional<double> historyValueAtSelectedTimeStep() const;
+    void                          onLoadDataAndUpdate() override;
+    void                          updateAxes() override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    void                          updatePlotTitle() override;
+    void                          createPoints();
+    void                          updateHistoryLine();
+    std::optional<double>         historyValueAtSelectedTimeStep() const;
 
     void            updateValueRanges();
     void            updateFilterRanges();
