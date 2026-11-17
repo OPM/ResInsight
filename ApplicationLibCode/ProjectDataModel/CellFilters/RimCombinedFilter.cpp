@@ -456,8 +456,8 @@ bool RimCombinedFilter::hasActiveFormationNamesPropertyDescendant() const
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicEclipseFormationFilterNewFeature";
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
+    menuBuilder << "RicEclipseFormationFilterNewFeature";
     menuBuilder << "Separator";
 
     menuBuilder.subMenuStart( "Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
