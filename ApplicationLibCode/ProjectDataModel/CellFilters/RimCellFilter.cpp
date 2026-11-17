@@ -250,11 +250,24 @@ bool RimCellFilter::propagateToSubGrids() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimCellFilter::iconResourceString() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
     caf::IconProvider iconProvider = uiIconProvider();
 
     if ( !iconProvider.valid() ) return;
+
+    if ( const QString iconResource = iconResourceString(); !iconResource.isEmpty() )
+    {
+        iconProvider.setIconResourceString( iconResource );
+    }
 
     if ( filterMode() == INCLUDE )
     {

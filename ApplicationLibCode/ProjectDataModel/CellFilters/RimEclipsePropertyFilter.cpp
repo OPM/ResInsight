@@ -57,7 +57,9 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <iterator>
 #include <limits>
 
 CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
@@ -109,6 +111,9 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitField( &m_isDuplicatedFromLinkedView, "IsDuplicatedFromLinkedView", false, "Duplicated" );
     m_isDuplicatedFromLinkedView.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_hasUserDefinedName, "HasUserDefinedName", false, "Has User Defined Name" );
+    m_hasUserDefinedName.uiCapability()->setUiHidden( true );
 
     // HEADLESS HACK
     if ( RiaGuiApplication::isRunning() )
@@ -182,6 +187,14 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    // A name entered by the user is kept when the filter settings change. Clearing the name makes the
+    // filter generate its name again. This is done before the base handler, as it notifies parents of the change.
+    if ( nameField() == changedField )
+    {
+        m_hasUserDefinedName = !name().trimmed().isEmpty();
+        if ( !m_hasUserDefinedName ) updateFilterName();
+    }
+
     RimCellFilter::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( &m_lowerBound == changedField || &m_integerLowerBound == changedField )
@@ -252,6 +265,16 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 
     m_selectedCategoryValues = m_categoryValues;
     m_useCategorySelection   = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isUsingFormationNames() const
+{
+    RimEclipseResultDefinition* rd = m_resultDefinition();
+    return rd && rd->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
+           rd->resultVariable() != RiaResultNames::undefinedResultName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -701,6 +724,8 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
+    if ( m_hasUserDefinedName() ) return;
+
     QString newFiltername = m_resultDefinition->resultVariableUiShortName();
 
     if ( isCategorySelectionActive() )

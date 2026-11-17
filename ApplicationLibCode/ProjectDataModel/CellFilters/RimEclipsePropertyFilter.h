@@ -52,10 +52,13 @@ public:
 
     void setCase( RimCase* srcCase ) override;
 
-    void setToDefaultValues();
-    void updateFilterName();
-    void computeResultValueRange();
-    void updateFromCurrentTimeStep();
+    void         setToDefaultValues();
+    virtual void updateFilterName();
+    void         computeResultValueRange();
+    void         updateFromCurrentTimeStep();
+
+    // True if the filter evaluates the active formation names result
+    bool isUsingFormationNames() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
@@ -68,6 +71,9 @@ public:
     void updateUiFieldsFromActiveResult();
 
     std::map<QString, std::vector<caf::PdmFieldHandle*>> quickAccessFields() override;
+
+protected:
+    void updateReadOnlyStateOfAllFields();
 
 private:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -84,7 +90,6 @@ private:
     friend class RicEclipsePropertyFilterFeatureImpl;
 
     void updateActiveState();
-    void updateReadOnlyStateOfAllFields();
     void updateRangeLabel();
     void updateBoundEditorTypes();
     bool isEnsembleDataFilter() const;
@@ -93,9 +98,13 @@ private:
 
     RimEclipsePropertyFilterCollection* parentContainer();
 
-private:
+protected:
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
 
+    caf::PdmField<bool> m_useCategorySelection;
+    caf::PdmField<bool> m_hasUserDefinedName;
+
+private:
     caf::PdmField<bool> m_linkedWithCellResult;
 
     caf::PdmField<QString> m_rangeLabelText;
@@ -106,8 +115,6 @@ private:
     caf::PdmProxyValueField<int> m_integerUpperBound;
 
     caf::PdmField<bool> m_isDuplicatedFromLinkedView;
-
-    caf::PdmField<bool> m_useCategorySelection;
 
     double m_minimumResultValue;
     double m_maximumResultValue;

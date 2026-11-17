@@ -28,6 +28,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimFormationFilter.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -360,6 +361,7 @@ void RimCombinedFilter::notifyHostCollection()
 void RimCombinedFilter::initAfterRead()
 {
     RimCellFilter::initAfterRead();
+    RimFormationFilter::convertPropertyFiltersToFormationFilters( m_filters );
     for ( RimCellFilter* child : m_filters )
     {
         if ( child ) child->filterChanged.connect( this, &RimCombinedFilter::onChildFilterChanged );
@@ -437,10 +439,7 @@ bool RimCombinedFilter::hasActiveFormationNamesPropertyDescendant() const
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {
-            auto* rd = ep->resultDefinition();
-            if ( rd && rd->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
-                 rd->resultVariable() != RiaResultNames::undefinedResultName() )
-                return true;
+            if ( ep->isUsingFormationNames() ) return true;
         }
         else if ( auto* nested = dynamic_cast<RimCombinedFilter*>( child ) )
         {
@@ -457,6 +456,7 @@ bool RimCombinedFilter::hasActiveFormationNamesPropertyDescendant() const
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+    menuBuilder << "RicEclipseFormationFilterNewFeature";
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
     menuBuilder << "Separator";
 

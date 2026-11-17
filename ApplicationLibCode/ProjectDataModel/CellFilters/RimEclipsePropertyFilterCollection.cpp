@@ -29,6 +29,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFormationFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -118,6 +119,7 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::initAfterRead()
 {
+    RimFormationFilter::convertPropertyFiltersToFormationFilters( m_propertyFilters );
     updateIconState();
 }
 
@@ -187,10 +189,7 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
         {
-            auto* rd = ep->resultDefinition();
-            if ( rd && rd->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
-                 rd->resultVariable() != RiaResultNames::undefinedResultName() )
-                return true;
+            if ( ep->isUsingFormationNames() ) return true;
         }
         else if ( auto* comp = dynamic_cast<RimCombinedFilter*>( filter ) )
         {
@@ -293,6 +292,7 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::addFilterLinkedToC
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+    menuBuilder << "RicEclipseFormationFilterNewFeature";
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
     menuBuilder << "RicAddLinkedEclipsePropertyFilterFeature";
     menuBuilder << "Separator";

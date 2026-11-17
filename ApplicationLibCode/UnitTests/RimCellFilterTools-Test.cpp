@@ -38,8 +38,10 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFormationFilter.h"
 #include "RimReservoirGridEnsemble.h"
 
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
@@ -333,6 +335,36 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Formation filters saved as generic property filters must be converted to formation filters
+/// when a project is read.
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, FormationPropertyFilterIsConvertedToFormationFilter )
+{
+    RimDataFilterCollection source;
+    auto*                   formationLikeFilter = source.addNewPropertyFilter();
+    formationLikeFilter->resultDefinition()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
+    formationLikeFilter->resultDefinition()->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
+    formationLikeFilter->setName( "My filter" );
+    source.addNewPropertyFilter();
+
+    RimDataFilterCollection destination;
+    destination.xmlCapability()->readObjectFromXmlString( source.xmlCapability()->writeObjectToXmlString(),
+                                                          caf::PdmDefaultObjectFactory::instance() );
+    destination.xmlCapability()->initAfterReadRecursively();
+
+    auto filters = destination.filters();
+    ASSERT_EQ( 2u, filters.size() );
+
+    auto* converted = dynamic_cast<RimFormationFilter*>( filters[0] );
+    ASSERT_TRUE( converted != nullptr );
+    EXPECT_EQ( QString( "My filter" ), converted->name() );
+    EXPECT_TRUE( converted->isUsingFormationNames() );
+
+    EXPECT_TRUE( dynamic_cast<RimFormationFilter*>( filters[1] ) == nullptr );
+    EXPECT_TRUE( dynamic_cast<RimEclipsePropertyFilter*>( filters[1] ) != nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Realizations can have their own formation names file, with the same formations covering different
 /// K layers. A formation filter must use the K ranges of each realization.
 //--------------------------------------------------------------------------------------------------
@@ -364,12 +396,13 @@ TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
     caseA->eclipseCaseData()->setActiveFormationNames( formationsA->formationNamesData() );
     caseB->eclipseCaseData()->setActiveFormationNames( formationsB->formationNamesData() );
 
-    RimEclipsePropertyFilter propertyFilter;
+    RimFormationFilter propertyFilter;
     propertyFilter.setCase( caseA.get() );
     propertyFilter.setActive( true );
     propertyFilter.resultDefinition()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
     propertyFilter.resultDefinition()->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
     propertyFilter.computeResultValueRange();
+    EXPECT_TRUE( propertyFilter.isUsingFormationNames() );
 
     auto* categorySelectionField = dynamic_cast<caf::PdmField<bool>*>( propertyFilter.findField( "CategorySelection" ) );
     auto* selectedValuesField    = dynamic_cast<caf::PdmField<std::vector<int>>*>( propertyFilter.findField( "SelectedValues" ) );
@@ -377,6 +410,37 @@ TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
     categorySelectionField->setValue( true );
     selectedValuesField->setValue( { 0 } );
     ASSERT_TRUE( propertyFilter.isCategorySelectionActive() );
+
+    propertyFilter.updateFilterName();
+    EXPECT_TRUE( propertyFilter.name().startsWith( "Formation Names (" ) ) << propertyFilter.name().toStdString();
+    EXPECT_TRUE( propertyFilter.name().endsWith( "(Upper)" ) ) << propertyFilter.name().toStdString();
+
+    selectedValuesField->setValue( { 0, 1 } );
+    propertyFilter.updateFilterName();
+    EXPECT_TRUE( propertyFilter.name().endsWith( "(all)" ) ) << propertyFilter.name().toStdString();
+
+    selectedValuesField->setValue( { 0 } );
+    propertyFilter.updateFilterName();
+
+    propertyFilter.setFilterMode( RimCellFilter::EXCLUDE );
+    propertyFilter.updateFilterName();
+    EXPECT_TRUE( propertyFilter.name().contains( "Formation Names excl. (Upper)" ) ) << propertyFilter.name().toStdString();
+    propertyFilter.setFilterMode( RimCellFilter::INCLUDE );
+
+    auto* nameField = dynamic_cast<caf::PdmField<QString>*>( propertyFilter.findField( "Name" ) );
+    ASSERT_TRUE( nameField != nullptr );
+
+    // A user defined name is kept when the selection changes, and clearing it restores the generated name
+    nameField->setValueWithFieldChanged( "My formations" );
+    selectedValuesField->setValue( { 0, 1 } );
+    propertyFilter.updateFilterName();
+    EXPECT_EQ( QString( "My formations" ), propertyFilter.name() );
+
+    nameField->setValueWithFieldChanged( "" );
+    EXPECT_TRUE( propertyFilter.name().endsWith( "(all)" ) ) << propertyFilter.name().toStdString();
+
+    selectedValuesField->setValue( { 0 } );
+    propertyFilter.updateFilterName();
 
     auto visibleKLayers = []( const cvf::UByteArray* visibility, const RimEclipseCase* eclipseCase )
     {

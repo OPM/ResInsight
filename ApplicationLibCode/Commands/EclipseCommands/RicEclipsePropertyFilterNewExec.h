@@ -30,7 +30,7 @@ class RimEclipsePropertyFilterCollection;
 class RicEclipsePropertyFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
-    explicit RicEclipsePropertyFilterNewExec( RimEclipsePropertyFilterCollection* propertyFilterCollection );
+    explicit RicEclipsePropertyFilterNewExec( RimEclipsePropertyFilterCollection* propertyFilterCollection, bool formationNames = false );
     ~RicEclipsePropertyFilterNewExec() override;
 
     QString name() override;
@@ -39,4 +39,5 @@ public:
 
 private:
     caf::PdmPointer<RimEclipsePropertyFilterCollection> m_propertyFilterCollection;
+    bool                                                m_formationNames;
 };

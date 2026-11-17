@@ -111,6 +111,9 @@ public:
                                         RimEclipseCase*    sourceCaseOverride = nullptr );
 
 protected:
+    // Resource string of the icon to use for the filter. An empty string keeps the icon set at construction.
+    virtual QString iconResourceString() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

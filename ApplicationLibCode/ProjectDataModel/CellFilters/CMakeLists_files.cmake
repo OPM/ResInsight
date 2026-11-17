@@ -11,6 +11,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonFilter.cpp
