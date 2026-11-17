@@ -214,7 +214,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewStatisticsContourMapFeature";
             menuBuilder << "RicNewContourMapViewFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicCreateGridCrossPlotFeature";
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
             menuBuilder << "RicNewRefinementRegionFeature";

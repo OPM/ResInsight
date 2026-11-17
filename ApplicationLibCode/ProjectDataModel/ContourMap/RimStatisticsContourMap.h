@@ -27,6 +27,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
@@ -68,6 +69,7 @@ public:
     RimEclipseCase* eclipseCase() const;
 
     RimCellFilter* dataFilter() const;
+    void           setDataFilter( RimCellFilter* filter );
 
     void setGridImportMode( GridImportMode mode );
 
@@ -110,6 +112,10 @@ private:
 
     void computeStatistics();
     void onComputeStatisticsClicked();
+    void selectDataFilterCollection();
+    void onDataFilterChanged( const caf::SignalEmitter* emitter );
+    void onDataFilterCollectionChanged( const caf::SignalEmitter* emitter );
+    void connectToDataFilter();
     void doStatisticsCalculation( TimestepResultsMap& timestep_results );
 
     // Project-adjacent statistics cache, keyed by a hash of all settings affecting the results.
@@ -137,6 +143,9 @@ private:
     caf::PdmPtrField<RimEclipseCase*>                         m_primaryCase;
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
     caf::PdmPtrField<RimCellFilter*>                          m_dataFilter;
+
+    // The data filter currently observed for changes, so it can be disconnected when the selection changes
+    caf::PdmPointer<RimCellFilter> m_connectedDataFilter;
 
     caf::PdmField<caf::AppEnum<GridImportMode>>                                   m_gridImportMode;
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
