@@ -75,13 +75,14 @@ public:
     RiuPlotWidget* plotWidget() override;
     bool           isCurveHighlightSupported() const override;
 
-    void    setAutoScaleXEnabled( bool enabled ) override;
-    void    setAutoScaleYEnabled( bool enabled ) override;
-    void    updateAxes() override;
-    void    updateLegend() override;
-    QString asciiDataForPlotExport() const override;
-    void    reattachAllCurves() override;
-    void    detachAllCurves() override;
+    void                          setAutoScaleXEnabled( bool enabled ) override;
+    void                          setAutoScaleYEnabled( bool enabled ) override;
+    void                          updateAxes() override;
+    void                          updateLegend() override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    void                          reattachAllCurves() override;
+    void                          detachAllCurves() override;
 
     // RimPlotWindow implementations
     QString description() const override;

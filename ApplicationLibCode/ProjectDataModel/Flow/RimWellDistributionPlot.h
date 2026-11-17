@@ -49,17 +49,18 @@ public:
     RiaDefines::PhaseType phase() const;
 
     // RimPlot implementations
-    RiuPlotWidget* plotWidget() override;
-    void           setAutoScaleXEnabled( bool enabled ) override;
-    void           setAutoScaleYEnabled( bool enabled ) override;
-    void           updateAxes() override;
-    void           updateLegend() override;
-    void           updatePlotWidgetFromAxisRanges() override;
-    void           updateAxisRangesFromPlotWidget() override;
-    QString        asciiDataForPlotExport() const override;
-    void           reattachAllCurves() override;
-    void           detachAllCurves() override;
-    void           onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
+    RiuPlotWidget*                plotWidget() override;
+    void                          setAutoScaleXEnabled( bool enabled ) override;
+    void                          setAutoScaleYEnabled( bool enabled ) override;
+    void                          updateAxes() override;
+    void                          updateLegend() override;
+    void                          updatePlotWidgetFromAxisRanges() override;
+    void                          updateAxisRangesFromPlotWidget() override;
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    void                          reattachAllCurves() override;
+    void                          detachAllCurves() override;
+    void                          onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
     // RimPlotWindow implementations
     QString description() const override;

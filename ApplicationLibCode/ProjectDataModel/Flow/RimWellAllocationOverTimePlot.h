@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaReportDataProducer.h"
+
 #include "RimPlot.h"
 
 #include "cafPdmField.h"
@@ -76,9 +78,13 @@ public:
     void           setAutoScaleYEnabled( bool enabled ) override {};
     void           updateAxes() override {};
     void           updateLegend() override {};
-    QString        asciiDataForPlotExport() const override;
     void           reattachAllCurves() override {};
     void           detachAllCurves() override {};
+
+    // RiaReportDataProducer implementations
+    QString                       reportTitle() const override;
+    std::vector<RiaReportSection> reportSections() const override;
+    bool                          supportsLiveUpdate() const override;
 
     // RimPlotWindow implementations
     QString description() const override;
