@@ -24,6 +24,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseEnsemblesFromFilesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAddLinkedEclipsePropertyFilterFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCombinedPropertyFilterNewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseFormationFilterNewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseFormationFilterNewInViewFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
