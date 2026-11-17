@@ -25,6 +25,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuReportWindow.h"
 
 #include "cafPdmObject.h"
 
@@ -64,6 +65,32 @@ void RiuPlotMainWindowTools::setExpanded( const caf::PdmUiItem* uiItem )
         {
             mpw->setExpanded( uiItem, true );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::showReportWindow( caf::PdmObjectHandle* producerObject )
+{
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    if ( auto mpw = RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow() )
+    {
+        mpw->showReportWindow( producerObject );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::updateReportWindow( const caf::PdmObjectHandle* producerObject )
+{
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
+    {
+        if ( auto reportWindow = mpw->reportWindow() ) reportWindow->scheduleRefreshIfShowing( producerObject );
     }
 }
 

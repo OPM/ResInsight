@@ -24,6 +24,7 @@ namespace caf
 {
 class PdmUiItem;
 class PdmObject;
+class PdmObjectHandle;
 } // namespace caf
 
 class RiuPlotMainWindowTools
@@ -36,6 +37,12 @@ public:
     static void selectOrToggleObject( const caf::PdmObject* object, bool toggle );
     static void refreshToolbars();
     static void remove3dViewsFromDocking();
+
+    // Shows the report window with data from the given RiaReportDataProducer object
+    static void showReportWindow( caf::PdmObjectHandle* producerObject );
+
+    // Refreshes the report window if it is visible and shows data from the given object
+    static void updateReportWindow( const caf::PdmObjectHandle* producerObject );
 
     // Returns the first visible ancestor of the object, or the object itself if it is visible.
     static const caf::PdmObject* firstVisibleAncestorOrThis( const caf::PdmObject* object );
