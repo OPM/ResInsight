@@ -25,20 +25,16 @@
 #include "RiaQStringFormatter.h"
 #include "RiaWslTools.h"
 
-#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
-#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
-#include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 #include "EclipseCommands/RicCreateGridCaseEnsemblesFromFilesFeature.h"
 #include "JobCommands/RicRunJobFeature.h"
 #include "JobCommands/RicStopJobFeature.h"
 
 #include "RifOpmFlowDeckFile.h"
 
-#include "CompletionsMsw/RigMswTableData.h"
-
 #include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
+#include "Polygons/RimPolygon.h"
 #include "RimCase.h"
 #include "RimDeckPositionDlg.h"
 #include "RimEclipseCase.h"
@@ -51,6 +47,7 @@
 #include "RimKeywordWconprod.h"
 #include "RimOilField.h"
 #include "RimOpmFlowJobSettings.h"
+#include "RimOpmFlowJobTools.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
@@ -110,6 +107,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case for Well Data", "", "Eclipse Case to use for Well Data" );
     CAF_PDM_InitFieldNoDefault( &m_gridEnsemble, "GridEnsemble", "Grid Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_summaryEnsemble, "SummaryEnsemble", "Summary Ensemble" );
+    CAF_PDM_InitFieldNoDefault( &m_sectorPolygon, "SectorPolygon", "Sector Polygon" );
 
     CAF_PDM_InitField( &m_pauseBeforeRun, "PauseBeforeRun", false, "Pause before running OPM Flow" );
     CAF_PDM_InitField( &m_addNewWell, "AddNewWell", true, "Add New Well" );
@@ -769,6 +767,49 @@ bool RimOpmFlowJob::onPrepare()
         m_deckFile->appendDateKeywords( newDates );
     }
 
+    if ( !addWellIfNeeded() ) return false;
+
+    if ( !setupSectorModelIfNeeded() ) return false;
+
+    if ( m_useRestart() )
+    {
+        if ( !copyUnrstFileToWorkDir() )
+        {
+            RiaLogging::error( "Unable to locate UNRST file from input case." );
+            return false;
+        }
+
+        if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), restartDeckName().toStdString() ) )
+        {
+            RiaLogging::error( "Unable to insert restart keywords in DATA file." );
+            return false;
+        }
+    }
+
+    if ( m_endTimeStepEnabled() )
+    {
+        if ( !m_deckFile->stopAtTimeStep( m_endTimeStep() ) )
+        {
+            RiaLogging::error( "Unable to insert END keyword in DATA file." );
+            return false;
+        }
+    }
+
+    caf::ProgressInfo saveProgress( 1, "Saving updated information to DATA file.", false );
+
+    // save DATA file to working folder
+    bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+
+    closeDeckFile();
+
+    return saveOk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::addWellIfNeeded()
+{
     // add a new well?
     if ( m_addNewWell() )
     {
@@ -805,7 +846,13 @@ bool RimOpmFlowJob::onPrepare()
             m_eclipseCase->ensureReservoirCaseIsOpen();
         }
 
-        int mergePosition = mergeBasicWellSettings();
+        int mergePosition = RimOpmFlowJobTools::mergeBasicWellSettings( m_deckFile.get(),
+                                                                        m_openWellDeckPosition(),
+                                                                        m_eclipseCase(),
+                                                                        m_wellPath(),
+                                                                        m_wellOpenType(),
+                                                                        m_openTimeStep(),
+                                                                        m_wellOpenKeyword() );
         if ( mergePosition < 0 )
         {
             if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
@@ -815,7 +862,12 @@ bool RimOpmFlowJob::onPrepare()
 
         if ( ( m_includeMSWData ) && ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE ) )
         {
-            mergePosition = mergeMswData( mergePosition );
+            mergePosition = RimOpmFlowJobTools::mergeMswData( m_deckFile.get(),
+                                                              mergePosition,
+                                                              m_eclipseCase(),
+                                                              m_wellPath(),
+                                                              m_wellOpenType(),
+                                                              m_openTimeStep() );
             if ( mergePosition < 0 )
             {
                 if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
@@ -849,38 +901,7 @@ bool RimOpmFlowJob::onPrepare()
         }
     }
 
-    if ( m_useRestart() )
-    {
-        if ( !copyUnrstFileToWorkDir() )
-        {
-            RiaLogging::error( "Unable to locate UNRST file from input case." );
-            return false;
-        }
-
-        if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), restartDeckName().toStdString() ) )
-        {
-            RiaLogging::error( "Unable to insert restart keywords in DATA file." );
-            return false;
-        }
-    }
-
-    if ( m_endTimeStepEnabled() )
-    {
-        if ( !m_deckFile->stopAtTimeStep( m_endTimeStep() ) )
-        {
-            RiaLogging::error( "Unable to insert END keyword in DATA file." );
-            return false;
-        }
-    }
-
-    caf::ProgressInfo saveProgress( 1, "Saving updated information to DATA file.", false );
-
-    // save DATA file to working folder
-    bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
-
-    closeDeckFile();
-
-    return saveOk;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -988,7 +1009,7 @@ void RimOpmFlowJob::loadResults()
     }
     else
     {
-        if ( auto existingCase = findExistingCase( outputEgridFileName ) )
+        if ( auto existingCase = RimOpmFlowJobTools::findExistingCase( outputEgridFileName ) )
         {
             RimReloadCaseTools::reloadEclipseGridAndSummary( existingCase );
             existingCase->setCustomCaseName( name() );
@@ -1001,7 +1022,7 @@ void RimOpmFlowJob::loadResults()
             RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
             if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( files, true /*create view*/, &newCaseFiles, false /* dialog */ ) )
             {
-                if ( auto newCase = findExistingCase( outputEgridFileName ) )
+                if ( auto newCase = RimOpmFlowJobTools::findExistingCase( outputEgridFileName ) )
                 {
                     newCase->setCustomCaseName( name() );
                     newCase->updateConnectedEditors();
@@ -1016,208 +1037,6 @@ void RimOpmFlowJob::loadResults()
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimOpmFlowJob::findExistingCase( QString filename )
-{
-    if ( RimProject* proj = RimProject::current() )
-    {
-        for ( RimCase* c : proj->allGridCases() )
-        {
-            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
-            if ( eclipseCase && ( eclipseCase->gridFileName() == filename ) )
-            {
-                return eclipseCase;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///  Returns value < 0 if failure to merge
-//--------------------------------------------------------------------------------------------------
-int RimOpmFlowJob::mergeBasicWellSettings()
-{
-    const int failure = -1;
-
-    if ( m_eclipseCase() == nullptr || m_wellPath() == nullptr || m_wellPath()->completionSettings() == nullptr ||
-         m_eclipseCase()->eclipseCaseData() == nullptr )
-    {
-        RiaLogging::error( "Cannot create COMPDAT keyword - check case, wellpath and completion settings data." );
-        return failure;
-    }
-
-    auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( m_wellPath(), m_eclipseCase() );
-    auto wellName = m_wellPath()->completionSettings()->wellNameForExport().toStdString();
-
-    int mergePosition = m_openWellDeckPosition();
-
-    auto compdatKw  = RimKeywordFactory::compdatKeyword( compdata, wellName );
-    auto wpimultKw  = RimKeywordFactory::wpimultKeyword( compdata, wellName );
-    auto complumpKw = RimKeywordFactory::complumpKeyword( compdata, wellName );
-    auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
-
-    if ( compdatKw.empty() )
-    {
-        RiaLogging::warning( "Failed to create COMPDAT keyword for selected well path. Do you have a valid case selected?" );
-    }
-
-    if ( welspecsKw.empty() )
-    {
-        RiaLogging::error( "Failed to create WELSPECS keyword for selected well path. Do you have a valid case selected?" );
-        return failure;
-    }
-
-    if ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
-    {
-        // reverse order for correct insertion order
-        if ( !complumpKw.empty() )
-        {
-            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), complumpKw ) ) return failure;
-        }
-        if ( !wpimultKw.empty() )
-        {
-            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wpimultKw ) ) return failure;
-        }
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compdatKw ) ) return failure;
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welspecsKw ) ) return failure;
-        mergePosition = 0;
-    }
-    else
-    {
-        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, welspecsKw );
-        if ( mergePosition < 0 ) return failure;
-        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compdatKw );
-        if ( mergePosition < 0 ) return failure;
-        if ( !wpimultKw.empty() )
-        {
-            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wpimultKw );
-            if ( mergePosition < 0 ) return failure;
-        }
-        if ( !complumpKw.empty() )
-        {
-            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, complumpKw );
-            if ( mergePosition < 0 ) return failure;
-        }
-    }
-
-    // increase wells and connections in welldims to make sure they are big enough
-    auto additionalConnections = (int)compdatKw.size();
-    auto welldims              = m_deckFile->welldims();
-    if ( ( welldims.size() < 4 ) ||
-         !m_deckFile->setWelldims( (int)welldims[0] + 1, (int)( welldims[1] + additionalConnections ), (int)welldims[2] + 1, (int)welldims[3] + 1 ) )
-    {
-        RiaLogging::error( "Failed to update WELLDIMS keyword in DATA file, is it missing?" );
-        return failure;
-    }
-    return mergePosition;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimOpmFlowJob::mergeMswData( int mergePosition )
-{
-    const int failure = -1;
-
-    auto exportDate    = RicWellPathExportCompletionDataFeatureImpl::exportDateForTimeStep( m_eclipseCase(), 0 );
-    auto mswDataResult = RicWellPathExportMswTableData::extractSingleWellMswData( m_eclipseCase(),
-                                                                                  m_wellPath(),
-                                                                                  true,
-                                                                                  RicWellPathExportMswTableData::CompletionType::ALL,
-                                                                                  exportDate );
-    if ( !mswDataResult.has_value() )
-    {
-        RiaLogging::error( mswDataResult.error() );
-        return failure;
-    }
-
-    int  maxSegNum   = 0;
-    int  maxBranches = 0;
-    auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswDataResult.value(), maxSegNum, maxBranches );
-    auto compsegsKw  = RimKeywordFactory::compsegsKeyword( mswDataResult.value() );
-    auto wsegvalvKw  = RimKeywordFactory::wsegvalvKeyword( mswDataResult.value() );
-    auto wsegaicdKw  = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
-    auto wsegsicdKw  = RimKeywordFactory::wsegsicdKeyword( mswDataResult.value() );
-
-    if ( compsegsKw.empty() )
-    {
-        RiaLogging::warning( "Unable to create COMPSEGS keyword from MSW data, skipping MSW export. Is the wellpath outside the grid?" );
-        return ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE ) ? 0 : mergePosition;
-    }
-
-    if ( welsegsKw.empty() )
-    {
-        RiaLogging::warning( "Unable to create WELSEGS keyword from MSW data. Is the wellpath outside the grid?" );
-    }
-
-    if ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
-    {
-        // make sure we insert after COMPDAT kw
-        if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
-        if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
-        if ( !wsegvalvKw.empty() )
-        {
-            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegvalvKw, compsegsKw.name() ) ) return failure;
-        }
-        if ( !wsegaicdKw.empty() )
-        {
-            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegaicdKw, compsegsKw.name() ) ) return failure;
-        }
-        if ( !wsegsicdKw.empty() )
-        {
-            if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegsicdKw, compsegsKw.name() ) ) return failure;
-        }
-
-        mergePosition = 0;
-    }
-    else
-    {
-        mergePosition = m_deckFile->addKeywordAtPosition( mergePosition, welsegsKw );
-        if ( mergePosition < 0 ) return failure;
-        mergePosition++;
-        mergePosition = m_deckFile->addKeywordAtPosition( mergePosition, compsegsKw );
-        if ( mergePosition < 0 ) return failure;
-        mergePosition++;
-        if ( !wsegvalvKw.empty() )
-        {
-            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegvalvKw );
-            if ( mergePosition < 0 ) return failure;
-            mergePosition++;
-        }
-        if ( !wsegaicdKw.empty() )
-        {
-            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegaicdKw );
-            if ( mergePosition < 0 ) return failure;
-            mergePosition++;
-        }
-        if ( !wsegsicdKw.empty() )
-        {
-            mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, wsegsicdKw );
-            if ( mergePosition < 0 ) return failure;
-            mergePosition++;
-        }
-    }
-
-    int branches = (int)m_wellPath->allWellPathLaterals().size() + 1;
-
-    // wsegdims contains: max segmented wells, max segments, max branches
-    auto wsegdims    = m_deckFile->wsegdims();
-    int  maxSegWells = wsegdims[0] + 1; // we have added one well
-    maxSegNum        = std::max( wsegdims[1], maxSegNum );
-    maxBranches      = std::max( branches, maxBranches );
-    maxBranches      = std::max( wsegdims[2], maxBranches );
-    if ( !m_deckFile->setWsegdims( maxSegWells, maxSegNum, maxBranches ) )
-    {
-        RiaLogging::error( "Failed to update WSEGDIMS keyword in DATA file." );
-        return failure;
-    }
-    return mergePosition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1335,4 +1154,30 @@ void RimOpmFlowJob::setJobWellSettings( RimJobWellSettings* jobWellSettings )
 void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
 {
     m_autoLoadResults = autoLoadResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setSectorPolygon( RimPolygon* polygon )
+{
+    m_sectorPolygon = polygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::setupSectorModelIfNeeded()
+{
+    if ( m_sectorPolygon() == nullptr ) return true;
+
+    // calculcate fluxnum result using RigWellRegionResultTools::createWellRegionResult
+
+    // export result to grdecl file in output working folder using RicEclipseCellResultToFileImpl::writePropertyToTextFile
+
+    // run make_flux with output file working dir model directory
+
+    // add new keywords to deck file
+
+    return true;
 }

@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimGenericJob.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimOpmFlowJob.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOpmFlowJobTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimOpmFlowJobSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimJobCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDeckPositionDlg.cpp
