@@ -20,6 +20,7 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseView;
 class RimReservoirGridEnsembleBase;
 
 //==================================================================================================
@@ -30,7 +31,7 @@ class RicNewStatisticsContourMapFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addStatisticsContourMap( RimReservoirGridEnsembleBase* ensemble );
+    static void addStatisticsContourMap( RimReservoirGridEnsembleBase* ensemble, RimEclipseView* sourceView = nullptr );
 
 protected:
     bool isCommandEnabled() const override;
