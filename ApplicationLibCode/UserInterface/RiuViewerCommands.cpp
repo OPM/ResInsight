@@ -438,6 +438,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 }
 
                 // Property filter commands
+                menuBuilder << "RicEclipseFormationFilterNewInViewFeature";
                 menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
                 menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
 
