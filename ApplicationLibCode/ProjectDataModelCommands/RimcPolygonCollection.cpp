@@ -110,9 +110,17 @@ RimcPolygonCollection_importPolygonFile::RimcPolygonCollection_importPolygonFile
     CAF_PDM_InitObject( "Import Polygon File",
                         "",
                         "",
-                        "Import polygons from file into a new folder named after the file. Returns the first polygon in the file" );
+                        "Import polygons from file into a new folder. The folder is named after the file unless a name is given. "
+                        "Returns the first polygon in the file" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Polygon file (*.pol, *.dat, *.txt, *.csv)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name,
+                                          "Name",
+                                          "",
+                                          "",
+                                          "",
+                                          "Name of the new folder. A file with a single polygon also gives the polygon this name. "
+                                          "Defaults to the file name" );
     CAF_PDM_InitScriptableField( &m_onNameConflict,
                                  "OnNameConflict",
                                  caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
@@ -136,9 +144,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_importPolygo
     QFileInfo fileInfo( fileName );
     if ( !fileInfo.exists() ) return std::unexpected( QString( "Polygon file does not exist: %1" ).arg( fileName ) );
 
-    // The folder is named after the file, see RimPolygonFile::updateName
-    auto* subCollections = polygonCollection->subCollectionsField();
-    auto  resolution     = RiaNameUniquenessTools::applyConflictPolicy( subCollections, fileInfo.baseName(), m_onNameConflict().value() );
+    // The folder is named after the file unless a name is given, see RimPolygonFile::updateName
+    const QString folderName     = m_name().isEmpty() ? fileInfo.baseName() : m_name();
+    auto*         subCollections = polygonCollection->subCollectionsField();
+    auto          resolution     = RiaNameUniquenessTools::applyConflictPolicy( subCollections, folderName, m_onNameConflict().value() );
     if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
 
     auto polygonFile = std::make_unique<RimPolygonFile>();

@@ -63,5 +63,6 @@ public:
 
 private:
     caf::PdmField<QString>                                      m_fileName;
+    caf::PdmField<QString>                                      m_name;
     caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
 };
