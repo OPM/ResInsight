@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigCellFilterInterface.h"
+
 #include "RimCheckableNamedObject.h"
 
 #include "cafAppEnum.h"
@@ -43,7 +45,7 @@ class RigGridBase;
 ///
 ///
 //==================================================================================================
-class RimCellFilter : public RimCheckableNamedObject
+class RimCellFilter : public RimCheckableNamedObject, public RigCellFilterInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -66,7 +68,8 @@ public:
     RimCellFilter( FilterDefinitionType defType );
     ~RimCellFilter() override;
 
-    bool isActive() const;
+    // The filter is active when it is checked and actually filters cells. Use isChecked() for the checkbox state only.
+    bool isActive() const override;
     void setActive( bool active );
 
     void triggerFilterChanged() const;
@@ -75,8 +78,6 @@ public:
 
     bool isRangeFilter() const;
     bool isIndexFilter() const;
-
-    virtual bool isFilterEnabled() const;
 
     caf::AppEnum<FilterModeType> filterMode() const;
     void                         setFilterMode( FilterModeType filterMode );
@@ -105,10 +106,15 @@ public:
     // When sourceCaseOverride is set, property filters evaluate against that case's results instead
     // of the case the filter is bound to, allowing the same filter definition to be evaluated
     // against each case in an ensemble.
-    virtual void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                        const RigGridBase* grid,
-                                        size_t             timeStepIndex,
-                                        RimEclipseCase*    sourceCaseOverride = nullptr );
+    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                const RigGridBase* grid,
+                                size_t             timeStepIndex,
+                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
+
+    cvf::ref<cvf::UByteArray> computeReservoirCellVisibility( RimEclipseCase* eclipseCase, size_t timeStepIndex ) override;
+
+    bool                                   isDynamic() const override;
+    std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
 
 protected:
     // Resource string of the icon to use for the filter. An empty string keeps the icon set at construction.

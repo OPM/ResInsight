@@ -60,6 +60,9 @@ public:
     // True if the filter evaluates the active formation names result
     bool isUsingFormationNames() const;
 
+    bool                                   isDynamic() const override;
+    std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 

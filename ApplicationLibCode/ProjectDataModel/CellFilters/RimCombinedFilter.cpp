@@ -78,15 +78,37 @@ void RimCombinedFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCombinedFilter::isFilterEnabled() const
+bool RimCombinedFilter::isActive() const
 {
-    if ( !isActive() ) return false;
+    if ( !isChecked() ) return false;
 
     for ( RimCellFilter* child : m_filters )
     {
-        if ( child && child->isFilterEnabled() ) return true;
+        if ( child && child->isActive() ) return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A combined filter is dynamic if any of its active descendants is.
+//--------------------------------------------------------------------------------------------------
+bool RimCombinedFilter::isDynamic() const
+{
+    return hasActiveDynamicPropertyDescendant();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RigEclipseResultAddress> RimCombinedFilter::dynamicResultAddress() const
+{
+    for ( RimCellFilter* child : m_filters )
+    {
+        if ( !child ) continue;
+        if ( auto address = child->dynamicResultAddress() ) return address;
+    }
+
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +140,7 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility
     std::vector<RimCellFilter*> enabledChildren;
     for ( RimCellFilter* child : m_filters )
     {
-        if ( child && child->isFilterEnabled() ) enabledChildren.push_back( child );
+        if ( child && child->isActive() ) enabledChildren.push_back( child );
     }
     if ( enabledChildren.empty() ) return;
 
@@ -387,7 +409,7 @@ bool RimCombinedFilter::hasActiveEvaluatableDescendant() const
 {
     for ( RimCellFilter* child : m_filters )
     {
-        if ( !child || !child->isFilterEnabled() ) continue;
+        if ( !child || !child->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {
@@ -413,7 +435,7 @@ bool RimCombinedFilter::hasActiveDynamicPropertyDescendant() const
 {
     for ( RimCellFilter* child : m_filters )
     {
-        if ( !child || !child->isFilterEnabled() ) continue;
+        if ( !child || !child->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {
@@ -435,7 +457,7 @@ bool RimCombinedFilter::hasActiveFormationNamesPropertyDescendant() const
 {
     for ( RimCellFilter* child : m_filters )
     {
-        if ( !child || !child->isFilterEnabled() ) continue;
+        if ( !child || !child->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {

@@ -142,7 +142,7 @@ bool RimDataFilterCollection::hasActiveFilters() const
 {
     for ( RimCellFilter* filter : items() )
     {
-        if ( filter && filter->isFilterEnabled() ) return true;
+        if ( filter && filter->isActive() ) return true;
     }
     return false;
 }

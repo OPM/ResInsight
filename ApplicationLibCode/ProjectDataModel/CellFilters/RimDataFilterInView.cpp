@@ -79,7 +79,7 @@ bool RimDataFilterInView::isEvaluatable() const
 {
     if ( !isChecked() ) return false;
     if ( !m_sourceFilter() ) return false;
-    return m_sourceFilter()->isFilterEnabled();
+    return m_sourceFilter()->isActive();
 }
 
 //--------------------------------------------------------------------------------------------------

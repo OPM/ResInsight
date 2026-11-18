@@ -313,7 +313,7 @@ bool RimCellFilterCollection::hasActiveFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() ) return true;
+        if ( filter->isActive() ) return true;
     }
 
     return false;
@@ -328,7 +328,7 @@ bool RimCellFilterCollection::hasActiveIncludeIndexFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->isIndexFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isActive() && filter->isIndexFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -343,7 +343,7 @@ bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->isRangeFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isActive() && filter->isRangeFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -558,7 +558,7 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->isRangeFilter() )
+        if ( filter->isActive() && filter->isRangeFilter() )
         {
             filter->updateCompundFilter( cellRangeFilter, gIndx );
         }
@@ -583,7 +583,7 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->isIndexFilter() )
+        if ( filter->isActive() && filter->isIndexFilter() )
         {
             if ( ( filter->filterMode() == RimCellFilter::INCLUDE ) && needIncludeVisibilityReset )
             {
@@ -605,7 +605,7 @@ std::vector<RimPolygonInView*> RimCellFilterCollection::enabledCellFilterPolygon
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( !filter->isActive() ) continue;
+        if ( !filter->isChecked() ) continue;
 
         if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
         {

@@ -23,23 +23,24 @@
 
 #include <optional>
 
+class RigCellFilterInterface;
 class RigEclipseResultAddress;
-class RimCellFilter;
 class RimEclipseCase;
 
 //==================================================================================================
-///
+/// Null-safe helpers working on the cell filter interface
 //==================================================================================================
 class RimCellFilterTools
 {
 public:
-    static cvf::ref<cvf::UByteArray> computeReservoirCellVisibility( RimCellFilter* filter, RimEclipseCase* eclipseCase, size_t timeStepIndex );
+    static cvf::ref<cvf::UByteArray>
+        computeReservoirCellVisibility( RigCellFilterInterface* filter, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
     // True if the filter's visible cells can change from one time step to the next, i.e. it is (or
     // contains) a property filter on a dynamic (time-varying) result such as SOIL or SWAT.
-    static bool isDynamicFilter( const RimCellFilter* filter );
+    static bool isDynamicFilter( const RigCellFilterInterface* filter );
 
     // The dynamic result address the filter (or one of its descendants) is based on, if any. Used to make sure
     // that result is loaded before its time step count is queried.
-    static std::optional<RigEclipseResultAddress> dynamicResultAddress( const RimCellFilter* filter );
+    static std::optional<RigEclipseResultAddress> dynamicResultAddress( const RigCellFilterInterface* filter );
 };

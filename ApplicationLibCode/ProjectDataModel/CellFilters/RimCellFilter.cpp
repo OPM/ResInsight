@@ -18,7 +18,9 @@
 
 #include "RimCellFilter.h"
 
+#include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
+#include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
@@ -109,11 +111,14 @@ void RimCellFilter::setActive( bool active )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Is the filter turned on in the explorer tree?
+/// Is the cell filter doing active filtering, or is it just showing outline, etc. in the view
+/// - isChecked == true -> filter enabled in explorer
+/// - isActive == true -> filter enabled in explorer and is actually filtering cells, too
+/// Default implementation just returns the checked state.
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isActive() const
 {
-    return m_isChecked();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,17 +136,6 @@ void RimCellFilter::triggerFilterChanged() const
 void RimCellFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& /*oldValue*/, const QVariant& /*newValue*/ )
 {
     if ( changedField == nameField() ) triggerFilterChanged();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Is the cell filter doing active filtering, or is it just showning outline, etc. in the view
-/// - isActive == true -> filter enabled in explorer
-/// - isFilterEnabled == true -> filter enabled in explorer and is actually filtering cells, too
-/// Default implementation just returns the isActive state.
-//--------------------------------------------------------------------------------------------------
-bool RimCellFilter::isFilterEnabled() const
-{
-    return m_isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,6 +448,105 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
             if ( in ) ( *cellVisibility )[i] = 0;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Evaluate the filter against the given case for all grids, and return the visibility indexed by
+/// reservoir cell index. Property filters are evaluated against the given case's own result values.
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray> RimCellFilter::computeReservoirCellVisibility( RimEclipseCase* eclipseCase, size_t timeStepIndex )
+{
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() || !eclipseCase->eclipseCaseData()->mainGrid() ) return nullptr;
+
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+
+    cvf::ref<cvf::UByteArray> reservoirVisibility = new cvf::UByteArray( caseData->mainGrid()->totalCellCount() );
+    reservoirVisibility->setAll( false );
+
+    const bool isInclude = ( filterMode() == INCLUDE );
+
+    // Nested hybrid grid: range filters use the original grid IJK and are evaluated on every grid
+    const bool usesNestedHybridOriginalIjk = caseData->mainGrid()->nestedHybridLayout().has_value();
+
+    // Grid local masks are kept to allow propagation of parent grid visibility into LGRs
+    std::vector<cvf::ref<cvf::UByteArray>> gridMasks( caseData->gridCount() );
+
+    for ( size_t gridIdx = 0; gridIdx < caseData->gridCount(); gridIdx++ )
+    {
+        RigGridBase* grid = caseData->grid( gridIdx );
+
+        gridMasks[gridIdx]        = new cvf::UByteArray( grid->cellCount() );
+        cvf::UByteArray& gridMask = *gridMasks[gridIdx];
+        gridMask.setAll( true );
+
+        if ( isRangeFilter() )
+        {
+            // Range filters evaluate only on their target grid. On other grids an INCLUDE filter
+            // contributes no cells, while an EXCLUDE filter removes none.
+            const bool isTargetGrid = usesNestedHybridOriginalIjk || ( gridIndex() == static_cast<int>( gridIdx ) );
+            if ( isTargetGrid )
+            {
+                applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
+            }
+            else
+            {
+                gridMask.setAll( !isInclude );
+            }
+        }
+        else
+        {
+            // Index filters (polygon, user defined) and property filters evaluate on all grids
+            applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
+        }
+
+        // Cells in LGRs follow the visibility of their parent grid cell, as in the filtered geometry
+        // of a 3d view. Geometry based filters (range and index, e.g. an INDEX_K polygon) can fail to
+        // select the refined cells directly on a fine LGR, so propagate the parent grid visibility.
+        // Property filters evaluate each cell against its own result value and must be left untouched.
+        const bool isGeometryFilter = isRangeFilter() || isIndexFilter();
+        if ( isGeometryFilter && !grid->isMainGrid() )
+        {
+            auto                   localGrid  = static_cast<const RigLocalGrid*>( grid );
+            const cvf::UByteArray& parentMask = *gridMasks[localGrid->parentGrid()->gridIndex()];
+
+            for ( size_t localIdx = 0; localIdx < grid->cellCount(); localIdx++ )
+            {
+                const size_t parentCellIndex = grid->cell( localIdx ).parentCellIndex();
+                if ( isInclude )
+                {
+                    gridMask[localIdx] = gridMask[localIdx] || parentMask[parentCellIndex];
+                }
+                else
+                {
+                    gridMask[localIdx] = gridMask[localIdx] && parentMask[parentCellIndex];
+                }
+            }
+        }
+
+        for ( size_t localIdx = 0; localIdx < grid->cellCount(); localIdx++ )
+        {
+            reservoirVisibility->set( grid->reservoirCellIndex( localIdx ), gridMask[localIdx] );
+        }
+    }
+
+    return reservoirVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Static filters select the same cells regardless of time step. Property filters on dynamic results
+/// and combined filters containing them override this.
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isDynamic() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<RigEclipseResultAddress> RimCellFilter::dynamicResultAddress() const
+{
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------

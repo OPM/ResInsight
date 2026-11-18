@@ -46,8 +46,11 @@ public:
     ~RimCombinedFilter() override;
 
     void setCase( RimCase* srcCase ) override;
-    bool isFilterEnabled() const override;
+    bool isActive() const override;
     void onGridChanged() override;
+
+    bool                                   isDynamic() const override;
+    std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
 
     void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
                                 const RigGridBase* grid,

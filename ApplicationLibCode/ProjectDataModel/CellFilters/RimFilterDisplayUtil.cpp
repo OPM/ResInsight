@@ -27,7 +27,7 @@ QString RimFilterDisplayUtil::filterNamesJoined( const std::vector<RimCellFilter
     QStringList names;
     for ( auto* f : filters )
     {
-        if ( f && f->isFilterEnabled() ) names << f->name();
+        if ( f && f->isActive() ) names << f->name();
     }
     if ( names.isEmpty() ) return {};
 
