@@ -134,7 +134,9 @@ private:
     void                calculateIntersection();
     std::vector<size_t> findCloseCells( const cvf::BoundingBox& bb );
     cvf::Vec3d          calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
-    cvf::Vec3d          calculateWellPathTangent( int64_t intersectionIdx, WellPathTangentCalculation calculationType ) const;
+    bool                isPointInCell( const cvf::Vec3d& point, size_t cellIndex ) const override;
+    std::array<cvf::Vec3d, 8> hexCorners( size_t cellIndex ) const;
+    cvf::Vec3d                calculateWellPathTangent( int64_t intersectionIdx, WellPathTangentCalculation calculationType ) const;
 
     cvf::Vec3f cellCentroid( size_t intersectionIdx ) const;
     double     getWellLogIntersectionValue( size_t intersectionIdx, const std::vector<std::pair<double, double>>& wellLogValues ) const;
