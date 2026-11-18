@@ -37,12 +37,12 @@ using namespace rips;
 #define NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS 10
 
 // The element types of the store have the same values as the element types on the wire
-static_assert( static_cast<int>( RiaKeyValueStoreElementType::FLOAT32 ) == KeyValueElementType::FLOAT32 &&
-               static_cast<int>( RiaKeyValueStoreElementType::FLOAT64 ) == KeyValueElementType::FLOAT64 &&
-               static_cast<int>( RiaKeyValueStoreElementType::INT32 ) == KeyValueElementType::INT32 &&
-               static_cast<int>( RiaKeyValueStoreElementType::INT64 ) == KeyValueElementType::INT64 &&
-               static_cast<int>( RiaKeyValueStoreElementType::UINT32 ) == KeyValueElementType::UINT32 &&
-               static_cast<int>( RiaKeyValueStoreElementType::UINT64 ) == KeyValueElementType::UINT64 );
+static_assert( static_cast<int>( RiaKeyValueStoreElementType::FLOAT32 ) == KEY_VALUE_ELEMENT_TYPE_FLOAT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::FLOAT64 ) == KEY_VALUE_ELEMENT_TYPE_FLOAT64 &&
+               static_cast<int>( RiaKeyValueStoreElementType::INT32 ) == KEY_VALUE_ELEMENT_TYPE_INT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::INT64 ) == KEY_VALUE_ELEMENT_TYPE_INT64 &&
+               static_cast<int>( RiaKeyValueStoreElementType::UINT32 ) == KEY_VALUE_ELEMENT_TYPE_UINT32 &&
+               static_cast<int>( RiaKeyValueStoreElementType::UINT64 ) == KEY_VALUE_ELEMENT_TYPE_UINT64 );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,6 +58,15 @@ static size_t elementSize( RiaKeyValueStoreElementType elementType )
         default:
             return 8u;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Name of the element type without the enum prefix, for example UINT32
+//--------------------------------------------------------------------------------------------------
+static std::string elementTypeName( KeyValueElementType elementType )
+{
+    const std::string prefix = "KEY_VALUE_ELEMENT_TYPE_";
+    return KeyValueElementType_Name( elementType ).substr( prefix.size() );
 }
 
 class RiaKeyValueStoreStateHandler
@@ -149,8 +158,8 @@ public:
         {
             return grpc::Status( grpc::INVALID_ARGUMENT,
                                  "Key holds values of element type " +
-                                     KeyValueElementType_Name( static_cast<KeyValueElementType>( *storedElementType ) ) +
-                                     ", requested " + KeyValueElementType_Name( request->element_type() ) + "." );
+                                     elementTypeName( static_cast<KeyValueElementType>( *storedElementType ) ) +
+                                     ", requested " + elementTypeName( request->element_type() ) + "." );
         }
         else
         {
@@ -262,9 +271,10 @@ public:
     {
         RiaLogging::debug( QString( "Stream finished: name=%1 size=%2" )
                                .arg( QString::fromStdString( m_name ) )
-                               .arg( m_data.size() )
+                               .arg( m_streamedValueCount )
                                .toStdString() );
-        if ( !m_name.empty() && !m_data.empty() )
+        // Store only a complete upload, so a stream that failed part way leaves no key behind
+        if ( !m_name.empty() && !m_data.empty() && m_streamedValueCount == m_cellCount )
         {
             RiaApplication::instance()->keyValueStore()->set( m_name, m_data, m_elementType );
         }
@@ -287,8 +297,7 @@ private:
                 {
                     return grpc::Status( grpc::OUT_OF_RANGE,
                                          "Value " + std::to_string( value ) + " is out of range for element type " +
-                                             KeyValueElementType_Name( static_cast<KeyValueElementType>( m_elementType ) ) +
-                                             "." );
+                                             elementTypeName( static_cast<KeyValueElementType>( m_elementType ) ) + "." );
                 }
             }
             converted.push_back( static_cast<T>( value ) );

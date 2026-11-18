@@ -334,8 +334,14 @@ def test_triangulated_surface_uint32_indices(rips_instance, initialize_test):
     with pytest.raises(rips.RipsError, match="Invalid triangle index -1"):
         s.set_geometry(vertices, [[0, 1, -1]])
 
-    with pytest.raises(TypeError):
+    with pytest.raises(rips.RipsError, match=r"Invalid triangle index 2\.5"):
         s.set_geometry(vertices, [[0.0, 1.0, 2.5]])
+
+    with pytest.raises(rips.RipsError, match="Invalid triangle index -1"):
+        s.set_geometry(vertices, [[0.0, 1.0, -1.0]])
+
+    # Whole-number floats are accepted as indices
+    s.set_geometry(vertices, [[0.0, 1.0, 2.0]])
 
     s.set_geometry(vertices, [[0, 1, 2]])
 

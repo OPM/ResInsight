@@ -87,6 +87,20 @@ def _flatten(
     return flat
 
 
+def _triangle_index(value: Any) -> int:
+    # Whole-number floats such as 2.0, also numpy floats, are accepted as indices
+    try:
+        index = operator.index(value)
+    except TypeError:
+        number = float(value)
+        if not number.is_integer():
+            raise RipsError("Invalid triangle index {}".format(value))
+        index = int(number)
+    if index < 0:
+        raise RipsError("Invalid triangle index {}".format(value))
+    return index
+
+
 @add_method(TriangulatedSurface)
 def set_geometry(
     self: TriangulatedSurface,
@@ -110,13 +124,15 @@ def set_geometry(
     vertices_key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_vertices")
     triangles_key = "{}_{}".format(uuid.uuid4(), "triangulated_surface_triangles")
 
-    project.set_key_values(vertices_key, _flatten(vertices, float), dtype="float64")
-    indices = _flatten(triangles, operator.index)
-    for index in indices:
-        if index < 0:
-            raise RipsError("Invalid triangle index {}".format(index))
+    vertex_values = _flatten(vertices, float)
+    indices = _flatten(triangles, _triangle_index)
 
-    project.set_key_values(triangles_key, indices, dtype="uint32")
+    project.set_key_values(vertices_key, vertex_values, dtype="float64")
+    try:
+        project.set_key_values(triangles_key, indices, dtype="uint32")
+    except Exception:
+        project.remove_key_values(vertices_key)
+        raise
     self.set_geometry_from_keys(vertices_key=vertices_key, triangles_key=triangles_key)
 
 
