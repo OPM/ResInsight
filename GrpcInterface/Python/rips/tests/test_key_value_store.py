@@ -106,6 +106,20 @@ def test_set_typed_values_out_of_range(rips_instance, initialize_test):
         project.set_key_values("too-small-int32", [-(2**31) - 1], dtype="int32")
 
 
+def test_set_typed_values_out_of_range_in_later_chunk(rips_instance, initialize_test):
+    project = rips_instance.project
+    key = "partly-out-of-range-uint32"
+
+    # The first chunk is accepted, the out of range value is in the second chunk
+    input_values = list(range(project.chunk_size)) + [2**32]
+    with pytest.raises(rips.RipsError, match="out of range for element type UINT32"):
+        project.set_key_values(key, input_values, dtype="uint32")
+
+    # Nothing is stored when the upload fails
+    with pytest.raises(rips.RipsError, match="No matching key found."):
+        project.key_values(key, dtype="uint32")
+
+
 def test_unsupported_dtype(rips_instance, initialize_test):
     project = rips_instance.project
 

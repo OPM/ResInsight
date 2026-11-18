@@ -21,12 +21,12 @@ message KeyValueStoreInputChunk {
 
 // Element type of the values stored for a key
 enum KeyValueElementType {
-  FLOAT32 = 0;
-  FLOAT64 = 1;
-  INT32 = 2;
-  INT64 = 3;
-  UINT32 = 4;
-  UINT64 = 5;
+  KEY_VALUE_ELEMENT_TYPE_FLOAT32 = 0;
+  KEY_VALUE_ELEMENT_TYPE_FLOAT64 = 1;
+  KEY_VALUE_ELEMENT_TYPE_INT32 = 2;
+  KEY_VALUE_ELEMENT_TYPE_INT64 = 3;
+  KEY_VALUE_ELEMENT_TYPE_UINT32 = 4;
+  KEY_VALUE_ELEMENT_TYPE_UINT64 = 5;
 }
 
 message KeyValueInputParameters {

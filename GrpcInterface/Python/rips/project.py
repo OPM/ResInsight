@@ -542,12 +542,12 @@ def create_corner_point_grid(
 
 # Element type and chunk field for each numpy dtype name the key-value store transports
 _KEY_VALUE_ELEMENT_TYPES = {
-    "float32": (KeyValueStore_pb2.FLOAT32, "values"),
-    "float64": (KeyValueStore_pb2.FLOAT64, "double_values"),
-    "int32": (KeyValueStore_pb2.INT32, "int_values"),
-    "int64": (KeyValueStore_pb2.INT64, "int_values"),
-    "uint32": (KeyValueStore_pb2.UINT32, "uint_values"),
-    "uint64": (KeyValueStore_pb2.UINT64, "uint_values"),
+    "float32": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT32, "values"),
+    "float64": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT64, "double_values"),
+    "int32": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_INT32, "int_values"),
+    "int64": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_INT64, "int_values"),
+    "uint32": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_UINT32, "uint_values"),
+    "uint64": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_UINT64, "uint_values"),
 }
 
 
@@ -587,7 +587,11 @@ def set_key_values(self, key, values, dtype="float32"):
 
 @add_method(Project)
 def __generate_key_value_store_input_chunks(
-    self, array, name, element_type=KeyValueStore_pb2.FLOAT32, field="values"
+    self,
+    array,
+    name,
+    element_type=KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT32,
+    field="values",
 ):
     index = -1
     while index < len(array):
