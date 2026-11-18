@@ -21,7 +21,6 @@
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
-#include "cvfRay.h"
 
 #include "cafAssert.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
@@ -184,22 +183,124 @@ bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d& p1, const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Casts a ray downwards from the point and counts the crossings of the cell surface. The faces are split into four triangles
+/// around the face centre, so a ray through a face centre, a triangle edge or a cell edge hits several triangles at the same
+/// point. Hits at the same point are one crossing of the surface if the triangles face the same way along the ray. If they
+/// face opposite ways, the ray only touches the surface, for instance at a ridge of the cell, and the hits cancel.
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d& point, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
-    cvf::Ray ray;
-    ray.setOrigin( point );
-    size_t intersections = 0;
+    // Corners relative to the point, to keep the precision at UTM coordinates
+    std::array<cvf::Vec3d, 8> corners;
+    double                    minX = std::numeric_limits<double>::max();
+    double                    maxX = -minX;
+    double                    minY = minX;
+    double                    maxY = -minX;
+    double                    minZ = minX;
+    double                    maxZ = -minX;
+    for ( size_t i = 0; i < 8; ++i )
+    {
+        corners[i] = hexCorners[i] - point;
+        minX       = std::min( minX, corners[i].x() );
+        maxX       = std::max( maxX, corners[i].x() );
+        minY       = std::min( minY, corners[i].y() );
+        maxY       = std::max( maxY, corners[i].y() );
+        minZ       = std::min( minZ, corners[i].z() );
+        maxZ       = std::max( maxZ, corners[i].z() );
+    }
+    if ( minX > 0.0 || maxX < 0.0 || minY > 0.0 || maxY < 0.0 || minZ > 0.0 ) return false;
 
-    forEachCellSurfaceTriangle( hexCorners,
+    // The point is inside the bounding box in X and Y, so the extent from the point is a measure of the cell size
+    const double horizontalScale = std::max( { -minX, maxX, -minY, maxY } );
+    const double scale           = std::max( { horizontalScale, -minZ, maxZ } );
+
+    // Barycentric tolerance accepting hits on the edges shared by two triangles, which the exact test can miss on both triangles
+    const double edgeTolerance = 1e-9;
+
+    // Tolerances relative to the size of the cell, as the point is inside the bounding box of the cell. The degenerate
+    // tolerance is compared to an area in the XY plane, so it is not scaled by the vertical extent of the cell.
+    const double degenerateTolerance = 1e-14 * horizontalScale * horizontalScale;
+    const double depthTolerance      = 1e-8 * scale;
+
+    struct Hit
+    {
+        double depth;
+        int    direction; // +1 if the triangle faces up, -1 if it faces down. The faces of a cell are oriented consistently.
+    };
+    std::array<Hit, 24> hits;
+    size_t              hitCount = 0;
+
+    // The ray is vertical, so a triangle is hit when the point is inside the triangle projected to the XY plane, and the
+    // triangle is below the point. Vertical triangles are parallel to the ray and are not hit.
+    auto addHit = [&]( const cvf::Vec3d& a, const cvf::Vec3d& b, const cvf::Vec3d& c )
+    {
+        // Most triangles are on one side of the point in X or Y
+        if ( ( a.x() > 0.0 && b.x() > 0.0 && c.x() > 0.0 ) || ( a.x() < 0.0 && b.x() < 0.0 && c.x() < 0.0 ) ||
+             ( a.y() > 0.0 && b.y() > 0.0 && c.y() > 0.0 ) || ( a.y() < 0.0 && b.y() < 0.0 && c.y() < 0.0 ) )
+            return;
+
+        // The Z component of the triangle normal, which is twice the signed area of the triangle projected to the XY plane
+        const double det    = ( b.x() - a.x() ) * ( c.y() - a.y() ) - ( c.x() - a.x() ) * ( b.y() - a.y() );
+        const double absDet = std::abs( det );
+        if ( absDet <= degenerateTolerance ) return;
+
+        // Barycentric coordinates scaled by det, to reject most triangles without dividing
+        const double sign = det > 0.0 ? 1.0 : -1.0;
+        const double na   = sign * ( b.x() * c.y() - c.x() * b.y() );
+        const double nb   = sign * ( c.x() * a.y() - a.x() * c.y() );
+        const double nc   = absDet - na - nb;
+        const double tol  = -edgeTolerance * absDet;
+        if ( na < tol || nb < tol || nc < tol ) return;
+
+        const double z = ( na * a.z() + nb * b.z() + nc * c.z() ) / absDet;
+        if ( z <= 0.0 )
+        {
+            // Insertion sort by depth, as there are few hits
+            size_t pos = hitCount++;
+            for ( ; pos > 0 && hits[pos - 1].depth > z; --pos )
+                hits[pos] = hits[pos - 1];
+            hits[pos] = { z, det > 0.0 ? 1 : -1 };
+        }
+    };
+
+    forEachCellSurfaceTriangle( corners,
                                 [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
                                 {
-                                    if ( ray.triangleIntersect( t0, t1, t2 ) ) ++intersections;
+                                    addHit( t0, t1, t2 );
                                     return true;
                                 } );
 
-    return intersections % 2 == 1;
+    // Hits at the same depth (within tolerance) are the same surface crossing, seen through triangles that share an edge
+    // or a face. Count each direction once per group of hits. The sum is zero outside the closed surface, and plus or
+    // minus one inside, depending on the handedness of the grid.
+    int    crossings          = 0;
+    double groupDepth         = 0.0;
+    bool   groupHasUpFacing   = false;
+    bool   groupHasDownFacing = false;
+
+    for ( size_t i = 0; i < hitCount; ++i )
+    {
+        const bool startsNewGroup = ( i == 0 ) || ( hits[i].depth - groupDepth > depthTolerance );
+        if ( startsNewGroup )
+        {
+            groupDepth         = hits[i].depth;
+            groupHasUpFacing   = false;
+            groupHasDownFacing = false;
+        }
+
+        if ( hits[i].direction > 0 )
+        {
+            if ( !groupHasUpFacing ) crossings++;
+            groupHasUpFacing = true;
+        }
+        else
+        {
+            if ( !groupHasDownFacing ) crossings--;
+            groupHasDownFacing = true;
+        }
+    }
+
+    return crossings != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
