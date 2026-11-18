@@ -126,6 +126,7 @@ private:
     caf::PdmField<bool> m_addToEnsemble;
     caf::PdmField<int>  m_currentRunId;
     caf::PdmField<bool> m_useRestart;
+    caf::PdmField<bool> m_insertFluxall;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;

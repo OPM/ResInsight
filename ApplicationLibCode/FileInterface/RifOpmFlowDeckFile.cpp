@@ -1282,6 +1282,21 @@ bool RifOpmFlowDeckFile::insertKeywordAtSectionStart( const std::string& section
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::insertKeywordInSection( const std::string& section, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    // Find insertion point within the section
+    auto insertIdx = internal::findSectionInsertionPoint( m_fileDeck, section );
+    if ( !insertIdx.has_value() ) return false; // Section not found
+
+    m_fileDeck->insert( insertIdx.value(), keyword );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::restartAtTimeStep( int timeStep, std::string deckName )
 {
     if ( !m_fileDeck ) return false;
