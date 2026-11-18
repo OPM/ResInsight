@@ -52,7 +52,7 @@ protected:
     std::vector<caf::PdmUiTreeViewItemTag> treeItemTags() override;
 
 private:
-    static std::vector<RimPolygon*> importDataFromFile( const QString& fileName );
+    static std::vector<RimPolygon*> importDataFromFile( const QString& fileName, const QString& namePrefix );
     void                            updateName();
 
 private:

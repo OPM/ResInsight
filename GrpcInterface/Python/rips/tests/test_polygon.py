@@ -254,3 +254,64 @@ def test_import_polygon_file_name_conflict(rips_instance, initialize_test, tmp_p
 
     folder_names = [s.collection_name() for s in root.sub_collections()]
     assert folder_names == ["fence_1", "fence"]
+
+
+def test_import_polygon_file_with_name(rips_instance, initialize_test, tmp_path):
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    first = [[0.0, 0.0, -1000.0], [100.0, 0.0, -1000.0], [100.0, 100.0, -1000.0]]
+    second = [[200.0, 0.0, -1000.0], [300.0, 0.0, -1000.0], [300.0, 100.0, -1000.0]]
+
+    # A single polygon is named after the folder
+    single_file = tmp_path / "single.pol"
+    _write_pol_file(single_file, [first])
+    polygon = root.import_polygon_file(file_name=str(single_file), name="My Polygon")
+    assert polygon.name == "My Polygon"
+
+    # Several polygons get the folder name as prefix
+    multi_file = tmp_path / "multi.pol"
+    _write_pol_file(multi_file, [first, second])
+    polygon = root.import_polygon_file(file_name=str(multi_file), name="Faults")
+    assert polygon.name == "Faults (1)"
+
+    folders = root.sub_collections()
+    assert [s.collection_name() for s in folders] == ["My Polygon", "Faults"]
+    polygon_names = [p.name for p in folders[1].descendants(rips.Polygon)]
+    assert polygon_names == ["Faults (1)", "Faults (2)"]
+
+
+def test_import_polygon_file_with_name_conflict(
+    rips_instance, initialize_test, tmp_path
+):
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    coordinates = [[0.0, 0.0, -1000.0], [100.0, 0.0, -1000.0], [100.0, 100.0, -1000.0]]
+    pol_file = tmp_path / "fence.pol"
+    _write_pol_file(pol_file, [coordinates])
+
+    root.import_polygon_file(file_name=str(pol_file), name="Boundary")
+
+    # The conflict policy applies to the given name, not the file name
+    with pytest.raises(rips.RipsError, match="already exists"):
+        root.import_polygon_file(file_name=str(pol_file), name="Boundary")
+
+    renamed = root.import_polygon_file(
+        file_name=str(pol_file),
+        name="Boundary",
+        on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
+    )
+    assert renamed.name == "Boundary_1"
+
+    overwritten = root.import_polygon_file(
+        file_name=str(pol_file),
+        name="Boundary",
+        on_name_conflict=rips.NameConflictPolicy.OVERWRITE,
+    )
+    assert overwritten.name == "Boundary"
+
+    # No conflict with a folder named after the file
+    from_file = root.import_polygon_file(file_name=str(pol_file))
+    assert from_file.name == "fence"
+
+    folder_names = [s.collection_name() for s in root.sub_collections()]
+    assert folder_names == ["Boundary_1", "Boundary", "fence"]

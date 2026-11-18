@@ -73,7 +73,11 @@ void RimPolygonFile::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::loadData()
 {
-    auto polygonsFromFile = importDataFromFile( m_fileName().path() );
+    // Polygons are named after the folder, which defaults to the file name but can be set by the user
+    QString namePrefix = m_collectionName();
+    if ( namePrefix.isEmpty() ) namePrefix = QFileInfo( m_fileName().path() ).baseName();
+
+    auto polygonsFromFile = importDataFromFile( m_fileName().path(), namePrefix );
 
     if ( polygonsFromFile.size() == 1 )
     {
@@ -194,15 +198,12 @@ void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& fileName )
+std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& fileName, const QString& namePrefix )
 {
     QString errorMessages;
     auto    filePolygons = RifPolygonReader::parsePolygonFile( fileName, &errorMessages );
 
     std::vector<RimPolygon*> polygons;
-
-    QFileInfo     fi( fileName );
-    const QString basename = fi.baseName();
 
     for ( const auto& [polygonId, filePolygon] : filePolygons )
     {
@@ -212,7 +213,7 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
         polygon->setDeletable( false );
 
         int id = ( polygonId != -1 ) ? polygonId : static_cast<int>( polygons.size() + 1 );
-        polygon->setName( QString( "%1 (%2)" ).arg( basename ).arg( id ) );
+        polygon->setName( QString( "%1 (%2)" ).arg( namePrefix ).arg( id ) );
         polygon->setPointsInDomainCoords( filePolygon );
         polygons.push_back( polygon );
     }
