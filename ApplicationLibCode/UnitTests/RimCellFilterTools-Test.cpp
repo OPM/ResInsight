@@ -24,6 +24,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCellFilterInterface.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
@@ -31,6 +32,7 @@
 #include "Formations/RimFormationNames.h"
 #include "RimCellFilterTools.h"
 #include "RimCellRangeFilter.h"
+#include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
 #include "RimDataFilterInView.h"
 #include "RimDataFilterInViewCollection.h"
@@ -39,6 +41,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimFormationFilter.h"
+#include "RimPolygonFilter.h"
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmDefaultObjectFactory.h"
@@ -116,6 +119,68 @@ TEST( RimCellFilterToolsTest, RangeFilterVisibility )
     }
 
     EXPECT_EQ( visibility->size() - visibleCount, excludeVisibleCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// isActive() on the interface means "the filter currently filters cells"; isChecked() is only the
+/// checkbox state
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, InterfaceIsActiveFollowsFilteringState )
+{
+    RimPolygonFilter polygonFilter;
+    RimCellFilter*   asRimFilter = &polygonFilter;
+    ASSERT_TRUE( polygonFilter.isChecked() );
+
+    RigCellFilterInterface* iface = asRimFilter;
+    polygonFilter.enableFilter( true );
+    EXPECT_TRUE( iface->isActive() );
+
+    // Outline only: still checked, but no cells are filtered
+    polygonFilter.enableFilter( false );
+    EXPECT_TRUE( polygonFilter.isChecked() );
+    EXPECT_FALSE( iface->isActive() );
+
+    polygonFilter.enableFilter( true );
+    polygonFilter.setCheckState( false );
+    EXPECT_FALSE( iface->isActive() );
+
+    // A combined filter without active children does not filter cells
+    RimCombinedFilter combinedFilter;
+    EXPECT_FALSE( static_cast<RigCellFilterInterface*>( &combinedFilter )->isActive() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Dynamic filters are detected through the interface, without casting to concrete filter types
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, InterfaceReportsDynamicFilters )
+{
+    RimCellRangeFilter      rangeFilter;
+    RigCellFilterInterface* rangeIface = &rangeFilter;
+    EXPECT_FALSE( rangeIface->isDynamic() );
+    EXPECT_FALSE( rangeIface->dynamicResultAddress().has_value() );
+
+    auto eclipseCase = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
+    ASSERT_TRUE( eclipseCase != nullptr );
+
+    auto* propertyFilter = new RimEclipsePropertyFilter;
+    propertyFilter->setCase( eclipseCase.get() );
+    propertyFilter->resultDefinition()->setEclipseCase( eclipseCase.get() );
+    propertyFilter->resultDefinition()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    propertyFilter->resultDefinition()->setResultVariable( RiaResultNames::swat() );
+
+    RimCombinedFilter combinedFilter;
+    combinedFilter.addFilter( propertyFilter );
+
+    RigCellFilterInterface* propertyIface = propertyFilter;
+    EXPECT_TRUE( propertyIface->isDynamic() );
+    EXPECT_TRUE( propertyIface->dynamicResultAddress().has_value() );
+
+    RigCellFilterInterface* combinedIface = &combinedFilter;
+    EXPECT_TRUE( combinedIface->isDynamic() );
+    EXPECT_TRUE( combinedIface->dynamicResultAddress().has_value() );
+
+    EXPECT_TRUE( RimCellFilterTools::isDynamicFilter( combinedIface ) );
+    EXPECT_FALSE( RimCellFilterTools::isDynamicFilter( nullptr ) );
 }
 
 //--------------------------------------------------------------------------------------------------
