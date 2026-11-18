@@ -32,6 +32,7 @@
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigEclipseContourMapProjection.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCellFilterInterface.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
@@ -85,7 +86,10 @@ namespace
 /// Restrict the grid mapping to the cells accepted by the data filter, evaluated against the given
 /// realization at the given (local) time step.
 //--------------------------------------------------------------------------------------------------
-void applyDataFilterVisibility( RigEclipseContourMapProjection& projection, RimCellFilter* dataFilter, RimEclipseCase* eCase, size_t timeStepIndex )
+void applyDataFilterVisibility( RigEclipseContourMapProjection& projection,
+                                RigCellFilterInterface*         dataFilter,
+                                RimEclipseCase*                 eCase,
+                                size_t                          timeStepIndex )
 {
     if ( !dataFilter ) return;
 
@@ -115,7 +119,7 @@ void ensureGeneratedResultIsComputed( const RimEclipseResultDefinition* resultDe
 /// Otherwise generate a single, time-independent result.
 //--------------------------------------------------------------------------------------------------
 void extractCaseResults( RigEclipseContourMapProjection&                     projection,
-                         RimCellFilter*                                      dataFilter,
+                         RigCellFilterInterface*                             dataFilter,
                          RimEclipseCase*                                     eCase,
                          const RigEclipseResultAddress&                      resultAddress,
                          bool                                                hasDynamicResult,

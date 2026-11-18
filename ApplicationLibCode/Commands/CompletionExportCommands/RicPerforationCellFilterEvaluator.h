@@ -24,12 +24,12 @@
 #include <cstddef>
 #include <map>
 
-class RimCellFilter;
+class RigCellFilterInterface;
 class RimEclipseCase;
 
 //==================================================================================================
 ///
-/// Adapter that evaluates a single RimCellFilter against global Eclipse cell indices on behalf of
+/// Adapter that evaluates a single cell filter against global Eclipse cell indices on behalf of
 /// the COMPDAT and MSW perforation exporters. Per-grid visibility masks are built lazily and
 /// cached, so repeated lookups inside a per-cell loop are a single byte test.
 ///
@@ -37,9 +37,9 @@ class RimEclipseCase;
 class RicPerforationCellFilterEvaluator
 {
 public:
-    RicPerforationCellFilterEvaluator( RimCellFilter* filter, const RimEclipseCase* eclipseCase );
+    RicPerforationCellFilterEvaluator( RigCellFilterInterface* filter, const RimEclipseCase* eclipseCase );
 
-    // True if a non-null, active and enabled filter is attached. When false, includesGlobalCell()
+    // True if a non-null and active filter is attached. When false, includesGlobalCell()
     // always returns true and callers can skip the per-cell test entirely.
     bool isEnabled() const;
 
@@ -52,9 +52,9 @@ public:
 private:
     const cvf::UByteArray* maskForGrid( int gridIndex ) const;
 
-    RimCellFilter*        m_filter;
-    const RimEclipseCase* m_eclipseCase;
-    bool                  m_enabled;
+    RigCellFilterInterface* m_filter;
+    const RimEclipseCase*   m_eclipseCase;
+    bool                    m_enabled;
 
     mutable std::map<int, cvf::ref<cvf::UByteArray>> m_visibilityByGridIndex;
     mutable size_t                                   m_rejectedCellCount;

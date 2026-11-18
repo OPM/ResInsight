@@ -400,7 +400,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
         return std::unexpected( QString( "Mask key is empty." ) );
     }
 
-    RimCellFilter* filter = m_filter();
+    RigCellFilterInterface* filter = m_filter();
     if ( !filter )
     {
         return std::unexpected( QString( "Filter argument is null." ) );

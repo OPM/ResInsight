@@ -893,7 +893,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
 
     if ( !propFilterColl->hasActiveFilters() && !hasCaseLevelFilters ) return;
 
-    for ( RimCellFilter* filter : propFilterColl->filtersForEvaluation() )
+    for ( RigCellFilterInterface* filter : propFilterColl->filtersForEvaluation() )
     {
         if ( filter && filter->isActive() )
         {
