@@ -46,6 +46,7 @@ private:
     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo> radialGridAxisIntersections( double tolerance );
     std::vector<size_t>                                      findCloseCellIndices( const cvf::BoundingBox& bb );
     cvf::Vec3d calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
+    bool       isPointInCell( const cvf::Vec3d& point, size_t cellIndex ) const override;
 
     double computeLengthThreshold() const;
 

@@ -36,6 +36,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "RigFemAddressDefines.h"
+#include "RigHexIntersectionTools.h"
 #include "RigWbsParameter.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
@@ -1203,22 +1204,38 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells( const cvf::Bound
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const
 {
-    std::array<cvf::Vec3d, 8> hexCorners;
+    return RigWellPathIntersectionTools::calculateLengthInCell( hexCorners( cellIndex ), startPoint, endPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechWellLogExtractor::isPointInCell( const cvf::Vec3d& point, size_t cellIndex ) const
+{
+    return RigHexIntersectionTools::isPointInCell( point, hexCorners( cellIndex ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 8> RigGeoMechWellLogExtractor::hexCorners( size_t cellIndex ) const
+{
+    std::array<cvf::Vec3d, 8> corners;
 
     const RigFemPart*              femPart       = m_caseData->femParts()->part( m_partId );
     const std::vector<cvf::Vec3f>& nodeCoords    = femPart->nodes().coordinates;
     const int*                     cornerIndices = femPart->connectivities( cellIndex );
 
-    hexCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
-    hexCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
-    hexCorners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
-    hexCorners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
-    hexCorners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
-    hexCorners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
-    hexCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
-    hexCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
+    corners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
+    corners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
+    corners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
+    corners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
+    corners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
+    corners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
+    corners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
+    corners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
 
-    return RigWellPathIntersectionTools::calculateLengthInCell( hexCorners, startPoint, endPoint );
+    return corners;
 }
 
 //--------------------------------------------------------------------------------------------------
