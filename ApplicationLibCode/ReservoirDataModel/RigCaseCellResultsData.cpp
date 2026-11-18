@@ -2405,7 +2405,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
 
         size_t i, j, k, gridLocalNeighborCellIdx;
 
-        grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
+        if ( !grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k ) ) continue;
 
         if ( grid->cellIJKNeighbor( i, j, k, faceId, &gridLocalNeighborCellIdx ) )
         {
@@ -2844,7 +2844,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
         size_t i, j, k, gridLocalNeighborCellIdx;
 
-        grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
+        if ( !grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k ) ) continue;
 
         if ( grid->cellIJKNeighbor( i, j, k, faceId, &gridLocalNeighborCellIdx ) )
         {

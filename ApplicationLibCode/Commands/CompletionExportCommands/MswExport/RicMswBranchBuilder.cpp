@@ -227,7 +227,7 @@ std::optional<RigMswCellIntersection>
     const RigGridBase* localGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( cellInfo.globCellIndex, &localIdx );
 
     size_t i, j, k;
-    localGrid->ijkFromCellIndex( localIdx, &i, &j, &k );
+    if ( !localGrid->ijkFromCellIndex( localIdx, &i, &j, &k ) ) return std::nullopt;
     if ( mainGrid->isDualPorosity() ) k += mainGrid->cellCountK();
 
     RigMswCellIntersection ci;

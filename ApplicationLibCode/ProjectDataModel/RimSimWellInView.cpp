@@ -233,7 +233,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
         // Position well head at top active cell of IJ-column
 
         size_t i, j, k;
-        rigReservoir->mainGrid()->ijkFromCellIndex( whCell.mainGridCellIndex(), &i, &j, &k );
+        if ( !rigReservoir->mainGrid()->ijkFromCellIndex( whCell.mainGridCellIndex(), &i, &j, &k ) ) return;
 
         size_t kIndexWellHeadCell = k;
         k                         = 0;

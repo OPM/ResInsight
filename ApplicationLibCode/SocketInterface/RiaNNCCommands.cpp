@@ -90,7 +90,12 @@ public:
         RigGridBase* hostGrid           = cell.hostGrid();
         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
         size_t       i, j, k;
-        hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+        if ( !hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+        {
+            i = 0;
+            j = 0;
+            k = 0;
+        }
 
         socketStream << (qint32)hostGrid->gridIndex();
         socketStream << (qint32)( i + 1 ) << (qint32)( j + 1 ) << (qint32)( k + 1 );

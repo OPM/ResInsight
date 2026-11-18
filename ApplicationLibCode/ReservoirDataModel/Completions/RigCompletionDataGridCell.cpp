@@ -49,7 +49,7 @@ RigCompletionDataGridCell::RigCompletionDataGridCell( size_t globalCellIndex, co
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+            if ( !grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) return;
 
             m_localCellIndexI = i;
             m_localCellIndexJ = j;

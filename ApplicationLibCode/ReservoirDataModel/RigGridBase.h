@@ -97,10 +97,10 @@ public:
     cvf::Vec3d maxCoordinate() const override;
     cvf::Vec3d displayModelOffset() const override;
 
-    size_t         cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
-    virtual size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
-    bool           ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
-    virtual void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
+    size_t             cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    virtual size_t     cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
+    [[nodiscard]] bool ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
+    virtual void       ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
 
     std::optional<caf::VecIjk0> ijkFromCellIndex( size_t cellIndex ) const;
     size_t                      cellIndexFromIJK( const caf::VecIjk0& ijk ) const;

@@ -1303,7 +1303,12 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
 
     if ( eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
     {
-        eclipseView->eclipseCase()->eclipseCaseData()->grid( gridIdx )->ijkFromCellIndex( cellIndex, i, j, k );
+        if ( !eclipseView->eclipseCase()->eclipseCaseData()->grid( gridIdx )->ijkFromCellIndex( cellIndex, i, j, k ) )
+        {
+            i = 0;
+            j = 0;
+            k = 0;
+        }
     }
 
     if ( geomView && geomView->geoMechCase() && geomView->femParts() )

@@ -273,7 +273,7 @@ size_t RigEclipseContourMapProjection::kLayer( size_t globalCellIdx ) const
     const RigCell& cell            = m_mainGrid->cell( globalCellIdx );
     size_t         mainGridCellIdx = cell.mainGridCellIndex();
     size_t         i, j, k;
-    m_mainGrid->ijkFromCellIndex( mainGridCellIdx, &i, &j, &k );
+    if ( !m_mainGrid->ijkFromCellIndex( mainGridCellIdx, &i, &j, &k ) ) return 0;
     return k;
 }
 

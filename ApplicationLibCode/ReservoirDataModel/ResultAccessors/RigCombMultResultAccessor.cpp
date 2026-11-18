@@ -73,7 +73,7 @@ double RigCombMultResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf
     if ( faceId == cvf::StructGridInterface::NO_FACE ) return 1.0;
 
     size_t i, j, k, neighborGridCellIdx;
-    m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+    if ( !m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) return 1.0;
 
     double faceScalarThisCell = nativeMultScalar( gridLocalCellIndex, faceId );
 

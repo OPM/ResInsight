@@ -478,7 +478,7 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
     {
         size_t     cellIdx = closeCells[ccIdx];
         cvf::Vec3d geoMechConvertedEclCell[8];
-        RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( masterEclGrid, cellIdx, geoMechConvertedEclCell );
+        if ( !RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( masterEclGrid, cellIdx, geoMechConvertedEclCell ) ) continue;
 
         cvf::Vec3d cellCenter = RigCaseToCaseCellMapperTools::calculateCellCenter( geoMechConvertedEclCell );
         double     sqDist     = ( cellCenter - elmCenter ).lengthSquared();
@@ -509,9 +509,8 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
     }
 
     bool isCollapsedCell = false;
-    if ( globCellIdxToBestMatch != cvf::UNDEFINED_SIZE_T )
+    if ( masterEclGrid->ijkFromCellIndex( globCellIdxToBestMatch, ei, ej, ek ) )
     {
-        masterEclGrid->ijkFromCellIndex( globCellIdxToBestMatch, ei, ej, ek );
         isCollapsedCell = masterEclGrid->cell( globCellIdxToBestMatch ).isCollapsedCell();
     }
     else

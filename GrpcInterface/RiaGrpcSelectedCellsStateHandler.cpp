@@ -97,10 +97,13 @@ void RiaGrpcSelectedCellsStateHandler::assignSelectedCell( rips::SelectedCell* c
     size_t i = -1;
     size_t j = -1;
     size_t k = -1;
-    item->m_resultDefinition->eclipseCase()
-        ->eclipseCaseData()
-        ->grid( item->m_gridIndex )
-        ->ijkFromCellIndex( item->m_gridLocalCellIndex, &i, &j, &k );
+    if ( !item->m_resultDefinition->eclipseCase()
+              ->eclipseCaseData()
+              ->grid( item->m_gridIndex )
+              ->ijkFromCellIndex( item->m_gridLocalCellIndex, &i, &j, &k ) )
+    {
+        // not much we can do here?
+    }
 
     cell->set_grid_index( item->m_gridIndex );
     rips::Vec3i* ijk = new rips::Vec3i;

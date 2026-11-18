@@ -825,7 +825,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 }
                 else
                 {
-                    grid->ijkFromCellIndex( cellIndex, &mainGridI, &mainGridJ, &mainGridK );
+                    if ( !grid->ijkFromCellIndex( cellIndex, &mainGridI, &mainGridJ, &mainGridK ) ) continue;
                 }
 
                 // Cells without an original IJK (nested hybrid flat refined cells and padding) are never

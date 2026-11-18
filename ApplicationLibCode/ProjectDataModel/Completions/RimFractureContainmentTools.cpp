@@ -50,14 +50,15 @@ size_t findNeighborReservoirCellIndex( const RigMainGrid* mainGrid, cvf::StructG
         if ( hostGrid && gridLocalCellIndex != cvf::UNDEFINED_SIZE_T )
         {
             size_t i, j, k;
-            hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
-
-            size_t neighborGridLocalCellIndex;
-
-            bool foundCell = hostGrid->cellIJKNeighbor( i, j, k, face, &neighborGridLocalCellIndex );
-            if ( foundCell )
+            if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
             {
-                neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex( neighborGridLocalCellIndex );
+                size_t neighborGridLocalCellIndex;
+
+                bool foundCell = hostGrid->cellIJKNeighbor( i, j, k, face, &neighborGridLocalCellIndex );
+                if ( foundCell )
+                {
+                    neighborGlobalReservoirCellIndex = hostGrid->reservoirCellIndex( neighborGridLocalCellIndex );
+                }
             }
         }
     }

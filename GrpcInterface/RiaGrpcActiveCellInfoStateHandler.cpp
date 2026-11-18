@@ -123,7 +123,7 @@ void RiaGrpcActiveCellInfoStateHandler::assignCellInfoData( rips::CellInfo*     
     size_t cellIndex = reservoirCells[cellIdx].gridLocalCellIndex();
 
     size_t i, j, k;
-    grid->ijkFromCellIndex( cellIndex, &i, &j, &k );
+    if ( !grid->ijkFromCellIndex( cellIndex, &i, &j, &k ) ) return;
 
     size_t       pi, pj, pk;
     RigGridBase* parentGrid = nullptr;
@@ -140,7 +140,7 @@ void RiaGrpcActiveCellInfoStateHandler::assignCellInfoData( rips::CellInfo*     
         size_t parentCellIdx = reservoirCells[cellIdx].parentCellIndex();
         parentGrid           = ( static_cast<RigLocalGrid*>( grid ) )->parentGrid();
         CVF_ASSERT( parentGrid != nullptr );
-        parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk );
+        if ( !parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk ) ) return;
     }
 
     cellInfo->set_grid_index( (int)grid->gridIndex() );

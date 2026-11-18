@@ -125,23 +125,25 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
 
                 if ( resPoint.isCell() )
                 {
-                    rips::SimulationWellCellInfo* cellInfo = reply->add_data();
-                    size_t                        i;
-                    size_t                        j;
-                    size_t                        k;
-                    const size_t                  gridIdx = resPoint.gridIndex();
-                    grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k );
+                    size_t       i;
+                    size_t       j;
+                    size_t       k;
+                    const size_t gridIdx = resPoint.gridIndex();
+                    if ( grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k ) )
+                    {
+                        rips::SimulationWellCellInfo* cellInfo = reply->add_data();
 
-                    Vec3i* ijk = new Vec3i;
-                    ijk->set_i( i );
-                    ijk->set_j( j );
-                    ijk->set_k( k );
+                        Vec3i* ijk = new Vec3i;
+                        ijk->set_i( i );
+                        ijk->set_j( j );
+                        ijk->set_k( k );
 
-                    cellInfo->set_allocated_ijk( ijk );
-                    cellInfo->set_grid_index( gridIdx );
-                    cellInfo->set_is_open( resPoint.isOpen() );
-                    cellInfo->set_branch_id( resPoint.branchId() );
-                    cellInfo->set_segment_id( resPoint.segmentId() );
+                        cellInfo->set_allocated_ijk( ijk );
+                        cellInfo->set_grid_index( gridIdx );
+                        cellInfo->set_is_open( resPoint.isOpen() );
+                        cellInfo->set_branch_id( resPoint.branchId() );
+                        cellInfo->set_segment_id( resPoint.segmentId() );
+                    }
                 }
             }
         }

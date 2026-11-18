@@ -473,7 +473,7 @@ std::vector<ReservoirCellIndex> RigWellTargetMappingTools::findCandidates( RimEc
 
         size_t i, j, k;
 
-        grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+        if ( !grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) continue;
 
         for ( CellFaceType face : faces )
         {

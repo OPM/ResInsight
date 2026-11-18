@@ -294,7 +294,7 @@ public:
                     size_t j;
                     size_t k;
                     size_t gridIdx = branchResultPoint.gridIndex();
-                    grids[gridIdx]->ijkFromCellIndex( branchResultPoint.cellIndex(), &i, &j, &k );
+                    if ( !grids[gridIdx]->ijkFromCellIndex( branchResultPoint.cellIndex(), &i, &j, &k ) ) continue;
                     bool isOpen    = branchResultPoint.isOpen();
                     int  branchId  = branchResultPoint.branchId();
                     int  segmentId = branchResultPoint.segmentId();

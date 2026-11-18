@@ -218,7 +218,7 @@ public:
                 size_t cellIndex = cell.gridLocalCellIndex();
 
                 size_t i, j, k;
-                grid->ijkFromCellIndex( cellIndex, &i, &j, &k );
+                if ( !grid->ijkFromCellIndex( cellIndex, &i, &j, &k ) ) continue;
 
                 size_t       pi, pj, pk;
                 RigGridBase* parentGrid = nullptr;
@@ -235,7 +235,7 @@ public:
                     size_t parentCellIdx = cell.parentCellIndex();
                     parentGrid           = ( static_cast<RigLocalGrid*>( grid ) )->parentGrid();
                     CAF_ASSERT( parentGrid != nullptr );
-                    parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk );
+                    if ( !parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk ) ) continue;
                 }
 
                 gridNumber.push_back( static_cast<qint32>( grid->gridIndex() ) );
@@ -613,10 +613,13 @@ public:
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>( item );
                 if ( !eclipseItem->m_resultDefinition ) continue;
 
-                eclipseItem->m_resultDefinition->eclipseCase()
-                    ->eclipseCaseData()
-                    ->grid( eclipseItem->m_gridIndex )
-                    ->ijkFromCellIndex( eclipseItem->m_gridLocalCellIndex, &i, &j, &k );
+                if ( !eclipseItem->m_resultDefinition->eclipseCase()
+                          ->eclipseCaseData()
+                          ->grid( eclipseItem->m_gridIndex )
+                          ->ijkFromCellIndex( eclipseItem->m_gridLocalCellIndex, &i, &j, &k ) )
+                {
+                    continue;
+                }
 
                 gridIndex = eclipseItem->m_gridIndex;
                 caseId    = eclipseItem->m_resultDefinition->eclipseCase()->caseId();
