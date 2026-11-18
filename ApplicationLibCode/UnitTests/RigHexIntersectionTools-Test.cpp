@@ -51,14 +51,14 @@ TEST( RigHexIntersectionTools, planeHexCellIntersectionTest )
 
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
     bool                                         isCellIntersected = false;
-    cvf::Plane                                   fracturePlane;
+    cvf::Plane                                   plane;
 
-    fracturePlane.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
+    plane.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
+    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, plane, intersectionLineSegments );
     EXPECT_TRUE( isCellIntersected );
 
-    fracturePlane.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
+    plane.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
+    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, plane, intersectionLineSegments );
     EXPECT_FALSE( isCellIntersected );
 }
 
@@ -78,11 +78,11 @@ TEST( RigHexIntersectionTools, DISABLED_planeHexCellIntersectionPerformanceTest 
     hexCorners[7] = cvf::Vec3d( 1, 1, 1 );
 
     bool       isCellIntersected = false;
-    cvf::Plane fracturePlaneIntersecting;
-    cvf::Plane fracturePlaneNotIntersecting;
+    cvf::Plane planeIntersecting;
+    cvf::Plane planeNotIntersecting;
 
-    fracturePlaneNotIntersecting.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    fracturePlaneIntersecting.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
+    planeNotIntersecting.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
+    planeIntersecting.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
 
     QElapsedTimer timeTotal;
     timeTotal.start();
@@ -96,10 +96,8 @@ TEST( RigHexIntersectionTools, DISABLED_planeHexCellIntersectionPerformanceTest 
         {
             std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
 
-            isCellIntersected =
-                RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlaneIntersecting, intersectionLineSegments );
-            isCellIntersected =
-                RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlaneNotIntersecting, intersectionLineSegments );
+            isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, planeIntersecting, intersectionLineSegments );
+            isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, planeNotIntersecting, intersectionLineSegments );
         }
 
         qDebug() << "Time rim elapsed: " << timeLocal.elapsed();
@@ -455,6 +453,152 @@ TEST( RigHexIntersectionTools, sortMergeAndAppendHits )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The line queries skip the triangle tests when the segment is outside the bounding box of the cell. The result must be
+/// the same as testing all surface triangles, also for segments ending at or grazing the corners of the cell.
+//--------------------------------------------------------------------------------------------------
+TEST( RigHexIntersectionTools, lineQueriesMatchTestOfAllTriangles )
+{
+    const double tolerance = RigWellLogExtractionTools::intersectionParametricTolerance;
+
+    std::mt19937                           rng( 4711 );
+    std::uniform_real_distribution<double> easting( 400000.0, 600000.0 );
+    std::uniform_real_distribution<double> northing( 6000000.0, 7000000.0 );
+    std::uniform_real_distribution<double> depth( -4000.0, -1000.0 );
+    std::uniform_real_distribution<double> offset( -150.0, 250.0 );
+    std::uniform_real_distribution<double> nearZero( -1.0e-7, 1.0e-7 );
+
+    auto hasTriangleHit =
+        []( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners, double parametricTolerance )
+    {
+        return !RigHexIntersectionTools::forEachCellSurfaceTriangle( hexCorners,
+                                                                     [&]( cvf::StructGridInterface::FaceType,
+                                                                          const cvf::Vec3d& t0,
+                                                                          const cvf::Vec3d& t1,
+                                                                          const cvf::Vec3d& t2 )
+                                                                     {
+                                                                         cvf::Vec3d intersection;
+                                                                         bool       isEntering = false;
+                                                                         return cvf::GeometryTools::intersectLineSegmentTriangle( p1,
+                                                                                                                                  p2,
+                                                                                                                                  t0,
+                                                                                                                                  t1,
+                                                                                                                                  t2,
+                                                                                                                                  &intersection,
+                                                                                                                                  &isEntering,
+                                                                                                                                  parametricTolerance ) !=
+                                                                                1;
+                                                                     } );
+    };
+
+    // The intersections from a test of all surface triangles, sorted and merged as in lineHexCellIntersection()
+    auto intersectionsOfAllTriangles =
+        []( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners, double parametricTolerance )
+    {
+        const cvf::Vec3d direction     = p2 - p1;
+        const double     lengthSquared = direction.lengthSquared();
+
+        std::vector<RigHexIntersectionTools::SegmentHit> hits;
+        RigHexIntersectionTools::forEachCellSurfaceTriangle( hexCorners,
+                                                             [&]( cvf::StructGridInterface::FaceType face,
+                                                                  const cvf::Vec3d&                  t0,
+                                                                  const cvf::Vec3d&                  t1,
+                                                                  const cvf::Vec3d&                  t2 )
+                                                             {
+                                                                 cvf::Vec3d intersection;
+                                                                 bool       isEntering = false;
+                                                                 if ( cvf::GeometryTools::intersectLineSegmentTriangle( p1,
+                                                                                                                        p2,
+                                                                                                                        t0,
+                                                                                                                        t1,
+                                                                                                                        t2,
+                                                                                                                        &intersection,
+                                                                                                                        &isEntering,
+                                                                                                                        parametricTolerance ) ==
+                                                                      1 )
+                                                                 {
+                                                                     const double t = lengthSquared > 0.0
+                                                                                          ? ( intersection - p1 ).dot( direction ) / lengthSquared
+                                                                                          : 0.0;
+                                                                     hits.push_back( { t, intersection, isEntering, face } );
+                                                                 }
+                                                                 return true;
+                                                             } );
+
+        double mergeTolerance = RigHexIntersectionTools::intersectionMergeTolerance;
+        if ( hits.size() > 1 && lengthSquared > 0.0 )
+        {
+            double coordinateMagnitude = 0.0;
+            for ( int i = 0; i < 3; ++i )
+            {
+                coordinateMagnitude = std::max( { coordinateMagnitude, std::abs( p1[i] ), std::abs( p2[i] ) } );
+            }
+            mergeTolerance =
+                std::max( mergeTolerance, 64.0 * std::numeric_limits<double>::epsilon() * coordinateMagnitude / std::sqrt( lengthSquared ) );
+        }
+
+        std::vector<HexIntersectionInfo> intersections;
+        RigHexIntersectionTools::sortMergeAndAppendHits( hits, mergeTolerance, 0, &intersections );
+        return intersections;
+    };
+
+    int hitCount  = 0;
+    int missCount = 0;
+
+    for ( int hexIdx = 0; hexIdx < 300; ++hexIdx )
+    {
+        const cvf::Vec3d origin( easting( rng ), northing( rng ), depth( rng ) );
+        const auto       hexCorners = createDistortedHex( rng, origin );
+
+        std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> segments;
+        for ( int q = 0; q < 40; ++q )
+        {
+            auto randomPoint = [&]() { return origin + cvf::Vec3d( offset( rng ), offset( rng ), 0.1 * offset( rng ) ); };
+            segments.emplace_back( randomPoint(), randomPoint() );
+
+            // Axis aligned segments
+            cvf::Vec3d start = randomPoint();
+            cvf::Vec3d end   = start;
+            end[q % 3] += offset( rng );
+            segments.emplace_back( start, end );
+        }
+        for ( const auto& corner : hexCorners )
+        {
+            // Segments from outside the cell, ending at or very close to a corner
+            const cvf::Vec3d outside = corner + ( corner - ( origin + cvf::Vec3d( 50.0, 50.0, 5.0 ) ) ) * 2.0;
+            segments.emplace_back( outside, corner );
+            segments.emplace_back( corner, outside );
+            segments.emplace_back( outside, corner + cvf::Vec3d( nearZero( rng ), nearZero( rng ), nearZero( rng ) ) );
+            segments.emplace_back( outside, corner + ( outside - corner ) * 1.0e-10 );
+        }
+
+        for ( const auto& [p1, p2] : segments )
+        {
+            const bool expectedHit = hasTriangleHit( p1, p2, hexCorners, 0.0 );
+            EXPECT_EQ( expectedHit, RigHexIntersectionTools::lineIntersectsHexCell( p1, p2, hexCorners ) );
+
+            const auto                       expected = intersectionsOfAllTriangles( p1, p2, hexCorners, tolerance );
+            std::vector<HexIntersectionInfo> intersections;
+            const int count = RigHexIntersectionTools::lineHexCellIntersection( p1, p2, hexCorners, 0, &intersections, tolerance );
+            EXPECT_EQ( static_cast<int>( intersections.size() ), count );
+
+            ASSERT_EQ( expected.size(), intersections.size() );
+            for ( size_t i = 0; i < expected.size(); ++i )
+            {
+                EXPECT_TRUE( expected[i].m_intersectionPoint == intersections[i].m_intersectionPoint );
+                EXPECT_EQ( expected[i].m_isIntersectionEntering, intersections[i].m_isIntersectionEntering );
+                EXPECT_EQ( expected[i].m_face, intersections[i].m_face );
+            }
+
+            ( expected.empty() ? missCount : hitCount )++;
+        }
+    }
+
+    // Make sure both outcomes are covered
+    EXPECT_GT( hitCount, 1000 );
+    EXPECT_GT( missCount, 1000 );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Timing of the line and point vs cell queries on distorted cells at UTM coordinates. Disabled by default, run with
 /// --gtest_also_run_disabled_tests --gtest_filter=*IntersectionPerformance*
 //--------------------------------------------------------------------------------------------------
@@ -503,6 +647,21 @@ TEST( RigHexIntersectionTools, DISABLED_lineAndPointCellIntersectionPerformance 
         }
     }
 
+    // Segments longer than the cells, where most of the cells close to a segment are not intersected
+    std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> longSegments;
+    for ( int hexIdx = 0; hexIdx < hexCount; ++hexIdx )
+    {
+        const cvf::Vec3d                       origin = hexes[hexIdx][0];
+        std::uniform_real_distribution<double> horizontal( -300.0, 400.0 );
+        std::uniform_real_distribution<double> vertical( -30.0, 40.0 );
+        for ( int q = 0; q < queriesPerHex; ++q )
+        {
+            const cvf::Vec3d start = origin + cvf::Vec3d( horizontal( rng ), horizontal( rng ), vertical( rng ) );
+            const cvf::Vec3d end   = origin + cvf::Vec3d( horizontal( rng ), horizontal( rng ), vertical( rng ) );
+            longSegments.emplace_back( start, end );
+        }
+    }
+
     auto bestOf = [&]( auto&& function )
     {
         double best = std::numeric_limits<double>::infinity();
@@ -536,6 +695,25 @@ TEST( RigHexIntersectionTools, DISABLED_lineAndPointCellIntersectionPerformance 
             }
         } );
 
+    size_t longLineHexHits = 0;
+    double longLineHexMs   = bestOf(
+        [&]()
+        {
+            longLineHexHits = 0;
+            std::vector<HexIntersectionInfo> intersections;
+            for ( size_t q = 0; q < queryCount; ++q )
+            {
+                intersections.clear();
+                longLineHexHits +=
+                    RigHexIntersectionTools::lineHexCellIntersection( longSegments[q].first,
+                                                                      longSegments[q].second,
+                                                                      hexes[q / queriesPerHex],
+                                                                      q,
+                                                                      &intersections,
+                                                                      RigWellLogExtractionTools::intersectionParametricTolerance );
+            }
+        } );
+
     size_t lineIntersectsCount = 0;
     double lineIntersectsMs    = bestOf(
         [&]()
@@ -564,6 +742,8 @@ TEST( RigHexIntersectionTools, DISABLED_lineAndPointCellIntersectionPerformance 
     std::cout << "Queries: " << queryCount << ", best of " << runCount << " runs" << std::endl;
     std::cout << "lineHexCellIntersection: " << lineHexMs << " ms (" << nsPerQuery( lineHexMs ) << " ns/query), hits " << lineHexHits
               << std::endl;
+    std::cout << "  long segments:         " << longLineHexMs << " ms (" << nsPerQuery( longLineHexMs ) << " ns/query), hits "
+              << longLineHexHits << std::endl;
     std::cout << "lineIntersectsHexCell:   " << lineIntersectsMs << " ms (" << nsPerQuery( lineIntersectsMs ) << " ns/query), intersecting "
               << lineIntersectsCount << std::endl;
     std::cout << "isPointInCell:           " << pointInCellMs << " ms (" << nsPerQuery( pointInCellMs ) << " ns/query), inside "

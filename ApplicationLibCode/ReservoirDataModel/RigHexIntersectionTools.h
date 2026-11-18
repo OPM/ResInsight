@@ -86,6 +86,17 @@ struct RigHexIntersectionTools
     template <typename Visitor>
     static bool forEachCellSurfaceTriangle( const std::array<cvf::Vec3d, 8>& hexCorners, Visitor&& visitor );
 
+    // As above, but the triangles of a face are only visited if faceFilter(v0, v1, v2, v3) returns true for the
+    // corners of the face
+    template <typename FaceFilter, typename Visitor>
+    static bool forEachCellSurfaceTriangle( const std::array<cvf::Vec3d, 8>& hexCorners, FaceFilter&& faceFilter, Visitor&& visitor );
+
+    // As above, but the visitor is called as visitor(face, cornerIndex, nextCornerIndex, faceCenter), with the indices
+    // of the two corners in hexCorners
+    template <typename FaceFilter, typename Visitor>
+    static bool
+        forEachCellSurfaceTriangleByCornerIndex( const std::array<cvf::Vec3d, 8>& hexCorners, FaceFilter&& faceFilter, Visitor&& visitor );
+
     // Intersections are deduplicated deterministically and returned sorted by the parameter along p1 -> p2
     static int lineHexCellIntersection( const cvf::Vec3d&                 p1,
                                         const cvf::Vec3d&                 p2,
@@ -99,7 +110,7 @@ struct RigHexIntersectionTools
     static bool isPointInCell( const cvf::Vec3d& point, const std::array<cvf::Vec3d, 8>& hexCorners );
 
     static bool planeHexCellIntersection( const std::array<cvf::Vec3d, 8>&              hexCorners,
-                                          const cvf::Plane&                             fracturePlane,
+                                          const cvf::Plane&                             plane,
                                           std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments );
 
     static bool planeHexIntersectionPolygons( const std::array<cvf::Vec3d, 8>&      hexCorners,
@@ -113,12 +124,47 @@ struct RigHexIntersectionTools
 template <typename Visitor>
 bool RigHexIntersectionTools::forEachCellSurfaceTriangle( const std::array<cvf::Vec3d, 8>& hexCorners, Visitor&& visitor )
 {
+    return forEachCellSurfaceTriangle(
+        hexCorners, []( const cvf::Vec3d&, const cvf::Vec3d&, const cvf::Vec3d&, const cvf::Vec3d& ) { return true; }, visitor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FaceFilter, typename Visitor>
+bool RigHexIntersectionTools::forEachCellSurfaceTriangle( const std::array<cvf::Vec3d, 8>& hexCorners, FaceFilter&& faceFilter, Visitor&& visitor )
+{
+    return forEachCellSurfaceTriangleByCornerIndex( hexCorners,
+                                                    faceFilter,
+                                                    [&]( cvf::StructGridInterface::FaceType face,
+                                                         cvf::ubyte                         cornerIdx,
+                                                         cvf::ubyte                         nextCornerIdx,
+                                                         const cvf::Vec3d&                  faceCenter )
+                                                    { return visitor( face, hexCorners[cornerIdx], hexCorners[nextCornerIdx], faceCenter ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FaceFilter, typename Visitor>
+bool RigHexIntersectionTools::forEachCellSurfaceTriangleByCornerIndex( const std::array<cvf::Vec3d, 8>& hexCorners,
+                                                                       FaceFilter&&                     faceFilter,
+                                                                       Visitor&&                        visitor )
+{
     for ( int faceIdx = 0; faceIdx < 6; ++faceIdx )
     {
         const auto face = static_cast<cvf::StructGridInterface::FaceType>( faceIdx );
 
         cvf::ubyte faceVertexIndices[4];
         cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
+
+        if ( !faceFilter( hexCorners[faceVertexIndices[0]],
+                          hexCorners[faceVertexIndices[1]],
+                          hexCorners[faceVertexIndices[2]],
+                          hexCorners[faceVertexIndices[3]] ) )
+        {
+            continue;
+        }
 
         const cvf::Vec3d faceCenter = canonicalFaceCenter( hexCorners[faceVertexIndices[0]],
                                                            hexCorners[faceVertexIndices[1]],
@@ -128,7 +174,7 @@ bool RigHexIntersectionTools::forEachCellSurfaceTriangle( const std::array<cvf::
         for ( int i = 0; i < 4; ++i )
         {
             const int next = i < 3 ? i + 1 : 0;
-            if ( !visitor( face, hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter ) ) return false;
+            if ( !visitor( face, faceVertexIndices[i], faceVertexIndices[next], faceCenter ) ) return false;
         }
     }
     return true;
