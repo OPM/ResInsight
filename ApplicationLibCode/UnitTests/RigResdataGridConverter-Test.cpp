@@ -663,9 +663,9 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
 
     // This is a unit test for the array conversion function specifically
     // Since createHexCornerCoords is complex, we'll test the interface and basic functionality
-    std::vector<float> coordArray;
-    std::vector<float> zcornArray;
-    std::vector<int>   actnumArray;
+    std::vector<double> coordArray;
+    std::vector<double> zcornArray;
+    std::vector<int>    actnumArray;
 
     // For this test, we need a real grid. Let's load the reek model and test a small subset
     QDir baseFolder( TEST_MODEL_DIR );
@@ -706,16 +706,16 @@ TEST( RigResdataGridConverterTest, CornerPointArrayConversion )
     bool hasNonZeroZcorn = false;
     bool hasActiveCell   = false;
 
-    for ( float coord : coordArray )
+    for ( double coord : coordArray )
     {
         EXPECT_FALSE( std::isnan( coord ) ) << "COORD array contains NaN values";
-        if ( coord != 0.0f ) hasNonZeroCoord = true;
+        if ( coord != 0.0 ) hasNonZeroCoord = true;
     }
 
-    for ( float zcorn : zcornArray )
+    for ( double zcorn : zcornArray )
     {
         EXPECT_FALSE( std::isnan( zcorn ) ) << "ZCORN array contains NaN values";
-        if ( zcorn != 0.0f ) hasNonZeroZcorn = true;
+        if ( zcorn != 0.0 ) hasNonZeroZcorn = true;
     }
 
     for ( int actnum : actnumArray )

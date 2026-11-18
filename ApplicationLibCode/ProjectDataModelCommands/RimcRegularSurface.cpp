@@ -53,7 +53,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
+    std::vector<float> values = RiaKeyValueStoreUtil::getValues<float>( *keyValueStore, m_valueKey().toStdString() );
     if ( values.empty() ) return std::unexpected( "Found unexcepted empty property." );
 
     if ( values.size() != static_cast<size_t>( surface->nx() * surface->ny() ) )
@@ -100,7 +100,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_getPropertyToKe
     if ( values.empty() ) return std::unexpected( QString( "Property '%1' not found." ).arg( m_name() ) );
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    keyValueStore->set( m_valueKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_valueKey().toStdString(), values );
 
     return nullptr;
 }

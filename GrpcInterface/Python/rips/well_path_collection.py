@@ -100,14 +100,14 @@ def import_well_path_from_points(
     if not project:
         raise RuntimeError("Could not find parent project")
 
-    project.set_key_values(x_key, x_coords)
-    project.set_key_values(y_key, y_coords)
-    project.set_key_values(z_key, z_coords)
+    project.set_key_values(x_key, x_coords, dtype="float64")
+    project.set_key_values(y_key, y_coords, dtype="float64")
+    project.set_key_values(z_key, z_coords, dtype="float64")
 
     md_key = None
     if measured_depths is not None:
         md_key = f"{shared_uuid}_coordinate_md"
-        project.set_key_values(md_key, md_values)
+        project.set_key_values(md_key, md_values, dtype="float64")
 
     try:
         # Call internal method to create the well path

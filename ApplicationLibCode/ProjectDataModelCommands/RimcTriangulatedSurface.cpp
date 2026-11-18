@@ -56,10 +56,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_setGeometr
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<double> vertexValues = RiaKeyValueStoreUtil::convertToVector<double>(
-        keyValueStore->get( m_verticesKey().toStdString(), RiaKeyValueStoreElementType::FLOAT64 ) );
-    std::vector<uint32_t> triangleValues = RiaKeyValueStoreUtil::convertToVector<uint32_t>(
-        keyValueStore->get( m_trianglesKey().toStdString(), RiaKeyValueStoreElementType::UINT32 ) );
+    std::vector<double>   vertexValues   = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_verticesKey().toStdString() );
+    std::vector<uint32_t> triangleValues = RiaKeyValueStoreUtil::getValues<uint32_t>( *keyValueStore, m_trianglesKey().toStdString() );
 
     keyValueStore->remove( m_verticesKey().toStdString() );
     keyValueStore->remove( m_trianglesKey().toStdString() );
@@ -122,7 +120,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_setPropert
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> values = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_valueKey().toStdString() ) );
+    std::vector<float> values = RiaKeyValueStoreUtil::getValues<float>( *keyValueStore, m_valueKey().toStdString() );
     keyValueStore->remove( m_valueKey().toStdString() );
 
     if ( values.empty() ) return std::unexpected( "Found unexpected empty property." );
@@ -173,7 +171,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcTriangulatedSurface_getPropert
     if ( values.empty() ) return std::unexpected( QString( "Property '%1' not found." ).arg( m_name() ) );
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    keyValueStore->set( m_valueKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_valueKey().toStdString(), values );
 
     return nullptr;
 }

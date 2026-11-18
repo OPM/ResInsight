@@ -212,9 +212,9 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     // Get grid bounds for extraction
     RigGridExportAdapter gridAdapter( eclipseCase->eclipseCaseData(), settings.min(), settings.max(), settings.refinement() );
 
-    std::vector<float> coordArray;
-    std::vector<float> zcornArray;
-    std::vector<int>   actnumArray;
+    std::vector<double> coordArray;
+    std::vector<double> zcornArray;
+    std::vector<int>    actnumArray;
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
@@ -247,17 +247,6 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
         return std::unexpected( "Failed to replace SPECGRID keyword in deck file" );
     }
 
-    auto convertToDoubleVector = []( const std::vector<float>& vec )
-    {
-        std::vector<double> outVec;
-        outVec.reserve( vec.size() );
-        for ( float f : vec )
-            outVec.push_back( f );
-        return outVec;
-    };
-    std::vector<double> coords = convertToDoubleVector( coordArray );
-    std::vector<double> zcorn  = convertToDoubleVector( zcornArray );
-
     if ( std::find( keywords.begin(), keywords.end(), "ACTNUM" ) == keywords.end() )
     {
         Opm::DeckKeyword newKw( ( Opm::ParserKeywords::ACTNUM() ) );
@@ -265,12 +254,12 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
         deckFile.addKeyword( "GRID", newKw );
     }
 
-    if ( !deckFile.replaceKeyword( "COORD", coords, true /*data kw*/ ) )
+    if ( !deckFile.replaceKeyword( "COORD", coordArray, true /*data kw*/ ) )
     {
         return std::unexpected( "Failed to replace COORD keyword in deck file" );
     }
 
-    if ( !deckFile.replaceKeyword( "ZCORN", zcorn, true /*data kw*/ ) )
+    if ( !deckFile.replaceKeyword( "ZCORN", zcornArray, true /*data kw*/ ) )
     {
         return std::unexpected( "Failed to replace ZCORN keyword in deck file" );
     }

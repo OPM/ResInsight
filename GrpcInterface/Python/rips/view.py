@@ -150,11 +150,8 @@ def visible_cells(self, time_step=0):
         # Call internal method to store visibility data
         self.visible_cells_internal(visibility_key=visibility_key, time_step=time_step)
 
-        # Retrieve visibility data from key-value store
-        visibility_values = project.key_values(visibility_key)
-
-        # Convert floats to integers (1 for visible, 0 for invisible)
-        return [int(v) for v in visibility_values]
+        # Retrieve visibility data from key-value store (1 for visible, 0 for invisible)
+        return project.key_values(visibility_key, dtype="int32")
 
     finally:
         # Clean up temporary key from key-value store

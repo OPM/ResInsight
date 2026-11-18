@@ -69,13 +69,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcCornerPointCase_replaceCornerP
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> coord  = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_coordKey().toStdString() ) );
-    std::vector<float> zcorn  = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_zcornKey().toStdString() ) );
-    std::vector<float> actnum = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_actnumKey().toStdString() ) );
+    std::vector<double> coord  = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordKey().toStdString() );
+    std::vector<double> zcorn  = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_zcornKey().toStdString() );
+    std::vector<int>    actnum = RiaKeyValueStoreUtil::getValues<int32_t>( *keyValueStore, m_actnumKey().toStdString() );
 
     if ( coord.empty() || zcorn.empty() || actnum.empty() )
     {
-        return std::unexpected( "Found unexpected empty coord, zcorn or actnum array." );
+        return std::unexpected( "Found unexpected empty coord, zcorn or actnum array. Coord and zcorn must be float64, actnum int32." );
     }
 
     // Block view updates while the grid is being replaced.
@@ -87,7 +87,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcCornerPointCase_replaceCornerP
     if ( !result.has_value() )
     {
         RiaViewRedrawScheduler::instance()->blockUpdate( false );
-        return std::unexpected( "Failed to replace grid" );
+        return std::unexpected( QString( "Failed to replace grid. " ) + result.error() );
     }
 
     // Update all 3D views to reflect the new grid

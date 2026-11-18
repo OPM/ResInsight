@@ -5,6 +5,7 @@ The ResInsight project module
 """
 
 import grpc
+import operator
 import uuid
 import warnings
 
@@ -526,9 +527,9 @@ def create_corner_point_grid(
     zcorn_key = "{}_{}".format(uuid.uuid4(), "zcorn")
     actnum_key = "{}_{}".format(uuid.uuid4(), "actnum")
 
-    self.set_key_values(coord_key, coord)
-    self.set_key_values(zcorn_key, zcorn)
-    self.set_key_values(actnum_key, actnum)
+    self._set_corner_point_grid_key_values(
+        coord_key, coord, zcorn_key, zcorn, actnum_key, actnum
+    )
     return self.create_grid_from_key_values(
         name=name,
         nx=nx,
@@ -538,6 +539,38 @@ def create_corner_point_grid(
         zcorn_key=zcorn_key,
         actnum_key=actnum_key,
     )
+
+
+def _actnum_value(value: object) -> int:
+    # Whole-number floats such as 1.0, also numpy floats, are accepted as ACTNUM values
+    try:
+        return operator.index(value)  # type: ignore[arg-type]
+    except TypeError:
+        number = float(value)  # type: ignore[arg-type]
+        if not number.is_integer():
+            raise RipsError("Invalid ACTNUM value {}".format(value))
+        return int(number)
+
+
+@add_method(Project)
+def _set_corner_point_grid_key_values(
+    self, coord_key, coord, zcorn_key, zcorn, actnum_key, actnum
+):
+    # COORD and ZCORN travel as float64 and ACTNUM as int32. The keys are removed again if
+    # one of the uploads fails.
+    stored_keys = []
+    try:
+        self.set_key_values(coord_key, [float(v) for v in coord], dtype="float64")
+        stored_keys.append(coord_key)
+        self.set_key_values(zcorn_key, [float(v) for v in zcorn], dtype="float64")
+        stored_keys.append(zcorn_key)
+        self.set_key_values(
+            actnum_key, [_actnum_value(v) for v in actnum], dtype="int32"
+        )
+    except Exception:
+        for key in stored_keys:
+            self.remove_key_values(key)
+        raise
 
 
 # Element type and chunk field for each numpy dtype name the key-value store transports

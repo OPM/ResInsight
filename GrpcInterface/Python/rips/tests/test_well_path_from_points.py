@@ -204,3 +204,28 @@ def test_import_well_path_from_points_invalid_measured_depths(
         well_path_coll.import_well_path_from_points(
             name="W", coordinates=coordinates, measured_depths=[0, "a", 20]
         )
+
+
+def test_import_well_path_from_points_utm_precision(rips_instance, initialize_test):
+    """Coordinates and measured depths travel as float64 in both directions"""
+    well_path_coll = rips_instance.project.well_path_collection()
+
+    # float32 can not hold these values, the spacing is 0.5 m at 6.8e6
+    coordinates = [
+        [456789.123, 6789012.456, -50.25],
+        [456789.123, 6789012.456, -1500.75],
+    ]
+    well_path = well_path_coll.import_well_path_from_points(
+        name="UtmPrecisionWell",
+        coordinates=coordinates,
+        measured_depths=[1234.567, 2684.567],
+    )
+
+    geometry = well_path.trajectory_properties(resampling_interval=1e6)
+    assert geometry["coordinate_x"][0] == pytest.approx(456789.123, rel=0, abs=1e-6)
+    assert geometry["coordinate_y"][0] == pytest.approx(6789012.456, rel=0, abs=1e-6)
+    assert geometry["coordinate_x"][-1] == pytest.approx(456789.123, rel=0, abs=1e-6)
+    assert geometry["coordinate_y"][-1] == pytest.approx(6789012.456, rel=0, abs=1e-6)
+    assert geometry["measured_depth"] == pytest.approx(
+        [1234.567, 2684.567], rel=0, abs=1e-6
+    )

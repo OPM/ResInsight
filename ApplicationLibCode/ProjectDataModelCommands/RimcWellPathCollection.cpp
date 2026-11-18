@@ -138,22 +138,20 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
     // Retrieve coordinates from key-value store
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    auto xData = keyValueStore->get( m_coordinateXKey().toStdString() );
-    auto yData = keyValueStore->get( m_coordinateYKey().toStdString() );
-    auto zData = keyValueStore->get( m_coordinateZKey().toStdString() );
-
-    if ( !xData || !yData || !zData )
+    if ( !keyValueStore->exists( m_coordinateXKey().toStdString() ) || !keyValueStore->exists( m_coordinateYKey().toStdString() ) ||
+         !keyValueStore->exists( m_coordinateZKey().toStdString() ) )
     {
         return std::unexpected( QString( "Failed to retrieve coordinate data from key-value store." ) );
     }
 
-    std::vector<float> xCoords = RiaKeyValueStoreUtil::convertToFloatVector( xData );
-    std::vector<float> yCoords = RiaKeyValueStoreUtil::convertToFloatVector( yData );
-    std::vector<float> zCoords = RiaKeyValueStoreUtil::convertToFloatVector( zData );
+    std::vector<double> xCoords = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateXKey().toStdString() );
+    std::vector<double> yCoords = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateYKey().toStdString() );
+    std::vector<double> zCoords = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateZKey().toStdString() );
 
     if ( xCoords.empty() || yCoords.empty() || zCoords.empty() )
     {
-        return std::unexpected( QString( "Failed to convert coordinate data from key-value store." ) );
+        return std::unexpected(
+            QString( "Failed to convert coordinate data from key-value store. Coordinates must be non-empty float64 arrays." ) );
     }
 
     if ( xCoords.size() != yCoords.size() || yCoords.size() != zCoords.size() )
@@ -166,24 +164,19 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPathCollection_importWellP
     std::vector<cvf::Vec3d> trajectoryPoints;
     for ( size_t i = 0; i < xCoords.size(); ++i )
     {
-        trajectoryPoints.push_back(
-            cvf::Vec3d( static_cast<double>( xCoords[i] ), static_cast<double>( yCoords[i] ), static_cast<double>( zCoords[i] ) ) );
+        trajectoryPoints.emplace_back( xCoords[i], yCoords[i], zCoords[i] );
     }
 
     // Measured depths are optional. If not given, MD is computed from the trajectory length.
     std::vector<double> measuredDepths;
     if ( !m_coordinateMdKey().isEmpty() )
     {
-        auto mdData = keyValueStore->get( m_coordinateMdKey().toStdString() );
-        if ( !mdData )
+        if ( !keyValueStore->exists( m_coordinateMdKey().toStdString() ) )
         {
             return std::unexpected( QString( "Failed to retrieve measured depth data from key-value store." ) );
         }
 
-        for ( float md : RiaKeyValueStoreUtil::convertToFloatVector( mdData ) )
-        {
-            measuredDepths.push_back( static_cast<double>( md ) );
-        }
+        measuredDepths = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateMdKey().toStdString() );
 
         if ( measuredDepths.size() != trajectoryPoints.size() )
         {

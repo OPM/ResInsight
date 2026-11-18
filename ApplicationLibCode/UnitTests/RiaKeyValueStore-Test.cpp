@@ -6,15 +6,18 @@
 #include "KeyValueStore/RiaKeyValueStore.h"
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 
+// Element type used by the tests of the generic store, where the element type is not relevant
+constexpr auto anyElementType = RiaKeyValueStoreElementType::FLOAT32;
+
 // Test set and get operations
 TEST( RiaKeyValueStoreTest, SetAndGet )
 {
     // Test get existing keys
     RiaKeyValueStore<int> intStore;
-    intStore.set( "numbers", { 1, 2, 3, 4, 5 } );
-    intStore.set( "even", { 2, 4, 6, 8 } );
+    intStore.set( "numbers", { 1, 2, 3, 4, 5 }, anyElementType );
+    intStore.set( "even", { 2, 4, 6, 8 }, anyElementType );
 
-    auto numbers = intStore.get( "numbers" );
+    auto numbers = intStore.get( "numbers", anyElementType );
 
     ASSERT_TRUE( numbers.has_value() );
     EXPECT_EQ( numbers->size(), 5 );
@@ -22,30 +25,30 @@ TEST( RiaKeyValueStoreTest, SetAndGet )
     EXPECT_EQ( ( *numbers )[4], 5 );
 
     RiaKeyValueStore<std::string> stringStore;
-    stringStore.set( "fruits", { "apple", "banana", "cherry" } );
-    stringStore.set( "colors", { "red", "green", "blue" } );
+    stringStore.set( "fruits", { "apple", "banana", "cherry" }, anyElementType );
+    stringStore.set( "colors", { "red", "green", "blue" }, anyElementType );
 
-    auto fruits = stringStore.get( "fruits" );
+    auto fruits = stringStore.get( "fruits", anyElementType );
     ASSERT_TRUE( fruits.has_value() );
     EXPECT_EQ( fruits->size(), 3 );
     EXPECT_EQ( ( *fruits )[0], "apple" );
     EXPECT_EQ( ( *fruits )[2], "cherry" );
 
     // Test get non-existing key
-    EXPECT_FALSE( intStore.get( "prime" ).has_value() );
-    EXPECT_FALSE( stringStore.get( "vegetables" ).has_value() );
+    EXPECT_FALSE( intStore.get( "prime", anyElementType ).has_value() );
+    EXPECT_FALSE( stringStore.get( "vegetables", anyElementType ).has_value() );
 
     // Test set operation (overwrite)
-    intStore.set( "numbers", { 10, 20, 30 } );
-    auto updatedNumbers = intStore.get( "numbers" );
+    intStore.set( "numbers", { 10, 20, 30 }, anyElementType );
+    auto updatedNumbers = intStore.get( "numbers", anyElementType );
     ASSERT_TRUE( updatedNumbers.has_value() );
     EXPECT_EQ( updatedNumbers->size(), 3 );
     EXPECT_EQ( ( *updatedNumbers )[0], 10 );
     EXPECT_EQ( ( *updatedNumbers )[2], 30 );
 
     // Test set new key
-    intStore.set( "prime", { 2, 3, 5, 7, 11 } );
-    auto primes = intStore.get( "prime" );
+    intStore.set( "prime", { 2, 3, 5, 7, 11 }, anyElementType );
+    auto primes = intStore.get( "prime", anyElementType );
     ASSERT_TRUE( primes.has_value() );
     EXPECT_EQ( primes->size(), 5 );
     EXPECT_EQ( ( *primes )[0], 2 );
@@ -57,13 +60,13 @@ TEST( RiaKeyValueStoreTest, Remove )
 {
     // Test remove existing key
     RiaKeyValueStore<int> intStore;
-    auto                  numbers = intStore.get( "numbers" );
-    intStore.set( "numbers", { 1, 2, 3, 4, 5 } );
+    auto                  numbers = intStore.get( "numbers", anyElementType );
+    intStore.set( "numbers", { 1, 2, 3, 4, 5 }, anyElementType );
 
     EXPECT_TRUE( intStore.exists( "numbers" ) );
     EXPECT_TRUE( intStore.remove( "numbers" ) );
     EXPECT_FALSE( intStore.exists( "numbers" ) );
-    EXPECT_FALSE( intStore.get( "numbers" ).has_value() );
+    EXPECT_FALSE( intStore.get( "numbers", anyElementType ).has_value() );
 
     // Test remove non-existing key
     EXPECT_FALSE( intStore.remove( "prime" ) );
@@ -76,9 +79,9 @@ TEST( RiaKeyValueStoreTest, Remove )
 TEST( RiaKeyValueStoreTest, Exists )
 {
     RiaKeyValueStore<int> intStore;
-    auto                  numbers = intStore.get( "numbers" );
-    intStore.set( "numbers", { 1, 2, 3, 4, 5 } );
-    intStore.set( "even", { 2, 4, 6, 8 } );
+    auto                  numbers = intStore.get( "numbers", anyElementType );
+    intStore.set( "numbers", { 1, 2, 3, 4, 5 }, anyElementType );
+    intStore.set( "even", { 2, 4, 6, 8 }, anyElementType );
 
     EXPECT_TRUE( intStore.exists( "numbers" ) );
     EXPECT_TRUE( intStore.exists( "even" ) );
@@ -90,9 +93,9 @@ TEST( RiaKeyValueStoreTest, Exists )
 TEST( RiaKeyValueStoreTest, Keys )
 {
     RiaKeyValueStore<int> intStore;
-    auto                  numbers = intStore.get( "numbers" );
-    intStore.set( "numbers", { 1, 2, 3, 4, 5 } );
-    intStore.set( "even", { 2, 4, 6, 8 } );
+    auto                  numbers = intStore.get( "numbers", anyElementType );
+    intStore.set( "numbers", { 1, 2, 3, 4, 5 }, anyElementType );
+    intStore.set( "even", { 2, 4, 6, 8 }, anyElementType );
 
     auto intKeys = intStore.keys();
     EXPECT_EQ( intKeys.size(), 2 );
@@ -106,9 +109,9 @@ TEST( RiaKeyValueStoreTest, Keys )
 TEST( RiaKeyValueStoreTest, Clear )
 {
     RiaKeyValueStore<int> intStore;
-    auto                  numbers = intStore.get( "numbers" );
-    intStore.set( "numbers", { 1, 2, 3, 4, 5 } );
-    intStore.set( "even", { 2, 4, 6, 8 } );
+    auto                  numbers = intStore.get( "numbers", anyElementType );
+    intStore.set( "numbers", { 1, 2, 3, 4, 5 }, anyElementType );
+    intStore.set( "even", { 2, 4, 6, 8 }, anyElementType );
 
     EXPECT_FALSE( intStore.keys().empty() );
     intStore.clear();
@@ -121,8 +124,8 @@ TEST( RiaKeyValueStoreTest, Clear )
 TEST( RiaKeyValueStoreTest, EdgeCases )
 {
     RiaKeyValueStore<int> intStore;
-    intStore.set( "empty", {} );
-    auto emptyArray = intStore.get( "empty" );
+    intStore.set( "empty", {}, anyElementType );
+    auto emptyArray = intStore.get( "empty", anyElementType );
     ASSERT_TRUE( emptyArray.has_value() );
     EXPECT_TRUE( emptyArray->empty() );
 }
@@ -131,8 +134,8 @@ TEST( RiaKeyValueStoreTest, LargeArray )
 {
     RiaKeyValueStore<int> intStore;
     std::vector<int>      largeArray( 10000, 42 );
-    intStore.set( "large", largeArray );
-    auto retrievedLarge = intStore.get( "large" );
+    intStore.set( "large", largeArray, anyElementType );
+    auto retrievedLarge = intStore.get( "large", anyElementType );
     ASSERT_TRUE( retrievedLarge.has_value() );
     EXPECT_EQ( retrievedLarge->size(), 10000 );
     EXPECT_EQ( ( *retrievedLarge )[9999], 42 );
@@ -141,8 +144,8 @@ TEST( RiaKeyValueStoreTest, LargeArray )
 TEST( RiaKeyValueStoreTest, EmptyKey )
 {
     RiaKeyValueStore<std::string> stringStore;
-    stringStore.set( "", { "empty_key" } );
-    auto emptyKey = stringStore.get( "" );
+    stringStore.set( "", { "empty_key" }, anyElementType );
+    auto emptyKey = stringStore.get( "", anyElementType );
     ASSERT_TRUE( emptyKey.has_value() );
     EXPECT_EQ( ( *emptyKey )[0], "empty_key" );
 }
@@ -163,10 +166,10 @@ TEST( RiaKeyValueStoreTest, BasicConcurrency )
             std::vector<int> values = { threadId, i, threadId * i };
 
             // Set values
-            EXPECT_TRUE( store.set( key, values ) );
+            EXPECT_TRUE( store.set( key, values, anyElementType ) );
 
             // Get values
-            auto result = store.get( key );
+            auto result = store.get( key, anyElementType );
             EXPECT_TRUE( result.has_value() );
             if ( result.has_value() )
             {
@@ -231,8 +234,9 @@ TYPED_TEST( RiaKeyValueStoreUtilTest, ConvertRoundTrip )
     EXPECT_EQ( RiaKeyValueStoreUtil::convertToVector<T>( bytes ), values );
 
     RiaKeyValueStore<char> store;
-    store.set( "values", bytes );
-    EXPECT_EQ( RiaKeyValueStoreUtil::convertToVector<T>( store.get( "values" ) ), values );
+    RiaKeyValueStoreUtil::setValues( store, "values", values );
+    EXPECT_EQ( store.elementType( "values" ), RiaKeyValueStoreUtil::elementType<T>() );
+    EXPECT_EQ( RiaKeyValueStoreUtil::getValues<T>( store, "values" ), values );
 }
 
 TYPED_TEST( RiaKeyValueStoreUtilTest, ConvertInvalidInput )
@@ -260,8 +264,8 @@ TEST( RiaKeyValueStoreTest, ElementType )
     EXPECT_FALSE( store.get( "coordinates", RiaKeyValueStoreElementType::INT64 ).has_value() );
     EXPECT_FALSE( store.get( "missing", RiaKeyValueStoreElementType::FLOAT64 ).has_value() );
 
-    // Values set without an element type are float32
-    store.set( "coordinates", RiaKeyValueStoreUtil::convertToByteVector( std::vector<float>{ 1.0f } ) );
+    // Setting a key again replaces the element type
+    store.set( "coordinates", RiaKeyValueStoreUtil::convertToByteVector( std::vector<float>{ 1.0f } ), RiaKeyValueStoreElementType::FLOAT32 );
     EXPECT_EQ( store.elementType( "coordinates" ), RiaKeyValueStoreElementType::FLOAT32 );
     EXPECT_TRUE( store.get( "coordinates", RiaKeyValueStoreElementType::FLOAT32 ).has_value() );
 
@@ -271,4 +275,22 @@ TEST( RiaKeyValueStoreTest, ElementType )
     store.set( "indices", RiaKeyValueStoreUtil::convertToByteVector( std::vector<uint32_t>{ 0, 1, 2 } ), RiaKeyValueStoreElementType::UINT32 );
     store.clear();
     EXPECT_FALSE( store.elementType( "indices" ).has_value() );
+}
+
+// Typed reads of a key fail when the key holds another element type, also when the byte size would fit
+TEST( RiaKeyValueStoreTest, TypedValuesRejectOtherElementType )
+{
+    RiaKeyValueStore<char> store;
+
+    RiaKeyValueStoreUtil::setValues( store, "doubles", std::vector<double>{ 7319649.123, 456333.25 } );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<float>( store, "doubles" ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<int32_t>( store, "doubles" ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<int64_t>( store, "doubles" ).empty() );
+    EXPECT_EQ( RiaKeyValueStoreUtil::getValues<double>( store, "doubles" ), ( std::vector<double>{ 7319649.123, 456333.25 } ) );
+
+    RiaKeyValueStoreUtil::setValues( store, "floats", std::vector<float>{ 1.0f, 2.0f } );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<double>( store, "floats" ).empty() );
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<uint32_t>( store, "floats" ).empty() );
+
+    EXPECT_TRUE( RiaKeyValueStoreUtil::getValues<float>( store, "missing" ).empty() );
 }

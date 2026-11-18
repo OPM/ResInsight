@@ -33,21 +33,9 @@
 
 namespace
 {
-std::vector<float> toFloatVector( const std::vector<double>& values )
+void writeValuesToKeyValueStore( const QString& key, const std::vector<double>& values )
 {
-    std::vector<float> result;
-    result.reserve( values.size() );
-    for ( double v : values )
-    {
-        result.push_back( static_cast<float>( v ) );
-    }
-    return result;
-}
-
-void writeFloatArrayToKeyValueStore( const QString& key, const std::vector<double>& values )
-{
-    auto floatValues = toFloatVector( values );
-    RiaApplication::instance()->keyValueStore()->set( key.toStdString(), RiaKeyValueStoreUtil::convertToByteVector( floatValues ) );
+    RiaKeyValueStoreUtil::setValues( *RiaApplication::instance()->keyValueStore(), key.toStdString(), values );
 }
 } // namespace
 
@@ -122,17 +110,17 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellLog_readWellLogDataInterna
 
     if ( !m_measuredDepthKey().isEmpty() )
     {
-        writeFloatArrayToKeyValueStore( m_measuredDepthKey(), data->depthValues() );
+        writeValuesToKeyValueStore( m_measuredDepthKey(), data->depthValues() );
     }
 
     if ( !m_tvdMslKey().isEmpty() && data->hasTvdMslChannel() )
     {
-        writeFloatArrayToKeyValueStore( m_tvdMslKey(), data->tvdMslValues() );
+        writeValuesToKeyValueStore( m_tvdMslKey(), data->tvdMslValues() );
     }
 
     if ( !m_tvdRkbKey().isEmpty() && data->hasTvdRkbChannel() )
     {
-        writeFloatArrayToKeyValueStore( m_tvdRkbKey(), data->tvdRkbValues() );
+        writeValuesToKeyValueStore( m_tvdRkbKey(), data->tvdRkbValues() );
     }
 
     if ( !m_channelKeysCsv().isEmpty() )
@@ -160,7 +148,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellLog_readWellLogDataInterna
                 return std::unexpected( QString( "Channel '%1' not found in well log" ).arg( channelName ) );
             }
 
-            writeFloatArrayToKeyValueStore( channelKey, data->values( channelName ) );
+            writeValuesToKeyValueStore( channelKey, data->values( channelName ) );
         }
     }
 

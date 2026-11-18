@@ -6,6 +6,7 @@ import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
+import rips
 
 GEOMETRY_PROPERTIES = ["DEPTH", "DX", "DY", "DZ", "TOPS", "BOTTOM"]
 
@@ -458,3 +459,62 @@ def test_replace_corner_point_grid_basic(rips_instance, initialize_test):
     assert len(exported_actnum) == nx_new * ny_new * nz_new
     # All cells should be active
     assert sum(1 for x in exported_actnum if x > 0) == len(actnum_new)
+
+
+def _utm_grid_1x1x1():
+    # One cell at UTM coordinates that float32 cannot hold (spacing 0.5 m at 7.3e6)
+    x0, y0 = 456333.123, 7319649.123
+    coord = []
+    for j in range(2):
+        for i in range(2):
+            x = x0 + i * 100.25
+            y = y0 + j * 100.375
+            coord.extend([x, y, 2494.125, x, y, 2594.125])
+    zcorn = [2494.125] * 4 + [2594.125] * 4
+    return coord, zcorn
+
+
+def test_corner_point_grid_utm_precision(rips_instance, initialize_test):
+    """COORD and ZCORN travel as float64, ACTNUM as int32 and the dimensions as int64"""
+    coord, zcorn = _utm_grid_1x1x1()
+
+    case = rips_instance.project.create_corner_point_grid(
+        "UtmGrid", 1, 1, 1, coord, zcorn, [1]
+    )
+
+    exported_zcorn, exported_coord, exported_actnum, nx, ny, nz = (
+        case.export_corner_point_grid()
+    )
+
+    assert (nx, ny, nz) == (1, 1, 1)
+    assert exported_actnum == [1]
+    assert exported_coord == pytest.approx(coord, rel=0, abs=1e-6)
+    assert exported_zcorn == pytest.approx(zcorn, rel=0, abs=1e-6)
+
+    cell_corners = case.active_cell_corners()
+    assert cell_corners[0].c0.x == pytest.approx(coord[0], rel=0, abs=1e-6)
+    assert cell_corners[0].c0.y == pytest.approx(coord[1], rel=0, abs=1e-6)
+
+
+def test_create_corner_point_grid_actnum_values(rips_instance, initialize_test):
+    """Whole-number floats are accepted as ACTNUM values, fractional values are rejected"""
+    coord, zcorn = _utm_grid_1x1x1()
+    project = rips_instance.project
+
+    case = project.create_corner_point_grid("FloatActnum", 1, 1, 1, coord, zcorn, [1.0])
+    assert case.cell_count().active_cell_count == 1
+
+    with pytest.raises(rips.RipsError, match="Invalid ACTNUM value 0.5"):
+        project.create_corner_point_grid("BadActnum", 1, 1, 1, coord, zcorn, [0.5])
+
+
+def test_create_corner_point_grid_wrong_array_size(rips_instance, initialize_test):
+    coord, zcorn = _utm_grid_1x1x1()
+    project = rips_instance.project
+
+    with pytest.raises(rips.RipsError, match="Wrong size of zcorn array"):
+        project.create_corner_point_grid("BadZcorn", 1, 1, 1, coord, zcorn[:7], [1])
+
+    case = project.create_corner_point_grid("ReplaceTarget", 1, 1, 1, coord, zcorn, [1])
+    with pytest.raises(rips.RipsError, match="Wrong size of actnum array"):
+        case.replace_corner_point_grid(1, 1, 1, coord, zcorn, [1, 1])

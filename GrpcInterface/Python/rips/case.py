@@ -1424,16 +1424,16 @@ def grid_property_for_positions(
     coord_y = []
     coord_z = []
     for pos in positions:
-        coord_x.append(pos[0])
-        coord_y.append(pos[1])
-        coord_z.append(pos[2])
+        coord_x.append(float(pos[0]))
+        coord_y.append(float(pos[1]))
+        coord_z.append(float(pos[2]))
 
         # Get the results from the key-value store.
     project = self.ancestor(Project)
     if project:
-        project.set_key_values(coordinate_x, coord_x)
-        project.set_key_values(coordinate_y, coord_y)
-        project.set_key_values(coordinate_z, coord_z)
+        project.set_key_values(coordinate_x, coord_x, dtype="float64")
+        project.set_key_values(coordinate_y, coord_y, dtype="float64")
+        project.set_key_values(coordinate_z, coord_z, dtype="float64")
 
         self.export_values_internal(
             coordinate_x=coordinate_x,
@@ -1445,7 +1445,7 @@ def grid_property_for_positions(
             time_step=time_step,
             porosity_model=porosity_model,
         )
-        result = project.key_values(result_key)
+        result = project.key_values(result_key, dtype="float64")
 
         project.remove_key_values(coordinate_x)
         project.remove_key_values(coordinate_y)
@@ -1483,15 +1483,13 @@ def export_corner_point_grid(
     # Retrieve results from key-value store
     project = self.ancestor(Project)
     if project:
-        zcorn = project.key_values(zcorn_key)
-        coord = project.key_values(coord_key)
-        actnum_raw = project.key_values(actnum_key)
-        actnum = [int(x) for x in actnum_raw]
+        zcorn = project.key_values(zcorn_key, dtype="float64")
+        coord = project.key_values(coord_key, dtype="float64")
+        actnum = project.key_values(actnum_key, dtype="int32")
 
         # Retrieve grid dimensions
         dimensions_key = zcorn_key + "_dimensions"
-        dimensions = project.key_values(dimensions_key)
-        nx, ny, nz = int(dimensions[0]), int(dimensions[1]), int(dimensions[2])
+        nx, ny, nz = project.key_values(dimensions_key, dtype="int64")
 
         # Clean up
         project.remove_key_values(zcorn_key)
@@ -1542,9 +1540,9 @@ def replace_corner_point_grid(
         raise RuntimeError("Unable to get project from case")
 
     # Store arrays in key-value store
-    project.set_key_values(coord_key, coord)
-    project.set_key_values(zcorn_key, zcorn)
-    project.set_key_values(actnum_key, actnum)
+    project._set_corner_point_grid_key_values(
+        coord_key, coord, zcorn_key, zcorn, actnum_key, actnum
+    )
 
     # Call internal C++ method to replace the grid
     self.replace_corner_point_grid_internal(
@@ -1585,6 +1583,6 @@ def filtered_cells(self, filter, time_step: int = 0, grid_index: int = 0) -> Lis
             time_step=time_step,
             grid_index=grid_index,
         )
-        return [int(v) for v in project.key_values(mask_key)]
+        return project.key_values(mask_key, dtype="int32")
     finally:
         project.remove_key_values(mask_key)

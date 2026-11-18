@@ -45,23 +45,12 @@ public:
     RiaKeyValueStore() = default;
 
     // Store a complete array for a key (overwrites existing data)
-    bool set( const std::string& key, const std::vector<T>& values, RiaKeyValueStoreElementType elementType = RiaKeyValueStoreElementType::FLOAT32 )
+    bool set( const std::string& key, const std::vector<T>& values, RiaKeyValueStoreElementType elementType )
     {
         std::scoped_lock<std::mutex> lock( m_mutex );
         m_store[key]        = values;
         m_elementTypes[key] = elementType;
         return true;
-    }
-
-    // Get the entire array for a key
-    std::optional<std::vector<T>> get( const std::string& key ) const
-    {
-        std::scoped_lock<std::mutex> lock( m_mutex );
-        if ( auto it = m_store.find( key ); it != m_store.end() )
-        {
-            return it->second;
-        }
-        return std::nullopt;
     }
 
     // Get the entire array for a key, only if the key holds values of the given element type

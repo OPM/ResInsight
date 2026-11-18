@@ -9,7 +9,7 @@ from .resinsight_classes import WellLog
 
 def _try_read_key(project: Project, key: str) -> Optional[List[float]]:
     try:
-        return project.key_values(key)
+        return project.key_values(key, dtype="float64")
     except RipsError:
         return None
 
@@ -57,7 +57,7 @@ def well_log_data(self: WellLog) -> Dict[str, List[float]]:
         )
 
         result: Dict[str, List[float]] = {
-            "measured_depth": project.key_values(md_key),
+            "measured_depth": project.key_values(md_key, dtype="float64"),
         }
 
         tvd_msl = _try_read_key(project, tvd_msl_key)
@@ -69,7 +69,7 @@ def well_log_data(self: WellLog) -> Dict[str, List[float]]:
             result["tvd_rkb"] = tvd_rkb
 
         for name, key in channel_keys.items():
-            result[name] = project.key_values(key)
+            result[name] = project.key_values(key, dtype="float64")
 
         return result
     finally:

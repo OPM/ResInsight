@@ -63,7 +63,8 @@ def trajectory_properties(
     project = self.ancestor(Project)
     if project:
         result = {
-            prop: project.key_values(temp_key) for prop, temp_key in temp_keys.items()
+            prop: project.key_values(temp_key, dtype="float64")
+            for prop, temp_key in temp_keys.items()
         }
 
         # Delete results form key-value store.
@@ -189,13 +190,13 @@ def add_well_log(
     tvd_rkb_key = f"{shared_uuid}_tvd_rkb" if validated_tvd_rkb is not None else ""
 
     # Store measured depth
-    project.set_key_values(measured_depth_key, float_measured_depth)
+    project.set_key_values(measured_depth_key, float_measured_depth, dtype="float64")
 
     # Store optional TVD data
     if validated_tvd_msl is not None:
-        project.set_key_values(tvd_msl_key, validated_tvd_msl)
+        project.set_key_values(tvd_msl_key, validated_tvd_msl, dtype="float64")
     if validated_tvd_rkb is not None:
-        project.set_key_values(tvd_rkb_key, validated_tvd_rkb)
+        project.set_key_values(tvd_rkb_key, validated_tvd_rkb, dtype="float64")
 
     # Store all channels and build channel mappings
     temp_keys = [measured_depth_key]
@@ -208,7 +209,7 @@ def add_well_log(
     try:
         for channel_name, values in validated_channels.items():
             channel_key = f"{shared_uuid}_channel_{channel_name}"
-            project.set_key_values(channel_key, values)
+            project.set_key_values(channel_key, values, dtype="float64")
             temp_keys.append(channel_key)
             channel_mappings.append(f"{channel_name}:{channel_key}")
 

@@ -342,18 +342,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_extractWellPathProper
     double rkbOffset = 0.0;
     RigWellPathGeometryExporter::computeWellPathDataForExport( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
 
-    auto convertToCharViaFloat = []( const std::vector<double>& doubles ) -> std::vector<char>
-    {
-        std::vector<float> f;
-        for ( const double& v : doubles )
-            f.push_back( static_cast<float>( v ) );
-        return RiaKeyValueStoreUtil::convertToByteVector( f );
-    };
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    RiaApplication::instance()->keyValueStore()->set( m_coordinateX().toStdString(), convertToCharViaFloat( xValues ) );
-    RiaApplication::instance()->keyValueStore()->set( m_coordinateY().toStdString(), convertToCharViaFloat( yValues ) );
-    RiaApplication::instance()->keyValueStore()->set( m_coordinateZ().toStdString(), convertToCharViaFloat( tvdValues ) );
-    RiaApplication::instance()->keyValueStore()->set( m_measuredDepth().toStdString(), convertToCharViaFloat( mdValues ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_coordinateX().toStdString(), xValues );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_coordinateY().toStdString(), yValues );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_coordinateZ().toStdString(), tvdValues );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_measuredDepth().toStdString(), mdValues );
 
     std::vector<double> azimuthValues;
     std::vector<double> inclinationValues;
@@ -373,8 +367,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_extractWellPathProper
         inclinationValues.push_back( cvf::Math::toDegrees( inclination ) );
     }
 
-    RiaApplication::instance()->keyValueStore()->set( m_azimuth().toStdString(), convertToCharViaFloat( azimuthValues ) );
-    RiaApplication::instance()->keyValueStore()->set( m_inclination().toStdString(), convertToCharViaFloat( inclinationValues ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_azimuth().toStdString(), azimuthValues );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_inclination().toStdString(), inclinationValues );
 
     std::vector<RigDoglegTools::WellSurveyPoint> surveyPoints;
     for ( size_t i = 0; i < xValues.size(); i++ )
@@ -384,7 +378,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_extractWellPathProper
 
     // TODO: normalization length is meter. Maybe make it settable?
     std::vector<double> doglegs = RigDoglegTools::calculateTrajectoryDogleg( surveyPoints, 30 );
-    RiaApplication::instance()->keyValueStore()->set( m_dogleg().toStdString(), convertToCharViaFloat( doglegs ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_dogleg().toStdString(), doglegs );
 
     return nullptr;
 }
@@ -431,45 +425,31 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
     // Retrieve measured depth values from key-value store
-    auto measuredDepthData = keyValueStore->get( m_measuredDepthKey().toStdString() );
-    if ( !measuredDepthData.has_value() )
+    if ( !keyValueStore->exists( m_measuredDepthKey().toStdString() ) )
     {
         return std::unexpected( "Failed to retrieve measured depth from key-value store" );
     }
 
-    std::vector<float> measuredDepthFloat = RiaKeyValueStoreUtil::convertToFloatVector( measuredDepthData );
-    if ( measuredDepthFloat.empty() )
+    std::vector<double> measuredDepth = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_measuredDepthKey().toStdString() );
+    if ( measuredDepth.empty() )
     {
-        return std::unexpected( "Measured depth array cannot be empty" );
-    }
-
-    // Convert to double
-    std::vector<double> measuredDepth;
-    for ( float value : measuredDepthFloat )
-    {
-        measuredDepth.push_back( static_cast<double>( value ) );
+        return std::unexpected( "Measured depth array cannot be empty (float64)" );
     }
 
     // Handle optional TVD MSL
     std::vector<double> tvdMslValues;
     if ( !m_tvdMslKey().isEmpty() )
     {
-        auto tvdMslData = keyValueStore->get( m_tvdMslKey().toStdString() );
-        if ( !tvdMslData.has_value() )
+        if ( !keyValueStore->exists( m_tvdMslKey().toStdString() ) )
         {
             return std::unexpected( "Failed to retrieve TVD MSL from key-value store" );
         }
 
-        std::vector<float> tvdMslFloat = RiaKeyValueStoreUtil::convertToFloatVector( tvdMslData );
-        if ( tvdMslFloat.size() != measuredDepth.size() )
+        tvdMslValues = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_tvdMslKey().toStdString() );
+        if ( tvdMslValues.size() != measuredDepth.size() )
         {
             return std::unexpected(
-                QString( "TVD MSL has %1 values but measured depth has %2 values" ).arg( tvdMslFloat.size() ).arg( measuredDepth.size() ) );
-        }
-
-        for ( float value : tvdMslFloat )
-        {
-            tvdMslValues.push_back( static_cast<double>( value ) );
+                QString( "TVD MSL has %1 float64 values but measured depth has %2 values" ).arg( tvdMslValues.size() ).arg( measuredDepth.size() ) );
         }
     }
 
@@ -477,22 +457,16 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
     std::vector<double> tvdRkbValues;
     if ( !m_tvdRkbKey().isEmpty() )
     {
-        auto tvdRkbData = keyValueStore->get( m_tvdRkbKey().toStdString() );
-        if ( !tvdRkbData.has_value() )
+        if ( !keyValueStore->exists( m_tvdRkbKey().toStdString() ) )
         {
             return std::unexpected( "Failed to retrieve TVD RKB from key-value store" );
         }
 
-        std::vector<float> tvdRkbFloat = RiaKeyValueStoreUtil::convertToFloatVector( tvdRkbData );
-        if ( tvdRkbFloat.size() != measuredDepth.size() )
+        tvdRkbValues = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_tvdRkbKey().toStdString() );
+        if ( tvdRkbValues.size() != measuredDepth.size() )
         {
             return std::unexpected(
-                QString( "TVD RKB has %1 values but measured depth has %2 values" ).arg( tvdRkbFloat.size() ).arg( measuredDepth.size() ) );
-        }
-
-        for ( float value : tvdRkbFloat )
-        {
-            tvdRkbValues.push_back( static_cast<double>( value ) );
+                QString( "TVD RKB has %1 float64 values but measured depth has %2 values" ).arg( tvdRkbValues.size() ).arg( measuredDepth.size() ) );
         }
     }
 
@@ -556,26 +530,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addWellLogInternal::e
         keysToCleanup.append( channelKey );
 
         // Retrieve channel values from key-value store
-        auto channelData = keyValueStore->get( channelKey.toStdString() );
-        if ( !channelData.has_value() )
+        if ( !keyValueStore->exists( channelKey.toStdString() ) )
         {
             return std::unexpected( QString( "Failed to retrieve channel '%1' from key-value store" ).arg( channelName ) );
         }
 
-        std::vector<float> channelValuesFloat = RiaKeyValueStoreUtil::convertToFloatVector( channelData );
-        if ( channelValuesFloat.size() != measuredDepth.size() )
+        std::vector<double> channelValues = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, channelKey.toStdString() );
+        if ( channelValues.size() != measuredDepth.size() )
         {
-            return std::unexpected( QString( "Channel '%1' has %2 values but measured depth has %3 values" )
+            return std::unexpected( QString( "Channel '%1' has %2 float64 values but measured depth has %3 values" )
                                         .arg( channelName )
-                                        .arg( channelValuesFloat.size() )
+                                        .arg( channelValues.size() )
                                         .arg( measuredDepth.size() ) );
-        }
-
-        // Convert to double
-        std::vector<double> channelValues;
-        for ( float value : channelValuesFloat )
-        {
-            channelValues.push_back( static_cast<double>( value ) );
         }
 
         pdmWellLogData->setChannelData( channelName, channelValues );
