@@ -817,12 +817,13 @@ bool RigCaseCellResultsData::isResultLoaded( const RigEclipseResultAddress& resu
 /// Make sure we have a result with given type and name, and make sure one "timestep" result vector
 // for the static result values are allocated
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::addStaticScalarResult( RiaDefines::ResultCatType type,
-                                                      const QString&            resultName,
-                                                      bool                      needsToBeStored,
-                                                      size_t                    resultValueCount )
+size_t RigCaseCellResultsData::addStaticScalarResult( RiaDefines::ResultCatType  type,
+                                                      const QString&             resultName,
+                                                      bool                       needsToBeStored,
+                                                      size_t                     resultValueCount,
+                                                      RiaDefines::ResultDataType dataType )
 {
-    size_t resultIdx = findOrCreateScalarResultIndex( RigEclipseResultAddress( type, resultName ), needsToBeStored );
+    size_t resultIdx = findOrCreateScalarResultIndex( RigEclipseResultAddress( type, dataType, resultName ), needsToBeStored );
 
     m_cellScalarResults[resultIdx].resize( 1, std::vector<double>() );
     m_cellScalarResults[resultIdx][0].resize( resultValueCount, HUGE_VAL );

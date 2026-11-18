@@ -514,8 +514,8 @@ bool RigWellRegionResultTools::createWellRegionResult( RigEclipseCaseData*      
     const RigActiveCellInfo* activeCellInfo  = resultsData->activeCellInfo();
     const size_t             activeCellCount = activeCellInfo->reservoirActiveCellCount();
 
-    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
-    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, activeCellCount );
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, RiaDefines::ResultDataType::INTEGER, resultName );
+    resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, activeCellCount, RiaDefines::ResultDataType::INTEGER );
 
     std::vector<double>* resultValues = resultsData->modifiableCellScalarResult( resultAddress, 0 );
     if ( !resultValues ) return false;

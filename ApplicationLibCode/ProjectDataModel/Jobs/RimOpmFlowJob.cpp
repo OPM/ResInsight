@@ -26,10 +26,13 @@
 #include "RiaWslTools.h"
 
 #include "EclipseCommands/RicCreateGridCaseEnsemblesFromFilesFeature.h"
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 #include "JobCommands/RicRunJobFeature.h"
 #include "JobCommands/RicStopJobFeature.h"
 
 #include "RifOpmFlowDeckFile.h"
+
+#include "RigWellRegionResultTools.h"
 
 #include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
@@ -48,6 +51,7 @@
 #include "RimOilField.h"
 #include "RimOpmFlowJobSettings.h"
 #include "RimOpmFlowJobTools.h"
+#include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
@@ -157,6 +161,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     m_autoLoadResults.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_insertFluxall, "InsertFluxall", false, "Insert FLUXALL Keyword" );
+    CAF_PDM_InitField( &m_createSectorModel, "CreateSectorModel", false, "Create Sector Model" );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
@@ -166,6 +171,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_endTimeStepEnabled );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendNewDates );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_insertFluxall );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSectorModel );
 
     setDeletable( true );
 }
@@ -283,6 +289,13 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( &m_deckFileName );
     genGrp->add( &m_workDir );
     genGrp->add( &m_addToEnsemble );
+
+    auto sectorGrp = uiOrdering.addNewGroup( "Sector Model" );
+    sectorGrp->add( &m_createSectorModel );
+    if ( m_createSectorModel() )
+    {
+        sectorGrp->add( &m_sectorPolygon );
+    }
 
     auto runButton = genGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
     runButton->setUiIconFromResourceString( ":/Play.svg" );
@@ -428,6 +441,10 @@ QList<caf::PdmOptionItemInfo> RimOpmFlowJob::calculateValueOptions( const caf::P
     else if ( fieldNeedingOptions == &m_eclipseCase )
     {
         RimTools::eclipseCaseOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_sectorPolygon )
+    {
+        RimTools::polygonOptionItems( &options );
     }
 
     return options;
@@ -686,6 +703,14 @@ QString RimOpmFlowJob::inputDeckName() const
 {
     QFileInfo fi( m_deckFileName().path() );
     return fi.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimOpmFlowJob::fluxnumFileName() const
+{
+    return workingDirectory() + "/" + "FLUXNUM.grdecl";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1177,7 +1202,8 @@ void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setSectorPolygon( RimPolygon* polygon )
 {
-    m_sectorPolygon = polygon;
+    m_sectorPolygon     = polygon;
+    m_createSectorModel = ( polygon != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1185,15 +1211,68 @@ void RimOpmFlowJob::setSectorPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::setupSectorModelIfNeeded()
 {
-    if ( m_sectorPolygon() == nullptr ) return true;
+    if ( !m_createSectorModel() || ( m_sectorPolygon() == nullptr ) ) return true;
+    if ( m_eclipseCase() == nullptr ) return false;
+
+    auto   timeSteps   = m_eclipseCase()->timeStepDates();
+    size_t timeStepIdx = timeSteps.size() - 1; // use last timestep
 
     // calculcate fluxnum result using RigWellRegionResultTools::createWellRegionResult
 
+    RigWellPath*              wellPathGeo = nullptr;
+    std::optional<RigMdRange> mdRange;
+    if ( m_wellPath() != nullptr )
+    {
+        wellPathGeo = m_wellPath()->wellPathGeometry();
+
+        mdRange = m_wellPath->perforationIntervalCollection()->activePerforationMdRange( timeSteps[timeStepIdx] );
+    }
+
+    if ( !RigWellRegionResultTools::createWellRegionResult( m_eclipseCase()->eclipseCaseData(),
+                                                            m_sectorPolygon()->pointsInDomainCoords(),
+                                                            wellPathGeo,
+                                                            mdRange,
+                                                            timeStepIdx,
+                                                            "FLUXNUM",
+                                                            2 ) )
+    {
+        RiaLogging::error( "Failed to create FLUXNUM result for sector model." );
+        return false;
+    }
+
+    QString errorMsg;
     // export result to grdecl file in output working folder using RicEclipseCellResultToFileImpl::writePropertyToTextFile
+    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( fluxnumFileName(),
+                                                                   m_eclipseCase()->eclipseCaseData(),
+                                                                   0, // result is available in timestep 0
+                                                                   "FLUXNUM",
+                                                                   "FLUXNUM",
+                                                                   0, // undef value is 0
+                                                                   false /*no echo */,
+                                                                   &errorMsg ) )
+    {
+        RiaLogging::error( "Failed to export FLUXNUM result to file: " + errorMsg.toStdString() );
+        return false;
+    }
 
     // run make_flux with output file working dir model directory
 
     // add new keywords to deck file
+    if ( !m_deckFile->insertKeywordInSection( "GRID", RimKeywordFactory::fluxregKeyword( 1 ) ) )
+    {
+        RiaLogging::error( "Unable to insert FLUXREG keyword in DATA file." );
+        return false;
+    }
+    if ( !m_deckFile->insertKeywordInSection( "GRID", RimKeywordFactory::usefluxKeyword( "A4SECTOR" ) ) )
+    {
+        RiaLogging::error( "Unable to insert USEFLUX keyword in DATA file." );
+        return false;
+    }
+    if ( !m_deckFile->addIncludeKeyword( "GRID", fluxnumFileName().toStdString() ) )
+    {
+        RiaLogging::error( "Unable to insert INCLUDE keyword for FLUXNUM in DATA file." );
+        return false;
+    }
 
     return true;
 }

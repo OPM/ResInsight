@@ -166,15 +166,15 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeKeyword )
     ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
 
     // Add INCLUDE statement in REGIONS section for OPERNUM
-    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "./include/opernum.prop" );
+    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "./include/opernum.prop" );
     EXPECT_TRUE( addSuccess ) << "Should successfully add INCLUDE statement in REGIONS section";
 
     // Add INCLUDE statement in GRID section for PERMX
-    bool addGridSuccess = deckFile.addIncludeKeyword( "GRID", "PERMX", "./include/permx.prop" );
+    bool addGridSuccess = deckFile.addIncludeKeyword( "GRID", "./include/permx.prop" );
     EXPECT_TRUE( addGridSuccess ) << "Should successfully add INCLUDE statement in GRID section";
 
     // Test adding to non-existent section
-    bool addFailure = deckFile.addIncludeKeyword( "NONEXISTENT", "SOME_KEYWORD", "./include/test.prop" );
+    bool addFailure = deckFile.addIncludeKeyword( "NONEXISTENT", "./include/test.prop" );
     EXPECT_FALSE( addFailure ) << "Should fail when adding to non-existent section";
 
     // Verify the keywords list contains our INCLUDE statements
@@ -232,7 +232,7 @@ TEST( RifOpmFlowDeckFileTest, AddIncludeSaveAndReload )
     opernumFile.close();
 
     // Add INCLUDE statement with relative path
-    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "OPERNUM", "./regions/opernum.inc" );
+    bool addSuccess = deckFile.addIncludeKeyword( "REGIONS", "./regions/opernum.inc" );
     EXPECT_TRUE( addSuccess ) << "Should successfully add INCLUDE statement";
 
     bool saveSuccess = deckFile.saveDeck( tempDir.path().toStdString(), "test_with_include.DATA" );

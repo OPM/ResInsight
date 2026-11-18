@@ -1183,7 +1183,7 @@ int RifOpmFlowDeckFile::removeKeywords( const std::string& keywordName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string keyword, std::string filePath )
+bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string filePath )
 {
     if ( m_fileDeck.get() == nullptr ) return false;
 

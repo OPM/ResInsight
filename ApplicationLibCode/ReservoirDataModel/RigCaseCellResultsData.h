@@ -160,7 +160,11 @@ public:
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
-    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
+    size_t addStaticScalarResult( RiaDefines::ResultCatType  type,
+                                  const QString&             resultName,
+                                  bool                       needsToBeStored,
+                                  size_t                     resultValueCount,
+                                  RiaDefines::ResultDataType dataType = RiaDefines::ResultDataType::UNKNOWN );
 
     RigEclipseResultAddress defaultResult() const;
 

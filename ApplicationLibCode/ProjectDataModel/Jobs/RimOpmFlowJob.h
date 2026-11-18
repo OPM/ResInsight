@@ -103,6 +103,7 @@ private:
     QString baseDeckName();
     QString restartDeckName();
     QString inputDeckName() const;
+    QString fluxnumFileName() const;
 
     bool addWellIfNeeded();
     bool setupSectorModelIfNeeded();
@@ -127,6 +128,7 @@ private:
     caf::PdmField<int>  m_currentRunId;
     caf::PdmField<bool> m_useRestart;
     caf::PdmField<bool> m_insertFluxall;
+    caf::PdmField<bool> m_createSectorModel;
 
     caf::PdmPtrField<RimWellPath*>            m_wellPath;
     caf::PdmPtrField<RimEclipseCase*>         m_eclipseCase;
