@@ -156,6 +156,8 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_autoLoadResults, "AutoLoadResults", true, "Automatic loading of results from job" );
     m_autoLoadResults.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_insertFluxall, "InsertFluxall", false, "Insert FLUXALL Keyword" );
+
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
@@ -163,6 +165,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addNewWell );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_endTimeStepEnabled );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendNewDates );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_insertFluxall );
 
     setDeletable( true );
 }
@@ -381,6 +384,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
     auto advGrp = uiOrdering.addNewGroup( "Advanced" );
     advGrp->setCollapsedByDefault();
+    advGrp->add( &m_insertFluxall );
     advGrp->add( &m_currentRunId );
     advGrp->addNewButton( "Reset Ensemble Run Id", [this]() { resetEnsembleRunId(); } );
 
@@ -792,6 +796,18 @@ bool RimOpmFlowJob::onPrepare()
         {
             RiaLogging::error( "Unable to insert END keyword in DATA file." );
             return false;
+        }
+    }
+
+    if ( m_insertFluxall() )
+    {
+        if ( !m_deckFile->findKeyword( "FLUXALL" ).has_value() )
+        {
+            if ( !m_deckFile->insertKeywordInSection( "SUMMARY", RimKeywordFactory::fluxallKeyword() ) )
+            {
+                RiaLogging::error( "Unable to insert FLUXALL keyword in DATA file." );
+                return false;
+            }
         }
     }
 

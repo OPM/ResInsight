@@ -80,6 +80,7 @@ Opm::DeckKeyword operaterKeyword( std::string          targetProperty,
                                   std::optional<float> alpha = std::nullopt,
                                   std::optional<float> beta  = std::nullopt );
 Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputNncTools::TransformedNNCConnection>& connections );
+Opm::DeckKeyword fluxallKeyword();
 
 Opm::DeckKeyword datesKeyword( const QDateTime& date );
 QString          deckKeywordToString( const Opm::DeckKeyword& keyword );

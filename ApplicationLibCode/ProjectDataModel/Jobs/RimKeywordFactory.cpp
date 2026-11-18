@@ -1105,4 +1105,17 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
     return QString::fromStdString( oss.str() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword fluxallKeyword()
+{
+    Opm::ParserKeyword pkw( "FLUXALL" );
+
+    Opm::DeckKeyword kw{ pkw };
+    kw.setFixedSize();
+
+    return kw;
+}
+
 } // namespace RimKeywordFactory
