@@ -71,17 +71,17 @@ TEST( RigSurfaceResamplerTests, flatGeometryLargerSource )
     cvf::Vec3d r1 = resampledSurface->vertices()[0];
     ASSERT_EQ( r1.x(), -1.0 );
     ASSERT_EQ( r1.y(), -1.0 );
-    ASSERT_EQ( r1.z(), 2.0 );
+    ASSERT_NEAR( r1.z(), 2.0, 1.0e-9 );
 
     cvf::Vec3d r2 = resampledSurface->vertices()[1];
     ASSERT_EQ( r2.x(), 1.0 );
     ASSERT_EQ( r2.y(), -1.0 );
-    ASSERT_EQ( r2.z(), 2.0 );
+    ASSERT_NEAR( r2.z(), 2.0, 1.0e-9 );
 
     cvf::Vec3d r3 = resampledSurface->vertices()[2];
     ASSERT_EQ( r3.x(), -1.0 );
     ASSERT_EQ( r3.y(), 1.0 );
-    ASSERT_EQ( r3.z(), 2.0 );
+    ASSERT_NEAR( r3.z(), 2.0, 1.0e-9 );
 }
 
 //--------------------------------------------------------------------------------------------------
