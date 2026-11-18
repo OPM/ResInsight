@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -28,6 +29,65 @@ def normalize_content(text):
 
     normalized_lines = lines[start_index:]
     return "\n".join(normalized_lines)
+
+
+# Numeric values are compared with a tolerance, as the last digits of computed values like connection factors differ
+# between platforms, compilers and system math libraries. The absolute tolerance covers small values, where geometric
+# round-off, for instance in polygon clipping, gives a larger relative difference.
+NUMERIC_REL_TOLERANCE = 1.0e-6
+NUMERIC_ABS_TOLERANCE = 1.0e-6
+
+
+def _parse_number(token):
+    try:
+        return float(token)
+    except ValueError:
+        return None
+
+
+def _tokens_match(token, ref_token):
+    if token == ref_token:
+        return True
+
+    value = _parse_number(token)
+    ref_value = _parse_number(ref_token)
+    if value is None or ref_value is None:
+        return False
+
+    return math.isclose(
+        value, ref_value, rel_tol=NUMERIC_REL_TOLERANCE, abs_tol=NUMERIC_ABS_TOLERANCE
+    )
+
+
+def find_content_differences(content, ref_content, max_differences=10):
+    """Compare content line by line and token by token. Text tokens must be equal, numeric tokens must be within the
+    tolerances. Whitespace differences are ignored.
+
+    Returns:
+        A list of descriptions of the differing lines, empty if the content matches
+    """
+    lines = content.splitlines()
+    ref_lines = ref_content.splitlines()
+
+    differences = []
+    if len(lines) != len(ref_lines):
+        differences.append(
+            f"Line count differs: export {len(lines)}, reference {len(ref_lines)}"
+        )
+
+    for line_number, (line, ref_line) in enumerate(zip(lines, ref_lines), start=1):
+        tokens = line.split()
+        ref_tokens = ref_line.split()
+        if len(tokens) != len(ref_tokens) or not all(
+            _tokens_match(t, r) for t, r in zip(tokens, ref_tokens)
+        ):
+            differences.append(
+                f"Line {line_number}:\n  export:    {line}\n  reference: {ref_line}"
+            )
+            if len(differences) >= max_differences:
+                break
+
+    return differences
 
 
 def compare_exported_files_with_reference(
@@ -83,9 +143,13 @@ def compare_with_reference(
         normalized_content = normalize_content(content)
         normalized_ref_content = normalize_content(ref_content)
 
-        assert normalized_content == normalized_ref_content, (
-            f"Export {file_description} differs from reference data. "
-            f"Export length: {len(normalized_content)}, Reference length: {len(normalized_ref_content)}"
+        differences = find_content_differences(
+            normalized_content, normalized_ref_content
+        )
+        assert not differences, (
+            f"Export {file_description} differs from reference data "
+            f"(rel_tol={NUMERIC_REL_TOLERANCE}, abs_tol={NUMERIC_ABS_TOLERANCE}):\n"
+            + "\n".join(differences)
         )
 
 
