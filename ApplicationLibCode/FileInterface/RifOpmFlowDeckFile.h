@@ -94,7 +94,7 @@ public:
                                  int maxOperNum );
     bool             ensureRegdimsKeyword();
 
-    bool addIncludeKeyword( std::string section, std::string keyword, std::string filePath );
+    bool addIncludeKeyword( std::string section, std::string filePath );
 
     Opm::FileDeck*   fileDeck();
     const Opm::Deck* deck() const;

@@ -1110,11 +1110,43 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
 //--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword fluxallKeyword()
 {
+    // FLUXALL not supported by opm-common, yet, create it "manually"
     Opm::ParserKeyword pkw( "FLUXALL" );
 
     Opm::DeckKeyword kw{ pkw };
     kw.setFixedSize();
 
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword fluxregKeyword( int regNum )
+{
+    // FLUXREG not supported by opm-common, yet, create it "manually"
+    Opm::ParserKeyword pkw( "FLUXREG" );
+    Opm::DeckKeyword   kw{ pkw };
+
+    std::vector<Opm::DeckItem> recordItems;
+    recordItems.push_back( RifOpmDeckTools::item( "REGNUM", regNum ) );
+    kw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
+
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword usefluxKeyword( std::string name )
+{
+    // USE_FLUXREG not supported by opm-common, yet, create it "manually"
+    Opm::ParserKeyword pkw( "USEFLUX" );
+    Opm::DeckKeyword   kw{ pkw };
+
+    std::vector<Opm::DeckItem> recordItems;
+    recordItems.push_back( RifOpmDeckTools::item( "FLUX_BASENAME", name ) );
+    kw.addRecord( Opm::DeckRecord{ std::move( recordItems ) } );
     return kw;
 }
 
