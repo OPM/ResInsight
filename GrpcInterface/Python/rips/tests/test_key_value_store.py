@@ -125,3 +125,28 @@ def test_unsupported_dtype(rips_instance, initialize_test):
 
     with pytest.raises(ValueError, match="Unsupported dtype"):
         project.set_key_values("int16-key", [1, 2, 3], dtype="int16")
+
+
+def test_set_values_in_wrong_field(rips_instance, initialize_test):
+    import grpc
+    import KeyValueStore_pb2
+
+    project = rips_instance.project
+    key = "float64-in-float32-field"
+
+    # float64 values sent in the float32 field are rejected instead of being ignored
+    request_iterator = getattr(project, "__generate_key_value_store_input_chunks")(
+        [1.0, 2.0, 3.0],
+        key,
+        KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT64,
+        "values",
+    )
+    with pytest.raises(grpc.RpcError) as error:
+        getattr(project, "__key_value_store_stub").SetValue(request_iterator)
+    assert error.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert "Element type FLOAT64 expects the values in double_values." in (
+        error.value.details()
+    )
+
+    with pytest.raises(rips.RipsError, match="No matching key found."):
+        project.key_values(key, dtype="float64")

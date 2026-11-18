@@ -221,6 +221,8 @@ public:
         {
             const auto& chunk = request->values();
 
+            if ( Status status = checkValueField( chunk ); !status.ok() ) return status;
+
             size_t currentCellIdx = m_streamedValueCount;
             Status status         = Status::OK;
             switch ( m_elementType )
@@ -281,6 +283,46 @@ public:
     }
 
 private:
+    //--------------------------------------------------------------------------------------------------
+    /// The values of a chunk must be in the field of the element type, otherwise they would be ignored
+    //--------------------------------------------------------------------------------------------------
+    Status checkValueField( const KeyValueStoreChunk& chunk ) const
+    {
+        std::string fieldName;
+        int         fieldValueCount = 0;
+        switch ( m_elementType )
+        {
+            case RiaKeyValueStoreElementType::FLOAT32:
+                fieldName       = "values";
+                fieldValueCount = chunk.values_size();
+                break;
+            case RiaKeyValueStoreElementType::FLOAT64:
+                fieldName       = "double_values";
+                fieldValueCount = chunk.double_values_size();
+                break;
+            case RiaKeyValueStoreElementType::INT32:
+            case RiaKeyValueStoreElementType::INT64:
+                fieldName       = "int_values";
+                fieldValueCount = chunk.int_values_size();
+                break;
+            case RiaKeyValueStoreElementType::UINT32:
+            case RiaKeyValueStoreElementType::UINT64:
+                fieldName       = "uint_values";
+                fieldValueCount = chunk.uint_values_size();
+                break;
+        }
+
+        const int valueCount = chunk.values_size() + chunk.double_values_size() + chunk.int_values_size() +
+                               chunk.uint_values_size();
+        if ( valueCount != fieldValueCount )
+        {
+            return grpc::Status( grpc::INVALID_ARGUMENT,
+                                 "Element type " + elementTypeName( static_cast<KeyValueElementType>( m_elementType ) ) +
+                                     " expects the values in " + fieldName + "." );
+        }
+        return Status::OK;
+    }
+
     //--------------------------------------------------------------------------------------------------
     /// Convert the values from the wire type to the stored type, with a range check for integers
     //--------------------------------------------------------------------------------------------------

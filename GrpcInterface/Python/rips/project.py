@@ -582,7 +582,11 @@ def set_key_values(self, key, values, dtype="float32"):
     )
     reply = self.__key_value_store_stub.SetValue(request_iterator)
     if reply.accepted_value_count < len(values):
-        raise IndexError
+        raise RipsError(
+            "ResInsight accepted {} of {} values for key {}".format(
+                reply.accepted_value_count, len(values), key
+            )
+        )
 
 
 @add_method(Project)
