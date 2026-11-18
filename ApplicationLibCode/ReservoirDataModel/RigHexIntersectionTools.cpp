@@ -54,6 +54,91 @@ bool isHitLess( const SegmentHit& a, const SegmentHit& b )
     return isLexicographicallyLess( a.point, b.point );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Conservative tests used to skip the triangle tests: a test returns false only if the segment is outside the
+/// bounding box of the cell or of a cell face. A reported intersection point is on the segment and inside a surface
+/// triangle within the parametric tolerance, so the boxes are extended by a margin covering that tolerance and the
+/// floating point resolution.
+//--------------------------------------------------------------------------------------------------
+class SegmentBoxTest
+{
+public:
+    SegmentBoxTest( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners, double parametricTolerance )
+        : m_p1( p1 )
+        , m_halfDirection( ( p2 - p1 ) * 0.5 )
+        , m_absHalfDirection( std::abs( m_halfDirection.x() ), std::abs( m_halfDirection.y() ), std::abs( m_halfDirection.z() ) )
+        , m_cellMin( hexCorners[0] )
+        , m_cellMax( hexCorners[0] )
+    {
+        for ( size_t i = 1; i < 8; ++i )
+        {
+            extendBox( hexCorners[i], m_cellMin, m_cellMax );
+        }
+
+        double scale               = 0.0;
+        double coordinateMagnitude = 0.0;
+        for ( int c = 0; c < 3; ++c )
+        {
+            scale = std::max( { scale, 0.5 * ( m_cellMax[c] - m_cellMin[c] ), m_absHalfDirection[c] } );
+            coordinateMagnitude =
+                std::max( { coordinateMagnitude, std::abs( m_cellMin[c] ), std::abs( m_cellMax[c] ), std::abs( p1[c] ), std::abs( p2[c] ) } );
+        }
+        m_margin = 2.0 * ( 1.0e-6 + 8.0 * parametricTolerance ) * scale + 1.0e-12 * coordinateMagnitude;
+    }
+
+    bool canIntersectCell() const { return canIntersectBox( m_cellMin, m_cellMax ); }
+
+    // The face center is the average of the corners, so the triangles of the face are inside the box of the corners
+    bool canIntersectFace( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 ) const
+    {
+        cvf::Vec3d minCorner = v0;
+        cvf::Vec3d maxCorner = v0;
+        extendBox( v1, minCorner, maxCorner );
+        extendBox( v2, minCorner, maxCorner );
+        extendBox( v3, minCorner, maxCorner );
+
+        return canIntersectBox( minCorner, maxCorner );
+    }
+
+private:
+    static void extendBox( const cvf::Vec3d& point, cvf::Vec3d& minCorner, cvf::Vec3d& maxCorner )
+    {
+        for ( int c = 0; c < 3; ++c )
+        {
+            minCorner[c] = std::min( minCorner[c], point[c] );
+            maxCorner[c] = std::max( maxCorner[c], point[c] );
+        }
+    }
+
+    // Separating axis test of the segment and the extended box, with the segment relative to the box center
+    bool canIntersectBox( const cvf::Vec3d& minCorner, const cvf::Vec3d& maxCorner ) const
+    {
+        const cvf::Vec3d  halfExtent = ( maxCorner - minCorner ) * 0.5;
+        const cvf::Vec3d  m          = ( m_p1 - minCorner ) - halfExtent + m_halfDirection;
+        const cvf::Vec3d  e          = halfExtent + cvf::Vec3d( m_margin, m_margin, m_margin );
+        const cvf::Vec3d& d          = m_absHalfDirection;
+
+        if ( std::abs( m.x() ) > e.x() + d.x() ) return false;
+        if ( std::abs( m.y() ) > e.y() + d.y() ) return false;
+        if ( std::abs( m.z() ) > e.z() + d.z() ) return false;
+
+        // The cross product axes are not normalized, so the margin is included in the extents on the right hand side
+        if ( std::abs( m.y() * m_halfDirection.z() - m.z() * m_halfDirection.y() ) > e.y() * d.z() + e.z() * d.y() ) return false;
+        if ( std::abs( m.z() * m_halfDirection.x() - m.x() * m_halfDirection.z() ) > e.z() * d.x() + e.x() * d.z() ) return false;
+        if ( std::abs( m.x() * m_halfDirection.y() - m.y() * m_halfDirection.x() ) > e.x() * d.y() + e.y() * d.x() ) return false;
+
+        return true;
+    }
+
+private:
+    cvf::Vec3d m_p1;
+    cvf::Vec3d m_halfDirection;
+    cvf::Vec3d m_absHalfDirection;
+    cvf::Vec3d m_cellMin;
+    cvf::Vec3d m_cellMax;
+    double     m_margin = 0.0;
+};
+
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +163,12 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
 {
     CAF_ASSERT( intersections != nullptr );
 
+    const SegmentBoxTest boxTest( p1, p2, hexCorners, parametricTolerance );
+    if ( !boxTest.canIntersectCell() ) return 0;
+
+    const auto canIntersectFace = [&]( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
+    { return boxTest.canIntersectFace( v0, v1, v2, v3 ); };
+
     const cvf::Vec3d direction     = p2 - p1;
     const double     lengthSquared = direction.lengthSquared();
 
@@ -86,6 +177,7 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
     size_t                     hitCount = 0;
 
     forEachCellSurfaceTriangle( hexCorners,
+                                canIntersectFace,
                                 [&]( cvf::StructGridInterface::FaceType face, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
                                 {
                                     cvf::Vec3d intersection;
@@ -170,15 +262,19 @@ int RigHexIntersectionTools::sortMergeAndAppendHits( std::span<SegmentHit>      
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::lineIntersectsHexCell( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const std::array<cvf::Vec3d, 8>& hexCorners )
 {
-    const bool allVisited =
-        forEachCellSurfaceTriangle( hexCorners,
-                                    [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
-                                    {
-                                        cvf::Vec3d intersection;
-                                        bool       isEntering = false;
-                                        return cvf::GeometryTools::intersectLineSegmentTriangle( p1, p2, t0, t1, t2, &intersection, &isEntering ) !=
-                                               1;
-                                    } );
+    const SegmentBoxTest boxTest( p1, p2, hexCorners, 0.0 );
+    if ( !boxTest.canIntersectCell() ) return false;
+
+    const bool allVisited = forEachCellSurfaceTriangle(
+        hexCorners,
+        [&]( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
+        { return boxTest.canIntersectFace( v0, v1, v2, v3 ); },
+        [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
+        {
+            cvf::Vec3d intersection;
+            bool       isEntering = false;
+            return cvf::GeometryTools::intersectLineSegmentTriangle( p1, p2, t0, t1, t2, &intersection, &isEntering ) != 1;
+        } );
     return !allVisited;
 }
 
@@ -307,7 +403,7 @@ bool RigHexIntersectionTools::isPointInCell( const cvf::Vec3d& point, const std:
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::planeHexCellIntersection( const std::array<cvf::Vec3d, 8>&              hexCorners,
-                                                        const cvf::Plane&                             fracturePlane,
+                                                        const cvf::Plane&                             plane,
                                                         std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments )
 {
     bool                                  isCellIntersected = false;
@@ -315,28 +411,50 @@ bool RigHexIntersectionTools::planeHexCellIntersection( const std::array<cvf::Ve
     caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint2;
     bool                                  isMostVxesOnPositiveSideOfP1 = false;
 
-    forEachCellSurfaceTriangle( hexCorners,
-                                [&]( cvf::StructGridInterface::FaceType, const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2 )
-                                {
-                                    bool isIntersectingPlane =
-                                        caf::HexGridIntersectionTools::planeTriangleIntersection( fracturePlane,
-                                                                                                  t0,
-                                                                                                  0,
-                                                                                                  t1,
-                                                                                                  1,
-                                                                                                  t2,
-                                                                                                  2,
-                                                                                                  &triangleIntersectionPoint1,
-                                                                                                  &triangleIntersectionPoint2,
-                                                                                                  &isMostVxesOnPositiveSideOfP1 );
+    // The plane side of each corner and face center, evaluated as in planeTriangleIntersection(). A triangle with
+    // all vertices on the same side is not intersected, so the triangle test is skipped.
+    std::array<bool, 8> isCornerOnPositiveSide;
+    for ( size_t i = 0; i < 8; ++i )
+    {
+        isCornerOnPositiveSide[i] = plane.distanceSquared( hexCorners[i] ) >= 0.0;
+    }
 
-                                    if ( isIntersectingPlane )
-                                    {
-                                        isCellIntersected = true;
-                                        intersectionLineSegments.emplace_back( triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx );
-                                    }
-                                    return true;
-                                } );
+    cvf::StructGridInterface::FaceType currentFace            = cvf::StructGridInterface::NO_FACE;
+    bool                               isCenterOnPositiveSide = false;
+
+    forEachCellSurfaceTriangleByCornerIndex(
+        hexCorners,
+        []( const cvf::Vec3d&, const cvf::Vec3d&, const cvf::Vec3d&, const cvf::Vec3d& ) { return true; },
+        [&]( cvf::StructGridInterface::FaceType face, cvf::ubyte cornerIdx, cvf::ubyte nextCornerIdx, const cvf::Vec3d& faceCenter )
+        {
+            if ( face != currentFace )
+            {
+                currentFace            = face;
+                isCenterOnPositiveSide = plane.distanceSquared( faceCenter ) >= 0.0;
+            }
+
+            const bool isCornerPositive     = isCornerOnPositiveSide[cornerIdx];
+            const bool isNextCornerPositive = isCornerOnPositiveSide[nextCornerIdx];
+            if ( isCornerPositive == isNextCornerPositive && isNextCornerPositive == isCenterOnPositiveSide ) return true;
+
+            bool isIntersectingPlane = caf::HexGridIntersectionTools::planeTriangleIntersection( plane,
+                                                                                                 hexCorners[cornerIdx],
+                                                                                                 0,
+                                                                                                 hexCorners[nextCornerIdx],
+                                                                                                 1,
+                                                                                                 faceCenter,
+                                                                                                 2,
+                                                                                                 &triangleIntersectionPoint1,
+                                                                                                 &triangleIntersectionPoint2,
+                                                                                                 &isMostVxesOnPositiveSideOfP1 );
+
+            if ( isIntersectingPlane )
+            {
+                isCellIntersected = true;
+                intersectionLineSegments.emplace_back( triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx );
+            }
+            return true;
+        } );
 
     return isCellIntersected;
 }
@@ -350,13 +468,13 @@ bool RigHexIntersectionTools::planeHexIntersectionPolygons( const std::array<cvf
 {
     bool isCellIntersected = false;
 
-    cvf::Plane fracturePlane;
-    fracturePlane.setFromPointAndNormal( transformMatrixForPlane.translation(), static_cast<cvf::Vec3d>( transformMatrixForPlane.col( 2 ) ) );
+    cvf::Plane plane;
+    plane.setFromPointAndNormal( transformMatrixForPlane.translation(), static_cast<cvf::Vec3d>( transformMatrixForPlane.col( 2 ) ) );
 
     // Find line-segments where cell and fracture plane intersects
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
 
-    isCellIntersected = planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
+    isCellIntersected = planeHexCellIntersection( hexCorners, plane, intersectionLineSegments );
 
     RigCellGeometryTools::createPolygonFromLineSegments( intersectionLineSegments, polygons );
 
