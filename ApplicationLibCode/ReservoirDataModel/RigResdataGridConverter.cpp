@@ -65,9 +65,9 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
     size_t nj = gridAdapter.cellCountJ();
     size_t nk = gridAdapter.cellCountK();
 
-    std::vector<float> coordArray;
-    std::vector<float> zcornArray;
-    std::vector<int>   actnumArray;
+    std::vector<double> coordArray;
+    std::vector<double> zcornArray;
+    std::vector<int>    actnumArray;
 
     // Get coordinate transformation if needed for local coordinates export
     std::array<float, 6> mapAxes = gridAdapter.mapAxes();
@@ -102,32 +102,18 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 
     // Write COORD
     {
-        bool                writeEchoKeywordsInExporterObject = true;
-        QString             keyword                           = "COORD";
-        std::vector<double> coordArrayDouble;
-        coordArrayDouble.reserve( coordArray.size() );
-        for ( const auto& v : coordArray )
-        {
-            coordArrayDouble.push_back( v );
-        }
-
-        int valuesPerRow = 6;
-        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, coordArrayDouble, valuesPerRow );
+        bool    writeEchoKeywordsInExporterObject = true;
+        QString keyword                           = "COORD";
+        int     valuesPerRow                      = 6;
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, coordArray, valuesPerRow );
     }
 
     // Write ZCORN
     {
-        bool                writeEchoKeywordsInExporterObject = true;
-        QString             keyword                           = "ZCORN";
-        std::vector<double> zcornArrayDouble;
-        zcornArrayDouble.reserve( zcornArray.size() );
-        for ( const auto& v : zcornArray )
-        {
-            zcornArrayDouble.push_back( v );
-        }
-
-        int valuesPerRow = 6;
-        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, zcornArrayDouble, valuesPerRow );
+        bool    writeEchoKeywordsInExporterObject = true;
+        QString keyword                           = "ZCORN";
+        int     valuesPerRow                      = 6;
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, zcornArray, valuesPerRow );
     }
 
     // Write ACTNUM
@@ -176,8 +162,8 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
 ///
 //--------------------------------------------------------------------------------------------------
 void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExportAdapter& gridAdapter,
-                                                              std::vector<float>&         coordArray,
-                                                              std::vector<float>&         zcornArray,
+                                                              std::vector<double>&        coordArray,
+                                                              std::vector<double>&        zcornArray,
                                                               std::vector<int>&           actnumArray )
 {
     auto findBestCornerForPillar = []( size_t i, size_t j, const RigGridExportAdapter& gridAdapter ) -> std::pair<cvf::Vec3d, cvf::Vec3d>
@@ -242,8 +228,8 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
     const size_t zcornSize  = nx * ny * nz * 8;
     const size_t actnumSize = nx * ny * nz;
 
-    coordArray.resize( coordSize, 0.0f );
-    zcornArray.resize( zcornSize, 0.0f );
+    coordArray.resize( coordSize, 0.0 );
+    zcornArray.resize( zcornSize, 0.0 );
     actnumArray.resize( actnumSize, 0 );
 
     // Generate COORD array - pillars for the refined grid
@@ -257,12 +243,12 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             size_t pillarIndex = j * ( nx + 1 ) + i;
             size_t coordIndex  = pillarIndex * 6;
 
-            coordArray[coordIndex + 0] = static_cast<float>( topCoord.x() );
-            coordArray[coordIndex + 1] = static_cast<float>( topCoord.y() );
-            coordArray[coordIndex + 2] = static_cast<float>( -topCoord.z() ); // Negate Z for Eclipse convention
-            coordArray[coordIndex + 3] = static_cast<float>( bottomCoord.x() );
-            coordArray[coordIndex + 4] = static_cast<float>( bottomCoord.y() );
-            coordArray[coordIndex + 5] = static_cast<float>( -bottomCoord.z() ); // Negate Z for Eclipse convention
+            coordArray[coordIndex + 0] = topCoord.x();
+            coordArray[coordIndex + 1] = topCoord.y();
+            coordArray[coordIndex + 2] = -topCoord.z(); // Negate Z for Eclipse convention
+            coordArray[coordIndex + 3] = bottomCoord.x();
+            coordArray[coordIndex + 4] = bottomCoord.y();
+            coordArray[coordIndex + 5] = -bottomCoord.z(); // Negate Z for Eclipse convention
         }
     }
 
@@ -278,16 +264,16 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             for ( size_t i = 0; i < nx; ++i )
             {
                 auto topCorners        = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
-                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[0].z() ); // (-I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[3].z() ); // (-I,+J,top)
+                zcornArray[zcornIdx++] = -topCorners[0].z(); // (-I,-J,top)
+                zcornArray[zcornIdx++] = -topCorners[3].z(); // (-I,+J,top)
             }
 
             // Face 2: corners (1,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
                 auto topCorners        = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::NEG_K );
-                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[1].z() ); // (+I,-J,top)
-                zcornArray[zcornIdx++] = static_cast<float>( -topCorners[2].z() ); // (+I,+J,top)
+                zcornArray[zcornIdx++] = -topCorners[1].z(); // (+I,-J,top)
+                zcornArray[zcornIdx++] = -topCorners[2].z(); // (+I,+J,top)
             }
         }
 
@@ -298,16 +284,16 @@ void RigResdataGridConverter::convertGridToCornerPointArrays( const RigGridExpor
             for ( size_t i = 0; i < nx; ++i )
             {
                 auto bottomCorners     = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
-                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[0].z() ); // (-I,-J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[1].z() ); // (+I,-J,bottom)
+                zcornArray[zcornIdx++] = -bottomCorners[0].z(); // (-I,-J,bottom)
+                zcornArray[zcornIdx++] = -bottomCorners[1].z(); // (+I,-J,bottom)
             }
 
             // Face 2: corners (3,2) for all cells in row j
             for ( size_t i = 0; i < nx; ++i )
             {
                 auto bottomCorners     = gridAdapter.getFaceCorners( i, j, k, cvf::StructGridInterface::POS_K );
-                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[3].z() ); // (-I,+J,bottom)
-                zcornArray[zcornIdx++] = static_cast<float>( -bottomCorners[2].z() ); // (+I,+J,bottom)
+                zcornArray[zcornIdx++] = -bottomCorners[3].z(); // (-I,+J,bottom)
+                zcornArray[zcornIdx++] = -bottomCorners[2].z(); // (+I,+J,bottom)
             }
         }
     }

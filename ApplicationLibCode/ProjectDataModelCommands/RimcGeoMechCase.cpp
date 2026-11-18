@@ -300,7 +300,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimGeoMechCase_readResultValuesInt
     std::vector<float> values;
     results->globalResultValues( address, m_timeStep(), frameIndex, values );
 
-    RiaApplication::instance()->keyValueStore()->set( m_key().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+    RiaKeyValueStoreUtil::setValues( *RiaApplication::instance()->keyValueStore(), m_key().toStdString(), values );
 
     return nullptr;
 }

@@ -43,40 +43,47 @@ public:
 
     QString locationOnDisc() const override;
 
-    static std::expected<RimCornerPointCase*, QString> createFromCoordinatesArray( const int                 nx,
-                                                                                   const int                 ny,
-                                                                                   const int                 nz,
-                                                                                   const std::vector<float>& coord,
-                                                                                   const std::vector<float>& zcorn,
-                                                                                   const std::vector<float>& actnum );
+    static std::expected<RimCornerPointCase*, QString> createFromCoordinatesArray( const int                  nx,
+                                                                                   const int                  ny,
+                                                                                   const int                  nz,
+                                                                                   const std::vector<double>& coord,
+                                                                                   const std::vector<double>& zcorn,
+                                                                                   const std::vector<int>&    actnum );
 
-    static std::expected<void, QString> replaceGridFromCoordinatesArray( RimCornerPointCase&       cornerPointCase,
-                                                                         const int                 nx,
-                                                                         const int                 ny,
-                                                                         const int                 nz,
-                                                                         const std::vector<float>& coord,
-                                                                         const std::vector<float>& zcorn,
-                                                                         const std::vector<float>& actnum );
+    static std::expected<void, QString> replaceGridFromCoordinatesArray( RimCornerPointCase&        cornerPointCase,
+                                                                         const int                  nx,
+                                                                         const int                  ny,
+                                                                         const int                  nz,
+                                                                         const std::vector<double>& coord,
+                                                                         const std::vector<double>& zcorn,
+                                                                         const std::vector<int>&    actnum );
 
 protected:
+    static std::expected<void, QString> validateArraySizes( const int                  nx,
+                                                            const int                  ny,
+                                                            const int                  nz,
+                                                            const std::vector<double>& coord,
+                                                            const std::vector<double>& zcorn,
+                                                            const std::vector<int>&    actnum );
+
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    static void buildGrid( RigEclipseCaseData&       eclipseCaseData,
-                           const int                 nx,
-                           const int                 ny,
-                           const int                 nz,
-                           const std::vector<float>& coord,
-                           const std::vector<float>& zcorn,
-                           const std::vector<float>& actnum );
+    static void buildGrid( RigEclipseCaseData&        eclipseCaseData,
+                           const int                  nx,
+                           const int                  ny,
+                           const int                  nz,
+                           const std::vector<double>& coord,
+                           const std::vector<double>& zcorn,
+                           const std::vector<int>&    actnum );
 
     static void createActnumResult( RigEclipseCaseData& eclipseCaseData );
 
     static void computeDepthRelatedResults( RimCornerPointCase& cornerPointCase );
 
-    static std::array<cvf::Vec3d, 8> getCorners( const RigMainGrid&        grid,
-                                                 const std::vector<float>& coord,
-                                                 const std::vector<float>& zcorn,
-                                                 const size_t              cellIdx,
-                                                 const cvf::Vec3d&         offset,
-                                                 const cvf::Vec3d&         scale );
+    static std::array<cvf::Vec3d, 8> getCorners( const RigMainGrid&         grid,
+                                                 const std::vector<double>& coord,
+                                                 const std::vector<double>& zcorn,
+                                                 const size_t               cellIdx,
+                                                 const cvf::Vec3d&          offset,
+                                                 const cvf::Vec3d&          scale );
 };

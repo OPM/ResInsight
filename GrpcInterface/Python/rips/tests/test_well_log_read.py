@@ -180,3 +180,22 @@ def test_well_log_single_value(project):
     data = well_path.well_logs()[0].well_log_data()
     assert data["measured_depth"] == _approx([1234.5])
     assert data["porosity"] == _approx([0.17])
+
+
+def test_well_log_data_float64_precision(project):
+    """Measured depth, TVD and channels travel as float64 in both directions"""
+    _, well_path = project
+    measured_depth = [1000.0000001, 1500.123456789, 2000.987654321]
+    tvd_msl = [900.0000001, 1400.123456789, 1900.987654321]
+    channel_data = {"utm_x": [7319649.123, 7319649.456, 7319649.789]}
+    well_path.add_well_log(
+        name="Float64",
+        measured_depth=measured_depth,
+        channel_data=channel_data,
+        tvd_msl=tvd_msl,
+    )
+
+    data = well_path.well_logs()[0].well_log_data()
+    assert data["measured_depth"] == pytest.approx(measured_depth, rel=0, abs=1e-9)
+    assert data["tvd_msl"] == pytest.approx(tvd_msl, rel=0, abs=1e-9)
+    assert data["utm_x"] == pytest.approx(channel_data["utm_x"], rel=0, abs=1e-9)

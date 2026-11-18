@@ -207,37 +207,36 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_exportValuesIntern
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> xs = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_coordinateX().toStdString() ) );
-    std::vector<float> ys = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_coordinateY().toStdString() ) );
-    std::vector<float> zs = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_coordinateZ().toStdString() ) );
+    std::vector<double> xs = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateX().toStdString() );
+    std::vector<double> ys = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateY().toStdString() );
+    std::vector<double> zs = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordinateZ().toStdString() );
     if ( xs.empty() || xs.size() != ys.size() || xs.size() != zs.size() )
     {
-        return std::unexpected( "Invalid positions specified." );
+        return std::unexpected( "Invalid positions specified. Positions must be non-empty float64 arrays of equal size." );
     }
 
     std::vector<cvf::Vec3d> positions;
     for ( size_t i = 0; i < xs.size(); i++ )
     {
-        positions.push_back( cvf::Vec3d( xs[i], ys[i], -zs[i] ) );
+        positions.emplace_back( xs[i], ys[i], -zs[i] );
     }
 
-    std::vector<float> values;
+    std::vector<double> values;
     for ( const cvf::Vec3d& position : positions )
     {
         auto cellIdx = mainGrid->findReservoirCellIndexFromPoint( position );
         if ( cellIdx != cvf::UNDEFINED_SIZE_T )
         {
-            float valueFromEclipse = static_cast<float>( resultAccessor->cellScalar( cellIdx ) );
-            values.push_back( valueFromEclipse );
+            values.push_back( resultAccessor->cellScalar( cellIdx ) );
         }
         else
         {
             // Use inf as signal that nothing was found for the position
-            values.push_back( std::numeric_limits<float>::infinity() );
+            values.push_back( std::numeric_limits<double>::infinity() );
         }
     }
 
-    keyValueStore->set( m_resultKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_resultKey().toStdString(), values );
 
     return nullptr;
 }
@@ -284,30 +283,22 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_exportCornerPointG
     RigGridExportAdapter gridAdapter( eclipseCaseData, cvf::Vec3st::ZERO, fullMax, RigNoRefinement( fullSize ), nullptr );
 
     // Use the existing conversion utility to get the arrays in the correct format
-    std::vector<float> coordArray;
-    std::vector<float> zcornArray;
-    std::vector<int>   actnumArray;
+    std::vector<double> coordArray;
+    std::vector<double> zcornArray;
+    std::vector<int>    actnumArray;
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
-    // Convert actnum from int to float for key-value store
-    std::vector<float> actnumFloat;
-    actnumFloat.reserve( actnumArray.size() );
-    for ( int value : actnumArray )
-    {
-        actnumFloat.push_back( static_cast<float>( value ) );
-    }
-
     // Store arrays in key-value store
-    keyValueStore->set( m_zcornKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( zcornArray ) );
-    keyValueStore->set( m_coordKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( coordArray ) );
-    keyValueStore->set( m_actnumKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( actnumFloat ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_zcornKey().toStdString(), zcornArray );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_coordKey().toStdString(), coordArray );
+    RiaKeyValueStoreUtil::setValues<int32_t>( *keyValueStore, m_actnumKey().toStdString(), actnumArray );
 
     // Store grid dimensions as well
-    std::vector<float> dimensions = { static_cast<float>( gridAdapter.cellCountI() ),
-                                      static_cast<float>( gridAdapter.cellCountJ() ),
-                                      static_cast<float>( gridAdapter.cellCountK() ) };
-    keyValueStore->set( ( m_zcornKey().toStdString() + "_dimensions" ), RiaKeyValueStoreUtil::convertToByteVector( dimensions ) );
+    std::vector<int64_t> dimensions = { static_cast<int64_t>( gridAdapter.cellCountI() ),
+                                        static_cast<int64_t>( gridAdapter.cellCountJ() ),
+                                        static_cast<int64_t>( gridAdapter.cellCountK() ) };
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, ( m_zcornKey().toStdString() + "_dimensions" ), dimensions );
 
     return nullptr;
 }
@@ -420,15 +411,15 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
     cellVis.setAll( 1 );
     filter->applyToCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
 
-    std::vector<float> values;
+    std::vector<int32_t> values;
     values.reserve( n );
     for ( size_t i = 0; i < n; ++i )
     {
-        values.push_back( cellVis[i] ? 1.0f : 0.0f );
+        values.push_back( cellVis[i] ? 1 : 0 );
     }
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    keyValueStore->set( m_maskKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_maskKey().toStdString(), values );
 
     return nullptr;
 }

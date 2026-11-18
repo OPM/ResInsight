@@ -47,8 +47,8 @@ public:
                             const cvf::Vec3st&     refinement                      = cvf::Vec3st( 1, 1, 1 ) );
 
     static void convertGridToCornerPointArrays( const RigGridExportAdapter& gridAdapter,
-                                                std::vector<float>&         coordArray,
-                                                std::vector<float>&         zcornArray,
+                                                std::vector<double>&        coordArray,
+                                                std::vector<double>&        zcornArray,
                                                 std::vector<int>&           actnumArray );
 
 private:

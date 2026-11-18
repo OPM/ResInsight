@@ -81,29 +81,14 @@ bool RimCornerPointCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordinatesArray( const int                 nx,
-                                                                                            const int                 ny,
-                                                                                            const int                 nz,
-                                                                                            const std::vector<float>& coord,
-                                                                                            const std::vector<float>& zcorn,
-                                                                                            const std::vector<float>& actnum )
+std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordinatesArray( const int                  nx,
+                                                                                            const int                  ny,
+                                                                                            const int                  nz,
+                                                                                            const std::vector<double>& coord,
+                                                                                            const std::vector<double>& zcorn,
+                                                                                            const std::vector<int>&    actnum )
 {
-    CAF_ASSERT( nx > 0 );
-    CAF_ASSERT( ny > 0 );
-    CAF_ASSERT( nz > 0 );
-
-    size_t ncoord = ( nx + 1 ) * ( ny + 1 ) * 2 * 3;
-    size_t nzcorn = nx * ny * nz * 8;
-    size_t ntot   = nx * ny * nz;
-
-    if ( coord.size() != ncoord )
-        return std::unexpected( QString( "Wrong size of coord array. Expected %1, but got %2" ).arg( ncoord ).arg( coord.size() ) );
-
-    if ( zcorn.size() != nzcorn )
-        return std::unexpected( QString( "Wrong size of zcorn array. Expected %1, but got %2" ).arg( nzcorn ).arg( zcorn.size() ) );
-
-    if ( actnum.size() != ntot )
-        return std::unexpected( QString( "Wrong size of actnum array. Expected %1, but got %2" ).arg( ntot ).arg( actnum.size() ) );
+    if ( auto valid = validateArraySizes( nx, ny, nz, coord, zcorn, actnum ); !valid ) return std::unexpected( valid.error() );
 
     auto cornerPointCase = new RimCornerPointCase;
 
@@ -117,14 +102,16 @@ std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray( RimCornerPointCase&       cornerPointCase,
-                                                                                  const int                 nx,
-                                                                                  const int                 ny,
-                                                                                  const int                 nz,
-                                                                                  const std::vector<float>& coord,
-                                                                                  const std::vector<float>& zcorn,
-                                                                                  const std::vector<float>& actnum )
+std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray( RimCornerPointCase&        cornerPointCase,
+                                                                                  const int                  nx,
+                                                                                  const int                  ny,
+                                                                                  const int                  nz,
+                                                                                  const std::vector<double>& coord,
+                                                                                  const std::vector<double>& zcorn,
+                                                                                  const std::vector<int>&    actnum )
 {
+    if ( auto valid = validateArraySizes( nx, ny, nz, coord, zcorn, actnum ); !valid ) return valid;
+
     RigActiveCellInfo* activeCellInfo = cornerPointCase.eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     CAF_ASSERT( activeCellInfo );
     activeCellInfo->clear();
@@ -152,12 +139,40 @@ std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&        grid,
-                                                          const std::vector<float>& coord,
-                                                          const std::vector<float>& zcorn,
-                                                          const size_t              cellIdx,
-                                                          const cvf::Vec3d&         offset,
-                                                          const cvf::Vec3d&         scale )
+std::expected<void, QString> RimCornerPointCase::validateArraySizes( const int                  nx,
+                                                                     const int                  ny,
+                                                                     const int                  nz,
+                                                                     const std::vector<double>& coord,
+                                                                     const std::vector<double>& zcorn,
+                                                                     const std::vector<int>&    actnum )
+{
+    if ( nx <= 0 || ny <= 0 || nz <= 0 ) return std::unexpected( QString( "Invalid grid size. nx, ny and nz must be positive." ) );
+
+    const size_t ncoord = static_cast<size_t>( nx + 1 ) * static_cast<size_t>( ny + 1 ) * 2 * 3;
+    const size_t nzcorn = static_cast<size_t>( nx ) * static_cast<size_t>( ny ) * static_cast<size_t>( nz ) * 8;
+    const size_t ntot   = static_cast<size_t>( nx ) * static_cast<size_t>( ny ) * static_cast<size_t>( nz );
+
+    if ( coord.size() != ncoord )
+        return std::unexpected( QString( "Wrong size of coord array. Expected %1, but got %2" ).arg( ncoord ).arg( coord.size() ) );
+
+    if ( zcorn.size() != nzcorn )
+        return std::unexpected( QString( "Wrong size of zcorn array. Expected %1, but got %2" ).arg( nzcorn ).arg( zcorn.size() ) );
+
+    if ( actnum.size() != ntot )
+        return std::unexpected( QString( "Wrong size of actnum array. Expected %1, but got %2" ).arg( ntot ).arg( actnum.size() ) );
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&         grid,
+                                                          const std::vector<double>& coord,
+                                                          const std::vector<double>& zcorn,
+                                                          const size_t               cellIdx,
+                                                          const cvf::Vec3d&          offset,
+                                                          const cvf::Vec3d&          scale )
 {
     size_t i;
     size_t j;
@@ -222,13 +237,13 @@ std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
-                                    const int                 nx,
-                                    const int                 ny,
-                                    const int                 nz,
-                                    const std::vector<float>& coord,
-                                    const std::vector<float>& zcorn,
-                                    const std::vector<float>& actnum )
+void RimCornerPointCase::buildGrid( RigEclipseCaseData&        eclipseCaseData,
+                                    const int                  nx,
+                                    const int                  ny,
+                                    const int                  nz,
+                                    const std::vector<double>& coord,
+                                    const std::vector<double>& zcorn,
+                                    const std::vector<int>&    actnum )
 {
     auto startTime = high_resolution_clock::now();
 
@@ -279,7 +294,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     CAF_ASSERT( activeCells.size() == actnum.size() );
     for ( size_t i = 0; i < activeCells.size(); i++ )
     {
-        activeCells[i] = static_cast<int>( actnum[i] > 0.0 );
+        activeCells[i] = static_cast<int>( actnum[i] > 0 );
     }
 
     // Precompute the active cell matrix index

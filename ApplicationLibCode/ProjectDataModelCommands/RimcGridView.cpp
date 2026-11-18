@@ -82,17 +82,17 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_visibleCellsInternal:
         return std::unexpected( QString( "Failed to get cell visibility data." ) );
     }
 
-    // Convert cvf::UByteArray to std::vector<float> where 1.0 = visible, 0.0 = invisible
-    std::vector<float> visibilityValues;
+    // Convert cvf::UByteArray to int32 values where 1 = visible, 0 = invisible
+    std::vector<int32_t> visibilityValues;
     visibilityValues.reserve( visibleCells->size() );
     for ( size_t i = 0; i < visibleCells->size(); ++i )
     {
-        visibilityValues.push_back( ( *visibleCells )[i] ? 1.0f : 0.0f );
+        visibilityValues.push_back( ( *visibleCells )[i] ? 1 : 0 );
     }
 
     // Store the visibility data in the key-value store
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
-    keyValueStore->set( m_visibilityKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( visibilityValues ) );
+    RiaKeyValueStoreUtil::setValues( *keyValueStore, m_visibilityKey().toStdString(), visibilityValues );
 
     return nullptr;
 }

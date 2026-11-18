@@ -374,12 +374,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 
-    std::vector<float> coord  = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_coordKey().toStdString() ) );
-    std::vector<float> zcorn  = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_zcornKey().toStdString() ) );
-    std::vector<float> actnum = RiaKeyValueStoreUtil::convertToFloatVector( keyValueStore->get( m_actnumKey().toStdString() ) );
+    std::vector<double> coord  = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_coordKey().toStdString() );
+    std::vector<double> zcorn  = RiaKeyValueStoreUtil::getValues<double>( *keyValueStore, m_zcornKey().toStdString() );
+    std::vector<int>    actnum = RiaKeyValueStoreUtil::getValues<int32_t>( *keyValueStore, m_actnumKey().toStdString() );
     if ( coord.empty() || zcorn.empty() || actnum.empty() )
     {
-        return std::unexpected( "Found unexcepted empty coord, zcorn or actnum array." );
+        return std::unexpected( "Found unexpected empty coord, zcorn or actnum array. Coord and zcorn must be float64, actnum int32." );
     }
 
     RimProject* project = RimProject::current();

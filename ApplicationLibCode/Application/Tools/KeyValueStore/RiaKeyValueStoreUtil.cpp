@@ -6,14 +6,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<float> RiaKeyValueStoreUtil::convertToFloatVector( const std::optional<std::vector<char>>& inputVector )
-{
-    return convertToVector<float>( inputVector );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 template <typename T>
 std::vector<T> RiaKeyValueStoreUtil::convertToVector( const std::optional<std::vector<char>>& inputVector )
 {
