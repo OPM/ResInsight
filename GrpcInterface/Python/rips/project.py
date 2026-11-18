@@ -583,6 +583,12 @@ _KEY_VALUE_ELEMENT_TYPES = {
     "uint64": (KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_UINT64, "uint_values"),
 }
 
+_KEY_VALUE_EIGHT_BYTE_ELEMENT_TYPES = {
+    KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT64,
+    KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_INT64,
+    KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_UINT64,
+}
+
 
 def _key_value_element_type(dtype: object) -> Tuple[int, str]:
     # Accepts a numpy dtype, a numpy scalar type or a dtype name, without importing numpy
@@ -630,6 +636,12 @@ def __generate_key_value_store_input_chunks(
     element_type=KeyValueStore_pb2.KEY_VALUE_ELEMENT_TYPE_FLOAT32,
     field="values",
 ):
+    # chunk_size counts float32 values. Element types of eight bytes send half as many
+    # values per chunk, so a chunk keeps the same size in bytes.
+    values_per_chunk = self.chunk_size
+    if element_type in _KEY_VALUE_EIGHT_BYTE_ELEMENT_TYPES:
+        values_per_chunk = max(1, self.chunk_size // 2)
+
     index = -1
     while index < len(array):
         chunk = KeyValueStore_pb2.KeyValueStoreInputChunk()
@@ -640,7 +652,7 @@ def __generate_key_value_store_input_chunks(
             chunk.parameters.CopyFrom(parameters)
             index += 1
         else:
-            actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
+            actual_chunk_size = min(len(array) - index, values_per_chunk)
             chunk.values.CopyFrom(
                 KeyValueStore_pb2.KeyValueStoreChunk(
                     **{field: array[index : index + actual_chunk_size]}
