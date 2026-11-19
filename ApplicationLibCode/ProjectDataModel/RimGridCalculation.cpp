@@ -39,7 +39,6 @@
 
 #include "RimCaseCollection.h"
 #include "RimCellFilter.h"
-#include "RimCellFilterTools.h"
 #include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -1197,7 +1196,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             cvf::UByteArray*          visibilityFilter = inputValueVisibilityFilter;
             if ( m_filterType() == FilterType::DATA_FILTER && m_dataFilter() )
             {
-                dataFilterVisibility = RimCellFilterTools::computeReservoirCellVisibility( m_dataFilter(), calculationCase, tsId );
+                dataFilterVisibility = m_dataFilter()->computeReservoirCellVisibility( calculationCase, tsId );
                 visibilityFilter     = dataFilterVisibility.p();
             }
 

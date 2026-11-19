@@ -44,7 +44,6 @@
 #include "Polygons/RimPolygonCollection.h"
 #include "Rim3dView.h"
 #include "RimCellFilter.h"
-#include "RimCellFilterTools.h"
 #include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -93,7 +92,7 @@ void applyDataFilterVisibility( RigEclipseContourMapProjection& projection,
 {
     if ( !dataFilter ) return;
 
-    projection.setCellVisibility( RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eCase, timeStepIndex ) );
+    projection.setCellVisibility( dataFilter->computeReservoirCellVisibility( eCase, timeStepIndex ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,8 +791,10 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     if ( !ctx.active ) continue;
                     if ( ctx.map->m_resultDefinition()->hasDynamicResult() )
                         resultData->ensureKnownResultLoaded( ctx.map->m_resultDefinition()->eclipseResultAddress() );
-                    if ( auto address = RimCellFilterTools::dynamicResultAddress( ctx.map->m_dataFilter() ) )
-                        resultData->ensureKnownResultLoaded( *address );
+                    if ( auto* filter = ctx.map->m_dataFilter() )
+                    {
+                        if ( auto address = filter->dynamicResultAddress() ) resultData->ensureKnownResultLoaded( *address );
+                    }
                 }
 
                 // The case's own time step dates, read directly from the reader rather than from already-loaded
@@ -847,7 +848,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                         // A data filter can accept different cells in each realization, e.g. a property filter or
                         // formation names defined per realization. A dynamic filter's visible cells also change per
                         // time step, so its mapping is (re)generated per time step inside extractCaseResults() instead.
-                        const bool filterIsDynamic = RimCellFilterTools::isDynamicFilter( map->m_dataFilter() );
+                        const bool filterIsDynamic = map->m_dataFilter() && map->m_dataFilter()->isDynamic();
                         if ( map->m_dataFilter() && !filterIsDynamic )
                         {
                             applyDataFilterVisibility( *ctx.sharedProjection, map->m_dataFilter(), eCase, 0 );
@@ -869,7 +870,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     else
                     {
                         RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
-                        const bool                     filterIsDynamic = RimCellFilterTools::isDynamicFilter( map->m_dataFilter() );
+                        const bool                     filterIsDynamic = map->m_dataFilter() && map->m_dataFilter()->isDynamic();
                         if ( !filterIsDynamic )
                         {
                             applyDataFilterVisibility( contourMapProjection, map->m_dataFilter(), eCase, 0 );
@@ -971,7 +972,8 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, RiaDefines
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
-    if ( !m_resultDefinition->hasDynamicResult() && !RimCellFilterTools::isDynamicFilter( m_dataFilter() ) )
+    const bool filterIsDynamic = m_dataFilter() && m_dataFilter()->isDynamic();
+    if ( !m_resultDefinition->hasDynamicResult() && !filterIsDynamic )
     {
         return { 0 };
     }

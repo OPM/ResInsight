@@ -30,7 +30,7 @@
 #include "RigMainGrid.h"
 
 #include "Formations/RimFormationNames.h"
-#include "RimCellFilterTools.h"
+#include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
@@ -77,7 +77,7 @@ static std::unique_ptr<RimEclipseResultCase> openBruggeCase( const QString& real
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, RangeFilterVisibility )
+TEST( RimCellFilterTest, RangeFilterVisibility )
 {
     auto eclipseCase = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     ASSERT_TRUE( eclipseCase != nullptr );
@@ -91,7 +91,7 @@ TEST( RimCellFilterToolsTest, RangeFilterVisibility )
     rangeFilter.cellCountJ  = 4;
     rangeFilter.cellCountK  = 3;
 
-    auto visibility = RimCellFilterTools::computeReservoirCellVisibility( &rangeFilter, eclipseCase.get(), 0 );
+    auto visibility = rangeFilter.computeReservoirCellVisibility( eclipseCase.get(), 0 );
     ASSERT_TRUE( visibility.notNull() );
 
     const RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
@@ -109,7 +109,7 @@ TEST( RimCellFilterToolsTest, RangeFilterVisibility )
     // An EXCLUDE filter must select the complement
     rangeFilter.setFilterMode( RimCellFilter::EXCLUDE );
 
-    auto excludeVisibility = RimCellFilterTools::computeReservoirCellVisibility( &rangeFilter, eclipseCase.get(), 0 );
+    auto excludeVisibility = rangeFilter.computeReservoirCellVisibility( eclipseCase.get(), 0 );
     ASSERT_TRUE( excludeVisibility.notNull() );
 
     size_t excludeVisibleCount = 0;
@@ -125,7 +125,7 @@ TEST( RimCellFilterToolsTest, RangeFilterVisibility )
 /// isActive() on the interface means "the filter currently filters cells"; isChecked() is only the
 /// checkbox state
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, InterfaceIsActiveFollowsFilteringState )
+TEST( RimCellFilterTest, InterfaceIsActiveFollowsFilteringState )
 {
     RimPolygonFilter polygonFilter;
     RimCellFilter*   asRimFilter = &polygonFilter;
@@ -152,7 +152,7 @@ TEST( RimCellFilterToolsTest, InterfaceIsActiveFollowsFilteringState )
 //--------------------------------------------------------------------------------------------------
 /// Dynamic filters are detected through the interface, without casting to concrete filter types
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, InterfaceReportsDynamicFilters )
+TEST( RimCellFilterTest, InterfaceReportsDynamicFilters )
 {
     RimCellRangeFilter      rangeFilter;
     RigCellFilterInterface* rangeIface = &rangeFilter;
@@ -178,16 +178,13 @@ TEST( RimCellFilterToolsTest, InterfaceReportsDynamicFilters )
     RigCellFilterInterface* combinedIface = &combinedFilter;
     EXPECT_TRUE( combinedIface->isDynamic() );
     EXPECT_TRUE( combinedIface->dynamicResultAddress().has_value() );
-
-    EXPECT_TRUE( RimCellFilterTools::isDynamicFilter( combinedIface ) );
-    EXPECT_FALSE( RimCellFilterTools::isDynamicFilter( nullptr ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Data filters in a grid ensemble collection are bound to the main case of the ensemble, and can
 /// be evaluated per case without any view
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
+TEST( RimCellFilterTest, GridEnsembleDataFilterCollection )
 {
     auto eclipseCase = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     ASSERT_TRUE( eclipseCase != nullptr );
@@ -239,7 +236,7 @@ TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
     rangeFilter->cellCountJ  = 10;
     rangeFilter->cellCountK  = 1;
 
-    auto visibility = RimCellFilterTools::computeReservoirCellVisibility( rangeFilter, mainCase, 0 );
+    auto visibility = rangeFilter->computeReservoirCellVisibility( mainCase, 0 );
     ASSERT_TRUE( visibility.notNull() );
 
     size_t visibleCount = 0;
@@ -253,7 +250,7 @@ TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, EnsembleDataFilterInViewUsesViewCase )
+TEST( RimCellFilterTest, EnsembleDataFilterInViewUsesViewCase )
 {
     auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
@@ -289,8 +286,8 @@ TEST( RimCellFilterToolsTest, EnsembleDataFilterInViewUsesViewCase )
     wrappers.front()->setCheckState( true );
 
     const size_t timeStepIndex              = 5;
-    auto         expectedViewCaseVisibility = RimCellFilterTools::computeReservoirCellVisibility( propertyFilter, viewCase, timeStepIndex );
-    auto         mainCaseVisibility         = RimCellFilterTools::computeReservoirCellVisibility( propertyFilter, mainCase, timeStepIndex );
+    auto         expectedViewCaseVisibility = propertyFilter->computeReservoirCellVisibility( viewCase, timeStepIndex );
+    auto         mainCaseVisibility         = propertyFilter->computeReservoirCellVisibility( mainCase, timeStepIndex );
     ASSERT_TRUE( expectedViewCaseVisibility.notNull() );
     ASSERT_TRUE( mainCaseVisibility.notNull() );
 
@@ -314,7 +311,7 @@ TEST( RimCellFilterToolsTest, EnsembleDataFilterInViewUsesViewCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
+TEST( RimCellFilterTest, PropertyFilterVisibilityPerCase )
 {
     auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
@@ -380,8 +377,8 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
         return count;
     };
 
-    auto visibilityA = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseA.get(), timeStepIndex );
-    auto visibilityB = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), timeStepIndex );
+    auto visibilityA = propertyFilter.computeReservoirCellVisibility( caseA.get(), timeStepIndex );
+    auto visibilityB = propertyFilter.computeReservoirCellVisibility( caseB.get(), timeStepIndex );
     ASSERT_TRUE( visibilityA.notNull() );
     ASSERT_TRUE( visibilityB.notNull() );
 
@@ -403,7 +400,7 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
 /// Formation filters saved as generic property filters must be converted to formation filters
 /// when a project is read.
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, FormationPropertyFilterIsConvertedToFormationFilter )
+TEST( RimCellFilterTest, FormationPropertyFilterIsConvertedToFormationFilter )
 {
     RimDataFilterCollection source;
     auto*                   formationLikeFilter = source.addNewPropertyFilter();
@@ -433,7 +430,7 @@ TEST( RimCellFilterToolsTest, FormationPropertyFilterIsConvertedToFormationFilte
 /// Realizations can have their own formation names file, with the same formations covering different
 /// K layers. A formation filter must use the K ranges of each realization.
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
+TEST( RimCellFilterTest, FormationFilterUsesKLayersOfEachCase )
 {
     auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
@@ -520,8 +517,8 @@ TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
         return kLayers;
     };
 
-    auto visibilityA = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseA.get(), 0 );
-    auto visibilityB = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    auto visibilityA = propertyFilter.computeReservoirCellVisibility( caseA.get(), 0 );
+    auto visibilityB = propertyFilter.computeReservoirCellVisibility( caseB.get(), 0 );
     ASSERT_TRUE( visibilityA.notNull() );
     ASSERT_TRUE( visibilityB.notNull() );
 
@@ -532,7 +529,7 @@ TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
 //--------------------------------------------------------------------------------------------------
 /// A realization without the filter result, here a case without formation names, has no matching cells
 //--------------------------------------------------------------------------------------------------
-TEST( RimCellFilterToolsTest, CategoryFilterOnCaseWithoutResult )
+TEST( RimCellFilterTest, CategoryFilterOnCaseWithoutResult )
 {
     auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
     auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
@@ -576,16 +573,16 @@ TEST( RimCellFilterToolsTest, CategoryFilterOnCaseWithoutResult )
         return count;
     };
 
-    auto visibilityA = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseA.get(), 0 );
+    auto visibilityA = propertyFilter.computeReservoirCellVisibility( caseA.get(), 0 );
     ASSERT_TRUE( visibilityA.notNull() );
     EXPECT_GT( countVisible( visibilityA.p() ), 0u );
 
-    auto includeVisibility = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    auto includeVisibility = propertyFilter.computeReservoirCellVisibility( caseB.get(), 0 );
     ASSERT_TRUE( includeVisibility.notNull() );
     EXPECT_EQ( 0u, countVisible( includeVisibility.p() ) );
 
     propertyFilter.setFilterMode( RimCellFilter::EXCLUDE );
-    auto excludeVisibility = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    auto excludeVisibility = propertyFilter.computeReservoirCellVisibility( caseB.get(), 0 );
     ASSERT_TRUE( excludeVisibility.notNull() );
     EXPECT_EQ( excludeVisibility->size(), countVisible( excludeVisibility.p() ) );
 }
