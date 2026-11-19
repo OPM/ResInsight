@@ -133,6 +133,7 @@ public:
     const RigCompletionDataGridCell&          completionDataGridCell() const;
     double                                    saturation() const;
     double                                    transmissibility() const;
+    bool                                      isZeroConnectionFactor() const;
     double                                    diameter() const; // TODO: should be ft or m
     double                                    kh() const;
     double                                    skinFactor() const;

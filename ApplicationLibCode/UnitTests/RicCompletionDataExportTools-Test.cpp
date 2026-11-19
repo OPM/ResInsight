@@ -7,6 +7,10 @@
 
 #include "RigCompletionData.h"
 
+#include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
+
 #include <QRegularExpression>
 #include <QString>
 #include <QTextStream>
@@ -207,6 +211,22 @@ TEST( RicCompletionDataExportTools, CompdatSkipsCompletionsWithoutTransmissibili
         exportTable( RicCompletionDataExportTools::exportCompdatTableUsingFormatter, { makePerforation( 0.0, 0.2, 0.0, 1.0 ) } );
 
     EXPECT_FALSE( text.contains( "'Z'" ) ) << text.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The COMPDAT/COMPLUMP keywords used for schedule export must drop the same connections
+//--------------------------------------------------------------------------------------------------
+TEST( RicCompletionDataExportTools, KeywordFactorySkipsCompletionsWithoutTransmissibility )
+{
+    auto withTrans = makePerforation( 1.5, 0.2, 0.0, 1.0 );
+    withTrans.setCompletionNumber( 1 );
+    auto withoutTrans = makePerforation( 0.0, 0.2, 0.0, 1.0 );
+    withoutTrans.setCompletionNumber( 2 );
+
+    const std::vector<RigCompletionData> completions = { withTrans, withoutTrans };
+
+    EXPECT_EQ( 1u, RimKeywordFactory::compdatKeyword( completions, "W" ).size() );
+    EXPECT_EQ( 1u, RimKeywordFactory::complumpKeyword( completions, "W" ).size() );
 }
 
 //--------------------------------------------------------------------------------------------------
