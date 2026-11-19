@@ -18,7 +18,10 @@
 
 #include "RimOpmFlowJobTools.h"
 
+#include "Hpc/RiaHpcTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
+#include "RiaWslTools.h"
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
@@ -248,6 +251,44 @@ int mergeBasicWellSettings( RifOpmFlowDeckFile*              deckFile,
         return failure;
     }
     return mergePosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool runMakeFlux( QString parentDeckFile, QString fluxnumFile, QString outputFileName )
+{
+    auto prefs = RiaPreferencesOpm::current();
+
+    QString parent  = parentDeckFile;
+    QString fluxnum = fluxnumFile;
+    QString output  = outputFileName;
+
+    if ( prefs->useWsl() )
+    {
+        parent  = RiaWslTools::convertToWslPath( parent );
+        fluxnum = RiaWslTools::convertToWslPath( fluxnum );
+        output  = RiaWslTools::convertToWslPath( output );
+    }
+
+    QStringList arguments;
+    arguments << "--parent=" + parent;
+    arguments << "--fluxnum=" + fluxnum;
+    arguments << "--regions=1";
+    arguments << "--output=" + output;
+
+    auto [ok, stdOut] = RiaHpcTools::runUtilityCommand( prefs->makeFluxCommand(), arguments, prefs->wslOptions() );
+
+    if ( stdOut.size() > 0 )
+    {
+        RiaLogging::debug( "make_flux output:" );
+        for ( auto& line : stdOut )
+        {
+            RiaLogging::debug( line.toStdString() );
+        }
+    }
+
+    return ok;
 }
 
 } // namespace RimOpmFlowJobTools

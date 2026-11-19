@@ -26,6 +26,7 @@
 #include <QStringList>
 
 #include <map>
+#include <utility>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -47,6 +48,8 @@ struct BatchJobInformation
 };
 
 using BatchJobInformationMap = std::map<QString, BatchJobInformation>;
+
+std::pair<bool, QStringList> runUtilityCommand( QString cmdStr, QStringList arguments, const RiaWslTools::WslOptions& wslOptions );
 
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const RiaWslTools::WslOptions& wslOptions );
 

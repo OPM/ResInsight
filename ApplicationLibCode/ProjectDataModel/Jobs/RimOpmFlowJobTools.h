@@ -48,4 +48,6 @@ int mergeBasicWellSettings( RifOpmFlowDeckFile*              deckFile,
                             int                              openTimeStep,
                             QString                          wellGroupName );
 
+bool runMakeFlux( QString parentDeckFile, QString fluxnumFile, QString outputFileName );
+
 } // namespace RimOpmFlowJobTools

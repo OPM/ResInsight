@@ -25,6 +25,7 @@
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
+#include <memory>
 #include <string>
 
 class RimEclipseCase;
@@ -36,6 +37,7 @@ class RimKeywordWconprod;
 class RimKeywordWconinje;
 class RimOpmFlowJobSettings;
 class RimPolygon;
+class RimOpmFlowJobFileHelper;
 
 //==================================================================================================
 ///
@@ -64,12 +66,12 @@ public:
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
     void setJobWellSettings( RimJobWellSettings* jobWellSettings );
     void setSectorPolygon( RimPolygon* sectorPolygon );
+    void setName( const QString& name ) override;
 
     void initAfterCopy();
 
     void setAutoLoadResults( bool autoLoad );
 
-    QString deckName();
     QString mainWorkingDirectory() const;
 
     static QString jobInputFileKey();
@@ -99,11 +101,7 @@ protected:
     void loadResults();
 
 private:
-    QString deckExtension() const;
-    QString baseDeckName();
-    QString restartDeckName();
     QString inputDeckName() const;
-    QString fluxnumFileName() const;
 
     bool addWellIfNeeded();
     bool setupSectorModelIfNeeded();
@@ -119,6 +117,8 @@ private:
     void resetEnsembleRunId();
 
 private:
+    std::unique_ptr<RimOpmFlowJobFileHelper> m_fileHelper;
+
     caf::PdmField<caf::FilePath> m_deckFileName;
     caf::PdmField<caf::FilePath> m_workDir;
     caf::PdmField<int>           m_openWellDeckPosition;
