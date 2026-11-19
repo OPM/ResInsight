@@ -38,6 +38,11 @@ RigCompletionDataGridCell::RigCompletionDataGridCell()
 //--------------------------------------------------------------------------------------------------
 RigCompletionDataGridCell::RigCompletionDataGridCell( size_t globalCellIndex, const RigMainGrid* mainGrid )
     : m_globalCellIndex( globalCellIndex )
+    , m_lgrName( "" )
+    , m_gridIndex( 0 )
+    , m_localCellIndexI( 0 )
+    , m_localCellIndexJ( 0 )
+    , m_localCellIndexK( 0 )
 {
     if ( mainGrid )
     {

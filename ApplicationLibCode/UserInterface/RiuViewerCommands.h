@@ -82,7 +82,7 @@ public:
                                       size_t*                          gridIndex );
 
 private:
-    void ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
+    bool ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
     bool isRadialGrid( Rim3dView* mainOrComparisonView, size_t gridIdx );
 
     bool handleOverlayItemPicking( int winPosX, int winPosY );

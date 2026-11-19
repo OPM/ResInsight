@@ -383,58 +383,60 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 if ( !viewController || !viewController->isCellFiltersControlled() )
                 {
                     size_t i, j, k;
-                    ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k );
-
-                    size_t sliceGridIdx = m_currentGridIdx;
-
-                    // Nested hybrid grid: slices always refer to the original grid IJK on the main grid
-                    if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-                         eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
+                    if ( ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k ) )
                     {
-                        const RigEclipseCaseData* caseData = eclipseView->eclipseCase()->eclipseCaseData();
-                        if ( const RigMainGrid* mainGrid = caseData->mainGrid(); mainGrid && mainGrid->nestedHybridLayout() )
+                        size_t sliceGridIdx = m_currentGridIdx;
+
+                        // Nested hybrid grid: slices always refer to the original grid IJK on the main grid
+                        if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+                             eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
                         {
-                            if ( auto originalIjk = mainGrid->nestedHybridOriginalIjk( caseData->grid( m_currentGridIdx ), m_currentCellIndex ) )
+                            const RigEclipseCaseData* caseData = eclipseView->eclipseCase()->eclipseCaseData();
+                            if ( const RigMainGrid* mainGrid = caseData->mainGrid(); mainGrid && mainGrid->nestedHybridLayout() )
                             {
-                                i = originalIjk->i();
-                                j = originalIjk->j();
-                                k = originalIjk->k();
+                                if ( auto originalIjk =
+                                         mainGrid->nestedHybridOriginalIjk( caseData->grid( m_currentGridIdx ), m_currentCellIndex ) )
+                                {
+                                    i = originalIjk->i();
+                                    j = originalIjk->j();
+                                    k = originalIjk->k();
+                                }
+                                sliceGridIdx = 0;
                             }
-                            sliceGridIdx = 0;
                         }
+
+                        QVariantList iSliceList;
+                        iSliceList.push_back( 0 );
+                        iSliceList.push_back( std::max( static_cast<int>( i + 1 ), 1 ) );
+                        iSliceList.push_back( static_cast<int>( sliceGridIdx ) );
+
+                        QVariantList jSliceList;
+                        jSliceList.push_back( 1 );
+                        jSliceList.push_back( std::max( static_cast<int>( j + 1 ), 1 ) );
+                        jSliceList.push_back( static_cast<int>( sliceGridIdx ) );
+
+                        QVariantList kSliceList;
+                        kSliceList.push_back( 2 );
+                        kSliceList.push_back( std::max( static_cast<int>( k + 1 ), 1 ) );
+                        kSliceList.push_back( static_cast<int>( sliceGridIdx ) );
+
+                        menuBuilder.subMenuStart( "Range Filter", QIcon( ":/CellFilter_Range.png" ) );
+
+                        if ( isRadialGrid( mainOrComparisonView, m_currentGridIdx ) )
+                        {
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Radial (I) Slice", iSliceList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Theta (J) Slice", jSliceList );
+                        }
+                        else
+                        {
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I Slice", iSliceList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J Slice", jSliceList );
+                        }
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K Slice", kSliceList );
+                        menuBuilder.addCmdFeature( "RicNewCellRangeFilterFeature", "IJK Filter" );
+
+                        menuBuilder.subMenuEnd();
                     }
-
-                    QVariantList iSliceList;
-                    iSliceList.push_back( 0 );
-                    iSliceList.push_back( std::max( static_cast<int>( i + 1 ), 1 ) );
-                    iSliceList.push_back( static_cast<int>( sliceGridIdx ) );
-
-                    QVariantList jSliceList;
-                    jSliceList.push_back( 1 );
-                    jSliceList.push_back( std::max( static_cast<int>( j + 1 ), 1 ) );
-                    jSliceList.push_back( static_cast<int>( sliceGridIdx ) );
-
-                    QVariantList kSliceList;
-                    kSliceList.push_back( 2 );
-                    kSliceList.push_back( std::max( static_cast<int>( k + 1 ), 1 ) );
-                    kSliceList.push_back( static_cast<int>( sliceGridIdx ) );
-
-                    menuBuilder.subMenuStart( "Range Filter", QIcon( ":/CellFilter_Range.png" ) );
-
-                    if ( isRadialGrid( mainOrComparisonView, m_currentGridIdx ) )
-                    {
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Radial (I) Slice", iSliceList );
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "Theta (J) Slice", jSliceList );
-                    }
-                    else
-                    {
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I Slice", iSliceList );
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J Slice", jSliceList );
-                    }
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K Slice", kSliceList );
-                    menuBuilder.addCmdFeature( "RicNewCellRangeFilterFeature", "IJK Filter" );
-
-                    menuBuilder.subMenuEnd();
                 }
 
                 // Property filter commands
@@ -1296,7 +1298,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
+bool RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
     RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
@@ -1305,9 +1307,10 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
     {
         if ( !eclipseView->eclipseCase()->eclipseCaseData()->grid( gridIdx )->ijkFromCellIndex( cellIndex, i, j, k ) )
         {
-            i = 0;
-            j = 0;
-            k = 0;
+            *i = 0;
+            *j = 0;
+            *k = 0;
+            return false;
         }
     }
 
@@ -1315,6 +1318,7 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
     {
         geomView->femParts()->part( gridIdx )->getOrCreateStructGrid()->ijkFromCellIndex( cellIndex, i, j, k );
     }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

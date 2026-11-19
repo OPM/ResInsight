@@ -218,7 +218,13 @@ public:
                 size_t cellIndex = cell.gridLocalCellIndex();
 
                 size_t i, j, k;
-                if ( !grid->ijkFromCellIndex( cellIndex, &i, &j, &k ) ) continue;
+                if ( !grid->ijkFromCellIndex( cellIndex, &i, &j, &k ) )
+                {
+                    // better to report an index than to get the returned tables scewed
+                    i = 0;
+                    j = 0;
+                    k = 0;
+                }
 
                 size_t       pi, pj, pk;
                 RigGridBase* parentGrid = nullptr;
@@ -235,7 +241,13 @@ public:
                     size_t parentCellIdx = cell.parentCellIndex();
                     parentGrid           = ( static_cast<RigLocalGrid*>( grid ) )->parentGrid();
                     CAF_ASSERT( parentGrid != nullptr );
-                    if ( !parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk ) ) continue;
+                    if ( !parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk ) )
+                    {
+                        // better to report an index than to get the returned tables scewed
+                        pi = 0;
+                        pj = 0;
+                        pk = 0;
+                    }
                 }
 
                 gridNumber.push_back( static_cast<qint32>( grid->gridIndex() ) );
