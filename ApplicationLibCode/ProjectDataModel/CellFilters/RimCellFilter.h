@@ -106,10 +106,10 @@ public:
     // When sourceCaseOverride is set, property filters evaluate against that case's results instead
     // of the case the filter is bound to, allowing the same filter definition to be evaluated
     // against each case in an ensemble.
-    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                const RigGridBase* grid,
-                                size_t             timeStepIndex,
-                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
+    void updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                               const RigGridBase* grid,
+                               size_t             timeStepIndex,
+                               RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     cvf::ref<cvf::UByteArray> computeReservoirCellVisibility( RimEclipseCase* eclipseCase, size_t timeStepIndex ) override;
 

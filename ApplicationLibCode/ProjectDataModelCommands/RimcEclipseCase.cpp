@@ -418,7 +418,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
 
     cvf::UByteArray cellVis( n );
     cellVis.setAll( 1 );
-    filter->applyToCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
+    filter->updateCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
 
     std::vector<float> values;
     values.reserve( n );

@@ -45,10 +45,10 @@ public:
     // Take an incoming per-cell visibility mask and hide the cells that this filter rejects
     // (respecting its own INCLUDE/EXCLUDE mode). When sourceCaseOverride is set, property filters evaluate
     // against that case's results instead of the case the filter is bound to.
-    virtual void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                        const RigGridBase* grid,
-                                        size_t             timeStepIndex,
-                                        RimEclipseCase*    sourceCaseOverride = nullptr ) = 0;
+    virtual void updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                                       const RigGridBase* grid,
+                                       size_t             timeStepIndex,
+                                       RimEclipseCase*    sourceCaseOverride = nullptr ) = 0;
 
     // Evaluate the filter against the given case for all grids, and return the visibility indexed by
     // reservoir cell index.

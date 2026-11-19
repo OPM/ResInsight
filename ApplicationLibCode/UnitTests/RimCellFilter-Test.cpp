@@ -294,7 +294,7 @@ TEST( RimCellFilterTest, EnsembleDataFilterInViewUsesViewCase )
     const RigMainGrid* viewGrid = viewCase->eclipseCaseData()->mainGrid();
     cvf::UByteArray    viewVisibility( viewGrid->cellCount() );
     viewVisibility.setAll( true );
-    wrappers.front()->applyToCellVisibility( &viewVisibility, viewGrid, timeStepIndex );
+    wrappers.front()->updateCellVisibility( &viewVisibility, viewGrid, timeStepIndex );
 
     ASSERT_EQ( expectedViewCaseVisibility->size(), viewVisibility.size() );
     ASSERT_EQ( mainCaseVisibility->size(), viewVisibility.size() );

@@ -52,10 +52,10 @@ public:
     bool                                   isDynamic() const override;
     std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
 
-    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                const RigGridBase* grid,
-                                size_t             timeStepIndex,
-                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
+    void updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                               const RigGridBase* grid,
+                               size_t             timeStepIndex,
+                               RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     // Bridge from legacy collection dispatch: combined filter is declared INDEX-type, so the cell
     // filter collection's evaluation path (if ever called) would route through updateCellIndexFilter.

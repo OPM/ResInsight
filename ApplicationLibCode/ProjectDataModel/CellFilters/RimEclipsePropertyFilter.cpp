@@ -823,10 +823,10 @@ void RimEclipsePropertyFilter::initAfterRead()
 /// uniformly; the body is extracted from the former inline loop in
 /// RivReservoirViewPartMgr::computePropertyVisibility.
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                                      const RigGridBase* grid,
-                                                      size_t             timeStepIndex,
-                                                      RimEclipseCase*    sourceCaseOverride )
+void RimEclipsePropertyFilter::updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                                                     const RigGridBase* grid,
+                                                     size_t             timeStepIndex,
+                                                     RimEclipseCase*    sourceCaseOverride )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
     if ( !isActive() || !resultDefinition()->hasResult() ) return;

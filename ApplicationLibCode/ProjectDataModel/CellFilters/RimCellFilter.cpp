@@ -364,10 +364,10 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                           const RigGridBase* grid,
-                                           size_t /*timeStepIndex*/,
-                                           RimEclipseCase* /*sourceCaseOverride*/ )
+void RimCellFilter::updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                                          const RigGridBase* grid,
+                                          size_t /*timeStepIndex*/,
+                                          RimEclipseCase* /*sourceCaseOverride*/ )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
 
@@ -431,7 +431,7 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
     }
     else
     {
-        // Unknown/property — subclass must override applyToCellVisibility. Default to no-op.
+        // Unknown/property — subclass must override updateCellVisibility. Default to no-op.
         return;
     }
 
@@ -486,7 +486,7 @@ cvf::ref<cvf::UByteArray> RimCellFilter::computeReservoirCellVisibility( RimEcli
             const bool isTargetGrid = usesNestedHybridOriginalIjk || ( gridIndex() == static_cast<int>( gridIdx ) );
             if ( isTargetGrid )
             {
-                applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
+                updateCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
             }
             else
             {
@@ -496,7 +496,7 @@ cvf::ref<cvf::UByteArray> RimCellFilter::computeReservoirCellVisibility( RimEcli
         else
         {
             // Index filters (polygon, user defined) and property filters evaluate on all grids
-            applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
+            updateCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
         }
 
         // Cells in LGRs follow the visibility of their parent grid cell, as in the filtered geometry

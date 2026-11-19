@@ -897,7 +897,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
     {
         if ( filter && filter->isActive() )
         {
-            filter->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+            filter->updateCellVisibility( cellVisibility, grid, timeStepIndex );
         }
     }
 
@@ -905,7 +905,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
     {
         for ( RimDataFilterInView* wrapper : dataInView->activeWrappers() )
         {
-            wrapper->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+            wrapper->updateCellVisibility( cellVisibility, grid, timeStepIndex );
         }
     }
 }
