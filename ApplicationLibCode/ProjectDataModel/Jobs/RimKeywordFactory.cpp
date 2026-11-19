@@ -209,7 +209,7 @@ Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata,
 
     for ( auto& cd : compdata )
     {
-        if ( cd.wpimult() == RigCompletionData::defaultValue() )
+        if ( !cd.hasWpimult() )
         {
             continue;
         }

@@ -470,7 +470,7 @@ void RicCompletionDataExportTools::exportWpimultTableUsingFormatter( RifTextData
 
     for ( auto& completion : completionData )
     {
-        if ( completion.wpimult() == 0.0 || RigCompletionData::isDefaultValue( completion.wpimult() ) )
+        if ( !completion.hasWpimult() )
         {
             continue;
         }

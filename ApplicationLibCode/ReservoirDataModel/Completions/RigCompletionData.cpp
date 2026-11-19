@@ -476,6 +476,14 @@ double RigCompletionData::wpimult() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// A WPIMULT record is only meaningful for a connection with a defined, non-zero multiplier
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::hasWpimult() const
+{
+    return m_wpimult != 0.0 && !isDefaultValue( m_wpimult );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RigCompletionData::completionType() const
