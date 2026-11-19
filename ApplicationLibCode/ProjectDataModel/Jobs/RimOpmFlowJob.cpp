@@ -49,6 +49,7 @@
 #include "RimKeywordWconinje.h"
 #include "RimKeywordWconprod.h"
 #include "RimOilField.h"
+#include "RimOpmFlowJobFileHelper.h"
 #include "RimOpmFlowJobSettings.h"
 #include "RimOpmFlowJobTools.h"
 #include "RimPerforationCollection.h"
@@ -99,6 +100,7 @@ RimOpmFlowJob::RimOpmFlowJob()
     , m_fileDeckIsRestart( false )
     , m_startStepForProgress( -1 )
     , jobCompleted( this )
+    , m_fileHelper( std::make_unique<RimOpmFlowJobFileHelper>() )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
@@ -174,6 +176,8 @@ RimOpmFlowJob::RimOpmFlowJob()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSectorModel );
 
     setDeletable( true );
+
+    m_fileHelper->setUseEnsembleNames( m_addToEnsemble() ? m_currentRunId() : -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +192,20 @@ RimOpmFlowJob::~RimOpmFlowJob()
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::initAfterRead()
 {
+    m_fileHelper->setName( name() );
+    m_fileHelper->setUseEnsembleNames( m_addToEnsemble() ? m_currentRunId() : -1 );
+    m_fileHelper->setWorkingDirectory( m_workDir().path() );
+
     openDeckFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setName( const QString& name )
+{
+    RimNamedObject::setName( name );
+    m_fileHelper->setName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -520,6 +537,21 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
             }
         }
     }
+    else if ( changedField == nameField() )
+    {
+        m_fileHelper->setName( name() );
+    }
+    else if ( changedField == &m_workDir )
+    {
+        m_fileHelper->setWorkingDirectory( m_workDir().path() );
+    }
+    else if ( changedField == &m_addToEnsemble )
+    {
+        if ( m_addToEnsemble() )
+            m_fileHelper->setUseEnsembleNames( m_currentRunId() );
+        else
+            m_fileHelper->setUseEnsembleNames( -1 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,6 +559,7 @@ void RimOpmFlowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setWorkingDirectory( QString workDir )
 {
+    m_fileHelper->setWorkingDirectory( workDir );
     m_workDir = workDir;
 }
 
@@ -551,7 +584,7 @@ void RimOpmFlowJob::setEclipseCase( RimEclipseCase* eCase )
     }
 
     QFileInfo fi( eCase->gridFileName() );
-    m_deckFileName.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + deckExtension() );
+    m_deckFileName.setValue( fi.absolutePath() + "/" + fi.completeBaseName() + m_fileHelper->deckExtension() );
     m_eclipseCase = eCase;
     closeDeckFile();
     openDeckFile();
@@ -637,7 +670,7 @@ bool RimOpmFlowJob::copyUnrstFileToWorkDir()
     QString unrstName = fi.absolutePath() + "/" + fi.baseName() + ".UNRST";
     if ( QFile::exists( unrstName ) )
     {
-        QString dstName = workingDirectory() + "/" + restartDeckName() + ".UNRST";
+        QString dstName = workingDirectory() + "/" + m_fileHelper->restartDeckName( inputDeckName() ) + ".UNRST";
         if ( dstName != unrstName )
         {
             QFile::copy( unrstName, dstName );
@@ -653,47 +686,7 @@ bool RimOpmFlowJob::copyUnrstFileToWorkDir()
 //--------------------------------------------------------------------------------------------------
 QString RimOpmFlowJob::workingDirectory() const
 {
-    if ( !m_addToEnsemble() )
-    {
-        return m_workDir().path();
-    }
-    else
-    {
-        return QString( "%1/run-%2" ).arg( m_workDir().path() ).arg( m_currentRunId() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::deckName()
-{
-    auto deckName = baseDeckName();
-    if ( m_addToEnsemble() )
-    {
-        deckName = deckName + "-" + QString::number( m_currentRunId() );
-    }
-
-    return deckName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::baseDeckName()
-{
-    auto baseName = name();
-    baseName.replace( ' ', '_' );
-    baseName = baseName.toUpper();
-    return baseName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::restartDeckName()
-{
-    return inputDeckName() + "_RST";
+    return m_fileHelper->workingDirectory();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -703,22 +696,6 @@ QString RimOpmFlowJob::inputDeckName() const
 {
     QFileInfo fi( m_deckFileName().path() );
     return fi.completeBaseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::fluxnumFileName() const
-{
-    return workingDirectory() + "/" + "FLUXNUM.grdecl";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOpmFlowJob::deckExtension() const
-{
-    return ".DATA";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,8 +717,8 @@ QStringList RimOpmFlowJob::command()
     QString workDir = workingDirectory();
     if ( workDir.isEmpty() ) return cmd;
 
-    QString dataFile = workDir + "/" + deckName();
-    if ( !QFile::exists( dataFile + deckExtension() ) ) return cmd;
+    QString dataFile = workDir + "/" + m_fileHelper->deckName();
+    if ( !QFile::exists( dataFile + m_fileHelper->deckExtension() ) ) return cmd;
 
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
@@ -808,7 +785,7 @@ bool RimOpmFlowJob::onPrepare()
             return false;
         }
 
-        if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), restartDeckName().toStdString() ) )
+        if ( !m_deckFile->restartAtTimeStep( m_openTimeStep(), m_fileHelper->restartDeckName( inputDeckName() ).toStdString() ) )
         {
             RiaLogging::error( "Unable to insert restart keywords in DATA file." );
             return false;
@@ -836,10 +813,22 @@ bool RimOpmFlowJob::onPrepare()
         }
     }
 
+    if ( m_createSectorModel() )
+    {
+        if ( !RimOpmFlowJobTools::runMakeFlux( m_deckFileName().path(),
+                                               m_fileHelper->fluxnumFileName( false /*not relative*/ ),
+                                               m_fileHelper->fluxFileName() ) )
+        {
+            RiaLogging::error( "Failed to run make_flux utility." );
+            return false;
+        }
+    }
+
     caf::ProgressInfo saveProgress( 1, "Saving updated information to DATA file.", false );
 
     // save DATA file to working folder
-    bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(), deckName().toStdString() + deckExtension().toStdString() );
+    bool saveOk = m_deckFile->saveDeck( workingDirectory().toStdString(),
+                                        m_fileHelper->deckName().toStdString() + m_fileHelper->deckExtension().toStdString() );
 
     closeDeckFile();
 
@@ -1000,7 +989,7 @@ void RimOpmFlowJob::onCompleted( bool success )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::loadResults()
 {
-    QString outputEgridFileName = workingDirectory() + "/" + deckName() + ".EGRID";
+    QString outputEgridFileName = workingDirectory() + "/" + m_fileHelper->deckName() + ".EGRID";
     if ( !QFile::exists( outputEgridFileName ) ) return;
 
     if ( m_addToEnsemble() )
@@ -1033,7 +1022,7 @@ void RimOpmFlowJob::loadResults()
         // summary ensemble
         if ( m_summaryEnsemble() == nullptr )
         {
-            QString pattern   = m_workDir().path() + "/run-*/" + baseDeckName() + "-*";
+            QString pattern   = m_workDir().path() + "/run-*/" + m_fileHelper->baseDeckName() + "-*";
             auto    fileSet   = RimEnsembleFileSetTools::createEnsembleFileSetFromOpm( pattern, name() );
             auto    ensembles = RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( { fileSet } );
             if ( !ensembles.empty() )
@@ -1211,11 +1200,18 @@ void RimOpmFlowJob::setSectorPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 bool RimOpmFlowJob::setupSectorModelIfNeeded()
 {
-    if ( !m_createSectorModel() || ( m_sectorPolygon() == nullptr ) ) return true;
-    if ( m_eclipseCase() == nullptr ) return false;
+    if ( !m_createSectorModel() ) return true;
+    if ( ( m_eclipseCase() == nullptr ) || ( m_sectorPolygon() == nullptr ) ) return false;
+
+    // we need the case to be open, this is not necessarily true for ensembles
+    bool needToOpenCase = !m_eclipseCase->isReservoirCaseOpen();
+    if ( needToOpenCase )
+    {
+        m_eclipseCase->ensureReservoirCaseIsOpen();
+    }
 
     auto   timeSteps   = m_eclipseCase()->timeStepDates();
-    size_t timeStepIdx = timeSteps.size() - 1; // use last timestep
+    size_t timeStepIdx = timeSteps.size() - 1; // use last available timestep
 
     // calculcate fluxnum result using RigWellRegionResultTools::createWellRegionResult
 
@@ -1236,13 +1232,15 @@ bool RimOpmFlowJob::setupSectorModelIfNeeded()
                                                             "FLUXNUM",
                                                             2 ) )
     {
+        if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
         RiaLogging::error( "Failed to create FLUXNUM result for sector model." );
         return false;
     }
 
-    QString errorMsg;
     // export result to grdecl file in output working folder using RicEclipseCellResultToFileImpl::writePropertyToTextFile
-    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( fluxnumFileName(),
+    QString errorMsg;
+    QString outputFluxFileName = m_fileHelper->fluxnumFileName( false /* use full path */ );
+    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( outputFluxFileName,
                                                                    m_eclipseCase()->eclipseCaseData(),
                                                                    0, // result is available in timestep 0
                                                                    "FLUXNUM",
@@ -1251,11 +1249,13 @@ bool RimOpmFlowJob::setupSectorModelIfNeeded()
                                                                    false /*no echo */,
                                                                    &errorMsg ) )
     {
-        RiaLogging::error( "Failed to export FLUXNUM result to file: " + errorMsg.toStdString() );
+        if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
+        RiaLogging::error( "Failed to export FLUXNUM result to file: " + outputFluxFileName.toStdString() + "\n" + errorMsg.toStdString() );
         return false;
     }
 
-    // run make_flux with output file working dir model directory
+    // close case to save memory
+    if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
 
     // add new keywords to deck file
     if ( !m_deckFile->insertKeywordInSection( "GRID", RimKeywordFactory::fluxregKeyword( 1 ) ) )
@@ -1263,12 +1263,12 @@ bool RimOpmFlowJob::setupSectorModelIfNeeded()
         RiaLogging::error( "Unable to insert FLUXREG keyword in DATA file." );
         return false;
     }
-    if ( !m_deckFile->insertKeywordInSection( "GRID", RimKeywordFactory::usefluxKeyword( "A4SECTOR" ) ) )
+    if ( !m_deckFile->insertKeywordInSection( "GRID", RimKeywordFactory::usefluxKeyword( m_fileHelper->deckName().toStdString() ) ) )
     {
         RiaLogging::error( "Unable to insert USEFLUX keyword in DATA file." );
         return false;
     }
-    if ( !m_deckFile->addIncludeKeyword( "GRID", fluxnumFileName().toStdString() ) )
+    if ( !m_deckFile->addIncludeKeyword( "GRID", m_fileHelper->fluxnumFileName().toStdString() ) )
     {
         RiaLogging::error( "Unable to insert INCLUDE keyword for FLUXNUM in DATA file." );
         return false;

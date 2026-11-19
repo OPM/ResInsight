@@ -25,28 +25,12 @@
 namespace
 {
 
-QStringList runUtilityCommand( QString cmdStr, QStringList arguments, const RiaWslTools::WslOptions& wslOptions )
-{
-    RimProcess proc( false /*no logging*/ );
-    proc.setWslOptions( wslOptions );
-    proc.setCommand( cmdStr );
-
-    if ( !arguments.isEmpty() ) proc.addParameters( arguments );
-
-    if ( proc.execute() )
-    {
-        return proc.stdOut();
-    }
-
-    return {};
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void stopLsfJob( QString jobId, const RiaWslTools::WslOptions& wslOptions )
 {
-    runUtilityCommand( "bkill", { jobId }, wslOptions );
+    RiaHpcTools::runUtilityCommand( "bkill", { jobId }, wslOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +38,7 @@ void stopLsfJob( QString jobId, const RiaWslTools::WslOptions& wslOptions )
 //--------------------------------------------------------------------------------------------------
 void stopSlurmJob( QString jobId, const RiaWslTools::WslOptions& wslOptions )
 {
-    runUtilityCommand( "scancel", { jobId }, wslOptions );
+    RiaHpcTools::runUtilityCommand( "scancel", { jobId }, wslOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +94,7 @@ QStringList listSlurmJobs( const RiaWslTools::WslOptions& wslOptions )
     arguments << "--me";
     arguments << "--noheader";
 
-    return runUtilityCommand( "squeue", arguments, wslOptions );
+    return RiaHpcTools::runUtilityCommand( "squeue", arguments, wslOptions ).second;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,13 +107,29 @@ QStringList listLsfJobs( const RiaWslTools::WslOptions& wslOptions )
     arguments << "jobid:10 job_name:25 run_time:12 stat:8 queue:15 exec_host:20"; // id name runtime state partition nodes
     arguments << "-noheader";
 
-    return runUtilityCommand( "bjobs", arguments, wslOptions );
+    return RiaHpcTools::runUtilityCommand( "bjobs", arguments, wslOptions ).second;
 }
 
 } // namespace
 
 namespace RiaHpcTools
 {
+
+std::pair<bool, QStringList> runUtilityCommand( QString cmdStr, QStringList arguments, const RiaWslTools::WslOptions& wslOptions )
+{
+    RimProcess proc( false /*no logging*/ );
+    proc.setWslOptions( wslOptions );
+    proc.setCommand( cmdStr );
+
+    if ( !arguments.isEmpty() ) proc.addParameters( arguments );
+
+    if ( proc.execute() )
+    {
+        return { true, proc.stdOut() };
+    }
+
+    return { false, proc.stdOut() };
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -168,12 +168,12 @@ QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler, const Ria
 {
     if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
-        auto rawOutput = runUtilityCommand( "sinfo", { "-a" }, wslOptions );
+        auto rawOutput = runUtilityCommand( "sinfo", { "-a" }, wslOptions ).second;
         return decodeSlurmQueues( rawOutput );
     }
     else if ( scheduler == RiaDefines::BatchSchedulerType::LSF )
     {
-        auto rawOutput = runUtilityCommand( "bqueues", { "-w" }, wslOptions );
+        auto rawOutput = runUtilityCommand( "bqueues", { "-w" }, wslOptions ).second;
         return decodeLsfQueues( rawOutput );
     }
 

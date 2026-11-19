@@ -1193,8 +1193,6 @@ bool RifOpmFlowDeckFile::addIncludeKeyword( std::string section, std::string fil
 
     // Create the INCLUDE keyword
     Opm::DeckKeyword includeKw( ( Opm::ParserKeywords::INCLUDE() ) );
-    m_fileDeck->erase( insertIdx.value() );
-
     includeKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( Opm::ParserKeywords::INCLUDE::IncludeFile::itemName, filePath ) } } );
 
     m_fileDeck->insert( insertIdx.value(), includeKw );
