@@ -205,6 +205,26 @@ class TestWellEventScheduleApplication:
             "Perforation end MD should match"
         )
 
+    def test_set_timestamp_defaults_to_last_event_date(self, project_with_wells):
+        """Test that set_timestamp() without argument applies all events."""
+        well_paths, timeline = project_with_wells
+        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
+
+        timeline.add_perf_event(
+            event_date="2030-01-01",
+            well_path=well_path_a,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            skin_factor=0.5,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp()
+
+        perforations = well_path_a.completions().perforations().perforations()
+        assert len(perforations) > 0, "Event after 2024-01-01 should be applied"
+
     def test_set_timestamp_creates_segment_intervals(self, project_with_wells):
         """Test that set_timestamp creates segment intervals from segment events."""
         # Get Well Path B (end MD 2112)
