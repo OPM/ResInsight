@@ -848,7 +848,7 @@ RimcWellEventTimeline_setTimestamp::RimcWellEventTimeline_setTimestamp( caf::Pdm
 {
     CAF_PDM_InitObject( "Set Timestamp", "", "", "Apply well events up to a given timestamp" );
 
-    CAF_PDM_InitScriptableField( &m_timestamp, "Timestamp", QString( "2024-01-01" ), "", "", "", "Timestamp (YYYY-MM-DD)" );
+    CAF_PDM_InitScriptableField( &m_timestamp, "Timestamp", QString(), "", "", "", "Timestamp (YYYY-MM-DD). Empty: the date of the last event" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -858,7 +858,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_setTimestamp
 {
     auto timeline = self<RimWellEventTimeline>();
 
-    QDateTime date = QDateTime::fromString( m_timestamp(), Qt::ISODate );
+    QDateTime date;
+    if ( m_timestamp().isEmpty() )
+    {
+        const auto dates = timeline->getAllEventDates();
+        if ( dates.empty() ) return std::unexpected( QString( "No events found in timeline" ) );
+        date = dates.back();
+    }
+    else
+    {
+        date = QDateTime::fromString( m_timestamp(), Qt::ISODate );
+    }
+
     if ( !date.isValid() )
     {
         return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_timestamp() ) );
@@ -868,7 +879,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_setTimestamp
 
     if ( !success )
     {
-        return std::unexpected( QString( "No events were applied up to date: %1" ).arg( m_timestamp() ) );
+        return std::unexpected( QString( "No events were applied up to date: %1" ).arg( date.toString( Qt::ISODate ) ) );
     }
 
     return nullptr; // Return nullptr on success (no specific object to return)
