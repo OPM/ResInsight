@@ -51,7 +51,7 @@ public:
     caf::PdmChildArrayField<RimCellFilter*>& propertyFiltersField();
 
     // Returns all children as RimCellFilter*, including compound filters. Used by the
-    // visualization pipeline to call applyToCellVisibility() uniformly.
+    // visualization pipeline to call updateCellVisibility() uniformly.
     std::vector<RimCellFilter*> filtersForEvaluation() const;
 
     bool hasActiveFilters() const override;

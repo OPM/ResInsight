@@ -26,7 +26,7 @@
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
-class RimCellFilter;
+class RigCellFilterInterface;
 class RimRegularGridCase;
 class RigFloodingSettings;
 
@@ -69,8 +69,8 @@ public:
         int                     maxIterations;
         bool                    avoidFaults = false; // do not grow across fault faces and fault NNCs
         RigEclipseResultAddress filterAddress;
-        RimCellFilter*          startDataFilter = nullptr; // falls back to growDataFilter if null
-        RimCellFilter*          growDataFilter  = nullptr;
+        RigCellFilterInterface* startDataFilter = nullptr; // falls back to growDataFilter if null
+        RigCellFilterInterface* growDataFilter  = nullptr;
     };
 
     static void generateCandidates( RimEclipseCase*            eclipseCase,

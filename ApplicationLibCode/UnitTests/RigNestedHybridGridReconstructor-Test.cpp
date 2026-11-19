@@ -38,7 +38,6 @@
 #include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
-#include "RimCellFilterTools.h"
 #include "RimCellRangeFilter.h"
 #include "RimEclipseResultCase.h"
 
@@ -958,7 +957,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, RangeFilterUsesOriginalIjk )
         if ( slice.axis == 1 ) std::tie( rangeFilter.startIndexJ.v(), rangeFilter.cellCountJ.v() ) = std::make_pair( slice.index, 1 );
         if ( slice.axis == 2 ) std::tie( rangeFilter.startIndexK.v(), rangeFilter.cellCountK.v() ) = std::make_pair( slice.index, 1 );
 
-        auto visibility = RimCellFilterTools::computeReservoirCellVisibility( &rangeFilter, s_resultCase.get(), 0 );
+        auto visibility = rangeFilter.computeReservoirCellVisibility( s_resultCase.get(), 0 );
         ASSERT_TRUE( visibility.notNull() );
         ASSERT_EQ( visibility->size(), mainGrid->totalCellCount() );
 

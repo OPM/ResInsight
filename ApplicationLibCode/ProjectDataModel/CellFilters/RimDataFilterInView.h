@@ -30,7 +30,7 @@ class RimCellFilter;
 
 //==================================================================================================
 /// Per-view delegate for a case-level RimCellFilter. Exposes only an on/off toggle (inherited
-/// isChecked from RimCheckableNamedObject) and forwards applyToCellVisibility to the wrapped
+/// isChecked from RimCheckableNamedObject) and forwards updateCellVisibility to the wrapped
 /// source filter. Toggling the wrapper schedules regen on the owning view only.
 //==================================================================================================
 class RimDataFilterInView : public RimCheckableNamedObject
@@ -46,7 +46,7 @@ public:
 
     bool isEvaluatable() const;
 
-    void applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex );
+    void updateCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

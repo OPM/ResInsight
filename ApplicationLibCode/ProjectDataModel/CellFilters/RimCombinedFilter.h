@@ -46,13 +46,16 @@ public:
     ~RimCombinedFilter() override;
 
     void setCase( RimCase* srcCase ) override;
-    bool isFilterEnabled() const override;
+    bool isActive() const override;
     void onGridChanged() override;
 
-    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                const RigGridBase* grid,
-                                size_t             timeStepIndex,
-                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
+    bool                                   isDynamic() const override;
+    std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
+
+    void updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                               const RigGridBase* grid,
+                               size_t             timeStepIndex,
+                               RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     // Bridge from legacy collection dispatch: combined filter is declared INDEX-type, so the cell
     // filter collection's evaluation path (if ever called) would route through updateCellIndexFilter.
@@ -66,7 +69,6 @@ public:
     // Recursive introspection helpers — used by the property-filter collection so that a combined
     // filter sitting in that collection can report whether it has evaluation-worthy descendants.
     bool hasActiveEvaluatableDescendant() const;
-    bool hasActiveDynamicPropertyDescendant() const;
     bool hasActiveFormationNamesPropertyDescendant() const;
 
     // Generic factory: caller supplies the concrete filter type T and an init callable that

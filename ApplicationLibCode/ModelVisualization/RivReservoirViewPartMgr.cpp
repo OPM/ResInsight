@@ -893,11 +893,11 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
 
     if ( !propFilterColl->hasActiveFilters() && !hasCaseLevelFilters ) return;
 
-    for ( RimCellFilter* filter : propFilterColl->filtersForEvaluation() )
+    for ( RigCellFilterInterface* filter : propFilterColl->filtersForEvaluation() )
     {
         if ( filter && filter->isActive() )
         {
-            filter->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+            filter->updateCellVisibility( cellVisibility, grid, timeStepIndex );
         }
     }
 
@@ -905,7 +905,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
     {
         for ( RimDataFilterInView* wrapper : dataInView->activeWrappers() )
         {
-            wrapper->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+            wrapper->updateCellVisibility( cellVisibility, grid, timeStepIndex );
         }
     }
 }

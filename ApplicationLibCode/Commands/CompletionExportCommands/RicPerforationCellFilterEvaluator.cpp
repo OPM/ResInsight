@@ -18,17 +18,17 @@
 
 #include "RicPerforationCellFilterEvaluator.h"
 
+#include "RigCellFilterInterface.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 
-#include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPerforationCellFilterEvaluator::RicPerforationCellFilterEvaluator( RimCellFilter* filter, const RimEclipseCase* eclipseCase )
+RicPerforationCellFilterEvaluator::RicPerforationCellFilterEvaluator( RigCellFilterInterface* filter, const RimEclipseCase* eclipseCase )
     : m_filter( filter )
     , m_eclipseCase( eclipseCase )
     , m_enabled( false )
@@ -36,7 +36,7 @@ RicPerforationCellFilterEvaluator::RicPerforationCellFilterEvaluator( RimCellFil
 {
     if ( m_filter && m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() )
     {
-        m_enabled = m_filter->isActive() && m_filter->isFilterEnabled();
+        m_enabled = m_filter->isActive();
     }
 }
 
@@ -107,7 +107,7 @@ const cvf::UByteArray* RicPerforationCellFilterEvaluator::maskForGrid( int gridI
 
     cvf::ref<cvf::UByteArray> mask = new cvf::UByteArray( grid->cellCount() );
     mask->setAll( 1 );
-    m_filter->applyToCellVisibility( mask.p(), grid, 0 );
+    m_filter->updateCellVisibility( mask.p(), grid, 0 );
     auto inserted = m_visibilityByGridIndex.emplace( gridIndex, mask );
     return inserted.first->second.p();
 }

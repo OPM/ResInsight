@@ -28,7 +28,7 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
-#include "RimCellFilterTools.h"
+#include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimDataFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
@@ -72,7 +72,7 @@ void setField( caf::PdmObject& object, const QString& keyword, const T& value )
 
 void expectFilteredClusters( RimEclipseCase* eclipseCase, RimCellFilter* filter, size_t timeStep )
 {
-    auto visibility = RimCellFilterTools::computeReservoirCellVisibility( filter, eclipseCase, timeStep );
+    auto visibility = filter->computeReservoirCellVisibility( eclipseCase, timeStep );
     ASSERT_TRUE( visibility.notNull() );
     auto                    results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigEclipseResultAddress address( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );

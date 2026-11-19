@@ -132,7 +132,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 
     for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( !filter || !filter->isFilterEnabled() ) continue;
+        if ( !filter || !filter->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
         {
@@ -161,16 +161,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 
     for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( !filter || !filter->isFilterEnabled() ) continue;
-
-        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
-        {
-            if ( ep->resultDefinition() && ep->resultDefinition()->hasDynamicResult() ) return true;
-        }
-        else if ( auto* comp = dynamic_cast<RimCombinedFilter*>( filter ) )
-        {
-            if ( comp->hasActiveDynamicPropertyDescendant() ) return true;
-        }
+        if ( filter && filter->isActive() && filter->isDynamic() ) return true;
     }
 
     return false;
@@ -185,7 +176,7 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 
     for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( !filter || !filter->isFilterEnabled() ) continue;
+        if ( !filter || !filter->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
         {

@@ -60,13 +60,16 @@ public:
     // True if the filter evaluates the active formation names result
     bool isUsingFormationNames() const;
 
+    bool                                   isDynamic() const override;
+    std::optional<RigEclipseResultAddress> dynamicResultAddress() const override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
-    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                const RigGridBase* grid,
-                                size_t             timeStepIndex,
-                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
+    void updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                               const RigGridBase* grid,
+                               size_t             timeStepIndex,
+                               RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     void updateUiFieldsFromActiveResult();
 
