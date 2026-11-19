@@ -346,6 +346,15 @@ double RigCompletionData::transmissibility() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// A connection without transmissibility or with a zero WPIMULT must not be exported, as simulators
+/// reject a COMPDAT connection with zero transmissibility factor and no diameter.
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isZeroConnectionFactor() const
+{
+    return m_transmissibility == 0.0 || m_wpimult == 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RigCompletionData::diameter() const

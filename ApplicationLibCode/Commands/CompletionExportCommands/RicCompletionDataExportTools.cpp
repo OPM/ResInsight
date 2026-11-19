@@ -329,7 +329,7 @@ void RicCompletionDataExportTools::exportCompdatTableUsingFormatter( RifTextData
             formatter.addOptionalComment( QString( "%1 : %2" ).arg( metadata.name ).arg( metadata.comment ) );
         }
 
-        if ( data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
+        if ( data.isZeroConnectionFactor() )
         {
             // Don't export completions without transmissibility
             continue;
@@ -410,7 +410,7 @@ void RicCompletionDataExportTools::exportComplumpTableUsingFormatter( RifTextDat
 
     for ( const RigCompletionData& data : completionData )
     {
-        if ( !data.completionNumber().has_value() || data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
+        if ( !data.completionNumber().has_value() || data.isZeroConnectionFactor() )
         {
             // Don't export completions without transmissibility or completion number set
             continue;

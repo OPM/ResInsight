@@ -149,6 +149,11 @@ Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata,
 
     for ( auto& cd : compdata )
     {
+        if ( cd.isZeroConnectionFactor() )
+        {
+            continue;
+        }
+
         std::vector<Opm::DeckItem> items;
 
         items.push_back( RifOpmDeckTools::item( C::WELL::itemName, wellName ) );
@@ -236,7 +241,7 @@ Opm::DeckKeyword complumpKeyword( const std::vector<RigCompletionData>& compdata
     Opm::DeckKeyword kw( ( Opm::ParserKeywords::COMPLUMP() ) );
     for ( auto& cd : compdata )
     {
-        if ( !cd.completionNumber().has_value() )
+        if ( !cd.completionNumber().has_value() || cd.isZeroConnectionFactor() )
         {
             continue;
         }
