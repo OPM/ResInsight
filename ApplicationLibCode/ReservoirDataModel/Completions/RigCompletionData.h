@@ -140,6 +140,7 @@ public:
     double                                    dFactor() const;
     CellDirection                             direction() const;
     double                                    wpimult() const;
+    bool                                      hasWpimult() const;
     CompletionType                            completionType() const;
     bool                                      isMainBore() const;
     std::optional<double>                     startMD() const;

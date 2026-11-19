@@ -230,6 +230,31 @@ TEST( RicCompletionDataExportTools, KeywordFactorySkipsCompletionsWithoutTransmi
 }
 
 //--------------------------------------------------------------------------------------------------
+/// WPIMULT is only exported for connections with a defined, non-zero multiplier
+//--------------------------------------------------------------------------------------------------
+TEST( RicCompletionDataExportTools, KeywordFactorySkipsZeroAndDefaultWpimult )
+{
+    auto makeWithWpimult = []( double wpimult )
+    {
+        RigCompletionData completion( "W", RigCompletionDataGridCell(), 100.0 );
+        completion.setCombinedValuesImplicitTransWPImult( wpimult,
+                                                          RigCompletionData::defaultValue(),
+                                                          RigCompletionData::defaultValue(),
+                                                          0.0,
+                                                          0.2,
+                                                          RigCompletionData::CellDirection::DIR_K,
+                                                          RigCompletionData::CompletionType::PERFORATION );
+        return completion;
+    };
+
+    const std::vector<RigCompletionData> completions = { makeWithWpimult( 0.5 ),
+                                                         makeWithWpimult( 0.0 ),
+                                                         makeWithWpimult( RigCompletionData::defaultValue() ) };
+
+    EXPECT_EQ( 1u, RimKeywordFactory::wpimultKeyword( completions, "W" ).size() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RicCompletionDataExportTools, ComplumpOnlyExportsCompletionsWithNumber )
