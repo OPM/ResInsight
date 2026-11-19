@@ -152,7 +152,7 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* master
 #endif
 
         cvf::Vec3d geoMechConvertedEclCell[8];
-        RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( masterEclGrid, cellIdx, geoMechConvertedEclCell );
+        if ( !RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( masterEclGrid, cellIdx, geoMechConvertedEclCell ) ) continue;
 
         cvf::BoundingBox elmBBox;
         for ( int i = 0; i < 8; ++i )

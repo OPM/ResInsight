@@ -76,14 +76,16 @@ QString RigReservoirGridTools::globalCellIndicesToOneBasedIJKText( InputIterator
         {
             size_t globalCellIndex = *first;
             size_t i, j, k;
-            mainGrid->ijkFromCellIndex( globalCellIndex, &i, &j, &k );
-            i++;
-            j++;
-            k++;
+            if ( mainGrid->ijkFromCellIndex( globalCellIndex, &i, &j, &k ) )
+            {
+                i++;
+                j++;
+                k++;
 
-            QString itemText = QString( "%1 %2 %3" ).arg( i ).arg( j ).arg( k );
+                QString itemText = QString( "%1 %2 %3" ).arg( i ).arg( j ).arg( k );
 
-            txt += itemText + "\n";
+                txt += itemText + "\n";
+            }
 
             ++first;
         }

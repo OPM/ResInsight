@@ -733,7 +733,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 size_t gridLocalCellIndex;
                 hostGrid = gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
 
-                hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+                if ( !hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) continue;
                 isCellActive = activeCellInfo->isActive( ReservoirCellIndex( gcIdx ) );
 
                 firstNO_FAULTFaceForCell = false;

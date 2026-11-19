@@ -451,29 +451,22 @@ QString RiuResultTextBuilder::formationDetails()
         {
             auto formNames = rimCase->activeFormationNames()->formationNamesData();
 
-            size_t k = cvf::UNDEFINED_SIZE_T;
+            const RigEclipseCaseData* eclipseData = m_eclResDef->eclipseCase()->eclipseCaseData();
+            if ( eclipseData )
             {
-                const RigEclipseCaseData* eclipseData = m_eclResDef->eclipseCase()->eclipseCaseData();
-                if ( eclipseData )
+                size_t i = cvf::UNDEFINED_SIZE_T;
+                size_t j = cvf::UNDEFINED_SIZE_T;
+                size_t k = cvf::UNDEFINED_SIZE_T;
+
+                if ( eclipseData->grid( m_gridIndex )->ijkFromCellIndex( m_cellIndex, &i, &j, &k ) )
                 {
-                    if ( m_cellIndex != cvf::UNDEFINED_SIZE_T )
+                    QString formName = formNames->formationNameFromKLayerIdx( k );
+                    if ( !formName.isEmpty() )
                     {
-                        size_t i = cvf::UNDEFINED_SIZE_T;
-                        size_t j = cvf::UNDEFINED_SIZE_T;
+                        // text += "-- Formation details --\n";
 
-                        eclipseData->grid( m_gridIndex )->ijkFromCellIndex( m_cellIndex, &i, &j, &k );
+                        text += QString( "Formation Name: %1\n" ).arg( formName );
                     }
-                }
-            }
-
-            if ( k != cvf::UNDEFINED_SIZE_T )
-            {
-                QString formName = formNames->formationNameFromKLayerIdx( k );
-                if ( !formName.isEmpty() )
-                {
-                    // text += "-- Formation details --\n";
-
-                    text += QString( "Formation Name: %1\n" ).arg( formName );
                 }
             }
         }

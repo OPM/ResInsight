@@ -871,7 +871,7 @@ std::pair<caf::VecIjk0, caf::VecIjk0> mainGridCellBoundingBoxFromLgr( const RigG
         size_t      mainGridCellIndex = cell.mainGridCellIndex();
 
         size_t i, j, k;
-        mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k );
+        if ( !mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) ) continue;
 
         iRange.first  = std::min( i, iRange.first );
         iRange.second = std::max( i, iRange.second );

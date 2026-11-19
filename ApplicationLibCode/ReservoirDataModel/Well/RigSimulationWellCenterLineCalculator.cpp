@@ -167,9 +167,10 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( c
                 {
                     size_t i = 0, j = 0, k = 0;
                     auto   grid = eclipseCaseData->grid( resultPoint.gridIndex() );
-                    grid->ijkFromCellIndex( resultPoint.cellIndex(), &i, &j, &k );
-
-                    myTxt += QString( "Grid %1 %2 %3 " ).arg( i + 1, fieldWidth ).arg( j + 1, fieldWidth ).arg( k + 1, fieldWidth );
+                    if ( grid->ijkFromCellIndex( resultPoint.cellIndex(), &i, &j, &k ) )
+                    {
+                        myTxt += QString( "Grid %1 %2 %3 " ).arg( i + 1, fieldWidth ).arg( j + 1, fieldWidth ).arg( k + 1, fieldWidth );
+                    }
                 }
 
                 myTxt += QString( "OutSeg: %1 OutBranch: %2 " )

@@ -387,7 +387,7 @@ bool RigEclipseCaseData::findSharedSourceFace( cvf::StructGridInterface::FaceTyp
 
     const RigGridBase* grid = grids[gridIndex];
     size_t             i, j, k;
-    grid->ijkFromCellIndex( gridCellIndex, &i, &j, &k );
+    if ( !grid->ijkFromCellIndex( gridCellIndex, &i, &j, &k ) ) return false;
 
     size_t faceIdx;
     for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
@@ -453,7 +453,7 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
         for ( size_t idx = 0; idx < m_mainGrid->cellCount(); idx++ )
         {
             size_t i, j, k;
-            m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k );
+            if ( !m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k ) ) continue;
 
             if ( !m_mainGrid->isCellValid( i, j, k ) ) continue;
 

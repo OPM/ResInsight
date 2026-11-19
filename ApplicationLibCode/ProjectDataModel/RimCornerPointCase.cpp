@@ -174,10 +174,15 @@ std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&    
                                                           const cvf::Vec3d&          offset,
                                                           const cvf::Vec3d&          scale )
 {
+    std::array<cvf::Vec3d, 8> corners;
+
     size_t i;
     size_t j;
     size_t k;
-    grid.ijkFromCellIndex( cellIdx, &i, &j, &k );
+    if ( !grid.ijkFromCellIndex( cellIdx, &i, &j, &k ) )
+    {
+        return corners;
+    }
 
     const size_t nx = grid.cellCountI();
     const size_t ny = grid.cellCountJ();
@@ -192,7 +197,6 @@ std::array<cvf::Vec3d, 8> RimCornerPointCase::getCorners( const RigMainGrid&    
     for ( size_t n = 0; n < 4; n++ )
         zind[n + 4] = ( zind[n] + nx * ny * 4 );
 
-    std::array<cvf::Vec3d, 8> corners;
     for ( size_t n = 0; n < 8; n++ )
         corners[n].z() = zcorn[zind[n]];
 

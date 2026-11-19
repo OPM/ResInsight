@@ -346,7 +346,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
         size_t cellResultIndex = actCellInfo->cellResultIndex( ReservoirCellIndex( globalCellIndex ) ).value();
 
         size_t i, j, k;
-        hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+        if ( !hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) continue;
 
         if ( i < ( hostGrid->cellCountI() - 1 ) )
         {

@@ -68,7 +68,7 @@ double RigCombTransResultAccessor::neighborCellTran( size_t                     
     if ( transAccessor != nullptr )
     {
         size_t i, j, k, neighborGridCellIdx;
-        m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+        if ( !m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) ) return 0.0;
 
         if ( m_grid->cellIJKNeighbor( i, j, k, faceId, &neighborGridCellIdx ) )
         {

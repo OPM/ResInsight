@@ -103,7 +103,7 @@ bool RimFractureContainment::isEclipseCellOpenForFlow( const RigMainGrid*      m
         auto mainGridCellIndex = cell.mainGridCellIndex();
 
         size_t i, j, k;
-        mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k );
+        if ( !mainGrid->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) ) return false;
 
         if ( k + 1 < static_cast<size_t>( m_topKLayer() ) )
         {

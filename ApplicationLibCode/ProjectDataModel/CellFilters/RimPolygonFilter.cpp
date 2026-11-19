@@ -501,7 +501,7 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
 
             // get cell ijk for k filter
             size_t i, j, k;
-            grid->ijkFromCellIndex( n, &i, &j, &k );
+            if ( !grid->ijkFromCellIndex( n, &i, &j, &k ) ) continue;
             if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
 
             // get corner coordinates

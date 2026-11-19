@@ -345,7 +345,7 @@ cvf::Vec3d RifRoffFileTools::getCorner( const RigMainGrid&        grid,
     size_t i;
     size_t j;
     size_t k;
-    grid.ijkFromCellIndex( cellIdx, &i, &j, &k );
+    if ( !grid.ijkFromCellIndex( cellIdx, &i, &j, &k ) ) return {};
 
     size_t ny = grid.cellCountJ();
     size_t nz = grid.cellCountK();

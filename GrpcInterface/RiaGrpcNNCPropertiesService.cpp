@@ -75,7 +75,12 @@ rips::Vec3i* createConnectionVec3i( const RigCell& cell )
     RigGridBase* hostGrid           = cell.hostGrid();
     size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
     size_t       i, j, k;
-    hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+    if ( !hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+    {
+        i = 0;
+        j = 0;
+        k = 0;
+    }
 
     rips::Vec3i* vec = new rips::Vec3i;
     vec->set_i( i );

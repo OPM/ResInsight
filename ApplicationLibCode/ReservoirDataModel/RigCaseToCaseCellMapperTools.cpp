@@ -71,17 +71,19 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// Average of neighbor corresponding nodes
 //--------------------------------------------------------------------------------------------------
-void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGrid* eclGrid,
+bool RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGrid* eclGrid,
                                                                 size_t             reservoirCellIndex,
                                                                 cvf::Vec3d         estimatedElmCorners[8] )
 {
-    CAF_ASSERT( reservoirCellIndex < eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for
-                                                             // maingrid
+    if ( reservoirCellIndex >= eclGrid->cellCount() )
+        return false; // Assume reservoirCellIdx == localGridCellIdx for
+                      // maingrid
 
     const auto eclNodes = eclGrid->nodes();
 
     size_t I, J, K;
-    eclGrid->ijkFromCellIndex( reservoirCellIndex, &I, &J, &K );
+    if ( !eclGrid->ijkFromCellIndex( reservoirCellIndex, &I, &J, &K ) ) return false;
+
     RigNeighborCornerFinder nbFinder( eclGrid, I, J, K );
 
     // Cell corner Averaging mapping: Local cell index in neighbor matching specific corner of this cell
@@ -214,6 +216,8 @@ void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGri
         }
         estimatedElmCorners[cornIdx] /= contribCount;
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

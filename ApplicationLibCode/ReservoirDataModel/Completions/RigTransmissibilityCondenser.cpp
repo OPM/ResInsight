@@ -426,8 +426,14 @@ void printCellAddress( std::stringstream&                        str,
             {
                 str << "ECL ";
                 size_t i, j, k;
-                mainGrid->ijkFromCellIndex( cellAddr.m_globalCellIdx, &i, &j, &k );
-                str << std::setw( 5 ) << i + 1 << std::setw( 5 ) << j + 1 << std::setw( 5 ) << k + 1;
+                if ( mainGrid->ijkFromCellIndex( cellAddr.m_globalCellIdx, &i, &j, &k ) )
+                {
+                    str << std::setw( 5 ) << i + 1 << std::setw( 5 ) << j + 1 << std::setw( 5 ) << k + 1;
+                }
+                else
+                {
+                    str << "<invalid> ";
+                }
             }
         }
         break;
