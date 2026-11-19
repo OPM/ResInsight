@@ -31,6 +31,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCellFilterInterface.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
@@ -40,7 +41,6 @@
 #include "RigNNCData.h"
 #include "RigStatisticsMath.h"
 
-#include "RimCellFilterTools.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
@@ -149,12 +149,12 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     if ( limits.avoidFaults && mainGrid != nullptr ) data.isFaultNnc = RigWellTargetMappingTools::findFaultNncs( mainGrid );
 
     // Evaluate for each realization after opening its grid, using the mapping's time step.
-    auto computeFilterVector = [&]( RimCellFilter* dataFilter ) -> std::vector<double>
+    auto computeFilterVector = [&]( RigCellFilterInterface* dataFilter ) -> std::vector<double>
     {
         std::vector<double> filterVector;
         if ( dataFilter )
         {
-            auto visibility = RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eclipseCase, timeStepIdx );
+            auto visibility = dataFilter->computeReservoirCellVisibility( eclipseCase, timeStepIdx );
             if ( visibility.notNull() )
             {
                 auto activeReservoirCellIndices =

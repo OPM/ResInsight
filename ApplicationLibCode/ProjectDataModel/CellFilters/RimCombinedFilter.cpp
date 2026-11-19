@@ -78,15 +78,41 @@ void RimCombinedFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCombinedFilter::isFilterEnabled() const
+bool RimCombinedFilter::isActive() const
 {
-    if ( !isActive() ) return false;
+    if ( !isChecked() ) return false;
 
     for ( RimCellFilter* child : m_filters )
     {
-        if ( child && child->isFilterEnabled() ) return true;
+        if ( child && child->isActive() ) return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A combined filter is dynamic if any of its active children is.
+//--------------------------------------------------------------------------------------------------
+bool RimCombinedFilter::isDynamic() const
+{
+    for ( RimCellFilter* child : m_filters )
+    {
+        if ( child && child->isActive() && child->isDynamic() ) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only active children are considered, consistent with isDynamic()
+//--------------------------------------------------------------------------------------------------
+std::optional<RigEclipseResultAddress> RimCombinedFilter::dynamicResultAddress() const
+{
+    for ( RimCellFilter* child : m_filters )
+    {
+        if ( !child || !child->isActive() ) continue;
+        if ( auto address = child->dynamicResultAddress() ) return address;
+    }
+
+    return std::nullopt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,13 +128,13 @@ void RimCombinedFilter::onGridChanged()
 
 //--------------------------------------------------------------------------------------------------
 /// Evaluate each enabled child to its own per-cell mask (each child respects its own
-/// INCLUDE/EXCLUDE mode inside applyToCellVisibility), AND/OR combine the masks, then apply this
+/// INCLUDE/EXCLUDE mode inside updateCellVisibility), AND/OR combine the masks, then apply this
 /// combined filter's INCLUDE/EXCLUDE mode onto the incoming cellVisibility.
 //--------------------------------------------------------------------------------------------------
-void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                               const RigGridBase* grid,
-                                               size_t             timeStepIndex,
-                                               RimEclipseCase*    sourceCaseOverride )
+void RimCombinedFilter::updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                                              const RigGridBase* grid,
+                                              size_t             timeStepIndex,
+                                              RimEclipseCase*    sourceCaseOverride )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
 
@@ -118,7 +144,7 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility
     std::vector<RimCellFilter*> enabledChildren;
     for ( RimCellFilter* child : m_filters )
     {
-        if ( child && child->isFilterEnabled() ) enabledChildren.push_back( child );
+        if ( child && child->isActive() ) enabledChildren.push_back( child );
     }
     if ( enabledChildren.empty() ) return;
 
@@ -129,7 +155,7 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility
     {
         cvf::UByteArray childMask( n );
         childMask.setAll( 1 );
-        child->applyToCellVisibility( &childMask, grid, timeStepIndex, sourceCaseOverride );
+        child->updateCellVisibility( &childMask, grid, timeStepIndex, sourceCaseOverride );
 
         if ( m_combineMode() == CombineMode::AND )
         {
@@ -161,7 +187,7 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility
 /// Bridge for the cell-filter collection's legacy index-based dispatch. Combined filters normally
 /// live under the property-filter collection, but this override exists to keep the class usable if
 /// a future caller places one in the cell-filter collection. Builds a per-cell mask by running
-/// applyToCellVisibility against an all-visible scratch array, then folds the result into the
+/// updateCellVisibility against an all-visible scratch array, then folds the result into the
 /// collection's include/exclude arrays respecting this filter's INCLUDE/EXCLUDE mode.
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex )
@@ -180,7 +206,7 @@ void RimCombinedFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibilit
 
     cvf::UByteArray scratch( n );
     scratch.setAll( 1 );
-    applyToCellVisibility( &scratch, grid, 0 );
+    updateCellVisibility( &scratch, grid, 0 );
 
     if ( filterMode() == INCLUDE )
     {
@@ -387,7 +413,7 @@ bool RimCombinedFilter::hasActiveEvaluatableDescendant() const
 {
     for ( RimCellFilter* child : m_filters )
     {
-        if ( !child || !child->isFilterEnabled() ) continue;
+        if ( !child || !child->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {
@@ -406,28 +432,6 @@ bool RimCombinedFilter::hasActiveEvaluatableDescendant() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// True if any active descendant is an Eclipse property filter backed by a dynamic result. Drives
-/// per-time-step cell-visibility cache invalidation in RimGridView.
-//--------------------------------------------------------------------------------------------------
-bool RimCombinedFilter::hasActiveDynamicPropertyDescendant() const
-{
-    for ( RimCellFilter* child : m_filters )
-    {
-        if ( !child || !child->isFilterEnabled() ) continue;
-
-        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
-        {
-            if ( ep->resultDefinition() && ep->resultDefinition()->hasDynamicResult() ) return true;
-        }
-        else if ( auto* nested = dynamic_cast<RimCombinedFilter*>( child ) )
-        {
-            if ( nested->hasActiveDynamicPropertyDescendant() ) return true;
-        }
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// True if any active descendant is a formation-names property filter. Matches the collection-level
 /// isUsingFormationNames() check.
 //--------------------------------------------------------------------------------------------------
@@ -435,7 +439,7 @@ bool RimCombinedFilter::hasActiveFormationNamesPropertyDescendant() const
 {
     for ( RimCellFilter* child : m_filters )
     {
-        if ( !child || !child->isFilterEnabled() ) continue;
+        if ( !child || !child->isActive() ) continue;
 
         if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( child ) )
         {

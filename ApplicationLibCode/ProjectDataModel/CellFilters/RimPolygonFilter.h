@@ -77,7 +77,7 @@ public:
     void enableKFilter( bool bEnable );
     void setPolygon( RimPolygon* polygon );
 
-    bool isFilterEnabled() const override;
+    bool isActive() const override;
     bool isSelected() const;
 
     void enablePicking( bool enable );

@@ -279,6 +279,38 @@ bool RimEclipsePropertyFilter::isUsingFormationNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// A property filter on a dynamic result (e.g. SOIL, SWAT) accepts different cells at each time step.
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isDynamic() const
+{
+    if ( !resultDefinition() ) return false;
+
+    // Classify by result category rather than hasDynamicResult(), which only answers correctly once
+    // the result has been loaded. Ensemble data filters may not have loaded their result yet.
+    switch ( resultDefinition()->resultType() )
+    {
+        case RiaDefines::ResultCatType::DYNAMIC_NATIVE:
+        case RiaDefines::ResultCatType::SOURSIMRL:
+        case RiaDefines::ResultCatType::FLOW_DIAGNOSTICS:
+        case RiaDefines::ResultCatType::INJECTION_FLOODING:
+            return true;
+        default:
+            return resultDefinition()->hasDynamicResult();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The result address of a dynamic filter, so callers can make sure it is loaded before asking the
+/// case how many time steps it has.
+//--------------------------------------------------------------------------------------------------
+std::optional<RigEclipseResultAddress> RimEclipsePropertyFilter::dynamicResultAddress() const
+{
+    if ( isDynamic() ) return resultDefinition()->eclipseResultAddress();
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
@@ -791,10 +823,10 @@ void RimEclipsePropertyFilter::initAfterRead()
 /// uniformly; the body is extracted from the former inline loop in
 /// RivReservoirViewPartMgr::computePropertyVisibility.
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
-                                                      const RigGridBase* grid,
-                                                      size_t             timeStepIndex,
-                                                      RimEclipseCase*    sourceCaseOverride )
+void RimEclipsePropertyFilter::updateCellVisibility( cvf::UByteArray*   cellVisibility,
+                                                     const RigGridBase* grid,
+                                                     size_t             timeStepIndex,
+                                                     RimEclipseCase*    sourceCaseOverride )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
     if ( !isActive() || !resultDefinition()->hasResult() ) return;

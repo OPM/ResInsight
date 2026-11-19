@@ -391,7 +391,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
         return std::unexpected( QString( "Mask key is empty." ) );
     }
 
-    RimCellFilter* filter = m_filter();
+    RigCellFilterInterface* filter = m_filter();
     if ( !filter )
     {
         return std::unexpected( QString( "Filter argument is null." ) );
@@ -409,7 +409,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
 
     cvf::UByteArray cellVis( n );
     cellVis.setAll( 1 );
-    filter->applyToCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
+    filter->updateCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
 
     std::vector<int32_t> values;
     values.reserve( n );

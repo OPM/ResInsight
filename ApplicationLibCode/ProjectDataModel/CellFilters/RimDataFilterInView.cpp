@@ -79,20 +79,20 @@ bool RimDataFilterInView::isEvaluatable() const
 {
     if ( !isChecked() ) return false;
     if ( !m_sourceFilter() ) return false;
-    return m_sourceFilter()->isFilterEnabled();
+    return m_sourceFilter()->isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Forward to the wrapped source filter. The unified RimCellFilter::applyToCellVisibility virtual
+/// Forward to the wrapped source filter. The unified RimCellFilter::updateCellVisibility virtual
 /// already handles property (uses timeStep), range (legacy bridge), and combined (recurses)
 /// uniformly, so no per-type branching is needed here.
 //--------------------------------------------------------------------------------------------------
-void RimDataFilterInView::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
+void RimDataFilterInView::updateCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
 {
     if ( !isEvaluatable() ) return;
 
     auto* view = firstAncestorOrThisOfType<RimEclipseView>();
-    m_sourceFilter()->applyToCellVisibility( cellVisibility, grid, timeStepIndex, view ? view->eclipseCase() : nullptr );
+    m_sourceFilter()->updateCellVisibility( cellVisibility, grid, timeStepIndex, view ? view->eclipseCase() : nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

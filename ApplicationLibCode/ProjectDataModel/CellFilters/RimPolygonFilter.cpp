@@ -170,9 +170,9 @@ void RimPolygonFilter::setPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolygonFilter::isFilterEnabled() const
+bool RimPolygonFilter::isActive() const
 {
-    return isActive() && m_enableFiltering;
+    return isChecked() && m_enableFiltering;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -949,7 +949,7 @@ bool RimPolygonFilter::pickingEnabled() const
     auto filterColl = firstAncestorOfType<RimCellFilterCollection>();
     if ( filterColl && !filterColl->isActive() ) return false;
 
-    if ( !isActive() ) return false;
+    if ( !isChecked() ) return false;
     if ( !isPolygonDefinedLocally() && m_cellFilterPolygon && m_cellFilterPolygon()->isReadOnly() ) return false;
 
     return m_polygonEditor->pickingEnabled();

@@ -2463,16 +2463,7 @@ bool RimEclipseView::hasActiveDynamicPropertyOrDataFilters() const
         for ( RimDataFilterInView* wrapper : m_dataFiltersInView()->activeWrappers() )
         {
             RimCellFilter* src = wrapper ? wrapper->sourceFilter() : nullptr;
-            if ( !src ) continue;
-
-            if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( src ) )
-            {
-                if ( ep->resultDefinition() && ep->resultDefinition()->hasDynamicResult() ) return true;
-            }
-            else if ( auto* comb = dynamic_cast<RimCombinedFilter*>( src ) )
-            {
-                if ( comb->hasActiveDynamicPropertyDescendant() ) return true;
-            }
+            if ( src && src->isDynamic() ) return true;
         }
     }
     return false;
