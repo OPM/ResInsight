@@ -92,6 +92,13 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
             raise ToolError(f"No grid case with id {case_id}. See list_cases.")
         return case
 
+    def views_with_cases() -> list[tuple[Any, Any]]:
+        # 2D intersection and seismic views are not scriptable: they come
+        # back with id -1 and without a case
+        scriptable = (rips.EclipseView, rips.GeoMechView)
+        views: list[Any] = [v for v in project().views() if isinstance(v, scriptable)]
+        return [(view, view.case()) for view in views]
+
     def summary_case(case_id: int) -> Any:
         case = project().summary_case(case_id)
         if case is None:
@@ -179,11 +186,16 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
         of the case, so a case without a view lists none."""
         with _reported():
             case = grid_case(case_id)
+            views = [
+                view
+                for view, view_case in views_with_cases()
+                if view_case is not None and view_case.id == case.id
+            ]
+            # Case.simulation_wells() reads the wells of the first view the same way
+            wells = views[0].descendants(rips.SimulationWell) if views else []
             return {
-                "view_count": len(case.views()),
-                "simulation_wells": _capped(
-                    [well.name for well in case.simulation_wells()]
-                ),
+                "view_count": len(views),
+                "simulation_wells": _capped([well.name for well in wells]),
             }
 
     @server.tool(annotations=READ_ONLY)
@@ -232,8 +244,7 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
         """3D views in the project, with the case each one shows."""
         with _reported():
             views = []
-            for view in project().views():
-                case = view.case()
+            for view, case in views_with_cases():
                 views.append(
                     {
                         "id": view.id,

@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
+import time
 from typing import Any
 
 import pytest
@@ -20,6 +22,7 @@ sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot  # noqa: E402
 import rips  # noqa: E402
+from rips.mcp_server.__main__ import _Connection  # noqa: E402
 from rips.mcp_server.server import create_server  # noqa: E402
 
 GRID_CASE = "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
@@ -115,6 +118,30 @@ def test_grid_case_tools(rips_instance, initialize_test):
     ]
 
 
+def test_views_with_an_intersection(rips_instance, initialize_test):
+    # An intersection adds a 2D intersection view, which has no case
+    case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case = rips_instance.project.load_case(case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+    view = case.create_view()
+    rips_instance.project.import_well_paths([case_root + "/wellpath_a.dev"])
+    intersection_coll = rips_instance.project.descendants(rips.IntersectionCollection)[
+        0
+    ]
+    intersection = intersection_coll.add_new_object(rips.CurveIntersection)
+    intersection.type = "CS_WELL_PATH"
+    intersection.well_path = rips_instance.project.well_paths()[0]
+    intersection.update()
+    assert len(rips_instance.project.views()) == 2
+
+    views = call_tool(rips_instance, "list_views")
+    assert not views.is_error
+    assert [item["id"] for item in views.structured_content["items"]] == [view.id]
+
+    wells = call_tool(rips_instance, "list_wells", case_id=case.id).structured_content
+    assert wells["view_count"] == 1
+    assert wells["simulation_wells"]["items"] == ["GI1", "GP1", "GP2"]
+
+
 def test_summary_tools(rips_instance, initialize_test):
     case = rips_instance.project.import_summary_case(dataroot.PATH + SUMMARY_CASE)
 
@@ -182,3 +209,40 @@ def test_snapshot(rips_instance, initialize_test):
         # The export is a no-op when the window has no viewer (e.g. offscreen Qt platform)
         if not result.is_error:
             assert result.content[0].mime_type == "image/png"
+
+
+def test_connection_launches_once(monkeypatch):
+    # Tool calls run on worker threads, so the first calls can arrive together
+    class LaunchedInstance:
+        launched = True
+        exited = False
+
+        def check_alive(self) -> None:
+            pass
+
+        def exit(self) -> None:
+            self.exited = True
+
+    def find() -> Any:
+        raise rips.RipsError("No ResInsight running")
+
+    launched = []
+
+    def launch() -> Any:
+        time.sleep(0.2)
+        launched.append(LaunchedInstance())
+        return launched[-1]
+
+    monkeypatch.setattr(rips.Instance, "find", find)
+    monkeypatch.setattr(rips.Instance, "launch", launch)
+
+    connection = _Connection(launch=True)
+    threads = [threading.Thread(target=connection) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert len(launched) == 1
+
+    connection.close()
+    assert launched[0].exited
