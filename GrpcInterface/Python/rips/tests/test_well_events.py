@@ -2383,6 +2383,47 @@ class TestScheduleGeneration:
         assert dividers[0] == 0
         assert lines[dividers[1] - 1].strip() != "", "No blank line before the divider"
 
+    def test_export_applies_events_when_no_timestamp_set(
+        self, project_with_case_and_well
+    ):
+        """Export without set_timestamp still includes completions from all events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+        self._add_msw_and_perf(timeline, well_path)
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        assert "COMPDAT" in schedule_text
+        assert "WELSEGS" in schedule_text
+
+    def test_export_respects_explicit_timestamp(self, project_with_case_and_well):
+        """An explicit cutoff is kept on export; events after it are not applied."""
+        project, case, timeline = project_with_case_and_well
+        well_a, well_b = project.well_paths()[:2]
+        self._add_msw_and_perf(timeline, well_a)
+        timeline.add_perf_event(
+            event_date="2024-06-01",
+            well_path=well_b,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp(timestamp="2024-03-01")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        assert "WellPathA" in schedule_text
+        assert "WellPathB" not in schedule_text
+
 
 class TestKeywordEvents:
     """Tests for well keyword event functionality."""

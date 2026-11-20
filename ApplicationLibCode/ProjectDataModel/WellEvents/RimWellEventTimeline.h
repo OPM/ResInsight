@@ -117,6 +117,10 @@ public:
     // Apply events up to a given date (creates actual completions from event data)
     bool applyEventsUpToDate( const QDateTime& date );
 
+    // Apply all events unless a timestamp has been set explicitly with applyEventsUpToDate(). The explicit timestamp
+    // limits schedule export, so applying all events here deliberately does not set it.
+    void applyAllEventsIfNoTimestampSet();
+
     // Get the last applied timestamp (returns invalid QDateTime if no timestamp was set)
     QDateTime lastAppliedTimestamp() const;
 
@@ -127,6 +131,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
+    bool applyEventsUpToDateImpl( const QDateTime& date );
     bool applyEvent( RimWellPathCollection* wellPathCollection, RimWellEvent* event );
 
     bool applySegmentEvent( const RimWellEventSegment& event, RimWellPath& wellPath );

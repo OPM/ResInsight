@@ -933,6 +933,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
 {
     auto timeline = self<RimWellEventTimeline>();
 
+    // Completions are computed from the intervals created by applying the events
+    timeline->applyAllEventsIfNoTimestampSet();
+
     // The dates and wells are collected from the timeline, honoring any set_timestamp() call.
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );

@@ -444,6 +444,7 @@ void RimWellEventTimeline::removeEvent( RimWellEvent* event )
 void RimWellEventTimeline::clearAllEvents()
 {
     m_events.deleteChildren();
+    m_lastAppliedTimestamp = QDateTime();
     updateEditorsAfterEventChange();
 }
 
@@ -471,11 +472,30 @@ size_t RimWellEventTimeline::eventCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::applyAllEventsIfNoTimestampSet()
+{
+    if ( m_lastAppliedTimestamp.isValid() ) return;
+
+    const auto dates = getAllEventDates();
+    if ( !dates.empty() ) applyEventsUpToDateImpl( dates.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellEventTimeline::applyEventsUpToDate( const QDateTime& date )
 {
     // Store the timestamp for later use in schedule generation
     m_lastAppliedTimestamp = date;
 
+    return applyEventsUpToDateImpl( date );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellEventTimeline::applyEventsUpToDateImpl( const QDateTime& date )
+{
     // Get events up to the specified date (already sorted by date)
     std::vector<RimWellEvent*> eventsToApply = getEventsUpToDate( date );
 
