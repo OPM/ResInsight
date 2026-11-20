@@ -32,6 +32,7 @@ from . import well_events as well_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
 from . import summary_ensemble as summary_ensemble  # noqa: F401, E402
 from . import nested_collection as nested_collection  # noqa: F401, E402
+from . import formation_filter as formation_filter  # noqa: F401, E402
 
 __all__: List[str] = []
 for key in class_dict():  # noqa: F405

@@ -122,6 +122,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuGroupNetworkLayout-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGroupNetworkGraph-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationFilter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDockWindowController-Test.cpp
