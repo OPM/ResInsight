@@ -24,6 +24,7 @@
 #include "RiaQStringFormatter.h"
 
 #include "RifEclipseOutputFileTools.h"
+#include "RifEclipseSummaryAddressParser.h"
 
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
@@ -52,7 +53,7 @@ std::tuple<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress
         auto keywords = summaryFile->keywordList();
         for ( const auto& keyword : keywords )
         {
-            auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+            auto eclAdr = RifEclipseSummaryAddressParser::fromEclipseTextAddress( keyword );
             if ( !eclAdr.isValid() )
             {
                 // If a category is not found, use the MISC category
@@ -94,7 +95,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
         {
             auto keyword = keywords[index];
 
-            auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+            auto eclAdr = RifEclipseSummaryAddressParser::fromEclipseTextAddress( keyword );
             if ( !eclAdr.isValid() )
             {
                 threadInvalidKeywords.push_back( keyword );

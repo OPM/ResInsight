@@ -23,6 +23,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressParser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRftAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellPathImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifHdf5ReaderInterface.cpp

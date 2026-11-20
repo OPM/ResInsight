@@ -23,6 +23,7 @@
 #include "RiaPreferencesSummary.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressParser.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifMultipleSummaryReaders.h"
 #include "RifOpmCommonSummary.h"
@@ -374,7 +375,7 @@ std::expected<void, QString>
         return std::unexpected( errorMsg );
     }
 
-    auto address    = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( keyword );
+    auto address    = RifEclipseSummaryAddressParser::fromEclipseTextAddressParseErrorTokens( keyword );
     auto fileReader = m_multiSummaryReader->findReader( m_fileSummaryReaderId );
     if ( fileReader )
     {

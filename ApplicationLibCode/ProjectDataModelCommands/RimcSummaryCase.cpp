@@ -20,6 +20,7 @@
 
 #include "Summary/RiaSummaryTools.h"
 
+#include "RifEclipseSummaryAddressParser.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimFileSummaryCase.h"
@@ -54,7 +55,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_summaryVectorValues
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
 
-    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
+    auto adr = RifEclipseSummaryAddressParser::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
     if ( sumReader )
     {
@@ -185,7 +186,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_resampleValues::exe
         return std::unexpected( "No reader found for summary case." );
     }
 
-    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
+    auto adr = RifEclipseSummaryAddressParser::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
     auto [isOk, values] = sumReader->values( adr );
     if ( !isOk )

@@ -23,6 +23,7 @@
 #include "Summary/RiaSummaryPlotTools.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressParser.h"
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
@@ -103,8 +104,8 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
         }
     }
 
-    RifEclipseSummaryAddress adrX = RifEclipseSummaryAddress::fromEclipseTextAddress( addressX.toStdString() );
-    RifEclipseSummaryAddress adrY = RifEclipseSummaryAddress::fromEclipseTextAddress( addressY.toStdString() );
+    RifEclipseSummaryAddress adrX = RifEclipseSummaryAddressParser::fromEclipseTextAddress( addressX.toStdString() );
+    RifEclipseSummaryAddress adrY = RifEclipseSummaryAddressParser::fromEclipseTextAddress( addressY.toStdString() );
 
     RiaSummaryCurveAddress curveAddress( adrX, adrY );
 

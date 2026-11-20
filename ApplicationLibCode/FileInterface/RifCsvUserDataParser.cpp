@@ -20,6 +20,7 @@
 
 #include "RifAsciiDataParseOptions.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressParser.h"
 #include "RifEclipseUserDataParserTools.h"
 #include "RifFileParseTools.h"
 
@@ -433,7 +434,7 @@ std::expected<int, QString> RifCsvUserDataParser::parseColumnInfo( QTextStream& 
 
             if ( iCol < unitTexts.size() ) unit = unitTexts[iCol];
 
-            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
+            RifEclipseSummaryAddress addr = RifEclipseSummaryAddressParser::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
 
             // Create address of a give category if provided
             if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
@@ -639,7 +640,7 @@ std::expected<void, QString> RifCsvUserDataParser::parseLineBasedData( const Rif
 
         {
             auto textAddr = dataItems[colIndexes[static_cast<size_t>( CsvLineBasedColumnType::VECTOR )]];
-            auto addr     = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( textAddr.toStdString() );
+            auto addr     = RifEclipseSummaryAddressParser::fromEclipseTextAddressParseErrorTokens( textAddr.toStdString() );
             auto errAddr  = addr;
             errAddr.setAsErrorResult();
 

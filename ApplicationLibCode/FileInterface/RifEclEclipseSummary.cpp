@@ -23,6 +23,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
 
+#include "RifEclipseSummaryAddressParser.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseOutput.h"
@@ -350,7 +351,7 @@ void RifEclEclipseSummary::createAndSetAddresses()
                 auto nativeAddress     = std::string( ertSumVarNode.get_gen_key1() );
                 auto normalizedAddress = normalizeCompletionAddress( nativeAddress );
 
-                auto adrFromTextParsing = RifEclipseSummaryAddress::fromEclipseTextAddress( normalizedAddress );
+                auto adrFromTextParsing = RifEclipseSummaryAddressParser::fromEclipseTextAddress( normalizedAddress );
 
                 bool debugOutput = false;
                 if ( debugOutput )
