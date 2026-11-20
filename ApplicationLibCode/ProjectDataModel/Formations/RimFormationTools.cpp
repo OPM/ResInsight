@@ -20,14 +20,22 @@
 
 #include "RiaLogging.h"
 
+#include "RigFormationNames.h"
+
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "RimCaseCollection.h"
+#include "RimEclipseCase.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "cafUtils.h"
 
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
+
+#include <algorithm>
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///  look for formation file two levels up from the egrid file
@@ -79,4 +87,140 @@ RimFormationNames* RimFormationTools::loadFormationNamesFromFolder( const QStrin
     }
 
     return formationNames.front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<std::vector<int>, QString> RimFormationTools::formationIndicesFromNames( const std::vector<QString>& availableNames,
+                                                                                       const std::vector<QString>& requestedNames )
+{
+    std::vector<int> indices;
+
+    if ( requestedNames.empty() )
+    {
+        for ( size_t i = 0; i < availableNames.size(); i++ )
+        {
+            indices.push_back( static_cast<int>( i ) );
+        }
+        return indices;
+    }
+
+    std::set<int> selected;
+    QStringList   unknownNames;
+    for ( const QString& name : requestedNames )
+    {
+        bool found = false;
+        for ( size_t i = 0; i < availableNames.size(); i++ )
+        {
+            if ( availableNames[i] == name )
+            {
+                selected.insert( static_cast<int>( i ) );
+                found = true;
+            }
+        }
+        if ( !found && !unknownNames.contains( name ) ) unknownNames.push_back( name );
+    }
+
+    if ( !unknownNames.isEmpty() )
+    {
+        QStringList available;
+        for ( const QString& name : unionOfFormationNames( { availableNames } ) )
+        {
+            available.push_back( name );
+        }
+
+        return std::unexpected( QString( "Unknown formation name(s): %1. Available formations: %2" )
+                                    .arg( unknownNames.join( ", " ) )
+                                    .arg( available.isEmpty() ? QString( "none" ) : available.join( ", " ) ) );
+    }
+
+    indices.assign( selected.begin(), selected.end() );
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFormationTools::formationNamesFromIndices( const std::vector<QString>& availableNames, const std::vector<int>& indices )
+{
+    const std::set<int> selected( indices.begin(), indices.end() );
+
+    std::vector<QString> names;
+    for ( size_t i = 0; i < availableNames.size(); i++ )
+    {
+        if ( !selected.contains( static_cast<int>( i ) ) ) continue;
+        if ( std::find( names.begin(), names.end(), availableNames[i] ) != names.end() ) continue;
+
+        names.push_back( availableNames[i] );
+    }
+
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFormationTools::unionOfFormationNames( const std::vector<std::vector<QString>>& formationNameLists )
+{
+    std::vector<QString> names;
+    for ( const auto& list : formationNameLists )
+    {
+        for ( const QString& name : list )
+        {
+            if ( std::find( names.begin(), names.end(), name ) == names.end() ) names.push_back( name );
+        }
+    }
+
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFormationTools::formationNames( const RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase ) return {};
+
+    // Same resolution as RimEclipseCase::effectiveFormationNames(): the case's own formations, falling
+    // back to the shared formations of the parent ensemble
+    auto namesFrom = []( const RimFormationNames* formationNames ) -> std::vector<QString>
+    {
+        if ( !formationNames || !formationNames->formationNamesData() ) return {};
+        return formationNames->formationNamesData()->formationNames();
+    };
+
+    if ( eclipseCase->activeFormationNames() && eclipseCase->activeFormationNames()->formationNamesData() )
+    {
+        return namesFrom( eclipseCase->activeFormationNames() );
+    }
+
+    if ( auto* caseCollection = const_cast<RimEclipseCase*>( eclipseCase )->parentCaseCollection() )
+    {
+        if ( auto* ensemble = caseCollection->parentGridEnsembleBase() )
+        {
+            return namesFrom( ensemble->activeFormationNames() );
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimFormationTools::casesWithDifferentFormations( const RimEclipseCase*               referenceCase,
+                                                                              const std::vector<RimEclipseCase*>& cases )
+{
+    const std::vector<QString> referenceNames = formationNames( referenceCase );
+
+    std::vector<RimEclipseCase*> differentCases;
+    for ( RimEclipseCase* eclipseCase : cases )
+    {
+        if ( !eclipseCase || eclipseCase == referenceCase ) continue;
+
+        if ( formationNames( eclipseCase ) != referenceNames ) differentCases.push_back( eclipseCase );
+    }
+
+    return differentCases;
 }

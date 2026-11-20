@@ -48,6 +48,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimFormationFilter.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellTargetMapping.h"
@@ -1102,7 +1103,16 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
     updateConnectedEditors();
 
     // Re-initialize data filters now that the case data is loaded (needed for e.g. FORMATION_NAMES). See #14022.
-    if ( m_dataFilterCollection() ) m_dataFilterCollection->loadAndInitializeFilters();
+    if ( m_dataFilterCollection() )
+    {
+        m_dataFilterCollection->loadAndInitializeFilters();
+
+        // Formation filters store formation indices resolved against the main case
+        for ( auto* formationFilter : m_dataFilterCollection->descendantsIncludingThisOfType<RimFormationFilter>() )
+        {
+            formationFilter->warnIfRealizationsHaveMismatchedFormations();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
