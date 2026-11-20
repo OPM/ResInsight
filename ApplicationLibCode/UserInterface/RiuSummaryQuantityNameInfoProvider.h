@@ -31,7 +31,9 @@ class RiuSummaryQuantityNameInfoProvider
 public:
     static RiuSummaryQuantityNameInfoProvider* instance();
 
-    RifEclipseSummaryAddressDefines::SummaryCategory identifyCategory( const std::string& vectorName );
+    // If enforceKeywordLength is false, names outside the Eclipse keyword length range (3-8) are accepted when their base vector name
+    // (the part before the first underscore) is a known vector, e.g. FOPT_High
+    RifEclipseSummaryAddressDefines::SummaryCategory identifyCategory( const std::string& vectorName, bool enforceKeywordLength = true );
 
     std::string longNameFromVectorName( const std::string& vectorName, bool returnVectorNameIfNotFound = false ) const;
 
