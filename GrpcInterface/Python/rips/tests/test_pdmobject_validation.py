@@ -6,6 +6,7 @@ This test verifies that validation prevents invalid values from being set.
 
 import sys
 import os
+import grpc
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -32,9 +33,11 @@ def test_range_validation_minimum_enforced(rips_instance, initialize_test):
     # Set wellBoreFluidPvtTable to a negative value (below minimum of 0)
     completions_settings.well_bore_fluid_pvt_table = -5
 
-    # Should raise grpc._channel._InactiveRpcError with validation message
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(rips.RipsError) as exc_info:
         completions_settings.update()
+
+    assert exc_info.value.code == grpc.StatusCode.INVALID_ARGUMENT
+    assert completions_settings.well_bore_fluid_pvt_table != -5
 
     error_message = str(exc_info.value)
     assert "Validation failed" in error_message

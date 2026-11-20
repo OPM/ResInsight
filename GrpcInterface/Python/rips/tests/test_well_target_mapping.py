@@ -3,7 +3,6 @@ import math
 import os
 import sys
 
-import grpc
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -113,7 +112,7 @@ def test_invalid_input_fails(rips_instance, initialize_test):
     wtm = case.add_well_target_mapping()
 
     wtm.volumes_type = "NOT_A_VOLUMES_TYPE"
-    with pytest.raises(grpc.RpcError):
+    with pytest.raises(rips.RipsError):
         wtm.update()
 
     wtm = case.add_well_target_mapping()

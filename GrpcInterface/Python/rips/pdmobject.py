@@ -701,8 +701,8 @@ class PdmObjectBase:
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight
 
-        If validation fails on the server, all local changes are rolled back
-        to the last known valid state, and the exception is re-raised.
+        If the update fails, all local changes are rolled back to the last
+        known valid state. Failures reported by ResInsight raise RipsError.
         """
         if self._pdm_object_stub is None:
             raise Exception(
@@ -716,7 +716,7 @@ class PdmObjectBase:
         try:
             self.__copy_to_pb2()
             self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
-        except Exception:
+        except Exception as exc:
             # Rollback: restore protobuf object to previous state
             self._pb2_object.CopyFrom(pb2_snapshot)
             # Restore Python attributes from the protobuf snapshot
@@ -726,7 +726,13 @@ class PdmObjectBase:
                     pb2_snapshot.parameters[camel_keyword]
                 )
                 setattr(self, snake_keyword, value)
-            # Re-raise the exception so the caller knows update failed
+            if isinstance(exc, grpc.RpcError):
+                raise _rips_error_from_rpc_error(exc) from None
+            if _is_closed_channel_error(exc):
+                raise RipsError(
+                    "ResInsight gRPC channel is closed "
+                    "(server may have crashed or been shut down)"
+                ) from exc
             raise
 
     def delete(self) -> None:
