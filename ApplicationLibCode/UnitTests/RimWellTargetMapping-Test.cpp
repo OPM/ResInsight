@@ -313,11 +313,9 @@ TEST( RimWellTargetMappingTest, ComputeStoresClusterStatistics )
 
     auto mapping = new TestableWellTargetMapping;
     eclipseCase->addWellTargetMapping( mapping );
-    RimWellTargetMapping::Settings settings;
-    settings.timeStep      = timeStep;
-    settings.maxIterations = 1000;
-    settings.maxNumTargets = 3;
-    mapping->applySettings( settings );
+    setField( *mapping, "TimeStep", timeStep );
+    setField( *mapping, "Iterations", 1000 );
+    setField( *mapping, "MaxNumTargets", 3 );
 
     auto result = mapping->compute();
     ASSERT_TRUE( result.has_value() ) << result.error().toStdString();
@@ -345,9 +343,7 @@ TEST( RimWellTargetMappingTest, ComputeStoresClusterStatistics )
         EXPECT_EQ( numCells->value(), cellCount );
     }
 
-    settings          = {};
-    settings.timeStep = 1000;
-    mapping->applySettings( settings );
+    setField( *mapping, "TimeStep", 1000 );
     EXPECT_FALSE( mapping->compute().has_value() );
     EXPECT_TRUE( statisticsField->children().empty() );
 }

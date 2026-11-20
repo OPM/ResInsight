@@ -3,6 +3,7 @@ import math
 import os
 import sys
 
+import grpc
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -26,11 +27,15 @@ def test_add_well_target_mapping(rips_instance, initialize_test):
     case = rips_instance.project.load_case(CASE_PATH)
     time_step_count = len(case.time_steps())
 
-    wtm = case.add_well_target_mapping(name="Python Mapping", max_num_targets=3)
+    wtm = case.add_well_target_mapping(name="Python Mapping")
     assert wtm is not None
     assert wtm.name == "Python Mapping"
     assert wtm.time_step == time_step_count - 1
-    assert wtm.max_num_targets == 3
+    assert len(wtm.cluster_statistics()) == 0
+
+    wtm.max_num_targets = 3
+    wtm.update()
+    wtm.compute()
 
     mappings = case.data_analytics_collection().well_target_mappings()
     assert len(mappings) == 1
@@ -52,7 +57,10 @@ def test_add_well_target_mapping(rips_instance, initialize_test):
 
 def test_edit_and_compute(rips_instance, initialize_test):
     case = rips_instance.project.load_case(CASE_PATH)
-    wtm = case.add_well_target_mapping(max_num_targets=5)
+    wtm = case.add_well_target_mapping()
+    wtm.max_num_targets = 5
+    wtm.update()
+    wtm.compute()
     assert len(wtm.cluster_statistics()) > 1
 
     wtm.max_num_targets = 1
@@ -68,7 +76,11 @@ def test_grow_data_filter(rips_instance, initialize_test):
     combined = case.data_filter_collection().add_combined_filter(name="K1")
     combined.add_range_filter(name="K-slice 1", start_k=1, cell_count_k=1)
 
-    wtm = case.add_well_target_mapping(grow_data_filter=combined, avoid_faults=True)
+    wtm = case.add_well_target_mapping()
+    wtm.grow_data_filter = combined
+    wtm.avoid_faults = True
+    wtm.update()
+    wtm.compute()
     assert wtm.grow_data_filter is not None
     assert wtm.avoid_faults
 
@@ -87,22 +99,22 @@ def test_filter_from_other_case_fails(rips_instance, initialize_test):
     other_case = rips_instance.project.load_case(OTHER_CASE_PATH)
     other_filter = other_case.data_filter_collection().add_combined_filter(name="Other")
 
+    wtm = case.add_well_target_mapping()
+    wtm.grow_data_filter = other_filter
+    wtm.update()
     with pytest.raises(rips.RipsError):
-        case.add_well_target_mapping(grow_data_filter=other_filter)
-
-    assert len(case.data_analytics_collection().well_target_mappings()) == 0
+        wtm.compute()
+    assert len(wtm.cluster_statistics()) == 0
 
 
 def test_invalid_input_fails(rips_instance, initialize_test):
     case = rips_instance.project.load_case(CASE_PATH)
 
-    with pytest.raises(rips.RipsError):
-        case.add_well_target_mapping(time_step=1000)
+    wtm = case.add_well_target_mapping()
 
-    with pytest.raises(rips.RipsError):
-        case.add_well_target_mapping(volumes_type="NOT_A_VOLUMES_TYPE")
-
-    assert len(case.data_analytics_collection().well_target_mappings()) == 0
+    wtm.volumes_type = "NOT_A_VOLUMES_TYPE"
+    with pytest.raises(grpc.RpcError):
+        wtm.update()
 
     wtm = case.add_well_target_mapping()
     wtm.time_step = 1000
@@ -123,6 +135,7 @@ def test_reservoir_grid_ensemble(rips_instance, initialize_test):
     wtm = ensemble.add_well_target_mapping()
     assert wtm is not None
     assert len(ensemble.well_target_mappings()) == 1
+    wtm.compute()
     assert len(wtm.cluster_statistics()) == 0
 
     statistics_case = wtm.ensemble_statistics_case()

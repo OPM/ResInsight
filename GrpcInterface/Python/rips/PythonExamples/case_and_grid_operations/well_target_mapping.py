@@ -23,15 +23,15 @@ case = cases[0]
 layers = case.data_filter_collection().add_combined_filter(name="K 1-5")
 layers.add_range_filter(name="K-slice 1-5", start_k=1, cell_count_k=5)
 
-# time_step=-1 uses the last time step
-mapping = case.add_well_target_mapping(
-    name="Python Well Targets",
-    time_step=-1,
-    volume_type=rips.VolumeType.OIL,
-    max_num_targets=5,
-    grow_data_filter=layers,
-    avoid_faults=True,
-)
+# The mapping is created with the same defaults as the user interface, using the
+# last time step. Set fields, call update() and then compute().
+mapping = case.add_well_target_mapping(name="Python Well Targets")
+mapping.volume_type = rips.VolumeType.OIL
+mapping.max_num_targets = 5
+mapping.grow_data_filter = layers
+mapping.avoid_faults = True
+mapping.update()
+mapping.compute()
 
 for stat in mapping.cluster_statistics():
     print(

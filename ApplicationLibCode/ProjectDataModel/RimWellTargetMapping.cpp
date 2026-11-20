@@ -760,41 +760,6 @@ void RimWellTargetMapping::setDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellTargetMapping::applySettings( const Settings& settings )
-{
-    auto apply = []( auto& field, const auto& value )
-    {
-        if ( value ) field = *value;
-    };
-
-    apply( m_timeStep, settings.timeStep );
-    apply( m_volumeType, settings.volumeType );
-    apply( m_volumeResultType, settings.volumeResultType );
-    apply( m_volumesType, settings.volumesType );
-    apply( m_oilFloodingType, settings.oilFloodingType );
-    apply( m_userDefinedFloodingOil, settings.userDefinedFloodingOil );
-    apply( m_gasFloodingType, settings.gasFloodingType );
-    apply( m_userDefinedFloodingGas, settings.userDefinedFloodingGas );
-    apply( m_saturationOil, settings.minimumSaturationOil );
-    apply( m_saturationGas, settings.minimumSaturationGas );
-    apply( m_pressure, settings.minimumPressure );
-    apply( m_permeability, settings.minimumPermeability );
-    apply( m_transmissibility, settings.minimumTransmissibility );
-    apply( m_maxNumTargets, settings.maxNumTargets );
-    apply( m_maxIterations, settings.maxIterations );
-    apply( m_startDataFilter, settings.startDataFilter );
-    apply( m_dataFilter, settings.growDataFilter );
-    apply( m_avoidFaults, settings.avoidFaults );
-    apply( m_cellCountI, settings.cellCountI );
-    apply( m_cellCountJ, settings.cellCountJ );
-    apply( m_cellCountK, settings.cellCountK );
-    apply( m_expandBoundingBoxXYPercent, settings.expandBoundingBoxXYPercent );
-    apply( m_expandBoundingBoxZPercent, settings.expandBoundingBoxZPercent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 {
     auto clampIfValid = []( double defaultValue, double minValue, double maxValue ) -> double
