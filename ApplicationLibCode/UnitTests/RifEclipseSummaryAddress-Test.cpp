@@ -188,6 +188,32 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr 
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgrIjk )
+{
+    auto addr = RifEclipseSummaryAddress::fromEclipseTextAddress( "LCGAS:LGR1:B-1H:1,2,3" );
+
+    EXPECT_TRUE( addr.isValid() );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION_LGR, addr.category() );
+    EXPECT_EQ( "LCGAS", addr.vectorName() );
+    EXPECT_EQ( "LGR1", addr.lgrName() );
+    EXPECT_EQ( "B-1H", addr.wellName() );
+    EXPECT_EQ( 1, addr.cellI() );
+    EXPECT_EQ( 2, addr.cellJ() );
+    EXPECT_EQ( 3, addr.cellK() );
+
+    addr = RifEclipseSummaryAddress::fromEclipseTextAddress( "LCGAS:LGR1:B-1H:1,2" );
+    EXPECT_FALSE( addr.isValid() );
+}
+
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgrMissingIjk )
+{
+    auto addr = RifEclipseSummaryAddress::fromEclipseTextAddress( "LCGAS:LGR1:B-1H" );
+    EXPECT_FALSE( addr.isValid() );
+
+    addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( "LCGAS:LGR1:B-1H" );
+    EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED, addr.category() );
+}
+
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellSegment )
 {
     std::string addrString = "SOFR:B-5H:32";
