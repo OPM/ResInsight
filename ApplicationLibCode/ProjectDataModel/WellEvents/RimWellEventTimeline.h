@@ -108,6 +108,9 @@ public:
     // Remove event
     void removeEvent( RimWellEvent* event );
 
+    // Remove several events, updating the editors once
+    void removeEvents( const std::vector<RimWellEvent*>& events );
+
     // Clear all events
     void clearAllEvents();
 
@@ -125,6 +128,7 @@ public:
     QDateTime lastAppliedTimestamp() const;
 
 protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

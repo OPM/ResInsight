@@ -18,6 +18,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellMeasurementsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSimulatorEventsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteAllEventsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSelectedEventsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralAtDepthFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteModeledWellPathFeature.cpp
