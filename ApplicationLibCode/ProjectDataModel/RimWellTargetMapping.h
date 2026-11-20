@@ -31,7 +31,6 @@
 #include "Well/RigWellTargetMapping.h"
 
 #include <expected>
-#include <optional>
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
@@ -50,34 +49,6 @@ class RimWellTargetMapping : public RimNamedObject
 public:
     using FloodingType = caf::AppEnum<RigFloodingSettings::FloodingType>;
 
-    // Values to override after setDefaults(). Unset values keep their current value.
-    struct Settings
-    {
-        std::optional<int>                                    timeStep;
-        std::optional<RigWellTargetMapping::VolumeType>       volumeType;
-        std::optional<RigWellTargetMapping::VolumeResultType> volumeResultType;
-        std::optional<RigWellTargetMapping::VolumesType>      volumesType;
-        std::optional<RigFloodingSettings::FloodingType>      oilFloodingType;
-        std::optional<double>                                 userDefinedFloodingOil;
-        std::optional<RigFloodingSettings::FloodingType>      gasFloodingType;
-        std::optional<double>                                 userDefinedFloodingGas;
-        std::optional<double>                                 minimumSaturationOil;
-        std::optional<double>                                 minimumSaturationGas;
-        std::optional<double>                                 minimumPressure;
-        std::optional<double>                                 minimumPermeability;
-        std::optional<double>                                 minimumTransmissibility;
-        std::optional<int>                                    maxNumTargets;
-        std::optional<int>                                    maxIterations;
-        std::optional<RimCellFilter*>                         startDataFilter;
-        std::optional<RimCellFilter*>                         growDataFilter;
-        std::optional<bool>                                   avoidFaults;
-        std::optional<int>                                    cellCountI;
-        std::optional<int>                                    cellCountJ;
-        std::optional<int>                                    cellCountK;
-        std::optional<double>                                 expandBoundingBoxXYPercent;
-        std::optional<double>                                 expandBoundingBoxZPercent;
-    };
-
     RimWellTargetMapping();
     ~RimWellTargetMapping() override;
 
@@ -86,7 +57,6 @@ public:
     RimEclipseCase* ensembleStatisticsCase() const;
 
     void setDefaults();
-    void applySettings( const Settings& settings );
 
     std::expected<void, QString> compute();
 

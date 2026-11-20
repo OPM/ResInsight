@@ -18,17 +18,11 @@
 
 #pragma once
 
-#include "RigFloodingSettings.h"
-#include "Well/RigWellTargetMapping.h"
-
-#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectMethod.h"
-#include "cafPdmPtrField.h"
 
 #include <QString>
 
-class RimCellFilter;
 class RimWellTargetMapping;
 
 //==================================================================================================
@@ -45,7 +39,7 @@ public:
 };
 
 //==================================================================================================
-/// Shared parameters for creating a well target mapping. The parent object adds the mapping.
+/// Creates a well target mapping with default settings. The parent object adds the mapping.
 //==================================================================================================
 class RimcWellTargetMapping_addBase : public caf::PdmObjectCreationMethod
 {
@@ -60,39 +54,7 @@ protected:
     virtual void                         addToParent( RimWellTargetMapping* wellTargetMapping ) = 0;
 
 private:
-    std::expected<void, QString> applyParameters( RimWellTargetMapping* wellTargetMapping ) const;
-
-private:
     caf::PdmField<QString> m_name;
-    caf::PdmField<int>     m_timeStep;
-
-    caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeType>>       m_volumeType;
-    caf::PdmField<caf::AppEnum<RigWellTargetMapping::VolumeResultType>> m_volumeResultType;
-    caf::PdmField<QString>                                              m_volumesType;
-
-    caf::PdmField<caf::AppEnum<RigFloodingSettings::FloodingType>> m_oilFloodingType;
-    caf::PdmField<double>                                          m_userDefinedFloodingOil;
-    caf::PdmField<caf::AppEnum<RigFloodingSettings::FloodingType>> m_gasFloodingType;
-    caf::PdmField<double>                                          m_userDefinedFloodingGas;
-
-    caf::PdmField<double> m_minimumSaturationOil;
-    caf::PdmField<double> m_minimumSaturationGas;
-    caf::PdmField<double> m_minimumPressure;
-    caf::PdmField<double> m_minimumPermeability;
-    caf::PdmField<double> m_minimumTransmissibility;
-
-    caf::PdmField<int> m_maxNumTargets;
-    caf::PdmField<int> m_maxIterations;
-
-    caf::PdmPtrField<RimCellFilter*> m_startDataFilter;
-    caf::PdmPtrField<RimCellFilter*> m_growDataFilter;
-    caf::PdmField<bool>              m_avoidFaults;
-
-    caf::PdmField<int>    m_cellCountI;
-    caf::PdmField<int>    m_cellCountJ;
-    caf::PdmField<int>    m_cellCountK;
-    caf::PdmField<double> m_expandBoundingBoxXYPercent;
-    caf::PdmField<double> m_expandBoundingBoxZPercent;
 };
 
 //==================================================================================================

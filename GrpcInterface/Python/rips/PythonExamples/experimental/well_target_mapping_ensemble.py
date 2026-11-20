@@ -32,17 +32,18 @@ print(f"Using ensemble: {ensemble.name}")
 # The realizations have different grids, so the results are resampled onto a
 # regular statistics grid. The cell counts set the resolution of this grid, and
 # the bounding box of the realizations is expanded by the given percentages.
-mapping = ensemble.add_well_target_mapping(
-    name="Ensemble Well Targets",
-    time_step=-1,  # last time step
-    volume_type=rips.VolumeType.OIL,
-    max_num_targets=2,
-    cell_count_i=50,
-    cell_count_j=50,
-    cell_count_k=10,
-    expand_bounding_box_xy_percent=5.0,
-    expand_bounding_box_z_percent=10.0,
-)
+# The mapping is created with the same defaults as the user interface, using the
+# last time step.
+mapping = ensemble.add_well_target_mapping(name="Ensemble Well Targets")
+mapping.volume_type = rips.VolumeType.OIL
+mapping.max_num_targets = 2
+mapping.cell_count_i = 50
+mapping.cell_count_j = 50
+mapping.cell_count_k = 10
+mapping.expand_bounding_box_xy_percent = 5.0
+mapping.expand_bounding_box_z_percent = 10.0
+mapping.update()
+mapping.compute()
 
 # Per cluster statistics are only available for single cases
 assert len(mapping.cluster_statistics()) == 0
