@@ -41,6 +41,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
 #include <QContextMenuEvent>
@@ -366,6 +367,11 @@ QWidget* RiuReportWindow::createBottomBar()
     layout->addSpacing( 16 );
     layout->addWidget( new QLabel( "Number of Decimals", toolBar ) );
     layout->addWidget( m_precisionSpinBox );
+    layout->addSpacing( 16 );
+
+    m_thousandSeparatorCheckBox = new QCheckBox( "Thousand Separator", toolBar );
+    m_thousandSeparatorCheckBox->setToolTip( "Group digits in the tables. Copy and export are not affected." );
+    layout->addWidget( m_thousandSeparatorCheckBox );
     layout->addStretch( 1 );
     layout->addSpacing( 16 );
 
@@ -381,6 +387,7 @@ QWidget* RiuReportWindow::createBottomBar()
 
     connect( m_numberFormatCombo, &QComboBox::currentIndexChanged, this, &RiuReportWindow::onFormatOptionsChanged );
     connect( m_precisionSpinBox, &QSpinBox::valueChanged, this, &RiuReportWindow::onFormatOptionsChanged );
+    connect( m_thousandSeparatorCheckBox, &QCheckBox::toggled, this, &RiuReportWindow::onFormatOptionsChanged );
 
     m_precisionSpinBox->setEnabled( numberFormat() != RimPlotAxisProperties::NUMBER_FORMAT_AUTO );
     // The toolbar scrolls horizontally when the window is narrow, so that it does not force a minimum width on the window
@@ -613,7 +620,7 @@ QWidget* RiuReportWindow::createTableWidget( std::shared_ptr<const RiaReportTabl
     }
 
     auto tableView = new QTableView( widget );
-    auto model     = new RiuReportTableModel( std::move( table ), formatOptions(), mutedTextColor(), tableView );
+    auto model     = new RiuReportTableModel( std::move( table ), displayFormatOptions(), mutedTextColor(), tableView );
 
     RiuReportHeaderView::Colors headerColors{ .background = themeColor( "backgroundColor2" ),
                                               .text       = themeColor( "textColor" ),
@@ -791,6 +798,8 @@ void RiuReportWindow::loadSettings()
 
     const int precision = settings.value( "decimals", m_precisionSpinBox->value() ).toInt();
     m_precisionSpinBox->setValue( std::clamp( precision, m_precisionSpinBox->minimum(), m_precisionSpinBox->maximum() ) );
+
+    m_thousandSeparatorCheckBox->setChecked( settings.value( "thousandSeparator", false ).toBool() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -802,6 +811,7 @@ void RiuReportWindow::saveSettings()
     settings.beginGroup( "reportWindow" );
     settings.setValue( "numberFormat", m_numberFormatCombo->currentData() );
     settings.setValue( "decimals", m_precisionSpinBox->value() );
+    settings.setValue( "thousandSeparator", m_thousandSeparatorCheckBox->isChecked() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -872,6 +882,16 @@ RifReportFormatOptions RiuReportWindow::formatOptions() const
     }
     options.delimiter = RiaPreferences::current()->csvTextExportFieldSeparator();
     if ( options.delimiter.isEmpty() ) options.delimiter = ",";
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Options for the tables in the window. Copy and export use formatOptions() without display-only settings.
+//--------------------------------------------------------------------------------------------------
+RifReportFormatOptions RiuReportWindow::displayFormatOptions() const
+{
+    auto options                 = formatOptions();
+    options.useThousandSeparator = m_thousandSeparatorCheckBox->isChecked();
     return options;
 }
 

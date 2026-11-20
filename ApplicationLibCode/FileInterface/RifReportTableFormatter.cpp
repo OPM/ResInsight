@@ -38,19 +38,29 @@ QString RifReportTableFormatter::formatCell( const RiaReportCellValue& value, co
     if ( const auto* doubleValue = std::get_if<double>( &value ) )
     {
         const auto formatting = effectiveDoubleFormatting( column, options );
+
+        QString text;
         switch ( formatting.format )
         {
             case RIF_SCIENTIFIC:
-                return QString::number( *doubleValue, 'E', formatting.precision );
+                text = QString::number( *doubleValue, 'E', formatting.precision );
+                break;
             case RIF_CONSISE:
-                return QString::number( *doubleValue, 'g', std::max( 1, formatting.precision ) );
+                text = QString::number( *doubleValue, 'g', std::max( 1, formatting.precision ) );
+                break;
             case RIF_FLOAT:
             default:
-                return QString::number( *doubleValue, 'f', formatting.precision );
+                text = QString::number( *doubleValue, 'f', formatting.precision );
+                break;
         }
+        return options.useThousandSeparator ? addThousandSeparators( text ) : text;
     }
 
-    if ( const auto* intValue = std::get_if<int>( &value ) ) return QString::number( *intValue );
+    if ( const auto* intValue = std::get_if<int>( &value ) )
+    {
+        const QString text = QString::number( *intValue );
+        return options.useThousandSeparator ? addThousandSeparators( text ) : text;
+    }
 
     if ( const auto* textValue = std::get_if<QString>( &value ) ) return *textValue;
 
@@ -420,6 +430,27 @@ RifTextDataTableDoubleFormatting RifReportTableFormatter::effectiveDoubleFormatt
     formatting.precision = std::clamp( formatting.precision, 0, 16 );
 
     return formatting;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Inserts a comma between each group of three digits in the leading integer part of the number text
+//--------------------------------------------------------------------------------------------------
+QString RifReportTableFormatter::addThousandSeparators( const QString& numberText )
+{
+    const int digitsStart = ( !numberText.isEmpty() && ( numberText[0] == '-' || numberText[0] == '+' ) ) ? 1 : 0;
+
+    int digitsEnd = digitsStart;
+    while ( digitsEnd < numberText.size() && numberText[digitsEnd].isDigit() )
+    {
+        digitsEnd++;
+    }
+
+    QString result = numberText;
+    for ( int pos = digitsEnd - 3; pos > digitsStart; pos -= 3 )
+    {
+        result.insert( pos, ',' );
+    }
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------

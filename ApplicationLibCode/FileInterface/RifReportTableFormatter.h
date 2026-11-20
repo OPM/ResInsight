@@ -41,9 +41,10 @@ struct RifReportFormatOptions
     DoubleFormat doubleFormat    = DoubleFormat::COLUMN_DEFAULT;
     QString      delimiter       = ",";
     QString      dateFormat; // Empty: ISO date, with time of day if not midnight
-    QString      undefinedValueText  = "-"; // Not used for CSV, where undefined values are empty fields
-    int          displayHeadRowCount = 1000;
-    int          displayTailRowCount = 50;
+    QString      undefinedValueText   = "-"; // Not used for CSV, where undefined values are empty fields
+    bool         useThousandSeparator = false; // Groups the integer digits of numbers, intended for display only
+    int          displayHeadRowCount  = 1000;
+    int          displayTailRowCount  = 50;
 };
 
 //==================================================================================================
@@ -97,5 +98,6 @@ private:
                                          const RifReportFormatOptions&               options );
 
     static RifTextDataTableDoubleFormatting effectiveDoubleFormatting( const RiaReportColumn& column, const RifReportFormatOptions& options );
+    static QString addThousandSeparators( const QString& numberText );
     static QString escapeCsvField( const QString& text, const QString& delimiter );
 };

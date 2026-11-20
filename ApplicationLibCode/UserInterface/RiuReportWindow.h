@@ -32,6 +32,7 @@
 
 class RiaReportDataProducer;
 
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QSpinBox;
@@ -99,6 +100,7 @@ private:
     void showColumnMenu( QTableView* tableView, const QPoint& position );
 
     RifReportFormatOptions                  formatOptions() const;
+    RifReportFormatOptions                  displayFormatOptions() const;
     RimPlotAxisProperties::NumberFormatType numberFormat() const;
     RiaReportDataProducer*                  producer() const;
 
@@ -118,6 +120,7 @@ private:
     QLabel*         m_sourceLabel;
     QComboBox*      m_numberFormatCombo;
     QSpinBox*       m_precisionSpinBox;
+    QCheckBox*      m_thousandSeparatorCheckBox;
     QStackedWidget* m_stackedWidget;
     QLabel*         m_placeholderLabel;
     QTabWidget*     m_tabWidget;
