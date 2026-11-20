@@ -279,6 +279,14 @@ bool RimEclipsePropertyFilter::isUsingFormationNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimEclipsePropertyFilter::selectedCategoryValuesForCase( const RimEclipseCase* /*eclipseCase*/ ) const
+{
+    return selectedCategoryValues();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// A property filter on a dynamic result (e.g. SOIL, SWAT) accepts different cells at each time step.
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isDynamic() const
@@ -878,7 +886,7 @@ void RimEclipsePropertyFilter::updateCellVisibility( cvf::UByteArray*   cellVisi
 
     if ( isCategorySelectionActive() )
     {
-        std::vector<int> integerVector = selectedCategoryValues();
+        std::vector<int> integerVector = selectedCategoryValuesForCase( ec );
         std::set<int>    integerSet( integerVector.begin(), integerVector.end() );
 
         for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )

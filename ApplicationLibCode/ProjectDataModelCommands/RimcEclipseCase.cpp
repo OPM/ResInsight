@@ -382,6 +382,10 @@ RimcEclipseCase_filteredCellsInternal::RimcEclipseCase_filteredCellsInternal( ca
 std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInternal::execute()
 {
     auto* eclipseCase = self<RimEclipseCase>();
+
+    // Realizations of a grid ensemble can have case data without derived results like formation names
+    if ( eclipseCase ) eclipseCase->ensureReservoirCaseIsOpen();
+
     if ( !eclipseCase || !eclipseCase->eclipseCaseData() )
     {
         return std::unexpected( QString( "Self is not an Eclipse case with case data." ) );
@@ -409,7 +413,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
 
     cvf::UByteArray cellVis( n );
     cellVis.setAll( 1 );
-    filter->updateCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
+    // Evaluate against the results of this case, also for a filter owned by another case, like an ensemble filter
+    filter->updateCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ), eclipseCase );
 
     std::vector<int32_t> values;
     values.reserve( n );

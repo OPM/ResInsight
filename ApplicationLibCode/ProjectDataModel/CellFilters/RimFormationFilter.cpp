@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 
 #include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimFormationTools.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimOilField.h"
@@ -33,6 +34,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLabel.h"
 
@@ -48,7 +50,12 @@ CAF_PDM_SOURCE_INIT( RimFormationFilter, "FormationFilter" );
 //--------------------------------------------------------------------------------------------------
 RimFormationFilter::RimFormationFilter()
 {
-    CAF_PDM_InitObject( "Formation Filter", ":/Formations16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Formation Filter",
+                                                    ":/Formations16x16.png",
+                                                    "",
+                                                    "",
+                                                    "FormationFilter",
+                                                    "A cell filter selecting cells in the chosen formations" );
 
     // Formation filters always select formations
     m_useCategorySelection = true;
@@ -95,6 +102,85 @@ void RimFormationFilter::setToFormationNames()
     setToDefaultValues();
     updateFilterName();
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFormationFilter::availableFormationNames() const
+{
+    // Formation categories use the formation index as value, see RimPropertyFilter::setCategoryNames
+    std::vector<QString> names( m_categoryNames.size() );
+    for ( size_t i = 0; i < m_categoryNames.size() && i < m_categoryValues.size(); i++ )
+    {
+        const int value = m_categoryValues[i];
+        if ( value >= 0 && value < static_cast<int>( names.size() ) ) names[value] = m_categoryNames[i];
+    }
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimFormationFilter::setSelectedFormationNames( const std::vector<QString>& formationNames )
+{
+    // Refresh the categories from the case, so the names are resolved against the current formation list of
+    // the filter case. This is the list used by RimcFormationFilterTools::validateFormationNames. Categories
+    // are not computed until the case data is loaded, see RimDataFilterCollection::loadAndInitializeFilters.
+    const RimEclipseCase* eclipseCase = m_resultDefinition->eclipseCase();
+    if ( m_categoryNames.empty() || ( eclipseCase && eclipseCase->eclipseCaseData() ) )
+    {
+        m_resultDefinition->loadResult();
+        computeResultValueRange();
+    }
+
+    const std::vector<QString> available = availableFormationNames();
+    if ( available.empty() ) return std::unexpected( QString( "No formation names are loaded for the filter case" ) );
+
+    auto indices = RimFormationTools::formationIndicesFromNames( available, formationNames );
+    if ( !indices ) return std::unexpected( indices.error() );
+
+    m_selectedCategoryValues = indices.value();
+    updateFilterName();
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFormationFilter::selectedFormationNames() const
+{
+    return RimFormationTools::formationNamesFromIndices( availableFormationNames(), m_selectedCategoryValues() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The selection is stored as indices into the formation list of the filter case. Other cases, like
+/// the realizations of an ensemble, can have their formations in another order, so the selected names
+/// are resolved against the formation list of the evaluated case. Names missing in the case select
+/// nothing.
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimFormationFilter::selectedCategoryValuesForCase( const RimEclipseCase* eclipseCase ) const
+{
+    const std::vector<int> storedValues = selectedCategoryValues();
+    if ( !eclipseCase ) return storedValues;
+
+    const std::vector<QString> filterCaseNames = availableFormationNames();
+    const std::vector<QString> caseNames       = RimFormationTools::formationNames( eclipseCase );
+    // Without the formation list of the filter case, the stored indices cannot be resolved by name
+    if ( caseNames.empty() || filterCaseNames.empty() || caseNames == filterCaseNames ) return storedValues;
+
+    const std::vector<QString> selectedNames = RimFormationTools::formationNamesFromIndices( filterCaseNames, storedValues );
+
+    std::vector<int> values;
+    for ( size_t i = 0; i < caseNames.size(); i++ )
+    {
+        if ( std::find( selectedNames.begin(), selectedNames.end(), caseNames[i] ) != selectedNames.end() )
+        {
+            values.push_back( static_cast<int>( i ) );
+        }
+    }
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,8 +267,9 @@ QString RimFormationFilter::compressedSelectedCategoryNames( int maxLength ) con
         auto it = std::find( m_categoryValues.begin(), m_categoryValues.end(), value );
         if ( it == m_categoryValues.end() ) continue;
 
+        // A formation split over several K ranges occurs more than once, and is listed once
         const size_t index = std::distance( m_categoryValues.begin(), it );
-        if ( index < m_categoryNames.size() ) names.push_back( m_categoryNames[index] );
+        if ( index < m_categoryNames.size() && !names.contains( m_categoryNames[index] ) ) names.push_back( m_categoryNames[index] );
     }
 
     QString text;

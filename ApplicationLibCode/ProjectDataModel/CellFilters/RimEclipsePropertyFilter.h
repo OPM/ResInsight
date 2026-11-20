@@ -78,6 +78,9 @@ public:
 protected:
     void updateReadOnlyStateOfAllFields();
 
+    // Selected category values to match against the cell values of the given case
+    virtual std::vector<int> selectedCategoryValuesForCase( const RimEclipseCase* eclipseCase ) const;
+
 private:
     void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                                   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
