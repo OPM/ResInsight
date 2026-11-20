@@ -38,6 +38,24 @@ TEST( RifReportTableFormatter, FormatsCellsWithColumnPrecisionAndOverrides )
     EXPECT_EQ( "1.23e+03", RifReportTableFormatter::formatCell( 1234.5, column, options ) );
 }
 
+TEST( RifReportTableFormatter, GroupsDigitsWhenThousandSeparatorIsEnabled )
+{
+    RiaReportColumn column{ .title = "Value", .doubleFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 ) };
+
+    RifReportFormatOptions options;
+    EXPECT_EQ( "1234567.89", RifReportTableFormatter::formatCell( 1234567.891, column, options ) );
+
+    options.useThousandSeparator = true;
+    EXPECT_EQ( "1,234,567.89", RifReportTableFormatter::formatCell( 1234567.891, column, options ) );
+    EXPECT_EQ( "-123,456.00", RifReportTableFormatter::formatCell( -123456.0, column, options ) );
+    EXPECT_EQ( "999.00", RifReportTableFormatter::formatCell( 999.0, column, options ) );
+    EXPECT_EQ( "-1,000", RifReportTableFormatter::formatCell( -1000, column, options ) );
+    EXPECT_EQ( "12345", RifReportTableFormatter::formatCell( QString( "12345" ), column, options ) );
+
+    options.doubleFormat = RifReportFormatOptions::DoubleFormat::SCIENTIFIC;
+    EXPECT_EQ( "1.23E+06", RifReportTableFormatter::formatCell( 1234567.891, column, options ) );
+}
+
 TEST( RifReportTableFormatter, FormatsUndefinedValues )
 {
     RiaReportColumn        column{ .title = "Value" };
