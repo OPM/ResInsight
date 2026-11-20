@@ -30,6 +30,7 @@
 #include "RifEventKeywordFormatter.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+#include "ProjectDataModel/Jobs/RimKeywordRecordComments.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
 #include "RimWellEvent.h"
@@ -347,10 +348,10 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     std::map<QString, std::map<size_t, QString>> recordComments;
 
     std::map<size_t, QString> noComments;
-    auto                      serializeKeyword = [&]( const Opm::DeckKeyword& kw )
+    auto                      serializeKeyword = [&]( const Opm::DeckKeyword& kw, const std::map<size_t, QString>* blockComments = nullptr )
     {
         const auto  it       = recordComments.find( QString::fromStdString( kw.name() ) );
-        const auto& comments = it != recordComments.end() ? it->second : noComments;
+        const auto& comments = blockComments ? *blockComments : ( it != recordComments.end() ? it->second : noComments );
         return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw, comments )
                             : RimKeywordFactory::deckKeywordToString( kw, comments );
     };
@@ -398,6 +399,8 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     // record followed by that well's segment records, so they are kept as separate per-well blocks
     // (keyed by keyword name, preserving well order) and serialised individually.
     std::map<QString, std::vector<Opm::DeckKeyword>> unmergedBlocks;
+    // Record comments for each block in unmergedBlocks, at the same index.
+    std::map<QString, std::vector<std::map<size_t, QString>>> unmergedRecordComments;
 
     // Wells sharing an export name (multilateral wells) are one well in the deck, so WELSPECS/COMPORD, COMPDAT and
     // the MSW keywords are generated once per export name. Groups keep the export-name order of wellPaths, and
@@ -458,6 +461,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
                                 events,
                                 keywordBlocks,
                                 unmergedBlocks,
+                                unmergedRecordComments,
                                 emittedSegmentLayouts,
                                 warnings );
         }
@@ -528,11 +532,11 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
         }
     };
 
-    auto appendKeywordText = [&]( const Opm::DeckKeyword& kw )
+    auto appendKeywordText = [&]( const Opm::DeckKeyword& kw, const std::map<size_t, QString>* blockComments = nullptr )
     {
         if ( !shouldEmitKeyword( kw ) ) return;
         appendEventComments( QString::fromStdString( kw.name() ) );
-        result += serializeKeyword( kw );
+        result += serializeKeyword( kw, blockComments );
         result += "\n";
     };
 
@@ -582,9 +586,11 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
         }
         if ( auto it = unmergedBlocks.find( name ); it != unmergedBlocks.end() )
         {
-            for ( const auto& keyword : it->second )
+            const auto commentsIt = unmergedRecordComments.find( name );
+            for ( size_t i = 0; i < it->second.size(); ++i )
             {
-                appendKeywordText( keyword );
+                const bool hasComments = commentsIt != unmergedRecordComments.end() && i < commentsIt->second.size();
+                appendKeywordText( it->second[i], hasComments ? &commentsIt->second[i] : nullptr );
             }
         }
         appendRawText( RimWellEventRawText::Placement::AFTER_KEYWORD, name );
@@ -707,7 +713,7 @@ void RicScheduleDataGenerator::generateCompletionsForWellGroup( RimEclipseCase* 
         const auto it = keywordBlocks.find( name );
         if ( it == keywordBlocks.end() || it->second.size() <= sizeBefore ) return;
 
-        recordComments[name][sizeBefore] = RimKeywordFactory::recordSeparatorComment();
+        recordComments[name][sizeBefore] = RimKeywordRecordComments::separator();
     };
 
     mergeWithWellSeparator( "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
@@ -805,15 +811,16 @@ void RicScheduleDataGenerator::sortCompletionsMainBoreFirst( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                                   RimEclipseCase*                                   eclipseCase,
-                                                   RimWellPath&                                      wellPath,
-                                                   const QDateTime&                                  date,
-                                                   const std::vector<RimWellEvent*>&                 eventsAtDate,
-                                                   std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
-                                                   std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                                   std::map<QString, QString>&                       emittedSegmentLayouts,
-                                                   std::set<QString>&                                warnings )
+void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                                timeline,
+                                                   RimEclipseCase*                                            eclipseCase,
+                                                   RimWellPath&                                               wellPath,
+                                                   const QDateTime&                                           date,
+                                                   const std::vector<RimWellEvent*>&                          eventsAtDate,
+                                                   std::map<QString, Opm::DeckKeyword>&                       keywordBlocks,
+                                                   std::map<QString, std::vector<Opm::DeckKeyword>>&          unmergedBlocks,
+                                                   std::map<QString, std::vector<std::map<size_t, QString>>>& unmergedRecordComments,
+                                                   std::map<QString, QString>&                                emittedSegmentLayouts,
+                                                   std::set<QString>&                                         warnings )
 {
     auto* segmentCollection = wellPath.segmentCollection();
     if ( !segmentCollection )
@@ -870,10 +877,11 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
 
     // WELSEGS and COMPSEGS are not merged across wells (see generateDateSection): each well keeps
     // its own block, appended in well order.
-    auto appendUnmerged = [&unmergedBlocks]( const QString& name, Opm::DeckKeyword kw )
+    auto appendUnmerged = [&]( const QString& name, Opm::DeckKeyword kw, std::map<size_t, QString> comments = {} )
     {
         if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
         unmergedBlocks[name].push_back( std::move( kw ) );
+        unmergedRecordComments[name].push_back( std::move( comments ) );
     };
 
     int  maxSegments = 0;
@@ -892,7 +900,7 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
     if ( hasGeometryEvents || layoutChanged )
     {
         emittedSegmentLayouts[wellName] = segmentLayout;
-        appendUnmerged( "WELSEGS", std::move( welsegsKw ) );
+        appendUnmerged( "WELSEGS", std::move( welsegsKw ), RimKeywordRecordComments::welsegsRecordComments( mswData ) );
         appendUnmerged( "COMPSEGS", std::move( compsegsKw ) );
     }
 

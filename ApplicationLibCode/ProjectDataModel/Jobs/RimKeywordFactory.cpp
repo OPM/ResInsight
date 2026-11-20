@@ -18,6 +18,8 @@
 
 #include "RimKeywordFactory.h"
 
+#include "RimKeywordRecordComments.h"
+
 #include "Commands/CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RiaOpmKeywordTools.h"
@@ -56,6 +58,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 #include <QLocale>
+#include <QStringList>
 
 #include <algorithm>
 #include <optional>
@@ -819,15 +822,11 @@ Opm::DeckKeyword datesKeyword( const QDateTime& date )
 //--------------------------------------------------------------------------------------------------
 namespace
 {
-    std::string formatCommentLines( const QString& comment, size_t separatorWidth = 0 )
+    // columnHeaderLine is the text written where RimKeywordRecordComments::columnHeader() occurs, if any.
+    std::string formatCommentLines( const QString& comment, size_t separatorWidth = 0, const std::string& columnHeaderLine = {} )
     {
         std::string result;
         QString     text = comment;
-        if ( text == recordSeparatorComment() )
-        {
-            result += std::string( std::max<size_t>( separatorWidth, 2 ), '-' ) + "\n";
-            return result;
-        }
         if ( text.startsWith( '\n' ) )
         {
             result += "\n";
@@ -836,16 +835,28 @@ namespace
         for ( QString line : text.split( '\n' ) )
         {
             line.remove( '\r' );
-            result += line.isEmpty() ? "--\n" : ( "-- " + line + "\n" ).toStdString();
+            if ( line == RimKeywordRecordComments::separator() )
+            {
+                result += std::string( std::max<size_t>( separatorWidth, 2 ), '-' ) + "\n";
+            }
+            else if ( line == RimKeywordRecordComments::columnHeader() )
+            {
+                result += columnHeaderLine;
+            }
+            else if ( RimKeywordRecordComments::isSectionTitle( line ) )
+            {
+                std::string title = "-- " + RimKeywordRecordComments::sectionTitleText( line ).toStdString() + " ";
+                if ( title.size() < separatorWidth ) title += std::string( separatorWidth - title.size(), '-' );
+                result += title + "\n";
+            }
+            else
+            {
+                result += line.isEmpty() ? "--\n" : ( "-- " + line + "\n" ).toStdString();
+            }
         }
         return result;
     }
 } // namespace
-
-QString recordSeparatorComment()
-{
-    return QStringLiteral( "\x1f-separator-\x1f" );
-}
 
 QString deckKeywordToString( const Opm::DeckKeyword& keyword, const std::map<size_t, QString>& recordComments )
 {
@@ -1126,26 +1137,36 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword, const std::
 
         // Header comment line: "--" occupies the same two columns as the data-row indent so the
         // header names line up with the values below them.
+        std::string headerLine;
         if ( numCols > 0 )
         {
-            oss << "--";
+            std::ostringstream headerStream;
+            headerStream << "--";
             for ( size_t c = 0; c < numCols; ++c )
             {
-                if ( c > 0 ) oss << "  ";
-                oss << rightAlign( header[c], width[c] );
+                if ( c > 0 ) headerStream << "  ";
+                headerStream << rightAlign( header[c], width[c] );
             }
-            oss << "\n";
+            headerStream << "\n";
+            headerLine = headerStream.str();
         }
+
+        size_t rowWidth = 2 + 2;
+        for ( size_t c = 0; c < numCols; ++c )
+            rowWidth += width[c] + ( c > 0 ? 2 : 0 );
+
+        // A comment on the first row can place the column header itself, after the comment.
+        const auto firstComment        = recordComments.find( recordIndex );
+        const bool commentPlacesHeader = firstComment != recordComments.end() &&
+                                         firstComment->second.contains( RimKeywordRecordComments::columnHeader() );
+        if ( !commentPlacesHeader ) oss << headerLine;
 
         size_t rowRecordIndex = recordIndex;
         for ( const auto& row : rows )
         {
             if ( auto it = recordComments.find( rowRecordIndex ); it != recordComments.end() )
             {
-                size_t rowWidth = 2 + 2;
-                for ( size_t c = 0; c < numCols; ++c )
-                    rowWidth += width[c] + ( c > 0 ? 2 : 0 );
-                oss << formatCommentLines( it->second, rowWidth );
+                oss << formatCommentLines( it->second, rowWidth, headerLine );
             }
             ++rowRecordIndex;
 

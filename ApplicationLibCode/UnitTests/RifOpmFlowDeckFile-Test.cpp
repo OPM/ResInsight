@@ -6,9 +6,11 @@
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
 
+#include "CompletionsMsw/RigMswTableData.h"
 #include "RigEclipseResultTools.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+#include "ProjectDataModel/Jobs/RimKeywordRecordComments.h"
 #include "ProjectDataModel/WellEvents/RimWellEventKeywordItem.h"
 
 #include "cvfStructGrid.h"
@@ -889,7 +891,7 @@ TEST( RimKeywordFactoryTest, RecordCommentsAreEmittedAboveRecords )
     EXPECT_TRUE( blank.contains( " /\n\n-- Well: A-6\n  'A-6'" ) ) << blank.toStdString();
 
     // The separator comment is a dashed line as wide as the record rows.
-    const std::map<size_t, QString> separator = { { 1, RimKeywordFactory::recordSeparatorComment() } };
+    const std::map<size_t, QString> separator = { { 1, RimKeywordRecordComments::separator() } };
 
     const QString alignedSeparated = RimKeywordFactory::deckKeywordToAlignedString( kw, separator );
     const int     rowStart         = alignedSeparated.indexOf( "  'A-5'" );
@@ -899,4 +901,59 @@ TEST( RimKeywordFactoryTest, RecordCommentsAreEmittedAboveRecords )
 
     const QString plainSeparated = RimKeywordFactory::deckKeywordToString( kw, separator );
     EXPECT_TRUE( plainSeparated.contains( "/\n---" ) ) << plainSeparated.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+TEST( RimKeywordFactoryTest, WelsegsCommentsShowWhichPartOfTheWellTheSegmentsBelongTo )
+{
+    RigMswTableData mswData( "OP5", RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+    mswData.setWelsegsHeader( WelsegsHeader{ "OP5", 1599.5, 3350.0, std::nullopt, "ABS", std::string( "HF-" ), std::string( "HO" ) } );
+
+    auto addRow = [&]( int segment, int branch, int join, const std::string& source, const std::string& group )
+    {
+        WelsegsRow row{};
+        row.segment1       = segment;
+        row.segment2       = segment;
+        row.branch         = branch;
+        row.joinSegment    = join;
+        row.length         = 3400.0 + segment;
+        row.depth          = 1600.0;
+        row.diameter       = 0.159;
+        row.roughness      = 0.00065;
+        row.sourceWellName = source;
+        row.groupLabel     = group;
+        mswData.addWelsegsRow( row );
+    };
+    addRow( 2, 1, 1, "OP5", "" );
+    addRow( 3, 1, 2, "OP5", "" );
+    addRow( 59, 3, 5, "OP5", "ICD segments" );
+    addRow( 28, 2, 2, "MLW_OP5_Y2", "" );
+
+    int  maxSegments = 0;
+    int  maxBranches = 0;
+    auto kw          = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
+    auto comments    = RimKeywordRecordComments::welsegsRecordComments( mswData );
+    ASSERT_EQ( 3u, comments.size() );
+
+    const QString aligned = RimKeywordFactory::deckKeywordToAlignedString( kw, comments );
+
+    // Branch heading above the column header, repeated for each branch
+    EXPECT_EQ( 2, aligned.count( "-- Branch " ) ) << aligned.toStdString();
+    EXPECT_TRUE( aligned.contains( "-- Branch 1: OP5\n-" ) ) << aligned.toStdString();
+    EXPECT_TRUE( aligned.contains( "-- Branch 2: OP5.MLW_OP5_Y2\n-" ) ) << aligned.toStdString();
+    // Column header appears once per branch, not for the ICD group
+    EXPECT_EQ( 2, aligned.count( "--SEGMENT1" ) ) << aligned.toStdString();
+
+    // The completion group has a title padded with dashes, and no new column header
+    EXPECT_TRUE( aligned.contains( "-- ICD segments --" ) ) << aligned.toStdString();
+    EXPECT_LT( aligned.indexOf( "Branch 1" ), aligned.indexOf( "-- ICD segments" ) );
+    EXPECT_LT( aligned.indexOf( "-- ICD segments" ), aligned.indexOf( "Branch 2" ) );
+
+    // Plain output has the branch and group comments, but no column header
+    const QString plain = RimKeywordFactory::deckKeywordToString( kw, comments );
+    EXPECT_TRUE( plain.contains( "-- Branch 1: OP5\n" ) ) << plain.toStdString();
+    EXPECT_TRUE( plain.contains( "-- ICD segments --" ) ) << plain.toStdString();
+    EXPECT_FALSE( plain.contains( "SEGMENT1" ) );
 }

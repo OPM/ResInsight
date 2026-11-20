@@ -65,6 +65,7 @@ Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata,
 Opm::DeckKeyword complumpKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
 
 Opm::DeckKeyword welsegsKeyword( const RigMswTableData& mswData, int& maxSegments, int& maxBranches );
+
 Opm::DeckKeyword compsegsKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegvalvKeyword( const RigMswTableData& mswData );
 Opm::DeckKeyword wsegaicdKeyword( const RigMswTableData& mswData );
@@ -84,9 +85,7 @@ Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputNncTools::T
 
 Opm::DeckKeyword datesKeyword( const QDateTime& date );
 // recordComments maps a record index to a (possibly multi-line) comment emitted as "--" lines directly above that record.
-// A comment starting with a newline is preceded by a blank line.
-// The comment recordSeparatorComment() is rendered as a line of dashes as wide as the record row.
-QString recordSeparatorComment();
+// A comment starting with a newline is preceded by a blank line. See RimKeywordRecordComments for special comment lines.
 QString deckKeywordToString( const Opm::DeckKeyword& keyword, const std::map<size_t, QString>& recordComments = {} );
 
 // Serialize a keyword as human-readable text: a "--"-prefixed column-header comment line listing

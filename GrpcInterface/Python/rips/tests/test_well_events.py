@@ -2449,6 +2449,24 @@ class TestScheduleGeneration:
         timeline.delete_all_events()
         assert not timeline.event_dates()
 
+    def test_welsegs_branch_and_group_comments(self, project_with_case_and_well):
+        """WELSEGS carries a branch heading and a title for the valve segment group."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+        self._add_msw_and_perf(timeline, well_path, valve=True)
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        welsegs = schedule_text.split("WELSEGS\n")[1].split("COMPSEGS")[0]
+        print(welsegs)
+        assert re.search(r"^-- Branch 1", welsegs, re.MULTILINE)
+        assert re.search(r"^-- Valve segments", welsegs, re.MULTILINE)
+
 
 class TestKeywordEvents:
     """Tests for well keyword event functionality."""

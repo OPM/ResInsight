@@ -66,6 +66,7 @@ struct WelsegsRow
     
     std::string           description;
     std::string           sourceWellName;   // Name of the source well path object. This can be different than WELNAME used in other tables.
+    std::string           groupLabel{};     // Section title for completion branches; empty for well path branches
 };
 
 //==================================================================================================
