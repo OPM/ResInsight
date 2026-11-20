@@ -228,7 +228,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddressParseEr
         }
     }
 
-    auto address = fromTokens( tokens );
+    auto address = fromTokens( tokens, false );
 
     if ( address.category() == SummaryCategory::SUMMARY_INVALID || address.category() == SummaryCategory::SUMMARY_IMPORTED )
     {
@@ -1127,7 +1127,7 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector<std::string>& tokens )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector<std::string>& tokens, bool enforceKeywordLength )
 {
     if ( tokens.empty() ) return {};
 
@@ -1156,12 +1156,12 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
         }
         else
         {
-            category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName );
+            category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName, enforceKeywordLength );
         }
     }
     else
     {
-        category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName );
+        category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName, enforceKeywordLength );
     }
 
     switch ( category )

@@ -271,6 +271,28 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Imported )
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_LongCustomSuffix )
+{
+    for ( const std::string name : { "FOPT_Exp", "FOPT_High", "FOPT_Base" } )
+    {
+        RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( name );
+
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD, addr.category() ) << name;
+        EXPECT_EQ( name, addr.vectorName() );
+    }
+}
+
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_FreeTextIsImported )
+{
+    for ( const std::string name : { "formation index", "Formation index", "Fault 1" } )
+    {
+        RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( name );
+
+        EXPECT_EQ( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED, addr.category() ) << name;
+        EXPECT_EQ( name, addr.vectorName() );
+    }
+}
+
 TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult1 )
 {
     std::string addrString = "ER:AAQR:456";

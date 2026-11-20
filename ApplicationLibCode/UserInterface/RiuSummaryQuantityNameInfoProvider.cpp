@@ -68,15 +68,24 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
+RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName,
+                                                                                                       bool enforceKeywordLength )
 {
     // Try to an exact match on the vector name first in the vector table.
     bool exactMatch    = true;
     auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
     if ( exactCategory != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID ) return exactCategory;
 
-    if ( ( vectorName.size() < 3 || vectorName.size() > 8 ) && !vectorName.ends_with( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
+    // Free text like "formation index" is not a vector name, and must not be classified by its first letter
+    if ( !enforceKeywordLength && vectorName.find_first_of( " \t" ) != std::string::npos )
         return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+
+    if ( ( vectorName.size() < 3 || vectorName.size() > 8 ) && !vectorName.ends_with( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
+    {
+        if ( enforceKeywordLength || vectorName.empty() ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+
+        return categoryFromVectorName( RifEclipseSummaryAddress::baseVectorName( vectorName ), exactMatch );
+    }
 
     auto tokens = RiaStdStringTools::splitString( vectorName, ':' );
     if ( tokens.size() == 3 && tokens[0].starts_with( "W" ) )

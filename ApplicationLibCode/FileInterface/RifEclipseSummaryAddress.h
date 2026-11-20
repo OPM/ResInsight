@@ -174,7 +174,7 @@ public:
     static constexpr int MAX_PERCENTILE = 100;
 
 private:
-    static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
+    static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens, bool enforceKeywordLength = true );
 
     bool                             isValidEclipseCategory() const;
     static std::tuple<int, int, int> ijkTupleFromUiText( const std::string& s );
