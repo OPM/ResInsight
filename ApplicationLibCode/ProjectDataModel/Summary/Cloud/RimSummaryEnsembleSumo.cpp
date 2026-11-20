@@ -28,6 +28,7 @@
 #include "RifArrowTools.h"
 #include "RifByteArrayArrowRandomAccessFile.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressParser.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
 #include "Cloud/RimSumoDataSource.h"
@@ -826,7 +827,7 @@ void RimSummaryEnsembleSumo::redistributeCachedDataToRealizations()
         }
         else
         {
-            auto resultAddress = RifEclipseSummaryAddress::fromEclipseTextAddress( key.vectorName.toStdString() );
+            auto resultAddress = RifEclipseSummaryAddressParser::fromEclipseTextAddress( key.vectorName.toStdString() );
             distributeDataToRealizations( resultAddress, table );
         }
     }
@@ -910,7 +911,7 @@ void RimSummaryEnsembleSumo::updateResultAddresses()
     auto vectorNames = m_sumoDataSource->vectorNames();
     for ( auto vectorName : vectorNames )
     {
-        auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( vectorName.toStdString() );
+        auto adr = RifEclipseSummaryAddressParser::fromEclipseTextAddress( vectorName.toStdString() );
         m_resultAddresses.insert( adr );
     }
 

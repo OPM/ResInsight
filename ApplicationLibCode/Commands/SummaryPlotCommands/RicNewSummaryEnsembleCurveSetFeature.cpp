@@ -25,6 +25,8 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "RifEclipseSummaryAddressParser.h"
+
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -194,7 +196,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            auto address  = RifEclipseSummaryAddress::fromEclipseTextAddress( "FOPT" );
+            auto address  = RifEclipseSummaryAddressParser::fromEclipseTextAddress( "FOPT" );
             firstCurveSet = RicNewSummaryEnsembleCurveSetFeature::addCurveSet( plot, ensemble, address );
         }
         plot->loadDataAndUpdate();

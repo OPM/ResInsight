@@ -35,6 +35,7 @@
 #include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindow.h"
 
+#include "RifEclipseSummaryAddressParser.h"
 #include "RifSummaryCalculationImporter.h"
 
 #include <QAction>
@@ -92,7 +93,7 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
             {
                 auto variable =
                     dynamic_cast<RimSummaryCalculationVariable*>( summaryCalculation->addVariable( QString::fromStdString( var.name ) ) );
-                RifEclipseSummaryAddress address = RifEclipseSummaryAddress::fromEclipseTextAddress( var.address );
+                RifEclipseSummaryAddress address = RifEclipseSummaryAddressParser::fromEclipseTextAddress( var.address );
 
                 RimSummaryAddress summaryAddress;
                 summaryAddress.setAddress( address );
