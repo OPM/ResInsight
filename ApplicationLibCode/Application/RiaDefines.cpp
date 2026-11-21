@@ -123,15 +123,6 @@ void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
-{
-    addItem( RiaDefines::MeshModeType::FULL_MESH, "FULL_MESH", "All" );
-    addItem( RiaDefines::MeshModeType::FAULTS_MESH, "FAULTS_MESH", "Faults only" );
-    addItem( RiaDefines::MeshModeType::NO_MESH, "NO_MESH", "None" );
-    setDefault( RiaDefines::MeshModeType::FULL_MESH );
-}
-
-template <>
 void caf::AppEnum<RiaDefines::GridCaseAxis>::setUp()
 {
     addItem( RiaDefines::GridCaseAxis::UNDEFINED_AXIS, "None", "None" );
@@ -148,16 +139,6 @@ void caf::AppEnum<RiaDefines::ThemeEnum>::setUp()
     addItem( RiaDefines::ThemeEnum::DEFAULT, "DEFAULT", "Default theme" );
     addItem( RiaDefines::ThemeEnum::DARK, "DARK", "Dark theme" );
     setDefault( RiaDefines::ThemeEnum::DEFAULT );
-}
-
-template <>
-void AppEnum<RiaDefines::RINavigationPolicy>::setUp()
-{
-    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CEETRON, "NAVIGATION_POLICY_CEETRON", "Ceetron" );
-    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CAD, "NAVIGATION_POLICY_CAD", "CAD" );
-    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
-    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
-    setDefault( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS );
 }
 
 template <>
@@ -471,14 +452,6 @@ bool RiaDefines::isTitleUpdate( MultiPlotPageUpdateType updateType )
 bool RiaDefines::isPlotUpdate( MultiPlotPageUpdateType updateType )
 {
     return BitmaskEnum<MultiPlotPageUpdateType>( updateType ).AnyOf( MultiPlotPageUpdateType::PLOT );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RiaDefines::viewScaleOptions()
-{
-    return { 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 15.0, 20.0, 50.0 };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 
 #include "RiaZScaleTools.h"
 
-#include "RiaDefines.h"
+#include "RiaViewDefines.h"
 
 #include <algorithm>
 #include <set>
