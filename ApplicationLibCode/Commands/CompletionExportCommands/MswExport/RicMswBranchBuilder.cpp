@@ -824,7 +824,8 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                         seg.wsegvalvData = wv;
 
                         segmentNumber++;
-                        result.push_back( RigMswBranch{ cellBranch, std::nullopt, { std::move( seg ) } } );
+                        result.push_back(
+                            RigMswBranch{ cellBranch, std::nullopt, { std::move( seg ) }, RigMswBranchSource::Perforation, "Valve segments" } );
                     }
                 }
                 continue;
@@ -933,7 +934,8 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                             }
 
                             segmentNumber++;
-                            result.push_back( RigMswBranch{ cellBranch, std::nullopt, { std::move( seg ) } } );
+                            result.push_back(
+                                RigMswBranch{ cellBranch, std::nullopt, { std::move( seg ) }, RigMswBranchSource::Perforation, "Valve segments" } );
                         }
                     }
                 }
@@ -1008,7 +1010,8 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                 segmentNumber++;
                 branchSegs.push_back( std::move( valveSeg ) );
             }
-            result.push_back( RigMswBranch{ valveBranch, std::nullopt, std::move( branchSegs ) } );
+            result.push_back(
+                RigMswBranch{ valveBranch, std::nullopt, std::move( branchSegs ), RigMswBranchSource::Perforation, "Valve segments" } );
         }
     }
 
@@ -1127,7 +1130,7 @@ std::vector<RigMswBranch> buildFractureBranches( RimEclipseCase*                
         seg.description         = fracture->name().toStdString();
         seg.intersections       = std::move( compsegs );
 
-        result.push_back( RigMswBranch{ fracBranch, std::nullopt, { std::move( seg ) }, RigMswBranchSource::Fracture } );
+        result.push_back( RigMswBranch{ fracBranch, std::nullopt, { std::move( seg ) }, RigMswBranchSource::Fracture, "Fracture segments" } );
     }
 
     return result;
@@ -1271,7 +1274,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
 
             fishbonesContext.icdSegments.push_back( { icdSegNum, std::move( icdGlobalCellIndices ) } );
 
-            result.push_back( RigMswBranch{ icdBranch, std::nullopt, { std::move( icdSeg ) }, RigMswBranchSource::Fishbones } );
+            result.push_back( RigMswBranch{ icdBranch, std::nullopt, { std::move( icdSeg ) }, RigMswBranchSource::Fishbones, "ICD segments" } );
 
             // Lateral sub-segments
             for ( size_t lateralIndex : lateralIndices )
@@ -1376,7 +1379,8 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
 
                 fishbonesContext.laterals.push_back( std::move( lateralContext ) );
 
-                result.push_back( RigMswBranch{ latBranch, std::nullopt, std::move( latSegs ), RigMswBranchSource::Fishbones } );
+                result.push_back(
+                    RigMswBranch{ latBranch, std::nullopt, std::move( latSegs ), RigMswBranchSource::Fishbones, "Fishbone segments" } );
             }
         }
     }

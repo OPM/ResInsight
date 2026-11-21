@@ -114,29 +114,32 @@ private:
     // one export name at a specific date based on events, merging both into the accumulator. Connections in cells
     // shared by several well paths in the group are combined into one record. Records are ordered with the
     // mainbore's connections first, followed by each lateral's (see completionDataForWellPaths()).
-    static void generateCompletionsForWellGroup( RimEclipseCase*                      eclipseCase,
-                                                 const std::vector<RimWellPath*>&     wellGroup,
-                                                 const QDateTime&                     date,
-                                                 const std::vector<RimWellEvent*>&    eventsAtDate,
-                                                 std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                                 std::set<QString>&                   warnings );
+    static void generateCompletionsForWellGroup( RimEclipseCase*                               eclipseCase,
+                                                 const std::vector<RimWellPath*>&              wellGroup,
+                                                 const QDateTime&                              date,
+                                                 const std::vector<RimWellEvent*>&             eventsAtDate,
+                                                 std::map<QString, Opm::DeckKeyword>&          keywordBlocks,
+                                                 std::map<QString, std::map<size_t, QString>>& recordComments,
+                                                 std::set<QString>&                            warnings );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
-    // wells and are appended as separate per-well blocks in unmergedBlocks.
+    // wells and are appended as separate per-well blocks in unmergedBlocks, with the record comments of each
+    // block at the same index in unmergedRecordComments (WELSEGS comments tell which part of the well the segments belong to).
     // The caller decides which wells get MSW keywords (see mswWells in generateSchedule).
     // WELSEGS / COMPSEGS are written for segment/perforation events, and for valve events when the
     // segment layout differs from the one last written for the well (tracked in emittedSegmentLayouts).
     // The WELSEGS pressure drop components come from the WELSPECS event in effect at the date.
-    static void generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                    RimEclipseCase*                                   eclipseCase,
-                                    RimWellPath&                                      well,
-                                    const QDateTime&                                  date,
-                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
-                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
-                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
-                                    std::map<QString, QString>&                       emittedSegmentLayouts,
-                                    std::set<QString>&                                warnings );
+    static void generateMswForWell( const RimWellEventTimeline&                                timeline,
+                                    RimEclipseCase*                                            eclipseCase,
+                                    RimWellPath&                                               well,
+                                    const QDateTime&                                           date,
+                                    const std::vector<RimWellEvent*>&                          eventsAtDate,
+                                    std::map<QString, Opm::DeckKeyword>&                       keywordBlocks,
+                                    std::map<QString, std::vector<Opm::DeckKeyword>>&          unmergedBlocks,
+                                    std::map<QString, std::vector<std::map<size_t, QString>>>& unmergedRecordComments,
+                                    std::map<QString, QString>&                                emittedSegmentLayouts,
+                                    std::set<QString>&                                         warnings );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
     static void generateWellControlForWell( const RimWellPath&                   well,

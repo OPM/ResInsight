@@ -525,6 +525,7 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
         welsegsRow.roughness      = seg.roughness;
         welsegsRow.description    = seg.description;
         welsegsRow.sourceWellName = seg.sourceWellName;
+        welsegsRow.groupLabel     = branch.groupLabel;
         tableData.addWelsegsRow( welsegsRow );
 
         // COMPSEGS rows

@@ -885,6 +885,66 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_setTimestamp
     return nullptr; // Return nullptr on success (no specific object to return)
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_deleteAllEvents, "DeleteAllEvents" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_deleteAllEvents::RimcWellEventTimeline_deleteAllEvents( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Delete All Events", "", "", "Delete all events from the timeline" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_deleteAllEvents::execute()
+{
+    self<RimWellEventTimeline>()->clearAllEvents();
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_deleteEvents, "DeleteEvents" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_deleteEvents::RimcWellEventTimeline_deleteEvents( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Delete Events", "", "", "Delete the given events from the timeline" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_events, "Events", "", "", "", "Events of this timeline to delete" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_deleteEvents::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    const auto timelineEvents  = timeline->events();
+    const auto requestedEvents = m_events.ptrReferencedObjectsByType();
+
+    // Duplicates in the argument must not be deleted twice.
+    const std::set<RimWellEvent*>    uniqueEvents( requestedEvents.begin(), requestedEvents.end() );
+    const std::vector<RimWellEvent*> eventsToDelete( uniqueEvents.begin(), uniqueEvents.end() );
+
+    // Validate everything before deleting anything, so a bad argument leaves the timeline unchanged.
+    for ( auto* event : eventsToDelete )
+    {
+        if ( std::find( timelineEvents.begin(), timelineEvents.end(), event ) == timelineEvents.end() )
+        {
+            return std::unexpected( QString( "Cannot delete event: it does not belong to this timeline." ) );
+        }
+    }
+
+    timeline->removeEvents( eventsToDelete );
+    return nullptr;
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_generateSchedule, "GenerateSchedule" );
 
 //--------------------------------------------------------------------------------------------------
@@ -932,6 +992,9 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
 std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSchedule::execute()
 {
     auto timeline = self<RimWellEventTimeline>();
+
+    // Completions are computed from the intervals created by applying the events
+    timeline->applyAllEventsIfNoTimestampSet();
 
     // The dates and wells are collected from the timeline, honoring any set_timestamp() call.
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();

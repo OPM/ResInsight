@@ -1899,10 +1899,13 @@ class TestScheduleGeneration:
             aligned_lines = aligned.split(f"{keyword}\n", 1)[1].splitlines()
             assert aligned_lines[0].startswith("--")
             assert all(name in aligned_lines[0] for name in column_names)
-            assert aligned_lines[1].startswith("  ")
+            first_data_line = next(
+                line for line in aligned_lines[1:] if not line.startswith("--")
+            )
+            assert first_data_line.startswith("  ")
 
             compact_first_line = default.split(f"{keyword}\n", 1)[1].splitlines()[0]
-            assert not compact_first_line.startswith("--")
+            assert not any(name in compact_first_line for name in column_names)
 
     def test_perf_completion_number_triggers_complump(self, project_with_case_and_well):
         """#13273 follow-up: a completion_number on add_perf_event must surface as a
@@ -2330,6 +2333,139 @@ class TestScheduleGeneration:
         assert schedule_text.count("COMPDAT\n") == 1, (
             f"COMPDAT should stay grouped under one header; got {schedule_text.count('COMPDAT')}:\n{schedule_text}"
         )
+
+    @staticmethod
+    def _add_msw_and_perf(timeline, well_path, valve=False):
+        timeline.add_segment_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        if valve:
+            timeline.add_valve_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                measured_depth=2100.0,
+                valve_type="ICD",
+                state="OPEN",
+                flow_coefficient=0.7,
+                area=0.0001,
+            )
+
+    def test_compdat_divider_between_wells(self, project_with_case_and_well):
+        """Wells in COMPDAT are separated by a dashed comment line, without a preceding blank line."""
+        project, case, timeline = project_with_case_and_well
+        for well_path in project.well_paths():
+            self._add_msw_and_perf(timeline, well_path)
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        compdat = schedule_text.split("COMPDAT\n")[1].split("/\n\n")[0]
+        lines = compdat.splitlines()
+        dividers = [i for i, line in enumerate(lines) if re.fullmatch(r"-{10,}", line)]
+        assert len(dividers) == 2, f"One divider per well:\n{compdat}"
+        assert dividers[0] == 0
+        assert lines[dividers[1] - 1].strip() != "", "No blank line before the divider"
+
+    def test_export_applies_events_when_no_timestamp_set(
+        self, project_with_case_and_well
+    ):
+        """Export without set_timestamp still includes completions from all events."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+        self._add_msw_and_perf(timeline, well_path)
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        assert "COMPDAT" in schedule_text
+        assert "WELSEGS" in schedule_text
+
+    def test_export_respects_explicit_timestamp(self, project_with_case_and_well):
+        """An explicit cutoff is kept on export; events after it are not applied."""
+        project, case, timeline = project_with_case_and_well
+        well_a, well_b = project.well_paths()[:2]
+        self._add_msw_and_perf(timeline, well_a)
+        timeline.add_perf_event(
+            event_date="2024-06-01",
+            well_path=well_b,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp(timestamp="2024-03-01")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+
+        assert "WellPathA" in schedule_text
+        assert "WellPathB" not in schedule_text
+
+    def test_export_after_delete_events(self, project_with_case_and_well):
+        """Deleted events no longer contribute to the exported schedule."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+        self._add_msw_and_perf(timeline, well_path)
+        extra = timeline.add_perf_event(
+            event_date="2024-06-01",
+            well_path=well_path,
+            start_md=1000.0,
+            end_md=1100.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        timeline.delete_events(events=[extra])
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            first_date_as_comment=False,
+        )
+        assert "JUN" not in schedule_text
+
+        timeline.delete_all_events()
+        assert not timeline.event_dates()
+
+    def test_welsegs_branch_and_group_comments(self, project_with_case_and_well):
+        """WELSEGS carries a branch heading and a title for the valve segment group."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+        self._add_msw_and_perf(timeline, well_path, valve=True)
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=[well_path],
+            first_date_as_comment=False,
+        )
+
+        welsegs = schedule_text.split("WELSEGS\n")[1].split("COMPSEGS")[0]
+        print(welsegs)
+        assert re.search(r"^-- Branch 1", welsegs, re.MULTILINE)
+        assert re.search(r"^-- Valve segments", welsegs, re.MULTILINE)
 
 
 class TestKeywordEvents:
@@ -3303,6 +3439,57 @@ class TestTimelineQueries:
             datetime(2025, 1, 1),
         ]
         assert timeline.event_dates(wells=[well_a], event_types=["WCONHIST"]) == []
+
+    @pytest.fixture
+    def schedule_timeline(self, rips_instance, initialize_test):
+        """Timeline with schedule-level events only, so no case is needed."""
+        project = rips_instance.project
+        timeline = project.descendants(rips.WellPathCollection)[0].event_timeline()
+        timeline.add_insert_date_event(event_date="2024-01-01")
+        timeline.add_keyword_event(
+            event_date="2025-01-01",
+            keyword_name="RPTRST",
+            keyword_data={"BASIC": 2},
+        )
+        return timeline
+
+    def test_delete_events(self, schedule_timeline):
+        from datetime import datetime
+
+        timeline = schedule_timeline
+        first = timeline.add_insert_date_event(event_date="2031-01-01")
+        second = timeline.add_insert_date_event(event_date="2032-01-01")
+        assert timeline.latest_event_date() == datetime(2032, 1, 1)
+
+        # A repeated event is deleted once
+        timeline.delete_events(events=[first, second, first])
+        assert timeline.latest_event_date() == datetime(2025, 1, 1)
+        assert len(timeline.event_dates()) == 2
+
+        # Deleting nothing is a no-op
+        timeline.delete_events(events=[])
+        assert len(timeline.event_dates()) == 2
+
+    def test_delete_events_rejects_deleted_event(self, schedule_timeline):
+        from datetime import datetime
+
+        timeline = schedule_timeline
+        event = timeline.add_insert_date_event(event_date="2031-01-01")
+        timeline.delete_events(events=[event])
+        with pytest.raises(Exception):
+            timeline.delete_events(events=[event])
+        assert timeline.latest_event_date() == datetime(2025, 1, 1)
+
+    def test_delete_all_events(self, schedule_timeline):
+        timeline = schedule_timeline
+
+        assert len(timeline.event_dates()) == 2
+        timeline.delete_all_events()
+        assert timeline.event_dates() == []
+
+        # The timeline is usable afterwards, e.g. when reloading an events file
+        timeline.add_insert_date_event(event_date="2024-01-01")
+        assert len(timeline.event_dates()) == 1
 
     def test_set_timestamp_does_not_limit_queries(self, populated_timeline):
         from datetime import datetime

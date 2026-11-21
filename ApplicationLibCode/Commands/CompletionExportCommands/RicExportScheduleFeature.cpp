@@ -170,6 +170,9 @@ void RicExportScheduleFeature::onActionTriggered( bool isChecked )
 
     app->setLastUsedDialogDirectory( exportDialogName, QFileInfo( fileName ).absolutePath() );
 
+    // Completions are computed from the intervals created by applying the events
+    timeline->applyAllEventsIfNoTimestampSet();
+
     auto exportedFile = exportScheduleToFile( *timeline, eclipseCase, fileName );
     if ( !exportedFile )
     {

@@ -284,6 +284,35 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcWellEventTimeline_deleteAllEvents : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_deleteAllEvents( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_deleteEvents : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_deleteEvents( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellEvent*> m_events;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcWellEventTimeline_generateSchedule : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;

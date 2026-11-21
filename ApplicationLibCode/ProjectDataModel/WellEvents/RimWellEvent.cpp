@@ -18,9 +18,12 @@
 
 #include "RimWellEvent.h"
 
+#include "RiaPreferencesSystem.h"
+
 #include "RimTools.h"
 #include "RimWellPath.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
@@ -124,6 +127,17 @@ QString RimWellEvent::comment() const
 void RimWellEvent::setComment( const QString& comment )
 {
     m_comment = comment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEvent::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
+    {
+        menuBuilder << "RicDeleteSelectedEventsFeature";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

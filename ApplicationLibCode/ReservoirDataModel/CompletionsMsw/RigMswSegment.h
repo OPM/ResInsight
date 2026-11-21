@@ -93,6 +93,8 @@ struct RigMswBranch
     std::vector<RigMswSegment>   segments;      // Segments of this branch
 
     RigMswBranchSource source = RigMswBranchSource::Perforation;  // Decides COMPSEGS cell ownership
+
+    std::string groupLabel{};  // Section title in WELSEGS for completion branches (e.g. "ICD segments"); empty for well path branches
 };
 
 

@@ -46,10 +46,14 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "RiaPreferencesSystem.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafSelectionManager.h"
 
 #include <algorithm>
 #include <cmath>
@@ -441,10 +445,42 @@ void RimWellEventTimeline::removeEvent( RimWellEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::removeEvents( const std::vector<RimWellEvent*>& events )
+{
+    for ( auto* event : events )
+    {
+        if ( !event ) continue;
+
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( event );
+        m_events.removeChild( event );
+        delete event;
+    }
+    updateEditorsAfterEventChange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellEventTimeline::clearAllEvents()
 {
+    for ( auto* event : m_events.childrenByType() )
+    {
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( event );
+    }
     m_events.deleteChildren();
+    m_lastAppliedTimestamp = QDateTime();
     updateEditorsAfterEventChange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
+    {
+        menuBuilder << "RicDeleteAllEventsFeature";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,11 +507,30 @@ size_t RimWellEventTimeline::eventCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::applyAllEventsIfNoTimestampSet()
+{
+    if ( m_lastAppliedTimestamp.isValid() ) return;
+
+    const auto dates = getAllEventDates();
+    if ( !dates.empty() ) applyEventsUpToDateImpl( dates.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellEventTimeline::applyEventsUpToDate( const QDateTime& date )
 {
     // Store the timestamp for later use in schedule generation
     m_lastAppliedTimestamp = date;
 
+    return applyEventsUpToDateImpl( date );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellEventTimeline::applyEventsUpToDateImpl( const QDateTime& date )
+{
     // Get events up to the specified date (already sorted by date)
     std::vector<RimWellEvent*> eventsToApply = getEventsUpToDate( date );
 
