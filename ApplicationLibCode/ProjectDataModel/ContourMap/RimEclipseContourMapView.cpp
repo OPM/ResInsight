@@ -26,6 +26,7 @@
 #include "ContourMap/RimContourMapInViewCollection.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "Rim3dViewCameraOperations.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
@@ -527,7 +528,7 @@ void RimEclipseContourMapView::onLoadDataAndUpdate()
         // setView() moves the camera to look straight at the point of interest. Panning does not move the point of
         // interest, so calling setView() will discard the panning restored from the project file. The camera is
         // already oriented correctly for a contour map, unless the view has been rotated by a linked 3D view.
-        if ( !isCameraOriented( viewDirection, upDirection ) )
+        if ( !Rim3dViewCameraOperations::isCameraOriented( viewer, viewDirection, upDirection ) )
         {
             viewer->setView( viewDirection, upDirection );
         }

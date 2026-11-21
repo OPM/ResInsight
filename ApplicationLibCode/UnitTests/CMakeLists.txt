@@ -219,6 +219,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfio-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRmsWellPathReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaAngleUtils-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaCameraTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaZScaleTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionDataGridCell-Test.cpp
