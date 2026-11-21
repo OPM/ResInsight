@@ -287,13 +287,15 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Pin CMake on Ubuntu 26.04
-        # The ubuntu-26.04 image ships CMake 4.5, which rejects the source_group(TREE)
-        # call in Boost.Locale <= 1.91 ("is not a prefix of file"). Fixed upstream in
+        # The ubuntu-26.04 image ships CMake 4.5, whose source_group(TREE) uses a
+        # path-prefix check that rejects Boost.Locale <= 1.91 ("is not a prefix of
+        # file"). vcpkg needs CMake >= 4.4.0 (scripts/vcpkg-tools.json) and ignores
+        # older versions on PATH, so pin exactly 4.4.0. Fixed upstream in
         # boostorg/locale develop; remove this step when a Boost release includes it.
         if: matrix.config.os == 'ubuntu-26.04'
         uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3 # v2.2.0
         with:
-          cmake-version: "3.31.6"
+          cmake-version: "4.4.0"
 
       - name: Print CMake version
         shell: bash
