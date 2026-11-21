@@ -62,6 +62,7 @@ public:
     static int optionItemValueRole();
 
     void setCheckedStateForItems( const QModelIndexList& indices, bool checked );
+    void setCheckedStateForItems( const QModelIndexList& indicesToCheck, const QModelIndexList& indicesToUncheck );
     void invertCheckedStateForItems( const QModelIndexList& indices );
     void unselectAllItems();
 

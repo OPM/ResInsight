@@ -41,6 +41,7 @@
 
 #include <QAbstractItemModel>
 #include <QLabel>
+#include <QPointer>
 #include <QTreeView>
 
 #include <algorithm>
@@ -90,6 +91,23 @@ int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceModelIndices, bool checked )
 {
+    if ( checked )
+    {
+        setCheckedStateForItems( sourceModelIndices, QModelIndexList() );
+    }
+    else
+    {
+        setCheckedStateForItems( QModelIndexList(), sourceModelIndices );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Check and uncheck items in a single field update. Changing the field can rebuild the property view and delete the
+/// editor owning this model, so the model must not be used after the update.
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexList& sourceIndicesToCheck,
+                                                             const QModelIndexList& sourceIndicesToUncheck )
+{
     if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() || m_uiFieldHandle->uiField()->isUiReadOnly() ) return;
 
     std::set<unsigned int> selectedIndices;
@@ -103,26 +121,21 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
         }
     }
 
-    if ( checked )
+    for ( const auto& mi : sourceIndicesToCheck )
     {
-        for ( const auto& mi : sourceModelIndices )
+        const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
+        if ( !optionItemInfo->isReadOnly() )
         {
-            const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
-            if ( !optionItemInfo->isReadOnly() )
-            {
-                selectedIndices.insert( static_cast<unsigned int>( optionIndex( mi ) ) );
-            }
+            selectedIndices.insert( static_cast<unsigned int>( optionIndex( mi ) ) );
         }
     }
-    else
+
+    for ( const auto& mi : sourceIndicesToUncheck )
     {
-        for ( const auto& mi : sourceModelIndices )
+        const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
+        if ( !optionItemInfo->isReadOnly() )
         {
-            const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
-            if ( !optionItemInfo->isReadOnly() )
-            {
-                selectedIndices.erase( static_cast<unsigned int>( optionIndex( mi ) ) );
-            }
+            selectedIndices.erase( static_cast<unsigned int>( optionIndex( mi ) ) );
         }
     }
 
@@ -535,7 +548,13 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
                 fieldValueSelection.push_back( QVariant( v ) );
             }
 
+            QPointer<PdmUiTreeSelectionQModel> modelGuard( this );
+
             PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
+
+            // Changing the field can rebuild the property view, deleting the editor that owns this model
+            if ( modelGuard.isNull() ) return true;
+
             if ( index.isValid() )
             {
                 emit dataChanged( index, index );
