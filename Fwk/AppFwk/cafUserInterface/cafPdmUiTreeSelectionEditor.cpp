@@ -700,8 +700,7 @@ void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
         }
     }
 
-    m_model->setCheckedStateForItems( indicesToSetChecked, true );
-    m_model->setCheckedStateForItems( indicesToSetUnChecked, false );
+    m_model->setCheckedStateForItems( indicesToSetChecked, indicesToSetUnChecked );
 }
 
 //--------------------------------------------------------------------------------------------------
