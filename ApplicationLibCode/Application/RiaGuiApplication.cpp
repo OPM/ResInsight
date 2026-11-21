@@ -39,6 +39,7 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
+#include "RiaViewDefines.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryTools.h"

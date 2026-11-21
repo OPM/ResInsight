@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaViewDefines.h"
 #include "cafPdmUiTreeAttributes.h"
 
 #include "RimNameConfig.h"

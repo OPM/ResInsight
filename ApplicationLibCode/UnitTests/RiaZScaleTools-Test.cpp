@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RiaDefines.h"
+#include "RiaViewDefines.h"
 #include "RiaZScaleTools.h"
 
 #include <algorithm>
