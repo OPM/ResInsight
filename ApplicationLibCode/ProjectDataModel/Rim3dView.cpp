@@ -208,7 +208,7 @@ Rim3dView::~Rim3dView()
         RiaApplication::instance()->setActiveReservoirView( nullptr );
     }
 
-    removeWindowFromDock();
+    removeWindowFromDock( true );
 
     if ( m_viewer )
     {
