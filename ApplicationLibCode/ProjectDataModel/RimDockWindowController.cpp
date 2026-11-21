@@ -77,13 +77,20 @@ void RimDockWindowController::handleViewerDeletion()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDockWindowController::removeWindowFromDock()
+void RimDockWindowController::removeWindowFromDock( bool blockViewSelection )
 {
     RiuMainWindowBase* mainWin = getMainWindow();
     if ( mainWin && viewPdmObject() )
     {
         viewPdmObject()->setActive( false );
+
+        // Removing the dock widget activates another view. When the view is being destructed, selecting that view
+        // rebuilds the property editor, and option lists can then access the partly destructed view.
+        const bool wasBlocking = mainWin->isBlockingViewSelectionOnSubWindowActivated();
+        if ( blockViewSelection ) mainWin->setBlockViewSelectionOnSubWindowActivated( true );
         viewPdmObject()->deleteDockWidget();
+        mainWin->setBlockViewSelectionOnSubWindowActivated( wasBlocking );
+
         viewPdmObject()->deleteViewWidget();
 
         mainWin->onViewerRemoved();

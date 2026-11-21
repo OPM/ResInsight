@@ -53,7 +53,7 @@ public:
 
     void updateViewerWidget();
     void handleViewerDeletion();
-    void removeWindowFromDock();
+    void removeWindowFromDock( bool blockViewSelection = false );
 
 protected:
     RimViewWindow*     viewPdmObject();

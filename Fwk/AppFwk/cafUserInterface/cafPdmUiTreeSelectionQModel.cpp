@@ -41,6 +41,7 @@
 
 #include <QAbstractItemModel>
 #include <QLabel>
+#include <QPointer>
 #include <QTreeView>
 
 #include <algorithm>
@@ -535,7 +536,13 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
                 fieldValueSelection.push_back( QVariant( v ) );
             }
 
+            QPointer<PdmUiTreeSelectionQModel> modelGuard( this );
+
             PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
+
+            // Changing the field can rebuild the property view, deleting the editor that owns this model
+            if ( modelGuard.isNull() ) return true;
+
             if ( index.isValid() )
             {
                 emit dataChanged( index, index );

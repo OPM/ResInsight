@@ -61,7 +61,7 @@ public:
     void loadDataAndUpdate();
     void updateDockWindowVisibility();
 
-    void removeWindowFromDock();
+    void removeWindowFromDock( bool blockViewSelection = false );
 
     void dockAs3DViewWindow();
     void dockAsPlotWindow();

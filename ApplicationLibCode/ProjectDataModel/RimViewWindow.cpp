@@ -138,9 +138,9 @@ bool RimViewWindow::isDockedInPlotView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::removeWindowFromDock()
+void RimViewWindow::removeWindowFromDock( bool blockViewSelection )
 {
-    if ( m_windowController != nullptr ) m_windowController->removeWindowFromDock();
+    if ( m_windowController != nullptr ) m_windowController->removeWindowFromDock( blockViewSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
