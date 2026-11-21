@@ -35,6 +35,7 @@
 #include "QuickAccess/RimQuickAccessCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
+#include "Rim3dViewCameraOperations.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -1334,12 +1335,20 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+static void setViewFromOfActiveView( RiaDefines::ViewFrom direction )
+{
+    if ( auto* view = RiaApplication::instance()->activeReservoirView() )
+    {
+        Rim3dViewCameraOperations::setViewFrom( *view, direction );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromNorth()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, -1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::NORTH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1392,10 +1401,7 @@ void RiuMainWindow::slotViewFullScreen( bool showFullScreen )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromSouth()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::SOUTH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1403,10 +1409,7 @@ void RiuMainWindow::slotViewFromSouth()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromEast()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( -1, 0, 0 ), cvf::Vec3d( 0, 0, 1 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::EAST );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1414,10 +1417,7 @@ void RiuMainWindow::slotViewFromEast()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromWest()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 0, 0, 1 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::WEST );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1425,10 +1425,7 @@ void RiuMainWindow::slotViewFromWest()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromAbove()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 1, 0 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1436,10 +1433,7 @@ void RiuMainWindow::slotViewFromAbove()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotViewFromBelow()
 {
-    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, 1 ), cvf::Vec3d( 0, 1, 0 ) );
-    }
+    setViewFromOfActiveView( RiaDefines::ViewFrom::BOTTOM );
 }
 
 //--------------------------------------------------------------------------------------------------

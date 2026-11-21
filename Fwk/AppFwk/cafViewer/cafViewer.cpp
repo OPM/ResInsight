@@ -975,28 +975,66 @@ void caf::Viewer::setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& u
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::zoomAll()
 {
-    cvf::BoundingBox bb = m_mainRendering->boundingBox();
-    if ( !bb.isValid() )
-    {
-        return;
-    }
-
     cvf::Vec3d eye, vrp, up;
     m_mainCamera->toLookAt( &eye, &vrp, &up );
 
+    setViewDirectionAndFit( vrp - eye, up, 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Look at the center of the model along the given direction, at the distance where the whole model fits
+/// divided by zoom. A zoom larger than 1 moves the camera closer to the model.
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::setViewDirectionAndFit( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection, double zoom )
+{
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
+    if ( !bb.isValid() )
+    {
+        return false;
+    }
+
     cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition( bb,
-                                                                 vrp - eye,
-                                                                 up,
+                                                                 alongDirection,
+                                                                 upDirection,
                                                                  0.9,
                                                                  m_cameraFieldOfViewYDeg,
                                                                  m_mainCamera->viewport()->aspectRatio() );
-    m_mainCamera->setFromLookAt( newEye, bb.center(), up );
+    newEye            = bb.center() + ( newEye - bb.center() ) / zoom;
+
+    m_mainCamera->setFromLookAt( newEye, bb.center(), upDirection );
 
     updateParallelProjectionHeightFromMoveZoom( bb.center() );
 
     if ( m_navigationPolicy.notNull() ) m_navigationPolicy->setPointOfInterest( bb.center() );
 
     navigationPolicyUpdate();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Look at the point of interest along the given direction, keeping the distance from the camera to the
+/// point of interest divided by zoom. Falls back to fitting the model if the camera has no distance yet.
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::orbitPointOfInterest( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection, double zoom )
+{
+    if ( m_navigationPolicy.isNull() ) return false;
+
+    cvf::Vec3d eye, vrp, up;
+    m_mainCamera->toLookAt( &eye, &vrp, &up );
+
+    const cvf::Vec3d pointOfInterest = m_navigationPolicy->pointOfInterest();
+    const double     distance        = eye.pointDistance( pointOfInterest );
+    if ( !( distance > 0.0 ) ) return setViewDirectionAndFit( alongDirection, upDirection, zoom );
+
+    const cvf::Vec3d newEye = pointOfInterest - alongDirection.getNormalized() * ( distance / zoom );
+    m_mainCamera->setFromLookAt( newEye, pointOfInterest, upDirection );
+
+    updateParallelProjectionHeightFromMoveZoom( pointOfInterest );
+
+    navigationPolicyUpdate();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -228,7 +228,6 @@ protected:
     virtual void setDefaultView();
     cvf::Mat4d   cameraPosition() const;
     cvf::Vec3d   cameraPointOfInterest() const;
-    bool         isCameraOriented( const cvf::Vec3d& viewDirection, const cvf::Vec3d& upDirection ) const;
 
     void disableGridBoxField();
     void disablePerspectiveProjectionField();

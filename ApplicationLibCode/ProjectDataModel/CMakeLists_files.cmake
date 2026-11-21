@@ -38,6 +38,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dViewCameraOperations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeneric3dView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGenericViewCollection.cpp
