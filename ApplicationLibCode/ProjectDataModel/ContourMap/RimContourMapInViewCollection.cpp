@@ -18,7 +18,7 @@
 
 #include "RimContourMapInViewCollection.h"
 
-#include "RiaDefines.h"
+#include "RiaViewDefines.h"
 
 #include "ContourMap/RimContourMapInView.h"
 #include "ContourMap/RimEclipseContourMapView.h"

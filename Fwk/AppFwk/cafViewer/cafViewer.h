@@ -133,9 +133,10 @@ public:
     void                         enableNavigationPolicy( bool enable );
     void                         setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                         zoomAll();
-    void                         enableParallelProjection( bool enable );
-    void                         setParallelProjectionHeadLightDirection( const cvf::Vec3f& direction );
-    void                         setPointOfInterestVisualizer( PointOfInterestVisualizer* poiVisualizer );
+    bool setViewDirectionAndFit( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection, double zoom );
+    void enableParallelProjection( bool enable );
+    void setParallelProjectionHeadLightDirection( const cvf::Vec3f& direction );
+    void setPointOfInterestVisualizer( PointOfInterestVisualizer* poiVisualizer );
 
     // Interface for navigation policies
     void updateParallelProjectionHeightFromMoveZoom( const cvf::Vec3d& pointOfInterest );

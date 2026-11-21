@@ -18,7 +18,7 @@
 
 #include "RimPolygonInViewCollection.h"
 
-#include "RiaDefines.h"
+#include "RiaViewDefines.h"
 
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
