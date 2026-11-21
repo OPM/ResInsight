@@ -47,6 +47,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGridDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaModelExportDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaViewDefines.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

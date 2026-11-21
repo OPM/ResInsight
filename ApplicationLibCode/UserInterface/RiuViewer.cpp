@@ -28,6 +28,7 @@
 #include "RiaOpenTelemetryManager.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiaViewDefines.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
