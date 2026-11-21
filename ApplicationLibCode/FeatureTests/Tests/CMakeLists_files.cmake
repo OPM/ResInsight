@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseCaseFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDockWindowController-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewIntersectionFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterFeature-Test.cpp
