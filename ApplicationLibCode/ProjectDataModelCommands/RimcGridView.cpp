@@ -19,13 +19,16 @@
 #include "RimcGridView.h"
 
 #include "RiaApplication.h"
+#include "RiaCameraTools.h"
 #include "RiaKeyValueStoreUtil.h"
 
 #include "RicExportContourMapToTextFeature.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInViewCollection.h"
+#include "Rim3dPropertiesInterface.h"
 #include "Rim3dView.h"
+#include "Rim3dViewCameraOperations.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -40,6 +43,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfArray.h"
+
+#include <cmath>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcGridView_visibleCellsInternal, "visible_cells_internal" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setPolygonVisible, "set_polygon_visible" );
@@ -312,6 +317,176 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setTimeStep::execute()
 
     view->setCurrentTimeStepAndUpdate( m_timeStep() );
     view->createDisplayModelAndRedraw();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_setCamera, "setCamera" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_setCamera::Rim3dView_setCamera( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Camera", "", "", "Look at the center of the model with the given azimuth, tilt and zoom" );
+
+    CAF_PDM_InitScriptableField( &m_azimuth,
+                                 "Azimuth",
+                                 0.0,
+                                 "Azimuth",
+                                 "",
+                                 "",
+                                 "Compass bearing of the viewing direction in degrees, from 0 to 360 (0 = looking north, 90 = "
+                                 "looking east)" );
+    m_azimuth.setRange( 0.0, 360.0 );
+
+    CAF_PDM_InitScriptableField( &m_tilt,
+                                 "Tilt",
+                                 0.0,
+                                 "Tilt",
+                                 "",
+                                 "",
+                                 "Angle in degrees between the viewing direction and straight down, from 0 to 180 (0 = looking "
+                                 "down, 90 = horizontal)" );
+    m_tilt.setRange( 0.0, 180.0 );
+
+    CAF_PDM_InitScriptableField( &m_zoom,
+                                 "Zoom",
+                                 1.0,
+                                 "Zoom",
+                                 "",
+                                 "",
+                                 "Zoom factor from 0.001 to 1000. 1 shows the whole model, larger values move the camera closer" );
+    m_zoom.setRange( 0.001, 1000.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setCamera::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    // The field ranges do not reject NaN
+    if ( !std::isfinite( m_azimuth() ) || !std::isfinite( m_tilt() ) || !std::isfinite( m_zoom() ) )
+    {
+        return std::unexpected( "Azimuth, tilt and zoom must be finite numbers." );
+    }
+
+    if ( !view->viewer() ) return std::unexpected( QString( "View '%1' has no viewer." ).arg( view->name() ) );
+
+    const auto orientation = RiaCameraTools::fromAzimuthAndTilt( m_azimuth(), m_tilt() );
+    if ( !Rim3dViewCameraOperations::setViewDirectionAndFit( *view, orientation.direction, orientation.up, m_zoom() ) )
+    {
+        return std::unexpected( QString( "View '%1' has no model to look at." ).arg( view->name() ) );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_setViewDirection, "setViewDirection" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_setViewDirection::Rim3dView_setViewDirection( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set View Direction", "", "", "Look at the center of the model from a standard direction" );
+
+    CAF_PDM_InitScriptableField( &m_direction,
+                                 "Direction",
+                                 caf::AppEnum<RiaDefines::ViewDirection>( RiaDefines::ViewDirection::TOP ),
+                                 "Direction",
+                                 "",
+                                 "",
+                                 "The side to look at the model from" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setViewDirection::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( !view->viewer() ) return std::unexpected( QString( "View '%1' has no viewer." ).arg( view->name() ) );
+
+    const auto orientation = RiaCameraTools::fromViewDirection( m_direction() );
+    if ( !Rim3dViewCameraOperations::setViewDirectionAndFit( *view, orientation.direction, orientation.up, 1.0 ) )
+    {
+        return std::unexpected( QString( "View '%1' has no model to look at." ).arg( view->name() ) );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_zoomAll, "zoomAll" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_zoomAll::Rim3dView_zoomAll( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Zoom All", "", "", "Move the camera so that the whole model is visible" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_zoomAll::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( !view->viewer() ) return std::unexpected( QString( "View '%1' has no viewer." ).arg( view->name() ) );
+
+    view->zoomAll();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_flyToObject, "flyToObject" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_flyToObject::Rim3dView_flyToObject( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Fly To Object", "", "", "Move the camera to an object, like Fly to Object in the GUI" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_object,
+                                          "Object",
+                                          "Object",
+                                          "",
+                                          "",
+                                          "Object to fly to, such as a surface, a simulation well, a fracture or a perforation interval" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_flyToObject::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( !m_object() ) return std::unexpected( "No object is given." );
+
+    auto* boundingBoxProvider = dynamic_cast<Rim3dPropertiesInterface*>( m_object() );
+    if ( !boundingBoxProvider ) return std::unexpected( "The object does not have a bounding box to fly to." );
+
+    const auto boundingBox = boundingBoxProvider->boundingBoxInDomainCoords();
+    if ( !boundingBox.isValid() ) return std::unexpected( "The object has no valid bounding box." );
+
+    if ( !view->viewer() ) return std::unexpected( QString( "View '%1' has no viewer." ).arg( view->name() ) );
+
+    Rim3dViewCameraOperations::flyToBoundingBox( *view, boundingBox );
 
     return nullptr;
 }

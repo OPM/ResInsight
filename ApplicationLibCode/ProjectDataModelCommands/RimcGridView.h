@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaViewDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -126,6 +129,69 @@ public:
 
 private:
     caf::PdmField<int> m_timeStep;
+};
+
+//==================================================================================================
+/// Look at the center of the model with the given azimuth, tilt and zoom.
+//==================================================================================================
+class Rim3dView_setCamera : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_setCamera( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<double> m_azimuth;
+    caf::PdmField<double> m_tilt;
+    caf::PdmField<double> m_zoom;
+};
+
+//==================================================================================================
+/// Look at the center of the model from one of the standard directions (north, top, ...).
+//==================================================================================================
+class Rim3dView_setViewDirection : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_setViewDirection( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<caf::AppEnum<RiaDefines::ViewDirection>> m_direction;
+};
+
+//==================================================================================================
+/// Move the camera so that the whole model is visible, keeping the viewing direction.
+//==================================================================================================
+class Rim3dView_zoomAll : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_zoomAll( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+};
+
+//==================================================================================================
+/// Move the camera to an object with a bounding box, like the "Fly to Object" command in the GUI.
+//==================================================================================================
+class Rim3dView_flyToObject : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_flyToObject( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrField<caf::PdmObject*> m_object;
 };
 
 //==================================================================================================
