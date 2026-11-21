@@ -230,6 +230,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaConnectorTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMappingTools-Test.cpp

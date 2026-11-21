@@ -20,6 +20,8 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RiaStdStringTools.h"
+
 #include "cafAssert.h"
 
 #ifdef _MSC_VER
@@ -52,25 +54,36 @@ void RifProjectSummaryDataWriter::importFromSourceSummaryReader( const RifSummar
     auto        summaryAddress = RifEclipseSummaryAddress::miscAddress( keyword );
     if ( reader->hasAddress( summaryAddress ) )
     {
-        auto timeSteps = reader->timeSteps( summaryAddress );
+        auto timeSteps      = reader->timeSteps( summaryAddress );
+        auto [isOk, values] = reader->values( summaryAddress );
+
+        // TIME is given in DAYS or HOURS since start of simulation. The ESMRY readers interpret TIME as days, so TIME in
+        // hours is converted to days when written
+        const auto&  unitString         = reader->unitName( summaryAddress );
+        const bool   isTimeInHours      = RiaStdStringTools::toUpper( RiaStdStringTools::trimString( unitString ) ) == "HOURS";
+        const double secondsPerTimeUnit = isTimeInHours ? 3600.0 : 24.0 * 3600.0;
+
         if ( !timeSteps.empty() )
         {
-            Opm::TimeStampUTC ts( timeSteps.front() );
+            // TIME is not zero at the first time step for restart cases without history
+            time_t startOfSimulation = timeSteps.front();
+            if ( isOk && !values.empty() )
+            {
+                startOfSimulation -= static_cast<time_t>( values.front() * secondsPerTimeUnit );
+            }
+
+            Opm::TimeStampUTC ts( startOfSimulation );
             m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
         }
 
-        auto [isOk, values] = reader->values( summaryAddress );
-
-        const auto& unitString = reader->unitName( summaryAddress );
-
         m_keywords.push_back( keyword );
-        m_units.push_back( unitString );
+        m_units.push_back( isTimeInHours ? "DAYS" : unitString );
 
         std::vector<float> floatValues;
         floatValues.reserve( values.size() );
         for ( const auto& v : values )
         {
-            floatValues.push_back( v );
+            floatValues.push_back( isTimeInHours ? v / 24.0 : v );
         }
 
         m_values.push_back( floatValues );
