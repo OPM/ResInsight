@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaApplication.h"
+#include "RiaBaseDefs.h"
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -59,6 +60,7 @@
 #include <QDate>
 #include <QDir>
 #include <QLocale>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QValidator>
 
@@ -224,6 +226,12 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Enable Undo/Redo for Property Editor changes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
+    CAF_PDM_InitField( &m_useEglGlIntegration, "useEglGlIntegration", false, "Use EGL for OpenGL on X11 (Linux, requires restart)" );
+    m_useEglGlIntegration.uiCapability()->setUiToolTip( "Sets QT_XCB_GL_INTEGRATION=xcb_egl at startup instead of GLX. Can work around "
+                                                        "crashes in the graphics driver on some Linux systems. Ignored if the "
+                                                        "environment variable is already set." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useEglGlIntegration );
+
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_plotTemplateFolders.uiCapability()->setAttribute( caf::PdmUiFilePathEditor::Keys::SELECT_DIRECTORY, true );
@@ -368,6 +376,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->setCollapsedByDefault();
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
+#ifdef Q_OS_LINUX
+        otherGroup->add( &m_useEglGlIntegration );
+#endif
 
         caf::PdmUiGroup* importExportGroup = uiOrdering.addNewGroup( "Import and Export" );
         importExportGroup->setCollapsedByDefault();
@@ -750,6 +761,15 @@ QStringList RiaPreferences::tabNames()
 bool RiaPreferences::useUndoRedo() const
 {
     return m_useUndoRedo();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useEglGlIntegrationFromSettingsStore()
+{
+    QSettings settings( RI_COMPANY_NAME, RI_APPLICATION_NAME );
+    return settings.value( "useEglGlIntegration", false ).toBool();
 }
 
 //--------------------------------------------------------------------------------------------------

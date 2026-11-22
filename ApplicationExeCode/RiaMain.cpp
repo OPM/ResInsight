@@ -108,6 +108,10 @@ RiaApplication* createApplication( int& argc, char* argv[] )
     {
         RiaMainTools::enableHeadlessRendering();
     }
+    else
+    {
+        RiaMainTools::applyGlIntegrationPreference();
+    }
 
 #ifdef ENABLE_GRPC
     return new RiaGrpcGuiApplication( argc, argv );

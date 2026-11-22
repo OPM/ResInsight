@@ -79,6 +79,10 @@ public:
 
     bool useUndoRedo() const;
 
+    // Read directly from the application settings store, as the value is needed before the
+    // QApplication object (and thus the preferences object) exists.
+    static bool useEglGlIntegrationFromSettingsStore();
+
     const QString& dateFormat() const;
     const QString& timeFormat() const;
     QString
@@ -191,6 +195,7 @@ private:
     caf::PdmField<QString> m_timeFormat;
 
     caf::PdmField<bool> m_useUndoRedo;
+    caf::PdmField<bool> m_useEglGlIntegration;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
