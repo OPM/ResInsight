@@ -404,7 +404,7 @@ jobs:
         run: |
           uv pip install --system mypy types-protobuf
           cd GrpcInterface/Python
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy rips/*.py rips/generated/generated_classes.py
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy rips/*.py rips/mcp_server/*.py rips/generated/generated_classes.py
 
       - name: Run pytest
         if: matrix.config.execute-pytests
