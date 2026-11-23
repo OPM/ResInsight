@@ -49,7 +49,7 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden( true );
     setName( "Fishbones" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_fishbones, "FishbonesSubs", "fishbones", "fishbonesSubs" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_fishbones, "FishbonesSubs", "Fishbones", "fishbonesSubs" );
 
     // The following non-scriptable fields can be modified from scripting functions in RimcFishbonesCollection.cpp
     CAF_PDM_InitField( &m_startMDAuto, "StartMDAuto", RimFishbonesDefines::ValueSource::AUTOMATIC, "Start MD Mode" );

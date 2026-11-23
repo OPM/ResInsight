@@ -230,7 +230,11 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title" );
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
-    CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_normalizeCurveYValues,
+                                                  "normalizeCurveYValues",
+                                                  "NormalizeCurveYValues",
+                                                  false,
+                                                  "Normalize all curves" );
     CAF_PDM_InitField( &m_equationBoxPosition,
                        "EquationBoxPosition",
                        caf::AppEnum<EquationBoxPosition>( EquationBoxPosition::UPPER_RIGHT ),

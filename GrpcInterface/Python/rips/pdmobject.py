@@ -180,12 +180,19 @@ class PdmObjectBase:
 
     def __copy_to_pb2(self) -> None:
         if self._pb2_object is not None:
+            # Keywords starting with a lowercase letter cannot be reconstructed by
+            # snake_to_camel(), so prefer the keyword received from ResInsight
+            existing_keywords = {
+                camel_to_snake(kw): kw for kw in self._pb2_object.parameters
+            }
             for snake_kw in dir(self):
                 if not snake_kw.startswith("_"):
                     value = getattr(self, snake_kw)
                     # This is crucial to avoid overwriting methods
                     if not callable(value):
-                        camel_kw = snake_to_camel(snake_kw)
+                        camel_kw = existing_keywords.get(
+                            snake_kw, snake_to_camel(snake_kw)
+                        )
                         self.__set_grpc_value(camel_kw, value)
 
     def pb2_object(self) -> PdmObject_pb2.PdmObject:

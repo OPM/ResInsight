@@ -104,7 +104,11 @@ RimHistogramPlot::RimHistogramPlot()
 
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title" );
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Histogram Plot" ), "Name" );
-    CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_normalizeCurveYValues,
+                                                  "normalizeCurveYValues",
+                                                  "NormalizeCurveYValues",
+                                                  false,
+                                                  "Normalize all curves" );
 
     CAF_PDM_InitFieldNoDefault( &m_histogramCurveCollection, "HistogramCurveCollection", "" );
     m_histogramCurveCollection = new RimHistogramCurveCollection();

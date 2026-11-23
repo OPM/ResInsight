@@ -45,6 +45,9 @@
 class RicfCommandObject : public caf::PdmObject, public caf::PdmObjectScriptingCapability
 {
 public:
+    // Command file keywords are case sensitive and kept as is. See CAF_PDM_CheckScriptableKeyword
+    static constexpr bool allowLowercaseScriptKeywords = true;
+
     RicfCommandObject();
     ~RicfCommandObject() override;
 
