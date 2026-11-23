@@ -22,6 +22,7 @@
 #include <QVariantMap>
 
 class RimWorkflow;
+class RimWorkflowJob;
 class RiuWorkflowEditorWidget;
 
 //==================================================================================================
@@ -39,6 +40,9 @@ RimWorkflow* duplicateAsEditable( RimWorkflow* workflow );
 bool         saveWorkflow( RimWorkflow* workflow );
 bool         saveWorkflowAs( RimWorkflow* workflow );
 bool         rescanWorkflows();
+
+void runJob( RimWorkflowJob* job );
+void cancelJob( RimWorkflowJob* job );
 
 void showError( const QString& title, const QString& message );
 } // namespace RicWorkflowFeatureTools

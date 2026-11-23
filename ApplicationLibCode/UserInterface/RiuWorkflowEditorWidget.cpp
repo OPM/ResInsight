@@ -52,6 +52,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTabBar>
+#include <QToolBar>
 #include <QVBoxLayout>
 
 #include <functional>
@@ -145,6 +146,27 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
                                         } );
     m_verticalLayoutAction->setCheckable( true );
     m_verticalLayoutAction->setToolTip( "Lay out the graph from top to bottom instead of from left to right" );
+
+    m_runAction = addAction( "Run",
+                             ":/Play.svg",
+                             [this]()
+                             {
+                                 if ( m_job ) RicWorkflowFeatureTools::runJob( m_job );
+                             } );
+    m_runAction->setToolTip( "Run the job of the workflow" );
+    m_cancelAction = addAction( "Cancel Job",
+                                ":/stop.svg",
+                                [this]()
+                                {
+                                    if ( m_job ) RicWorkflowFeatureTools::cancelJob( m_job );
+                                } );
+
+    auto* toolBar = new QToolBar( this );
+    toolBar->setIconSize( QSize( 16, 16 ) );
+    toolBar->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    toolBar->addAction( m_runAction );
+    toolBar->addAction( m_cancelAction );
+    layout->addWidget( toolBar );
 
     m_tabs.push_back( {} );
     m_tabBar = new QTabBar( this );
@@ -1343,6 +1365,9 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         }
         menu.addAction( m_duplicateAction );
         menu.addSeparator();
+        menu.addAction( m_runAction );
+        menu.addAction( m_cancelAction );
+        menu.addSeparator();
         menu.addAction( m_fitAction );
         menu.addAction( m_inlineConfigAction );
         menu.addAction( m_verticalLayoutAction );
@@ -1509,6 +1534,11 @@ void RiuWorkflowEditorWidget::updateActions()
     m_inlineConfigAction->setChecked( !workflow || workflow->inlineConfigValues() );
     m_verticalLayoutAction->setEnabled( workflow != nullptr );
     m_verticalLayoutAction->setChecked( workflow && workflow->verticalLayout() );
+
+    // The job belongs to the root workflow, so nested tabs have no job
+    const bool running = m_job && m_job->isRunning();
+    m_runAction->setEnabled( m_job && !running && !isNestedTabShown() && workflow && workflow->loadError().isEmpty() );
+    m_cancelAction->setEnabled( running );
 }
 
 //--------------------------------------------------------------------------------------------------

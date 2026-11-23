@@ -466,7 +466,6 @@ void RimWorkflowJob::runJob()
     }
     m_activeTask.clear();
     m_runStatus = "Running";
-    if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 
     const QStringList args = RimWorkflowHelperProcess::helperArguments(
         runSource->baseArgs + QStringList{ "--input", inputPath, "--grpc-port", QString::number( port.value() ), "--run-id", m_runId } );
@@ -500,4 +499,7 @@ void RimWorkflowJob::runJob()
                           if ( safeJob ) safeJob->finishRun( runId, succeeded, cancelled );
                       } );
     m_runner->start( python, args, env );
+
+    // Notify after the start, so the runner reports the job as running
+    if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 }
