@@ -99,3 +99,22 @@ def test_delete_multi_summary_plot(rips_instance, initialize_test):
 
     assert len(rips_instance.project.descendants(rips.MultiSummaryPlot)) == 1
     assert len(rips_instance.project.descendants(rips.SummaryPlot)) == 1
+
+
+def test_update_scriptable_field_with_lowercase_keyword(rips_instance, initialize_test):
+    """Fields whose keyword starts with a lowercase letter (normalizeCurveYValues)
+    must be written back to the same keyword on update()."""
+    case_path = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
+    summary_case = rips_instance.project.import_summary_case(case_path)
+
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    collection.new_summary_plot(summary_cases=[summary_case], address="FOPT")
+
+    summary_plot = rips_instance.project.descendants(rips.SummaryPlot)[0]
+    assert summary_plot.normalize_curve_y_values is False
+
+    summary_plot.normalize_curve_y_values = True
+    summary_plot.update()
+
+    refetched = rips_instance.project.descendants(rips.SummaryPlot)[0]
+    assert refetched.normalize_curve_y_values is True
