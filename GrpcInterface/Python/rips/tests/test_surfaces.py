@@ -480,9 +480,23 @@ def test_import_surface_errors(rips_instance, initialize_test):
         corrupt_path = Path(tmpdirname, "corrupt.irap")
         corrupt_path.write_text("this is not a surface file")
         with pytest.raises(
-            rips.RipsError, match="Could not import surface from file .*corrupt.irap"
+            rips.RipsError,
+            match="Could not import surface from file .*corrupt.irap'. No surface data",
         ):
             surface_collection.import_surface(file_name=corrupt_path.as_posix())
+
+        corrupt_ts_path = Path(tmpdirname, "corrupt.ts")
+        corrupt_ts_path.write_text("this is not a surface file")
+        with pytest.raises(rips.RipsError, match="corrupt.ts'. No surface data"):
+            surface_collection.import_surface(file_name=corrupt_ts_path.as_posix())
+
+        unsupported_path = Path(tmpdirname, "surface.txt")
+        unsupported_path.write_text("this is not a surface file")
+        with pytest.raises(rips.RipsError, match="surface.txt'. No surface data"):
+            surface_collection.import_surface(file_name=unsupported_path.as_posix())
+
+        # No half-created surfaces may remain in the project
+        assert len(surface_collection.surfaces_field()) == 0
 
         surface_path = Path(tmpdirname, "mysurface.ts")
         surface_collection.new_surface(case, 5).export_to_file(surface_path.as_posix())
