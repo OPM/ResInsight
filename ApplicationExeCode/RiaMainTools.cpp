@@ -18,12 +18,13 @@
 
 #include "RiaMainTools.h"
 #include "RiaBaseDefs.h"
+#include "RiaExperimentalFeatures.h"
 #include "RiaFileLogger.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaOpenTelemetryManager.h"
-#include "RiaPreferences.h"
 #include "RiaPreferencesOpenTelemetry.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketCommand.h"
 #include "RiaVersionInfo.h"
@@ -608,7 +609,7 @@ void enableHeadlessRendering()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Use EGL instead of GLX for OpenGL on X11 if enabled in the preferences. Must be called before the
+/// Use EGL instead of GLX for OpenGL on X11 if enabled as an experimental feature. Must be called before the
 /// QApplication object is created. An explicitly set QT_XCB_GL_INTEGRATION always takes precedence.
 //--------------------------------------------------------------------------------------------------
 void applyGlIntegrationPreference()
@@ -616,7 +617,7 @@ void applyGlIntegrationPreference()
 #ifdef Q_OS_LINUX
     if ( qEnvironmentVariableIsSet( "QT_XCB_GL_INTEGRATION" ) ) return;
 
-    if ( RiaPreferences::useEglGlIntegrationFromSettingsStore() )
+    if ( RiaPreferencesSystem::isFeatureEnabledInSettingsStore( RiaExperimentalFeatures::eglGlIntegrationKeyword ) )
     {
         qputenv( "QT_XCB_GL_INTEGRATION", "xcb_egl" );
     }

@@ -66,6 +66,10 @@ public:
     bool isLoggingActivatedForKeyword( const QString& keyword ) const;
     bool isFeatureEnabled( const QString& keyword ) const;
 
+    // Read directly from the application settings store, for use before the QApplication object
+    // (and thus the preferences object) exists.
+    static bool isFeatureEnabledInSettingsStore( const QString& keyword );
+
     void appendExperimentalFeaturesItems( caf::PdmUiOrdering& uiOrdering );
 
 protected:
