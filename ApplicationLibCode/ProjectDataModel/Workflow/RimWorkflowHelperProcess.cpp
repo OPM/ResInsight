@@ -19,6 +19,7 @@
 #include "RimWorkflowHelperProcess.h"
 
 #include "RimWorkflow.h"
+#include "RimWorkflowSchemaTools.h"
 
 #include <QDir>
 #include <QJsonDocument>
@@ -89,7 +90,7 @@ std::expected<QJsonObject, QString>
         return std::unexpected( errorMessage( invalid->value( "error" ).toObject() ) );
 
     QJsonParseError     parseError{};
-    const QJsonDocument document = QJsonDocument::fromJson( standardOutput.trimmed(), &parseError );
+    const QJsonDocument document = RimWorkflowSchemaTools::parseWithPropertyOrder( standardOutput.trimmed(), &parseError );
     if ( parseError.error == QJsonParseError::NoError && document.isObject() && exitCode == 0 ) return document.object();
 
     QString message = QString::fromUtf8( standardError ).trimmed();

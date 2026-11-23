@@ -19,7 +19,7 @@ QJsonObject describeFixture()
 {
     QFile file( QString( "%1/RimWorkflowDescribeTools/describe.json" ).arg( TEST_DATA_DIR ) );
     if ( !file.open( QIODevice::ReadOnly ) ) return {};
-    return QJsonDocument::fromJson( file.readAll() ).object();
+    return RimWorkflowSchemaTools::parseWithPropertyOrder( file.readAll() ).object();
 }
 
 //--------------------------------------------------------------------------------------------------

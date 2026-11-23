@@ -41,7 +41,7 @@ RimWorkflowDefinition loadDataDefinition()
 {
     QFile file( QString( "%1/RimWorkflowDefinition/load_data.json" ).arg( TEST_DATA_DIR ) );
     EXPECT_TRUE( file.open( QIODevice::ReadOnly ) );
-    auto definition = RimWorkflowDefinitionTools::fromJson( QJsonDocument::fromJson( file.readAll() ).object() );
+    auto definition = RimWorkflowDefinitionTools::fromJson( RimWorkflowSchemaTools::parseWithPropertyOrder( file.readAll() ).object() );
     EXPECT_TRUE( definition.has_value() );
     return definition.value_or( RimWorkflowDefinition() );
 }

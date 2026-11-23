@@ -25,6 +25,194 @@
 
 #include <algorithm>
 
+namespace
+{
+//==================================================================================================
+/// Records the key order of every object named `properties` in a JSON text, by the path of the
+/// object. The text must be valid JSON.
+//==================================================================================================
+class PropertyOrderScanner
+{
+public:
+    explicit PropertyOrderScanner( const QByteArray& json )
+        : m_json( json )
+    {
+    }
+
+    QMap<QString, QStringList> scan()
+    {
+        m_pos = 0;
+        m_orders.clear();
+        scanValue( QString() );
+        return m_orders;
+    }
+
+    static QString childPath( const QString& path, const QString& key )
+    {
+        QString segment = key;
+        segment.replace( "~", "~0" ).replace( "/", "~1" );
+        return path + "/" + segment;
+    }
+
+private:
+    void skipWhitespace()
+    {
+        while ( m_pos < m_json.size() && QByteArrayView( " \t\r\n" ).contains( m_json[m_pos] ) )
+            ++m_pos;
+    }
+
+    QString scanString()
+    {
+        const qsizetype start      = m_pos++;
+        bool            hasEscapes = false;
+        while ( m_pos < m_json.size() && m_json[m_pos] != '"' )
+        {
+            if ( m_json[m_pos] == '\\' )
+            {
+                hasEscapes = true;
+                ++m_pos;
+            }
+            ++m_pos;
+        }
+        ++m_pos;
+
+        const QByteArray quoted = m_json.mid( start, m_pos - start );
+        if ( !hasEscapes ) return QString::fromUtf8( quoted.mid( 1, quoted.size() - 2 ) );
+        return QJsonDocument::fromJson( "[" + quoted + "]" ).array().first().toString();
+    }
+
+    void scanValue( const QString& path )
+    {
+        skipWhitespace();
+        if ( m_pos >= m_json.size() ) return;
+
+        const char c = m_json[m_pos];
+        if ( c == '{' )
+        {
+            ++m_pos;
+            QStringList keys;
+            while ( true )
+            {
+                skipWhitespace();
+                if ( m_pos >= m_json.size() || m_json[m_pos] == '}' ) break;
+                const QString key = scanString();
+                skipWhitespace();
+                ++m_pos; // ':'
+                scanValue( childPath( path, key ) );
+                keys.append( key );
+                skipWhitespace();
+                if ( m_pos < m_json.size() && m_json[m_pos] == ',' ) ++m_pos;
+            }
+            ++m_pos;
+            if ( path.endsWith( "/properties" ) ) m_orders.insert( path, keys );
+        }
+        else if ( c == '[' )
+        {
+            ++m_pos;
+            for ( int index = 0;; ++index )
+            {
+                skipWhitespace();
+                if ( m_pos >= m_json.size() || m_json[m_pos] == ']' ) break;
+                scanValue( path + "/" + QString::number( index ) );
+                skipWhitespace();
+                if ( m_pos < m_json.size() && m_json[m_pos] == ',' ) ++m_pos;
+            }
+            ++m_pos;
+        }
+        else if ( c == '"' )
+        {
+            scanString();
+        }
+        else
+        {
+            while ( m_pos < m_json.size() && !QByteArrayView( ",}] \t\r\n" ).contains( m_json[m_pos] ) )
+                ++m_pos;
+        }
+    }
+
+    const QByteArray&          m_json;
+    qsizetype                  m_pos = 0;
+    QMap<QString, QStringList> m_orders;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Where a JSON value is: in data around the schemas, in a schema, or in the `properties` map of a schema
+//--------------------------------------------------------------------------------------------------
+enum class SchemaLocation
+{
+    Data,
+    Schema,
+    PropertiesMap
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SchemaLocation childLocation( SchemaLocation location, const QString& key )
+{
+    if ( location == SchemaLocation::PropertiesMap ) return SchemaLocation::Schema;
+    if ( location == SchemaLocation::Schema ) return key == "properties" ? SchemaLocation::PropertiesMap : SchemaLocation::Schema;
+    return ( key == "input_schema" || key == "output_schema" ) ? SchemaLocation::Schema : SchemaLocation::Data;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Add the property order to the object schemas under `input_schema` and `output_schema`. Literal
+/// values in the schemas (defaults, examples) and the data around the schemas are left as they are.
+//--------------------------------------------------------------------------------------------------
+QJsonValue withPropertyOrder( const QJsonValue& value, const QString& path, SchemaLocation location, const QMap<QString, QStringList>& orders )
+{
+    if ( value.isArray() )
+    {
+        QJsonArray array = value.toArray();
+        for ( qsizetype i = 0; i < array.size(); ++i )
+            array[i] = withPropertyOrder( array[i], path + "/" + QString::number( i ), location, orders );
+        return array;
+    }
+    if ( !value.isObject() ) return value;
+
+    static const QStringList literalKeywords = { "default", "examples", "const", "enum" };
+
+    QJsonObject object = value.toObject();
+    for ( auto it = object.begin(); it != object.end(); ++it )
+    {
+        if ( location == SchemaLocation::Schema && literalKeywords.contains( it.key() ) ) continue;
+        it.value() =
+            withPropertyOrder( it.value(), PropertyOrderScanner::childPath( path, it.key() ), childLocation( location, it.key() ), orders );
+    }
+
+    const QString propertiesPath = PropertyOrderScanner::childPath( path, "properties" );
+    if ( location == SchemaLocation::Schema && object.value( "type" ).toString() == "object" && object.value( "properties" ).isObject() &&
+         orders.contains( propertiesPath ) )
+    {
+        object.insert( RimWorkflowSchemaTools::propertyOrderKey(), QJsonArray::fromStringList( orders.value( propertiesPath ) ) );
+    }
+    return object;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether the schema allows null, e.g. Optional[int] (anyOf with null)
+//--------------------------------------------------------------------------------------------------
+bool isNullable( const QJsonObject& schema, const QJsonObject& rootSchema, int depth = 0 )
+{
+    constexpr int maxDepth = 16;
+    if ( depth > maxDepth ) return false;
+    if ( schema.contains( "$ref" ) )
+        return isNullable( RimWorkflowSchemaTools::resolveRef( schema.value( "$ref" ).toString(), rootSchema ), rootSchema, depth + 1 );
+
+    const QJsonValue type = schema.value( "type" );
+    if ( type.toString() == "null" || type.toArray().contains( QJsonValue( "null" ) ) ) return true;
+
+    for ( const QString& keyword : { "anyOf", "oneOf" } )
+    {
+        for ( const QJsonValue& arm : schema.value( keyword ).toArray() )
+        {
+            if ( isNullable( arm.toObject(), rootSchema, depth + 1 ) ) return true;
+        }
+    }
+    const QJsonArray allOf = schema.value( "allOf" ).toArray();
+    return allOf.size() == 1 && isNullable( allOf.first().toObject(), rootSchema, depth + 1 );
+}
+} // namespace
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -178,6 +366,32 @@ QString RimWorkflowSchemaTools::explicitNullKey()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowSchemaTools::propertyOrderKey()
+{
+    return "x-ri-property-order";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QJsonDocument RimWorkflowSchemaTools::parseWithPropertyOrder( const QByteArray& json, QJsonParseError* error )
+{
+    QJsonParseError     parseError{};
+    const QJsonDocument document = QJsonDocument::fromJson( json, &parseError );
+    if ( error ) *error = parseError;
+    if ( parseError.error != QJsonParseError::NoError || document.isNull() ) return document;
+
+    const auto orders = PropertyOrderScanner( json ).scan();
+    if ( orders.isEmpty() ) return document;
+
+    const QJsonValue root      = document.isObject() ? QJsonValue( document.object() ) : QJsonValue( document.array() );
+    const QJsonValue annotated = withPropertyOrder( root, QString(), SchemaLocation::Data, orders );
+    return annotated.isObject() ? QJsonDocument( annotated.toObject() ) : QJsonDocument( annotated.toArray() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// The text that `literalFromText` reads back as `value`; null is written as `null`
 //--------------------------------------------------------------------------------------------------
 QString RimWorkflowSchemaTools::textFromLiteral( const QJsonValue& value )
@@ -240,13 +454,18 @@ QStringList RimWorkflowSchemaTools::requiredFields( const QJsonObject& modelSche
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Property names in schema order
+/// Property names in declaration order when the schema has it, else required fields first
 //--------------------------------------------------------------------------------------------------
 QStringList RimWorkflowSchemaTools::propertyNames( const QJsonObject& modelSchema )
 {
-    // QJsonObject sorts its keys; the `required` list and the original document keep model order
+    // QJsonObject sorts its keys; the `required` list keeps model order of the required fields
     QStringList       names;
     const QJsonObject properties = modelSchema.value( "properties" ).toObject();
+    for ( const QJsonValue& value : modelSchema.value( propertyOrderKey() ).toArray() )
+    {
+        const QString name = value.toString();
+        if ( properties.contains( name ) && !names.contains( name ) ) names.append( name );
+    }
     for ( const QString& name : requiredFields( modelSchema ) )
     {
         if ( properties.contains( name ) && !names.contains( name ) ) names.append( name );

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QString>
@@ -44,6 +45,12 @@ QString     textFromLiteral( const QJsonValue& value );
 
 // Config field schema key: a null default is an entered None rather than an unset value
 QString explicitNullKey();
+
+// Model schema key listing the property names in declaration order, which QJsonObject loses
+QString propertyOrderKey();
+
+// Parse JSON and add the declaration order of the properties of every object schema
+QJsonDocument parseWithPropertyOrder( const QByteArray& json, QJsonParseError* error = nullptr );
 
 QJsonObject configFieldSchema( const QString&     fieldName,
                                const QJsonObject& inputSchema,
