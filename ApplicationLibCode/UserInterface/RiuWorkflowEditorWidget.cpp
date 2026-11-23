@@ -55,11 +55,17 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 
+#include <algorithm>
+#include <array>
+#include <cstdlib>
 #include <functional>
 #include <map>
 
 namespace
 {
+// The text sizes of the graph, in percent, up to the largest zoom of web browsers
+constexpr std::array<int, 8> graphTextScales = { 50, 75, 100, 150, 200, 300, 400, 500 };
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -146,6 +152,23 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
                                         } );
     m_verticalLayoutAction->setCheckable( true );
     m_verticalLayoutAction->setToolTip( "Lay out the graph from top to bottom instead of from left to right" );
+
+    m_largerTextAction  = addAction( "Larger", "", [this]() { changeGraphTextScale( 1 ); } );
+    m_smallerTextAction = addAction( "Smaller", "", [this]() { changeGraphTextScale( -1 ); } );
+    m_resetTextAction   = addAction( "Reset", "", [this]() { changeGraphTextScale( 0 ); } );
+    m_largerTextAction->setToolTip( "Show larger text and icons in the graph" );
+    m_smallerTextAction->setToolTip( "Show smaller text and icons in the graph" );
+    m_resetTextAction->setToolTip( "Show the text and icons in the graph in the default size" );
+
+    // Like web browsers. Ctrl+= is Ctrl++ without Shift on many keyboards
+    m_largerTextAction->setShortcuts( { QKeySequence::ZoomIn, QKeySequence( Qt::CTRL | Qt::Key_Equal ) } );
+    m_smallerTextAction->setShortcuts( QKeySequence::ZoomOut );
+    m_resetTextAction->setShortcut( QKeySequence( Qt::CTRL | Qt::Key_0 ) );
+    for ( QAction* action : { m_largerTextAction, m_smallerTextAction, m_resetTextAction } )
+    {
+        action->setShortcutContext( Qt::WidgetWithChildrenShortcut );
+        QWidget::addAction( action );
+    }
 
     m_runAction = addAction( "Run",
                              ":/Play.svg",
@@ -1314,6 +1337,7 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
     {
         m_graphView->setEditable( m_workflow->isEditable() && !m_workflow->isLocked() );
         m_graphView->setInlineConfigValues( m_workflow->inlineConfigValues() );
+        m_graphView->setTextScale( m_workflow->graphTextScale() / 100.0 );
         m_graphView->setOrientation( m_workflow->verticalLayout() ? RiuWorkflowGraphLayout::Orientation::Vertical
                                                                   : RiuWorkflowGraphLayout::Orientation::Horizontal );
         m_shownHiddenTasks = effectiveHiddenTasks();
@@ -1327,6 +1351,30 @@ void RiuWorkflowEditorWidget::showWorkflow( RiuWorkflowGraphView::ViewportPolicy
     m_palette->setEnabled( m_workflow && m_workflow->isEditable() && !m_workflow->isLocked() );
     updateActions();
     updateStatus();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Changes the text size of the graph by the given number of steps, or resets it when the steps are zero.
+/// The tasks keep their arrangement, with their positions scaled with the boxes so they do not overlap.
+/// The zoom is kept, as in web browsers, unless the graph was fitted to the view.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::changeGraphTextScale( int steps )
+{
+    if ( !m_workflow ) return;
+
+    // Start from the nearest level, since the stored size may be any value
+    const int  current = m_workflow->graphTextScale();
+    const auto nearest = std::min_element( graphTextScales.begin(),
+                                           graphTextScales.end(),
+                                           [current]( int a, int b ) { return std::abs( a - current ) < std::abs( b - current ); } );
+    int        index   = static_cast<int>( std::distance( graphTextScales.begin(), nearest ) );
+    // The nearest level is already a step when it is on the side of the change
+    if ( steps > 0 && *nearest > current ) index--;
+    if ( steps < 0 && *nearest < current ) index++;
+    index = std::clamp( index + steps, 0, static_cast<int>( graphTextScales.size() ) - 1 );
+
+    m_workflow->setGraphTextScale( steps == 0 ? 100 : graphTextScales[index] );
+    showWorkflow( RiuWorkflowGraphView::ViewportPolicy::Rescale );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1391,6 +1439,10 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         menu.addAction( m_fitAction );
         menu.addAction( m_inlineConfigAction );
         menu.addAction( m_verticalLayoutAction );
+        auto* textSizeMenu = menu.addMenu( "Text Size" );
+        textSizeMenu->addAction( m_largerTextAction );
+        textSizeMenu->addAction( m_smallerTextAction );
+        textSizeMenu->addAction( m_resetTextAction );
         appendCollapseMenu( &menu );
         appendShowHiddenMenu( &menu );
     }
@@ -1554,6 +1606,10 @@ void RiuWorkflowEditorWidget::updateActions()
     m_inlineConfigAction->setChecked( !workflow || workflow->inlineConfigValues() );
     m_verticalLayoutAction->setEnabled( workflow != nullptr );
     m_verticalLayoutAction->setChecked( workflow && workflow->verticalLayout() );
+    const int textScale = workflow ? workflow->graphTextScale() : 100;
+    m_largerTextAction->setEnabled( workflow && textScale < RimWorkflow::maxGraphTextScale );
+    m_smallerTextAction->setEnabled( workflow && textScale > RimWorkflow::minGraphTextScale );
+    m_resetTextAction->setEnabled( workflow && textScale != 100 );
 
     // The job belongs to the root workflow, so nested tabs have no job
     const bool running = m_job && m_job->isRunning();

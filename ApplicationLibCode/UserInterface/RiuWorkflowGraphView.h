@@ -52,7 +52,8 @@ public:
     enum class ViewportPolicy
     {
         Fit,
-        Keep
+        Keep,
+        Rescale // Keep the arrangement of the tasks, scaled with the text size, and the zoom and the task at the centre of the view
     };
 
     struct ItemRef
@@ -112,6 +113,11 @@ public:
     void setConnectionValidator( const ConnectionValidator& validator );
     void setTaskIssues( const QString& taskName, const QJsonArray& issues );
 
+    static constexpr double minTextScale = 0.5;
+    static constexpr double maxTextScale = 5.0;
+    void                    setTextScale( double scale );
+    double                  textScale() const;
+
     void                                setOrientation( RiuWorkflowGraphLayout::Orientation orientation );
     RiuWorkflowGraphLayout::Orientation orientation() const;
 
@@ -151,9 +157,11 @@ protected:
     void dropEvent( QDropEvent* event ) override;
 
 private:
-    void onSelectionChanged();
-    void rememberPositions();
-    void placeLabelsAboveGraph();
+    void   onSelectionChanged();
+    void   rememberPositions();
+    void   placeLabelsAboveGraph();
+    void   scalePositions( double oldTextScale );
+    double boxWidthFactor() const;
 
     RiuWorkflowGraphViewItems::PortItem* portAt( const QPoint& viewPos ) const;
     ItemRef                              itemRefAt( const QPoint& viewPos ) const;
@@ -169,6 +177,8 @@ private:
     bool                m_editable           = false;
     bool                m_inlineConfigValues = true;
     bool                m_rebuilding         = false;
+    double              m_textScale          = 1.0;
+    double              m_shownTextScale     = 1.0; // The text scale of the tasks in the scene
     ConnectionValidator m_validator;
     QString             m_lastSelectedTask;
     QStringList         m_hiddenTasks;

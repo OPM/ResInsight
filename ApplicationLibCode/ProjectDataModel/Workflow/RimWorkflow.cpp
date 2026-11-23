@@ -84,6 +84,9 @@ RimWorkflow::RimWorkflow()
     CAF_PDM_InitField( &m_verticalLayout, "VerticalLayout", false, "Vertical Layout" );
     m_verticalLayout.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_graphTextScale, "GraphTextScale", 100, "Graph Text Size" );
+    m_graphTextScale.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_hiddenTasks, "HiddenTasks", "Hidden Tasks" );
     m_hiddenTasks.uiCapability()->setUiHidden( true );
 
@@ -173,6 +176,22 @@ bool RimWorkflow::verticalLayout() const
 void RimWorkflow::setVerticalLayout( bool vertical )
 {
     m_verticalLayout = vertical;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWorkflow::graphTextScale() const
+{
+    return std::clamp( m_graphTextScale(), minGraphTextScale, maxGraphTextScale );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflow::setGraphTextScale( int percent )
+{
+    m_graphTextScale = std::clamp( percent, minGraphTextScale, maxGraphTextScale );
 }
 
 //--------------------------------------------------------------------------------------------------
