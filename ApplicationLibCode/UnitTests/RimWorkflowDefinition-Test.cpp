@@ -444,6 +444,53 @@ TEST( RimWorkflowDefinitionEdit, configFieldsFollowDeclarationOrder )
 }
 
 //--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, duplicateTask )
+{
+    auto definition                          = definitionFixture( "completions" );
+    definition.inputs["select_well_path_1"]  = QJsonObject{ { "well_path", "A-1" } };
+    definition.nodes[2].explicitConfigFields = { "well_path" };
+    definition.nodes[2].map                  = RimWorkflowTaskMap{ .over = "wells", .keyAs = "key", .valueAs = "well_path" };
+
+    // The next free number is used, and the copy follows the task
+    QString    name;
+    const auto copy = edited( RimWorkflowDefinitionTools::duplicateTask( definition, "select_well_path_1", &name ) );
+    EXPECT_EQ( "select_well_path_3", name );
+    EXPECT_EQ( name, copy.nodes[3].name );
+
+    const RimWorkflowDefinitionNode* node = copy.findNode( name );
+    ASSERT_TRUE( node );
+    EXPECT_EQ( "resinsight.select_well_path", node->taskId );
+    EXPECT_EQ( definition.nodes[2].explicitConfigFields, node->explicitConfigFields );
+    EXPECT_EQ( definition.nodes[2].map, node->map );
+    EXPECT_EQ( copy.findNode( "select_well_path_1" )->configFields, node->configFields );
+    EXPECT_EQ( QJsonValue( QJsonObject{ { "well_path", "A-1" } } ), copy.inputs.value( name ) );
+
+    // Incoming connections are copied, outgoing are not
+    EXPECT_TRUE( hasEdge( copy, { .from = "connect_to_resinsight", .to = name, .input = "resinsight" } ) );
+    EXPECT_TRUE( hasEdge( copy, { .from = "select_eclipse_case", .to = name, .input = "grid_case" } ) );
+    EXPECT_TRUE( copy.outgoingEdges( name ).empty() );
+    EXPECT_EQ( definition.edges.size() + 2, copy.edges.size() );
+
+    EXPECT_EQ( "select_well_path_4", edited( RimWorkflowDefinitionTools::duplicateTask( copy, "select_well_path_3", &name ) ).nodes[4].name );
+    EXPECT_FALSE( RimWorkflowDefinitionTools::duplicateTask( definition, "missing" ).has_value() );
+
+    // A task loaded with an invalid name gets a valid copy name
+    auto invalid          = definition;
+    invalid.nodes[2].name = "select-well";
+    invalid.inputs.insert( "select-well", invalid.inputs.take( "select_well_path_1" ) );
+    for ( auto& edge : invalid.edges )
+    {
+        if ( edge.from == "select_well_path_1" ) edge.from = "select-well";
+        if ( edge.to == "select_well_path_1" ) edge.to = "select-well";
+    }
+    EXPECT_TRUE( RimWorkflowDefinitionTools::duplicateTask( invalid, "select-well", &name ).has_value() );
+    EXPECT_EQ( "select_well_2", name );
+
+    definition.editable = false;
+    EXPECT_FALSE( RimWorkflowDefinitionTools::duplicateTask( definition, "select_well_path_1" ).has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowDefinitionEdit, readOnlyDefinitionsAreNotEdited )
 {
     auto definition     = definitionFixture( "load_data" );

@@ -115,10 +115,11 @@ public:
     void                                setOrientation( RiuWorkflowGraphLayout::Orientation orientation );
     RiuWorkflowGraphLayout::Orientation orientation() const;
 
-    void    setPendingNodePosition( const QString& taskName, const QPointF& scenePos );
-    void    renameNodePosition( const QString& oldName, const QString& newName );
-    void    selectTask( const QString& taskName );
-    ItemRef selectedItem() const;
+    void                   setPendingNodePosition( const QString& taskName, const QPointF& scenePos );
+    std::optional<QPointF> taskPosition( const QString& taskName ) const;
+    void                   renameNodePosition( const QString& oldName, const QString& newName );
+    void                   selectTask( const QString& taskName );
+    ItemRef                selectedItem() const;
 
     void setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value );
     void resetTaskStates();

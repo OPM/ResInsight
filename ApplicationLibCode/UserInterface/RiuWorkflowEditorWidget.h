@@ -72,6 +72,7 @@ public:
     void addTask( const QString& taskId, const std::optional<QPointF>& scenePos = std::nullopt );
     void deleteItem( const RiuWorkflowGraphView::ItemRef& item );
     void renameTask( const QString& taskName );
+    void duplicateTask( const QString& taskName, const QPointF& scenePos );
     void setResultTask( const QString& taskName );
     void setOptionalInputConfigured( const QString& taskName, const QString& field, bool configured );
     void editTaskMap( const QString& taskName );

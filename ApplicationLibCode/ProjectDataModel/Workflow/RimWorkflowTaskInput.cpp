@@ -31,6 +31,7 @@
 #include "RimWorkflowViewBinding.h"
 #include "RimWorkflowWellPathBinding.h"
 
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -229,6 +230,26 @@ QJsonObject RimWorkflowTaskInput::jsonValues() const
         if ( !value.isNull() || binding->isExplicitNull() ) values.insert( binding->fieldName(), value );
     }
     return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Copy the values of the bindings of the same field and type, including references to ResInsight
+/// objects. The tasks must be at the same depth in the project tree, as references are relative.
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowTaskInput::copyValuesFrom( const RimWorkflowTaskInput& other )
+{
+    for ( RimWorkflowFieldBinding* binding : items() )
+    {
+        for ( const RimWorkflowFieldBinding* source : other.items() )
+        {
+            if ( source->fieldName() != binding->fieldName() || source->classKeyword() != binding->classKeyword() ) continue;
+
+            binding->readObjectFromXmlString( source->writeObjectToXmlString(), caf::PdmDefaultObjectFactory::instance() );
+            binding->initAfterReadRecursively();
+            binding->resolveReferencesRecursively();
+            break;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -136,6 +136,40 @@ TEST( RimWorkflowJobSync, valuesFollowRenamesAndRemovals )
 }
 
 //--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowJobSync, duplicatedTaskGetsJobValues )
+{
+    const auto     definition = loadDataDefinition();
+    RimWorkflowJob job;
+    job.syncTaskInputs( graphTasks( definition ) );
+
+    // A job value that differs from input.yaml
+    QMap<QString, QJsonValue> detached;
+    RimWorkflowTaskInput*     loadModel = job.taskInput( "load_model" );
+    QJsonArray                fields    = graphTasks( definition )[1].toObject().value( "config_fields" ).toArray();
+    ASSERT_EQ( "load_model", graphTasks( definition )[1].toObject().value( "name" ).toString() );
+    for ( qsizetype i = 0; i < fields.size(); ++i )
+    {
+        QJsonObject field = fields[i].toObject();
+        if ( field.value( "name" ).toString() == "path" ) field["default"] = "/edited/grid.roff";
+        fields[i] = field;
+    }
+    loadModel->syncFromSchema( QJsonArray{}, detached );
+    detached.clear();
+    loadModel->syncFromSchema( fields, detached );
+    ASSERT_EQ( "/edited/grid.roff", pathValue( job, "load_model" ) );
+
+    QString    name;
+    const auto duplicated = RimWorkflowDefinitionTools::duplicateTask( definition, "load_model", &name );
+    ASSERT_TRUE( duplicated.has_value() );
+    job.syncTaskInputs( graphTasks( duplicated.value() ) );
+    EXPECT_EQ( "/path/to/grid.roff", pathValue( job, name ) );
+
+    job.copyTaskInputValues( "load_model", name );
+    EXPECT_EQ( "/edited/grid.roff", pathValue( job, name ) );
+    EXPECT_EQ( job.inputValues().value( "load_model" ), job.inputValues().value( name ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowJobSync, untypedFieldValuesAreLiterals )
 {
     const QString explicitNull = RimWorkflowSchemaTools::explicitNullKey();
@@ -293,6 +327,12 @@ TEST( RimWorkflowJobSync, listValuesAreKeptExactly )
     read.buildFromSchema( exactFields );
     readThroughProjectFile( input, read );
     EXPECT_EQ( QJsonArray( { "d e", "f" } ), read.jsonValues().value( "names" ) );
+
+    // ... and copied to a duplicated task
+    RimWorkflowTaskInput copy;
+    copy.buildFromSchema( exactFields );
+    copy.copyValuesFrom( input );
+    EXPECT_EQ( QJsonArray( { "d e", "f" } ), copy.jsonValues().value( "names" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

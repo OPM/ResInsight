@@ -70,6 +70,7 @@ EditResult addTask( const RimWorkflowDefinition&  definition,
                     const QString&                taskId,
                     QString*                      addedName = nullptr );
 EditResult removeTask( const RimWorkflowDefinition& definition, const QString& nodeName );
+EditResult duplicateTask( const RimWorkflowDefinition& definition, const QString& nodeName, QString* duplicateName = nullptr );
 EditResult connect( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
 EditResult disconnect( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
 EditResult setCollectKey( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge, const QString& key );

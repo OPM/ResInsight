@@ -281,6 +281,18 @@ RimWorkflowTaskInput* RimWorkflowJob::taskInput( const QString& taskName ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowJob::copyTaskInputValues( const QString& fromTask, const QString& toTask )
+{
+    const RimWorkflowTaskInput* source = taskInput( fromTask );
+    RimWorkflowTaskInput*       target = taskInput( toTask );
+    if ( !source || !target || source == target ) return;
+    target->copyValuesFrom( *source );
+    target->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Make the task inputs follow the tasks of the workflow graph. Inputs of renamed tasks
 /// (`renames` maps old to new names) keep their values; values of removed fields are kept aside
 /// and restored if the field comes back.
