@@ -96,6 +96,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewForGridEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomVfpPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellTargetMappingFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewGeoGuidedWellPlacementFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.cpp

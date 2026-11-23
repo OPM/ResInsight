@@ -45,6 +45,7 @@ class RimEnsembleFileSet;
 class RimFormationNames;
 class RimStatisticsContourMap;
 class RimWellTargetMapping;
+class RimGeoGuidedWellPlacement;
 
 //==================================================================================================
 ///
@@ -124,6 +125,9 @@ public:
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
     std::vector<RimWellTargetMapping*> wellTargetMappings() const;
 
+    void                                    addGeoGuidedWellPlacement( RimGeoGuidedWellPlacement* placement );
+    std::vector<RimGeoGuidedWellPlacement*> geoGuidedWellPlacements() const;
+
     // Statistics contour maps
     void                                  addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
     std::vector<RimStatisticsContourMap*> statisticsContourMaps() const override;
@@ -198,9 +202,10 @@ private:
     caf::PdmField<caf::AppEnum<GridModeType>> m_detectedGridMode;
 
     // Views and mappings
-    caf::PdmChildField<RimEclipseViewCollection*>     m_viewCollection;
-    caf::PdmChildArrayField<RimWellTargetMapping*>    m_wellTargetMappings;
-    caf::PdmChildArrayField<RimStatisticsContourMap*> m_statisticsContourMaps;
+    caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
+    caf::PdmChildArrayField<RimWellTargetMapping*>      m_wellTargetMappings;
+    caf::PdmChildArrayField<RimGeoGuidedWellPlacement*> m_geoGuidedWellPlacements;
+    caf::PdmChildArrayField<RimStatisticsContourMap*>   m_statisticsContourMaps;
 
     // Shared grid data (for identical grids). Reference counted: with realizations opened lazily this can
     // be the only owner of the grid, e.g. after the realization that loaded it has been deselected.

@@ -31,6 +31,7 @@
 #include "RimEclipseCase.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
@@ -433,7 +434,7 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Populate the "Cell Filter" dropdown with case-level data filters only. View-owned filters
+/// Populate the "Cell Filter" dropdown with case-level and grid ensemble data filters. View-owned filters
 /// (under RimGridView's RimCellFilterCollection) are excluded — completion export operates on a
 /// case, not a view, so per-view filters are not applicable here.
 //--------------------------------------------------------------------------------------------------
@@ -472,6 +473,18 @@ QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( con
                     QString label = prefixWithCaseName ? QString( "%1 : %2" ).arg( eclipseCase->caseUserDescription(), filter->name() )
                                                        : filter->name();
                     options.push_back( caf::PdmOptionItemInfo( label, filter ) );
+                }
+            }
+
+            for ( auto* gridEnsemble : project->descendantsOfType<RimReservoirGridEnsemble>() )
+            {
+                RimDataFilterCollection* dataFilters = gridEnsemble->dataFilterCollection();
+                if ( !dataFilters ) continue;
+
+                for ( RimCellFilter* filter : dataFilters->filters() )
+                {
+                    if ( !filter ) continue;
+                    options.push_back( caf::PdmOptionItemInfo( QString( "%1 : %2" ).arg( gridEnsemble->name(), filter->name() ), filter ) );
                 }
             }
         }
