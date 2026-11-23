@@ -66,6 +66,25 @@
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <algorithm>
+
+//--------------------------------------------------------------------------------------------------
+/// The address set is ordered by string pool indices, which depend on the order the strings were
+/// first used. Sort by text to get the same curve and legend order independent of import order.
+//--------------------------------------------------------------------------------------------------
+static std::vector<RifEclipseSummaryAddress> sortedByText( const std::set<RifEclipseSummaryAddress>& addresses )
+{
+    std::vector<RifEclipseSummaryAddress> sorted( addresses.begin(), addresses.end() );
+    std::ranges::stable_sort( sorted,
+                              []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b )
+                              {
+                                  if ( a.category() != b.category() ) return a.category() < b.category();
+                                  if ( a.vectorName() != b.vectorName() ) return a.vectorName() < b.vectorName();
+                                  return a.uiText() < b.uiText();
+                              } );
+    return sorted;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -530,7 +549,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const s
         std::set<RifEclipseSummaryAddress> filteredAdressesFromCases =
             applySummaryAddressFiltersToCases( summaryCasesToUse, summaryAddressFilters );
 
-        for ( const auto& addr : filteredAdressesFromCases )
+        for ( const auto& addr : sortedByText( filteredAdressesFromCases ) )
         {
             auto curveSet = createCurveSet( ensemble, addr, ensembleColoringStyle, ensembleColoringParameter );
             newPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
@@ -562,7 +581,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsembles( const 
         if ( !ensemble ) continue;
 
         auto addresses = applySummaryAddressFiltersToCases( ensemble->allSummaryCases(), summaryAddressFilters );
-        for ( const auto& addr : addresses )
+        for ( const auto& addr : sortedByText( addresses ) )
         {
             newPlot->ensembleCurveSetCollection()->addCurveSet( createCurveSet( ensemble, addr, EnsembleColoringType::NONE, "" ) );
         }
@@ -635,7 +654,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
     std::set<RifEclipseSummaryAddress> filteredAdressesFromCases =
         applySummaryAddressFiltersToCases( summaryCasesToUse, summaryAddressFilters );
 
-    for ( const auto& addr : filteredAdressesFromCases )
+    for ( const auto& addr : sortedByText( filteredAdressesFromCases ) )
     {
         std::vector<RimSummaryCurve*>     createdCurves;
         std::vector<RimEnsembleCurveSet*> createdEnsembleCurveSets;
@@ -774,7 +793,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
         curveAddressesToUse.insert( *addrs.begin() );
     }
 
-    for ( const auto& addr : curveAddressesToUse )
+    for ( const auto& addr : sortedByText( curveAddressesToUse ) )
     {
         auto newCurve = RiaSummaryPlotTools::createCurve( summaryCase, addr );
         createdCurves.push_back( newCurve );
