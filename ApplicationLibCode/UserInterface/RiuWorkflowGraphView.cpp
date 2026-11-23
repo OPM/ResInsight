@@ -30,6 +30,7 @@
 #include <QIcon>
 #include <QJsonValue>
 #include <QKeyEvent>
+#include <QLineF>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
@@ -53,6 +54,16 @@ namespace
 {
 constexpr qreal nodeWidth   = 240.0;
 constexpr qreal configWidth = 190.0;
+
+// The smallest width of the boxes, relative to their default width, in units of their text
+constexpr double minBoxWidthFactor = 0.7;
+
+// See RiuWorkflowGraphView::boxWidthFactor()
+double boxWidthFactorFor( double textScale )
+{
+    return std::max( 1.0 / std::sqrt( textScale ), minBoxWidthFactor );
+}
+
 constexpr qreal portStep    = 40.0;
 constexpr qreal portTop     = 51.0;
 constexpr qreal subtitleGap = 16.0;
@@ -267,12 +278,13 @@ public:
     GraphNode( const QString&               name,
                const std::vector<PortInfo>& inputs,
                const std::vector<PortInfo>& outputs,
-               bool                         isConfig  = false,
-               const QString&               subtitle  = {},
-               bool                         diamond   = false,
-               bool                         collapsed = false,
-               bool                         mapped    = false,
-               bool                         vertical  = false );
+               bool                         isConfig    = false,
+               const QString&               subtitle    = {},
+               bool                         diamond     = false,
+               bool                         collapsed   = false,
+               bool                         mapped      = false,
+               bool                         vertical    = false,
+               qreal                        widthFactor = 1.0 );
 
     qreal                  width() const;
     qreal                  height() const;
@@ -322,6 +334,7 @@ private:
     void      addDiamondPorts( const std::vector<PortInfo>& ports, bool output );
     void      applyStyle();
     void      updateStateLabelPosition();
+    void      elideTitle();
     void      paintNestedHeader( QPainter* painter ) const;
     QPolygonF diamondPolygon( const QRectF& bounds ) const;
 
@@ -349,6 +362,7 @@ private:
     QString                                  m_state;
     QString                                  m_stateError;
     QString                                  m_baseToolTip;
+    QString                                  m_fullTitle;
     QString                                  m_issueText;
     QStringList                              m_collapsedInfo; // Shown in the tooltip, as the box does not show it
     QMap<QString, QString>                   m_collapsedValues;
@@ -382,7 +396,8 @@ protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
 
 private:
-    void applyPen();
+    void   applyPen();
+    QRectF labelBounds() const;
 
     GraphNode*            m_from;
     GraphNode*            m_to;
@@ -519,13 +534,14 @@ GraphNode::GraphNode( const QString&               name,
                       bool                         diamond,
                       bool                         collapsed,
                       bool                         mapped,
-                      bool                         vertical )
+                      bool                         vertical,
+                      qreal                        widthFactor )
     : m_name( name )
     , m_isConfig( isConfig )
     , m_diamond( diamond && !isConfig && !collapsed )
     , m_collapsed( collapsed && !isConfig )
     , m_vertical( vertical )
-    , m_width( isConfig ? configWidth : nodeWidth )
+    , m_width( ( isConfig ? configWidth : nodeWidth ) * widthFactor )
     , m_portTop( subtitle.isEmpty() ? portTop : portTop + subtitleGap )
     , m_baseToolTip( name )
 {
@@ -656,7 +672,7 @@ GraphNode::GraphNode( const QString&               name,
 //--------------------------------------------------------------------------------------------------
 qreal GraphNode::width() const
 {
-    return m_width;
+    return m_width * scale();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -664,7 +680,7 @@ qreal GraphNode::width() const
 //--------------------------------------------------------------------------------------------------
 qreal GraphNode::height() const
 {
-    return rect().height();
+    return rect().height() * scale();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,13 +708,31 @@ bool GraphNode::isHeaderAt( const QPointF& scenePos ) const
 //--------------------------------------------------------------------------------------------------
 void GraphNode::setTitle( const QString& title, const QString& toolTip )
 {
-    qreal available = m_diamond ? m_width * 0.62 : m_width - ( m_isConfig ? 20 : ( m_chevron ? 107 : 100 ) );
-    if ( m_nested && !m_diamond ) available -= nestedIconWidth;
-    m_title->setPlainText( QFontMetrics( m_title->font() ).elidedText( title, Qt::ElideRight, static_cast<int>( available ) ) );
+    m_fullTitle = title;
     m_title->setToolTip( title );
-    if ( m_diamond ) m_title->setPos( ( m_width - m_title->boundingRect().width() ) / 2, rect().height() / 2 - 24 );
     if ( !toolTip.isEmpty() ) m_baseToolTip = toolTip;
+    elideTitle();
     applyStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The title uses the width of the box up to the run state, or up to the sub-workflow icon when no
+/// state is shown
+//--------------------------------------------------------------------------------------------------
+void GraphNode::elideTitle()
+{
+    qreal available = m_width * 0.62;
+    if ( !m_diamond )
+    {
+        const qreal margin   = 2 * m_title->document()->documentMargin();
+        qreal       right    = m_width - ( m_nested ? nestedIconWidth + 4 : 6 );
+        const bool  hasState = m_stateLabel && !m_stateLabel->toPlainText().isEmpty();
+        if ( hasState ) right = m_stateLabel->pos().x() + m_stateLabel->document()->documentMargin() - 4;
+        available = right - m_title->pos().x() - margin;
+    }
+    m_title->setPlainText(
+        QFontMetrics( m_title->font() ).elidedText( m_fullTitle, Qt::ElideRight, static_cast<int>( std::max( 0.0, available ) ) ) );
+    if ( m_diamond ) m_title->setPos( ( m_width - m_title->boundingRect().width() ) / 2, rect().height() / 2 - 24 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1208,6 +1242,7 @@ void GraphNode::setNested( bool nested )
     // A mapped task keeps the map colour, as its subtitle also says what it maps over
     if ( m_subtitle && m_stack.empty() ) m_subtitle->setDefaultTextColor( nested ? nestedColor : mapColor );
     updateStateLabelPosition();
+    elideTitle();
     update();
 }
 
@@ -1301,7 +1336,10 @@ void GraphNode::applyStyle()
         if ( m_diamond )
             m_stateLabel->setPos( ( m_width - m_stateLabel->boundingRect().width() ) / 2, rect().height() / 2 + 12 );
         else
+        {
             updateStateLabelPosition();
+            elideTitle();
+        }
     }
 
     if ( m_issueLabel )
@@ -1522,6 +1560,7 @@ void GraphEdge::setLabel( const QString& label, const QString& toolTip )
         QFont font;
         font.setPointSize( 8 );
         m_label->setFont( font );
+        m_label->setScale( m_from->scale() );
         m_label->setDefaultTextColor( m_isControl ? conditionColor : edgeColor );
         m_label->setAcceptedMouseButtons( Qt::NoButton );
     }
@@ -1560,7 +1599,7 @@ void GraphEdge::updatePath()
         if ( m_label )
         {
             const QPointF anchor = path.pointAtPercent( 0.5 );
-            const QRectF  bounds = m_label->boundingRect();
+            const QRectF  bounds = labelBounds();
             if ( vertical )
                 m_label->setPos( anchor.x() - bounds.width() / 2.0, anchor.y() - bounds.height() );
             else
@@ -1579,12 +1618,21 @@ void GraphEdge::updatePath()
     if ( m_label )
     {
         const QPointF anchor = path.pointAtPercent( 0.85 );
-        const QRectF  bounds = m_label->boundingRect();
+        const QRectF  bounds = labelBounds();
         if ( vertical )
             m_label->setPos( anchor.x() + 4, anchor.y() - bounds.height() / 2.0 );
         else
             m_label->setPos( anchor.x() - bounds.width() / 2.0, anchor.y() - bounds.height() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRectF GraphEdge::labelBounds() const
+{
+    const QRectF bounds = m_label->boundingRect();
+    return QRectF( bounds.topLeft() * m_label->scale(), bounds.size() * m_label->scale() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1876,13 +1924,15 @@ void RiuWorkflowGraphView::placeLabelsAboveGraph()
         boxes = boxes.united( node->sceneBoundingRect() );
     if ( boxes.isNull() ) return;
 
-    if ( m_runStatusLabel ) m_runStatusLabel->setPos( boxes.left(), boxes.top() - 45 );
-    if ( m_hiddenTasksLabel ) m_hiddenTasksLabel->setPos( boxes.left(), boxes.top() - 65 );
+    if ( m_runStatusLabel ) m_runStatusLabel->setPos( boxes.left(), boxes.top() - 45 * m_textScale );
+    if ( m_hiddenTasksLabel ) m_hiddenTasksLabel->setPos( boxes.left(), boxes.top() - 65 * m_textScale );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Rebuild the scene. With ViewportPolicy::Keep, tasks keep their positions and the view keeps
-/// its zoom and scroll position, so edits do not make the graph jump.
+/// its zoom and scroll position, so edits do not make the graph jump. With ViewportPolicy::Rescale,
+/// the positions of the tasks are scaled with the text size, and the view keeps its zoom and the task
+/// at its centre, unless the view was fitted to the graph.
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& error, ViewportPolicy policy )
 {
@@ -1893,10 +1943,36 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     const QPointF    oldCenter    = restored ? restored->second : mapToScene( viewport()->rect().center() );
     const bool       keepViewport = policy == ViewportPolicy::Keep && ( restored || !m_taskNodes.isEmpty() ) && !m_fitOnResize;
     const QString    selectedTask = m_lastSelectedTask;
-    if ( policy == ViewportPolicy::Keep )
-        rememberPositions();
-    else
+
+    // The task nearest the centre of the view, and where the centre is relative to its box
+    QString anchorTask;
+    QPointF anchorFraction;
+    QPointF anchorOffset;
+    if ( policy == ViewportPolicy::Rescale && !restored && !m_fitOnResize )
+    {
+        qreal nearest = std::numeric_limits<qreal>::max();
+        for ( auto it = m_taskNodes.cbegin(); it != m_taskNodes.cend(); ++it )
+        {
+            const QRectF  box = it.value()->sceneBoundingRect();
+            const QPointF inside =
+                QPointF( std::clamp( oldCenter.x(), box.left(), box.right() ), std::clamp( oldCenter.y(), box.top(), box.bottom() ) );
+            const qreal distance = QLineF( inside, oldCenter ).length();
+            if ( distance >= nearest || box.isEmpty() ) continue;
+            nearest        = distance;
+            anchorTask     = it.key();
+            anchorFraction = QPointF( ( inside.x() - box.left() ) / box.width(), ( inside.y() - box.top() ) / box.height() );
+            anchorOffset   = oldCenter - inside;
+        }
+    }
+    if ( policy == ViewportPolicy::Fit )
+    {
         m_positions.clear();
+    }
+    else
+    {
+        rememberPositions();
+        if ( policy == ViewportPolicy::Rescale ) scalePositions( m_shownTextScale );
+    }
 
     m_rebuilding = true;
     m_taskNodes.clear();
@@ -1904,6 +1980,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     m_runStatusLabel   = nullptr;
     m_hiddenTasksLabel = nullptr;
     m_scene->clear();
+    m_shownTextScale = m_textScale;
     if ( policy == ViewportPolicy::Fit ) m_fitOnResize = true;
 
     if ( !error.isEmpty() || graph.value( "tasks" ).toArray().isEmpty() )
@@ -1928,7 +2005,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             it = it.key().startsWith( "config:" ) ? m_positions.erase( it ) : std::next( it );
     }
     const bool       vertical     = m_orientation == RiuWorkflowGraphLayout::Orientation::Vertical;
-    const qreal      configOffset = inlined ? 0.0 : configWidth + configGap;
+    const qreal      configOffset = inlined ? 0.0 : configWidth * boxWidthFactor() * m_textScale + configGap;
     const QJsonArray tasks        = graph.value( "tasks" ).toArray();
     const QJsonArray edges        = graph.value( "edges" ).toArray();
     const QString    result       = graph.value( "result_task" ).toString();
@@ -2057,7 +2134,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         const QString subtitle  = subtitles.join( "  " );
         const bool    isSwitch  = data.value( "switch" ).toBool();
         const bool    collapsed = m_collapsedTasks.contains( name );
-        auto*         node      = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed, !map.isEmpty(), vertical );
+        auto* node = new GraphNode( name, inputs, outputs, false, subtitle, isSwitch, collapsed, !map.isEmpty(), vertical, boxWidthFactor() );
+        node->setScale( m_textScale );
         node->setNested( nested );
         if ( isSwitch )
         {
@@ -2113,7 +2191,9 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
                                               false,
                                               false,
                                               false,
-                                              vertical );
+                                              vertical,
+                                              boxWidthFactor() );
+            configNode->setScale( m_textScale );
             m_scene->addItem( configNode );
             m_configNodes.insert( name, configNode );
         }
@@ -2155,7 +2235,12 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         else
             slotSizes[name] = QSizeF( configOffset + node->width(), slotHeight( name ) );
     }
-    const RiuWorkflowGraphLayout::Spacing spacing{ .columnStep = columnStep, .rowGap = rowGap, .rankGap = rankGap, .siblingGap = siblingGap };
+    // The boxes grow with the text, the gaps between them do not
+    const qreal                           boxGrowth = boxWidthFactor() * m_textScale - 1.0;
+    const RiuWorkflowGraphLayout::Spacing spacing{ .columnStep = columnStep + ( nodeWidth + configWidth ) * boxGrowth,
+                                                   .rowGap     = rowGap,
+                                                   .rankGap    = rankGap,
+                                                   .siblingGap = siblingGap };
     const auto slotPositions = RiuWorkflowGraphLayout::computePositions( layout, slotSizes, m_orientation, spacing );
     for ( auto it = slotPositions.cbegin(); it != slotPositions.cend(); ++it )
     {
@@ -2197,7 +2282,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             else if ( position && vertical )
                 config->setPos( *position + QPointF( ( it.value()->width() - config->width() ) / 2.0, -config->height() - configGapVertical ) );
             else if ( position )
-                config->setPos( *position + QPointF( -configWidth - configGap, 0 ) );
+                config->setPos( *position + QPointF( -config->width() - configGap, 0 ) );
         }
     }
     m_pendingPositions.clear();
@@ -2252,6 +2337,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     }
 
     m_runStatusLabel = m_scene->addText( {} );
+    m_runStatusLabel->setScale( m_textScale );
     m_runStatusLabel->setDefaultTextColor( QColor( 45, 65, 80 ) );
     if ( !hiddenNames.isEmpty() )
     {
@@ -2261,6 +2347,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         font.setPointSize( 8 );
         font.setItalic( true );
         m_hiddenTasksLabel->setFont( font );
+        m_hiddenTasksLabel->setScale( m_textScale );
         m_hiddenTasksLabel->setDefaultTextColor( QColor( 130, 135, 145 ) );
         m_hiddenTasksLabel->setToolTip( "Hidden: " + hiddenNames.join( ", " ) + "\nRight-click the canvas to show hidden tasks" );
     }
@@ -2271,6 +2358,12 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     {
         setTransform( oldTransform );
         centerOn( oldCenter );
+    }
+    else if ( auto* anchor = m_taskNodes.value( anchorTask, nullptr ) )
+    {
+        const QRectF box = anchor->sceneBoundingRect();
+        setTransform( oldTransform );
+        centerOn( box.topLeft() + QPointF( anchorFraction.x() * box.width(), anchorFraction.y() * box.height() ) + anchorOffset );
     }
     else
     {
@@ -2414,6 +2507,49 @@ bool RiuWorkflowGraphView::inlineConfigValues() const
 void RiuWorkflowGraphView::setOrientation( RiuWorkflowGraphLayout::Orientation orientation )
 {
     m_orientation = orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The size of the text and icons in the graph, relative to the default size. The boxes grow more
+/// slowly, see boxWidthFactor(), and the gaps between them keep their size. Applied by the next
+/// showGraph().
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::setTextScale( double scale )
+{
+    m_textScale = std::clamp( scale, minTextScale, maxTextScale );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuWorkflowGraphView::textScale() const
+{
+    return m_textScale;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The width of the boxes in units of their text. The boxes are scaled with the text, so this factor
+/// makes them grow with the square root of the text scale instead: larger text fills more of each box
+/// and stays larger when the graph is fitted to the view. Limited, so a box keeps room for its title.
+//--------------------------------------------------------------------------------------------------
+double RiuWorkflowGraphView::boxWidthFactor() const
+{
+    return boxWidthFactorFor( m_textScale );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Scale the remembered positions from a text scale to the current one, like the boxes: the widths
+/// grow with boxWidthFactor() times the text scale and the heights with the text scale. The tasks
+/// keep their arrangement and do not overlap.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::scalePositions( double oldTextScale )
+{
+    if ( oldTextScale <= 0.0 || oldTextScale == m_textScale ) return;
+
+    const double xFactor = ( boxWidthFactor() * m_textScale ) / ( boxWidthFactorFor( oldTextScale ) * oldTextScale );
+    const double yFactor = m_textScale / oldTextScale;
+    for ( QPointF& position : m_positions )
+        position = QPointF( position.x() * xFactor, position.y() * yFactor );
 }
 
 //--------------------------------------------------------------------------------------------------

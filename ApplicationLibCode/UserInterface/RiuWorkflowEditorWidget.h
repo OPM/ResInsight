@@ -125,6 +125,7 @@ private:
     QJsonArray  taskIssues( const QJsonObject& graphTask ) const;
     QStringList effectiveHiddenTasks() const;
     void        updateActions();
+    void        changeGraphTextScale( int steps );
     void        updateStatus();
     void        scheduleValidation();
     void        onValidationFinished( RimWorkflow* workflow );
@@ -144,6 +145,9 @@ private:
     QAction*                        m_fitAction;
     QAction*                        m_inlineConfigAction;
     QAction*                        m_verticalLayoutAction;
+    QAction*                        m_largerTextAction;
+    QAction*                        m_smallerTextAction;
+    QAction*                        m_resetTextAction;
     QAction*                        m_runAction;
     QAction*                        m_cancelAction;
     QSplitter*                      m_splitter;

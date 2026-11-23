@@ -76,6 +76,12 @@ public:
     bool verticalLayout() const;
     void setVerticalLayout( bool vertical );
 
+    // Size of the text and icons in the graph, in percent of the default size
+    static constexpr int minGraphTextScale = 50;
+    static constexpr int maxGraphTextScale = 500;
+    int                  graphTextScale() const;
+    void                 setGraphTextScale( int percent );
+
     QStringList hiddenTasks() const;
     bool        isTaskHidden( const QString& taskName ) const;
     void        setTaskHidden( const QString& taskName, bool hidden );
@@ -188,6 +194,7 @@ private:
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
     caf::PdmField<bool>                      m_inlineConfigValues;
     caf::PdmField<bool>                      m_verticalLayout;
+    caf::PdmField<int>                       m_graphTextScale;
     caf::PdmField<std::vector<QString>>      m_hiddenTasks;
     caf::PdmField<std::vector<QString>>      m_collapsedTasks;
     caf::PdmChildArrayField<RimWorkflow*>    m_nestedWorkflows;
