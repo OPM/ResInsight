@@ -838,16 +838,34 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path() );
     }
 
-    if ( RiaDefines::isGeoMechFileType( RiaDefines::obtainFileTypeFromFileName( absolutePath ) ) )
+    auto errorText = [&absolutePath]( const QString& reason )
+    { return QString( "Unable to load case from '%1'. %2" ).arg( absolutePath ).arg( reason ); };
+
+    if ( !QFileInfo( absolutePath ).isFile() ) return std::unexpected( errorText( "File does not exist." ) );
+
+    using RiaDefines::ImportFileType;
+    const ImportFileType fileType = RiaDefines::obtainFileTypeFromFileName( absolutePath );
+
+    // Check the file type up front, as other files (e.g. summary files) would be imported without creating a case
+    const bool isGridFileType = RiaDefines::isEclipseResultFileType( fileType ) || fileType == ImportFileType::ECLIPSE_INPUT_FILE ||
+                                fileType == ImportFileType::ROFF_FILE || fileType == ImportFileType::EM_H5GRID;
+    if ( !isGridFileType && !RiaDefines::isGeoMechFileType( fileType ) )
+    {
+        return std::unexpected(
+            errorText( "Unsupported file type. Expected a grid file (EGRID, GRID, GRDECL, ROFF or H5GRID) or a geomechanical case (ODB, "
+                       "INP or PVD)." ) );
+    }
+
+    if ( RiaDefines::isGeoMechFileType( fileType ) )
     {
         if ( !RiaApplication::instance()->openOdbCaseFromFile( absolutePath ) )
         {
-            return std::unexpected( QString( "Unable to load geomechanical case from %1" ).arg( absolutePath ) );
+            return std::unexpected( errorText( "Could not read the geomechanical case from the file." ) );
         }
         auto geoMechCases = project->activeOilField()->geoMechModels()->cases();
         if ( geoMechCases.empty() )
         {
-            return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+            return std::unexpected( errorText( "The loaded case was not found in the project." ) );
         }
         return geoMechCases.back();
     }
@@ -864,7 +882,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
 
     if ( fileOpenMetaData.createdCaseIds.empty() )
     {
-        return std::unexpected( QString( "Unable to load case from %1" ).arg( absolutePath ) );
+        return std::unexpected( errorText( "Could not read the grid from the file." ) );
     }
 
     // Surfaces beside the grid (e.g. fractures), as the GUI import does
@@ -876,7 +894,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
         if ( rimCase && rimCase->caseId() == caseId ) return rimCase;
     }
 
-    return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+    return std::unexpected( errorText( "The loaded case was not found in the project." ) );
 }
 
 //--------------------------------------------------------------------------------------------------
