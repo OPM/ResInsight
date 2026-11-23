@@ -189,6 +189,16 @@ std::expected<RimSurface*, QString> RimSurfaceCollection::importSurfacesFromFile
             continue;
         }
 
+        const QStringList supportedExtensions = { "ptl", "ts", "dat", "xyz", "irap", "gri", "vtu", "pvd" };
+        if ( !supportedExtensions.contains( QFileInfo( newFileName ).suffix().toLower() ) )
+        {
+            RiaLogging::warning(
+                QString( "Unrecognized surface file extension for '%1'. Expected one of: %2. Trying to import as a generic surface file." )
+                    .arg( newFileName )
+                    .arg( supportedExtensions.join( ", " ) )
+                    .toStdString() );
+        }
+
         RimSurface* newSurface = createSurfaceFromFile( newFileName );
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
@@ -198,7 +208,8 @@ std::expected<RimSurface*, QString> RimSurfaceCollection::importSurfacesFromFile
         if ( !newSurface->onLoadData() )
         {
             delete newSurface;
-            errorMessages << QString( "Could not import surface from file '%1'." ).arg( newFileName );
+            errorMessages
+                << QString( "Could not import surface from file '%1'. No surface data could be read from the file." ).arg( newFileName );
         }
         else
         {
