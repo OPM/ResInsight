@@ -18,6 +18,8 @@
 
 #include "RicCancelWorkflowJobFeature.h"
 
+#include "RicWorkflowFeatureTools.h"
+
 #include "Workflow/RimWorkflowJob.h"
 
 #include "cafSelectionManagerTools.h"
@@ -33,7 +35,7 @@ void RicCancelWorkflowJobFeature::onActionTriggered( bool isChecked )
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
     if ( jobs.size() != 1 ) return;
-    jobs.front()->cancelJob();
+    RicWorkflowFeatureTools::cancelJob( jobs.front() );
 }
 
 //--------------------------------------------------------------------------------------------------

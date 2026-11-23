@@ -24,6 +24,7 @@
 #include "Workflow/RimWorkflow.h"
 #include "Workflow/RimWorkflowCollection.h"
 #include "Workflow/RimWorkflowDefinitionTools.h"
+#include "Workflow/RimWorkflowJob.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
@@ -226,6 +227,34 @@ bool RicWorkflowFeatureTools::rescanWorkflows()
     if ( auto* window = RiuMainWindow::instance() ) window->workflowDefinitionChanged( nullptr );
     if ( auto* editor = workflowEditor() ) editor->palette()->reload();
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Asks before running when the last validation of the workflow reported problems
+//--------------------------------------------------------------------------------------------------
+void RicWorkflowFeatureTools::runJob( RimWorkflowJob* job )
+{
+    if ( !job || job->isRunning() ) return;
+
+    auto* workflow = job->firstAncestorOrThisOfType<RimWorkflow>();
+    if ( workflow && workflow->isEditable() && workflow->lastValidationFailed() )
+    {
+        const auto answer = QMessageBox::question( Riu3DMainWindowTools::mainWindowWidget(),
+                                                   "Run Workflow",
+                                                   "The last validation of the workflow reported problems. Run anyway?",
+                                                   QMessageBox::Yes | QMessageBox::No,
+                                                   QMessageBox::No );
+        if ( answer != QMessageBox::Yes ) return;
+    }
+    job->runJob();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWorkflowFeatureTools::cancelJob( RimWorkflowJob* job )
+{
+    if ( job && job->isRunning() ) job->cancelJob();
 }
 
 //--------------------------------------------------------------------------------------------------

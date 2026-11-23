@@ -143,6 +143,8 @@ private:
     QAction*                        m_fitAction;
     QAction*                        m_inlineConfigAction;
     QAction*                        m_verticalLayoutAction;
+    QAction*                        m_runAction;
+    QAction*                        m_cancelAction;
     QSplitter*                      m_splitter;
     RiuWorkflowTaskPalette*         m_palette;
     RiuWorkflowGraphView*           m_graphView;
