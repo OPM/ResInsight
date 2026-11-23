@@ -190,6 +190,170 @@ TEST( RigReservoirTest, DualPorosityDepthResults )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Intersect writes ACTNUM with all cells active and no NNCs, and defines the active cells by PORV in the INIT file.
+/// Matrix and fracture then have different active cells, and the OPM reader must map them like resdata.
+//--------------------------------------------------------------------------------------------------
+TEST( RigReservoirTest, DualPorosityDifferentMatrixAndFractureActiveCells )
+{
+    QDir baseFolder( TEST_MODEL_DIR );
+    baseFolder.cd( "dualporo-testcase" );
+    const QString sourceBaseName = baseFolder.absoluteFilePath( "DUALPORO-WELL-COMPLETION-DEFAULT" );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    const QString baseName = tempDir.filePath( "DUALPORO" );
+
+    // Copy the EGRID without NNCs, as OPM EGrid::load_nnc_data() requires equal matrix and fracture active cell counts
+    {
+        ecl_file_type* gridFile =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( sourceBaseName + ".EGRID" ).data(), ECL_FILE_CLOSE_STREAM );
+        ASSERT_TRUE( gridFile );
+
+        fortio_type* fortio =
+            fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( baseName + ".EGRID" ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_TRUE( fortio );
+
+        for ( int kwIdx = 0; kwIdx < ecl_file_get_size( gridFile ); kwIdx++ )
+        {
+            ecl_kw_type*      kw     = ecl_file_iget_kw( gridFile, kwIdx );
+            const std::string header = ecl_kw_get_header( kw );
+            if ( header == NNCHEAD_KW || header == NNC1_KW || header == NNC2_KW ) continue;
+
+            ecl_kw_fwrite( kw, fortio );
+        }
+
+        fortio_fclose( fortio );
+        ecl_file_close( gridFile );
+    }
+
+    // Fracture is active in the bottom layer only, and one bottom layer cell is fracture only
+    const int cellCount            = 125;
+    const int firstFractureCell    = 100;
+    const int fractureOnlyCell     = 110;
+    auto      isMatrixActiveCell   = [&]( int cellIdx ) { return cellIdx != fractureOnlyCell; };
+    auto      isFractureActiveCell = [&]( int cellIdx ) { return cellIdx >= firstFractureCell; };
+
+    std::vector<int> keptValueIndices;
+    for ( int i = 0; i < 2 * cellCount; i++ )
+    {
+        const int cellIdx = i % cellCount;
+        if ( i < cellCount ? isMatrixActiveCell( cellIdx ) : isFractureActiveCell( cellIdx ) ) keptValueIndices.push_back( i );
+    }
+
+    // Rewrite the INIT and UNRST files with PORV zero for inactive cells, and remove these cells from all active cell arrays
+    auto rewriteFile = [&]( const QString& extension ) -> bool
+    {
+        ecl_file_type* initFile =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( sourceBaseName + extension ).data(), ECL_FILE_CLOSE_STREAM );
+        if ( !initFile ) return false;
+
+        fortio_type* fortio =
+            fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( baseName + extension ).data(), false, ECL_ENDIAN_FLIP );
+        if ( !fortio ) return false;
+
+        for ( int kwIdx = 0; kwIdx < ecl_file_get_size( initFile ); kwIdx++ )
+        {
+            ecl_kw_type* kw     = ecl_file_iget_kw( initFile, kwIdx );
+            const char*  header = ecl_kw_get_header( kw );
+
+            if ( std::string( header ) == INTEHEAD_KW )
+            {
+                ecl_kw_type* copy             = ecl_kw_alloc_copy( kw );
+                const int    activeValueCount = static_cast<int>( keptValueIndices.size() );
+                ecl_kw_iset( copy, INTEHEAD_NACTIVE_INDEX, &activeValueCount );
+                ecl_kw_fwrite( copy, fortio );
+                ecl_kw_free( copy );
+            }
+            else if ( std::string( header ) == PORV_KW )
+            {
+                ecl_kw_type* copy = ecl_kw_alloc_copy( kw );
+                const float  zero = 0.0f;
+                size_t       kept = 0;
+                for ( int i = 0; i < ecl_kw_get_size( copy ); i++ )
+                {
+                    if ( kept < keptValueIndices.size() && keptValueIndices[kept] == i )
+                        kept++;
+                    else
+                        ecl_kw_iset( copy, i, &zero );
+                }
+                ecl_kw_fwrite( copy, fortio );
+                ecl_kw_free( copy );
+            }
+            else if ( ecl_kw_get_size( kw ) == 2 * cellCount )
+            {
+                ecl_kw_type* filtered = ecl_kw_alloc( header, static_cast<int>( keptValueIndices.size() ), ecl_kw_get_data_type( kw ) );
+                for ( size_t i = 0; i < keptValueIndices.size(); i++ )
+                {
+                    ecl_kw_iset( filtered, static_cast<int>( i ), ecl_kw_iget_ptr( kw, keptValueIndices[i] ) );
+                }
+                ecl_kw_fwrite( filtered, fortio );
+                ecl_kw_free( filtered );
+            }
+            else
+            {
+                ecl_kw_fwrite( kw, fortio );
+            }
+        }
+
+        fortio_fclose( fortio );
+        ecl_file_close( initFile );
+        return true;
+    };
+
+    ASSERT_TRUE( rewriteFile( ".INIT" ) );
+    ASSERT_TRUE( rewriteFile( ".UNRST" ) );
+
+    cvf::ref<RifReaderInterface>          readers[2] = { new RifReaderEclipseOutput, new RifReaderOpmCommon };
+    std::unique_ptr<RimEclipseResultCase> resultCases[2];
+    cvf::ref<RigEclipseCaseData>          caseData[2];
+    for ( int i = 0; i < 2; i++ )
+    {
+        resultCases[i] = std::make_unique<RimEclipseResultCase>();
+        caseData[i]    = new RigEclipseCaseData( resultCases[i].get() );
+        ASSERT_TRUE( readers[i]->open( baseName + ".EGRID", caseData[i].p() ) );
+        ASSERT_TRUE( caseData[i]->mainGrid()->isDualPorosity() );
+    }
+
+    for ( auto porosityModel : { PorosityModelType::MATRIX_MODEL, PorosityModelType::FRACTURE_MODEL } )
+    {
+        const size_t expectedActiveCount = porosityModel == PorosityModelType::MATRIX_MODEL ? cellCount - 1 : cellCount - firstFractureCell;
+
+        const RigActiveCellInfo* resdataActiveInfo = caseData[0]->activeCellInfo( porosityModel );
+        const RigActiveCellInfo* opmActiveInfo     = caseData[1]->activeCellInfo( porosityModel );
+        EXPECT_EQ( expectedActiveCount, resdataActiveInfo->reservoirActiveCellCount() );
+        EXPECT_EQ( expectedActiveCount, opmActiveInfo->reservoirActiveCellCount() );
+
+        for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
+        {
+            const ReservoirCellIndex reservoirCellIndex( static_cast<size_t>( cellIdx ) );
+            EXPECT_EQ( resdataActiveInfo->cellResultIndex( reservoirCellIndex ), opmActiveInfo->cellResultIndex( reservoirCellIndex ) )
+                << "cell " << cellIdx;
+        }
+
+        for ( const QString& resultName : { "PORV", "PERMX", "PORO" } )
+        {
+            std::vector<double> resdataValues;
+            std::vector<double> opmValues;
+            EXPECT_TRUE( readers[0]->staticResult( resultName, porosityModel, &resdataValues ) );
+            EXPECT_TRUE( readers[1]->staticResult( resultName, porosityModel, &opmValues ) );
+            EXPECT_EQ( expectedActiveCount, resdataValues.size() );
+            EXPECT_EQ( resdataValues, opmValues ) << resultName.toStdString();
+        }
+
+        // Dynamic results are read through the fracture result index, which differs from the matrix index
+        for ( const QString& resultName : { "PRESSURE", "SWAT" } )
+        {
+            std::vector<double> resdataValues;
+            std::vector<double> opmValues;
+            EXPECT_TRUE( readers[0]->dynamicResult( resultName, porosityModel, 0, &resdataValues ) );
+            EXPECT_TRUE( readers[1]->dynamicResult( resultName, porosityModel, 0, &opmValues ) );
+            EXPECT_EQ( expectedActiveCount, resdataValues.size() );
+            EXPECT_EQ( resdataValues, opmValues ) << resultName.toStdString();
+        }
+    }
+}
+
 TEST( RigReservoirTest, OpenGridFileWithoutDimensKeyword )
 {
     // Importing a GRID file without the DIMENS keyword threw an uncaught std::out_of_range from the

@@ -113,6 +113,8 @@ private:
 
     void locateInitAndRestartFiles( QString gridFileName );
     void setupInitAndRestartAccess();
+    void setupInitAccess();
+    void setupRestartAccess();
 
     struct TimeDataFile
     {
