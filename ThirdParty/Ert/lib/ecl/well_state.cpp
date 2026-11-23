@@ -31,6 +31,7 @@
 #include <ert/util/int_vector.hpp>
 #include <ert/util/type_macros.hpp>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
@@ -334,6 +335,34 @@ static bool well_state_add_rates(well_state_type* well_state,
 }
 
 
+/*
+  Some simulators (e.g. IX) store well names longer than 8 characters
+  across consecutive 8 character words in ZWEL. Eclipse and OPM Flow
+  leave the second word blank and use the third word for other data
+  (e.g. the ACTIONX name), so the next word is only part of the name
+  when the current word is filled.
+*/
+static std::string well_state_get_zwel_name(const ecl_kw_type* zwel_kw, int nzwelz, int well_nr) {
+    const int offset = nzwelz * well_nr;
+    std::string name;
+
+    if (!ecl_type_is_char(ecl_kw_get_data_type(zwel_kw))) {
+        name = (const char*)ecl_kw_iget_ptr(zwel_kw, offset);
+    } else {
+        const int num_words = std::max(nzwelz, 1);
+        for (int i = 0; i < num_words && offset + i < ecl_kw_get_size(zwel_kw); i++) {
+            const std::string word = ecl_kw_iget_char_ptr(zwel_kw, offset + i);
+            name += word;
+            if (word.size() < ECL_STRING8_LENGTH || word.back() == ' ')
+                break;
+        }
+    }
+
+    char* stripped = util_alloc_strip_copy(name.c_str());
+    name = stripped;
+    free(stripped);
+    return name;
+}
 
 
 /*
@@ -355,14 +384,10 @@ static int well_state_get_lgr_well_nr(const well_state_type* well_state, const e
         while (true) {
             bool found = false;
             {
-                char* lgr_well_name = (char*)util_alloc_strip_copy((const char*)ecl_kw_iget_ptr(zwel_kw, well_nr * header->nzwelz));
-
-                if (well_state->name == lgr_well_name)
+                if (well_state->name == well_state_get_zwel_name(zwel_kw, header->nzwelz, well_nr))
                     found = true;
                 else
                     well_nr++;
-
-                free(lgr_well_name);
             }
 
             if (found)
@@ -613,7 +638,7 @@ well_state_type* well_state_alloc_from_file2(ecl_file_view_type* file_view, std:
 
         const int iwel_offset = global_header->niwelz * global_well_nr;
         {
-            char* name;
+            std::string name;
             bool open;
             well_type_enum type = ECL_WELL_ZERO;
             {
@@ -629,13 +654,9 @@ well_state_type* well_state_alloc_from_file2(ecl_file_view_type* file_view, std:
                 type = well_state_translate_ecl_type_int(int_type);
             }
 
-            {
-                const int zwel_offset = global_header->nzwelz * global_well_nr;
-                name = (char*)util_alloc_strip_copy((const char*)ecl_kw_iget_ptr(global_zwel_kw, zwel_offset));  // Hardwired max 8 characters in Well Name
-            }
+            name = well_state_get_zwel_name(global_zwel_kw, global_header->nzwelz, global_well_nr);
 
-            well_state = well_state_alloc(name, global_well_nr, open, type, report_nr, global_header->sim_time);
-            free(name);
+            well_state = well_state_alloc(name.c_str(), global_well_nr, open, type, report_nr, global_header->sim_time);
             if (well_state != nullptr)
             {
                 well_state_add_connections2(well_state, grid_names, file_view, global_well_nr);

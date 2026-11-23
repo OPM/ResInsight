@@ -53,6 +53,7 @@
 
 #include <limits>
 #include <memory>
+#include <set>
 #include <vector>
 
 using namespace RiaDefines;
@@ -368,6 +369,144 @@ TEST( RigReservoirTest, ReadWellsFromRestartFileWithUnreadableKeywords )
     EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "IWEL.UNRST" ), IWEL_KW ) );
     EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "ISEG.UNRST" ), ISEG_KW ) );
     EXPECT_EQ( 0, wellCountFromRestartFile( QDir( tempDir.path() ).filePath( "XWEL.UNRST" ), XWEL_KW ) );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Write a restart file with one well per nzwelz words of ZWEL, and return the well names read.
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> wellNamesFromRestartFile( const QString& restartFileName, int nzwelz, const std::vector<std::string>& zwelWords )
+{
+    const int nwells = (int)zwelWords.size() / nzwelz;
+    {
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), false, ECL_ENDIAN_FLIP );
+        if ( !fortio ) return {};
+
+        auto writeKeyword = [fortio]( const char* name, int size, ecl_data_type type, const void* data )
+        {
+            ecl_kw_type* kw = ecl_kw_alloc_new( name, size, type, data );
+            ecl_kw_fwrite( kw, fortio );
+            ecl_kw_free( kw );
+        };
+
+        std::vector<int> seqnum( 1, 1 );
+        writeKeyword( SEQNUM_KW, (int)seqnum.size(), ECL_INT, seqnum.data() );
+
+        const int        niwelz = 155;
+        const int        nxwelz = 130;
+        std::vector<int> intehead( 411, 0 );
+        intehead[INTEHEAD_DAY_INDEX]    = 1;
+        intehead[INTEHEAD_MONTH_INDEX]  = 1;
+        intehead[INTEHEAD_YEAR_INDEX]   = 2000;
+        intehead[INTEHEAD_NWELLS_INDEX] = nwells;
+        intehead[INTEHEAD_NIWELZ_INDEX] = niwelz;
+        intehead[INTEHEAD_NXWELZ_INDEX] = nxwelz;
+        intehead[INTEHEAD_NZWELZ_INDEX] = nzwelz;
+        writeKeyword( INTEHEAD_KW, (int)intehead.size(), ECL_INT, intehead.data() );
+
+        std::vector<int> iwel( niwelz * nwells, 0 );
+        writeKeyword( IWEL_KW, (int)iwel.size(), ECL_INT, iwel.data() );
+
+        std::vector<double> xwel( nxwelz * nwells, 0.0 );
+        writeKeyword( XWEL_KW, (int)xwel.size(), ECL_DOUBLE, xwel.data() );
+
+        ecl_kw_type* zwel = ecl_kw_alloc( ZWEL_KW, (int)zwelWords.size(), ECL_CHAR );
+        for ( size_t i = 0; i < zwelWords.size(); i++ )
+            ecl_kw_iset_string8( zwel, (int)i, zwelWords[i].c_str() );
+        ecl_kw_fwrite( zwel, fortio );
+        ecl_kw_free( zwel );
+
+        fortio_fclose( fortio );
+    }
+
+    ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( restartFileName ).data(), 0 );
+    if ( !ecl_file ) return {};
+
+    well_info_type* wellInfo = well_info_alloc( { "GLOBAL" } );
+    well_info_add_UNRST_wells( wellInfo, ecl_file, false );
+
+    std::vector<std::string> wellNames;
+    for ( int i = 0; i < well_info_get_num_wells( wellInfo ); i++ )
+        wellNames.push_back( well_info_iget_well_name( wellInfo, i ) );
+
+    well_info_free( wellInfo );
+    ecl_file_close( ecl_file );
+
+    return wellNames;
+}
+} // namespace
+
+TEST( RigReservoirTest, ReadWellNamesLongerThanEightCharacters )
+{
+    // IX stores well names longer than 8 characters across consecutive ZWEL words. Only the first word was read, and
+    // wells sharing the first 8 characters were merged into one well.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const std::vector<std::string> ixWords = { "PRODUCER", "A01", "PRODUCER", "A02", "SHORT", "" };
+    const std::vector<std::string> ixNames = { "PRODUCERA01", "PRODUCERA02", "SHORT" };
+    EXPECT_EQ( ixNames, wellNamesFromRestartFile( QDir( tempDir.path() ).filePath( "IX.UNRST" ), 2, ixWords ) );
+
+    // Eclipse 100 and OPM Flow leave the second word blank and store the ACTIONX name in the third word
+    const std::vector<std::string> eclipseWords = { "WELL0001", "", "ACTION1", "PROD", "", "ACTION2" };
+    const std::vector<std::string> eclipseNames = { "WELL0001", "PROD" };
+    EXPECT_EQ( eclipseNames, wellNamesFromRestartFile( QDir( tempDir.path() ).filePath( "E100.UNRST" ), 3, eclipseWords ) );
+
+    // Eclipse 300 uses one word per well
+    const std::vector<std::string> e300Words = { "WELL0001", "WELL0002" };
+    const std::vector<std::string> e300Names = { "WELL0001", "WELL0002" };
+    EXPECT_EQ( e300Names, wellNamesFromRestartFile( QDir( tempDir.path() ).filePath( "E300.UNRST" ), 1, e300Words ) );
+}
+
+TEST( RigReservoirTest, WellNamesFromRestartFilesMatchFirstZwelWord )
+{
+    // Joining ZWEL words for long well names must not change the well names read from Eclipse restart files
+    const QStringList restartFiles = { "TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.UNRST",
+                                       "dualporo-testcase/DUALPORO-WELL-COMPLETION-DEFAULT.UNRST",
+                                       "msw-export/opm-simulation-reference/BASE_MODEL_1.UNRST" };
+
+    for ( const QString& restartFile : restartFiles )
+    {
+        const QString fileName = QDir( TEST_MODEL_DIR ).filePath( restartFile );
+        if ( !QFile::exists( fileName ) ) continue;
+
+        ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), 0 );
+        ASSERT_TRUE( ecl_file );
+
+        std::set<std::string> firstWordNames;
+        int                   nzwelz = 1;
+        int                   nwells = 0;
+        for ( int i = 0; i < ecl_file_get_size( ecl_file ); i++ )
+        {
+            const std::string header = ecl_file_iget_header( ecl_file, i );
+            if ( header == INTEHEAD_KW )
+            {
+                const ecl_kw_type* intehead = ecl_file_iget_kw( ecl_file, i );
+                nzwelz                      = ecl_kw_iget_int( intehead, INTEHEAD_NZWELZ_INDEX );
+                nwells                      = ecl_kw_iget_int( intehead, INTEHEAD_NWELLS_INDEX );
+            }
+            else if ( header == ZWEL_KW )
+            {
+                const ecl_kw_type* zwel = ecl_file_iget_kw( ecl_file, i );
+                for ( int w = 0; w < nwells; w++ )
+                    firstWordNames.insert( QString( ecl_kw_iget_char_ptr( zwel, w * nzwelz ) ).trimmed().toStdString() );
+            }
+        }
+
+        well_info_type* wellInfo = well_info_alloc( { "GLOBAL" } );
+        well_info_add_UNRST_wells( wellInfo, ecl_file, false );
+
+        std::set<std::string> wellNames;
+        for ( int i = 0; i < well_info_get_num_wells( wellInfo ); i++ )
+            wellNames.insert( well_info_iget_well_name( wellInfo, i ) );
+
+        well_info_free( wellInfo );
+        ecl_file_close( ecl_file );
+
+        EXPECT_FALSE( wellNames.empty() ) << restartFile.toStdString();
+        EXPECT_EQ( firstWordNames, wellNames ) << restartFile.toStdString();
+    }
 }
 
 TEST( RigReservoirTest, TimeStepsFromFileWithoutIntehead )
