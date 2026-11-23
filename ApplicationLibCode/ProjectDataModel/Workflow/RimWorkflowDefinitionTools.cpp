@@ -1052,6 +1052,44 @@ RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::removeTask( c
 }
 
 //--------------------------------------------------------------------------------------------------
+/// A copy of a task with its config values, map, condition and incoming connections. The copy has
+/// no downstream tasks. It is named like the task with the next free number, e.g. load_grid_2.
+//--------------------------------------------------------------------------------------------------
+RimWorkflowDefinitionTools::EditResult
+    RimWorkflowDefinitionTools::duplicateTask( const RimWorkflowDefinition& definition, const QString& nodeName, QString* duplicateName )
+{
+    if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
+
+    const auto source = std::find_if( definition.nodes.begin(),
+                                      definition.nodes.end(),
+                                      [&nodeName]( const RimWorkflowDefinitionNode& node ) { return node.name == nodeName; } );
+    if ( source == definition.nodes.end() ) return std::unexpected( QString( "Unknown task '%1'" ).arg( nodeName ) );
+
+    static const QRegularExpression numberSuffix( "_\\d+$" );
+    // A task loaded with an invalid name gets a valid one, as any suffix would also be invalid
+    QString baseName = identifierFrom( nodeName );
+    baseName.remove( numberSuffix );
+    QString name;
+    for ( int index = 2; name.isEmpty() || !validateInstanceName( definition, name ); ++index )
+        name = QString( "%1_%2" ).arg( baseName ).arg( index );
+
+    RimWorkflowDefinition     result = definition;
+    RimWorkflowDefinitionNode copy   = *source;
+    copy.name                        = name;
+    result.nodes.insert( result.nodes.begin() + ( source - definition.nodes.begin() ) + 1, copy );
+    result.inputs.insert( name, definition.inputs.value( nodeName ) );
+
+    for ( RimWorkflowDefinitionEdge edge : definition.incomingEdges( nodeName ) )
+    {
+        edge.to = name;
+        result.edges.push_back( edge );
+    }
+
+    if ( duplicateName ) *duplicateName = name;
+    return normalize( result );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Add a connection. An existing connection to the same input is replaced, except when the new
 /// connection is another member of a collected (list or dict) input.
 //--------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ public:
     RimWorkflowTaskInput*              taskInput( const QString& taskName ) const;
     void                               setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs );
     void                               syncTaskInputs( const QJsonArray& graphTasks, const QMap<QString, QString>& renames = {} );
+    void                               copyTaskInputValues( const QString& fromTask, const QString& toTask );
 
     QJsonObject inputValues() const;
     QJsonObject literalInputValues() const;

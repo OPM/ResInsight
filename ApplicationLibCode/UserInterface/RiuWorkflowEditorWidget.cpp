@@ -792,6 +792,25 @@ void RiuWorkflowEditorWidget::deleteItem( const RiuWorkflowGraphView::ItemRef& i
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The copy is placed next to the task and gets the job values of the task
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::duplicateTask( const QString& taskName, const QPointF& scenePos )
+{
+    if ( !canEdit() ) return;
+
+    QString    duplicateName;
+    const auto result = RimWorkflowDefinitionTools::duplicateTask( m_workflow->definition(), taskName, &duplicateName );
+    if ( result )
+        m_graphView->setPendingNodePosition( duplicateName, m_graphView->taskPosition( taskName ).value_or( scenePos ) + QPointF( 40, 40 ) );
+    if ( !applyEdit( result ) ) return;
+
+    for ( RimWorkflowJob* job : m_workflow->jobs() )
+        job->copyTaskInputValues( taskName, duplicateName );
+    updateTaskInputValues();
+    m_graphView->selectTask( duplicateName );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::renameTask( const QString& taskName )
@@ -1331,6 +1350,7 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         appendTaskViewActions( &menu, task );
         menu.addSeparator();
         addMenuAction( &menu, "Rename...", [this, task]() { renameTask( task ); } );
+        addMenuAction( &menu, "Duplicate Task", [this, task, scenePos]() { duplicateTask( task, scenePos ); }, ":/Copy.svg" )->setToolTip( "Add a copy of the task with its configuration and incoming connections" );
         addMenuAction( &menu, "Set as Result Task", [this, task]() { setResultTask( task ); } )
             ->setEnabled( RimWorkflowDefinitionTools::effectiveResultTask( m_workflow->definition() ) != task ||
                           m_workflow->definition().resultTask.isEmpty() );

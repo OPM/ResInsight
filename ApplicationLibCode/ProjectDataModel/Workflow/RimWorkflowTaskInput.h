@@ -49,6 +49,8 @@ public:
     QJsonObject jsonValues() const;
     QJsonObject literalValues() const;
 
+    void copyValuesFrom( const RimWorkflowTaskInput& other );
+
     static QString                  bindingClassKeyword( const QJsonObject& fieldSchema );
     static RimWorkflowFieldBinding* createBinding( const QJsonObject& fieldSchema );
     static QString                  detachedKey( const QString& fieldName, const QString& classKeyword );

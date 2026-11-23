@@ -1787,6 +1787,15 @@ void RiuWorkflowGraphView::setPendingNodePosition( const QString& taskName, cons
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<QPointF> RiuWorkflowGraphView::taskPosition( const QString& taskName ) const
+{
+    if ( GraphNode* node = m_taskNodes.value( taskName, nullptr ) ) return node->pos();
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Keep the position of a task the user has placed when it is renamed
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::renameNodePosition( const QString& oldName, const QString& newName )
