@@ -21,11 +21,15 @@
 #include "RiaTestDataDirectory.h"
 #include "RimWorkflow.h"
 #include "RimWorkflowDefinitionTools.h"
+#include "RimWorkflowFieldBinding.h"
 #include "RimWorkflowHelperProcess.h"
 #include "RimWorkflowJob.h"
 #include "RimWorkflowSchemaTools.h"
 #include "RimWorkflowTaskInput.h"
 #include "RimWorkflowValidationTools.h"
+
+#include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmUiCommandSystemProxy.h"
 
 #include <QDir>
 #include <QFile>
@@ -54,6 +58,15 @@ QJsonArray graphTasks( const RimWorkflowDefinition& definition )
 QString pathValue( const RimWorkflowJob& job, const QString& taskName )
 {
     return job.inputValues().value( taskName ).toObject().value( "path" ).toString();
+}
+
+void readThroughProjectFile( const RimWorkflowTaskInput& source, RimWorkflowTaskInput& target )
+{
+    for ( size_t i = 0; i < source.items().size(); ++i )
+    {
+        target.items()[i]->readObjectFromXmlString( source.items()[i]->writeObjectToXmlString(), caf::PdmDefaultObjectFactory::instance() );
+        target.items()[i]->initAfterReadRecursively();
+    }
 }
 } // namespace
 
@@ -173,6 +186,113 @@ TEST( RimWorkflowJobSync, inputYamlNullIsExplicit )
     EXPECT_TRUE( RimWorkflowSchemaTools::configFieldSchema( "value", inputSchema, {}, QJsonObject{ { "value", QJsonValue::Null } } )
                      .value( explicitNull )
                      .toBool() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowJobSync, listFieldsAreEditedAsLists )
+{
+    const QJsonObject
+        inputSchema{ { "$defs", QJsonObject{ { "Item", QJsonObject{ { "type", "object" } } } } },
+                     { "properties",
+                       QJsonObject{ { "ints", QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "type", "integer" } } } } },
+                                    { "numbers",
+                                      QJsonObject{
+                                          { "anyOf",
+                                            QJsonArray{ QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "type", "number" } } } },
+                                                        QJsonObject{ { "type", "null" } } } } } },
+                                    { "names", QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "type", "string" } } } } },
+                                    { "items", QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "$ref", "#/$defs/Item" } } } } } } } };
+
+    auto fieldSchema = [&]( const QString& name ) { return RimWorkflowSchemaTools::configFieldSchema( name, inputSchema, {}, {} ); };
+    EXPECT_EQ( "integer", fieldSchema( "ints" ).value( "item_type" ).toString() );
+    EXPECT_EQ( "number", fieldSchema( "numbers" ).value( "item_type" ).toString() );
+    EXPECT_EQ( "string", fieldSchema( "names" ).value( "item_type" ).toString() );
+    EXPECT_FALSE( fieldSchema( "items" ).contains( "item_type" ) );
+
+    // Values in the old JSON text field are moved to the list when the field becomes a typed list
+    RimWorkflowTaskInput input;
+    input.buildFromSchema(
+        QJsonArray{ QJsonObject{ { "name", "ints" }, { "type", "array" }, { "default", QJsonArray{ 1, 2, 3 } } },
+                    QJsonObject{ { "name", "items" }, { "type", "array" }, { "default", QJsonArray{ QJsonObject{ { "a", 1 } } } } } } );
+    const QJsonObject expected{ { "ints", QJsonArray{ 1, 2, 3 } }, { "items", QJsonArray{ QJsonObject{ { "a", 1 } } } } };
+    EXPECT_EQ( expected, input.jsonValues() );
+
+    QJsonObject typedInts = fieldSchema( "ints" );
+    typedInts.remove( "default" );
+    QJsonObject untypedItems = fieldSchema( "items" );
+    untypedItems.remove( "default" );
+    QMap<QString, QJsonValue> detached;
+    input.syncFromSchema( QJsonArray{ typedInts, untypedItems }, detached );
+    EXPECT_EQ( expected, input.jsonValues() );
+    ASSERT_EQ( 2u, input.items().size() );
+    EXPECT_EQ( "IntValues", input.items()[0]->valueField()->keyword() );
+    EXPECT_EQ( "Value", input.items()[1]->valueField()->keyword() );
+    EXPECT_EQ( "[1,2,3]", input.items()[0]->displayValue() );
+
+    // Number and string lists keep their values
+    RimWorkflowTaskInput lists;
+    QJsonObject          numbers = fieldSchema( "numbers" );
+    numbers["default"]           = QJsonArray{ 1.5, -2.0 };
+    QJsonObject names            = fieldSchema( "names" );
+    names["default"]             = QJsonArray{ "a", "b c" };
+    lists.buildFromSchema( QJsonArray{ numbers, names } );
+    const QJsonObject expectedLists{ { "numbers", QJsonArray{ 1.5, -2.0 } }, { "names", QJsonArray{ "a", "b c" } } };
+    EXPECT_EQ( expectedLists, lists.jsonValues() );
+    lists.syncFromSchema( QJsonArray{ numbers, names }, detached );
+    EXPECT_EQ( expectedLists, lists.jsonValues() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowJobSync, listValuesAreKeptExactly )
+{
+    const QJsonObject inputSchema{
+        { "properties",
+          QJsonObject{ { "ints", QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "type", "integer" } } } } },
+                       { "names", QJsonObject{ { "type", "array" }, { "items", QJsonObject{ { "type", "string" } } } } },
+                       { "optional_ints",
+                         QJsonObject{ { "type", "array" },
+                                      { "items",
+                                        QJsonObject{ { "anyOf",
+                                                       QJsonArray{ QJsonObject{ { "type", "integer" } },
+                                                                   QJsonObject{ { "type", "null" } } } } } } } } } } };
+    auto fieldSchema = [&]( const QString& name, const QJsonArray& value )
+    {
+        QJsonObject schema = RimWorkflowSchemaTools::configFieldSchema( name, inputSchema, {}, {} );
+        schema["default"]  = value;
+        return schema;
+    };
+
+    // The list editors cannot hold null items
+    EXPECT_FALSE( fieldSchema( "optional_ints", {} ).contains( "item_type" ) );
+
+    // Values the list editors cannot hold exactly are edited as JSON text
+    const QJsonArray exactFields{ fieldSchema( "ints", QJsonArray{ 1, 2 } ), fieldSchema( "names", QJsonArray{ "a", "b c" } ) };
+    const QJsonArray textFields{ fieldSchema( "ints", QJsonArray{ 2147483648.0, 1.5 } ), fieldSchema( "names", QJsonArray{ "", " ", "a" } ) };
+    for ( const QJsonArray& fields : { exactFields, textFields } )
+    {
+        RimWorkflowTaskInput input;
+        input.buildFromSchema( fields );
+        const QJsonObject expected{ { "ints", fields[0].toObject().value( "default" ) }, { "names", fields[1].toObject().value( "default" ) } };
+        EXPECT_EQ( expected, input.jsonValues() );
+        EXPECT_EQ( fields == exactFields ? "IntValues" : "Value", input.items()[0]->valueField()->keyword() );
+        EXPECT_EQ( fields == exactFields ? "StringValues" : "Value", input.items()[1]->valueField()->keyword() );
+
+        // The values survive the project file format
+        RimWorkflowTaskInput read;
+        read.buildFromSchema( fields );
+        readThroughProjectFile( input, read );
+        EXPECT_EQ( expected, read.jsonValues() );
+    }
+
+    // An edited list is stored
+    RimWorkflowTaskInput input;
+    input.buildFromSchema( exactFields );
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( input.items()[1]->valueField()->uiCapability(),
+                                                                 QVariantList{ QString( "d e" ), QString( "f" ) } );
+    RimWorkflowTaskInput read;
+    read.buildFromSchema( exactFields );
+    readThroughProjectFile( input, read );
+    EXPECT_EQ( QJsonArray( { "d e", "f" } ), read.jsonValues().value( "names" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

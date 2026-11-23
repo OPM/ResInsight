@@ -20,6 +20,12 @@
 
 #include "RimWorkflowFieldBinding.h"
 
+#include <vector>
+
+//==================================================================================================
+/// A list config field. Lists of integers, numbers and strings are edited as lists, other lists
+/// and lists the list editor cannot hold exactly as JSON text. The value is stored as JSON text.
+//==================================================================================================
 class RimWorkflowArrayBinding : public RimWorkflowFieldBinding
 {
     CAF_PDM_HEADER_INIT;
@@ -29,9 +35,24 @@ public:
 
     void       applySchema( const QJsonObject& fieldSchema ) override;
     QJsonValue toJsonValue() const override;
+    QString    displayValue() const override;
 
-    caf::PdmFieldHandle* valueField() override { return &m_value; }
+    caf::PdmFieldHandle* valueField() override;
+
+protected:
+    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<QString> m_value;
+    void       setValues( const QJsonArray& values );
+    QJsonArray listValues() const;
+
+    static bool canEditAsList( const QJsonArray& values, const QString& itemType );
+
+private:
+    caf::PdmField<QString>              m_itemType;
+    caf::PdmField<QString>              m_value;
+    caf::PdmField<std::vector<int>>     m_intValues;
+    caf::PdmField<std::vector<double>>  m_doubleValues;
+    caf::PdmField<std::vector<QString>> m_stringValues;
 };
