@@ -539,6 +539,16 @@ QJsonObject RimWorkflowSchemaTools::configFieldSchema( const QString&     fieldN
     const QString format = typeSchema.value( "format" ).toString();
     if ( !format.isEmpty() ) entry["format"] = format;
 
+    // Lists of plain values are edited as lists, other lists as JSON text. The list editors cannot
+    // hold null, so lists of optional values are also edited as JSON text.
+    if ( entry["type"].toString() == "array" )
+    {
+        const QJsonObject itemSchema = typeSchema.value( "items" ).toObject();
+        const QString     itemType   = underlyingSchema( itemSchema, inputSchema ).value( "type" ).toString();
+        if ( ( itemType == "integer" || itemType == "number" || itemType == "string" ) && !isNullable( itemSchema, inputSchema ) )
+            entry["item_type"] = itemType;
+    }
+
     if ( !resinsightType.isEmpty() ) entry["resinsight_type"] = resinsightType;
 
     return entry;
