@@ -18,6 +18,7 @@
 
 #include "RiaApplication.h"
 
+#include "RiaBaseDefs.h"
 #include "RiaExperimentalFeatures.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
@@ -27,6 +28,8 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QSettings>
 
 #include <algorithm>
 
@@ -313,6 +316,20 @@ bool RiaPreferencesSystem::isFeatureEnabled( const QString& keyword ) const
     const std::vector<QString>& enabled = m_enabledFeatures();
 
     return std::find( enabled.begin(), enabled.end(), keyword ) != enabled.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::isFeatureEnabledInSettingsStore( const QString& keyword )
+{
+    if ( keyword.isEmpty() ) return false;
+
+    // Same key as used by caf::PdmSettings when RiaPreferences writes this object to the store
+    const QString key = classKeywordStatic() + "/" + "EnabledFeatures";
+
+    QSettings settings( RI_COMPANY_NAME, RI_APPLICATION_NAME );
+    return settings.value( key ).toStringList().contains( keyword );
 }
 
 //--------------------------------------------------------------------------------------------------

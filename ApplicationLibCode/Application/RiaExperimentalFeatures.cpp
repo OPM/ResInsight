@@ -56,6 +56,13 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
         { removeDuplicateGridNodesKeyword,
           "Remove Duplicate Grid Nodes",
           "Share identical corner nodes between grid cells after import to reduce memory usage." },
+#ifdef Q_OS_LINUX
+        { eglGlIntegrationKeyword,
+          "Use EGL for OpenGL on X11",
+          "Set QT_XCB_GL_INTEGRATION=xcb_egl at startup to use EGL instead of GLX. Can work around crashes in the "
+          "graphics driver on some Linux systems. Restart required. Ignored if the environment variable is already "
+          "set." },
+#endif
     };
 
     return features;

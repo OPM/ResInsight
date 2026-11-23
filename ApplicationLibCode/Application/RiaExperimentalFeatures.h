@@ -41,6 +41,7 @@ public:
 
     static constexpr const char* curveAppearanceKeyword          = "curve-appearance";
     static constexpr const char* removeDuplicateGridNodesKeyword = "remove-duplicate-grid-nodes";
+    static constexpr const char* eglGlIntegrationKeyword         = "egl-gl-integration";
 
     /// The single, discoverable list of all experimental features.
     static const std::vector<Feature>& availableFeatures();
