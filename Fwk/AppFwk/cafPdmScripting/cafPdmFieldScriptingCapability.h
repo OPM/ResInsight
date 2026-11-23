@@ -106,16 +106,23 @@ constexpr bool isCamelCase( std::string_view str )
     return hasLower;
 }
 
+// Scripting keywords must start with an uppercase letter. Classes that need to keep legacy lowercase keywords (command
+// file interface) hide this value by declaring a static constexpr member with the same name set to true.
+constexpr bool allowLowercaseScriptKeywords = false;
+
 } //namespace
 
 // The scripting system converts from camel case to snake case by inserting an underscore before each uppercase letter.
 // When an object is updated in Python, the keyword is converted back to camel case. This operation does not work if
-// there are three or more consecutive uppercase letters.
+// there are three or more consecutive uppercase letters, or if the keyword starts with a lowercase letter.
 // See PdmPythonGenerator::camelToSnakeCase()
 // See snake_to_camel() and camel_to_snake() in pdmObject.py
 // Conversion of values from rips object to caf object is done in RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf
-#define CAF_PDM_CheckScriptableKeyword( keyword ) \
-    static_assert( isCamelCase( keyword ), "Keyword used for scripting must be in compatible formatted camel casing" );
+// Use CAF_PDM_InitScriptableFieldWithScriptKeyword() to expose a field with a lowercase keyword in the data model
+#define CAF_PDM_CheckScriptableKeyword( keyword )                                                              \
+    static_assert( isCamelCase( keyword ) && ( allowLowercaseScriptKeywords || isUpper( ( keyword )[0] ) ),    \
+                   "Keyword used for scripting must be in compatible formatted camel casing starting with an " \
+                   "uppercase letter" );
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \

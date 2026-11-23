@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT( PdmDataContainerEnum, "DataContainerEnum" );
 PdmDataContainerEnum::PdmDataContainerEnum()
 {
     CAF_PDM_InitScriptableObject( "Data Container Enum" );
-    CAF_PDM_InitScriptableField( &m_value, "value", QString(), "Value" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_value, "value", "Value", QString(), "Value" );
 }
 
 } // namespace caf
