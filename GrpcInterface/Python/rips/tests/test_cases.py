@@ -214,6 +214,57 @@ def test_loadNonExistingCase(rips_instance, initialize_test):
         assert rips_instance.project.load_case(case_path)
 
 
+def _assert_no_cases_in_project(project):
+    assert len(project.descendants(rips.Case)) == 0
+    assert len(project.descendants(rips.SummaryCase)) == 0
+
+
+@pytest.mark.parametrize("file_name", ["missing.EGRID", "missing.inp"])
+def test_load_case_missing_file(rips_instance, initialize_test, tmp_path, file_name):
+    with pytest.raises(rips.RipsError, match=f"{file_name}'. File does not exist"):
+        rips_instance.project.load_case((tmp_path / file_name).as_posix())
+
+    _assert_no_cases_in_project(rips_instance.project)
+
+
+@pytest.mark.parametrize("file_name", ["case.SMSPEC", "case.txt"])
+def test_load_case_unsupported_file_type(
+    rips_instance, initialize_test, tmp_path, file_name
+):
+    file_path = tmp_path / file_name
+    file_path.write_text("this is not a grid file")
+    with pytest.raises(rips.RipsError, match=f"{file_name}'. Unsupported file type"):
+        rips_instance.project.load_case(file_path.as_posix())
+
+    _assert_no_cases_in_project(rips_instance.project)
+
+
+@pytest.mark.parametrize(
+    "file_name, reason",
+    [
+        ("corrupt.EGRID", "Could not read the grid"),
+        ("corrupt.GRDECL", "Could not read the grid"),
+        ("corrupt.roff", "Could not read the grid"),
+        ("corrupt.inp", "Could not read the geomechanical case"),
+    ],
+)
+def test_load_case_unreadable_file(
+    rips_instance, initialize_test, tmp_path, file_name, reason
+):
+    file_path = tmp_path / file_name
+    file_path.write_text("this is not a grid file")
+    with pytest.raises(rips.RipsError, match=f"{file_name}'. {reason}"):
+        rips_instance.project.load_case(file_path.as_posix())
+
+    # No half-created cases may remain in the project
+    _assert_no_cases_in_project(rips_instance.project)
+
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    assert case.name == "TEST10K_FLT_LGR_NNC"
+    assert len(rips_instance.project.cases()) == 1
+
+
 def test_exportFlowCharacteristics(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     case = rips_instance.project.load_case(case_path)
