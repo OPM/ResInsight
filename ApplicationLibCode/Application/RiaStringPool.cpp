@@ -34,11 +34,51 @@ RiaStringPool& RiaStringPool::instance()
 ///
 //--------------------------------------------------------------------------------------------------
 RiaStringPool::RiaStringPool()
+    : m_chunks( new std::atomic<std::string*>[MAX_CHUNKS] )
+    , m_size( 0 )
+    , m_emptyIndex( 0 )
 {
-    // Pre-allocate empty string at index 0
-    m_strings.push_back( "" );
+    for ( size_t i = 0; i < MAX_CHUNKS; i++ )
+    {
+        m_chunks[i].store( nullptr, std::memory_order_relaxed );
+    }
+
+    // Pre-allocate empty string at index 0. Insert in the map first so a failure cannot leak a chunk.
     m_stringToIndex[""] = 0;
-    m_emptyIndex        = 0;
+    addString( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaStringPool::~RiaStringPool()
+{
+    for ( size_t i = 0; i < MAX_CHUNKS; i++ )
+    {
+        delete[] m_chunks[i].load( std::memory_order_relaxed );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Must be called with the exclusive lock held (or during construction)
+//--------------------------------------------------------------------------------------------------
+RiaStringPool::IndexType RiaStringPool::addString( const std::string& str )
+{
+    const IndexType newIndex = m_size.load( std::memory_order_relaxed );
+    const size_t    chunkIdx = newIndex >> CHUNK_BITS;
+    if ( chunkIdx >= MAX_CHUNKS ) throw std::length_error( "String pool is full" );
+
+    std::string* chunk = m_chunks[chunkIdx].load( std::memory_order_relaxed );
+    if ( !chunk )
+    {
+        chunk = new std::string[CHUNK_SIZE];
+        m_chunks[chunkIdx].store( chunk, std::memory_order_release );
+    }
+    chunk[newIndex & CHUNK_MASK] = str;
+
+    // Publish the string. Readers only access indices below the size.
+    m_size.store( newIndex + 1, std::memory_order_release );
+    return newIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,9 +106,8 @@ RiaStringPool::IndexType RiaStringPool::getIndex( const std::string& str )
         return it->second;
     }
 
-    IndexType newIndex = static_cast<IndexType>( m_strings.size() );
-    m_strings.push_back( str );
-    m_stringToIndex[m_strings.back()] = newIndex;
+    IndexType newIndex   = addString( str );
+    m_stringToIndex[str] = newIndex;
     return newIndex;
 }
 
@@ -77,11 +116,11 @@ RiaStringPool::IndexType RiaStringPool::getIndex( const std::string& str )
 //--------------------------------------------------------------------------------------------------
 const std::string& RiaStringPool::getString( IndexType index ) const
 {
-    std::shared_lock<std::shared_mutex> lock( m_mutex );
-
-    if ( index >= m_strings.size() )
+    if ( index >= m_size.load( std::memory_order_acquire ) )
     {
         throw std::out_of_range( "String pool index out of range" );
     }
-    return m_strings[index];
+
+    const std::string* chunk = m_chunks[index >> CHUNK_BITS].load( std::memory_order_relaxed );
+    return chunk[index & CHUNK_MASK];
 }

@@ -158,7 +158,8 @@ public:
 
     static std::string baseVectorName( const std::string& vectorName );
 
-    auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
+    bool                 operator==( const RifEclipseSummaryAddress& rhs ) const = default;
+    std::strong_ordering operator<=>( const RifEclipseSummaryAddress& rhs ) const;
 
     bool isCalculated() const;
     bool isTime() const;
@@ -182,7 +183,7 @@ private:
 
 private:
     // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
-    // evaluated first. This concept is used by <=> operator.
+    // evaluated first. This concept is used by the <=> operator, which must be kept in sync with the members.
 
     SummaryCategory m_category;
     StatisticsType  m_statisticsType;

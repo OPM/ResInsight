@@ -1206,6 +1206,33 @@ void RifEclipseSummaryAddress::setStatisticsType( StatisticsType type )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The string pool indices depend on the order the strings were first used. Compare the strings
+/// to get an ordering that is independent of import order.
+//--------------------------------------------------------------------------------------------------
+std::strong_ordering RifEclipseSummaryAddress::operator<=>( const RifEclipseSummaryAddress& rhs ) const
+{
+    auto compareStrings = []( uint32_t lhsIdx, uint32_t rhsIdx ) -> std::strong_ordering
+    {
+        if ( lhsIdx == rhsIdx ) return std::strong_ordering::equal;
+
+        auto& pool = RiaStringPool::instance();
+        return pool.getString( lhsIdx ).compare( pool.getString( rhsIdx ) ) <=> 0;
+    };
+
+    if ( auto cmp = m_category <=> rhs.m_category; cmp != 0 ) return cmp;
+    if ( auto cmp = m_statisticsType <=> rhs.m_statisticsType; cmp != 0 ) return cmp;
+    if ( auto cmp = compareStrings( m_vectorNameIdx, rhs.m_vectorNameIdx ); cmp != 0 ) return cmp;
+    if ( auto cmp = compareStrings( m_nameIdx, rhs.m_nameIdx ); cmp != 0 ) return cmp;
+    if ( auto cmp = compareStrings( m_lgrNameIdx, rhs.m_lgrNameIdx ); cmp != 0 ) return cmp;
+    if ( auto cmp = m_number0 <=> rhs.m_number0; cmp != 0 ) return cmp;
+    if ( auto cmp = m_number1 <=> rhs.m_number1; cmp != 0 ) return cmp;
+    if ( auto cmp = m_number2 <=> rhs.m_number2; cmp != 0 ) return cmp;
+    if ( auto cmp = m_isErrorResult <=> rhs.m_isErrorResult; cmp != 0 ) return cmp;
+    if ( auto cmp = m_id <=> rhs.m_id; cmp != 0 ) return cmp;
+    return m_percentile <=> rhs.m_percentile;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isCalculated() const
