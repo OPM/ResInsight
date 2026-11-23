@@ -116,6 +116,10 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
         m_gridFileName = fileName.toStdString();
         locateInitAndRestartFiles( fileName );
 
+        // The INIT file must be open during grid import, as active cells are corrected from PORV when INIT and EGRID disagree
+        // or the model is dual porosity
+        setupInitAccess();
+
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
             RiaLogging::error( std::format( "Failed to open grid file {}", fileName ) );
@@ -286,8 +290,10 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
             globalFractureActiveSize += lgrGrids[lgrIdx].activeFracCells();
         }
 
-        // in case init file and grid file disagrees with number of active cells, read extra porv information from init file to correct this
-        if ( !verifyActiveCellInfo( globalMatrixActiveSize, globalFractureActiveSize ) )
+        // Intersect defines the active cells of dual porosity models by PORV in the INIT file, while the ACTNUM in the grid file has all
+        // cells active. The INIT NACTIVE is not comparable with the grid active cell counts for dual porosity, so always use PORV, like
+        // resdata. For other models, only use PORV when init file and grid file disagrees with number of active cells.
+        if ( opmGrid.porosity_mode() > 0 || !verifyActiveCellInfo( globalMatrixActiveSize, globalFractureActiveSize ) )
         {
             updateActiveCellInfo( eclipseCaseData, opmGrid, lgrGrids, mainGrid );
         }
@@ -426,10 +432,20 @@ void RifReaderOpmCommon::applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMain
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, std::vector<Opm::EclIO::EGrid>& lgrGrids, RigMainGrid* mainGrid )
 {
-    opmMainGrid.load_nnc_data();
-    for ( auto& lgr : lgrGrids )
+    // EGrid::load_nnc_data() throws if the matrix and fracture active cell counts differ from the INIT file, e.g. for dual porosity
+    // models where the active cells are defined by PORV. Skip static NNCs instead of failing to open the model.
+    try
     {
-        lgr.load_nnc_data();
+        opmMainGrid.load_nnc_data();
+        for ( auto& lgr : lgrGrids )
+        {
+            lgr.load_nnc_data();
+        }
+    }
+    catch ( const std::exception& e )
+    {
+        RiaLogging::warning( std::format( "Unable to read NNC data, static NNCs are ignored: {}", e.what() ) );
+        return;
     }
 
     auto connections = opmMainGrid.nnc_connections( 0 );
@@ -504,22 +520,22 @@ void RifReaderOpmCommon::transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
     const auto& active_indexes      = opmGrid.active_indexes();
     const auto& active_frac_indexes = opmGrid.active_frac_indexes();
 
-#pragma omp parallel for
-    for ( int opmCellIndex = 0; opmCellIndex < (int)cellCount; opmCellIndex++ )
+    // Only use the OPM indexes as active flags. EGrid::set_active_cells() numbers matrix and fracture cells with a shared
+    // counter, which gives wrong result indices when the matrix and fracture active cells differ
+    size_t matrixActiveIndex   = 0;
+    size_t fractureActiveIndex = 0;
+    for ( int opmCellIndex = 0; opmCellIndex < cellCount; opmCellIndex++ )
     {
-        // active cell index
-        int matrixActiveIndex = active_indexes[opmCellIndex];
-        if ( matrixActiveIndex != -1 )
+        if ( active_indexes[opmCellIndex] != -1 )
         {
             activeCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + opmCellIndex ),
-                                                ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex ) );
+                                                ActiveCellIndex( matrixActiveStartIndex + matrixActiveIndex++ ) );
         }
 
-        int fractureActiveIndex = active_frac_indexes[opmCellIndex];
-        if ( fractureActiveIndex != -1 )
+        if ( active_frac_indexes[opmCellIndex] != -1 )
         {
             fractureActiveCellInfo->setCellResultIndex( ReservoirCellIndex( cellStartIndex + opmCellIndex ),
-                                                        ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex ) );
+                                                        ActiveCellIndex( fractureActiveStartIndex + fractureActiveIndex++ ) );
         }
     }
 }
@@ -652,8 +668,8 @@ void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
 bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
     // Active cell info is populated from the EGRID during grid import via transferActiveCells(), which reads ACTNUM from the OPM EGrid
-    // object. Most simulators also write it to INIT, but some do not. Derive the values directly from the active cell info to handle both
-    // cases consistently.
+    // object, or from PORV in the INIT file when INIT and EGRID disagree or the model is dual porosity. Most simulators also write it to
+    // INIT, but some do not. Derive the values directly from the active cell info to handle both cases consistently.
     if ( result.compare( "ACTNUM", Qt::CaseInsensitive ) == 0 )
     {
         RigActiveCellInfo* activeCellInfo = m_eclipseCaseData->activeCellInfo( matrixOrFracture );
@@ -890,6 +906,15 @@ std::int64_t RifReaderOpmCommon::restartDataSize( const Opm::EclIO::ERst& restar
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::setupInitAndRestartAccess()
 {
+    setupInitAccess();
+    setupRestartAccess();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::setupInitAccess()
+{
     if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
     {
         try
@@ -901,7 +926,13 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
             m_initFile = nullptr;
         }
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::setupRestartAccess()
+{
     if ( ( m_restartFile == nullptr ) && !m_restartFileName.empty() )
     {
         try
