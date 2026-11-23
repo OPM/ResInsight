@@ -688,3 +688,26 @@ TEST( RifEclipseSummaryAddressTest, Conversion_RifEclipseSummaryAddress_RimSumma
     EXPECT_EQ( original.isErrorResult(), roundTrip.isErrorResult() );
     EXPECT_EQ( original.id(), roundTrip.id() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Ordering must be based on text, not on the order the strings were first added to the string pool
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseSummaryAddressTest, OrderingIsIndependentOfStringCreationOrder )
+{
+    // Create the strings in reverse alphabetical order to get descending string pool indices
+    auto wellC = RifEclipseSummaryAddress::wellAddress( "OrderTestVector", "OrderTestWell_C" );
+    auto wellB = RifEclipseSummaryAddress::wellAddress( "OrderTestVector", "OrderTestWell_B" );
+    auto wellA = RifEclipseSummaryAddress::wellAddress( "OrderTestVector", "OrderTestWell_A" );
+
+    std::set<RifEclipseSummaryAddress> addresses = { wellC, wellB, wellA };
+
+    std::vector<std::string> wellNames;
+    for ( const auto& addr : addresses )
+    {
+        wellNames.push_back( addr.wellName() );
+    }
+
+    EXPECT_EQ( std::vector<std::string>( { "OrderTestWell_A", "OrderTestWell_B", "OrderTestWell_C" } ), wellNames );
+    EXPECT_LT( wellA, wellB );
+    EXPECT_EQ( wellA, RifEclipseSummaryAddress::wellAddress( "OrderTestVector", "OrderTestWell_A" ) );
+}

@@ -18,15 +18,20 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstdint>
+#include <memory>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 //==================================================================================================
 /// String pool for memory-efficient storage of shared strings
 /// Stores strings once and returns indices for lookups
+///
+/// Strings are stored in fixed-size chunks that are never moved or modified after they are
+/// published. This makes getString() lock-free, and the returned references stay valid for the
+/// lifetime of the pool, also when other threads add strings.
 //==================================================================================================
 class RiaStringPool
 {
@@ -39,7 +44,7 @@ public:
     // Get or create an index for a string
     IndexType getIndex( const std::string& str );
 
-    // Get string by index
+    // Get string by index. Lock-free, and the reference is valid for the lifetime of the pool.
     const std::string& getString( IndexType index ) const;
 
     // Get empty string index
@@ -47,11 +52,19 @@ public:
 
 private:
     RiaStringPool();
+    ~RiaStringPool();
+    IndexType addString( const std::string& str );
     RiaStringPool( const RiaStringPool& )            = delete;
     RiaStringPool& operator=( const RiaStringPool& ) = delete;
 
-    mutable std::shared_mutex                  m_mutex;
-    std::vector<std::string>                   m_strings;
-    std::unordered_map<std::string, IndexType> m_stringToIndex;
-    IndexType                                  m_emptyIndex;
+    static constexpr size_t CHUNK_BITS = 12;
+    static constexpr size_t CHUNK_SIZE = size_t( 1 ) << CHUNK_BITS;
+    static constexpr size_t CHUNK_MASK = CHUNK_SIZE - 1;
+    static constexpr size_t MAX_CHUNKS = size_t( 1 ) << 16;
+
+    mutable std::shared_mutex                    m_mutex; // protects m_stringToIndex and string insertion
+    std::unique_ptr<std::atomic<std::string*>[]> m_chunks;
+    std::atomic<IndexType>                       m_size;
+    std::unordered_map<std::string, IndexType>   m_stringToIndex;
+    IndexType                                    m_emptyIndex;
 };

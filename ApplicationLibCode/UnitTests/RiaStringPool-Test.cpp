@@ -3,6 +3,7 @@
 #include "RiaStringPool.h"
 
 #include <algorithm>
+#include <atomic>
 #include <set>
 #include <thread>
 #include <vector>
@@ -331,4 +332,73 @@ TEST( RiaStringPoolTest, CommonSummaryVectorNames )
         EXPECT_EQ( indices[i], index );
         EXPECT_EQ( vectorNames[i], pool.getString( index ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// References returned by getString() must stay valid when more strings are added
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStringPoolTest, StringReferencesAreStableWhenPoolGrows )
+{
+    auto& pool = RiaStringPool::instance();
+
+    auto               index = pool.getIndex( "STABLE_REFERENCE_TEST" );
+    const std::string& ref   = pool.getString( index );
+
+    for ( int i = 0; i < 20000; ++i )
+    {
+        pool.getIndex( "STABLE_REFERENCE_FILLER_" + std::to_string( i ) );
+    }
+
+    EXPECT_EQ( &ref, &pool.getString( index ) );
+    EXPECT_EQ( "STABLE_REFERENCE_TEST", ref );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Readers use getString() without locking while a writer grows the pool across several chunks
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStringPoolTest, LockFreeReadsWhileGrowing )
+{
+    auto& pool = RiaStringPool::instance();
+
+    const int numStrings = 30000;
+
+    std::vector<RiaStringPool::IndexType> indices( numStrings );
+    std::atomic<int>                      publishedCount( 0 );
+    std::atomic<int>                      mismatches( 0 );
+
+    std::thread writer(
+        [&]()
+        {
+            for ( int i = 0; i < numStrings; ++i )
+            {
+                indices[i] = pool.getIndex( "LOCKFREE_GROW_" + std::to_string( i ) );
+                publishedCount.store( i + 1, std::memory_order_release );
+            }
+        } );
+
+    std::vector<std::thread> readers;
+    for ( int t = 0; t < 4; ++t )
+    {
+        readers.emplace_back(
+            [&]()
+            {
+                int checked = 0;
+                while ( checked < numStrings )
+                {
+                    int available = publishedCount.load( std::memory_order_acquire );
+                    for ( ; checked < available; ++checked )
+                    {
+                        if ( pool.getString( indices[checked] ) != "LOCKFREE_GROW_" + std::to_string( checked ) ) mismatches++;
+                    }
+                }
+            } );
+    }
+
+    writer.join();
+    for ( auto& reader : readers )
+    {
+        reader.join();
+    }
+
+    EXPECT_EQ( 0, mismatches.load() );
 }
