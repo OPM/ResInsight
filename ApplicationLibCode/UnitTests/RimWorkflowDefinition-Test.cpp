@@ -22,6 +22,7 @@
 #include "RimWorkflowDefinitionTools.h"
 #include "RimWorkflowDescribeTools.h"
 #include "RimWorkflowPortCompatibility.h"
+#include "RimWorkflowSchemaTools.h"
 #include "RimWorkflowTaskCatalog.h"
 
 #include <QFile>
@@ -45,7 +46,7 @@ QJsonObject fixture( const QString& name )
 {
     QFile file( QString( "%1/RimWorkflowDefinition/%2.json" ).arg( TEST_DATA_DIR ).arg( name ) );
     if ( !file.open( QIODevice::ReadOnly ) ) return {};
-    return QJsonDocument::fromJson( file.readAll() ).object();
+    return RimWorkflowSchemaTools::parseWithPropertyOrder( file.readAll() ).object();
 }
 
 RimWorkflowDefinition definitionFixture( const QString& name )
@@ -299,9 +300,9 @@ TEST( RimWorkflowDefinitionEdit, connectionsUpdateConfigFields )
     auto                            definition = definitionFixture( "completions" );
     const RimWorkflowDefinitionEdge gridCase{ .from = "select_eclipse_case", .to = "select_well_path_1", .input = "grid_case" };
 
-    // A disconnected required input that can be entered in ResInsight becomes a config field
+    // A disconnected required input that can be entered in ResInsight becomes a config field, in model order
     definition = edited( RimWorkflowDefinitionTools::disconnect( definition, gridCase ) );
-    EXPECT_EQ( QStringList( { "well_path", "grid_case" } ), definition.findNode( "select_well_path_1" )->configFields );
+    EXPECT_EQ( QStringList( { "grid_case", "well_path" } ), definition.findNode( "select_well_path_1" )->configFields );
     EXPECT_FALSE( RimWorkflowDefinitionTools::disconnect( definition, gridCase ).has_value() );
 
     definition = edited( RimWorkflowDefinitionTools::connect( definition, gridCase ) );
@@ -373,6 +374,73 @@ TEST( RimWorkflowDefinitionEdit, optionalInputs )
     EXPECT_FALSE( definition.findNode( added )->configFields.contains( "time_step" ) );
 
     EXPECT_FALSE( RimWorkflowDefinitionTools::setOptionalInputConfigured( definition, added, "result_type", true ).has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowSchemaTools, parseWithPropertyOrder )
+{
+    const QByteArray json = R"({"input_schema": {"type": "object",
+        "properties": {"zeta": {"type": "integer"}, "al\/pha": {"type": "string"},
+                       "properties": {"type": "object", "properties": {"b": {"type": "number"}, "a": {"type": "number"}}}},
+        "required": ["al/pha"],
+        "$defs": {"Inner": {"type": "object", "properties": {"y": {"type": "number"}, "x": {"type": "number"}}}}},
+        "data": {"type": "object", "properties": {"d": 1, "c": 2}}})";
+
+    QJsonParseError   error{};
+    const QJsonObject root = RimWorkflowSchemaTools::parseWithPropertyOrder( json, &error ).object();
+    ASSERT_EQ( QJsonParseError::NoError, error.error );
+
+    const QJsonObject inputSchema = root.value( "input_schema" ).toObject();
+    EXPECT_EQ( QStringList( { "zeta", "al/pha", "properties" } ), RimWorkflowSchemaTools::propertyNames( inputSchema ) );
+
+    // A field named `properties` is a schema, not a properties map
+    const QJsonObject properties = inputSchema.value( "properties" ).toObject();
+    EXPECT_FALSE( properties.contains( RimWorkflowSchemaTools::propertyOrderKey() ) );
+    EXPECT_EQ( QStringList( { "b", "a" } ), RimWorkflowSchemaTools::propertyNames( properties.value( "properties" ).toObject() ) );
+
+    const QJsonObject inner = inputSchema.value( "$defs" ).toObject().value( "Inner" ).toObject();
+    EXPECT_EQ( QStringList( { "y", "x" } ), RimWorkflowSchemaTools::propertyNames( inner ) );
+
+    // Objects that are not object schemas are left as they are
+    EXPECT_EQ( QJsonDocument::fromJson( json ).object().value( "data" ), root.value( "data" ) );
+
+    // Literal values in schemas are left as they are
+    const QByteArray withDefaults = R"({"input_schema": {"type": "object", "properties": {"items": {"type": "array",
+        "default": [{"type": "object", "properties": {"b": 1, "a": 2}}],
+        "examples": [{"type": "object", "properties": {"b": 1, "a": 2}}]}}}})";
+    auto             itemsSchema  = []( const QJsonObject& root )
+    { return root.value( "input_schema" ).toObject().value( "properties" ).toObject().value( "items" ).toObject(); };
+    EXPECT_EQ( itemsSchema( QJsonDocument::fromJson( withDefaults ).object() ),
+               itemsSchema( RimWorkflowSchemaTools::parseWithPropertyOrder( withDefaults ).object() ) );
+
+    RimWorkflowSchemaTools::parseWithPropertyOrder( "{\"a\": ", &error );
+    EXPECT_NE( QJsonParseError::NoError, error.error );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, configFieldsFollowDeclarationOrder )
+{
+    const QByteArray json = R"({"name": "t", "input_schema": {"type": "object",
+        "properties": {"zeta": {"type": "integer", "default": 1}, "mid": {"type": "string"},
+                       "alpha": {"type": "integer", "default": 2}, "beta": {"type": "number", "default": 3}},
+        "required": ["mid"]}, "output_schema": {"type": "object", "properties": {}}})";
+
+    auto definition = RimWorkflowDefinitionTools::createEmpty( "order" );
+    definition.taskTypes.insert( "t.task", RimWorkflowSchemaTools::parseWithPropertyOrder( json ).object() );
+    definition.nodes.push_back( { .name = "a", .taskId = "t.task" } );
+    definition.inputs.insert( "a", QJsonObject() );
+    definition = RimWorkflowDefinitionTools::normalize( definition );
+    EXPECT_EQ( QStringList( { "mid" } ), definition.findNode( "a" )->configFields );
+
+    for ( const QString& field : { "beta", "zeta", "alpha" } )
+        definition = edited( RimWorkflowDefinitionTools::setOptionalInputConfigured( definition, "a", field, true ) );
+    EXPECT_EQ( QStringList( { "zeta", "mid", "alpha", "beta" } ), definition.findNode( "a" )->configFields );
+
+    // Toggling an optional input off and on keeps its place
+    definition = edited( RimWorkflowDefinitionTools::setOptionalInputConfigured( definition, "a", "zeta", false ) );
+    EXPECT_EQ( QStringList( { "mid", "alpha", "beta" } ), definition.findNode( "a" )->configFields );
+    definition = edited( RimWorkflowDefinitionTools::setOptionalInputConfigured( definition, "a", "zeta", true ) );
+    EXPECT_EQ( QStringList( { "zeta", "mid", "alpha", "beta" } ), definition.findNode( "a" )->configFields );
 }
 
 //--------------------------------------------------------------------------------------------------

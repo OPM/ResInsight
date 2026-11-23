@@ -964,6 +964,7 @@ QStringList RimWorkflowDefinitionTools::coveredInputFields( const RimWorkflowDef
 //--------------------------------------------------------------------------------------------------
 /// Config fields are the inputs that are not connected: required ones that can be entered in
 /// ResInsight, and those the user explicitly configured. A routed output field allows no config.
+/// The fields follow the order of the input model.
 //--------------------------------------------------------------------------------------------------
 QStringList RimWorkflowDefinitionTools::deriveConfigFields( const RimWorkflowDefinition& definition, const QString& nodeName )
 {
@@ -989,18 +990,7 @@ QStringList RimWorkflowDefinitionTools::deriveConfigFields( const RimWorkflowDef
         const bool configurable = RimWorkflowSchemaTools::isConfigurable( properties.value( field ).toObject(), inputSchema );
         if ( node->explicitConfigFields.contains( field ) || ( required.contains( field ) && configurable ) ) derived.append( field );
     }
-
-    // Keep the existing order and append new fields
-    QStringList result;
-    for ( const QString& field : node->configFields )
-    {
-        if ( derived.contains( field ) ) result.append( field );
-    }
-    for ( const QString& field : derived )
-    {
-        if ( !result.contains( field ) ) result.append( field );
-    }
-    return result;
+    return derived;
 }
 
 //--------------------------------------------------------------------------------------------------
