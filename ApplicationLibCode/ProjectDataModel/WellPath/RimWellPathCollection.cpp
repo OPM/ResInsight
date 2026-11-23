@@ -324,7 +324,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
         }
     }
 
-    std::vector<RimWellPath*> addedWellPaths = readAndAddWellPaths( wellPathArray );
+    std::vector<RimWellPath*> addedWellPaths = readAndAddWellPaths( wellPathArray, errorMessages );
     CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
@@ -359,6 +359,11 @@ std::expected<std::vector<RimFileWellPath*>, QString> RimWellPathCollection::add
     if ( isJsonFile && isAlreadyLoaded( filePath, m_wellPaths.childrenByType() ) )
     {
         return std::unexpected( QString( "%1 is already loaded" ).arg( filePath ) );
+    }
+
+    if ( !QFileInfo::exists( filePath ) )
+    {
+        return std::unexpected( QString( "Could not import well path from file '%1'. File does not exist." ).arg( filePath ) );
     }
 
     std::vector<RimFileWellPath*> wellPaths;
@@ -455,7 +460,7 @@ cvf::BoundingBox RimWellPathCollection::wellPathsBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
+std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, QStringList* errorMessages )
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
@@ -466,7 +471,22 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
         QString errorMessage;
         if ( !wellPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), true ) )
         {
+            errorMessage = QString( "Could not import well path from file '%1'. %2" ).arg( wellPath->filePath() ).arg( errorMessage );
+        }
+        else if ( !wellPath->wellPathGeometry() || wellPath->wellPathGeometry()->wellPathPoints().empty() )
+        {
+            errorMessage =
+                QString( "Could not import well path from file '%1'. No well path points found in file." ).arg( wellPath->filePath() );
+        }
+
+        if ( !errorMessage.isEmpty() )
+        {
+            // Do not leave a well path without geometry in the project
             RiaLogging::warning( errorMessage.toStdString() );
+            if ( errorMessages ) errorMessages->append( errorMessage );
+            delete wellPath;
+            progress.incrementProgress();
+            continue;
         }
 
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );

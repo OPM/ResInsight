@@ -52,6 +52,45 @@ def test_10k_import_well(rips_instance, initialize_test):
     assert wells[1].name == "Well Path B"
 
 
+@pytest.mark.parametrize("file_name", ["missing.dev", "missing.json"])
+def test_import_well_path_missing_file(
+    rips_instance, initialize_test, tmp_path, file_name
+):
+    well_path_collection = rips_instance.project.well_path_collection()
+
+    with pytest.raises(rips.RipsError, match=f"{file_name}'. File does not exist"):
+        well_path_collection.import_well_path((tmp_path / file_name).as_posix())
+
+    assert len(rips_instance.project.well_paths()) == 0
+
+
+@pytest.mark.parametrize(
+    "file_name, content",
+    [
+        ("corrupt.dev", "this is not a well path file\n"),
+        ("corrupt.json", "{ not json"),
+        ("corrupt.rmswell", "this is not a well path file\n"),
+    ],
+)
+def test_import_well_path_unreadable_file(
+    rips_instance, initialize_test, tmp_path, file_name, content
+):
+    well_path_collection = rips_instance.project.well_path_collection()
+
+    corrupt_path = tmp_path / file_name
+    corrupt_path.write_text(content)
+    with pytest.raises(rips.RipsError, match=f"{file_name}'. No well path points"):
+        well_path_collection.import_well_path(corrupt_path.as_posix())
+
+    # No half-created well paths may remain in the project
+    assert len(rips_instance.project.well_paths()) == 0
+
+    valid_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"
+    well = well_path_collection.import_well_path(valid_path)
+    assert well.name == "Well Path A"
+    assert len(rips_instance.project.well_paths()) == 1
+
+
 def test_10k_intersection(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
     case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"

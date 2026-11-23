@@ -169,7 +169,7 @@ private:
 
     caf::PdmFieldHandle* objectToggleField() override;
 
-    std::vector<RimWellPath*> readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
+    std::vector<RimWellPath*> readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, QStringList* errorMessages );
     void                      sortWellsByName();
 
     std::expected<std::vector<RimFileWellPath*>, QString> addWellPathsForFile( const QString& filePath );
