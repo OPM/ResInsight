@@ -53,6 +53,22 @@ private:
 };
 
 //==================================================================================================
+/// Show or hide the faults in the view.
+//==================================================================================================
+class RimcEclipseView_setFaultsVisible : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseView_setFaultsVisible( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<bool> m_visible;
+};
+
+//==================================================================================================
 /// Export the cell result currently shown in the view (at the current time step) to a GRDECL style text file.
 //==================================================================================================
 class RimEclipseView_exportCurrentProperty : public caf::PdmVoidObjectMethod

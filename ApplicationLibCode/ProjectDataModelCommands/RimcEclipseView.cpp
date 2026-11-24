@@ -39,6 +39,34 @@
 #include "cafUtils.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_addFaultDistance, "add_fault_distance" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_setFaultsVisible, "set_faults_visible" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseView_setFaultsVisible::RimcEclipseView_setFaultsVisible( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Faults Visible", "", "", "Show or hide the faults in this view" );
+
+    CAF_PDM_InitScriptableField( &m_visible, "Visible", true, "Visible" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_setFaultsVisible::execute()
+{
+    auto* eclipseView = self<RimEclipseView>();
+    if ( !eclipseView ) return std::unexpected( QString( "No view is available." ) );
+
+    auto* faultCollection = eclipseView->faultCollection();
+    if ( !faultCollection ) return std::unexpected( QString( "No fault collection is available." ) );
+
+    faultCollection->setActiveAndRedraw( m_visible() );
+
+    return nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
