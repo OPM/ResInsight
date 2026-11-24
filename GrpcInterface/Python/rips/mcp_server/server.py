@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, get_args
 
 import grpc
 from mcp.server import MCPServer
@@ -19,18 +19,33 @@ from mcp.types import ToolAnnotations
 import rips
 
 INSTRUCTIONS = (
-    "Read-only access to the project open in ResInsight. Start with list_cases;"
-    " grid cases and summary cases have separate ids. Summary vectors are"
-    " returned as a capped number of points."
+    "Access to the project open in ResInsight. Start with list_cases;"
+    " grid cases and summary cases have separate ids, and so have views and"
+    " plots. Summary vectors are returned as a capped number of points. The"
+    " change tools set what a view shows, open a project or load a case;"
+    " nothing is saved or deleted."
 )
 
 READ_ONLY = ToolAnnotations(read_only_hint=True)
+CHANGE = ToolAnnotations(read_only_hint=False, destructive_hint=False)
+# Opening a project closes the open one without saving it
+REPLACES_PROJECT = ToolAnnotations(read_only_hint=False, destructive_hint=True)
 
 # Longest list a tool returns. Longer lists are cut and reported with their total.
 MAX_ITEMS = 500
 
-# Property types looked up by list_properties
-PROPERTY_TYPES = ("DYNAMIC_NATIVE", "STATIC_NATIVE", "INPUT_PROPERTY", "GENERATED")
+# Property types looked up by list_properties and accepted by set_cell_result
+PropertyType = Literal[
+    rips.PropertyType.DYNAMIC_NATIVE,
+    rips.PropertyType.STATIC_NATIVE,
+    rips.PropertyType.INPUT_PROPERTY,
+    rips.PropertyType.GENERATED,
+]
+PROPERTY_TYPES: tuple[rips.PropertyType, ...] = get_args(PropertyType)
+
+# The 3D views. 2D intersection and seismic views are not scriptable: they come
+# back with id -1 and without a case. Plots are numbered apart from views.
+VIEW_TYPES = (rips.EclipseView, rips.GeoMechView)
 
 
 def _capped(items: list[Any]) -> dict[str, Any]:
@@ -51,7 +66,7 @@ def _spread_indices(count: int, max_points: int) -> list[int]:
     return [round(i * step) for i in range(max_points)]
 
 
-def _available_properties(case: Any, property_type: str) -> list[str]:
+def _available_properties(case: Any, property_type: rips.PropertyType) -> list[str]:
     try:
         return list(case.available_properties(property_type))
     except rips.RipsError as error:
@@ -93,11 +108,14 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
         return case
 
     def views_with_cases() -> list[tuple[Any, Any]]:
-        # 2D intersection and seismic views are not scriptable: they come
-        # back with id -1 and without a case
-        scriptable = (rips.EclipseView, rips.GeoMechView)
-        views: list[Any] = [v for v in project().views() if isinstance(v, scriptable)]
+        views: list[Any] = [v for v in project().views() if isinstance(v, VIEW_TYPES)]
         return [(view, view.case()) for view in views]
+
+    def view_by_id(view_id: int) -> Any:
+        for view in project().views():
+            if isinstance(view, VIEW_TYPES) and view.id == view_id:
+                return view
+        raise ToolError(f"No view with id {view_id}. See list_views.")
 
     def summary_case(case_id: int) -> Any:
         case = project().summary_case(case_id)
@@ -310,5 +328,65 @@ def create_server(connect: Callable[[], rips.Instance]) -> MCPServer:
             if plot is None:
                 raise ToolError(f"No plot with id {plot_id}. See list_plots.")
             return _snapshot(plot)
+
+    @server.tool(annotations=CHANGE)
+    def set_time_step(view_id: int, index: int) -> dict[str, Any]:
+        """Show a time step in a 3D view. index is zero-based, into the time
+        steps from case_info."""
+        with _reported():
+            view_by_id(view_id).set_time_step(time_step=index)
+            return {
+                "view_id": view_id,
+                "current_time_step": view_by_id(view_id).current_time_step,
+            }
+
+    @server.tool(annotations=CHANGE)
+    def set_cell_result(
+        view_id: int, property_type: PropertyType, property: str
+    ) -> dict[str, Any]:
+        """Color the cells of an Eclipse view by a property from
+        list_properties."""
+        with _reported():
+            view = view_by_id(view_id)
+            if isinstance(view, rips.GeoMechView):
+                raise ToolError(
+                    f"View {view_id} is a GeoMechView, set_cell_result takes an"
+                    " EclipseView."
+                )
+            if property not in _available_properties(view.case(), property_type):
+                raise ToolError(
+                    f"The case of view {view_id} has no {property_type} property"
+                    f" '{property}'. See list_properties."
+                )
+            view.apply_cell_result(property_type, property)
+            cell_result = view_by_id(view_id).cell_result()
+            return {
+                "view_id": view_id,
+                "property_type": str(cell_result.result_type),
+                "property": cell_result.result_variable,
+            }
+
+    @server.tool(annotations=REPLACES_PROJECT)
+    def open_project(path: str) -> dict[str, Any]:
+        """Open a project file (.rsp) in ResInsight. The open project is closed
+        without saving. path is a path on the machine that runs ResInsight."""
+        with _reported():
+            project().open(path)
+            return list_cases()
+
+    @server.tool(annotations=CHANGE)
+    def load_case(path: str) -> dict[str, Any]:
+        """Load a grid case (EGRID, GRID, GRDECL, ROFF) or a geomechanical case
+        (ODB, INP, PVD) and create a 3D view of it. path is a path on the machine
+        that runs ResInsight."""
+        with _reported():
+            case = project().load_case(path)
+            view = case.create_view()
+            return {
+                "id": case.id,
+                "name": case.name,
+                "type": type(case).__name__,
+                "view_id": view.id,
+            }
 
     return server

@@ -28,7 +28,7 @@ from rips.mcp_server.server import create_server  # noqa: E402
 GRID_CASE = "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
 SUMMARY_CASE = "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
 
-TOOLS = {
+READ_TOOLS = {
     "instance_info",
     "list_cases",
     "case_info",
@@ -42,6 +42,8 @@ TOOLS = {
     "snapshot_view",
     "snapshot_plot",
 }
+CHANGE_TOOLS = {"set_time_step", "set_cell_result", "open_project", "load_case"}
+TOOLS = READ_TOOLS | CHANGE_TOOLS
 
 
 def call_tool(rips_instance: Any, name: str, **arguments: Any) -> Any:
@@ -52,14 +54,25 @@ def call_tool(rips_instance: Any, name: str, **arguments: Any) -> Any:
     return anyio.run(run)
 
 
-def test_all_tools_are_read_only(rips_instance, initialize_test):
+def test_tool_annotations(rips_instance, initialize_test):
     async def run() -> Any:
         async with Client(create_server(lambda: rips_instance)) as client:
             return await client.list_tools()
 
-    tools = anyio.run(run).tools
-    assert {tool.name for tool in tools} == TOOLS
-    assert all(tool.annotations.read_only_hint for tool in tools)
+    tools = {tool.name: tool.annotations for tool in anyio.run(run).tools}
+    assert set(tools) == TOOLS
+    assert all(tools[name].read_only_hint for name in READ_TOOLS)
+    # MCP reads a missing destructive hint as true, so every change tool sets it.
+    # Only open_project can lose work: it closes the open project unsaved.
+    assert {name: tools[name].read_only_hint for name in CHANGE_TOOLS} == dict.fromkeys(
+        CHANGE_TOOLS, False
+    )
+    assert {name: tools[name].destructive_hint for name in CHANGE_TOOLS} == {
+        "set_time_step": False,
+        "set_cell_result": False,
+        "open_project": True,
+        "load_case": False,
+    }
 
 
 def test_stdio_server_lists_tools() -> None:
@@ -181,6 +194,12 @@ def test_unknown_ids_are_tool_errors(rips_instance, initialize_test):
         ("summary_values", {"case_id": 99, "vector": "FOPT"}, "No summary case"),
         ("snapshot_view", {"view_id": 99}, "No view with id 99"),
         ("snapshot_plot", {"plot_id": 99}, "No plot with id 99"),
+        ("set_time_step", {"view_id": 99, "index": 0}, "No view with id 99"),
+        (
+            "set_cell_result",
+            {"view_id": 99, "property_type": "STATIC_NATIVE", "property": "PORO"},
+            "No view with id 99",
+        ),
     ]:
         result = call_tool(rips_instance, name, **arguments)
         assert result.is_error
@@ -246,3 +265,133 @@ def test_connection_launches_once(monkeypatch):
 
     connection.close()
     assert launched[0].exited
+
+
+def test_load_case(rips_instance, initialize_test):
+    loaded = call_tool(
+        rips_instance, "load_case", path=dataroot.PATH + GRID_CASE
+    ).structured_content
+
+    cases = rips_instance.project.cases()
+    assert [(case.id, case.name) for case in cases] == [
+        (loaded["id"], "TEST10K_FLT_LGR_NNC")
+    ]
+    assert loaded["type"] == "EclipseCase"
+    view = rips_instance.project.view(loaded["view_id"])
+    assert view.case().id == loaded["id"]
+
+    missing = call_tool(rips_instance, "load_case", path="/no/such/case.EGRID")
+    assert missing.is_error
+    assert "Unable to load case" in missing.content[0].text
+    assert len(rips_instance.project.cases()) == 1
+
+
+def test_open_project(rips_instance, initialize_test):
+    rips_instance.project.import_summary_case(dataroot.PATH + SUMMARY_CASE)
+
+    path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    cases = call_tool(rips_instance, "open_project", path=path).structured_content
+
+    # The summary case belonged to the project that was closed
+    assert rips_instance.project.summary_cases() == []
+    assert cases["summary_cases"]["items"] == []
+    assert cases["grid_cases"]["items"] == [
+        {"id": case.id, "name": case.name, "type": type(case).__name__}
+        for case in rips_instance.project.cases()
+    ]
+    assert cases["grid_cases"]["total"] == 1
+
+    missing = call_tool(rips_instance, "open_project", path="/no/such/project.rsp")
+    assert missing.is_error
+    assert "Unable to open project" in missing.content[0].text
+
+
+def test_set_time_step(rips_instance, initialize_test):
+    case = rips_instance.project.load_case(dataroot.PATH + GRID_CASE)
+    view = case.create_view()
+
+    result = call_tool(rips_instance, "set_time_step", view_id=view.id, index=3)
+    assert result.structured_content == {"view_id": view.id, "current_time_step": 3}
+    assert rips_instance.project.view(view.id).current_time_step == 3
+
+    # ResInsight checks the range; the view keeps its time step
+    out_of_range = call_tool(rips_instance, "set_time_step", view_id=view.id, index=9)
+    assert out_of_range.is_error
+    assert "out of range [0, 8]" in out_of_range.content[0].text
+    assert rips_instance.project.view(view.id).current_time_step == 3
+
+
+def test_set_cell_result(rips_instance, initialize_test):
+    case = rips_instance.project.load_case(dataroot.PATH + GRID_CASE)
+    view = case.create_view()
+
+    result = call_tool(
+        rips_instance,
+        "set_cell_result",
+        view_id=view.id,
+        property_type="STATIC_NATIVE",
+        property="PORO",
+    )
+    assert result.structured_content == {
+        "view_id": view.id,
+        "property_type": "STATIC_NATIVE",
+        "property": "PORO",
+    }
+    cell_result = rips_instance.project.view(view.id).cell_result()
+    assert (cell_result.result_type, cell_result.result_variable) == (
+        "STATIC_NATIVE",
+        "PORO",
+    )
+
+    # A property the case does not have, or has under another type, is refused
+    # and the view keeps its cell result
+    for property_type, name in [("STATIC_NATIVE", "NOPE"), ("DYNAMIC_NATIVE", "PORO")]:
+        refused = call_tool(
+            rips_instance,
+            "set_cell_result",
+            view_id=view.id,
+            property_type=property_type,
+            property=name,
+        )
+        assert refused.is_error
+        assert f"no {property_type} property '{name}'" in refused.content[0].text
+    cell_result = rips_instance.project.view(view.id).cell_result()
+    assert cell_result.result_variable == "PORO"
+
+
+def test_change_tools_take_3d_view_ids_only(rips_instance, initialize_test):
+    # A well path intersection adds a 2D intersection view with id -1, and
+    # summary plots add plot windows numbered apart from the views
+    case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    case = rips_instance.project.load_case(case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+    view = case.create_view()
+    rips_instance.project.import_well_paths([case_root + "/wellpath_a.dev"])
+    intersection_coll = rips_instance.project.descendants(rips.IntersectionCollection)[
+        0
+    ]
+    intersection = intersection_coll.add_new_object(rips.CurveIntersection)
+    intersection.type = "CS_WELL_PATH"
+    intersection.well_path = rips_instance.project.well_paths()[0]
+    intersection.update()
+    summary_case = rips_instance.project.import_summary_case(
+        dataroot.PATH + SUMMARY_CASE
+    )
+    collection = rips_instance.project.descendants(rips.SummaryPlotCollection)[0]
+    for address in ("FOPT", "FOPR"):
+        collection.new_summary_plot(summary_cases=[summary_case], address=address)
+    plot_ids = {plot.id for plot in rips_instance.project.plots()}
+    view_ids = {v.id for v in rips_instance.project.views()}
+    assert view_ids == {view.id, -1}
+    plot_only_id = max(plot_ids - view_ids)
+
+    for view_id in (-1, plot_only_id):
+        for name, arguments in [
+            ("set_time_step", {"index": 1}),
+            (
+                "set_cell_result",
+                {"property_type": "STATIC_NATIVE", "property": "PORO"},
+            ),
+        ]:
+            result = call_tool(rips_instance, name, view_id=view_id, **arguments)
+            assert result.is_error
+            assert f"No view with id {view_id}" in result.content[0].text
