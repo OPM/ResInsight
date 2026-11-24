@@ -104,6 +104,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaFileSearchTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaHpcTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Intersect-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader-Test.cpp
