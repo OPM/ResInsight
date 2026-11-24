@@ -50,6 +50,33 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcGridView_visibleCellsInte
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setPolygonVisible, "set_polygon_visible" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setSurfaceVisible, "set_surface_visible" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setSurfaceProperty, "set_surface_property" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setGridCellsVisible, "set_grid_cells_visible" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcGridView_setGridCellsVisible::RimcGridView_setGridCellsVisible( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Grid Cells Visible", "", "", "Show or hide the grid cells in this view" );
+
+    CAF_PDM_InitScriptableField( &m_visible, "Visible", true, "Visible" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setGridCellsVisible::execute()
+{
+    auto* gridView = dynamic_cast<RimGridView*>( self<Rim3dView>() );
+    if ( !gridView )
+    {
+        return std::unexpected( QString( "This view does not have grids." ) );
+    }
+
+    gridView->showGridCells( m_visible() );
+    return nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

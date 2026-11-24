@@ -61,6 +61,7 @@ public:
 
     bool isActive() const;
     void setActive( bool bActive );
+    void setActiveAndRedraw( bool bActive );
 
     std::vector<RimFaultInView*>       faults() const;
     cvf::Color3f                       faultLabelColor() const;
@@ -98,6 +99,7 @@ private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     RimEclipseView* parentView() const;
+    void            scheduleRedraw();
 
 private:
     caf::PdmField<bool>         m_applyCellFilters;

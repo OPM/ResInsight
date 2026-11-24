@@ -47,6 +47,19 @@ def test_visible_cells(rips_instance, initialize_test):
     assert visible_count + invisible_count > 0
 
 
+def test_set_grid_cells_and_faults_visible(rips_instance, initialize_test):
+    """Test set_grid_cells_visible() and set_faults_visible() on a view"""
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    view = case.views()[0] if case.views() else case.create_view()
+
+    # Without a viewer there is no state to read back; verify the calls are accepted
+    view.set_grid_cells_visible(False)
+    view.set_grid_cells_visible(True)
+    view.set_faults_visible(False)
+    view.set_faults_visible(True)
+
+
 def test_visible_cells_different_timesteps(rips_instance, initialize_test):
     """Test visible_cells() at different time steps"""
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"

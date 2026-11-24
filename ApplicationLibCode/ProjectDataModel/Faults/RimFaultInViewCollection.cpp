@@ -212,14 +212,32 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
          &m_onlyShowWithNeighbor == changedField || &m_faultResult == changedField || &m_showNNCs == changedField ||
          &m_hideNNCsWhenNoResultIsAvailable == changedField || changedField == &m_meshLineThickness )
     {
-        parentView()->scheduleCreateDisplayModelAndRedraw();
-        parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        scheduleRedraw();
     }
 
     if ( &m_showFaultLabel == changedField )
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::scheduleRedraw()
+{
+    parentView()->scheduleCreateDisplayModelAndRedraw();
+    parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Programmatic equivalent of toggling the fault collection in the UI
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setActiveAndRedraw( bool bActive )
+{
+    setActive( bActive );
+    updateConnectedEditors();
+    scheduleRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

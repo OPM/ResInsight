@@ -100,6 +100,22 @@ private:
 };
 
 //==================================================================================================
+/// Show or hide the grid cells in the view.
+//==================================================================================================
+class RimcGridView_setGridCellsVisible : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcGridView_setGridCellsVisible( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<bool> m_visible;
+};
+
+//==================================================================================================
 /// Clone the view and add the copy to the same case. Supports Eclipse and GeoMech views.
 //==================================================================================================
 class Rim3dView_clone : public caf::PdmObjectCreationMethod
