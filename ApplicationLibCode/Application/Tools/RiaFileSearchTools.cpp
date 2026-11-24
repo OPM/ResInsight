@@ -21,6 +21,7 @@
 #include "RiaFilePathTools.h"
 
 #include <QDir>
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,13 +51,16 @@ QStringList RiaFileSearchTools::findFilesInFolders( const QStringList&          
     return allFiles;
 }
 
+namespace
+{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFileSearchTools::findMatchingFoldersRecursively( const QString&                               currentDir,
-                                                         const QString&                               folderFilter,
-                                                         QStringList&                                 matchingFolders,
-                                                         const std::function<bool( const QString& )>& callback )
+void findMatchingFoldersRecursivelyImpl( const QString&                               currentDir,
+                                         const QString&                               folderFilter,
+                                         QStringList&                                 matchingFolders,
+                                         const std::function<bool( const QString& )>& callback,
+                                         QStringList&                                 canonicalAncestors )
 {
     if ( callback && !callback( currentDir ) )
     {
@@ -84,6 +88,11 @@ void RiaFileSearchTools::findMatchingFoldersRecursively( const QString&         
     for ( const QString& subDir : subDirs )
     {
         QString fullPath = qdir.absoluteFilePath( subDir );
+
+        // Skip symbolic links pointing to a folder already in the current search path
+        const QString canonicalPath = QFileInfo( fullPath ).canonicalFilePath();
+        if ( !canonicalPath.isEmpty() && canonicalAncestors.contains( canonicalPath ) ) continue;
+
         QString nextPathFilter;
 
         if ( pathFilterPartList.size() == 1 && pathFilterPartList[0] == "*" )
@@ -97,6 +106,23 @@ void RiaFileSearchTools::findMatchingFoldersRecursively( const QString&         
             nextPathFilter = nextFilterList.join( RiaFilePathTools::separator() );
         }
 
-        findMatchingFoldersRecursively( fullPath, nextPathFilter, matchingFolders, callback );
+        canonicalAncestors.push_back( canonicalPath );
+        findMatchingFoldersRecursivelyImpl( fullPath, nextPathFilter, matchingFolders, callback, canonicalAncestors );
+        canonicalAncestors.pop_back();
     }
+}
+
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaFileSearchTools::findMatchingFoldersRecursively( const QString&                               currentDir,
+                                                         const QString&                               folderFilter,
+                                                         QStringList&                                 matchingFolders,
+                                                         const std::function<bool( const QString& )>& callback )
+{
+    QStringList canonicalAncestors;
+    canonicalAncestors.push_back( QFileInfo( currentDir ).canonicalFilePath() );
+    findMatchingFoldersRecursivelyImpl( currentDir, folderFilter, matchingFolders, callback, canonicalAncestors );
 }
