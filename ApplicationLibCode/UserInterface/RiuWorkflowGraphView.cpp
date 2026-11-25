@@ -38,6 +38,7 @@
 #include <QPainterPathStroker>
 #include <QPen>
 #include <QResizeEvent>
+#include <QSet>
 #include <QStyleOptionGraphicsItem>
 #include <QTextDocument>
 #include <QToolTip>
@@ -99,6 +100,9 @@ const QColor errorColor( 190, 45, 45 );
 const QColor warningColor( 200, 130, 20 );
 const QColor edgeColor( 75, 95, 115 );
 const QColor selectedEdgeColor( 30, 120, 220 );
+const QColor upstreamEdgeColor( 215, 110, 25 );
+const QColor downstreamEdgeColor( 30, 120, 220 );
+const double dimmedOpacity = 0.25;
 const QColor mapColor( 95, 80, 160 );
 const QColor conditionColor( 135, 75, 150 );
 const QColor nestedColor( 30, 125, 120 );
@@ -286,28 +290,30 @@ public:
                bool                         vertical    = false,
                qreal                        widthFactor = 1.0 );
 
-    qreal                  width() const;
-    qreal                  height() const;
-    bool                   isVertical() const;
-    bool                   isHeaderAt( const QPointF& scenePos ) const;
-    QPointF                portPosition( const QString& key, bool output ) const;
-    QPointF                controlAnchor( bool outgoing ) const;
-    void                   setBranches( const QStringList& branches );
-    void                   paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget ) override;
-    QPainterPath           shape() const override;
-    void                   addEdge( GraphEdge* edge );
-    QString                name() const;
-    bool                   isConfig() const;
-    std::vector<PortItem*> ports() const;
-    void                   setConfigValue( const QString& fieldName, const QString& value );
-    void                   setTaskState( const QString& state, const QString& error = {} );
-    void                   setItemState( const QString& item, const QString& state, const QString& error = {} );
-    void                   setSubtitleToolTip( const QString& toolTip );
-    void                   setTitle( const QString& title, const QString& toolTip );
-    void                   setIssues( const QJsonArray& issues );
-    void                   setUnknownType( bool unknown );
-    void                   setNested( bool nested );
-    bool                   isNested() const;
+    qreal                          width() const;
+    qreal                          height() const;
+    bool                           isVertical() const;
+    bool                           isHeaderAt( const QPointF& scenePos ) const;
+    QPointF                        portPosition( const QString& key, bool output ) const;
+    QPointF                        controlAnchor( bool outgoing ) const;
+    void                           setBranches( const QStringList& branches );
+    void                           paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget ) override;
+    QPainterPath                   shape() const override;
+    void                           addEdge( GraphEdge* edge );
+    QString                        name() const;
+    bool                           isConfig() const;
+    std::vector<PortItem*>         ports() const;
+    void                           setConfigValue( const QString& fieldName, const QString& value );
+    void                           setTaskState( const QString& state, const QString& error = {} );
+    void                           setItemState( const QString& item, const QString& state, const QString& error = {} );
+    void                           setSubtitleToolTip( const QString& toolTip );
+    void                           setTitle( const QString& title, const QString& toolTip );
+    void                           setIssues( const QJsonArray& issues );
+    void                           setUnknownType( bool unknown );
+    void                           setNested( bool nested );
+    bool                           isNested() const;
+    void                           setDimmed( bool dimmed );
+    const std::vector<GraphEdge*>& edges() const;
 
 protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
@@ -370,6 +376,7 @@ private:
     int                                      m_warningCount = 0;
     bool                                     m_unknownType  = false;
     bool                                     m_nested       = false;
+    bool                                     m_dimmed       = false;
 };
 
 //==================================================================================================
@@ -378,6 +385,15 @@ private:
 class GraphEdge : public QGraphicsPathItem
 {
 public:
+    // How the edge relates to the selected item
+    enum class Emphasis
+    {
+        Normal,
+        Upstream, // Into the selected task
+        Downstream, // Out of the selected task
+        Dimmed
+    };
+
     GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey, bool isConfig, bool selectable );
     // A control edge: `to` only runs when the condition on the output of `from` holds
     GraphEdge( GraphNode* from, GraphNode* to, const QString& condition, bool selectable );
@@ -391,6 +407,7 @@ public:
     QString      outputField() const { return fieldForKey( m_outputKey ); }
     QString      inputField() const { return fieldForKey( m_inputKey ); }
     void         setLabel( const QString& label, const QString& toolTip );
+    void         setEmphasis( Emphasis emphasis );
 
 protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
@@ -406,7 +423,8 @@ private:
     bool                  m_isConfig;
     bool                  m_isControl = false;
     QGraphicsPolygonItem* m_arrow;
-    QGraphicsTextItem*    m_label = nullptr;
+    QGraphicsTextItem*    m_label    = nullptr;
+    Emphasis              m_emphasis = Emphasis::Normal;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -1092,6 +1110,24 @@ void GraphNode::addEdge( GraphEdge* edge )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<GraphEdge*>& GraphNode::edges() const
+{
+    return m_edges;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Fade the node when it is not connected to the selected item
+//--------------------------------------------------------------------------------------------------
+void GraphNode::setDimmed( bool dimmed )
+{
+    if ( m_dimmed == dimmed ) return;
+    m_dimmed = dimmed;
+    applyStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString GraphNode::name() const
 {
     return m_name;
@@ -1264,6 +1300,7 @@ void GraphNode::applyStyle()
         setPen( QPen( configBorder ) );
         setBrush( configBackground );
         setToolTip( m_baseToolTip );
+        setOpacity( m_dimmed ? dimmedOpacity : 1.0 );
         return;
     }
 
@@ -1375,7 +1412,7 @@ void GraphNode::applyStyle()
         toolTip << "Config values:\n" + values.join( "\n" );
     }
     setToolTip( toolTip.join( "\n\n" ) );
-    setOpacity( m_state == "skipped" ? 0.6 : 1.0 );
+    setOpacity( ( m_state == "skipped" ? 0.6 : 1.0 ) * ( m_dimmed ? dimmedOpacity : 1.0 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1572,14 +1609,44 @@ void GraphEdge::setLabel( const QString& label, const QString& toolTip )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void GraphEdge::setEmphasis( Emphasis emphasis )
+{
+    if ( m_emphasis == emphasis ) return;
+    m_emphasis = emphasis;
+    applyPen();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void GraphEdge::applyPen()
 {
-    const QColor color = isSelected() ? selectedEdgeColor : ( m_isConfig ? configPortColor : m_isControl ? conditionColor : edgeColor );
-    QPen         pen( color, isSelected() ? 3.0 : 1.7 );
+    QColor color = m_isConfig ? configPortColor : m_isControl ? conditionColor : edgeColor;
+    qreal  width = 1.7;
+    qreal  z     = -1.0;
+    if ( isSelected() )
+    {
+        color = selectedEdgeColor;
+        width = 3.0;
+        z     = -0.5;
+    }
+    else if ( m_emphasis == Emphasis::Upstream || m_emphasis == Emphasis::Downstream )
+    {
+        color = m_emphasis == Emphasis::Upstream ? upstreamEdgeColor : downstreamEdgeColor;
+        width = 2.8;
+        z     = -0.5;
+    }
+
+    QPen pen( color, width );
     if ( m_isConfig ) pen.setStyle( Qt::DashLine );
     if ( m_isControl ) pen.setStyle( Qt::DashDotLine );
     setPen( pen );
     m_arrow->setBrush( color );
+    if ( m_label )
+        m_label->setDefaultTextColor(
+            m_emphasis == Emphasis::Normal || m_emphasis == Emphasis::Dimmed ? ( m_isControl ? conditionColor : edgeColor ) : color );
+    setZValue( z );
+    setOpacity( m_emphasis == Emphasis::Dimmed ? dimmedOpacity : 1.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2377,6 +2444,72 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         m_lastSelectedTask = selectedTask;
     }
     m_rebuilding = false;
+    updateConnectionHighlight();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Make it easy to see what the selected item is connected to: the edges into a selected task are
+/// drawn in one colour and the edges out of it in another, and the tasks and edges not connected to
+/// the selected task or edge are faded
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowGraphView::updateConnectionHighlight()
+{
+    GraphNode* selectedNode = nullptr;
+    GraphEdge* selectedEdge = nullptr;
+    if ( !m_dragPort )
+    {
+        for ( QGraphicsItem* item : m_scene->selectedItems() )
+        {
+            if ( ( selectedNode = dynamic_cast<GraphNode*>( item ) ) ) break;
+            if ( ( selectedEdge = dynamic_cast<GraphEdge*>( item ) ) ) break;
+        }
+    }
+
+    const bool       active = selectedNode || selectedEdge;
+    QSet<GraphNode*> focusNodes;
+    QSet<GraphEdge*> upstream;
+    QSet<GraphEdge*> downstream;
+    if ( selectedNode )
+    {
+        focusNodes.insert( selectedNode );
+        for ( GraphEdge* edge : selectedNode->edges() )
+        {
+            if ( edge->toNode() == selectedNode )
+            {
+                upstream.insert( edge );
+                focusNodes.insert( edge->fromNode() );
+            }
+            else
+            {
+                downstream.insert( edge );
+                focusNodes.insert( edge->toNode() );
+            }
+        }
+    }
+    else if ( selectedEdge )
+    {
+        focusNodes.insert( selectedEdge->fromNode() );
+        focusNodes.insert( selectedEdge->toNode() );
+    }
+
+    for ( QGraphicsItem* item : m_scene->items() )
+    {
+        if ( auto* node = dynamic_cast<GraphNode*>( item ) )
+        {
+            node->setDimmed( active && !focusNodes.contains( node ) );
+        }
+        else if ( auto* edge = dynamic_cast<GraphEdge*>( item ) )
+        {
+            auto emphasis = GraphEdge::Emphasis::Normal;
+            if ( upstream.contains( edge ) )
+                emphasis = GraphEdge::Emphasis::Upstream;
+            else if ( downstream.contains( edge ) )
+                emphasis = GraphEdge::Emphasis::Downstream;
+            else if ( active && edge != selectedEdge )
+                emphasis = GraphEdge::Emphasis::Dimmed;
+            edge->setEmphasis( emphasis );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2400,6 +2533,7 @@ void RiuWorkflowGraphView::selectTask( const QString& taskName )
     node->setSelected( true );
     m_lastSelectedTask = taskName;
     m_rebuilding       = false;
+    updateConnectionHighlight();
     ensureVisible( node );
 }
 
@@ -2464,6 +2598,8 @@ RiuWorkflowGraphView::ItemRef RiuWorkflowGraphView::selectedItem() const
 void RiuWorkflowGraphView::onSelectionChanged()
 {
     if ( m_rebuilding ) return;
+
+    updateConnectionHighlight();
 
     const ItemRef selected = selectedItem();
     if ( selected.kind != ItemRef::Kind::Task || selected.task == m_lastSelectedTask ) return;
@@ -2694,6 +2830,7 @@ void RiuWorkflowGraphView::startConnectionDrag( PortItem* port )
 
     m_dragPath = m_scene->addPath( QPainterPath(), QPen( validTargetColor.darker( 120 ), 2.0, Qt::DashLine ) );
     m_dragPath->setZValue( 3 );
+    updateConnectionHighlight();
     updateConnectionDrag( port->mapToScene( port->rect().center() ) );
     setCursor( Qt::CrossCursor );
 }
@@ -2752,6 +2889,7 @@ void RiuWorkflowGraphView::finishConnectionDrag( bool connect )
     }
     unsetCursor();
     QToolTip::hideText();
+    updateConnectionHighlight();
 
     if ( !connect || !target ) return;
 
