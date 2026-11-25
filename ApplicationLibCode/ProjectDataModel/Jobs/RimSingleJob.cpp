@@ -27,7 +27,6 @@
 #include "Batch/RimBatchQueue.h"
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
-#include "RimProcessQueue.h"
 
 #include "RiuGuiTheme.h"
 

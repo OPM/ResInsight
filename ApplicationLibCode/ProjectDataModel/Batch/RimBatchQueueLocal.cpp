@@ -19,7 +19,7 @@
 #include "RimBatchQueueLocal.h"
 
 #include "ProcessControl/RimProcess.h"
-#include "ProcessControl/RimProcessQueue.h"
+#include "ProcessControl/RimProcessQueuedRunner.h"
 
 CAF_PDM_SOURCE_INIT( RimBatchQueueLocal, "BatchQueueLocal" );
 
@@ -44,7 +44,7 @@ RimBatchQueueLocal::~RimBatchQueueLocal()
 void RimBatchQueueLocal::queueProcess( std::shared_ptr<RimProcess> process, int )
 {
     m_process = process;
-    RimProcessQueue::queueProcess( process.get() );
+    RimProcessQueuedRunner::queueProcess( process.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ void RimBatchQueueLocal::queueProcess( std::shared_ptr<RimProcess> process, int 
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueLocal::stopProcess()
 {
-    if ( m_process != nullptr ) RimProcessQueue::stopProcess( m_process->ID() );
+    if ( m_process != nullptr ) RimProcessQueuedRunner::stopProcess( m_process->ID() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,7 +37,8 @@ public:
     virtual void appendStdErr( QString line );
     virtual void clearStdOutErr();
 
-    void setProcessId( size_t processId );
+    void   setProcessId( size_t processId );
+    size_t processId() const;
 
 signals:
 

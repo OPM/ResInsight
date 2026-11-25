@@ -20,7 +20,7 @@
 
 #include "RiaLogging.h"
 
-#include "RimProcessQueue.h"
+#include "RimProcessQueuedRunner.h"
 
 #include <QProcess>
 #include <QtCore/QtCore>
@@ -97,7 +97,7 @@ void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus 
         RiaLogging::debug( addPrefix( finishStr ).toStdString() );
     }
 
-    RimProcessQueue::onProcessFinished( m_processId );
+    RimProcessQueuedRunner::onProcessFinished( m_processId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +183,14 @@ const QStringList& RimProcessMonitor::stdErr() const
 void RimProcessMonitor::setProcessId( size_t processId )
 {
     m_processId = processId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimProcessMonitor::processId() const
+{
+    return m_processId;
 }
 
 //--------------------------------------------------------------------------------------------------

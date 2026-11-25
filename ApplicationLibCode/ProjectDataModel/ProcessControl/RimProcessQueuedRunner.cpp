@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimProcessQueue.h"
+#include "RimProcessQueuedRunner.h"
 
 #include "RimProcess.h"
 
@@ -25,23 +25,23 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessQueue::RimProcessQueue()
+RimProcessQueuedRunner::RimProcessQueuedRunner()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessQueue* RimProcessQueue::instance()
+RimProcessQueuedRunner* RimProcessQueuedRunner::instance()
 {
-    static RimProcessQueue theInstance;
+    static RimProcessQueuedRunner theInstance;
     return &theInstance;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimProcessQueue::queueProcess( RimProcess* process )
+size_t RimProcessQueuedRunner::queueProcess( RimProcess* process )
 {
     if ( process == nullptr ) return 0;
     return instance()->internalQueueProcess( process );
@@ -50,7 +50,7 @@ size_t RimProcessQueue::queueProcess( RimProcess* process )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::stopProcess( size_t processId )
+void RimProcessQueuedRunner::stopProcess( size_t processId )
 {
     instance()->internalStopProcess( processId );
 }
@@ -58,7 +58,7 @@ void RimProcessQueue::stopProcess( size_t processId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::onProcessFinished( size_t processId )
+void RimProcessQueuedRunner::onProcessFinished( size_t processId )
 {
     instance()->internalOnProcessFinished( processId );
 }
@@ -66,7 +66,7 @@ void RimProcessQueue::onProcessFinished( size_t processId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::launchNextProcessIfPossible()
+void RimProcessQueuedRunner::launchNextProcessIfPossible()
 {
     if ( m_waitingProcesses.empty() ) return;
 
@@ -87,7 +87,7 @@ void RimProcessQueue::launchNextProcessIfPossible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimProcessQueue::internalQueueProcess( RimProcess* process )
+size_t RimProcessQueuedRunner::internalQueueProcess( RimProcess* process )
 {
     QMutexLocker locker( &m_mutex );
 
@@ -100,7 +100,7 @@ size_t RimProcessQueue::internalQueueProcess( RimProcess* process )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::internalStopProcess( size_t processId )
+void RimProcessQueuedRunner::internalStopProcess( size_t processId )
 {
     bool        isWaitingProcess = false;
     RimProcess* theProcess       = nullptr;
@@ -151,7 +151,7 @@ void RimProcessQueue::internalStopProcess( size_t processId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcessQueue::internalOnProcessFinished( size_t processId )
+void RimProcessQueuedRunner::internalOnProcessFinished( size_t processId )
 {
     QMutexLocker locker( &m_mutex );
 

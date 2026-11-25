@@ -1,7 +1,8 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimProcess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimProcessMonitor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimProcessQueue.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimProcessQueuedRunner.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimProcessList.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

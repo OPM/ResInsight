@@ -23,7 +23,7 @@
 
 class RimProcess;
 
-class RimProcessQueue
+class RimProcessQueuedRunner
 {
 public:
     static size_t queueProcess( RimProcess* process );
@@ -31,8 +31,8 @@ public:
     static void   onProcessFinished( size_t processId );
 
 protected:
-    RimProcessQueue();
-    static RimProcessQueue* instance();
+    RimProcessQueuedRunner();
+    static RimProcessQueuedRunner* instance();
 
     size_t internalQueueProcess( RimProcess* process );
     void   internalOnProcessFinished( size_t processId );
