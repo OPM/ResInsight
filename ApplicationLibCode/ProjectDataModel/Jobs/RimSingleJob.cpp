@@ -27,6 +27,7 @@
 #include "Batch/RimBatchQueue.h"
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
+#include "RimProcessList.h"
 
 #include "RiuGuiTheme.h"
 
@@ -110,8 +111,8 @@ bool RimSingleJob::execute()
     // check if we should run
     if ( !onRun() ) return false;
 
-    QStringList cmdLine = command();
-    if ( cmdLine.isEmpty() )
+    auto cmdLines = commands();
+    if ( cmdLines.size() == 0 )
     {
         setFinished( false );
         return false;
@@ -121,23 +122,17 @@ bool RimSingleJob::execute()
     setDeletable( false );
     setState( JobState::Queued );
 
-    m_process = std::make_shared<RimProcess>( true /*log output*/, std::make_shared<RimJobMonitor>( this ) );
-
-    // on windows, should run using wsl?
-    m_process->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
-
-    m_process->setDescription( name() );
-
-    // build process to run
-    QString cmd = cmdLine.takeFirst();
-    m_process->setCommand( cmd );
-
-    if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
-    m_process->setWorkingDirectory( workingDirectory() );
+    auto proclist = std::make_unique<RimProcessList>( std::make_shared<RimJobMonitor>( this ) );
+    proclist->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
+    proclist->setName( name() );
+    proclist->setWorkingDirectory( workingDirectory() );
+    for ( auto& cmdline : cmdLines )
+    {
+        proclist->addProcessCommand( cmdline );
+    }
 
     m_queue.reset( RimBatchQueue::createBatchQueue() );
-
-    m_queue->queueProcess( m_process, numberOfProcesses() );
+    m_queue->queueCommands( proclist );
     onProgress( m_percentageDone );
 
     return true;

@@ -36,6 +36,7 @@ public:
     ~RimProcessList();
 
     void addProcessCommand( QString command, QStringList arguments );
+    void addProcessCommand( QStringList arguments );
     void addEnvironmentVariable( QString name, QString value );
     void setWorkingDirectory( QString filePath );
     void setName( QString name );

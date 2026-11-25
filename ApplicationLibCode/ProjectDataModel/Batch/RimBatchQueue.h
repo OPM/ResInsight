@@ -42,6 +42,7 @@ class RimBatchQueue : public caf::PdmObject
 public:
     static RimBatchQueue* createBatchQueue();
 
+    virtual void queueCommands( std::unique_ptr<RimProcessList> procList )                  = 0;
     virtual void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) = 0;
     virtual void stopProcess()                                                              = 0;
     virtual void setFinished( bool runOk ) {};

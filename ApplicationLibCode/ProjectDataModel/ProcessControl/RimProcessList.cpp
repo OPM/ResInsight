@@ -129,6 +129,14 @@ void RimProcessList::addProcessCommand( QString command, QStringList arguments )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimProcessList::addProcessCommand( QStringList arguments )
+{
+    m_commandList.push_back( arguments );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcessList::addEnvironmentVariable( QString name, QString value )
 {
     m_environment[name] = value;
