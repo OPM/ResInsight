@@ -114,7 +114,7 @@ TEST( RimWorkflowDefinition, fromJson )
 //--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowDefinition, jsonRoundTrip )
 {
-    for ( const QString& name : { "completions", "load_data" } )
+    for ( const QString name : { "completions", "load_data" } )
     {
         const auto definition = definitionFixture( name );
         const auto roundTrip  = RimWorkflowDefinitionTools::fromJson( RimWorkflowDefinitionTools::toJson( definition ) );
@@ -126,7 +126,7 @@ TEST( RimWorkflowDefinition, jsonRoundTrip )
 //--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowDefinition, normalizeKeepsLoadedExamples )
 {
-    for ( const QString& name : { "completions", "load_data" } )
+    for ( const QString name : { "completions", "load_data" } )
     {
         const auto definition = definitionFixture( name );
         const auto normalized = RimWorkflowDefinitionTools::normalize( definition );
@@ -239,7 +239,7 @@ TEST( RimWorkflowPortCompatibility, wholeConnections )
 {
     const auto catalog    = catalogFixture();
     auto       definition = RimWorkflowDefinitionTools::createEmpty( "test" );
-    for ( const QString& taskId : { "resinsight.connect", "resinsight.load_model", "resinsight.close_project", "resinsight.exit" } )
+    for ( const QString taskId : { "resinsight.connect", "resinsight.load_model", "resinsight.close_project", "resinsight.exit" } )
     {
         definition.taskTypes.insert( taskId, catalog.taskType( taskId ) );
         definition.nodes.push_back( { .name = taskId.mid( 11 ), .taskId = taskId } );
@@ -432,7 +432,7 @@ TEST( RimWorkflowDefinitionEdit, configFieldsFollowDeclarationOrder )
     definition = RimWorkflowDefinitionTools::normalize( definition );
     EXPECT_EQ( QStringList( { "mid" } ), definition.findNode( "a" )->configFields );
 
-    for ( const QString& field : { "beta", "zeta", "alpha" } )
+    for ( const QString field : { "beta", "zeta", "alpha" } )
         definition = edited( RimWorkflowDefinitionTools::setOptionalInputConfigured( definition, "a", field, true ) );
     EXPECT_EQ( QStringList( { "zeta", "mid", "alpha", "beta" } ), definition.findNode( "a" )->configFields );
 
