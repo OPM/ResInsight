@@ -326,13 +326,32 @@ TEST( RimWorkflowJobSync, listValuesAreKeptExactly )
     RimWorkflowTaskInput read;
     read.buildFromSchema( exactFields );
     readThroughProjectFile( input, read );
-    EXPECT_EQ( QJsonArray( { "d e", "f" } ), read.jsonValues().value( "names" ) );
+    EXPECT_EQ( QJsonArray( { "d e", "f" } ), read.jsonValues().value( "names" ).toArray() );
 
     // ... and copied to a duplicated task
     RimWorkflowTaskInput copy;
     copy.buildFromSchema( exactFields );
     copy.copyValuesFrom( input );
-    EXPECT_EQ( QJsonArray( { "d e", "f" } ), copy.jsonValues().value( "names" ) );
+    EXPECT_EQ( QJsonArray( { "d e", "f" } ), copy.jsonValues().value( "names" ).toArray() );
+
+    // Text that is not a JSON list, e.g. a list being typed, is kept as JSON text when the task inputs are synced
+    RimWorkflowTaskInput typing;
+    typing.buildFromSchema( textFields );
+    ASSERT_EQ( "Value", typing.items()[0]->valueField()->keyword() );
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( typing.items()[0]->valueField()->uiCapability(), QString( "[1, 2" ) );
+    ASSERT_EQ( QJsonValue( "[1, 2" ), typing.jsonValues().value( "ints" ) );
+
+    QJsonArray fieldsWithoutDefaults;
+    for ( const QJsonValue& field : textFields )
+    {
+        QJsonObject schema = field.toObject();
+        schema.remove( "default" );
+        fieldsWithoutDefaults.append( schema );
+    }
+    QMap<QString, QJsonValue> detached;
+    typing.syncFromSchema( fieldsWithoutDefaults, detached );
+    EXPECT_EQ( "Value", typing.items()[0]->valueField()->keyword() );
+    EXPECT_EQ( QJsonValue( "[1, 2" ), typing.jsonValues().value( "ints" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

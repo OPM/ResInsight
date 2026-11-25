@@ -202,7 +202,7 @@ bool isNullable( const QJsonObject& schema, const QJsonObject& rootSchema, int d
     const QJsonValue type = schema.value( "type" );
     if ( type.toString() == "null" || type.toArray().contains( QJsonValue( "null" ) ) ) return true;
 
-    for ( const QString& keyword : { "anyOf", "oneOf" } )
+    for ( const char* keyword : { "anyOf", "oneOf" } )
     {
         for ( const QJsonValue& arm : schema.value( keyword ).toArray() )
         {
