@@ -158,6 +158,7 @@ protected:
 
 private:
     void   onSelectionChanged();
+    void   updateConnectionHighlight();
     void   rememberPositions();
     void   placeLabelsAboveGraph();
     void   scalePositions( double oldTextScale );
