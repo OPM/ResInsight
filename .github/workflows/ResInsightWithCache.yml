@@ -374,7 +374,17 @@ jobs:
         run: |
           echo "Content of unit test folder "
           ls cmakebuild/${{ matrix.config.ri-unit-test-path }}
-          cmakebuild/${{ matrix.config.ri-unit-test-path }}
+          cmakebuild/${{ matrix.config.ri-unit-test-path }} \
+            --gtest_output=xml:"${RUNNER_TEMP}/gtest-results/gtest-${{ matrix.config.os }}-${{ matrix.config.cc }}.xml"
+
+      - name: Upload gtest results
+        if: always() && matrix.config.execute-unit-tests
+        uses: actions/upload-artifact@v7
+        with:
+          name: gtest-results-${{ matrix.config.os }}-${{ matrix.config.cc }}
+          path: ${{ runner.temp }}/gtest-results
+          if-no-files-found: ignore
+          retention-days: 5
 
       - name: (Python) Verify protobuf gencode compatibility
         if: matrix.config.build-python-module
@@ -412,7 +422,16 @@ jobs:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ResInsight${{ runner.os == 'Windows' && '.exe' || '' }}
         run: |
           cd GrpcInterface/Python/rips
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console --junitxml="${{ runner.temp }}/pytest-results/pytest-${{ matrix.config.os }}-${{ matrix.config.cc }}.xml"
+
+      - name: Upload pytest results
+        if: always() && matrix.config.execute-pytests
+        uses: actions/upload-artifact@v7
+        with:
+          name: pytest-results-${{ matrix.config.os }}-${{ matrix.config.cc }}
+          path: ${{ runner.temp }}/pytest-results
+          if-no-files-found: ignore
+          retention-days: 5
 
       - name: Upload python distribution folder
         if: matrix.config.publish-to-pypi
@@ -478,6 +497,9 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:
+          # Only distribution artifacts are published; test reports
+          # (gtest-results-*, pytest-results-*) are left out.
+          pattern: dist-*
           path: artifacts
 
       - name: Package assets

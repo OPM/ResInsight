@@ -218,7 +218,17 @@ jobs:
         run: |
           echo "Content of unit test folder"
           ls cmakebuild/ApplicationLibCode/UnitTests
-          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
+          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests \
+            --gtest_output=xml:"${RUNNER_TEMP}/gtest-results/gtest-macOS-${{ matrix.arch }}.xml"
+
+      - name: Upload gtest results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gtest-results-macOS-${{ matrix.arch }}
+          path: ${{ runner.temp }}/gtest-results
+          if-no-files-found: ignore
+          retention-days: 5
 
       - name: Run pytest
         env:
@@ -227,7 +237,17 @@ jobs:
         run: |
           cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console \
+            --junitxml="${{ runner.temp }}/pytest-results/pytest-macOS-${{ matrix.arch }}.xml" \
             --deselect rips/tests/test_completion_export.py::test_export_completion_files_unified
+
+      - name: Upload pytest results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pytest-results-macOS-${{ matrix.arch }}
+          path: ${{ runner.temp }}/pytest-results
+          if-no-files-found: ignore
+          retention-days: 5
 
       - name: Write macOS launch instructions
         run: |
