@@ -143,6 +143,13 @@ jobs:
           echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
           "$(brew --prefix bison)/bin/bison" --version | head -1
 
+      - name: Pin CMake
+        # CMake 4.5 rejects boost-locale 1.89's source_group() call
+        # ("is not a prefix of file"), which breaks the vcpkg install.
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '4.3.4'
+
       - name: Install Qt
         # cache: false on macOS: the 1.1 GB Qt tarball eats most of the
         # 10 GB per-repo Actions cache quota; downloading fresh each run
