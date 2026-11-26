@@ -26,13 +26,12 @@
 #include <utility>
 #include <vector>
 
-class RimProcessMonitor;
 class RimProcess;
 
 class RimProcessList
 {
 public:
-    RimProcessList( std::shared_ptr<RimProcessMonitor> monitor );
+    RimProcessList();
     ~RimProcessList();
 
     void addProcessCommand( QString command, QStringList arguments );
@@ -41,23 +40,21 @@ public:
     void setWorkingDirectory( QString filePath );
     void setName( QString name );
 
+    QString name() const;
+    QString workingDirectory() const;
+
     std::vector<std::shared_ptr<RimProcess>> createProcesses();
 
-    const std::vector<QStringList>& commands();
+    const std::vector<QStringList>& commands() const;
 
     void                           setWslOptions( const RiaWslTools::WslOptions& wslOpt );
     const RiaWslTools::WslOptions& wslOptions() const;
 
-    const QStringList& stdErr() const;
-    const QStringList& stdOut() const;
-
 private:
-    std::vector<QStringList>           m_commandList;
-    std::shared_ptr<RimProcessMonitor> m_monitor;
-    std::map<QString, QString>         m_environment;
-    QString                            m_workingDirectory;
-    QStringList                        m_emptyList;
-    QString                            m_name;
+    std::vector<QStringList>   m_commandList;
+    std::map<QString, QString> m_environment;
+    QString                    m_workingDirectory;
+    QString                    m_name;
 
     RiaWslTools::WslOptions m_wslOptions;
 };

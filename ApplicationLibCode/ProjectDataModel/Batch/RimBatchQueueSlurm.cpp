@@ -27,6 +27,7 @@
 #include "RiaWslTools.h"
 
 #include "ProcessControl/RimProcess.h"
+#include "ProcessControl/RimProcessList.h"
 #include "RimBatchProcessMonitor.h"
 
 CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
@@ -63,27 +64,32 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask )
+void RimBatchQueueSlurm::queueCommands( std::shared_ptr<RimProcessList> procList, int nProcessesPerTask )
 {
-    if ( process == nullptr ) return;
+    if ( procList == nullptr ) return;
+    if ( m_batchCallback == nullptr )
+    {
+        RiaLogging::error( "Batch callback is missing!" );
+        return;
+    }
 
-    m_process    = process;
-    m_monitor    = std::make_shared<RimBatchProcessMonitor>( this );
-    m_jobId      = "";
-    m_submitTime = QDateTime();
+    m_processList = procList;
+    m_batchMonitor     = std::make_shared<RimBatchProcessMonitor>( this );
+    m_jobId       = "";
+    m_submitTime  = QDateTime();
 
     auto useWsl = RiaPreferencesOpm::current()->useWsl();
     auto prefs  = RiaPreferencesBatch::current();
 
     bool blockingWait = prefs->jobMonitoring() == RiaDefines::BatchJobMonitoringType::BLOCKING_WAIT;
 
-    QString workDir = m_process->workingDirectory();
+    QString workDir = m_processList->workingDirectory();
 
     // build launch script
     auto [builtOk, script] = buildLaunchScript( workDir );
     if ( !builtOk )
     {
-        m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
+        m_batchCallback->onFinished( false );
         RiaLogging::warning( QString( script ).toStdString() );
         return;
     }
@@ -110,18 +116,18 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     if ( blockingWait )
     {
         // start process async and wait for it to finish using a process monitor
-        auto [batchProcess, output] = runCommand( arguments, m_monitor );
+        auto [batchProcess, output] = runCommand( arguments, m_batchMonitor );
 
         if ( !batchProcess )
         {
-            m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
+            m_batchCallback->onFinished( false );
             RiaLogging::warning( output.toStdString() );
             m_batchProcess = nullptr;
         }
         else
         {
-            // notify original process that we have started
-            if ( m_process->monitor() ) m_process->monitor()->started();
+            // notify that we have started
+            m_batchCallback->onBatchJobStart( 1, 1 );
             m_batchProcess = std::move( batchProcess );
             m_submitTime   = QDateTime::currentDateTime();
         }
@@ -132,13 +138,13 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
         auto [result, stdOut] = runCommand( arguments );
         if ( result )
         {
-            // notify original process that we have started
-            if ( m_process->monitor() ) m_process->monitor()->started();
+            // notify that we have started
+            m_batchCallback->onBatchJobStart( 1, 1 );
             // get job id from submit command output
             m_jobId = RiaHpcTools::findJobId( schedulerType(), stdOut );
             if ( m_jobId.isEmpty() )
             {
-                m_monitor->finished( 1, QProcess::NormalExit );
+                m_batchCallback->onFinished( false );
             }
             else
             {
@@ -155,7 +161,7 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
         }
         else
         {
-            m_monitor->finished( 1, QProcess::NormalExit );
+            m_batchCallback->onFinished( false );
         }
     }
 }
@@ -240,7 +246,7 @@ void RimBatchQueueSlurm::stopProcess()
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::setFinished( bool runOk )
 {
-    if ( !m_process || !m_process->monitor() ) return;
+    if ( m_batchCallback == nullptr ) return;
 
     if ( m_isBatchMonitorActivated )
     {
@@ -255,10 +261,10 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
     }
 
     readStdOutErrIntoProcessLog();
+
     if ( runOk )
     {
         RiaLogging::info( QString( "Batch job %1 done." ).arg( jobId() ).toStdString() );
-        m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
     }
     else
     {
@@ -266,9 +272,8 @@ void RimBatchQueueSlurm::setFinished( bool runOk )
             RiaLogging::error( "Failed to submit batch job, check batch scheduler configuration." );
         else
             RiaLogging::warning( QString( "Batch job %1 failed." ).arg( jobId() ).toStdString() );
-
-        m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
     }
+    m_batchCallback->onFinished( runOk );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,11 +314,11 @@ void RimBatchQueueSlurm::onLogUpdate( const SignalEmitter* emitter, std::pair<co
     auto& [logFileName, logLines] = logInfo;
     if ( logFileName != m_stdOutFileName ) return;
 
-    if ( m_process && m_process->monitor() )
+    if ( m_batchCallback )
     {
         for ( auto& line : logLines )
         {
-            m_process->monitor()->appendStdOut( line );
+            m_batchCallback->onStdOut( line );
         }
     }
 }

@@ -24,6 +24,7 @@
 #include "RiaPreferencesOpm.h"
 #include "RiaQStringFormatter.h"
 
+#include "Batch/RimBatchCallbackInterface.h"
 #include "Batch/RimBatchQueue.h"
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
@@ -45,7 +46,7 @@ RimSingleJob::RimSingleJob()
     : m_percentageDone( 0.0 )
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
-    , m_process( nullptr )
+    , m_processList( nullptr )
     , m_queue( nullptr )
 {
     CAF_PDM_InitObject( "Generic Single Job" );
@@ -89,7 +90,7 @@ bool RimSingleJob::execute()
     m_errorsDetected   = 0;
     m_warningsDetected = 0;
     m_percentageDone   = 0.0;
-    m_process          = nullptr;
+    m_processList      = nullptr;
 
     setState( JobState::Idle );
 
@@ -122,17 +123,17 @@ bool RimSingleJob::execute()
     setDeletable( false );
     setState( JobState::Queued );
 
-    auto proclist = std::make_unique<RimProcessList>( std::make_shared<RimJobMonitor>( this ) );
-    proclist->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
-    proclist->setName( name() );
-    proclist->setWorkingDirectory( workingDirectory() );
+    m_processList = std::make_shared<RimProcessList>( std::make_shared<RimJobMonitor>( this ) );
+    m_processList->setWslOptions( RiaPreferencesOpm::current()->wslOptions() );
+    m_processList->setName( name() );
+    m_processList->setWorkingDirectory( workingDirectory() );
     for ( auto& cmdline : cmdLines )
     {
-        proclist->addProcessCommand( cmdline );
+        m_processList->addProcessCommand( cmdline );
     }
 
-    m_queue.reset( RimBatchQueue::createBatchQueue() );
-    m_queue->queueCommands( proclist );
+    m_queue.reset( RimBatchQueue::createBatchQueue( this ) );
+    m_queue->queueCommands( m_processList, numberOfProcesses() );
     onProgress( m_percentageDone );
 
     return true;
@@ -143,10 +144,8 @@ bool RimSingleJob::execute()
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::setFinished( bool runOk )
 {
-    if ( m_process && m_process->monitor() )
-    {
-        if ( !m_process->monitor()->stdErr().isEmpty() ) runOk = false;
-    }
+    if ( !m_stdErr.isEmpty() ) runOk = false;
+
     RimGenericJob::setFinished( runOk );
 
     m_percentageDone = 100.0;
@@ -258,6 +257,5 @@ std::vector<caf::PdmUiTreeViewItemTag> RimSingleJob::treeItemTags()
 //--------------------------------------------------------------------------------------------------
 const QStringList RimSingleJob::jobLog() const
 {
-    if ( m_process == nullptr ) return QStringList();
-    return m_process->stdOut();
+    return m_stdOut;
 }

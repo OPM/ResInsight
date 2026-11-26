@@ -710,15 +710,15 @@ int RimOpmFlowJob::numberOfProcesses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimOpmFlowJob::command()
+std::vector<QStringList> RimOpmFlowJob::commands()
 {
     QStringList cmd;
 
     QString workDir = workingDirectory();
-    if ( workDir.isEmpty() ) return cmd;
+    if ( workDir.isEmpty() ) return { cmd };
 
     QString dataFile = workDir + "/" + m_fileHelper->deckName();
-    if ( !QFile::exists( dataFile + m_fileHelper->deckExtension() ) ) return cmd;
+    if ( !QFile::exists( dataFile + m_fileHelper->deckExtension() ) ) return { cmd };
 
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
@@ -740,7 +740,7 @@ QStringList RimOpmFlowJob::command()
 
     cmd.append( m_jobSettings->commandLineOptions( workingDirectory(), workDir ) );
 
-    return cmd;
+    return { cmd };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -85,14 +85,14 @@ protected:
     bool matchesKeyValue( const QString& key, const QString& value ) const override;
     void processLogOutput( const QString& logLine ) override;
 
-    QStringList command() override;
-    QString     workingDirectory() const override;
-    bool        onPrepare() override;
-    bool        onRun() override;
-    void        onCompleted( bool success ) override;
-    void        onProgress( double percentageDone ) override;
-    bool        shouldUseWsl() override;
-    int         numberOfProcesses() override;
+    std::vector<QStringList> commands() override;
+    QString                  workingDirectory() const override;
+    bool                     onPrepare() override;
+    bool                     onRun() override;
+    void                     onCompleted( bool success ) override;
+    void                     onProgress( double percentageDone ) override;
+    bool                     shouldUseWsl() override;
+    int                      numberOfProcesses() override;
 
     bool openDeckFile();
     void closeDeckFile();

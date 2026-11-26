@@ -23,6 +23,7 @@
 #include "RiaWslTools.h"
 
 #include "ProcessControl/RimProcess.h"
+#include "ProcessControl/RimProcessList.h"
 #include "RimBatchQueueLocal.h"
 #include "RimBatchQueueLsf.h"
 #include "RimBatchQueueSlurm.h"
@@ -43,21 +44,24 @@ RimBatchQueue::RimBatchQueue( RiaDefines::BatchSchedulerType schedulerType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimBatchQueue* RimBatchQueue::createBatchQueue()
+RimBatchQueue* RimBatchQueue::createBatchQueue( RimBatchCallbackInterface* callbackInterface )
 {
+    RimBatchQueue* retVal = nullptr;
     switch ( RiaPreferencesBatch::current()->batchScheduler() )
     {
         case RiaDefines::BatchSchedulerType::LSF:
-            return new RimBatchQueueLsf();
+            retVal = new RimBatchQueueLsf();
+            break;
 
         case RiaDefines::BatchSchedulerType::SLURM:
-            return new RimBatchQueueSlurm();
+            retVal = new RimBatchQueueSlurm();
 
         default:
         case RiaDefines::BatchSchedulerType::LOCAL_COMPUTER:
+            retVal = new RimBatchQueueLocal();
             break;
     }
-    return new RimBatchQueueLocal();
+    if ( retVal ) retVal->m_batchCallback = callbackInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,15 +135,13 @@ std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
         out << launchScriptDirective() << " " << additionalOptions << "\n\n";
     }
 
-    if ( m_process != nullptr )
+    if ( m_processList != nullptr )
     {
-        QString cmdLine = m_process->command();
-
-        for ( auto& p : m_process->parameters() )
+        for ( auto& cmdline : m_processList->commands() )
         {
-            cmdLine += " " + p;
+            QString cmdStr = cmdline.join( " " );
+            out << cmdStr << "\n";
         }
-        out << cmdLine << "\n";
     }
     out << "\n";
 
@@ -155,9 +157,9 @@ std::pair<bool, QString> RimBatchQueue::buildLaunchScript( QString workDir )
 //--------------------------------------------------------------------------------------------------
 QString RimBatchQueue::generateJobName()
 {
-    if ( m_process == nullptr ) return "ResInsight_Job";
+    if ( m_processList == nullptr ) return "ResInsight_Job";
 
-    QString candidate = m_process->description();
+    QString candidate = m_processList->name();
     candidate.replace( " ", "" );
     candidate = candidate.left( 10 );
     candidate = "RI_" + candidate;
@@ -170,9 +172,9 @@ QString RimBatchQueue::generateJobName()
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueue::readStdOutErrIntoProcessLog()
 {
-    if ( m_process == nullptr ) return;
+    if ( m_batchCallback == nullptr ) return;
 
-    m_process->clearStdOutErr();
+    m_batchCallback->clearStdOutErr();
 
     if ( !m_stdOutFileName.isEmpty() )
     {
@@ -182,7 +184,7 @@ void RimBatchQueue::readStdOutErrIntoProcessLog()
             QTextStream in( &file );
             while ( !in.atEnd() )
             {
-                m_process->appendStdOut( in.readLine() );
+                m_batchCallback->onStdOut( in.readLine() );
             }
             file.close();
         }
@@ -196,7 +198,7 @@ void RimBatchQueue::readStdOutErrIntoProcessLog()
             QTextStream in( &file );
             while ( !in.atEnd() )
             {
-                m_process->appendStdErr( in.readLine() );
+                m_batchCallback->onStdErr( in.readLine() );
             }
             file.close();
         }

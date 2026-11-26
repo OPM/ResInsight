@@ -40,7 +40,7 @@ public:
     RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType = RiaDefines::BatchSchedulerType::SLURM );
     ~RimBatchQueueSlurm() override;
 
-    void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) override;
+    void queueCommands( std::shared_ptr<RimProcessList> procList, int nProcessesPerTask ) override;
     void stopProcess() override;
 
 protected:
@@ -64,7 +64,7 @@ protected:
     QString launchScriptDirective() const override;
 
 protected:
-    std::shared_ptr<RimProcessMonitor> m_monitor;
+    std::shared_ptr<RimProcessMonitor> m_batchMonitor;
     std::unique_ptr<RimProcess>        m_batchProcess;
 
 private:

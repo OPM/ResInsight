@@ -30,8 +30,8 @@
 #include <memory>
 #include <vector>
 
-class RimProcess;
 class RimBatchQueue;
+class RimProcessList;
 
 //==================================================================================================
 ///
@@ -73,6 +73,6 @@ protected:
     int    m_errorsDetected;
 
 private:
-    std::shared_ptr<RimProcess>    m_process;
-    std::shared_ptr<RimBatchQueue> m_queue;
+    std::shared_ptr<RimBatchQueue>  m_queue;
+    std::shared_ptr<RimProcessList> m_processList;
 };

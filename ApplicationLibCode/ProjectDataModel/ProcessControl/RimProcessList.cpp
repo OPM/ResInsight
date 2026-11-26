@@ -24,9 +24,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessList::RimProcessList( std::shared_ptr<RimProcessMonitor> monitor )
-    : m_monitor( monitor )
-    , m_name( "<unknown>" )
+RimProcessList::RimProcessList()
+    : m_name( "<unknown>" )
 {
 }
 
@@ -46,7 +45,7 @@ std::vector<std::shared_ptr<RimProcess>> RimProcessList::createProcesses()
 
     for ( auto cmdline : m_commandList )
     {
-        auto proc = std::make_shared<RimProcess>( true /*log output*/, m_monitor );
+        auto proc = std::make_shared<RimProcess>();
         auto cmd  = cmdline.takeFirst();
         proc->setCommand( cmd );
         proc->addParameters( cmdline );
@@ -67,7 +66,7 @@ std::vector<std::shared_ptr<RimProcess>> RimProcessList::createProcesses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<QStringList>& RimProcessList::commands()
+const std::vector<QStringList>& RimProcessList::commands() const
 {
     return m_commandList;
 }
@@ -91,27 +90,25 @@ void RimProcessList::setName( QString name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimProcessList::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProcessList::workingDirectory() const
+{
+    return m_workingDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RiaWslTools::WslOptions& RimProcessList::wslOptions() const
 {
     return m_wslOptions;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QStringList& RimProcessList::stdOut() const
-{
-    if ( m_monitor ) return m_monitor->stdOut();
-    return m_emptyList;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QStringList& RimProcessList::stdErr() const
-{
-    if ( m_monitor ) return m_monitor->stdErr();
-    return m_emptyList;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "Batch/RimBatchCallbackInterface.h"
 #include "RimNamedObject.h"
 
 #include "cafPdmPointer.h"
@@ -36,7 +37,7 @@ class RiaTimer;
 ///
 ///
 //==================================================================================================
-class RimGenericJob : public RimNamedObject
+class RimGenericJob : public RimNamedObject, public RimBatchCallbackInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -73,9 +74,19 @@ public:
     double   runTimeSeconds();
     QString  runTimeString();
 
+    // batch callback interface
+    void onBatchJobStart( int stage, int totalStages ) override;
+    void onFinished( bool runOk ) override;
+    void onStdOut( const QString& logLine ) override;
+    void onStdErr( const QString& logLine ) override;
+    void clearStdOutErr() override;
+
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void onRefreshTimer( const SignalEmitter* emitter );
+
+    QStringList m_stdOut;
+    QStringList m_stdErr;
 
 private:
     caf::PdmField<bool> m_isChildJob;

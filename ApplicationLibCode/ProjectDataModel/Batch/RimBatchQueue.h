@@ -20,6 +20,8 @@
 
 #include "RiaHpcDefines.h"
 
+#include "RimBatchCallbackInterface.h"
+
 #include "cafPdmObject.h"
 
 #include <QString>
@@ -30,6 +32,7 @@
 
 class RimProcess;
 class RimProcessMonitor;
+class RimProcessList;
 
 //==================================================================================================
 ///
@@ -40,11 +43,10 @@ class RimBatchQueue : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    static RimBatchQueue* createBatchQueue();
+    static RimBatchQueue* createBatchQueue( RimBatchCallbackInterface* callbackInterface );
 
-    virtual void queueCommands( std::unique_ptr<RimProcessList> procList )                  = 0;
-    virtual void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) = 0;
-    virtual void stopProcess()                                                              = 0;
+    virtual void queueCommands( std::shared_ptr<RimProcessList> procList, int nProcessesPerTask ) = 0;
+    virtual void stopProcess()                                                                    = 0;
     virtual void setFinished( bool runOk ) {};
 
 protected:
@@ -64,7 +66,9 @@ protected:
     QString m_stdOutFileName;
     QString m_stdErrFileName;
 
-    std::shared_ptr<RimProcess> m_process;
+    std::shared_ptr<RimProcessList> m_processList;
+
+    RimBatchCallbackInterface* m_batchCallback;
 
 private:
     RiaDefines::BatchSchedulerType m_schedulerType;
