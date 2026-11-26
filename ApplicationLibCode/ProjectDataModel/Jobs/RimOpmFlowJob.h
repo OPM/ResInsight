@@ -91,7 +91,6 @@ protected:
     bool                     onRun() override;
     void                     onCompleted( bool success ) override;
     void                     onProgress( double percentageDone ) override;
-    bool                     shouldUseWsl() override;
     int                      numberOfProcesses() override;
 
     bool openDeckFile();

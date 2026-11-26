@@ -64,7 +64,6 @@ protected:
     virtual bool                     onRun()                             = 0;
     virtual void                     onCompleted( bool success )         = 0;
     virtual void                     onProgress( double percentageDone ) = 0;
-    virtual bool                     shouldUseWsl()                      = 0;
     virtual int                      numberOfProcesses()                 = 0;
 
 protected:
