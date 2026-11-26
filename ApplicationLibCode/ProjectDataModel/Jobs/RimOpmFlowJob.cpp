@@ -712,15 +712,46 @@ int RimOpmFlowJob::numberOfProcesses()
 //--------------------------------------------------------------------------------------------------
 std::vector<QStringList> RimOpmFlowJob::commands()
 {
-    QStringList cmd;
-
-    QString workDir = workingDirectory();
-    if ( workDir.isEmpty() ) return { cmd };
-
-    QString dataFile = workDir + "/" + m_fileHelper->deckName();
-    if ( !QFile::exists( dataFile + m_fileHelper->deckExtension() ) ) return { cmd };
+    std::vector<QStringList> commands;
 
     auto opmPref = RiaPreferencesOpm::current();
+
+    QString workDir = workingDirectory();
+    if ( workDir.isEmpty() ) return commands;
+
+    QString dataFile = workDir + "/" + m_fileHelper->deckName();
+    if ( !QFile::exists( dataFile + m_fileHelper->deckExtension() ) ) return commands;
+
+    // optional make flux
+    if ( m_createSectorModel() )
+    {
+        QStringList cmd;
+
+        QString parent  = m_deckFileName().path();
+        QString fluxnum = m_fileHelper->fluxnumFileName( false /*not relative*/ );
+        QString output  = m_fileHelper->fluxFileName();
+
+        if ( opmPref->useWsl() )
+        {
+            parent  = RiaWslTools::convertToWslPath( parent );
+            fluxnum = RiaWslTools::convertToWslPath( fluxnum );
+            output  = RiaWslTools::convertToWslPath( output );
+        }
+
+        QStringList arguments;
+
+        cmd.append( opmPref->makeFluxCommand() );
+        cmd << "--parent=" + parent;
+        cmd << "--fluxnum=" + fluxnum;
+        cmd << "--regions=1";
+        cmd << "--output=" + output;
+
+        commands.push_back( cmd );
+    }
+
+    // opm flow
+    QStringList cmd;
+
     if ( opmPref->useWsl() )
     {
         workDir  = RiaWslTools::convertToWslPath( workDir );
@@ -740,7 +771,9 @@ std::vector<QStringList> RimOpmFlowJob::commands()
 
     cmd.append( m_jobSettings->commandLineOptions( workingDirectory(), workDir ) );
 
-    return { cmd };
+    commands.push_back( cmd );
+
+    return commands;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -810,17 +843,6 @@ bool RimOpmFlowJob::onPrepare()
                 RiaLogging::error( "Unable to insert FLUXALL keyword in DATA file." );
                 return false;
             }
-        }
-    }
-
-    if ( m_createSectorModel() )
-    {
-        if ( !RimOpmFlowJobTools::runMakeFlux( m_deckFileName().path(),
-                                               m_fileHelper->fluxnumFileName( false /*not relative*/ ),
-                                               m_fileHelper->fluxFileName() ) )
-        {
-            RiaLogging::error( "Failed to run make_flux utility." );
-            return false;
         }
     }
 
