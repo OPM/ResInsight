@@ -59,12 +59,24 @@ jobs:
         if: matrix.qtver == '6.6.3'
         shell: bash
         run: |
-          cmakebuild/install/bin/cafPdmCore_UnitTests
-          cmakebuild/install/bin/cafPdmXml_UnitTests
-          cmakebuild/install/bin/cafProjectDataModel_UnitTests
-          cmakebuild/install/bin/cafPdmScripting_UnitTests
+          out="${RUNNER_TEMP}/gtest-results"
+          cmakebuild/install/bin/cafPdmCore_UnitTests --gtest_output=xml:"${out}/cafPdmCore-${{ matrix.os }}.xml"
+          cmakebuild/install/bin/cafPdmXml_UnitTests --gtest_output=xml:"${out}/cafPdmXml-${{ matrix.os }}.xml"
+          cmakebuild/install/bin/cafProjectDataModel_UnitTests --gtest_output=xml:"${out}/cafProjectDataModel-${{ matrix.os }}.xml"
+          cmakebuild/install/bin/cafPdmScripting_UnitTests --gtest_output=xml:"${out}/cafPdmScripting-${{ matrix.os }}.xml"
 
       - name: Run Unit Tests Windows Qt6 (does not work on Linux)
         if: (contains( matrix.os, 'windows') )
         shell: bash
-        run: cmakebuild/install/bin/cafUserInterface_UnitTests
+        run: |
+          cmakebuild/install/bin/cafUserInterface_UnitTests \
+            --gtest_output=xml:"${RUNNER_TEMP}/gtest-results/cafUserInterface-${{ matrix.os }}.xml"
+
+      - name: Upload gtest results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gtest-results-appfwk-${{ matrix.os }}
+          path: ${{ runner.temp }}/gtest-results
+          if-no-files-found: ignore
+          retention-days: 5
