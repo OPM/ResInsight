@@ -2676,14 +2676,16 @@ double RiuWorkflowGraphView::boxWidthFactor() const
 //--------------------------------------------------------------------------------------------------
 /// Scale the remembered positions from a text scale to the current one, like the boxes: the widths
 /// grow with boxWidthFactor() times the text scale and the heights with the text scale. The tasks
-/// keep their arrangement and do not overlap.
+/// keep their arrangement and do not overlap. The boxes of vertical layouts are wide as their port
+/// columns, which grow with the text scale alone, so the positions grow at least as much as that.
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowGraphView::scalePositions( double oldTextScale )
 {
     if ( oldTextScale <= 0.0 || oldTextScale == m_textScale ) return;
 
-    const double xFactor = ( boxWidthFactor() * m_textScale ) / ( boxWidthFactorFor( oldTextScale ) * oldTextScale );
     const double yFactor = m_textScale / oldTextScale;
+    double       xFactor = ( boxWidthFactor() * m_textScale ) / ( boxWidthFactorFor( oldTextScale ) * oldTextScale );
+    if ( m_orientation == RiuWorkflowGraphLayout::Orientation::Vertical ) xFactor = std::max( xFactor, yFactor );
     for ( QPointF& position : m_positions )
         position = QPointF( position.x() * xFactor, position.y() * yFactor );
 }
