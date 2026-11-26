@@ -60,6 +60,9 @@ jobs:
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
       BUILDCACHE_ACCURACY: SLOPPY
+      # Use the CMake version vcpkg pins instead of the runner's Homebrew
+      # CMake (4.5), which breaks the boost-locale configure step.
+      VCPKG_FORCE_DOWNLOADED_BINARIES: "1"
 
     steps:
       - name: Checkout
