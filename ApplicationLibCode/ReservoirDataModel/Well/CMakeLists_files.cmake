@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigAccWellFlowCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigGeoGuidedWellPlacementTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechWellLogExtractor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMswCenterLineCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.cpp

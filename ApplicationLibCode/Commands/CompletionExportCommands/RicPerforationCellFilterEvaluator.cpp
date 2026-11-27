@@ -107,7 +107,8 @@ const cvf::UByteArray* RicPerforationCellFilterEvaluator::maskForGrid( int gridI
 
     cvf::ref<cvf::UByteArray> mask = new cvf::UByteArray( grid->cellCount() );
     mask->setAll( 1 );
-    m_filter->updateCellVisibility( mask.p(), grid, 0 );
+    // Evaluate against the export case, so filters defined on a grid ensemble apply to each realization
+    m_filter->updateCellVisibility( mask.p(), grid, 0, const_cast<RimEclipseCase*>( m_eclipseCase ) );
     auto inserted = m_visibilityByGridIndex.emplace( gridIndex, mask );
     return inserted.first->second.p();
 }

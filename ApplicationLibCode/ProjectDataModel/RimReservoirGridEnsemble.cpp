@@ -48,6 +48,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimGeoGuidedWellPlacement.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellTargetMapping.h"
@@ -124,6 +125,7 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
     m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geoGuidedWellPlacements, "GeoGuidedWellPlacements", "Geo-Guided Well Placements" );
     CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour Maps" );
 
     m_unionOfMatrixActiveCells   = new RigActiveCellInfo;
@@ -690,6 +692,23 @@ std::vector<RimWellTargetMapping*> RimReservoirGridEnsemble::wellTargetMappings(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::addGeoGuidedWellPlacement( RimGeoGuidedWellPlacement* placement )
+{
+    m_geoGuidedWellPlacements.push_back( placement );
+    placement->setName( QString( "Geo-Guided Well Placement #%1" ).arg( m_geoGuidedWellPlacements.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGeoGuidedWellPlacement*> RimReservoirGridEnsemble::geoGuidedWellPlacements() const
+{
+    return m_geoGuidedWellPlacements.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap )
 {
     m_statisticsContourMaps.push_back( statisticsContourMap );
@@ -760,6 +779,7 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     menuBuilder.addSeparator();
     menuBuilder << "RicNewStatisticsContourMapFeature";
     menuBuilder << "RicNewWellTargetMappingFeature";
+    menuBuilder << "RicNewGeoGuidedWellPlacementFeature";
 
     if ( hasSharedGrid() )
     {
@@ -883,6 +903,7 @@ void RimReservoirGridEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     }
 
     uiTreeOrdering.add( &m_wellTargetMappings );
+    uiTreeOrdering.add( &m_geoGuidedWellPlacements );
     uiTreeOrdering.add( &m_statisticsContourMaps );
 
     uiTreeOrdering.skipRemainingChildren( true );

@@ -5,6 +5,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryResampleData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcProject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellTargetMapping.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcGeoGuidedWellPlacement.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcElasticProperties.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelTemplateCollection.cpp
