@@ -2,7 +2,10 @@
 
 #include "RiaCurveMerger.h"
 
+#include <algorithm>
+#include <chrono>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <iostream>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -36,6 +39,45 @@ TEST( RiaTimeHistoryCurveMergerTest, TestDateInterpolation )
         double val = RiaTimeHistoryCurveMerger::interpolatedYValue( 3, timeSteps, values, interpolationMethod );
 
         EXPECT_EQ( 2.75, val );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, InterpolationOfSortedCurveMatchesLinearSearch )
+{
+    std::vector<time_t> timeSteps{ 3, 4, 10, 11, 25, 40, 41, 57 };
+    std::vector<double> values{ 1.0, 2.5, 3.0, -4.0, 8.0, 9.5, 0.5, 7.0 };
+
+    for ( time_t t = -2; t < 70; t++ )
+    {
+        double expected = HUGE_VAL;
+        for ( size_t i = 0; i < timeSteps.size(); i++ )
+        {
+            if ( timeSteps[i] == t )
+            {
+                expected = values[i];
+                break;
+            }
+            if ( i + 1 < timeSteps.size() && timeSteps[i] < t && t < timeSteps[i + 1] )
+            {
+                const double w = static_cast<double>( t - timeSteps[i] ) / static_cast<double>( timeSteps[i + 1] - timeSteps[i] );
+                expected       = values[i] * ( 1.0 - w ) + values[i + 1] * w;
+                break;
+            }
+        }
+
+        const double actual =
+            RiaTimeHistoryCurveMerger::interpolatedYValue( t, timeSteps, values, RiaCurveDefines::InterpolationMethod::LINEAR );
+        if ( expected == HUGE_VAL )
+        {
+            EXPECT_EQ( HUGE_VAL, actual ) << "t = " << t;
+        }
+        else
+        {
+            EXPECT_NEAR( expected, actual, 1.0e-12 ) << "t = " << t;
+        }
     }
 }
 
@@ -286,4 +328,126 @@ TEST( RiaTimeHistoryCurveMergerTest, SharedXValuesWithFewerValuesInOneCurve )
     {
         EXPECT_EQ( HUGE_VAL, generatedPartial[i] );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The union of time steps must be sorted and without duplicates, also for curves with unsorted time steps
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, UnionOfTimeStepsWithUnsortedCurve )
+{
+    std::vector<time_t> timeStepsA{ 5, 1, 3 };
+    std::vector<double> valuesA{ 50.0, 10.0, 30.0 };
+    std::vector<time_t> timeStepsB{ 2, 3, 4 };
+    std::vector<double> valuesB{ 2.0, 3.0, 4.0 };
+
+    {
+        RiaTimeHistoryCurveMerger merger( RiaCurveDefines::InterpolationMethod::LINEAR );
+        merger.addCurveData( timeStepsA, valuesA );
+        merger.addCurveData( timeStepsB, valuesB );
+        merger.computeInterpolatedValues( true );
+
+        EXPECT_EQ( ( std::vector<time_t>{ 1, 2, 3, 4, 5 } ), merger.allXValues() );
+    }
+
+    {
+        RiaTimeHistoryCurveMerger merger( RiaCurveDefines::InterpolationMethod::LINEAR );
+        merger.addCurveData( timeStepsA, valuesA );
+        merger.addCurveData( timeStepsB, valuesB );
+        merger.computeInterpolatedValues( false );
+
+        EXPECT_EQ( ( std::vector<time_t>{ 2, 3, 4 } ), merger.allXValues() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Merged values must be identical to values interpolated one by one, also when the merged time steps span several blocks
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, MergedValuesMatchSingleInterpolation )
+{
+    constexpr size_t curveCount    = 6;
+    constexpr size_t timeStepCount = 1500;
+
+    std::vector<std::vector<time_t>> timeSteps( curveCount );
+    std::vector<std::vector<double>> values( curveCount );
+
+    RiaTimeHistoryCurveMerger merger( RiaCurveDefines::InterpolationMethod::LINEAR );
+    for ( size_t c = 0; c < curveCount; c++ )
+    {
+        for ( size_t i = 0; i < timeStepCount; i++ )
+        {
+            timeSteps[c].push_back( static_cast<time_t>( c * 3 + i * ( 7 + c ) ) );
+            values[c].push_back( std::sin( 0.01 * static_cast<double>( i * ( c + 1 ) ) ) );
+        }
+        merger.addCurveData( timeSteps[c], values[c] );
+    }
+    merger.computeInterpolatedValues( true );
+
+    ASSERT_GT( merger.allXValues().size(), static_cast<size_t>( 4096 ) );
+    for ( size_t c = 0; c < curveCount; c++ )
+    {
+        const auto& merged = merger.interpolatedYValuesForAllXValues( c );
+        ASSERT_EQ( merger.allXValues().size(), merged.size() );
+        for ( size_t i = 0; i < merged.size(); i++ )
+        {
+            const double expected = RiaTimeHistoryCurveMerger::interpolatedYValue( merger.allXValues()[i],
+                                                                                   timeSteps[c],
+                                                                                   values[c],
+                                                                                   RiaCurveDefines::InterpolationMethod::LINEAR );
+            ASSERT_EQ( expected, merged[i] ) << "curve " << c << " index " << i;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Curves with different time steps are merged, which requires interpolation of all curves at all time steps. Disabled by
+/// default, as timing depends on the machine. Run with --gtest_also_run_disabled_tests and OMP_NUM_THREADS=1 for stable CPU time.
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, DISABLED_performanceOfCurvesWithDifferentTimeSteps )
+{
+    constexpr size_t curveCount          = 100;
+    constexpr size_t timeStepCount       = 5000;
+    constexpr time_t secondsPerDay       = 24 * 60 * 60;
+    constexpr time_t timeStepIntervalSec = 7 * secondsPerDay;
+
+    std::vector<std::vector<time_t>> timeSteps( curveCount );
+    std::vector<std::vector<double>> values( curveCount );
+    for ( size_t c = 0; c < curveCount; c++ )
+    {
+        // Different offset and spacing per curve, so the merged time steps are not shared between curves
+        const time_t offset = static_cast<time_t>( c ) * secondsPerDay;
+        const time_t step   = timeStepIntervalSec + static_cast<time_t>( c % 5 ) * secondsPerDay;
+        for ( size_t i = 0; i < timeStepCount; i++ )
+        {
+            timeSteps[c].push_back( offset + static_cast<time_t>( i ) * step );
+            values[c].push_back( static_cast<double>( c ) + static_cast<double>( i ) );
+        }
+    }
+
+    const auto start = std::chrono::steady_clock::now();
+
+    RiaTimeHistoryCurveMerger merger( RiaCurveDefines::InterpolationMethod::LINEAR );
+    for ( size_t c = 0; c < curveCount; c++ )
+    {
+        merger.addCurveData( timeSteps[c], values[c] );
+    }
+    const auto added = std::chrono::steady_clock::now();
+
+    merger.computeInterpolatedValues( false );
+    const auto computed = std::chrono::steady_clock::now();
+
+    const auto addMs     = std::chrono::duration_cast<std::chrono::milliseconds>( added - start ).count();
+    const auto computeMs = std::chrono::duration_cast<std::chrono::milliseconds>( computed - added ).count();
+    std::cout << "Merge of " << curveCount << " curves with " << timeStepCount << " time steps. Add curves: " << addMs
+              << " ms, compute interpolated values: " << computeMs << " ms, merged time steps: " << merger.allXValues().size() << "\n";
+
+    ASSERT_EQ( curveCount, merger.curveCount() );
+    ASSERT_FALSE( merger.allXValues().empty() );
+
+    // The first curve is defined at all merged time steps, so all values are valid
+    const auto& first = merger.interpolatedYValuesForAllXValues( 0 );
+    ASSERT_EQ( merger.allXValues().size(), first.size() );
+    EXPECT_TRUE( std::all_of( first.begin(), first.end(), []( double v ) { return v != HUGE_VAL; } ) );
+
+    // Loose limit, to catch a quadratic computation without failing on slow build machines
+    EXPECT_LT( computeMs, 60000 );
 }
