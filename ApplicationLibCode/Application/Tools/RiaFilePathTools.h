@@ -23,6 +23,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QStringList>
+#include <filesystem>
 #include <map>
 #include <string>
 
@@ -43,6 +44,7 @@ QString                     rootSearchPathFromSearchFilter( const QString& searc
 QString                     removeFileExtension( const QString& filePath );
 QString                     commonRootOfFileNames( const QStringList& filePaths );
 QStringList                 splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
+std::filesystem::path       toFilesystemPath( const QString& path );
 
 std::string makeSuitableAsFileName( const std::string candidateName );
 std::string normalizePath( std::string path );

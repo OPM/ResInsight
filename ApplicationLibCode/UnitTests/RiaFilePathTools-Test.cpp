@@ -2,6 +2,10 @@
 
 #include "RiaFilePathTools.h"
 
+#include <QFile>
+#include <QTemporaryDir>
+
+#include <fstream>
 #include <iostream>
 
 std::ostream& operator<<( std::ostream& out, const QString& text )
@@ -192,6 +196,32 @@ TEST( RiaFilePathTools, removeFileExtension )
 
     // Empty path
     EXPECT_EQ( QString( "" ), RiaFilePathTools::removeFileExtension( "" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, toFilesystemPath )
+{
+    // Characters inside and outside Latin-1
+    const QString fileName = QString::fromUtf16( u"Br\u00F8nn \u00E6\u00F8\u00E5 \u2248 \u2192.txt" );
+
+    EXPECT_EQ( fileName, QString::fromStdU16String( RiaFilePathTools::toFilesystemPath( fileName ).u16string() ) );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString filePath = tempDir.filePath( fileName );
+    {
+        QFile file( filePath );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly ) );
+        file.write( "content" );
+    }
+
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filePath ) );
+    ASSERT_TRUE( stream.is_open() );
+
+    std::string content;
+    stream >> content;
+    EXPECT_EQ( "content", content );
 }
 
 //--------------------------------------------------------------------------------------------------
