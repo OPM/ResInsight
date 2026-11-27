@@ -18,6 +18,8 @@
 
 #include "RifRoffReader.h"
 
+#include "RiaFilePathTools.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -30,7 +32,7 @@ void RifRoffReader::readCodeNames( const QString& filename, const QString& param
 {
     codeNames.clear();
 
-    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filename ), std::ios::binary );
     if ( !stream.good() )
     {
         throw RifRoffReaderException( "Unable to open roff file." );

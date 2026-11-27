@@ -194,13 +194,22 @@ QString rootSearchPathFromSearchFilter( const QString& searchFilter )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Convert to a std::filesystem::path without lossy conversion of non-ASCII characters. Use this instead of
+/// toStdString() or toLatin1() when passing a path to std::fstream or std::filesystem.
+//--------------------------------------------------------------------------------------------------
+std::filesystem::path toFilesystemPath( const QString& path )
+{
+    return std::filesystem::path( path.toStdU16String() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Remove the file extension, if any. A folder name can contain a dot, and only the extension of the file
 /// name is removed. Paths without a file extension are returned unmodified.
 //--------------------------------------------------------------------------------------------------
 QString removeFileExtension( const QString& filePath )
 {
     // Use UTF-16 in both directions to avoid lossy conversion of non-ASCII paths
-    std::filesystem::path path( filePath.toStdU16String() );
+    std::filesystem::path path = toFilesystemPath( filePath );
 
     return QString::fromStdU16String( path.replace_extension().u16string() );
 }

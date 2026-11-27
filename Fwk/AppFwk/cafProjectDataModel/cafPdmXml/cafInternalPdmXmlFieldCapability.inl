@@ -271,8 +271,8 @@ std::vector<QString>
         if ( obj == NULL )
         {
             std::cout << "Line " << xmlStream.lineNumber()
-                      << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
-                      << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+                      << ": Warning: Unknown object type with class name: " << className.toUtf8().data()
+                      << " found while reading the field : " << m_field->keyword().toUtf8().data() << std::endl;
 
             xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
             xmlStream.skipCurrentElement(); // Skip to the endelement of this field
@@ -306,11 +306,11 @@ std::vector<QString>
     {
         // Error: Field contains different class type than on file
         std::cout << "Line " << xmlStream.lineNumber()
-                  << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
-                  << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+                  << ": Warning: Unknown object type with class name: " << className.toUtf8().data()
+                  << " found while reading the field : " << m_field->keyword().toUtf8().data() << std::endl;
         if ( xmlObject )
         {
-            std::cout << "                     Expected class name: " << xmlObject->classKeyword().toLatin1().data();
+            std::cout << "                     Expected class name: " << xmlObject->classKeyword().toUtf8().data();
         }
         std::cout << std::endl;
 
@@ -414,8 +414,8 @@ std::vector<QString>
             // Skip to corresponding end element
 
             std::cout << "Line " << xmlStream.lineNumber()
-                      << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
-                      << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
+                      << ": Warning: Unknown object type with class name: " << className.toUtf8().data()
+                      << " found while reading the field : " << m_field->keyword().toUtf8().data() << std::endl;
 
             // Skip to EndElement of the object
             xmlStream.skipCurrentElement();

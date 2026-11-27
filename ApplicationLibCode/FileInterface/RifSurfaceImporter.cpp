@@ -18,6 +18,7 @@
 
 #include "RifSurfaceImporter.h"
 
+#include "RiaFilePathTools.h"
 #include "RiaStdStringTools.h"
 
 #include "Surface/RigTriangleMeshData.h"
@@ -67,7 +68,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigTriangleMesh
         std::stringstream stream;
         {
             // Read the file content into a stringstream to avoid expensive file operations
-            std::ifstream t( filename.toLatin1().data() );
+            std::ifstream t( RiaFilePathTools::toFilesystemPath( filename ) );
             stream << t.rdbuf();
         }
 
@@ -218,7 +219,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigTriangleMesh
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::readPetrelFile( const QString& filename )
 {
-    std::ifstream stream( filename.toLatin1().data() );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filename ) );
 
     struct SurfacePointData
     {
@@ -348,7 +349,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
     }
 
     // Note: the assumption is that the grid will always be in the x-y plane.
-    std::ifstream stream( filename.toLatin1().data() );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filename ) );
 
     caf::ProgressInfo progInfo( estimatedPointCount, "Importing Surface Data" );
 

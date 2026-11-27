@@ -307,7 +307,7 @@ void PdmUiTreeOrdering::debugDump( int level ) const
         if ( isRepresentingField() ) type = 'F';
         if ( isDisplayItemOnly() ) type = 'D';
 
-        std::cout << type << ": " << activeItem()->uiName().toLatin1().data() << std::endl;
+        std::cout << type << ": " << activeItem()->uiName().toUtf8().data() << std::endl;
     }
     else
     {

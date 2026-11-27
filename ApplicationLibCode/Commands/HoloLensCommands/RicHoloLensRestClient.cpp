@@ -207,7 +207,7 @@ void RicHoloLensRestClient::sendMetaData( int metaDataSequenceNumber, const QStr
     request.setHeader( QNetworkRequest::ContentTypeHeader, QVariant( "application/json" ) );
     addBearerAuthenticationHeaderToRequest( &request );
 
-    const QByteArray jsonByteArr = jsonMetaDataString.toLatin1();
+    const QByteArray jsonByteArr = jsonMetaDataString.toUtf8();
 
     QNetworkReply* reply = m_accessManager.post( request, jsonByteArr );
     reply->setProperty( "holo_metaDataSequenceNumber", QVariant( metaDataSequenceNumber ) );

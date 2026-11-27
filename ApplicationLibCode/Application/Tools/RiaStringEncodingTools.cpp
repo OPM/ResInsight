@@ -23,7 +23,7 @@
 const std::string RiaStringEncodingTools::toNativeEncoded( const QString& qstring )
 {
 #ifdef WIN32
-    return std::string( qstring.toLatin1().data() );
+    return std::string( qstring.toLocal8Bit().data() );
 #else
     return std::string( qstring.toUtf8().data() );
 #endif
@@ -35,7 +35,7 @@ const std::string RiaStringEncodingTools::toNativeEncoded( const QString& qstrin
 const QString RiaStringEncodingTools::fromNativeEncoded( const char* native )
 {
 #ifdef WIN32
-    return QString::fromLatin1( native );
+    return QString::fromLocal8Bit( native );
 #else
     return QString::fromUtf8( native );
 #endif

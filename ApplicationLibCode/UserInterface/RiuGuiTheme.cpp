@@ -490,7 +490,7 @@ QString RiuGuiTheme::applyVariableValueMapToStyleSheet( RiaDefines::ThemeEnum th
         }
         if ( styleSheetFile.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) )
         {
-            styleSheetFile.write( styleSheet.toLatin1() );
+            styleSheetFile.write( styleSheet.toUtf8() );
             return styleSheet;
         }
     }
@@ -511,7 +511,7 @@ bool RiuGuiTheme::writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QStr
         {
             QString modifiedStyleSheet = styleSheet;
             formatStyleSheetForWriting( modifiedStyleSheet );
-            styleSheetFile.write( modifiedStyleSheet.toLatin1() );
+            styleSheetFile.write( modifiedStyleSheet.toUtf8() );
             preparseStyleSheet( theme, modifiedStyleSheet );
             RiaGuiApplication* app = RiaGuiApplication::instance();
             app->setStyleSheet( modifiedStyleSheet );

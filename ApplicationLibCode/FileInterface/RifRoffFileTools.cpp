@@ -19,6 +19,7 @@
 #include "RifRoffFileTools.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
@@ -99,9 +100,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 {
     RiaLogging::info( std::format( "Opening roff file: {}", fileName ) );
 
-    std::string filename = fileName.toStdString();
-
-    std::ifstream stream( filename, std::ios::binary );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( fileName ), std::ios::binary );
     if ( !stream.good() )
     {
         if ( errorMessages ) *errorMessages = QString( "Unable to open roff file" );
@@ -500,7 +499,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 {
     RiaLogging::info( std::format( "Reading properties from roff file: {}", fileName ) );
 
-    std::ifstream stream( fileName.toStdString(), std::ios::binary );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( fileName ), std::ios::binary );
     if ( !stream.good() )
     {
         RiaLogging::error( "Unable to open roff file" );
@@ -658,7 +657,7 @@ bool RifRoffFileTools::hasGridData( const QString& filename )
     // - Alt 2. Look for tag "filedata" and its filetype with keyword "filedata.filetype" - should be equal "grid" (not as robust, rather
     // look for "cornerLines" which is grid representation)
 
-    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filename ), std::ios::binary );
     if ( !stream.good() )
     {
         RiaLogging::error( "Unable to open roff file" );
