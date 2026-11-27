@@ -20,6 +20,7 @@
 
 #include "RifWellPathImporter.h"
 
+#include "RiaFilePathTools.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RifJsonEncodeDecode.h"
@@ -210,7 +211,7 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
     // Create the data container
     std::vector<RifWellPathImporter::WellData>& fileWellDataArray = m_fileNameToWellDataGroupMap[filePath];
 
-    std::ifstream stream( filePath.toLatin1().data() );
+    std::ifstream stream( RiaFilePathTools::toFilesystemPath( filePath ) );
 
     bool hasReadWellPointInCurrentWell = false;
 
