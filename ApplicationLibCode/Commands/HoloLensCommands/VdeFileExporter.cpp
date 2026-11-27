@@ -122,7 +122,7 @@ bool VdeFileExporter::writeDataPacketToFile( int arrayId, const VdeArrayDataPack
 //--------------------------------------------------------------------------------------------------
 bool VdeFileExporter::writeModelMetaJsonFile( const QString& modelMetaJsonStr, QString fileName )
 {
-    const QByteArray jsonByteArr = modelMetaJsonStr.toLatin1();
+    const QByteArray jsonByteArr = modelMetaJsonStr.toUtf8();
 
     QFile file( fileName );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
