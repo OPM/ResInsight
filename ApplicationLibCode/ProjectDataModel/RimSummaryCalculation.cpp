@@ -360,11 +360,15 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     bool includeValuesFromPartialCurves = true;
     timeHistoryCurveMerger.computeInterpolatedValues( includeValuesFromPartialCurves );
 
+    // The expression parser requires non-const vectors, so the interpolated values are moved out of the merger instead of copied
+    std::vector<std::vector<double>> variableValues = timeHistoryCurveMerger.takeInterpolatedYValuesForAllCurves();
+    if ( variableValues.size() != variables.size() ) return {};
+
     ExpressionParser parser;
     for ( size_t i = 0; i < variables.size(); i++ )
     {
         SummaryCalculationVariable v = variables[i];
-        parser.assignVector( v.name, timeHistoryCurveMerger.interpolatedYValuesForAllXValues( i ) );
+        parser.assignVector( v.name, variableValues[i] );
     }
 
     std::vector<double> resultValues;
