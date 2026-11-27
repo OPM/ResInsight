@@ -20,6 +20,8 @@
 
 #include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <iterator>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,7 +60,6 @@ bool XValueComparator<XValueType>::equals( const XValueType& lhs, const XValueTy
 template <typename XValueType>
 RiaCurveMerger<XValueType>::RiaCurveMerger( RiaCurveDefines::InterpolationMethod method )
     : m_isXValuesSharedBetweenCurves( false )
-    , m_isXValuesMonotonicallyIncreasing( true )
     , m_interpolationMethod( method )
 {
 }
@@ -81,16 +82,16 @@ void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xV
 
     if ( m_originalValues.empty() )
     {
-        m_isXValuesSharedBetweenCurves     = true;
-        m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( x );
+        m_isXValuesSharedBetweenCurves = true;
     }
     else
     {
         const auto& firstXValues = m_originalValues.front().first;
         m_isXValuesSharedBetweenCurves &= std::equal( firstXValues.begin(), firstXValues.end(), x.begin(), x.end() );
-        m_isXValuesMonotonicallyIncreasing &= isMonotonicallyIncreasing( x );
     }
 
+    // Evaluate once per curve, as interpolatedYValue is called for every merged X value
+    m_isCurveXValuesMonotonicallyIncreasing.push_back( isMonotonicallyIncreasing( x ) );
     m_originalValues.push_back( std::make_pair( std::move( x ), std::move( y ) ) );
 }
 
@@ -136,17 +137,6 @@ const std::vector<double>& RiaCurveMerger<XValueType>::interpolatedYValuesForAll
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename XValueType>
-std::vector<double>& RiaCurveMerger<XValueType>::interpolatedYValuesForAllXValues( size_t curveIdx )
-{
-    CAF_ASSERT( curveIdx < m_interpolatedValuesForAllCurves.size() );
-
-    return m_interpolatedValuesForAllCurves[curveIdx];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename XValueType>
 void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFromPartialCurves )
 {
     m_validIntervalsForAllXValues.clear();
@@ -171,35 +161,69 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
 
     std::vector<double> accumulatedValidValues( dataValueCount, 1.0 );
 
-    for ( size_t curveIdx = 0; curveIdx < curveCount; curveIdx++ )
+    if ( m_isXValuesSharedBetweenCurves )
     {
-        std::vector<double>& curveValues = m_interpolatedValuesForAllCurves[curveIdx];
-        curveValues.resize( dataValueCount );
+        // All curves share the X values of the merged list, so no interpolation is required
+        for ( size_t curveIdx = 0; curveIdx < curveCount; curveIdx++ )
+        {
+            const std::vector<double>& originalValues = m_originalValues[curveIdx].second;
+            m_interpolatedValuesForAllCurves[curveIdx].assign( originalValues.begin(), originalValues.begin() + dataValueCount );
+        }
 
 #pragma omp parallel for
         for ( int valueIndex = 0; valueIndex < static_cast<int>( dataValueCount ); valueIndex++ )
         {
-            double interpolValue = 0.0;
-
-            if ( m_isXValuesSharedBetweenCurves )
+            for ( size_t curveIdx = 0; curveIdx < curveCount; curveIdx++ )
             {
-                interpolValue = m_originalValues[curveIdx].second[valueIndex];
+                if ( !RiaCurveDataTools::isValidValue( m_interpolatedValuesForAllCurves[curveIdx][valueIndex], false ) )
+                {
+                    accumulatedValidValues[valueIndex] = HUGE_VAL;
+                    break;
+                }
             }
-            else
-            {
-                interpolValue = interpolatedYValue( m_allXValues[valueIndex],
-                                                    m_originalValues[curveIdx].first,
-                                                    m_originalValues[curveIdx].second,
-                                                    m_interpolationMethod );
-            }
+        }
+    }
+    else
+    {
+        for ( auto& curveValues : m_interpolatedValuesForAllCurves )
+        {
+            curveValues.resize( dataValueCount );
+        }
 
-            if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
-            {
-                // Each iteration writes to its own element, so no synchronization is required
-                accumulatedValidValues[valueIndex] = HUGE_VAL;
-            }
+        // Process blocks of consecutive merged X values in parallel. The merged X values are sorted, so each curve can be searched
+        // by moving a cursor forward through the block. Each iteration writes only to its own elements in every curve and in
+        // accumulatedValidValues, so no synchronization is required
+        constexpr int blockSize  = 4096;
+        const int     valueCount = static_cast<int>( dataValueCount );
+        const int     blockCount = ( valueCount + blockSize - 1 ) / blockSize;
 
-            curveValues[valueIndex] = interpolValue;
+#pragma omp parallel for
+        for ( int blockIndex = 0; blockIndex < blockCount; blockIndex++ )
+        {
+            const int blockStart = blockIndex * blockSize;
+            const int blockEnd   = std::min( valueCount, blockStart + blockSize );
+
+            for ( size_t curveIdx = 0; curveIdx < curveCount; curveIdx++ )
+            {
+                size_t cursor = std::numeric_limits<size_t>::max();
+
+                for ( int valueIndex = blockStart; valueIndex < blockEnd; valueIndex++ )
+                {
+                    const double interpolValue = interpolatedYValue( m_allXValues[valueIndex],
+                                                                     m_originalValues[curveIdx].first,
+                                                                     m_originalValues[curveIdx].second,
+                                                                     m_interpolationMethod,
+                                                                     m_isCurveXValuesMonotonicallyIncreasing[curveIdx],
+                                                                     &cursor );
+
+                    if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
+                    {
+                        accumulatedValidValues[valueIndex] = HUGE_VAL;
+                    }
+
+                    m_interpolatedValuesForAllCurves[curveIdx][valueIndex] = interpolValue;
+                }
+            }
         }
     }
 
@@ -221,24 +245,86 @@ void RiaCurveMerger<XValueType>::computeUnionOfXValues( bool includeValuesForPar
         return;
     }
 
-    std::set<XValueType, XComparator> unionOfXValues;
+    // The curves are merged one at a time into a sorted list without duplicates. Sorted curves, which is the common case, are
+    // merged in linear time.
+    XValueType lowerBound = std::numeric_limits<XValueType>::lowest();
+    XValueType upperBound = std::numeric_limits<XValueType>::max();
 
-    std::vector<std::pair<XValueType, XValueType>> originalXBounds;
-    for ( const auto& curveData : m_originalValues )
+    if ( !includeValuesForPartialCurves )
     {
-        if ( curveData.first.empty() ) continue;
-
-        for ( const auto& x : curveData.first )
+        // Values outside the range of any of the curves are removed
+        for ( size_t curveIdx = 0; curveIdx < m_originalValues.size(); curveIdx++ )
         {
-            unionOfXValues.insert( x );
+            const auto& xValues = m_originalValues[curveIdx].first;
+            if ( xValues.empty() ) continue;
+
+            if ( m_isCurveXValuesMonotonicallyIncreasing[curveIdx] )
+            {
+                lowerBound = std::max( lowerBound, xValues.front() );
+                upperBound = std::min( upperBound, xValues.back() );
+            }
+            else
+            {
+                auto minmax_it = std::minmax_element( xValues.begin(), xValues.end() );
+                lowerBound     = std::max( lowerBound, *minmax_it.first );
+                upperBound     = std::min( upperBound, *minmax_it.second );
+            }
         }
-        auto minmax_it = std::minmax_element( curveData.first.begin(), curveData.first.end() );
-        originalXBounds.push_back( std::make_pair( *( minmax_it.first ), *( minmax_it.second ) ) );
     }
 
-    if ( !includeValuesForPartialCurves ) removeValuesForPartialCurves( unionOfXValues, originalXBounds );
+    // Create one sorted run without duplicates for each curve
+    std::vector<std::vector<XValueType>> runs;
+    runs.reserve( m_originalValues.size() );
+    for ( size_t curveIdx = 0; curveIdx < m_originalValues.size(); curveIdx++ )
+    {
+        const auto& xValues = m_originalValues[curveIdx].first;
 
-    m_allXValues = std::vector<XValueType>( unionOfXValues.begin(), unionOfXValues.end() );
+        std::vector<XValueType> run;
+        run.reserve( xValues.size() );
+        for ( const auto& x : xValues )
+        {
+            if ( x >= lowerBound && x <= upperBound ) run.push_back( x );
+        }
+        if ( run.empty() ) continue;
+
+        if ( !m_isCurveXValuesMonotonicallyIncreasing[curveIdx] ) std::sort( run.begin(), run.end() );
+
+        run.erase( std::unique( run.begin(),
+                                run.end(),
+                                []( const XValueType& lhs, const XValueType& rhs ) { return XComparator::equals( lhs, rhs ); } ),
+                   run.end() );
+        runs.push_back( std::move( run ) );
+    }
+
+    // Merge neighbouring runs pairwise until a single run remains. This is linear in the number of values for each level, giving
+    // O(N log(curveCount)) in total, instead of repeatedly merging into one growing list. set_union removes values that are equal
+    // according to XComparator.
+    while ( runs.size() > 1 )
+    {
+        std::vector<std::vector<XValueType>> mergedRuns( ( runs.size() + 1 ) / 2 );
+
+#pragma omp parallel for
+        for ( int mergeIndex = 0; mergeIndex < static_cast<int>( mergedRuns.size() ); mergeIndex++ )
+        {
+            auto& first  = runs[2 * mergeIndex];
+            auto& target = mergedRuns[mergeIndex];
+
+            if ( static_cast<size_t>( 2 * mergeIndex + 1 ) < runs.size() )
+            {
+                const auto& second = runs[2 * mergeIndex + 1];
+                target.reserve( first.size() + second.size() );
+                std::set_union( first.begin(), first.end(), second.begin(), second.end(), std::back_inserter( target ), XComparator() );
+            }
+            else
+            {
+                target = std::move( first );
+            }
+        }
+
+        runs = std::move( mergedRuns );
+    }
+
+    if ( !runs.empty() ) m_allXValues = std::move( runs.front() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,9 +368,26 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
     if ( xValues.empty() ) return HUGE_VAL;
     if ( yValues.size() != xValues.size() ) return HUGE_VAL;
 
+    return interpolatedYValue( interpolationXValue, xValues, yValues, interpolationMethod, isMonotonicallyIncreasing( xValues ), nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename XValueType>
+double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&                    interpolationXValue,
+                                                       const std::vector<XValueType>&       xValues,
+                                                       const std::vector<double>&           yValues,
+                                                       RiaCurveDefines::InterpolationMethod interpolationMethod,
+                                                       bool                                 isXValuesMonotonicallyIncreasing,
+                                                       size_t*                              sortedSearchCursor )
+{
+    if ( xValues.empty() ) return HUGE_VAL;
+    if ( yValues.size() != xValues.size() ) return HUGE_VAL;
+
     size_t startIndex = 0;
 
-    if ( isMonotonicallyIncreasing( xValues ) )
+    if ( isXValuesMonotonicallyIncreasing )
     {
         // Use lower_bound to find the first element that is not less than the interpolation value using a threshold that is larger than
         // the threshold used in XComparator::equals
@@ -294,20 +397,43 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
         // steps are specified in increasing order
         //
         XValueType threshold = 1.0e-6 * xValues.back();
-        auto       it        = std::lower_bound( xValues.begin(), xValues.end(), interpolationXValue - threshold );
-        if ( it == xValues.end() ) return HUGE_VAL;
+        XValueType limit     = interpolationXValue - threshold;
 
-        startIndex = it - xValues.begin();
+        size_t lowerBoundIndex = 0;
+        if ( sortedSearchCursor && *sortedSearchCursor != std::numeric_limits<size_t>::max() )
+        {
+            // When called with increasing interpolation values, the result can be found by moving forward from the previous result
+            lowerBoundIndex = *sortedSearchCursor;
+            while ( lowerBoundIndex < xValues.size() && xValues[lowerBoundIndex] < limit )
+            {
+                lowerBoundIndex++;
+            }
+        }
+        else
+        {
+            lowerBoundIndex = std::lower_bound( xValues.begin(), xValues.end(), limit ) - xValues.begin();
+        }
+
+        if ( sortedSearchCursor ) *sortedSearchCursor = lowerBoundIndex;
+        if ( lowerBoundIndex == xValues.size() ) return HUGE_VAL;
+
+        startIndex = lowerBoundIndex;
         if ( startIndex > 0 ) startIndex--;
     }
 
-    const bool removeInterpolatedValues = false;
+    const size_t xCount                   = xValues.size();
+    const bool   removeInterpolatedValues = false;
 
-    for ( size_t firstI = startIndex; firstI < xValues.size(); firstI++ )
+    // The second element of a pass becomes the first element of the next pass, and has already been compared for equality
+    bool isFirstKnownNotEqual = false;
+
+    for ( size_t firstI = startIndex; firstI < xCount; firstI++ )
     {
-        if ( XComparator::equals( xValues.at( firstI ), interpolationXValue ) )
+        const XValueType firstX = xValues[firstI];
+
+        if ( !isFirstKnownNotEqual && XComparator::equals( firstX, interpolationXValue ) )
         {
-            const double& firstValue = yValues.at( firstI );
+            const double& firstValue = yValues[firstI];
             if ( !RiaCurveDataTools::isValidValue( firstValue, removeInterpolatedValues ) )
             {
                 return HUGE_VAL;
@@ -316,13 +442,18 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
             return firstValue;
         }
 
+        // With sorted X values, no later element can match or bracket the interpolation value
+        if ( isXValuesMonotonicallyIncreasing && firstX > interpolationXValue ) return HUGE_VAL;
+
         size_t secondI = firstI + 1;
 
-        if ( secondI < xValues.size() )
+        if ( secondI < xCount )
         {
-            if ( XComparator::equals( xValues.at( secondI ), interpolationXValue ) )
+            const XValueType secondX = xValues[secondI];
+
+            if ( XComparator::equals( secondX, interpolationXValue ) )
             {
-                const double& secondValue = yValues.at( secondI );
+                const double& secondValue = yValues[secondI];
                 if ( !RiaCurveDataTools::isValidValue( secondValue, removeInterpolatedValues ) )
                 {
                     return HUGE_VAL;
@@ -331,10 +462,10 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
                 return secondValue;
             }
 
-            if ( xValues.at( firstI ) < interpolationXValue && xValues.at( secondI ) > interpolationXValue )
+            if ( firstX < interpolationXValue && secondX > interpolationXValue )
             {
-                const double& firstValue  = yValues.at( firstI );
-                const double& secondValue = yValues.at( secondI );
+                const double& firstValue  = yValues[firstI];
+                const double& secondValue = yValues[secondI];
 
                 bool isFirstValid = RiaCurveDataTools::isValidValue( firstValue, removeInterpolatedValues );
                 if ( !isFirstValid ) return HUGE_VAL;
@@ -352,8 +483,8 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
                     return firstValue;
                 }
 
-                const double firstDiff  = fabs( XComparator::diff( interpolationXValue, xValues.at( firstI ) ) );
-                const double secondDiff = fabs( XComparator::diff( xValues.at( secondI ), interpolationXValue ) );
+                const double firstDiff  = fabs( XComparator::diff( interpolationXValue, firstX ) );
+                const double secondDiff = fabs( XComparator::diff( secondX, interpolationXValue ) );
                 const double totalDiff  = firstDiff + secondDiff;
 
                 double val;
@@ -371,6 +502,8 @@ double RiaCurveMerger<XValueType>::interpolatedYValue( const XValueType&        
 
                 return val;
             }
+
+            isFirstKnownNotEqual = true;
         }
     }
 

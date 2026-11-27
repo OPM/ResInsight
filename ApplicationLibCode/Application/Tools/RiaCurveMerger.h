@@ -61,13 +61,6 @@ public:
     const std::vector<XValueType>&    allXValues() const;
     const std::vector<double>&        interpolatedYValuesForAllXValues( size_t curveIdx ) const;
 
-    // Non-const access is not required by any clients, but the expression parser has no available const interface
-    // for specifying a data source for an expression variable. Allow non-const access to avoid copy of the contained
-    // values, interpolated for all time steps
-    //
-    // See ExpressionParserImpl::assignVector()
-    std::vector<double>& interpolatedYValuesForAllXValues( size_t curveIdx );
-
     static void removeValuesForPartialCurves( std::set<XValueType, XComparator>&                    unionOfXValues,
                                               const std::vector<std::pair<XValueType, XValueType>>& originalXBounds );
 
@@ -80,6 +73,16 @@ public:
                                       RiaCurveDefines::InterpolationMethod interpolationMethod );
 
 private:
+    // sortedSearchCursor is an optional in/out value: when not null, the search starts at the index found by the previous call (use
+    // std::numeric_limits<size_t>::max() for no previous result) and the new index is written back. This is only valid when called
+    // with increasing xValue. A pointer is used instead of a reference, as nullptr means no cursor, giving a plain binary search.
+    static double interpolatedYValue( const XValueType&                    xValue,
+                                      const std::vector<XValueType>&       curveXValues,
+                                      const std::vector<double>&           curveYValues,
+                                      RiaCurveDefines::InterpolationMethod interpolationMethod,
+                                      bool                                 isXValuesMonotonicallyIncreasing,
+                                      size_t*                              sortedSearchCursor );
+
     void        computeUnionOfXValues( bool includeValuesFromPartialCurves );
     static bool isMonotonicallyIncreasing( const std::vector<XValueType>& curveXValues );
 
@@ -92,7 +95,7 @@ private:
     std::vector<std::vector<double>> m_interpolatedValuesForAllCurves;
 
     bool                                 m_isXValuesSharedBetweenCurves;
-    bool                                 m_isXValuesMonotonicallyIncreasing;
+    std::vector<bool>                    m_isCurveXValuesMonotonicallyIncreasing;
     RiaCurveDefines::InterpolationMethod m_interpolationMethod;
 };
 
