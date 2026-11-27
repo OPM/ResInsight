@@ -5,17 +5,40 @@ ResInsight 3d view module
 import Commands_pb2 as Cmd
 
 import uuid
+import math
 import warnings
 import rips.project
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
-from .pdmobject import add_method
+from .pdmobject import add_method, PdmObjectBase
 from .resinsight_classes import (
     View as View,
     ViewWindow as ViewWindow,
     EclipseView as EclipseView,
     GeoMechView as GeoMechView,
 )
+
+
+@add_method(View)
+def update(self, timeout=5.0):
+    """Sync all fields from the Python object to ResInsight
+
+    Arguments:
+        timeout (float): Seconds to wait for the view to finish updating, including scheduled
+            display model updates and redraws. A RipsError is raised if the view has not settled
+            in time. Use -1 for an asynchronous update that returns immediately.
+
+    Raises:
+        ValueError: If timeout is not a positive finite number or -1. Checked before the view is changed.
+    """
+    if not (math.isfinite(timeout) and (timeout > 0 or timeout == -1)):
+        raise ValueError(
+            "timeout must be a positive number of seconds, or -1 for asynchronous update"
+        )
+
+    PdmObjectBase.update(self)
+    if timeout > 0:
+        self.wait_for_updates(timeout=timeout)
 
 
 @add_method(View)

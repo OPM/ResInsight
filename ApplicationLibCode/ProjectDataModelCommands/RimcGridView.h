@@ -163,6 +163,7 @@ private:
     caf::PdmField<double> m_azimuth;
     caf::PdmField<double> m_tilt;
     caf::PdmField<double> m_zoom;
+    caf::PdmField<double> m_timeout;
 };
 
 //==================================================================================================
@@ -180,6 +181,7 @@ public:
 
 private:
     caf::PdmField<caf::AppEnum<RiaDefines::ViewFrom>> m_viewFrom;
+    caf::PdmField<double>                             m_timeout;
 };
 
 //==================================================================================================
@@ -193,6 +195,9 @@ public:
     Rim3dView_zoomAll( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<double> m_timeout;
 };
 
 //==================================================================================================
@@ -209,6 +214,23 @@ public:
 
 private:
     caf::PdmPtrField<caf::PdmObject*> m_object;
+    caf::PdmField<double>             m_timeout;
+};
+
+//==================================================================================================
+/// Wait until pending display model updates and redraws of the view are finished.
+//==================================================================================================
+class Rim3dView_waitForUpdates : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_waitForUpdates( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<double> m_timeout;
 };
 
 //==================================================================================================

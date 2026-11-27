@@ -146,3 +146,62 @@ def test_set_camera_changes_camera(rips_instance, initialize_test):
     assert _camera_matrix(rips_instance, view) != north
 
     view.zoom_all()
+
+
+def test_update_waits_by_default_and_settles_camera(rips_instance, initialize_test):
+    if not rips_instance.is_gui():
+        pytest.skip("Cannot run test without a GUI")
+
+    view = _load_view(rips_instance)
+    try:
+        view.zoom_all()
+    except rips.RipsError as error:
+        if "no viewer" in str(error):
+            pytest.skip("The view has no viewer (e.g. offscreen Qt platform)")
+        raise
+
+    view.grid_z_scale = 5.0
+    view.update(timeout=30.0)
+    settled = _camera_matrix(rips_instance, view)
+    assert _camera_matrix(rips_instance, view) == settled
+
+    view.set_view_from(rips.ViewFrom.NORTH)
+    north = _camera_matrix(rips_instance, view)
+    assert _camera_matrix(rips_instance, view) == north
+
+
+def test_negative_timeout_is_asynchronous_update(rips_instance, initialize_test):
+    view = _load_view(rips_instance)
+    view.grid_z_scale = 5.0
+    view.update(timeout=-1)
+    view.wait_for_updates(timeout=-1)
+
+
+@pytest.mark.parametrize(
+    "timeout", [0.0, float("nan"), float("inf"), -2.0, float("-inf")]
+)
+def test_invalid_timeout_is_rejected(rips_instance, initialize_test, timeout):
+    view = _load_view(rips_instance)
+    with pytest.raises(rips.RipsError, match="Timeout must be a positive number"):
+        view.wait_for_updates(timeout=timeout)
+
+    # The camera methods share the same timeout validation
+    if rips_instance.is_gui():
+        with pytest.raises(rips.RipsError, match="Timeout must be a positive number"):
+            view.zoom_all(timeout=timeout)
+
+
+@pytest.mark.parametrize(
+    "timeout", [0.0, float("nan"), float("inf"), -2.0, float("-inf")]
+)
+def test_update_validates_timeout_before_changing_view(
+    rips_instance, initialize_test, timeout
+):
+    view = _load_view(rips_instance)
+    original = view.grid_z_scale
+    view.grid_z_scale = original + 1.0
+    with pytest.raises(ValueError, match="timeout"):
+        view.update(timeout=timeout)
+
+    reloaded = rips_instance.project.view(view.id)
+    assert reloaded.grid_z_scale == original

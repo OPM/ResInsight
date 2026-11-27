@@ -20,6 +20,7 @@
 
 #include "Rim3dView.h"
 
+#include <algorithm>
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +64,14 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw( Rim3dView* res
 void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
 {
     m_resViewsToUpdate.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaViewRedrawScheduler::hasScheduledViews() const
+{
+    return std::any_of( m_resViewsToUpdate.begin(), m_resViewsToUpdate.end(), []( const auto& view ) { return view.notNull(); } );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaCameraTools.h"
 #include "RiaKeyValueStoreUtil.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RicExportContourMapToTextFeature.h"
 
@@ -39,12 +40,69 @@
 #include "Surfaces/RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuViewer.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfArray.h"
 
+#include <QCoreApplication>
+#include <QElapsedTimer>
+
 #include <cmath>
+#include <limits>
+
+namespace
+{
+const double  defaultTimeoutSeconds = 5.0;
+const QString timeoutDescription = "Seconds to wait for pending display model updates and redraws to finish before an error is reported. "
+                                   "Use -1 to return immediately without waiting (asynchronous update)";
+
+//--------------------------------------------------------------------------------------------------
+/// Flush scheduled display model updates and pump the event loop until nothing more is scheduled for
+/// the view, then render once more so that the camera and the image are final.
+/// A negative timeout (-1) means asynchronous update: return without waiting.
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> waitForViewToSettle( Rim3dView* view, double timeoutSeconds )
+{
+    if ( std::isnan( timeoutSeconds ) || timeoutSeconds == 0.0 || timeoutSeconds == std::numeric_limits<double>::infinity() ||
+         ( timeoutSeconds < 0.0 && timeoutSeconds != -1.0 ) )
+    {
+        return std::unexpected( "Timeout must be a positive number of seconds, or -1 for asynchronous update." );
+    }
+
+    if ( timeoutSeconds < 0.0 ) return nullptr;
+
+    // The event loop is pumped below, which can delete the view (e.g. if the project is closed)
+    caf::PdmPointer<Rim3dView> viewPointer( view );
+    const QString              viewName = view->name();
+
+    QElapsedTimer timer;
+    timer.start();
+    const double timeoutMs = timeoutSeconds * 1000.0;
+
+    auto* scheduler = RiaViewRedrawScheduler::instance();
+    do
+    {
+        scheduler->performScheduledUpdates();
+
+        // User input is excluded so that the wait has no side effects on the GUI state. Requests from the script
+        // are not processed recursively, see RiaGrpcApplicationInterface::processRequests.
+        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
+        if ( viewPointer.isNull() ) return std::unexpected( QString( "View '%1' was deleted while waiting for updates." ).arg( viewName ) );
+
+        if ( scheduler->hasScheduledViews() && static_cast<double>( timer.elapsed() ) > timeoutMs )
+        {
+            return std::unexpected( QString( "View '%1' did not finish updating within %2 seconds." ).arg( viewName ).arg( timeoutSeconds ) );
+        }
+    } while ( scheduler->hasScheduledViews() );
+
+    if ( auto* viewer = viewPointer->viewer() ) viewer->repaint();
+
+    return nullptr;
+}
+} // namespace
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcGridView_visibleCellsInternal, "visible_cells_internal" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setPolygonVisible, "set_polygon_visible" );
@@ -390,6 +448,8 @@ Rim3dView_setCamera::Rim3dView_setCamera( caf::PdmObjectHandle* self )
                                  "Zoom factor from 0.001 to 1000 relative to the current distance to the center of the view. 1 "
                                  "keeps the distance, larger values move the camera closer" );
     m_zoom.setRange( 0.001, 1000.0 );
+
+    CAF_PDM_InitScriptableField( &m_timeout, "Timeout", defaultTimeoutSeconds, "Timeout", "", "", timeoutDescription );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,7 +474,7 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setCamera::execute()
         return std::unexpected( QString( "View '%1' has no camera to move." ).arg( view->name() ) );
     }
 
-    return nullptr;
+    return waitForViewToSettle( view, m_timeout() );
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_setViewFrom, "setViewFrom" );
@@ -434,6 +494,8 @@ Rim3dView_setViewFrom::Rim3dView_setViewFrom( caf::PdmObjectHandle* self )
                                  "",
                                  "",
                                  "The side to look at the model from. NORTH means viewed from the north, looking south" );
+
+    CAF_PDM_InitScriptableField( &m_timeout, "Timeout", defaultTimeoutSeconds, "Timeout", "", "", timeoutDescription );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,7 +514,7 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setViewFrom::execute()
         return std::unexpected( QString( "View '%1' has no model to look at." ).arg( view->name() ) );
     }
 
-    return nullptr;
+    return waitForViewToSettle( view, m_timeout() );
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_zoomAll, "zoomAll" );
@@ -464,6 +526,8 @@ Rim3dView_zoomAll::Rim3dView_zoomAll( caf::PdmObjectHandle* self )
     : caf::PdmVoidObjectMethod( self )
 {
     CAF_PDM_InitObject( "Zoom All", "", "", "Move the camera so that the whole model is visible" );
+
+    CAF_PDM_InitScriptableField( &m_timeout, "Timeout", defaultTimeoutSeconds, "Timeout", "", "", timeoutDescription );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,7 +542,7 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_zoomAll::execute()
 
     view->zoomAll();
 
-    return nullptr;
+    return waitForViewToSettle( view, m_timeout() );
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_flyToObject, "flyToObject" );
@@ -497,6 +561,8 @@ Rim3dView_flyToObject::Rim3dView_flyToObject( caf::PdmObjectHandle* self )
                                           "",
                                           "",
                                           "Object to fly to, such as a surface, a simulation well, a fracture or a perforation interval" );
+
+    CAF_PDM_InitScriptableField( &m_timeout, "Timeout", defaultTimeoutSeconds, "Timeout", "", "", timeoutDescription );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,7 +588,31 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_flyToObject::execute()
         return std::unexpected( QString( "View '%1' could not fly to the object." ).arg( view->name() ) );
     }
 
-    return nullptr;
+    return waitForViewToSettle( view, m_timeout() );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_waitForUpdates, "waitForUpdates" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_waitForUpdates::Rim3dView_waitForUpdates( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Wait For Updates", "", "", "Wait until pending display model updates and redraws of the view are finished" );
+
+    CAF_PDM_InitScriptableField( &m_timeout, "Timeout", defaultTimeoutSeconds, "Timeout", "", "", timeoutDescription );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_waitForUpdates::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    return waitForViewToSettle( view, m_timeout() );
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_exportContourMapToText, "exportContourMapToText" );

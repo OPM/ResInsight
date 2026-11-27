@@ -23,6 +23,7 @@
 
 #include <QCoreApplication>
 #include <QProcessEnvironment>
+#include <QScopeGuard>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -104,6 +105,10 @@ QProcessEnvironment RiaGrpcApplicationInterface::grpcProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 int RiaGrpcApplicationInterface::processRequests()
 {
+    // A request handler may pump the event loop (e.g. waiting for a view update), which can fire the idle timer
+    // again. Requests, including an exit request, must not be handled recursively from inside a handler.
+    if ( m_isProcessingRequests ) return 0;
+
     if ( RiaGrpcServer::receivedExitRequest() )
     {
         if ( m_grpcServer ) m_grpcServer->quit();
@@ -112,6 +117,10 @@ int RiaGrpcApplicationInterface::processRequests()
 
     if ( m_grpcServer )
     {
+        // Reset the flag also if a handler throws
+        const auto resetFlag   = qScopeGuard( [this]() { m_isProcessingRequests = false; } );
+        m_isProcessingRequests = true;
+
         size_t requestsProcessed = m_grpcServer->processAllQueuedRequests();
         return static_cast<int>( requestsProcessed );
     }
