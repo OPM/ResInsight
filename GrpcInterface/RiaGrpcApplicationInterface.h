@@ -42,4 +42,5 @@ public:
 
 protected:
     std::unique_ptr<RiaGrpcServer> m_grpcServer;
+    bool                           m_isProcessingRequests = false;
 };

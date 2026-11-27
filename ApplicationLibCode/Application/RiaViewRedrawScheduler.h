@@ -37,6 +37,7 @@ public:
     void scheduleDisplayModelUpdateAndRedraw( Rim3dView* resViewToUpdate );
     void clearViewsScheduledForUpdate();
     void updateAndRedrawScheduledViews();
+    bool hasScheduledViews() const;
 
     void performScheduledUpdates() override;
 
