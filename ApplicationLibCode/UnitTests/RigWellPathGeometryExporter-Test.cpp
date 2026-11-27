@@ -23,6 +23,9 @@
 
 #include "cvfVector3.h"
 
+#include <limits>
+#include <vector>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -62,5 +65,57 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
         double changeTvd = tvdValues[i] - tvdValues[i - 1];
         double diff      = std::abs( changeTvd - changeMd );
         ASSERT_TRUE( changeMd > changeTvd || diff < 0.0000000001 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryExporter, NoDuplicateEndPointForSmallStep )
+{
+    RigWellPath rigWellPath;
+
+    std::vector<double> inputMds = { 0.0, 0.5, 1000.0, 1799.5 };
+    for ( double md : inputMds )
+    {
+        rigWellPath.addWellPathPoint( cvf::Vec3d( 1.0, 2.0, -md ), md );
+    }
+
+    for ( double mdStepSize : { 0.1, 0.5, 0.3 } )
+    {
+        std::vector<double> xValues;
+        std::vector<double> yValues;
+        std::vector<double> tvdValues;
+        std::vector<double> mdValues;
+        RigWellPathGeometryExporter::computeWellPathDataForExport( rigWellPath, mdStepSize, 0.0, xValues, yValues, tvdValues, mdValues );
+
+        ASSERT_GT( mdValues.size(), 2u );
+        EXPECT_DOUBLE_EQ( 0.0, mdValues.front() );
+        EXPECT_DOUBLE_EQ( 1799.5, mdValues.back() );
+        for ( size_t i = 1; i < mdValues.size(); i++ )
+        {
+            ASSERT_GT( mdValues[i] - mdValues[i - 1], mdStepSize * 1.0e-3 ) << "step " << mdStepSize << " index " << i;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryExporter, InvalidStepSizeGivesNoOutput )
+{
+    RigWellPath rigWellPath;
+    rigWellPath.addWellPathPoint( cvf::Vec3d( 1.0, 2.0, 0.0 ), 0.0 );
+    rigWellPath.addWellPathPoint( cvf::Vec3d( 1.0, 2.0, -100.0 ), 100.0 );
+
+    for ( double mdStepSize : { 0.0, -1.0, std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity() } )
+    {
+        std::vector<double> xValues;
+        std::vector<double> yValues;
+        std::vector<double> tvdValues;
+        std::vector<double> mdValues;
+        RigWellPathGeometryExporter::computeWellPathDataForExport( rigWellPath, mdStepSize, 0.0, xValues, yValues, tvdValues, mdValues );
+
+        EXPECT_TRUE( mdValues.empty() ) << "step " << mdStepSize;
     }
 }

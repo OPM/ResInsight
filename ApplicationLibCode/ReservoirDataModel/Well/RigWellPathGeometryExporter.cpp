@@ -25,6 +25,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 
+#include <algorithm>
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -78,20 +81,28 @@ void RigWellPathGeometryExporter::computeWellPathDataForExport( const RigWellPat
                                                                 std::vector<double>& mdValues )
 {
     if ( wellPathGeom.measuredDepths().empty() ) return;
-    if ( mdStepSize <= 0.0 ) return;
+    // Written as a positive test to also reject NaN, and reject infinity to keep the sample MDs finite
+    if ( !( mdStepSize > 0.0 ) || !std::isfinite( mdStepSize ) ) return;
 
-    double currMd = wellPathGeom.measuredDepths().front() - mdStepSize;
+    const double startMd = wellPathGeom.measuredDepths().front();
     // Safety check to avoid "infinite" loop: max MD for a well path cannot be more than 100 km
     // This could happen in certain corner cases for "weird" input, causing massive memory usage
     double endMd = std::min( wellPathGeom.measuredDepths().back(), 100000.0 );
 
+    // Compute MD from the sample index instead of accumulating the step, to avoid round-off drift that
+    // can produce a duplicated end point
+    const double tolerance = mdStepSize * 1.0e-6;
+
     bool   isFirst = true;
     double prevMd  = 0.0;
     double prevTvd = 0.0;
-    while ( currMd < endMd )
+    for ( size_t i = 0;; i++ )
     {
-        currMd += mdStepSize;
-        if ( currMd > endMd ) currMd = endMd;
+        double currMd = startMd + static_cast<double>( i ) * mdStepSize;
+
+        // Negated comparison so that a NaN MD also ends the loop
+        const bool isLast = !isFirst && !( currMd < endMd - tolerance );
+        if ( isLast || currMd > endMd ) currMd = endMd;
 
         auto   pt  = wellPathGeom.interpolatedPointAlongWellPath( currMd );
         double tvd = -pt.z();
@@ -117,5 +128,7 @@ void RigWellPathGeometryExporter::computeWellPathDataForExport( const RigWellPat
         prevMd  = currMd;
         prevTvd = tvd;
         isFirst = false;
+
+        if ( isLast || currMd >= endMd ) break;
     }
 }
