@@ -100,8 +100,6 @@ public:
 
     static bool isExportedFromIntersect( const ecl_file_type* ecl_file );
 
-    static FILE* fopen( const QString& filePath, const QString& mode );
-
     static bool assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData );
 
     static std::vector<RifEclipseKeywordValueCount>

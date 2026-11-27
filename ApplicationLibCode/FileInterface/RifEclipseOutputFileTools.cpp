@@ -675,26 +675,6 @@ bool RifEclipseOutputFileTools::isExportedFromIntersect( const ecl_file_type* ec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Convenience method to hide C fopen calls in #pragma declarations to avoid warnings on Windows
-//--------------------------------------------------------------------------------------------------
-FILE* RifEclipseOutputFileTools::fopen( const QString& filePath, const QString& mode )
-{
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-#endif
-
-    FILE* filePtr =
-        std::fopen( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), RiaStringEncodingTools::toNativeEncoded( mode ).data() );
-
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
-
-    return filePtr;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData )
