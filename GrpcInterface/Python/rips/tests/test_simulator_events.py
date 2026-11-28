@@ -149,10 +149,17 @@ class FakePropertyFilter:
 
 
 class FakeCombinedFilter:
-    def __init__(self, name, combine_mode):
+    def __init__(self, name, combine_mode, filter_mode="INCLUDE"):
         self.name = name
         self.combine_mode = combine_mode
+        self.filter_mode = filter_mode
         self.property_filters = []
+        self.combined_filters = []
+
+    def add_combined_filter(self, combine_mode="AND", filter_mode="INCLUDE"):
+        combined = FakeCombinedFilter("", combine_mode, filter_mode)
+        self.combined_filters.append(combined)
+        return combined
 
     def add_property_filter(self, result_variable, result_type):
         property_filter = FakePropertyFilter(result_variable, result_type)
@@ -164,8 +171,8 @@ class FakeDataFilterCollection:
     def __init__(self):
         self.combined_filters = []
 
-    def add_combined_filter(self, name="", combine_mode="AND"):
-        combined = FakeCombinedFilter(name, combine_mode)
+    def add_combined_filter(self, name="", combine_mode="AND", filter_mode="INCLUDE"):
+        combined = FakeCombinedFilter(name, combine_mode, filter_mode)
         self.combined_filters.append(combined)
         return combined
 
@@ -1359,7 +1366,6 @@ class TestFilterParsing:
         value = doc.variables["F"]
         assert value.kind == "FILTER"
         expr = value.value
-        assert expr.combine_mode == "AND"
         assert len(expr.terms) == 1
         term = expr.terms[0]
         assert term.result_name == "PORO"  # uppercased
@@ -1372,7 +1378,7 @@ class TestFilterParsing:
             'SIMEVENTS 1.2\nFILTER F = "poro>0.4 AND permx > 100.0"\n'
         )
         expr = doc.variables["F"].value
-        assert expr.combine_mode == "AND"
+        assert expr.root.op == "AND"
         assert [t.result_name for t in expr.terms] == ["PORO", "PERMX"]
 
     def test_filter_declaration_or_mode(self):
@@ -1380,7 +1386,7 @@ class TestFilterParsing:
             'SIMEVENTS 1.2\nFILTER F = "PORO < 0.1 OR PERMX <= 10"\n'
         )
         expr = doc.variables["F"].value
-        assert expr.combine_mode == "OR"
+        assert expr.root.op == "OR"
         assert [t.op for t in expr.terms] == ["<", "<="]
 
     def test_filter_all_operators(self):
@@ -1431,7 +1437,7 @@ class TestFilterParsing:
         event = doc.wells[0].events[0]
         assert event.filter is not None
         assert event.filter.name is None
-        assert event.filter.expr.combine_mode == "OR"
+        assert event.filter.expr.root.op == "OR"
         assert [t.result_name for t in event.filter.expr.terms] == ["PERMX", "PORO"]
 
     def test_filter_on_non_perforation_event_is_plain_attribute(self):
@@ -1444,11 +1450,61 @@ class TestFilterParsing:
         assert event.filter is None
         assert event.attributes["FILTER"].value == "PERMX > 200"
 
-    def test_mixed_and_or_raises(self):
-        with pytest.raises(SimulatorEventsParseError, match="mixes AND and OR"):
-            parse_simulator_events(
-                'SIMEVENTS 1.2\nFILTER F = "A > 1 AND B > 2 OR C > 3"\n'
-            )
+    def test_and_binds_tighter_than_or(self):
+        doc = parse_simulator_events(
+            'SIMEVENTS 1.2\nFILTER F = "A > 1 AND B > 2 OR C > 3"\n'
+        )
+        root = doc.variables["F"].value.root
+        assert root.op == "OR"
+        assert [type(c).__name__ for c in root.children] == ["FilterNode", "FilterTerm"]
+
+    def test_not_and_parentheses(self):
+        doc = parse_simulator_events(
+            'SIMEVENTS 1.2\nFILTER F = "A > 1 AND NOT (B > 2 OR C > 3)"\n'
+        )
+        root = doc.variables["F"].value.root
+        assert root.op == "AND"
+        assert root.children[1].op == "NOT"
+        assert root.children[1].children[0].op == "OR"
+
+    def test_named_filter_reference_and_multiline(self):
+        doc = parse_simulator_events(
+            'SIMEVENTS 1.2\nFILTER A = "PORO > 0.1"\n'
+            'FILTER B = "PERMX > 5\n  AND NOT A"\n'
+        )
+        root = doc.variables["B"].value.root
+        assert root.op == "AND"
+        assert root.children[1].op == "NOT"
+        assert root.children[1].children[0].result_name == "PORO"
+
+    @pytest.mark.parametrize(
+        "expr", ["A > 1 AND (B > 2", "A > 1 AND", "A > 1 B > 2", "NOT"]
+    )
+    def test_incomplete_expression_raises(self, expr):
+        with pytest.raises(SimulatorEventsParseError):
+            parse_simulator_events(f'SIMEVENTS 1.2\nFILTER F = "{expr}"\n')
+
+    def test_multiline_filter_with_trailing_comment(self):
+        doc = parse_simulator_events(
+            'SIMEVENTS 1.2\nFILTER F = "PORO > 0.1\n  AND PERMX > 10" # note\n'
+        )
+        assert doc.variables["F"].value.root.op == "AND"
+
+    def test_quote_in_comment_after_multiline_filter_keeps_later_lines(self):
+        doc = parse_simulator_events(
+            'SIMEVENTS 1.2\nFILTER F = "PORO > 0.1\n  AND PERMX > 10" # 5" tubing\n'
+            'WELL "A"\n  2024-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER=F\n'
+            '# 7" casing\n'
+        )
+        assert len(doc.wells) == 1
+
+    def test_result_named_like_keyword_when_qualified(self):
+        doc = parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "static.NOT > 0.1"\n')
+        assert doc.variables["F"].value.root.result_name == "NOT"
+
+    def test_unknown_filter_name_raises(self):
+        with pytest.raises(SimulatorEventsParseError, match="Unknown variable"):
+            parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "A > 1 AND G"\n')
 
     def test_lowercase_connector_raises(self):
         with pytest.raises(SimulatorEventsParseError, match="uppercase AND / OR"):
@@ -1459,7 +1515,7 @@ class TestFilterParsing:
             parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "poro = 0.4"\n')
 
     def test_function_style_result_name_raises(self):
-        with pytest.raises(SimulatorEventsParseError, match="Malformed filter term"):
+        with pytest.raises(SimulatorEventsParseError):
             parse_simulator_events('SIMEVENTS 1.2\nFILTER F = "SOIL(0) > 0.8"\n')
 
     def test_non_numeric_value_raises(self):
@@ -2453,6 +2509,25 @@ class TestFilterApplying:
         combined_filters = project.cases()[0].data_filter_collection().combined_filters
         assert len(combined_filters) == 1
         assert timeline.perf_events[0].filters == timeline.perf_events[1].filters
+
+    def test_not_and_nested_group_build_nested_combined_filters(self):
+        text = self._perf_text("", '"PORO > 0.1 AND NOT (SOIL < 0.2 OR PERMX > 5)"')
+        _, project, report = self._apply(text)
+        assert report.errors == []
+        top = project.cases()[0].data_filter_collection().combined_filters[0]
+        assert top.combine_mode == "AND"
+        assert [p.result_variable for p in top.property_filters] == ["PORO"]
+        (negated,) = top.combined_filters
+        assert (negated.combine_mode, negated.filter_mode) == ("OR", "EXCLUDE")
+        assert len(negated.property_filters) == 2
+
+    def test_not_term_wraps_term_in_excluding_combined_filter(self):
+        text = self._perf_text("", '"NOT PORO > 0.1"')
+        _, project, _ = self._apply(text)
+        top = project.cases()[0].data_filter_collection().combined_filters[0]
+        (negated,) = top.combined_filters
+        assert negated.filter_mode == "EXCLUDE"
+        assert negated.property_filters[0].result_variable == "PORO"
 
     def test_identical_inline_filters_shared_distinct_not(self):
         text = self._perf_text("", '"poro>0.4"', '"poro>0.4"', '"poro>0.5"')
@@ -3520,6 +3595,36 @@ class TestSimulatorEventsIntegration:
         cell_filter = perforations[0].cell_filter()
         assert cell_filter is not None
         assert cell_filter.name == "hiperm"
+
+    def test_apply_not_filter_creates_excluding_nested_filter(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        text = (
+            "SIMEVENTS 1.2\n"
+            'FILTER lo = "static.PERMX < 10"\n'
+            f'WELL "{well.name}"\n'
+            '  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="static.PORO > 0.1 AND NOT lo"\n'
+        )
+        document = parse_simulator_events(text)
+        report = apply_simulator_events_document(document, timeline, project, case=case)
+        assert report.errors == []
+
+        collection = case.data_filter_collection()
+        top = collection.filters()[0]
+        low = collection.add_combined_filter(combine_mode="AND")
+        low_pf = low.add_property_filter(
+            result_variable="PERMX", result_type="STATIC_NATIVE"
+        )
+        low_pf.upper_bound = 10.0
+        low_pf.update()
+        low_mask = case.filtered_cells(filter=low)
+        top_mask = case.filtered_cells(filter=top)
+        assert any(top_mask)
+        assert any(low_mask)
+        assert not any(t and lo for t, lo in zip(top_mask, low_mask))
 
     def test_apply_inline_filter_gets_auto_derived_name(
         self, project_with_case_and_wells

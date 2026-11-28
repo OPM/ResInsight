@@ -37,6 +37,7 @@ RimcDataFilterCollection_addCombinedFilter::RimcDataFilterCollection_addCombined
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_combineMode, "CombineMode", "Combine Mode (AND/OR)" );
+    CAF_PDM_InitScriptableField( &m_filterMode, "FilterMode", QString( "INCLUDE" ), "Filter Mode (INCLUDE/EXCLUDE)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +66,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcDataFilterCollection_addCombin
     {
         combined->setCombineMode( RimCellFilterCollection::OR );
     }
+
+    if ( m_filterMode().trimmed().toUpper() == "EXCLUDE" ) combined->setFilterMode( RimCellFilter::EXCLUDE );
 
     coll->updateConnectedEditors();
 

@@ -68,8 +68,10 @@ duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 
 well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
 filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
                                         (* FILTER F = "PORO > 0.4 AND PERMX > 100.0" *)
-filter_expr     = filter_term , { ( "AND" | "OR" ) , filter_term } ;
-                                        (* one combine mode; mixing AND and OR is an error *)
+filter_expr     = and_expr , { "OR" , and_expr } ;
+and_expr        = not_expr , { "AND" , not_expr } ;
+not_expr        = "NOT" , not_expr | "(" , filter_expr , ")" | filter_term | ident ;
+                                        (* NOT > AND > OR; ident references a declared FILTER *)
 filter_term     = [ result_type , "." ] , ident , comp_op , number ;
 comp_op         = ">" | ">=" | "<" | "<=" ;
 
@@ -297,11 +299,14 @@ FILTER="SOIL > 0.8 AND PERMX > 200"
 
 ## Filter expressions
 
-A filter expression — the quoted value of a `FILTER` declaration or of an inline `FILTER="..."` attribute — is a list of comparison terms joined by `AND` or `OR` (uppercase, one mode per expression; mixing them is an error, since a combined filter has a single combine mode):
+A filter expression — the quoted value of a `FILTER` declaration or of an inline `FILTER="..."` attribute — combines comparison terms with `AND`, `OR` and `NOT` (uppercase). `NOT` binds tightest, then `AND`, then `OR`; use parentheses to group. A bare name refers to a previously declared `FILTER`, so a long filter can be split into blocks, and the quoted expression may span several lines (comments are not allowed inside the quotes):
 
 ```
 FILTER POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 FILTER LOWSAT   = "dynamic.SOIL < 0.2 OR PRESSURE < 150"
+FILTER PAY      = "POROPERM AND NOT LOWSAT"
+FILTER COMPLEX  = "(PORO > 0.4 OR PERMX > 500)
+                   AND NOT (SOIL < 0.2 AND PRESSURE < 150)"
 ```
 
 Each term is `[TYPE.]NAME <op> NUMBER`:
@@ -311,7 +316,7 @@ Each term is `[TYPE.]NAME <op> NUMBER`:
 * A `TYPE.` qualifier restricts the search to one result type: `STATIC`/`STATIC_NATIVE`, `DYNAMIC`/`DYNAMIC_NATIVE` or `GENERATED`, case-insensitive (`DYNAMIC_NATIVE.MY_PROPERTY` and `dynamic.my_property` are equivalent).
 * A result that does not exist in the case raises an error. All filter terms are checked up front, before any event is applied.
 
-When applied, each used filter becomes a case-level **combined data filter** (under the case's *Data Filters*) holding one property filter per term. A declared filter is created once, named after its declaration, and shared between every perforation that references it; an inline filter gets an auto-derived name from its content (identical inline expressions share one filter). The filter is attached to the perforation event and carried onto the perforation interval when completions are materialized with `set_timestamp`. Declared-but-unreferenced filters create nothing.
+When applied, each used filter becomes a case-level **combined data filter** (under the case's *Data Filters*) holding one property filter per term; nested `AND`/`OR` groups become nested combined filters and `NOT` becomes a combined filter in *Exclude* mode. A declared filter is created once, named after its declaration, and shared between every perforation that references it; an inline filter gets an auto-derived name from its content (identical inline expressions share one filter). The filter is attached to the perforation event and carried onto the perforation interval when completions are materialized with `set_timestamp`. Declared-but-unreferenced filters create nothing.
 
 ## Diagnostics
 

@@ -43,6 +43,24 @@ private:
 };
 
 //==================================================================================================
+/// Adds a nested combined filter as a child of a RimCombinedFilter.
+//==================================================================================================
+class RimcCombinedFilter_addCombinedFilter : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcCombinedFilter_addCombinedFilter( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_combineMode;
+    caf::PdmField<QString> m_filterMode;
+};
+
+//==================================================================================================
 /// Adds a new IJK range filter as a child of a RimCombinedFilter.
 //==================================================================================================
 class RimcCombinedFilter_addRangeFilter : public caf::PdmObjectCreationMethod
