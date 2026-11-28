@@ -944,7 +944,9 @@ def parse_simulator_events(
                 in_quote = _ends_in_quote(source_lines[end_index], in_quote)
                 end_index += 1
             if not in_quote:
-                line = _strip_comment(" ".join(source_lines[line_index - 1 : end_index]))
+                line = _strip_comment(
+                    " ".join(source_lines[line_index - 1 : end_index])
+                )
                 line = line.strip()
                 line_index = end_index
         if not line:
