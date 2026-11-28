@@ -40,4 +40,5 @@ public:
 private:
     caf::PdmField<QString> m_name;
     caf::PdmField<QString> m_combineMode;
+    caf::PdmField<QString> m_filterMode;
 };

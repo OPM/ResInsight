@@ -36,8 +36,10 @@ File format grammar, version 1.2 (EBNF-ish)::
     well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
     filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
                                         (* FILTER POROPERM = "PORO > 0.4 AND PERMX > 100.0" *)
-    filter_expr     = filter_term , { ( "AND" | "OR" ) , filter_term } ;
-                                        (* one combine mode; mixing AND and OR is an error *)
+    filter_expr     = and_expr , { "OR" , and_expr } ;
+    and_expr        = not_expr , { "AND" , not_expr } ;
+    not_expr        = "NOT" , not_expr | "(" , filter_expr , ")" | filter_term | ident ;
+                                        (* NOT > AND > OR; ident names a declared FILTER *)
     filter_term     = [ result_type , "." ] , ident , comp_op , number ;
     comp_op         = ">" | ">=" | "<" | "<=" ;
 
@@ -374,12 +376,30 @@ def _add_months(value: datetime.datetime, months: int) -> datetime.datetime:
 
 
 @dataclass(frozen=True)
-class FilterExpr:
-    """A parsed filter expression: comparison terms with one combine mode."""
+class FilterNode:
+    """An ``AND``/``OR`` (any number of children) or ``NOT`` (one child) node."""
 
-    terms: Tuple[FilterTerm, ...]
-    combine_mode: str
+    op: str
+    children: Tuple[Union["FilterNode", FilterTerm], ...]
+
+    def leaves(self) -> Tuple[FilterTerm, ...]:
+        return tuple(
+            leaf
+            for child in self.children
+            for leaf in ((child,) if isinstance(child, FilterTerm) else child.leaves())
+        )
+
+
+@dataclass(frozen=True)
+class FilterExpr:
+    """A parsed filter expression: a tree of comparison terms and AND/OR/NOT."""
+
+    root: Union[FilterNode, FilterTerm]
     raw: str
+
+    @property
+    def terms(self) -> Tuple[FilterTerm, ...]:
+        return (self.root,) if isinstance(self.root, FilterTerm) else self.root.leaves()
 
     def __str__(self) -> str:
         return self.raw
@@ -722,7 +742,9 @@ _LEGACY_INSERT_DATE_RE = re.compile(
     rf")?)?$"
 )
 _FILTER_DECL_RE = re.compile(rf'^FILTER\s+(?P<name>{_IDENT})\s*=\s*"(?P<expr>[^"]*)"$')
-_FILTER_SPLIT_RE = re.compile(r"\s+(AND|OR)\s+")
+# A FILTER declaration or attribute whose quoted value is still open at end of line.
+_OPEN_FILTER_QUOTE_RE = re.compile(r'(?:^|\s)FILTER\b[^"=]*=\s*"[^"]*$', re.IGNORECASE)
+_FILTER_TOKEN_RE = re.compile(r"(\(|\)|(?<![\w.])(?:AND|OR|NOT)(?![\w.]))")
 _NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
 _FILTER_TERM_RE = re.compile(
     rf"^(?:(?P<qual>{_IDENT})\.)?(?P<name>{_IDENT})\s*"
@@ -914,6 +936,17 @@ def parse_simulator_events(
         loc = SourceLoc(line=line_index + 1, text=raw_line, source=source)
         line = _strip_comment(raw_line).strip()
         line_index += 1
+        if _OPEN_FILTER_QUOTE_RE.search(line):
+            # A quoted filter expression may continue over several lines.
+            end_index = line_index
+            in_quote = True
+            while end_index < len(source_lines) and in_quote:
+                in_quote = _ends_in_quote(source_lines[end_index], in_quote)
+                end_index += 1
+            if not in_quote:
+                line = _strip_comment(" ".join(source_lines[line_index - 1 : end_index]))
+                line = line.strip()
+                line_index = end_index
         if not line:
             continue
 
@@ -1339,7 +1372,7 @@ def _parse_line(
                 '(expected FILTER NAME = "<result> <op> <number> [AND|OR ...]")',
                 loc,
             )
-        expr = _parse_filter_expr(match.group("expr"), loc)
+        expr = _parse_filter_expr(match.group("expr"), loc, variables)
         _declare(
             match.group("name"),
             SimulatorEventValue("FILTER", expr, loc),
@@ -1676,25 +1709,75 @@ def _eval_duration_expr(
     return _eval_term(base, variables, loc) + _eval_terms(terms, variables, loc)
 
 
-def _parse_filter_expr(text: str, loc: SourceLoc) -> FilterExpr:
-    """Parse a filter expression into typed comparison terms."""
+def _parse_filter_expr(
+    text: str, loc: SourceLoc, variables: Dict[str, SimulatorEventValue]
+) -> FilterExpr:
+    """Parse a filter expression: ``NOT`` > ``AND`` > ``OR``, with parentheses.
+
+    A bare identifier refers to a declared FILTER variable.
+    """
     stripped = text.strip()
     if not stripped:
         raise SimulatorEventsParseError("Empty filter expression", loc)
 
-    parts = _FILTER_SPLIT_RE.split(stripped)
-    chunks = parts[0::2]
-    connectors = parts[1::2]
-    if len(set(connectors)) > 1:
-        raise SimulatorEventsParseError(
-            "Filter expression mixes AND and OR; a combined filter has a "
-            "single combine mode",
-            loc,
-        )
-    combine_mode = connectors[0] if connectors else "AND"
+    tokens = [t.strip() for t in _FILTER_TOKEN_RE.split(stripped)]
+    tokens = [t for t in tokens if t]
+    pos = 0
 
-    terms = tuple(_parse_filter_term(chunk, loc) for chunk in chunks)
-    return FilterExpr(terms=terms, combine_mode=combine_mode, raw=stripped)
+    def peek() -> Optional[str]:
+        return tokens[pos] if pos < len(tokens) else None
+
+    def advance() -> str:
+        nonlocal pos
+        pos += 1
+        return tokens[pos - 1]
+
+    def parse_chain(op: str, operand: Any) -> Union[FilterNode, FilterTerm]:
+        items = [operand()]
+        while peek() == op:
+            advance()
+            items.append(operand())
+        return items[0] if len(items) == 1 else FilterNode(op, tuple(items))
+
+    def parse_or() -> Union[FilterNode, FilterTerm]:
+        return parse_chain("OR", parse_and)
+
+    def parse_and() -> Union[FilterNode, FilterTerm]:
+        return parse_chain("AND", parse_not)
+
+    def parse_not() -> Union[FilterNode, FilterTerm]:
+        if peek() == "NOT":
+            advance()
+            return FilterNode("NOT", (parse_not(),))
+        return parse_primary()
+
+    def parse_primary() -> Union[FilterNode, FilterTerm]:
+        token = peek()
+        if token is None or token in ("AND", "OR", ")"):
+            raise SimulatorEventsParseError(
+                f"Incomplete filter expression {stripped!r}", loc
+            )
+        advance()
+        if token == "(":
+            inner = parse_or()
+            if peek() != ")":
+                raise SimulatorEventsParseError(
+                    f"Missing ')' in filter expression {stripped!r}", loc
+                )
+            advance()
+            return inner
+        if re.fullmatch(_IDENT, token):
+            referenced = _lookup_var(token, "FILTER", variables, loc).value
+            assert isinstance(referenced, FilterExpr)
+            return referenced.root
+        return _parse_filter_term(token, loc)
+
+    root = parse_or()
+    if pos < len(tokens):
+        raise SimulatorEventsParseError(
+            f"Unexpected {tokens[pos]!r} in filter expression {stripped!r}", loc
+        )
+    return FilterExpr(root=root, raw=stripped)
 
 
 def _parse_filter_term(chunk: str, loc: SourceLoc) -> FilterTerm:
@@ -1739,6 +1822,16 @@ def _malformed_filter_term_message(chunk: str) -> str:
         f"Malformed filter term {chunk!r} "
         "(expected NAME <op> NUMBER with >, >=, < or <=, optionally TYPE.NAME)"
     )
+
+
+def _ends_in_quote(line: str, in_quote: bool) -> bool:
+    """Return the double-quote state at the end of a line, ignoring ``#`` comments."""
+    for char in line:
+        if char == '"':
+            in_quote = not in_quote
+        elif char == "#" and not in_quote:
+            break
+    return in_quote
 
 
 def _strip_comment(line: str) -> str:
@@ -1871,7 +1964,7 @@ def _resolve_event_filter(
 ) -> EventFilter:
     """Resolve a PERFORATION FILTER attribute to a declared or inline filter."""
     if attr.quoted:
-        return EventFilter(name=None, expr=_parse_filter_expr(attr.raw, loc))
+        return EventFilter(name=None, expr=_parse_filter_expr(attr.raw, loc, variables))
     if re.fullmatch(_IDENT, attr.raw) is None:
         raise SimulatorEventsParseError(
             "FILTER must name a declared FILTER variable or be a quoted "
@@ -2391,7 +2484,7 @@ class _FilterContext:
 
     case: Any
     resolved_types: Dict[FilterTerm, str] = field(default_factory=dict)
-    combined_by_key: Dict[Tuple[Optional[str], str], Any] = field(default_factory=dict)
+    combined_by_key: Dict[Tuple[Optional[str], Any], Any] = field(default_factory=dict)
     properties_by_type: Dict[str, List[str]] = field(default_factory=dict)
 
     def available(self, result_type: str) -> List[str]:
@@ -2476,6 +2569,39 @@ def _resolve_result_type(ctx: _FilterContext, term: FilterTerm) -> Optional[str]
     return None
 
 
+def _add_filter_node(
+    ctx: _FilterContext,
+    parent: Any,
+    node: Union[FilterNode, FilterTerm],
+    exclude: bool = False,
+) -> None:
+    """Add a filter tree node below a combined filter; NOT becomes EXCLUDE mode."""
+    if isinstance(node, FilterNode) and node.op == "NOT":
+        _add_filter_node(ctx, parent, node.children[0], not exclude)
+        return
+
+    if isinstance(node, FilterNode) or exclude:
+        parent = parent.add_combined_filter(
+            combine_mode=node.op if isinstance(node, FilterNode) else "AND",
+            filter_mode="EXCLUDE" if exclude else "INCLUDE",
+        )
+    if isinstance(node, FilterNode):
+        for child in node.children:
+            _add_filter_node(ctx, parent, child)
+        return
+
+    property_filter = parent.add_property_filter(
+        result_variable=node.result_name, result_type=ctx.resolved_types[node]
+    )
+    # Only one bound is set; the other keeps the default result min/max,
+    # so '>' and '>=' are equivalent (bounds are inclusive).
+    if node.op in (">", ">="):
+        property_filter.lower_bound = node.value
+    else:
+        property_filter.upper_bound = node.value
+    property_filter.update()
+
+
 def _materialize_filter(ctx: _FilterContext, event_filter: EventFilter) -> Any:
     """Create (or reuse) the case-level combined filter for an event filter.
 
@@ -2485,27 +2611,18 @@ def _materialize_filter(ctx: _FilterContext, event_filter: EventFilter) -> Any:
     """
     # Keyed on name and expression: files merged from different sources may
     # declare the same filter name with different expressions.
-    key = (event_filter.name, event_filter.expr.raw)
+    key = (event_filter.name, event_filter.expr.root)
     existing = ctx.combined_by_key.get(key)
     if existing is not None:
         return existing
 
-    expr = event_filter.expr
+    root = event_filter.expr.root
+    is_group = isinstance(root, FilterNode) and root.op in ("AND", "OR")
     combined = ctx.case.data_filter_collection().add_combined_filter(
-        name=event_filter.name or "", combine_mode=expr.combine_mode
+        name=event_filter.name or "", combine_mode=root.op if is_group else "AND"
     )
-    for term in expr.terms:
-        property_filter = combined.add_property_filter(
-            result_variable=term.result_name,
-            result_type=ctx.resolved_types[term],
-        )
-        # Only one bound is set; the other keeps the default result min/max,
-        # so '>' and '>=' are equivalent (bounds are inclusive).
-        if term.op in (">", ">="):
-            property_filter.lower_bound = term.value
-        else:
-            property_filter.upper_bound = term.value
-        property_filter.update()
+    for child in root.children if is_group else (root,):
+        _add_filter_node(ctx, combined, child)
 
     ctx.combined_by_key[key] = combined
     return combined

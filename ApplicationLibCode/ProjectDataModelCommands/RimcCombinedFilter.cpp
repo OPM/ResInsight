@@ -90,6 +90,49 @@ QString RimcCombinedFilter_addPropertyFilter::classKeywordReturnedType() const
     return RimEclipsePropertyFilter::classKeywordStatic();
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCombinedFilter, RimcCombinedFilter_addCombinedFilter, "AddCombinedFilter" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcCombinedFilter_addCombinedFilter::RimcCombinedFilter_addCombinedFilter( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Combined Filter", "", "", "Add a nested combined filter as a child of this combined filter" );
+
+    CAF_PDM_InitScriptableField( &m_combineMode, "CombineMode", QString( "AND" ), "Combine Mode (AND/OR)" );
+    CAF_PDM_InitScriptableField( &m_filterMode, "FilterMode", QString( "INCLUDE" ), "Filter Mode (INCLUDE/EXCLUDE)" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcCombinedFilter_addCombinedFilter::execute()
+{
+    auto* combined = self<RimCombinedFilter>();
+    if ( !combined ) return std::unexpected( QString( "Self is not a RimCombinedFilter" ) );
+
+    auto* nested = combined->addNewFilter<RimCombinedFilter>(
+        [&]( RimCombinedFilter* f )
+        {
+            f->setCombineMode( m_combineMode().trimmed().toUpper() == "OR" ? RimCellFilterCollection::OR : RimCellFilterCollection::AND );
+            f->setFilterMode( m_filterMode().trimmed().toUpper() == "EXCLUDE" ? RimCellFilter::EXCLUDE : RimCellFilter::INCLUDE );
+        } );
+
+    nested->updateConnectedEditors();
+    nested->triggerFilterChanged();
+
+    return nested;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcCombinedFilter_addCombinedFilter::classKeywordReturnedType() const
+{
+    return RimCombinedFilter::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCombinedFilter, RimcCombinedFilter_addRangeFilter, "AddRangeFilter" );
 
 //--------------------------------------------------------------------------------------------------
